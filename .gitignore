@@ -1,0 +1,22 @@
+# Build artifacts
+target/
+build/
+out/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.metals/
+.bsp/
+
+# Gradle
+.gradle/
+.kotlin/
+
+# OS files
+.DS_Store
+
+# DuckDB test files
+/testdb
+/testdb.wal
