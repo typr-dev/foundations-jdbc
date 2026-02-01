@@ -3,11 +3,11 @@
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Foundations JDBC',
-  tagline: 'A JDBC wrapper library with perfect type modeling for all databases',
+  tagline: 'Every type. Every database. Finally.',
   favicon: 'img/favicon.ico',
 
-  url: 'https://typr-dev.github.io',
-  baseUrl: '/foundations-jdbc/',
+  url: 'https://foundations.typr.dev',
+  baseUrl: '/',
 
   organizationName: 'typr-dev',
   projectName: 'foundations-jdbc',
@@ -26,7 +26,6 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          routeBasePath: '/',
           sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/typr-dev/foundations-jdbc/tree/main/site/',
         },
@@ -45,6 +44,12 @@ const config = {
         title: 'Foundations JDBC',
         items: [
           {
+            type: 'docSidebar',
+            sidebarId: 'jdbcSidebar',
+            position: 'left',
+            label: 'Docs',
+          },
+          {
             href: 'https://github.com/typr-dev/foundations-jdbc',
             label: 'GitHub',
             position: 'right',
@@ -55,12 +60,24 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'Docs',
+            title: 'Documentation',
             items: [
-              {
-                label: 'Introduction',
-                to: '/',
-              },
+              { label: 'Getting Started', to: '/docs/' },
+              { label: 'Row Types & Parsers', to: '/docs/row-types' },
+              { label: 'Result Sets', to: '/docs/result-sets' },
+              { label: 'Fragments', to: '/docs/fragments' },
+              { label: 'Transactors', to: '/docs/transactors' },
+            ],
+          },
+          {
+            title: 'Database Types',
+            items: [
+              { label: 'PostgreSQL', to: '/docs/postgresql' },
+              { label: 'MariaDB/MySQL', to: '/docs/mariadb' },
+              { label: 'DuckDB', to: '/docs/duckdb' },
+              { label: 'Oracle', to: '/docs/oracle' },
+              { label: 'SQL Server', to: '/docs/sqlserver' },
+              { label: 'DB2', to: '/docs/db2' },
             ],
           },
           {
@@ -77,7 +94,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Øyvind Raddum Berg. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Øyvind Raddum Berg. MIT License.`,
       },
       prism: {
         theme: require('prism-react-renderer').themes.github,
