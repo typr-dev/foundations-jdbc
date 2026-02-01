@@ -146,17 +146,9 @@ public class Db2TypeTest {
   // Note: DB2 does not support arrays as a column type like PostgreSQL
   // Array operations in DB2 are handled via ARRAY data type in SQL PL only
 
-  // Connection helper for DB2
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    try (var conn =
-        java.sql.DriverManager.getConnection(
-            "jdbc:db2://localhost:50000/typr:user=db2inst1;password=password;")) {
-      conn.setAutoCommit(false);
-      try {
-        return f.apply(conn);
-      } finally {
-        conn.rollback();
-      }
+    try {
+      return Containers.db2Transactor().execute(f);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -220,7 +212,8 @@ public class Db2TypeTest {
       System.out.println("All tests passed!");
     } else {
       failures.forEach(System.out::println);
-      throw new RuntimeException(failures.size() + " tests failed");
+      throw new RuntimeException(
+          failures.size() + " tests failed:\n" + String.join("\n", failures));
     }
     System.out.println("=====================================");
   }
