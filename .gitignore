@@ -20,3 +20,5 @@ out/
 # DuckDB test files
 /testdb
 /testdb.wal
+
+showcase-generated

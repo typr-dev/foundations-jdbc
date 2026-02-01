@@ -561,6 +561,10 @@ function Features() {
       title: 'Java, Kotlin, Scala',
       description: 'Core library in Java. Kotlin gets nullable types natively. Scala gets Option types and string interpolation. Same concepts, idiomatic in each language.',
     },
+    {
+      title: 'Query Analysis',
+      description: 'Verify your SQL at test time. Parameter types, column types, nullability — all checked against the real database schema. Catch bugs before production.',
+    },
   ];
 
   return (
@@ -784,6 +788,148 @@ function TransactorShowcase() {
   );
 }
 
+const queryAnalysisCode = {
+  java: `// Your query looks fine at compile time...
+var query = Fragment.interpolate("SELECT id, name, created_at, email FROM users WHERE active = ")
+    .param(PgTypes.boolean_, true)
+    .done()
+    .query(RowParsers.of(
+        PgTypes.int4,       // id: correct
+        PgTypes.text,       // name: correct
+        PgTypes.int4,       // created_at: WRONG! Should be timestamptz
+        PgTypes.text,       // email: nullable but not Optional!
+        User::new, u -> new Object[]{u.id(), u.name(), u.createdAt(), u.email()}
+    ).all());
+
+// But Query Analysis catches the bugs in your tests
+QueryAnalysis analysis = QueryAnalyzer.analyze(query, connection);
+if (!analysis.succeeded()) {
+    fail(analysis.report());  // Fails with the detailed report below
+}`,
+  kotlin: `// Your query looks fine at compile time...
+val query = Fragment.interpolate("SELECT id, name, created_at, email FROM users WHERE active = ")
+    .param(PgTypes.boolean_, true)
+    .done()
+    .query(RowParsers.of(
+        PgTypes.int4,       // id: correct
+        PgTypes.text,       // name: correct
+        PgTypes.int4,       // created_at: WRONG! Should be timestamptz
+        PgTypes.text,       // email: nullable but not Optional!
+        ::User
+    ) { u -> arrayOf(u.id, u.name, u.createdAt, u.email) }.all())
+
+// But Query Analysis catches the bugs in your tests
+val analysis = QueryAnalyzer.analyze(query, connection)
+if (!analysis.succeeded()) {
+    fail(analysis.report())  // Fails with the detailed report below
+}`,
+};
+
+const queryAnalysisReport = `╔══════════════════════════════════════════════════════════════════════════════╗
+║  Query Analysis Report                                                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+SQL:
+  SELECT id, name, created_at, email FROM users WHERE active = ?
+
+┌─ Parameters ─────────────────────────────────────────────────────────────────┐
+│  ✓ param[1]: boolean              → bool                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Columns ────────────────────────────────────────────────────────────────────┐
+│  ✓ col[1]: int4                   → id : int4                                │
+│  ✓ col[2]: text                   → name : text                              │
+│  ✗ col[3]: int4                   → created_at : timestamptz                 │
+│  ✗ col[4]: text                   → email : text (nullable)                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+✗ 2 error(s) found:
+
+  1. Column 3 'created_at': type mismatch
+     │ Declared: int4 (JDBC: INTEGER)
+     │ Returned: timestamptz (JDBC: TIMESTAMP_WITH_TIMEZONE)
+     └ The declared type cannot read from TIMESTAMP_WITH_TIMEZONE
+
+  2. Column 4 'email': nullability mismatch
+     │ The database says this column is nullable
+     │ But the type text is not Optional
+     └ Use .opt() to make the type nullable`;
+
+function QueryAnalysisSection() {
+  return (
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <div style={{textAlign: 'center', marginBottom: '1rem'}}>
+          <span style={{
+            background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+            color: 'white',
+            padding: '0.35rem 1rem',
+            borderRadius: '9999px',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            letterSpacing: '0.02em'
+          }}>NEW</span>
+        </div>
+        <h2 className={styles.sectionTitle}>Find SQL bugs at test time, not 2 AM</h2>
+        <p className={styles.sectionSubtitle}>
+          <strong>Query Analysis</strong> verifies your SQL against the actual database schema.
+          Wrong column type? Missing <code>.opt()</code> on a nullable column? Parameter count mismatch?
+          <strong> Catch it in tests, not in production.</strong>
+        </p>
+        <div style={{marginBottom: '2rem'}}>
+          <Tabs groupId="language">
+            <TabItem value="java" label="Java">
+              <CodeBlock language="java">{queryAnalysisCode.java}</CodeBlock>
+            </TabItem>
+            <TabItem value="kotlin" label="Kotlin">
+              <CodeBlock language="kotlin">{queryAnalysisCode.kotlin}</CodeBlock>
+            </TabItem>
+          </Tabs>
+        </div>
+        <div style={{
+          maxWidth: '850px',
+          margin: '0 auto',
+          fontFamily: 'var(--ifm-font-family-monospace)',
+          fontSize: '0.75rem',
+          lineHeight: '1.5',
+          whiteSpace: 'pre',
+          background: '#1e293b',
+          borderRadius: '12px',
+          padding: '1.5rem',
+          overflow: 'auto',
+          border: '1px solid #475569',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          color: '#f8fafc'
+        }}>
+          {queryAnalysisReport}
+        </div>
+        <div style={{marginTop: '2.5rem', textAlign: 'center'}}>
+          <div style={{
+            display: 'inline-block',
+            background: '#0f172a',
+            border: '1px solid #22c55e',
+            borderRadius: '12px',
+            padding: '1.25rem 2rem',
+            maxWidth: '700px'
+          }}>
+            <p style={{color: '#f8fafc', fontSize: '1rem', margin: 0, lineHeight: 1.6}}>
+              <strong style={{color: '#4ade80'}}>No other Java SQL library does this.</strong>{' '}
+              jOOQ validates DSL at compile time but can't check hand-written SQL.
+              Hibernate validates annotations at startup but not query correctness.
+              <strong style={{color: '#4ade80'}}> foundations-jdbc validates your actual queries against your actual database.</strong>
+            </p>
+          </div>
+        </div>
+        <div style={{textAlign: 'center', marginTop: '1.5rem'}}>
+          <Link className={styles.btnSecondary} to="/docs/query-analysis">
+            Learn more about Query Analysis →
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function TypeShowcase() {
   return (
     <section className={styles.section}>
@@ -811,56 +957,37 @@ function TypeShowcase() {
 }
 
 function ComparisonSection() {
+  const cellStyle = (color) => {
+    if (color === 'green') return {background: 'rgba(34, 197, 94, 0.25)'};
+    if (color === 'yellow') return {background: 'rgba(234, 179, 8, 0.25)'};
+    if (color === 'red') return {background: 'rgba(239, 68, 68, 0.25)'};
+    return {};
+  };
+
   return (
     <section className={styles.sectionDark}>
       <div className={styles.container}>
         <h2 className={styles.sectionTitle}>How it compares</h2>
-        <div style={{maxWidth: '800px', margin: '0 auto'}}>
+        <div style={{maxWidth: '900px', margin: '0 auto', overflowX: 'auto'}}>
           <table className={styles.comparisonTable}>
             <thead>
               <tr>
                 <th></th>
                 <th>Foundations</th>
-                <th>jOOQ</th>
                 <th>Hibernate</th>
                 <th>JDBI</th>
+                <th>JdbcTemplate</th>
+                <th>Exposed</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>Approach</td>
                 <td>SQL + typed codecs</td>
-                <td>DSL that generates SQL</td>
                 <td>ORM with entity mapping</td>
                 <td>SQL + annotations</td>
-              </tr>
-              <tr>
-                <td>Type model</td>
-                <td>Every database type</td>
-                <td>Wide coverage</td>
-                <td>Java types only</td>
-                <td>Basic + custom</td>
-              </tr>
-              <tr>
-                <td>Composites, arrays, ranges</td>
-                <td>First-class</td>
-                <td>Partial</td>
-                <td>Via UserType</td>
-                <td>Manual mapping</td>
-              </tr>
-              <tr>
-                <td>Reflection</td>
-                <td>None</td>
-                <td>None</td>
-                <td>Heavy</td>
-                <td>Moderate</td>
-              </tr>
-              <tr>
-                <td>Connection pooling</td>
-                <td>Optional module</td>
-                <td>Built-in</td>
-                <td>Built-in</td>
-                <td>External</td>
+                <td>SQL + RowMapper</td>
+                <td>Kotlin DSL</td>
               </tr>
               <tr>
                 <td>Languages</td>
@@ -868,16 +995,69 @@ function ComparisonSection() {
                 <td>Java, Kotlin</td>
                 <td>Java, Kotlin</td>
                 <td>Java, Kotlin</td>
+                <td>Kotlin only</td>
+              </tr>
+              <tr>
+                <td>Database portability</td>
+                <td style={cellStyle('yellow')}>Database-specific*</td>
+                <td style={cellStyle('green')}>HQL abstracts over DBs</td>
+                <td style={cellStyle('green')}>Raw SQL (portable enough)</td>
+                <td style={cellStyle('green')}>Raw SQL (portable enough)</td>
+                <td style={cellStyle('green')}>DSL is mostly portable</td>
+              </tr>
+              <tr>
+                <td>Type model</td>
+                <td style={cellStyle('green')}>Every database type</td>
+                <td style={cellStyle('yellow')}>Java types only</td>
+                <td style={cellStyle('yellow')}>Basic + custom</td>
+                <td style={cellStyle('red')}>Basic Java types</td>
+                <td style={cellStyle('yellow')}>Kotlin types + custom</td>
+              </tr>
+              <tr>
+                <td>Composites, arrays, ranges</td>
+                <td style={cellStyle('green')}>First-class</td>
+                <td style={cellStyle('yellow')}>Via UserType</td>
+                <td style={cellStyle('yellow')}>Manual mapping</td>
+                <td style={cellStyle('red')}>Raw JDBC only</td>
+                <td style={cellStyle('yellow')}>Custom column types</td>
+              </tr>
+              <tr>
+                <td>Reflection</td>
+                <td style={cellStyle('green')}>None</td>
+                <td style={cellStyle('red')}>Heavy</td>
+                <td style={cellStyle('yellow')}>Moderate</td>
+                <td style={cellStyle('green')}>None (manual mapper)</td>
+                <td style={cellStyle('yellow')}>DAO layer</td>
+              </tr>
+              <tr>
+                <td>Query type checking</td>
+                <td style={cellStyle('green')}>At test time</td>
+                <td style={cellStyle('red')}>No</td>
+                <td style={cellStyle('red')}>No</td>
+                <td style={cellStyle('red')}>No</td>
+                <td style={cellStyle('yellow')}>DSL only (compile)</td>
+              </tr>
+              <tr>
+                <td>Type-safe nullable columns</td>
+                <td style={cellStyle('green')}>Optional&lt;T&gt; / T? / Option[T]</td>
+                <td style={cellStyle('yellow')}>@Column(nullable)</td>
+                <td style={cellStyle('red')}>Manual null checks</td>
+                <td style={cellStyle('red')}>Manual null checks</td>
+                <td style={cellStyle('green')}>T? in Kotlin</td>
               </tr>
               <tr>
                 <td>Code generation</td>
                 <td>Optional (Typr)</td>
-                <td>Required for full DSL</td>
-                <td>Not needed</td>
-                <td>Not needed</td>
+                <td style={cellStyle('red')}>Not supported</td>
+                <td style={cellStyle('red')}>Not supported</td>
+                <td style={cellStyle('red')}>Not supported</td>
+                <td style={cellStyle('red')}>Not supported</td>
               </tr>
             </tbody>
           </table>
+          <p style={{fontSize: '0.85rem', color: '#94a3b8', marginTop: '1rem', maxWidth: '700px', margin: '1rem auto 0'}}>
+            * If you need to switch databases, regenerating code from your new schema may be more reliable than hoping the leaky abstraction holds.
+          </p>
         </div>
       </div>
     </section>
@@ -920,6 +1100,7 @@ export default function Home() {
         <TypeBuildingBlocks />
         <QueryShowcase />
         <TransactorShowcase />
+        <QueryAnalysisSection />
         <TypeShowcase />
         <ComparisonSection />
         <CTA />
