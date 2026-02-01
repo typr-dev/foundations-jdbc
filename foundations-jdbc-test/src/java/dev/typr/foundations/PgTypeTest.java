@@ -474,17 +474,9 @@ public class PgTypeTest {
                     new RangeBound.Open<>(Instant.parse("2024-06-30T23:59:59Z")))
               }));
 
-  // in java
   static <T> void withConnection(SqlFunction<Connection, T> f) {
-    try (var conn =
-        java.sql.DriverManager.getConnection(
-            "jdbc:postgresql://localhost:6432/Adventureworks?user=postgres&password=password")) {
-      conn.setAutoCommit(false);
-      try {
-        f.apply(conn);
-      } finally {
-        conn.rollback();
-      }
+    try {
+      Containers.postgresTransactor().execute(f);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -590,7 +582,8 @@ public class PgTypeTest {
       System.out.println("All tests passed!");
     } else {
       allFailures.forEach(System.out::println);
-      throw new RuntimeException(allFailures.size() + " tests failed");
+      throw new RuntimeException(
+          allFailures.size() + " tests failed:\n" + String.join("\n", allFailures));
     }
     System.out.println("=====================================");
   }

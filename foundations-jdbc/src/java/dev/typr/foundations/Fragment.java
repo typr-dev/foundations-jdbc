@@ -25,6 +25,27 @@ public sealed interface Fragment {
 
   void set(PreparedStatement stmt, AtomicInteger idx) throws SQLException;
 
+  /**
+   * Extract all parameter types from this fragment.
+   * Traverses the fragment tree and collects DbType instances from all Value nodes.
+   * The types are returned in the order they appear in the SQL (left to right).
+   *
+   * <p>Used by query analysis to compare declared types against JDBC metadata.
+   *
+   * @return list of DbType instances for all parameters
+   */
+  default List<DbType<?>> parameterTypes() {
+    List<DbType<?>> types = new ArrayList<>();
+    collectParameterTypes(types);
+    return types;
+  }
+
+  /**
+   * Collect parameter types into the provided list.
+   * Called by parameterTypes() to traverse the fragment tree.
+   */
+  void collectParameterTypes(List<DbType<?>> types);
+
   default Fragment append(Fragment other) {
     return new Append(this, other);
   }
@@ -68,6 +89,11 @@ public sealed interface Fragment {
 
     @Override
     public void set(PreparedStatement stmt, AtomicInteger idx) throws SQLException {}
+
+    @Override
+    public void collectParameterTypes(List<DbType<?>> types) {
+      // Literals have no parameters
+    }
   }
 
   static Literal lit(String value) {
@@ -98,6 +124,12 @@ public sealed interface Fragment {
       a.set(stmt, idx);
       b.set(stmt, idx);
     }
+
+    @Override
+    public void collectParameterTypes(List<DbType<?>> types) {
+      a.collectParameterTypes(types);
+      b.collectParameterTypes(types);
+    }
   }
 
   record Value<A>(A value, DbType<A> type) implements Fragment {
@@ -119,6 +151,11 @@ public sealed interface Fragment {
     @Override
     public void set(PreparedStatement stmt, AtomicInteger idx) throws SQLException {
       type.write().set(stmt, idx.getAndIncrement(), value);
+    }
+
+    @Override
+    public void collectParameterTypes(List<DbType<?>> types) {
+      types.add(type);
     }
   }
 
@@ -143,6 +180,13 @@ public sealed interface Fragment {
     public void set(PreparedStatement stmt, AtomicInteger idx) throws SQLException {
       for (Fragment frag : frags) {
         frag.set(stmt, idx);
+      }
+    }
+
+    @Override
+    public void collectParameterTypes(List<DbType<?>> types) {
+      for (Fragment frag : frags) {
+        frag.collectParameterTypes(types);
       }
     }
   }

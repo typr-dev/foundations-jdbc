@@ -9,6 +9,13 @@ val baseDir = Path.of(sys.props.getOrElse("user.dir", "."))
 val outputDir = baseDir.resolve("foundations-jdbc/generated-and-checked-in/dev/typr/foundations")
 
 def generateRowParsers(): String = {
+  // Unary method: RowParsers.of(DbType<T>) -> RowParser<T>
+  val unaryMethod =
+    s"""|    @SuppressWarnings("unchecked")
+        |    static <T> RowParser<T> of(DbType<T> t0) {
+        |        return new RowParser<>(unmodifiableList(asList(t0)), a -> (T) a[0], t -> new Object[]{t});
+        |    }""".stripMargin
+
   val constructorMethods = 1
     .until(N)
     .map { n =>
@@ -38,6 +45,8 @@ def generateRowParsers(): String = {
       |import static java.util.Collections.unmodifiableList;
       |
       |public interface RowParsers {
+      |$unaryMethod
+      |
       |${constructorMethods.mkString("\n\n")}
       |${functions.mkString("\n\n")}
       |}""".stripMargin

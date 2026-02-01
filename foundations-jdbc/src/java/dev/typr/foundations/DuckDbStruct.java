@@ -91,7 +91,7 @@ public record DuckDbStruct<A>(
   }
 
   /** Create an optional version of this STRUCT type. */
-  public DuckDbType<Optional<A>> asOptType() {
+  public DuckDbOptType<A> asOptType() {
     return asType().opt();
   }
 

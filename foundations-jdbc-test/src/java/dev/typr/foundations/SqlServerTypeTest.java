@@ -229,15 +229,8 @@ public class SqlServerTypeTest {
               .noIdentity());
 
   static void withConnection(SqlFunction<Connection, ?> f) {
-    try (var conn =
-        DriverManager.getConnection(
-            "jdbc:sqlserver://localhost:1433;databaseName=typr;user=sa;password=YourStrong@Passw0rd;encrypt=false;trustServerCertificate=true")) {
-      conn.setAutoCommit(false);
-      try {
-        f.apply(conn);
-      } finally {
-        conn.rollback();
-      }
+    try {
+      Containers.sqlserverTransactor().execute(f);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -298,7 +291,8 @@ public class SqlServerTypeTest {
       System.out.println("All tests passed!");
     } else {
       failures.forEach(System.out::println);
-      throw new RuntimeException(failures.size() + " tests failed");
+      throw new RuntimeException(
+          failures.size() + " tests failed:\n" + String.join("\n", failures));
     }
     System.out.println("=====================================");
   }

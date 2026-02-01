@@ -1,12 +1,9 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.connect.oracle.OracleConfig;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.OracleIntervalDS;
 import dev.typr.foundations.data.OracleIntervalYM;
-import dev.typr.foundations.hikari.HikariDataSourceFactory;
-import dev.typr.foundations.hikari.PoolConfig;
 import dev.typr.foundations.hikari.PooledDataSource;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -28,17 +25,13 @@ public class OracleTypeTest {
 
   private static final AtomicInteger tableCounter = new AtomicInteger(0);
 
-  // Connection pool with limited size to avoid exhausting Oracle Free's connection limit
-  private static final PooledDataSource POOL;
+  // Connection pool from Testcontainers
+  private static PooledDataSource pool() {
+    return Containers.oraclePool();
+  }
 
   static {
     java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("GMT+03:00"));
-    var config =
-        OracleConfig.builder("localhost", 1521, "FREEPDB1", "typr", "typr_password")
-            .serviceName("FREEPDB1")
-            .build();
-    var poolConfig = PoolConfig.builder().maximumPoolSize(5).build();
-    POOL = HikariDataSourceFactory.create(config, poolConfig);
   }
 
   private static String uniqueTableName(String prefix) {
@@ -1348,7 +1341,7 @@ public class OracleTypeTest {
   // Connection helper for Oracle - uses HikariCP connection pool
   // Uses Oracle Free 23c on port 1521, connecting to FREEPDB1 pluggable database
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    try (var pooledConn = POOL.unwrap().getConnection()) {
+    try (var pooledConn = pool().unwrap().getConnection()) {
       // Unwrap to get the underlying OracleConnection for STRUCT/ARRAY creation
       var conn = pooledConn.unwrap(oracle.jdbc.OracleConnection.class);
       conn.setAutoCommit(false);
@@ -1466,7 +1459,8 @@ public class OracleTypeTest {
       System.out.println("All tests passed!");
     } else {
       failures.forEach(System.out::println);
-      throw new RuntimeException(failures.size() + " tests failed");
+      throw new RuntimeException(
+          failures.size() + " tests failed:\n" + String.join("\n", failures));
     }
     System.out.println("=====================================");
   }
@@ -1485,6 +1479,11 @@ public class OracleTypeTest {
     // Create table with auto-generated ID + test column
     String tableName = uniqueTableName("TEST_GENKEYS");
     try (var stmt = conn.createStatement()) {
+      // Drop if exists from previous failed run
+      try {
+        stmt.execute("DROP TABLE " + tableName + " PURGE");
+      } catch (SQLException ignored) {
+      }
       stmt.execute(
           "CREATE TABLE "
               + tableName
