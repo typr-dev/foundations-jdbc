@@ -9,7 +9,6 @@ val baseDir = Path.of(sys.props.getOrElse("user.dir", "."))
 val outputDir = baseDir.resolve("foundations-jdbc/generated-and-checked-in/dev/typr/foundations")
 
 def generateRowParsers(): String = {
-  // Unary method: RowParsers.of(DbType<T>) -> RowParser<T>
   val unaryMethod =
     s"""|    @SuppressWarnings("unchecked")
         |    static <T> RowParser<T> of(DbType<T> t0) {
