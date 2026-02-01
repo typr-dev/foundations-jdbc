@@ -1479,6 +1479,11 @@ public class OracleTypeTest {
     // Create table with auto-generated ID + test column
     String tableName = uniqueTableName("TEST_GENKEYS");
     try (var stmt = conn.createStatement()) {
+      // Drop if exists from previous failed run
+      try {
+        stmt.execute("DROP TABLE " + tableName + " PURGE");
+      } catch (SQLException ignored) {
+      }
       stmt.execute(
           "CREATE TABLE "
               + tableName

@@ -63,8 +63,9 @@ public record PgType<A>(
     return new PgType<>(typename, read, write, pgText, pgCompositeText, json);
   }
 
-  public PgType<Optional<A>> opt() {
-    return new PgType<>(
+  @Override
+  public PgOptType<A> opt() {
+    return new PgOptType<>(
         typename.opt(),
         read.opt(),
         write.opt(typename),
