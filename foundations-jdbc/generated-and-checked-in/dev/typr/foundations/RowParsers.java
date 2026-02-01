@@ -5,6 +5,11 @@ import static java.util.Collections.unmodifiableList;
 
 public interface RowParsers {
     @SuppressWarnings("unchecked")
+    static <T> RowParser<T> of(DbType<T> t0) {
+        return new RowParser<>(unmodifiableList(asList(t0)), a -> (T) a[0], t -> new Object[]{t});
+    }
+
+    @SuppressWarnings("unchecked")
     static <T0, Row> RowParser<Row> of(DbType<T0> t0, Function1<T0, Row> decode, java.util.function.Function<Row, Object[]> encode) {
         return new RowParser<>(unmodifiableList(asList(t0)), a -> decode.apply((T0) a[0]), encode);
     }

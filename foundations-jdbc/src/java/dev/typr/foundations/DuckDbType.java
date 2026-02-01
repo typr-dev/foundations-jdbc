@@ -97,8 +97,9 @@ public record DuckDbType<A>(
     return new DuckDbType<>(typename, read, write, stringifier, json);
   }
 
-  public DuckDbType<Optional<A>> opt() {
-    return new DuckDbType<>(
+  @Override
+  public DuckDbOptType<A> opt() {
+    return new DuckDbOptType<>(
         typename.opt(), read.opt(), write.opt(typename), stringifier.opt(), duckDbJson.opt());
   }
 

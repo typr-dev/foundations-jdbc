@@ -115,7 +115,7 @@ public record PgStruct<A>(
   }
 
   /** Create an optional version of this composite type. */
-  public PgType<Optional<A>> asOptType() {
+  public PgOptType<A> asOptType() {
     return asType().opt();
   }
 
