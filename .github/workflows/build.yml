@@ -1,0 +1,186 @@
+name: Build
+
+on:
+  push:
+    branches: [ 'main' ]
+  pull_request:
+    branches: [ 'main' ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Compile
+        run: ./gradlew compileJava compileScala compileTestJava
+
+  test-duckdb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: compile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run DuckDB tests
+        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.DuckDbTypeTest"
+
+  test-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: compile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run PostgreSQL tests
+        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.PgTypeTest" --tests "dev.typr.foundations.PgStructTest" --tests "dev.typr.foundations.PgRecordParserTest"
+
+  test-mariadb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: compile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run MariaDB tests
+        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.MariaTypeTest"
+
+  test-sqlserver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: compile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run SQL Server tests
+        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.SqlServerTypeTest" --info
+
+      - name: Upload test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sqlserver-test-report
+          path: foundations-jdbc-test/build/reports/tests/test/
+
+  test-oracle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: compile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run Oracle tests
+        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.OracleTypeTest" --info
+
+      - name: Upload test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oracle-test-report
+          path: foundations-jdbc-test/build/reports/tests/test/
+
+  test-db2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: compile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run DB2 tests
+        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.Db2TypeTest" --info
+
+      - name: Upload test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: db2-test-report
+          path: foundations-jdbc-test/build/reports/tests/test/
+
+  build-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install dependencies
+        working-directory: site
+        run: npm ci
+
+      - name: Build site
+        working-directory: site
+        run: npm run build

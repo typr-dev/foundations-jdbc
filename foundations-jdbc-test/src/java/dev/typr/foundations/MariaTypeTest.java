@@ -299,17 +299,9 @@ public class MariaTypeTest {
               MariaTypes.inet6, Inet6.parse("fe80::1")) // Edge case: link-local
           );
 
-  // Connection helper for MariaDB
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    try (var conn =
-        java.sql.DriverManager.getConnection(
-            "jdbc:mariadb://localhost:3307/typr?user=typr&password=password")) {
-      conn.setAutoCommit(false);
-      try {
-        return f.apply(conn);
-      } finally {
-        conn.rollback();
-      }
+    try {
+      return Containers.mariadbTransactor().execute(f);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

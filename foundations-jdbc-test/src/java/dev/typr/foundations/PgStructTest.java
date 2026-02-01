@@ -2,6 +2,7 @@ package dev.typr.foundations;
 
 import java.sql.*;
 import java.util.List;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -26,6 +27,88 @@ public class PgStructTest {
                   new Address((String) arr[0], (String) arr[1], (String) arr[2], (String) arr[3]));
 
   static final PgType<Address> addressType = addressStruct.asType();
+
+  @BeforeClass
+  public static void setupSchema() {
+    var pg = Containers.postgres();
+    try (Connection conn = DriverManager.getConnection(pg.getJdbcUrl(), pg.getUsername(), pg.getPassword())) {
+      conn.setAutoCommit(true);
+      try (Statement stmt = conn.createStatement()) {
+        stmt.execute("DROP TABLE IF EXISTS composite_test CASCADE");
+        stmt.execute("DROP TYPE IF EXISTS contact_info CASCADE");
+        stmt.execute("DROP TYPE IF EXISTS person_name CASCADE");
+        stmt.execute("DROP TYPE IF EXISTS point_2d CASCADE");
+        stmt.execute("DROP TYPE IF EXISTS address CASCADE");
+
+        stmt.execute(
+            """
+            CREATE TYPE address AS (
+                street TEXT,
+                city TEXT,
+                zip TEXT,
+                country TEXT
+            )
+            """);
+
+        stmt.execute(
+            """
+            CREATE TYPE person_name AS (
+                first_name TEXT,
+                middle_name TEXT,
+                last_name TEXT,
+                suffix TEXT
+            )
+            """);
+
+        stmt.execute(
+            """
+            CREATE TYPE contact_info AS (
+                email TEXT,
+                phone TEXT,
+                address address
+            )
+            """);
+
+        stmt.execute(
+            """
+            CREATE TYPE point_2d AS (
+                x DOUBLE PRECISION,
+                y DOUBLE PRECISION
+            )
+            """);
+
+        stmt.execute(
+            """
+            CREATE TABLE composite_test (
+                id SERIAL PRIMARY KEY,
+                simple_address address,
+                full_contact contact_info,
+                person person_name,
+                location point_2d
+            )
+            """);
+
+        stmt.execute(
+            """
+            INSERT INTO composite_test (simple_address, full_contact, person, location)
+            VALUES (
+                ROW('123 Main St', 'New York', '10001', 'USA')::address,
+                ROW('test@example.com', '+1-555-0123', ROW('456 Oak Ave', 'Los Angeles', '90001', 'USA')::address)::contact_info,
+                ROW('John', 'Q', 'Public', 'Jr.')::person_name,
+                ROW(40.7128, -74.0060)::point_2d
+            )
+            """);
+
+        stmt.execute(
+            """
+            INSERT INTO composite_test (simple_address, full_contact, person, location)
+            VALUES (NULL, NULL, NULL, NULL)
+            """);
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException("Failed to setup test schema", e);
+    }
+  }
 
   // person_name composite type
   record PersonName(String firstName, String middleName, String lastName, String suffix) {}
@@ -64,16 +147,9 @@ public class PgStructTest {
 
   static final PgType<Point2D> point2dType = point2dStruct.asType();
 
-  // Connection helper for PostgreSQL
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    String url = "jdbc:postgresql://localhost:6432/Adventureworks";
-    try (Connection conn = DriverManager.getConnection(url, "postgres", "password")) {
-      conn.setAutoCommit(false);
-      try {
-        return f.apply(conn);
-      } finally {
-        conn.rollback();
-      }
+    try {
+      return Containers.postgresTransactor().execute(f);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
