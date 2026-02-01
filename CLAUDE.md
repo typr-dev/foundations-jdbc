@@ -29,7 +29,7 @@ This project uses **Gradle** as the build tool.
 ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.PgRecordParserTest"
 
 # Regenerate RowParsers.java and Tuple.java
-scala-cli scripts/sourcegen.scala
+scala-cli scripts/sourcegen.sc
 ```
 
 ## Module Structure
@@ -51,16 +51,16 @@ foundations-jdbc-test/          # Integration tests
 └── src/java/
 
 scripts/
-└── sourcegen.scala            # scala-cli script for code generation
+└── sourcegen.sc            # scala-cli script for code generation
 ```
 
 ## Source Generation
 
-`scripts/sourcegen.scala` is a standalone scala-cli script that generates:
+`scripts/sourcegen.sc` is a standalone scala-cli script that generates:
 - `RowParsers.java` - Type-safe row parser factory methods (arities 1-99)
 - `Tuple.java` - Sealed tuple interfaces with records (arities 1-100)
 
-Run with: `scala-cli scripts/sourcegen.scala`
+Run with: `scala-cli scripts/sourcegen.sc`
 
 Output goes to `foundations-jdbc/generated-and-checked-in/`.
 

@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    `maven-publish`
 }
 
 allprojects {
@@ -8,5 +9,18 @@ allprojects {
 
     repositories {
         mavenCentral()
+    }
+}
+
+subprojects {
+    pluginManager.withPlugin("java-library") {
+        apply(plugin = "maven-publish")
+        configure<PublishingExtension> {
+            publications {
+                create<MavenPublication>("maven") {
+                    from(components["java"])
+                }
+            }
+        }
     }
 }
