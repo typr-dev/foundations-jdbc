@@ -17,13 +17,13 @@ A `RowParser<T>` knows how to read all columns of a row and construct an instanc
 <TabItem value="java" label="Java">
 
 ```java
-RowParser<Person> personParser = RowParsers.of(
-    PgTypes.int4,           // id
-    PgTypes.text,           // name
-    PgTypes.timestamptz,    // createdAt
-    Person::new,
-    person -> new Object[]{person.id(), person.name(), person.createdAt()}
-);
+record Person(Integer id, String name, OffsetDateTime createdAt) {}
+
+RowParser<Person> personParser = RowParser.<Person>builder()
+    .field(PgTypes.int4, Person::id)
+    .field(PgTypes.text, Person::name)
+    .field(PgTypes.timestamptz, Person::createdAt)
+    .build(Person::new);
 
 List<Person> people = personParser.parseList(resultSet);
 ```
@@ -32,13 +32,13 @@ List<Person> people = personParser.parseList(resultSet);
 <TabItem value="kotlin" label="Kotlin">
 
 ```kotlin
-val personParser: RowParser<Person> = RowParsers.of(
-    PgTypes.int4,           // id
-    PgTypes.text,           // name
-    PgTypes.timestamptz,    // createdAt
-    ::Person,
-    { person -> arrayOf(person.id, person.name, person.createdAt) }
-)
+data class Person(val id: Int, val name: String, val createdAt: OffsetDateTime)
+
+val personParser: RowParser<Person> = RowParser.builder<Person>()
+    .field(PgTypes.int4, Person::id)
+    .field(PgTypes.text, Person::name)
+    .field(PgTypes.timestamptz, Person::createdAt)
+    .build(::Person)
 
 val people: List<Person> = personParser.parseList(resultSet)
 ```
@@ -47,13 +47,13 @@ val people: List<Person> = personParser.parseList(resultSet)
 <TabItem value="scala" label="Scala">
 
 ```scala
-val personParser: RowParser[Person] = RowParsers.of(
-  PgTypes.int4,           // id
-  PgTypes.text,           // name
-  PgTypes.timestamptz,    // createdAt
-  Person.apply,
-  person => Array(person.id, person.name, person.createdAt)
-)
+case class Person(id: Int, name: String, createdAt: OffsetDateTime)
+
+val personParser: RowParser[Person] = RowParser.builder[Person]()
+  .field(PgTypes.int4, _.id)
+  .field(PgTypes.text, _.name)
+  .field(PgTypes.timestamptz, _.createdAt)
+  .build(Person.apply)
 
 val people: List[Person] = personParser.parseList(resultSet)
 ```
@@ -63,13 +63,20 @@ val people: List[Person] = personParser.parseList(resultSet)
 
 ## How It Works
 
-The `RowParsers.of(...)` factory takes:
+The `RowParser.builder()` pattern takes:
 
-1. **Database types** — one `DbType<T>` per column, in order. These know how to read and write values correctly for the target database.
-2. **Constructor** — a function that takes the column values and returns your row type.
-3. **Destructor** — a function that takes your row type and returns the column values as an array.
+1. **Fields** — each `.field(dbType, getter)` defines a column with its database type and how to extract that value from the row type.
+2. **Constructor** — `.build(constructor)` takes a function that receives the typed column values and returns your row type. For records/case classes, just use `::new` or `apply`.
 
-The parser uses column-index-based reading (not column names), which is both faster and catches schema mismatches at parse time rather than silently returning wrong data.
+The builder is fully type-safe: the constructor function receives exactly the types you declared, with no casts needed. The parser uses column-index-based reading (not column names), which is both faster and catches schema mismatches at parse time.
+
+## Single-Column Parser
+
+For single-column queries, use the simpler `of()` factory:
+
+```java
+RowParser<Integer> idParser = RowParser.of(PgTypes.int4);
+```
 
 ## Nullable Columns
 
@@ -79,39 +86,39 @@ Use `.opt()` to wrap a type for nullable columns:
 <TabItem value="java" label="Java">
 
 ```java
-RowParser<Person> personParser = RowParsers.of(
-    PgTypes.int4,
-    PgTypes.text,
-    PgTypes.timestamptz.opt(),  // Optional<OffsetDateTime>
-    Person::new,
-    person -> new Object[]{person.id(), person.name(), person.createdAt()}
-);
+record Person(Integer id, String name, Optional<OffsetDateTime> createdAt) {}
+
+RowParser<Person> personParser = RowParser.<Person>builder()
+    .field(PgTypes.int4, Person::id)
+    .field(PgTypes.text, Person::name)
+    .field(PgTypes.timestamptz.opt(), Person::createdAt)
+    .build(Person::new);
 ```
 
 </TabItem>
 <TabItem value="kotlin" label="Kotlin">
 
 ```kotlin
-val personParser: RowParser<Person> = RowParsers.of(
-    PgTypes.int4,
-    PgTypes.text,
-    PgTypes.timestamptz.opt(),  // OffsetDateTime? in Kotlin
-    ::Person,
-    { person -> arrayOf(person.id, person.name, person.createdAt) }
-)
+data class Person(val id: Int, val name: String, val createdAt: OffsetDateTime?)
+
+val personParser: RowParser<Person> = RowParser.builder<Person>()
+    .field(PgTypes.int4, Person::id)
+    .field(PgTypes.text, Person::name)
+    .field(PgTypes.timestamptz.opt(), Person::createdAt)
+    .build(::Person)
 ```
 
 </TabItem>
 <TabItem value="scala" label="Scala">
 
 ```scala
-val personParser: RowParser[Person] = RowParsers.of(
-  PgTypes.int4,
-  PgTypes.text,
-  PgTypes.timestamptz.opt(),  // Option[OffsetDateTime] in Scala
-  Person.apply,
-  person => Array(person.id, person.name, person.createdAt)
-)
+case class Person(id: Int, name: String, createdAt: Option[OffsetDateTime])
+
+val personParser: RowParser[Person] = RowParser.builder[Person]()
+  .field(PgTypes.int4, _.id)
+  .field(PgTypes.text, _.name)
+  .field(PgTypes.timestamptz.opt(), _.createdAt)
+  .build(Person.apply)
 ```
 
 </TabItem>

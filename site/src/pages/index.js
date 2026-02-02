@@ -138,50 +138,41 @@ const rowCode = {
 };
 
 const parserCode = {
-  java: `static RowParser<ProductRow> rowParser = RowParsers.of(
-    ProductId.pgType,              // id
-    PgTypes.text,                  // name
-    PgTypes.numeric,               // price
-    PgTypes.textArray.opt(),       // tags: text[]
-    Dimensions.pgType.opt(),       // dimensions: composite
-    PgTypes.jsonb.opt(),           // metadata: jsonb
-    PgTypes.timestamptz.opt(),     // created_at: timestamptz
-    ProductRow::new,
-    p -> new Object[]{p.id(), p.name(), p.price(), p.tags(),
-                      p.dimensions(), p.metadata(), p.createdAt()}
-);
+  java: `static RowParser<ProductRow> rowParser = RowParser.<ProductRow>builder()
+    .field(ProductId.pgType, ProductRow::id)
+    .field(PgTypes.text, ProductRow::name)
+    .field(PgTypes.numeric, ProductRow::price)
+    .field(PgTypes.textArray.opt(), ProductRow::tags)
+    .field(Dimensions.pgType.opt(), ProductRow::dimensions)
+    .field(PgTypes.jsonb.opt(), ProductRow::metadata)
+    .field(PgTypes.timestamptz.opt(), ProductRow::createdAt)
+    .build(ProductRow::new);
 
 // Compose parsers for joins
 RowParser<And<ProductRow, Optional<CategoryRow>>> joined =
     ProductRow.rowParser.leftJoined(CategoryRow.rowParser);`,
-  kotlin: `val rowParser: RowParser<ProductRow> = RowParsers.of(
-    ProductId.pgType,              // id
-    PgTypes.text,                  // name
-    PgTypes.numeric,               // price
-    PgTypes.textArray.opt(),       // tags: text[]
-    Dimensions.pgType.opt(),       // dimensions: composite
-    PgTypes.jsonb.opt(),           // metadata: jsonb
-    PgTypes.timestamptz.opt(),     // created_at: timestamptz
-    ::ProductRow,
-    { p -> arrayOf(p.id, p.name, p.price, p.tags,
-                   p.dimensions, p.metadata, p.createdAt) }
-)
+  kotlin: `val rowParser: RowParser<ProductRow> = RowParser.builder<ProductRow>()
+    .field(ProductId.pgType, ProductRow::id)
+    .field(PgTypes.text, ProductRow::name)
+    .field(PgTypes.numeric, ProductRow::price)
+    .field(PgTypes.textArray.opt(), ProductRow::tags)
+    .field(Dimensions.pgType.opt(), ProductRow::dimensions)
+    .field(PgTypes.jsonb.opt(), ProductRow::metadata)
+    .field(PgTypes.timestamptz.opt(), ProductRow::createdAt)
+    .build(::ProductRow)
 
 // Compose parsers for joins
 val joined: RowParser<And<ProductRow, ProductRow?>> =
     ProductRow.rowParser.leftJoined(CategoryRow.rowParser)`,
-  scala: `val rowParser: RowParser[ProductRow] = RowParsers.of(
-    ProductId.pgType,              // id
-    PgTypes.text,                  // name
-    PgTypes.numeric,               // price
-    PgTypes.textArray.opt(),       // tags: text[]
-    Dimensions.pgType.opt(),       // dimensions: composite
-    PgTypes.jsonb.opt(),           // metadata: jsonb
-    PgTypes.timestamptz.opt(),     // created_at: timestamptz
-)(ProductRow.apply)(
-    p => Array(p.id, p.name, p.price, p.tags,
-               p.dimensions, p.metadata, p.createdAt)
-)
+  scala: `val rowParser: RowParser[ProductRow] = RowParser.builder[ProductRow]()
+    .field(ProductId.pgType, _.id)
+    .field(PgTypes.text, _.name)
+    .field(PgTypes.numeric, _.price)
+    .field(PgTypes.textArray.opt(), _.tags)
+    .field(Dimensions.pgType.opt(), _.dimensions)
+    .field(PgTypes.jsonb.opt(), _.metadata)
+    .field(PgTypes.timestamptz.opt(), _.createdAt)
+    .build(ProductRow.apply)
 
 // Compose parsers for joins
 val joined: RowParser[And[ProductRow, Option[CategoryRow]]] =
@@ -195,13 +186,11 @@ const compositeCode = {
 
 // PgStruct handles PostgreSQL's composite wire format
 static PgStruct<Dimensions> pgStruct = PgStruct.<Dimensions>builder("dimensions")
-    .doubleField("width", PgTypes.float8, Dimensions::width)
-    .doubleField("height", PgTypes.float8, Dimensions::height)
-    .doubleField("depth", PgTypes.float8, Dimensions::depth)
-    .stringField("unit", PgTypes.varchar, Dimensions::unit)
-    .build(arr -> new Dimensions(
-        (Double) arr[0], (Double) arr[1],
-        (Double) arr[2], (String) arr[3]));
+    .field("width", PgTypes.float8, Dimensions::width)
+    .field("height", PgTypes.float8, Dimensions::height)
+    .field("depth", PgTypes.float8, Dimensions::depth)
+    .field("unit", PgTypes.varchar, Dimensions::unit)
+    .build(Dimensions::new);
 
 static PgType<Dimensions> pgType = pgStruct.asType();`,
   kotlin: `data class Dimensions(
@@ -211,13 +200,11 @@ static PgType<Dimensions> pgType = pgStruct.asType();`,
 
 // PgStruct handles PostgreSQL's composite wire format
 val pgStruct: PgStruct<Dimensions> = PgStruct.builder<Dimensions>("dimensions")
-    .doubleField("width", PgTypes.float8, Dimensions::width)
-    .doubleField("height", PgTypes.float8, Dimensions::height)
-    .doubleField("depth", PgTypes.float8, Dimensions::depth)
-    .stringField("unit", PgTypes.varchar, Dimensions::unit)
-    .build { arr -> Dimensions(
-        arr[0] as Double, arr[1] as Double,
-        arr[2] as Double, arr[3] as String) }
+    .field("width", PgTypes.float8, Dimensions::width)
+    .field("height", PgTypes.float8, Dimensions::height)
+    .field("depth", PgTypes.float8, Dimensions::depth)
+    .field("unit", PgTypes.varchar, Dimensions::unit)
+    .build(::Dimensions)
 
 val pgType: PgType<Dimensions> = pgStruct.asType()`,
   scala: `case class Dimensions(
@@ -227,13 +214,11 @@ val pgType: PgType<Dimensions> = pgStruct.asType()`,
 
 // PgStruct handles PostgreSQL's composite wire format
 val pgStruct: PgStruct[Dimensions] = PgStruct.builder[Dimensions]("dimensions")
-    .doubleField("width", PgTypes.float8, _.width)
-    .doubleField("height", PgTypes.float8, _.height)
-    .doubleField("depth", PgTypes.float8, _.depth)
-    .stringField("unit", PgTypes.varchar, _.unit)
-    .build(arr => Dimensions(
-        arr(0).asInstanceOf[Double], arr(1).asInstanceOf[Double],
-        arr(2).asInstanceOf[Double], arr(3).asInstanceOf[String]))
+    .field("width", PgTypes.float8, _.width)
+    .field("height", PgTypes.float8, _.height)
+    .field("depth", PgTypes.float8, _.depth)
+    .field("unit", PgTypes.varchar, _.unit)
+    .build(Dimensions.apply)
 
 val pgType: PgType[Dimensions] = pgStruct.asType()`,
 };
@@ -263,12 +248,12 @@ const arrayCode = {
   java: `// DuckDB arrays are first-class typed values
 List<String[]> tagSets = tx.execute(conn ->
     Fragment.lit("SELECT tags FROM posts WHERE published = true")
-        .query(RowParsers.of(DuckDbTypes.varcharArray).all())
+        .query(RowParser.of(DuckDbTypes.varcharArray).all())
         .run(conn));`,
   kotlin: `// DuckDB arrays are first-class typed values
 val tagSets: List<Array<String>> = tx.execute { conn ->
     Fragment.lit("SELECT tags FROM posts WHERE published = true")
-        .query(RowParsers.of(DuckDbTypes.varcharArray).all())
+        .query(RowParser.of(DuckDbTypes.varcharArray).all())
         .run(conn)
 }`,
   scala: `import dev.typr.foundations.scala.FragmentInterpolator.sql
@@ -276,7 +261,7 @@ val tagSets: List<Array<String>> = tx.execute { conn ->
 // DuckDB arrays are first-class typed values
 val tagSets: List[Array[String]] = tx.execute(conn =>
     sql"SELECT tags FROM posts WHERE published = true"
-        .query(RowParsers.of(DuckDbTypes.varcharArray).all())
+        .query(RowParser.of(DuckDbTypes.varcharArray).all())
         .run(conn))`,
 };
 
@@ -353,7 +338,7 @@ var tx = OracleConfig.builder("localhost", 1521, "xe", "app", "secret")
 // Everything inside runs in one transaction
 String greeting = tx.execute(conn ->
     Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
-        .query(RowParsers.of(OracleTypes.varchar2).exactlyOne())
+        .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
         .run(conn));
 
 // Built-in strategies for common patterns
@@ -370,7 +355,7 @@ val tx = OracleConfig.builder("localhost", 1521, "xe", "app", "secret")
 // Everything inside runs in one transaction
 val greeting: String = tx.execute { conn ->
     Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
-        .query(RowParsers.of(OracleTypes.varchar2).exactlyOne())
+        .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
         .run(conn)
 }
 
@@ -390,7 +375,7 @@ val tx = OracleConfig.builder("localhost", 1521, "xe", "app", "secret")
 // Everything inside runs in one transaction
 val greeting: String = tx.execute(conn =>
     sql"SELECT 'Hello from Oracle' FROM dual"
-        .query(RowParsers.of(OracleTypes.varchar2).exactlyOne())
+        .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
         .run(conn))
 
 // Built-in strategies for common patterns
@@ -407,7 +392,7 @@ fun main() {
     val tx = DuckDbConfig.builder(":memory:").build().transactor()
     val answer: Int = tx.execute { conn ->
         Fragment.lit("SELECT 42")
-            .query(RowParsers.of(DuckDbTypes.integer).exactlyOne())
+            .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
             .run(conn)
     }
     println("Result: $answer")
@@ -793,13 +778,13 @@ const queryAnalysisCode = {
 var query = Fragment.interpolate("SELECT id, name, created_at, email FROM users WHERE active = ")
     .param(PgTypes.boolean_, true)
     .done()
-    .query(RowParsers.of(
-        PgTypes.int4,       // id: correct
-        PgTypes.text,       // name: correct
-        PgTypes.int4,       // created_at: WRONG! Should be timestamptz
-        PgTypes.text,       // email: nullable but not Optional!
-        User::new, u -> new Object[]{u.id(), u.name(), u.createdAt(), u.email()}
-    ).all());
+    .query(RowParser.<User>builder()
+        .field(PgTypes.int4, User::id)           // id: correct
+        .field(PgTypes.text, User::name)         // name: correct
+        .field(PgTypes.int4, User::createdAt)    // created_at: WRONG! Should be timestamptz
+        .field(PgTypes.text, User::email)        // email: nullable but not Optional!
+        .build(User::new)
+        .all());
 
 // But Query Analysis catches the bugs in your tests
 QueryAnalysis analysis = QueryAnalyzer.analyze(query, connection);
@@ -810,13 +795,13 @@ if (!analysis.succeeded()) {
 val query = Fragment.interpolate("SELECT id, name, created_at, email FROM users WHERE active = ")
     .param(PgTypes.boolean_, true)
     .done()
-    .query(RowParsers.of(
-        PgTypes.int4,       // id: correct
-        PgTypes.text,       // name: correct
-        PgTypes.int4,       // created_at: WRONG! Should be timestamptz
-        PgTypes.text,       // email: nullable but not Optional!
-        ::User
-    ) { u -> arrayOf(u.id, u.name, u.createdAt, u.email) }.all())
+    .query(RowParser.builder<User>()
+        .field(PgTypes.int4, User::id)           // id: correct
+        .field(PgTypes.text, User::name)         // name: correct
+        .field(PgTypes.int4, User::createdAt)    // created_at: WRONG! Should be timestamptz
+        .field(PgTypes.text, User::email)        // email: nullable but not Optional!
+        .build(::User)
+        .all())
 
 // But Query Analysis catches the bugs in your tests
 val analysis = QueryAnalyzer.analyze(query, connection)

@@ -52,12 +52,12 @@ public class DuckDbTypeTest {
   // ==================== STRUCT Example ====================
   record Person(String name, int age) {}
 
-  // New simplified API: just provide field getters, stringifier is auto-derived from DuckDbType
+  // Type-safe builder: field types are tracked, no casts needed in build()
   DuckDbStruct<Person> personStruct =
       DuckDbStruct.<Person>builder("Person")
           .field("name", DuckDbTypes.varchar, Person::name)
           .field("age", DuckDbTypes.integer, Person::age)
-          .build(attrs -> new Person((String) attrs[0], (Integer) attrs[1])); // reader only
+          .build(Person::new);
 
   DuckDbType<Person> personType = personStruct.asType();
 
