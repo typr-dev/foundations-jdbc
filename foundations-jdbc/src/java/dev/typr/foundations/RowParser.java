@@ -13,8 +13,40 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public record RowParser<Row>(
-    List<DbType<?>> columns, Function<Object[], Row> decode, Function<Row, Object[]> encode)
-    implements RowParsers {
+    List<DbType<?>> columns, Function<Object[], Row> decode, Function<Row, Object[]> encode) {
+
+  /**
+   * Create a type-safe row parser builder.
+   *
+   * <p>Usage:
+   * <pre>{@code
+   * RowParser<Product> parser = RowParser.<Product>builder()
+   *     .field(PgTypes.int4, Product::id)
+   *     .field(PgTypes.text, Product::name)
+   *     .build(Product::new);
+   * }</pre>
+   *
+   * @param <Row> the row type (typically a record)
+   * @return a type-safe builder
+   */
+  public static <Row> RowParserBuilders.Builder0<Row> builder() {
+    return RowParserBuilders.builder();
+  }
+
+  /**
+   * Create a single-column row parser.
+   *
+   * @param type the column type
+   * @return a row parser that returns the column value directly
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> RowParser<T> of(DbType<T> type) {
+    return new RowParser<>(
+        List.of(type),
+        arr -> (T) arr[0],
+        t -> new Object[] {t});
+  }
+
   public Row readRow(ResultSet rs, int rowNum) throws SqlResultParseException {
     Object[] currentRow = new Object[columns.size()];
     for (int colNum = 0; colNum < columns.size(); colNum++) {

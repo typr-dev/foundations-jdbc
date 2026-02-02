@@ -628,7 +628,7 @@ public class PgTypeTest {
       PgStruct<SingleFieldWrapper<A>> wrapperStruct =
           PgStruct.<SingleFieldWrapper<A>>builder(compositeTypeName)
               .field("wrapped_value", t.type, SingleFieldWrapper::value)
-              .build(values -> new SingleFieldWrapper<>((A) values[0]));
+              .build(SingleFieldWrapper::new);
 
       PgType<SingleFieldWrapper<A>> wrapperType = wrapperStruct.asType();
       String tableName = "test_composite_rt_" + uniqueId;
@@ -730,21 +730,7 @@ public class PgTypeTest {
               .field("date_field", PgTypes.date, ComprehensiveComposite::dateField)
               .field("time_field", PgTypes.time, ComprehensiveComposite::timeField)
               .field("timestamp_field", PgTypes.timestamp, ComprehensiveComposite::timestampField)
-              .build(
-                  values ->
-                      new ComprehensiveComposite(
-                          (String) values[0],
-                          (Integer) values[1],
-                          (Long) values[2],
-                          (Short) values[3],
-                          (Double) values[4],
-                          (Float) values[5],
-                          (Boolean) values[6],
-                          (BigDecimal) values[7],
-                          (UUID) values[8],
-                          (LocalDate) values[9],
-                          (LocalTime) values[10],
-                          (LocalDateTime) values[11]));
+              .build(ComprehensiveComposite::new);
 
       PgType<ComprehensiveComposite> compositeType = struct.asType();
 
@@ -930,7 +916,10 @@ public class PgTypeTest {
     select.execute();
     var rs = select.getResultSet();
     List<TestPair<A>> rows =
-        RowParsers.of(t.type, t.type.opt(), TestPair::new, row -> new Object[] {row.t0, row.t1})
+        RowParser.<TestPair<A>>builder()
+            .field(t.type, TestPair::t0)
+            .field(t.type.opt(), TestPair::t1)
+            .build(TestPair::new)
             .all()
             .apply(rs);
     select.close();
