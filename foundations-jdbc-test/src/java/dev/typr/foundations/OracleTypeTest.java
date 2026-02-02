@@ -50,19 +50,19 @@ public class OracleTypeTest {
   // Helper to build COORDINATES_T type
   static OracleType<Coordinates> coordinatesType() {
     return OracleObject.<Coordinates>builder("COORDINATES_T")
-        .addAttribute("LATITUDE", OracleTypes.number(9, 6), Coordinates::latitude)
-        .addAttribute("LONGITUDE", OracleTypes.number(9, 6), Coordinates::longitude)
-        .build(attrs -> new Coordinates((BigDecimal) attrs[0], (BigDecimal) attrs[1]))
+        .field("LATITUDE", OracleTypes.number(9, 6), Coordinates::latitude)
+        .field("LONGITUDE", OracleTypes.number(9, 6), Coordinates::longitude)
+        .build(Coordinates::new)
         .asType();
   }
 
   // Helper to build ADDRESS_T type (with nested COORDINATES_T)
   static OracleType<Address> addressType() {
     return OracleObject.<Address>builder("ADDRESS_T")
-        .addAttribute("STREET", OracleTypes.varchar2(100), Address::street)
-        .addAttribute("CITY", OracleTypes.varchar2(50), Address::city)
-        .addAttribute("LOCATION", coordinatesType(), Address::location)
-        .build(attrs -> new Address((String) attrs[0], (String) attrs[1], (Coordinates) attrs[2]))
+        .field("STREET", OracleTypes.varchar2(100), Address::street)
+        .field("CITY", OracleTypes.varchar2(50), Address::city)
+        .field("LOCATION", coordinatesType(), Address::location)
+        .build(Address::new)
         .asType();
   }
 
@@ -539,9 +539,9 @@ public class OracleTypeTest {
                   OracleNestedTable.of(
                       "ORDER_ITEMS_T",
                       OracleObject.<OrderItem>builder("ORDER_ITEM_T")
-                          .addAttribute("PRODUCT_ID", OracleTypes.numberLong, OrderItem::productId)
-                          .addAttribute("QUANTITY", OracleTypes.numberInt, OrderItem::quantity)
-                          .build(attrs -> new OrderItem((Long) attrs[0], (Integer) attrs[1]))
+                          .field("PRODUCT_ID", OracleTypes.numberLong, OrderItem::productId)
+                          .field("QUANTITY", OracleTypes.numberInt, OrderItem::quantity)
+                          .build(OrderItem::new)
                           .asType()),
                   List.of(new OrderItem(101L, 2), new OrderItem(202L, 5), new OrderItem(303L, 1)),
                   List.of(
@@ -559,9 +559,9 @@ public class OracleTypeTest {
                   OracleNestedTable.of(
                       "ORDER_ITEMS_T",
                       OracleObject.<OrderItem>builder("ORDER_ITEM_T")
-                          .addAttribute("PRODUCT_ID", OracleTypes.numberLong, OrderItem::productId)
-                          .addAttribute("QUANTITY", OracleTypes.numberInt, OrderItem::quantity)
-                          .build(attrs -> new OrderItem((Long) attrs[0], (Integer) attrs[1]))
+                          .field("PRODUCT_ID", OracleTypes.numberLong, OrderItem::productId)
+                          .field("QUANTITY", OracleTypes.numberInt, OrderItem::quantity)
+                          .build(OrderItem::new)
                           .asType()),
                   List.of(new OrderItem(999L, 42)),
                   List.of(
@@ -579,9 +579,9 @@ public class OracleTypeTest {
                   OracleNestedTable.of(
                       "ORDER_ITEMS_T",
                       OracleObject.<OrderItem>builder("ORDER_ITEM_T")
-                          .addAttribute("PRODUCT_ID", OracleTypes.numberLong, OrderItem::productId)
-                          .addAttribute("QUANTITY", OracleTypes.numberInt, OrderItem::quantity)
-                          .build(attrs -> new OrderItem((Long) attrs[0], (Integer) attrs[1]))
+                          .field("PRODUCT_ID", OracleTypes.numberLong, OrderItem::productId)
+                          .field("QUANTITY", OracleTypes.numberInt, OrderItem::quantity)
+                          .build(OrderItem::new)
                           .asType()),
                   List.of(),
                   List.of(
@@ -601,64 +601,44 @@ public class OracleTypeTest {
           // TEST_ALLTYPES - struct with all Oracle types (NOT NULL fields)
           new OracleTypeAndExample<AllTypesStruct>(
                   OracleObject.<AllTypesStruct>builder("TEST_ALLTYPES")
-                      .addAttribute("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
-                      .addAttribute(
+                      .field("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
+                      .field(
                           "NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
-                      .addAttribute("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
-                      .addAttribute("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
-                      .addAttribute("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
-                      .addAttribute(
+                      .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
+                      .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
+                      .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
+                      .field(
                           "NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
-                      .addAttribute(
+                      .field(
                           "NUMBER_LONG_FIELD", OracleTypes.numberLong, s -> s.numberLongField)
-                      .addAttribute(
+                      .field(
                           "BINARY_FLOAT_FIELD", OracleTypes.binaryFloat, s -> s.binaryFloatField)
-                      .addAttribute(
+                      .field(
                           "BINARY_DOUBLE_FIELD", OracleTypes.binaryDouble, s -> s.binaryDoubleField)
-                      .addAttribute("DATE_FIELD", OracleTypes.date, s -> s.dateField)
-                      .addAttribute("TIMESTAMP_FIELD", OracleTypes.timestamp, s -> s.timestampField)
-                      .addAttribute(
+                      .field("DATE_FIELD", OracleTypes.date, s -> s.dateField)
+                      .field("TIMESTAMP_FIELD", OracleTypes.timestamp, s -> s.timestampField)
+                      .field(
                           "TIMESTAMP_TZ_FIELD",
                           OracleTypes.timestampWithTimeZone,
                           s -> s.timestampTzField)
-                      .addAttribute(
+                      .field(
                           "TIMESTAMP_LTZ_FIELD",
                           OracleTypes.timestampWithLocalTimeZone,
                           s -> s.timestampLtzField)
-                      .addAttribute(
+                      .field(
                           "INTERVAL_YM_FIELD",
                           OracleTypes.intervalYearToMonth,
                           s -> s.intervalYmField)
-                      .addAttribute(
+                      .field(
                           "INTERVAL_DS_FIELD",
                           OracleTypes.intervalDayToSecond,
                           s -> s.intervalDsField)
-                      .addAttribute("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
-                      .addAttribute(
+                      .field("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
+                      .field(
                           "VARRAY_FIELD",
                           OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
                           s -> s.varrayField)
-                      .build(
-                          attrs ->
-                              new AllTypesStruct(
-                                  (String) attrs[0], // varcharField
-                                  (String) attrs[1], // nvarcharField
-                                  (String) attrs[2], // charField
-                                  (String) attrs[3], // ncharField
-                                  (BigDecimal) attrs[4], // numberField
-                                  (Integer) attrs[5], // numberIntField
-                                  (Long) attrs[6], // numberLongField
-                                  (Float) attrs[7], // binaryFloatField
-                                  (Double) attrs[8], // binaryDoubleField
-                                  (LocalDateTime) attrs[9], // dateField
-                                  (LocalDateTime) attrs[10], // timestampField
-                                  (OffsetDateTime) attrs[11], // timestampTzField
-                                  (OffsetDateTime) attrs[12], // timestampLtzField
-                                  (OracleIntervalYM) attrs[13], // intervalYmField
-                                  (OracleIntervalDS) attrs[14], // intervalDsField
-                                  (Address) attrs[15], // nestedObjectField
-                                  (List<String>) attrs[16] // varrayField
-                                  ))
+                      .build(AllTypesStruct::new)
                       .asType(),
                   new AllTypesStruct(
                       "test varchar",
@@ -708,71 +688,51 @@ public class OracleTypeTest {
           // TEST_ALLTYPES_OPT - comprehensive struct with all nullable fields
           new OracleTypeAndExample<AllTypesStructOptional>(
                   OracleObject.<AllTypesStructOptional>builder("TEST_ALLTYPES_OPT")
-                      .addAttribute(
+                      .field(
                           "VARCHAR_FIELD", OracleTypes.varchar2(100).opt(), s -> s.varcharField)
-                      .addAttribute(
+                      .field(
                           "NVARCHAR_FIELD", OracleTypes.nvarchar2(100).opt(), s -> s.nvarcharField)
-                      .addAttribute("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
-                      .addAttribute("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
-                      .addAttribute("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
-                      .addAttribute(
+                      .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
+                      .field("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
+                      .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
+                      .field(
                           "NUMBER_INT_FIELD", OracleTypes.numberInt.opt(), s -> s.numberIntField)
-                      .addAttribute(
+                      .field(
                           "NUMBER_LONG_FIELD", OracleTypes.numberLong.opt(), s -> s.numberLongField)
-                      .addAttribute(
+                      .field(
                           "BINARY_FLOAT_FIELD",
                           OracleTypes.binaryFloat.opt(),
                           s -> s.binaryFloatField)
-                      .addAttribute(
+                      .field(
                           "BINARY_DOUBLE_FIELD",
                           OracleTypes.binaryDouble.opt(),
                           s -> s.binaryDoubleField)
-                      .addAttribute("DATE_FIELD", OracleTypes.date.opt(), s -> s.dateField)
-                      .addAttribute(
+                      .field("DATE_FIELD", OracleTypes.date.opt(), s -> s.dateField)
+                      .field(
                           "TIMESTAMP_FIELD", OracleTypes.timestamp.opt(), s -> s.timestampField)
-                      .addAttribute(
+                      .field(
                           "TIMESTAMP_TZ_FIELD",
                           OracleTypes.timestampWithTimeZone.opt(),
                           s -> s.timestampTzField)
-                      .addAttribute(
+                      .field(
                           "TIMESTAMP_LTZ_FIELD",
                           OracleTypes.timestampWithLocalTimeZone.opt(),
                           s -> s.timestampLtzField)
-                      .addAttribute(
+                      .field(
                           "INTERVAL_YM_FIELD",
                           OracleTypes.intervalYearToMonth.opt(),
                           s -> s.intervalYmField)
-                      .addAttribute(
+                      .field(
                           "INTERVAL_DS_FIELD",
                           OracleTypes.intervalDayToSecond.opt(),
                           s -> s.intervalDsField)
-                      .addAttribute(
+                      .field(
                           "NESTED_OBJECT_FIELD", addressType().opt(), s -> s.nestedObjectField)
-                      .addAttribute(
+                      .field(
                           "VARRAY_FIELD",
                           OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)).opt(),
                           s -> s.varrayField)
-                      .build(
-                          attrs ->
-                              new AllTypesStructOptional(
-                                  (Optional<String>) attrs[0], // varcharField
-                                  (Optional<String>) attrs[1], // nvarcharField
-                                  (Optional<String>) attrs[2], // charField
-                                  (Optional<String>) attrs[3], // ncharField
-                                  (Optional<BigDecimal>) attrs[4], // numberField
-                                  (Optional<Integer>) attrs[5], // numberIntField
-                                  (Optional<Long>) attrs[6], // numberLongField
-                                  (Optional<Float>) attrs[7], // binaryFloatField
-                                  (Optional<Double>) attrs[8], // binaryDoubleField
-                                  (Optional<LocalDateTime>) attrs[9], // dateField
-                                  (Optional<LocalDateTime>) attrs[10], // timestampField
-                                  (Optional<OffsetDateTime>) attrs[11], // timestampTzField
-                                  (Optional<OffsetDateTime>) attrs[12], // timestampLtzField
-                                  (Optional<OracleIntervalYM>) attrs[13], // intervalYmField
-                                  (Optional<OracleIntervalDS>) attrs[14], // intervalDsField
-                                  (Optional<Address>) attrs[15], // nestedObjectField
-                                  (Optional<List<String>>) attrs[16] // varrayField
-                                  ))
+                      .build(AllTypesStructOptional::new)
                       .asType(),
                   new AllTypesStructOptional(
                       Optional.of("test varchar"),
@@ -831,63 +791,44 @@ public class OracleTypeTest {
           // TEST_ALLTYPES_NOLOBS - standalone struct without LOBs
           new OracleTypeAndExample<>(
                   OracleObject.<AllTypesStructNoLobs>builder("TEST_ALLTYPES_NOLOBS")
-                      .addAttribute("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
-                      .addAttribute(
+                      .field("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
+                      .field(
                           "NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
-                      .addAttribute("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
-                      .addAttribute("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
-                      .addAttribute("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
-                      .addAttribute(
+                      .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
+                      .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
+                      .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
+                      .field(
                           "NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
-                      .addAttribute(
+                      .field(
                           "NUMBER_LONG_FIELD", OracleTypes.numberLong, s -> s.numberLongField)
-                      .addAttribute(
+                      .field(
                           "BINARY_FLOAT_FIELD", OracleTypes.binaryFloat, s -> s.binaryFloatField)
-                      .addAttribute(
+                      .field(
                           "BINARY_DOUBLE_FIELD", OracleTypes.binaryDouble, s -> s.binaryDoubleField)
-                      .addAttribute("DATE_FIELD", OracleTypes.date, s -> s.dateField)
-                      .addAttribute("TIMESTAMP_FIELD", OracleTypes.timestamp, s -> s.timestampField)
-                      .addAttribute(
+                      .field("DATE_FIELD", OracleTypes.date, s -> s.dateField)
+                      .field("TIMESTAMP_FIELD", OracleTypes.timestamp, s -> s.timestampField)
+                      .field(
                           "TIMESTAMP_TZ_FIELD",
                           OracleTypes.timestampWithTimeZone,
                           s -> s.timestampTzField)
-                      .addAttribute(
+                      .field(
                           "TIMESTAMP_LTZ_FIELD",
                           OracleTypes.timestampWithLocalTimeZone,
                           s -> s.timestampLtzField)
-                      .addAttribute(
+                      .field(
                           "INTERVAL_YM_FIELD",
                           OracleTypes.intervalYearToMonth,
                           s -> s.intervalYmField)
-                      .addAttribute(
+                      .field(
                           "INTERVAL_DS_FIELD",
                           OracleTypes.intervalDayToSecond,
                           s -> s.intervalDsField)
-                      .addAttribute("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
-                      .addAttribute(
+                      .field("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
+                      .field(
                           "VARRAY_FIELD",
                           OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
                           s -> s.varrayField)
-                      .build(
-                          attrs ->
-                              new AllTypesStructNoLobs(
-                                  (String) attrs[0],
-                                  (String) attrs[1],
-                                  (String) attrs[2],
-                                  (String) attrs[3],
-                                  (BigDecimal) attrs[4],
-                                  (Integer) attrs[5],
-                                  (Long) attrs[6],
-                                  (Float) attrs[7],
-                                  (Double) attrs[8],
-                                  (LocalDateTime) attrs[9],
-                                  (LocalDateTime) attrs[10],
-                                  (OffsetDateTime) attrs[11],
-                                  (OffsetDateTime) attrs[12],
-                                  (OracleIntervalYM) attrs[13],
-                                  (OracleIntervalDS) attrs[14],
-                                  (Address) attrs[15],
-                                  (List<String>) attrs[16]))
+                      .build(AllTypesStructNoLobs::new)
                       .asType(),
                   new AllTypesStructNoLobs(
                       "varchar_val",
@@ -935,70 +876,51 @@ public class OracleTypeTest {
           // TEST_ALLTYPES_NOLOBS_OPT - standalone struct without LOBs, optional fields
           new OracleTypeAndExample<>(
                   OracleObject.<AllTypesStructNoLobsOptional>builder("TEST_ALLTYPES_NOLOBS_OPT")
-                      .addAttribute(
+                      .field(
                           "VARCHAR_FIELD", OracleTypes.varchar2(100).opt(), s -> s.varcharField)
-                      .addAttribute(
+                      .field(
                           "NVARCHAR_FIELD", OracleTypes.nvarchar2(100).opt(), s -> s.nvarcharField)
-                      .addAttribute("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
-                      .addAttribute("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
-                      .addAttribute("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
-                      .addAttribute(
+                      .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
+                      .field("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
+                      .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
+                      .field(
                           "NUMBER_INT_FIELD", OracleTypes.numberInt.opt(), s -> s.numberIntField)
-                      .addAttribute(
+                      .field(
                           "NUMBER_LONG_FIELD", OracleTypes.numberLong.opt(), s -> s.numberLongField)
-                      .addAttribute(
+                      .field(
                           "BINARY_FLOAT_FIELD",
                           OracleTypes.binaryFloat.opt(),
                           s -> s.binaryFloatField)
-                      .addAttribute(
+                      .field(
                           "BINARY_DOUBLE_FIELD",
                           OracleTypes.binaryDouble.opt(),
                           s -> s.binaryDoubleField)
-                      .addAttribute("DATE_FIELD", OracleTypes.date.opt(), s -> s.dateField)
-                      .addAttribute(
+                      .field("DATE_FIELD", OracleTypes.date.opt(), s -> s.dateField)
+                      .field(
                           "TIMESTAMP_FIELD", OracleTypes.timestamp.opt(), s -> s.timestampField)
-                      .addAttribute(
+                      .field(
                           "TIMESTAMP_TZ_FIELD",
                           OracleTypes.timestampWithTimeZone.opt(),
                           s -> s.timestampTzField)
-                      .addAttribute(
+                      .field(
                           "TIMESTAMP_LTZ_FIELD",
                           OracleTypes.timestampWithLocalTimeZone.opt(),
                           s -> s.timestampLtzField)
-                      .addAttribute(
+                      .field(
                           "INTERVAL_YM_FIELD",
                           OracleTypes.intervalYearToMonth.opt(),
                           s -> s.intervalYmField)
-                      .addAttribute(
+                      .field(
                           "INTERVAL_DS_FIELD",
                           OracleTypes.intervalDayToSecond.opt(),
                           s -> s.intervalDsField)
-                      .addAttribute(
+                      .field(
                           "NESTED_OBJECT_FIELD", addressType().opt(), s -> s.nestedObjectField)
-                      .addAttribute(
+                      .field(
                           "VARRAY_FIELD",
                           OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)).opt(),
                           s -> s.varrayField)
-                      .build(
-                          attrs ->
-                              new AllTypesStructNoLobsOptional(
-                                  (Optional<String>) attrs[0],
-                                  (Optional<String>) attrs[1],
-                                  (Optional<String>) attrs[2],
-                                  (Optional<String>) attrs[3],
-                                  (Optional<BigDecimal>) attrs[4],
-                                  (Optional<Integer>) attrs[5],
-                                  (Optional<Long>) attrs[6],
-                                  (Optional<Float>) attrs[7],
-                                  (Optional<Double>) attrs[8],
-                                  (Optional<LocalDateTime>) attrs[9],
-                                  (Optional<LocalDateTime>) attrs[10],
-                                  (Optional<OffsetDateTime>) attrs[11],
-                                  (Optional<OffsetDateTime>) attrs[12],
-                                  (Optional<OracleIntervalYM>) attrs[13],
-                                  (Optional<OracleIntervalDS>) attrs[14],
-                                  (Optional<Address>) attrs[15],
-                                  (Optional<List<String>>) attrs[16]))
+                      .build(AllTypesStructNoLobsOptional::new)
                       .asType(),
                   new AllTypesStructNoLobsOptional(
                       Optional.of("varchar_val"),
@@ -1052,70 +974,51 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES_NOLOBS_ARR",
                       10,
                       OracleObject.<AllTypesStructNoLobs>builder("TEST_ALLTYPES_NOLOBS")
-                          .addAttribute(
+                          .field(
                               "VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
-                          .addAttribute(
+                          .field(
                               "NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
-                          .addAttribute("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
-                          .addAttribute("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
-                          .addAttribute("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
-                          .addAttribute(
+                          .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
+                          .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
+                          .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
+                          .field(
                               "NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
-                          .addAttribute(
+                          .field(
                               "NUMBER_LONG_FIELD", OracleTypes.numberLong, s -> s.numberLongField)
-                          .addAttribute(
+                          .field(
                               "BINARY_FLOAT_FIELD",
                               OracleTypes.binaryFloat,
                               s -> s.binaryFloatField)
-                          .addAttribute(
+                          .field(
                               "BINARY_DOUBLE_FIELD",
                               OracleTypes.binaryDouble,
                               s -> s.binaryDoubleField)
-                          .addAttribute("DATE_FIELD", OracleTypes.date, s -> s.dateField)
-                          .addAttribute(
+                          .field("DATE_FIELD", OracleTypes.date, s -> s.dateField)
+                          .field(
                               "TIMESTAMP_FIELD", OracleTypes.timestamp, s -> s.timestampField)
-                          .addAttribute(
+                          .field(
                               "TIMESTAMP_TZ_FIELD",
                               OracleTypes.timestampWithTimeZone,
                               s -> s.timestampTzField)
-                          .addAttribute(
+                          .field(
                               "TIMESTAMP_LTZ_FIELD",
                               OracleTypes.timestampWithLocalTimeZone,
                               s -> s.timestampLtzField)
-                          .addAttribute(
+                          .field(
                               "INTERVAL_YM_FIELD",
                               OracleTypes.intervalYearToMonth,
                               s -> s.intervalYmField)
-                          .addAttribute(
+                          .field(
                               "INTERVAL_DS_FIELD",
                               OracleTypes.intervalDayToSecond,
                               s -> s.intervalDsField)
-                          .addAttribute(
+                          .field(
                               "NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
-                          .addAttribute(
+                          .field(
                               "VARRAY_FIELD",
                               OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
                               s -> s.varrayField)
-                          .build(
-                              attrs ->
-                                  new AllTypesStructNoLobs(
-                                      (String) attrs[0],
-                                      (String) attrs[1],
-                                      (String) attrs[2],
-                                      (String) attrs[3],
-                                      (BigDecimal) attrs[4],
-                                      (Integer) attrs[5],
-                                      (Long) attrs[6],
-                                      (Float) attrs[7],
-                                      (Double) attrs[8],
-                                      (LocalDateTime) attrs[9],
-                                      (LocalDateTime) attrs[10],
-                                      (OffsetDateTime) attrs[11],
-                                      (OffsetDateTime) attrs[12],
-                                      (OracleIntervalYM) attrs[13],
-                                      (OracleIntervalDS) attrs[14],
-                                      (Address) attrs[15],
-                                      (List<String>) attrs[16]))
+                          .build(AllTypesStructNoLobs::new)
                           .asType()),
                   List.of(
                       new AllTypesStructNoLobs(
@@ -1191,78 +1094,59 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES_NOLOBS_OPT_ARR",
                       10,
                       OracleObject.<AllTypesStructNoLobsOptional>builder("TEST_ALLTYPES_NOLOBS_OPT")
-                          .addAttribute(
+                          .field(
                               "VARCHAR_FIELD", OracleTypes.varchar2(100).opt(), s -> s.varcharField)
-                          .addAttribute(
+                          .field(
                               "NVARCHAR_FIELD",
                               OracleTypes.nvarchar2(100).opt(),
                               s -> s.nvarcharField)
-                          .addAttribute("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
-                          .addAttribute(
+                          .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
+                          .field(
                               "NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
-                          .addAttribute(
+                          .field(
                               "NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
-                          .addAttribute(
+                          .field(
                               "NUMBER_INT_FIELD",
                               OracleTypes.numberInt.opt(),
                               s -> s.numberIntField)
-                          .addAttribute(
+                          .field(
                               "NUMBER_LONG_FIELD",
                               OracleTypes.numberLong.opt(),
                               s -> s.numberLongField)
-                          .addAttribute(
+                          .field(
                               "BINARY_FLOAT_FIELD",
                               OracleTypes.binaryFloat.opt(),
                               s -> s.binaryFloatField)
-                          .addAttribute(
+                          .field(
                               "BINARY_DOUBLE_FIELD",
                               OracleTypes.binaryDouble.opt(),
                               s -> s.binaryDoubleField)
-                          .addAttribute("DATE_FIELD", OracleTypes.date.opt(), s -> s.dateField)
-                          .addAttribute(
+                          .field("DATE_FIELD", OracleTypes.date.opt(), s -> s.dateField)
+                          .field(
                               "TIMESTAMP_FIELD", OracleTypes.timestamp.opt(), s -> s.timestampField)
-                          .addAttribute(
+                          .field(
                               "TIMESTAMP_TZ_FIELD",
                               OracleTypes.timestampWithTimeZone.opt(),
                               s -> s.timestampTzField)
-                          .addAttribute(
+                          .field(
                               "TIMESTAMP_LTZ_FIELD",
                               OracleTypes.timestampWithLocalTimeZone.opt(),
                               s -> s.timestampLtzField)
-                          .addAttribute(
+                          .field(
                               "INTERVAL_YM_FIELD",
                               OracleTypes.intervalYearToMonth.opt(),
                               s -> s.intervalYmField)
-                          .addAttribute(
+                          .field(
                               "INTERVAL_DS_FIELD",
                               OracleTypes.intervalDayToSecond.opt(),
                               s -> s.intervalDsField)
-                          .addAttribute(
+                          .field(
                               "NESTED_OBJECT_FIELD", addressType().opt(), s -> s.nestedObjectField)
-                          .addAttribute(
+                          .field(
                               "VARRAY_FIELD",
                               OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)).opt(),
                               s -> s.varrayField)
-                          .build(
-                              attrs ->
-                                  new AllTypesStructNoLobsOptional(
-                                      (Optional<String>) attrs[0],
-                                      (Optional<String>) attrs[1],
-                                      (Optional<String>) attrs[2],
-                                      (Optional<String>) attrs[3],
-                                      (Optional<BigDecimal>) attrs[4],
-                                      (Optional<Integer>) attrs[5],
-                                      (Optional<Long>) attrs[6],
-                                      (Optional<Float>) attrs[7],
-                                      (Optional<Double>) attrs[8],
-                                      (Optional<LocalDateTime>) attrs[9],
-                                      (Optional<LocalDateTime>) attrs[10],
-                                      (Optional<OffsetDateTime>) attrs[11],
-                                      (Optional<OffsetDateTime>) attrs[12],
-                                      (Optional<OracleIntervalYM>) attrs[13],
-                                      (Optional<OracleIntervalDS>) attrs[14],
-                                      (Optional<Address>) attrs[15],
-                                      (Optional<List<String>>) attrs[16]))
+                          .build(AllTypesStructNoLobsOptional::new)
                           .asType()),
                   List.of(
                       new AllTypesStructNoLobsOptional(

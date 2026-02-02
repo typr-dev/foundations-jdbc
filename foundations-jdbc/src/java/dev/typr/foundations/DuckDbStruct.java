@@ -1,10 +1,7 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.data.JsonValue;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -110,127 +107,20 @@ public record DuckDbStruct<A>(
   // ========================================================================
 
   /**
-   * Create a STRUCT type builder.
+   * Create a type-safe STRUCT builder.
+   *
+   * <p>Usage:
+   *
+   * <pre>{@code
+   * DuckDbStruct<Point> struct = DuckDbStruct.<Point>builder("point")
+   *     .field("x", DuckDbTypes.double_, Point::x)
+   *     .field("y", DuckDbTypes.double_, Point::y)
+   *     .build(Point::new);
+   * }</pre>
    *
    * @param <A> the struct type (typically a record)
    */
-  public static <A> Builder<A> builder(String structName) {
-    return new Builder<>(structName);
-  }
-
-  public static class Builder<A> {
-    private final String structName;
-    private final java.util.List<Field<A, ?>> fields = new java.util.ArrayList<>();
-
-    Builder(String structName) {
-      this.structName = structName;
-    }
-
-    /**
-     * Add a field with a getter function. DuckDbStringifier is automatically derived from the
-     * DuckDbType.
-     *
-     * @param name the field name in SQL
-     * @param type the DuckDbType for the field (contains DuckDbStringifier)
-     * @param getter function to extract field value from struct
-     */
-    public <F> Builder<A> field(String name, DuckDbType<F> type, Function<A, F> getter) {
-      fields.add(new Field<>(name, type, getter));
-      return this;
-    }
-
-    /**
-     * Build the DuckDbStruct with auto-derived writer and JSON codec.
-     *
-     * <p>This method auto-generates: - Writer: uses getters to extract field values - JSON:
-     * standard format {"field1": value1, "field2": value2}
-     *
-     * @param reader function to construct struct from field values array
-     */
-    public DuckDbStruct<A> build(StructReader<A> reader) {
-      List<DuckDbTypename.StructOf.StructField> typenameFields =
-          fields.stream()
-              .map(f -> new DuckDbTypename.StructOf.StructField(f.name(), f.type().typename()))
-              .toList();
-
-      DuckDbTypename.StructOf<A> typename =
-          new DuckDbTypename.StructOf<>(structName, typenameFields);
-
-      // Auto-derive writer from getters
-      StructWriter<A> writer =
-          structValue -> {
-            Object[] values = new Object[fields.size()];
-            for (int i = 0; i < fields.size(); i++) {
-              values[i] = extractFieldValue(fields.get(i), structValue);
-            }
-            return values;
-          };
-
-      // Auto-derive JSON codec from fields
-      DuckDbJson<A> json =
-          new DuckDbJson<>() {
-            @Override
-            public JsonValue toJson(A value) {
-              LinkedHashMap<String, JsonValue> jsonFields = new LinkedHashMap<>();
-              for (Field<A, ?> field : fields) {
-                jsonFields.put(field.name(), fieldToJson(field, value));
-              }
-              return new JsonValue.JObject(jsonFields);
-            }
-
-            @Override
-            public A fromJson(JsonValue jsonValue) {
-              if (jsonValue instanceof JsonValue.JObject obj) {
-                Object[] values = new Object[fields.size()];
-                for (int i = 0; i < fields.size(); i++) {
-                  Field<A, ?> field = fields.get(i);
-                  JsonValue fieldJson = obj.fields().get(field.name());
-                  values[i] = fieldFromJson(field, fieldJson);
-                }
-                try {
-                  return reader.read(values);
-                } catch (SQLException e) {
-                  throw new RuntimeException("Failed to construct struct from JSON", e);
-                }
-              }
-              throw new IllegalArgumentException("Expected JSON object");
-            }
-          };
-
-      return new DuckDbStruct<>(typename, List.copyOf(fields), reader, writer, json);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <F> Object extractFieldValue(Field<A, F> field, A structValue) {
-      return field.getter().apply(structValue);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <F> JsonValue fieldToJson(Field<A, F> field, A structValue) {
-      F value = field.getter().apply(structValue);
-      return field.type().duckDbJson().toJson(value);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <F> Object fieldFromJson(Field<A, F> field, JsonValue jsonValue) {
-      return field.type().duckDbJson().fromJson(jsonValue);
-    }
-
-    /**
-     * Build with custom reader, writer, and JSON codec. Use this when auto-derivation doesn't work
-     * for your use case.
-     */
-    public DuckDbStruct<A> build(
-        StructReader<A> reader, StructWriter<A> writer, DuckDbJson<A> json) {
-      List<DuckDbTypename.StructOf.StructField> typenameFields =
-          fields.stream()
-              .map(f -> new DuckDbTypename.StructOf.StructField(f.name(), f.type().typename()))
-              .toList();
-
-      DuckDbTypename.StructOf<A> typename =
-          new DuckDbTypename.StructOf<>(structName, typenameFields);
-
-      return new DuckDbStruct<>(typename, List.copyOf(fields), reader, writer, json);
-    }
+  public static <A> DuckDbStructBuilders.Builder0<A> builder(String structName) {
+    return DuckDbStructBuilders.builder(structName);
   }
 }

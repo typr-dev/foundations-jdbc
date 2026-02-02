@@ -3,7 +3,6 @@ package dev.typr.foundations;
 import dev.typr.foundations.data.JsonValue;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,41 +145,21 @@ public record OracleObject<A>(
 
   // ═══ BUILDER API ═══
 
-  public static <A> Builder<A> builder(String objectTypeName) {
-    return new Builder<>(objectTypeName);
-  }
-
-  public static class Builder<A> {
-    private final String objectTypeName;
-    private final List<Attribute<A, ?>> attributes = new ArrayList<>();
-
-    Builder(String objectTypeName) {
-      this.objectTypeName = objectTypeName;
-    }
-
-    public <F> Builder<A> addAttribute(String name, OracleType<F> type, Function<A, F> getter) {
-      attributes.add(new Attribute<>(name, type, getter));
-      return this;
-    }
-
-    /**
-     * Build OracleObject with a reader - writer is automatically derived from attribute getters.
-     */
-    public OracleObject<A> build(ObjectReader<A> reader) {
-      // Generate writer automatically from the attribute getters
-      ObjectWriter<A> writer =
-          value -> {
-            Object[] result = new Object[attributes.size()];
-            for (int i = 0; i < attributes.size(); i++) {
-              @SuppressWarnings("unchecked")
-              Attribute<A, Object> attr = (Attribute<A, Object>) attributes.get(i);
-              result[i] = attr.getter().apply(value);
-            }
-            return result;
-          };
-
-      OracleTypename.ObjectOf<A> typename = OracleTypename.objectOf(objectTypeName);
-      return new OracleObject<>(typename, attributes, reader, writer);
-    }
+  /**
+   * Create a type-safe OBJECT builder.
+   *
+   * <p>Usage:
+   *
+   * <pre>{@code
+   * OracleObject<Address> obj = OracleObject.<Address>builder("ADDRESS_T")
+   *     .field("STREET", OracleTypes.varchar2, Address::street)
+   *     .field("CITY", OracleTypes.varchar2, Address::city)
+   *     .build(Address::new);
+   * }</pre>
+   *
+   * @param <A> the object type (typically a record)
+   */
+  public static <A> OracleObjectBuilders.Builder0<A> builder(String objectTypeName) {
+    return OracleObjectBuilders.builder(objectTypeName);
   }
 }

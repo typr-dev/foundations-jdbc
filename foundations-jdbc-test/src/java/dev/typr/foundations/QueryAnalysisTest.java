@@ -3,6 +3,10 @@ package dev.typr.foundations;
 import dev.typr.foundations.analysis.AlignmentError;
 import dev.typr.foundations.analysis.QueryAnalysis;
 import dev.typr.foundations.analysis.QueryAnalyzer;
+import dev.typr.foundations.data.Uint1;
+import dev.typr.foundations.data.Uint2;
+import dev.typr.foundations.data.Uint4;
+import dev.typr.foundations.data.Uint8;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Connection;
@@ -21,6 +25,23 @@ import static org.junit.Assert.*;
  * Uses DuckDB for testing since it's embedded and requires no Docker.
  */
 public class QueryAnalysisTest {
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Row types for tests
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  record IntStr(Integer i, String s) {}
+  record IntOptStr(Integer i, Optional<String> s) {}
+  record IntInt(Integer i1, Integer i2) {}
+  record IntStrDouble(Integer i, String s, Double d) {}
+  record IntStrBool(Integer i, String s, Boolean b) {}
+  record StrStrStr(String a, String b, String c) {}
+  record IntTypes(Byte t, Short s, Integer m, Long b, BigInteger h) {}
+  record UIntTypes(Uint1 t, Uint2 s, Uint4 m, Uint8 b, BigInteger h) {}
+  record FloatTypes(Float f, Double d, BigDecimal dec) {}
+  record DateTimeTypes(LocalDate d, LocalTime t, LocalDateTime ts, OffsetDateTime tstz) {}
+  record ArrayTypes(Integer[] ints, String[] strs) {}
+  record DecDoubleInt(BigDecimal sum, Double avg, Long cnt) {}
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Test helpers
@@ -46,11 +67,9 @@ public class QueryAnalysisTest {
   @Test
   public void testSimpleSelectAnalysis() {
     withConnection(conn -> {
-      // Create test table
       conn.createStatement().execute("CREATE TABLE users (id INTEGER, name VARCHAR)");
 
-      // Analyze a simple query - single column uses simpler overload
-      RowParser<Integer> parser = RowParsers.of(DuckDbTypes.integer);
+      RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer);
 
       Fragment fragment = Fragment.lit("SELECT id FROM users");
       Operation.Query<List<Integer>> query = fragment.query(parser.all());
@@ -72,9 +91,8 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE products (id INTEGER, name VARCHAR, price DECIMAL(10, 2))");
 
-      RowParser<String> parser = RowParsers.of(DuckDbTypes.varchar);
+      RowParser<String> parser = RowParser.of(DuckDbTypes.varchar);
 
-      // Query with parameter - note: DuckDB doesn't always provide parameter metadata
       Fragment fragment = Fragment.interpolate("SELECT name FROM products WHERE id = ")
           .param(DuckDbTypes.integer, 42)
           .done();
@@ -85,9 +103,6 @@ public class QueryAnalysisTest {
 
       System.out.println(analysis.report());
 
-      // The analysis should at least not crash
-      // Parameter metadata availability varies by database
-
       return null;
     });
   }
@@ -97,16 +112,13 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE simple (id INTEGER)");
 
-      // Parser expects 2 columns but query returns 1
-      RowParser<String> parser = RowParsers.of(
-          DuckDbTypes.integer,
-          DuckDbTypes.varchar,  // Extra column
-          (i, s) -> i + ":" + s,
-          (str) -> new Object[]{0, ""}
-      );
+      RowParser<IntStr> parser = RowParser.<IntStr>builder()
+          .field(DuckDbTypes.integer, IntStr::i)
+          .field(DuckDbTypes.varchar, IntStr::s)
+          .build(IntStr::new);
 
       Fragment fragment = Fragment.lit("SELECT id FROM simple");
-      Operation.Query<List<String>> query = fragment.query(parser.all());
+      Operation.Query<List<IntStr>> query = fragment.query(parser.all());
 
       QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
 
@@ -117,7 +129,6 @@ public class QueryAnalysisTest {
       List<AlignmentError> errors = analysis.columnErrors();
       assertTrue("Should have column errors", !errors.isEmpty());
 
-      // Should have an ExtraColumn error
       boolean hasExtraColumn = errors.stream()
           .anyMatch(e -> e instanceof AlignmentError.ExtraColumn);
       assertTrue("Should detect extra column in parser", hasExtraColumn);
@@ -131,16 +142,13 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE multi (id INTEGER, name VARCHAR, active BOOLEAN)");
 
-      // Parser expects 2 columns but query returns 3
-      RowParser<String> parser = RowParsers.of(
-          DuckDbTypes.integer,
-          DuckDbTypes.varchar,
-          (i, s) -> i + ":" + s,
-          (str) -> new Object[]{0, ""}
-      );
+      RowParser<IntStr> parser = RowParser.<IntStr>builder()
+          .field(DuckDbTypes.integer, IntStr::i)
+          .field(DuckDbTypes.varchar, IntStr::s)
+          .build(IntStr::new);
 
       Fragment fragment = Fragment.lit("SELECT id, name, active FROM multi");
-      Operation.Query<List<String>> query = fragment.query(parser.all());
+      Operation.Query<List<IntStr>> query = fragment.query(parser.all());
 
       QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
 
@@ -150,7 +158,6 @@ public class QueryAnalysisTest {
 
       List<AlignmentError> errors = analysis.columnErrors();
 
-      // Should have a MissingColumn error
       boolean hasMissingColumn = errors.stream()
           .anyMatch(e -> e instanceof AlignmentError.MissingColumn);
       assertTrue("Should detect missing column in parser", hasMissingColumn);
@@ -162,28 +169,22 @@ public class QueryAnalysisTest {
   @Test
   public void testNullabilityMismatch() {
     withConnection(conn -> {
-      // Create table with nullable column
       conn.createStatement().execute(
           "CREATE TABLE nullable_test (id INTEGER NOT NULL, name VARCHAR)"
       );
 
-      // Parser uses non-optional type for nullable column
-      RowParser<String> parser = RowParsers.of(
-          DuckDbTypes.integer,
-          DuckDbTypes.varchar,  // name is nullable but we're not using .opt()
-          (i, s) -> i + ":" + s,
-          (str) -> new Object[]{0, ""}
-      );
+      RowParser<IntStr> parser = RowParser.<IntStr>builder()
+          .field(DuckDbTypes.integer, IntStr::i)
+          .field(DuckDbTypes.varchar, IntStr::s)
+          .build(IntStr::new);
 
       Fragment fragment = Fragment.lit("SELECT id, name FROM nullable_test");
-      Operation.Query<List<String>> query = fragment.query(parser.all());
+      Operation.Query<List<IntStr>> query = fragment.query(parser.all());
 
       QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
 
       System.out.println(analysis.report());
 
-      // Check if nullability mismatch was detected
-      // Note: Some databases don't report nullable for all columns
       List<AlignmentError> errors = analysis.columnErrors();
       System.out.println("Nullability errors found: " + errors.size());
 
@@ -198,22 +199,18 @@ public class QueryAnalysisTest {
           "CREATE TABLE nullable_correct (id INTEGER NOT NULL, name VARCHAR)"
       );
 
-      // Parser correctly uses .opt() for nullable column
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.integer,
-          DuckDbTypes.varchar.opt(),  // Correctly marked as optional
-          (i, s) -> new Object[]{i, s},
-          (a) -> a
-      );
+      RowParser<IntOptStr> parser = RowParser.<IntOptStr>builder()
+          .field(DuckDbTypes.integer, IntOptStr::i)
+          .field(DuckDbTypes.varchar.opt(), IntOptStr::s)
+          .build(IntOptStr::new);
 
       Fragment fragment = Fragment.lit("SELECT id, name FROM nullable_correct");
-      Operation.Query<List<Object[]>> query = fragment.query(parser.all());
+      Operation.Query<List<IntOptStr>> query = fragment.query(parser.all());
 
       QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
 
       System.out.println(analysis.report());
 
-      // The nullable column should not generate an error
       List<AlignmentError> nullErrors = analysis.columnErrors().stream()
           .filter(e -> e instanceof AlignmentError.NullabilityMismatch)
           .toList();
@@ -229,16 +226,13 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE typed (id INTEGER, ts TIMESTAMP)");
 
-      // Parser uses wrong type for timestamp column
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.integer,
-          DuckDbTypes.integer,  // Wrong! Should be timestamp
-          (i1, i2) -> new Object[]{i1, i2},
-          (a) -> a
-      );
+      RowParser<IntInt> parser = RowParser.<IntInt>builder()
+          .field(DuckDbTypes.integer, IntInt::i1)
+          .field(DuckDbTypes.integer, IntInt::i2)
+          .build(IntInt::new);
 
       Fragment fragment = Fragment.lit("SELECT id, ts FROM typed");
-      Operation.Query<List<Object[]>> query = fragment.query(parser.all());
+      Operation.Query<List<IntInt>> query = fragment.query(parser.all());
 
       QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
 
@@ -263,25 +257,23 @@ public class QueryAnalysisTest {
           "CREATE TABLE report_test (a INTEGER, b VARCHAR, c DOUBLE, d BOOLEAN)"
       );
 
-      // Mix of correct and incorrect columns
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.integer,      // correct
-          DuckDbTypes.integer,      // wrong - should be varchar
-          DuckDbTypes.double_,      // correct
-          // missing d
-          (a, b, c) -> new Object[]{a, b, c},
-          (arr) -> arr
-      );
+      // Use a record with wrong types to test type mismatch detection
+      record IntIntDouble(Integer a, Integer b, Double c) {}
+      RowParser<IntIntDouble> parser = RowParser.<IntIntDouble>builder()
+          .field(DuckDbTypes.integer, IntIntDouble::a)
+          .field(DuckDbTypes.integer, IntIntDouble::b)  // wrong - should be varchar
+          .field(DuckDbTypes.double_, IntIntDouble::c)
+          // missing d column
+          .build(IntIntDouble::new);
 
       Fragment fragment = Fragment.lit("SELECT a, b, c, d FROM report_test");
-      Operation.Query<List<Object[]>> query = fragment.query(parser.all());
+      Operation.Query<List<IntIntDouble>> query = fragment.query(parser.all());
 
       QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
 
       String report = analysis.report();
       System.out.println(report);
 
-      // Verify report contains expected sections
       assertTrue("Report should contain SQL section", report.contains("SQL:"));
       assertTrue("Report should contain Parameters section", report.contains("Parameters"));
       assertTrue("Report should contain Columns section", report.contains("Columns"));
@@ -293,7 +285,6 @@ public class QueryAnalysisTest {
 
   @Test
   public void testFragmentParameterTypes() {
-    // Test that Fragment.parameterTypes() correctly extracts types
     Fragment simple = Fragment.lit("SELECT 1");
     assertEquals("Literal fragment should have no parameters", 0, simple.parameterTypes().size());
 
@@ -319,7 +310,6 @@ public class QueryAnalysisTest {
 
   @Test
   public void testOptionalTypeNullability() {
-    // Test that .opt() types correctly report as nullable
     DbType<Integer> nonNullable = DuckDbTypes.integer;
     DbType<Optional<Integer>> nullable = DuckDbTypes.integer.opt();
 
@@ -344,7 +334,6 @@ public class QueryAnalysisTest {
 
       System.out.println(analysis.report());
 
-      // Update analysis should have parameters but no columns
       assertEquals(0, analysis.columnAlignment().size());
 
       return null;
@@ -352,7 +341,7 @@ public class QueryAnalysisTest {
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Comprehensive type tests - verify all DuckDB types work with query analysis
+  // Comprehensive type tests
   // ─────────────────────────────────────────────────────────────────────────────
 
   @Test
@@ -368,16 +357,13 @@ public class QueryAnalysisTest {
           )
           """);
 
-      // Correct types
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.tinyint,
-          DuckDbTypes.smallint,
-          DuckDbTypes.integer,
-          DuckDbTypes.bigint,
-          DuckDbTypes.hugeint,
-          (t, s, m, b, h) -> new Object[]{t, s, m, b, h},
-          a -> a
-      );
+      RowParser<IntTypes> parser = RowParser.<IntTypes>builder()
+          .field(DuckDbTypes.tinyint, IntTypes::t)
+          .field(DuckDbTypes.smallint, IntTypes::s)
+          .field(DuckDbTypes.integer, IntTypes::m)
+          .field(DuckDbTypes.bigint, IntTypes::b)
+          .field(DuckDbTypes.hugeint, IntTypes::h)
+          .build(IntTypes::new);
 
       Fragment fragment = Fragment.lit("SELECT tiny, small, med, big, huge FROM int_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
@@ -402,22 +388,18 @@ public class QueryAnalysisTest {
           )
           """);
 
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.utinyint,
-          DuckDbTypes.usmallint,
-          DuckDbTypes.uinteger,
-          DuckDbTypes.ubigint,
-          DuckDbTypes.uhugeint,
-          (t, s, m, b, h) -> new Object[]{t, s, m, b, h},
-          a -> a
-      );
+      RowParser<UIntTypes> parser = RowParser.<UIntTypes>builder()
+          .field(DuckDbTypes.utinyint, UIntTypes::t)
+          .field(DuckDbTypes.usmallint, UIntTypes::s)
+          .field(DuckDbTypes.uinteger, UIntTypes::m)
+          .field(DuckDbTypes.ubigint, UIntTypes::b)
+          .field(DuckDbTypes.uhugeint, UIntTypes::h)
+          .build(UIntTypes::new);
 
       Fragment fragment = Fragment.lit("SELECT utiny, usmall, umed, ubig, uhuge FROM uint_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
 
       System.out.println(analysis.report());
-      // Note: analysis may succeed or fail based on JDBC type mapping
-      // The important thing is it doesn't crash
 
       return null;
     });
@@ -434,13 +416,11 @@ public class QueryAnalysisTest {
           )
           """);
 
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.float_,
-          DuckDbTypes.double_,
-          DuckDbTypes.decimal,
-          (f, d, dec) -> new Object[]{f, d, dec},
-          a -> a
-      );
+      RowParser<FloatTypes> parser = RowParser.<FloatTypes>builder()
+          .field(DuckDbTypes.float_, FloatTypes::f)
+          .field(DuckDbTypes.double_, FloatTypes::d)
+          .field(DuckDbTypes.decimal, FloatTypes::dec)
+          .build(FloatTypes::new);
 
       Fragment fragment = Fragment.lit("SELECT f, d, dec FROM float_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
@@ -463,13 +443,11 @@ public class QueryAnalysisTest {
           )
           """);
 
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.varchar,
-          DuckDbTypes.text,
-          DuckDbTypes.char_,
-          (v, t, c) -> new Object[]{v, t, c},
-          a -> a
-      );
+      RowParser<StrStrStr> parser = RowParser.<StrStrStr>builder()
+          .field(DuckDbTypes.varchar, StrStrStr::a)
+          .field(DuckDbTypes.text, StrStrStr::b)
+          .field(DuckDbTypes.char_, StrStrStr::c)
+          .build(StrStrStr::new);
 
       Fragment fragment = Fragment.lit("SELECT v, t, c FROM string_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
@@ -486,7 +464,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE bool_types (b BOOLEAN)");
 
-      RowParser<Boolean> parser = RowParsers.of(DuckDbTypes.boolean_);
+      RowParser<Boolean> parser = RowParser.of(DuckDbTypes.boolean_);
 
       Fragment fragment = Fragment.lit("SELECT b FROM bool_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
@@ -510,20 +488,17 @@ public class QueryAnalysisTest {
           )
           """);
 
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.date,
-          DuckDbTypes.time,
-          DuckDbTypes.timestamp,
-          DuckDbTypes.timestamptz,
-          (d, t, ts, tstz) -> new Object[]{d, t, ts, tstz},
-          a -> a
-      );
+      RowParser<DateTimeTypes> parser = RowParser.<DateTimeTypes>builder()
+          .field(DuckDbTypes.date, DateTimeTypes::d)
+          .field(DuckDbTypes.time, DateTimeTypes::t)
+          .field(DuckDbTypes.timestamp, DateTimeTypes::ts)
+          .field(DuckDbTypes.timestamptz, DateTimeTypes::tstz)
+          .build(DateTimeTypes::new);
 
       Fragment fragment = Fragment.lit("SELECT d, t, ts, tstz FROM datetime_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
 
       System.out.println(analysis.report());
-      // Just verify it runs without crashing
 
       return null;
     });
@@ -534,13 +509,12 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE uuid_types (u UUID)");
 
-      RowParser<UUID> parser = RowParsers.of(DuckDbTypes.uuid);
+      RowParser<UUID> parser = RowParser.of(DuckDbTypes.uuid);
 
       Fragment fragment = Fragment.lit("SELECT u FROM uuid_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
 
       System.out.println(analysis.report());
-      // UUID maps to OTHER in JDBC, so should pass
 
       return null;
     });
@@ -551,7 +525,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE blob_types (b BLOB)");
 
-      RowParser<byte[]> parser = RowParsers.of(DuckDbTypes.blob);
+      RowParser<byte[]> parser = RowParser.of(DuckDbTypes.blob);
 
       Fragment fragment = Fragment.lit("SELECT b FROM blob_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
@@ -572,12 +546,10 @@ public class QueryAnalysisTest {
           )
           """);
 
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.integerArray,
-          DuckDbTypes.varcharArray,
-          (i, s) -> new Object[]{i, s},
-          a -> a
-      );
+      RowParser<ArrayTypes> parser = RowParser.<ArrayTypes>builder()
+          .field(DuckDbTypes.integerArray, ArrayTypes::ints)
+          .field(DuckDbTypes.varcharArray, ArrayTypes::strs)
+          .build(ArrayTypes::new);
 
       Fragment fragment = Fragment.lit("SELECT int_arr, str_arr FROM array_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
@@ -593,8 +565,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE mismatch1 (name VARCHAR)");
 
-      // Wrong type: using integer for varchar column
-      RowParser<Integer> parser = RowParsers.of(DuckDbTypes.integer);
+      RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer);
 
       Fragment fragment = Fragment.lit("SELECT name FROM mismatch1");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
@@ -614,8 +585,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE mismatch2 (flag BOOLEAN)");
 
-      // Wrong type: using varchar for boolean column
-      RowParser<String> parser = RowParsers.of(DuckDbTypes.varchar);
+      RowParser<String> parser = RowParser.of(DuckDbTypes.varchar);
 
       Fragment fragment = Fragment.lit("SELECT flag FROM mismatch2");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
@@ -633,16 +603,12 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE mismatch3 (d DATE)");
 
-      // Wrong type: using timestamp for date column
-      RowParser<LocalDateTime> parser = RowParsers.of(DuckDbTypes.timestamp);
+      RowParser<LocalDateTime> parser = RowParser.of(DuckDbTypes.timestamp);
 
       Fragment fragment = Fragment.lit("SELECT d FROM mismatch3");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
 
       System.out.println(analysis.report());
-
-      // This might or might not be detected as mismatch depending on JDBC type compatibility
-      // but should not crash
 
       return null;
     });
@@ -661,19 +627,16 @@ public class QueryAnalysisTest {
           .param(DuckDbTypes.boolean_, true)
           .done();
 
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.integer,
-          DuckDbTypes.varchar,
-          DuckDbTypes.boolean_,
-          (i, n, a) -> new Object[]{i, n, a},
-          arr -> arr
-      );
+      RowParser<IntStrBool> parser = RowParser.<IntStrBool>builder()
+          .field(DuckDbTypes.integer, IntStrBool::i)
+          .field(DuckDbTypes.varchar, IntStrBool::s)
+          .field(DuckDbTypes.boolean_, IntStrBool::b)
+          .build(IntStrBool::new);
 
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
 
       System.out.println(analysis.report());
 
-      // Should have 3 parameters
       assertEquals("Should have 3 parameter types", 3, fragment.parameterTypes().size());
 
       return null;
@@ -694,13 +657,12 @@ public class QueryAnalysisTest {
           JOIN orders o ON u.id = o.user_id
           """);
 
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.integer,
-          DuckDbTypes.varchar,
-          DuckDbTypes.decimal,
-          (id, name, total) -> new Object[]{id, name, total},
-          arr -> arr
-      );
+      record JoinRow(Integer id, String name, BigDecimal total) {}
+      RowParser<JoinRow> parser = RowParser.<JoinRow>builder()
+          .field(DuckDbTypes.integer, JoinRow::id)
+          .field(DuckDbTypes.varchar, JoinRow::name)
+          .field(DuckDbTypes.decimal, JoinRow::total)
+          .build(JoinRow::new);
 
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
 
@@ -719,20 +681,15 @@ public class QueryAnalysisTest {
 
       Fragment fragment = Fragment.lit("SELECT SUM(amount), AVG(amount), COUNT(*) FROM sales");
 
-      // Aggregates return specific types
-      RowParser<Object[]> parser = RowParsers.of(
-          DuckDbTypes.decimal,  // SUM
-          DuckDbTypes.double_,  // AVG returns double
-          DuckDbTypes.bigint,   // COUNT returns bigint
-          (sum, avg, cnt) -> new Object[]{sum, avg, cnt},
-          arr -> arr
-      );
+      RowParser<DecDoubleInt> parser = RowParser.<DecDoubleInt>builder()
+          .field(DuckDbTypes.decimal, DecDoubleInt::sum)
+          .field(DuckDbTypes.double_, DecDoubleInt::avg)
+          .field(DuckDbTypes.bigint, DecDoubleInt::cnt)
+          .build(DecDoubleInt::new);
 
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
 
       System.out.println(analysis.report());
-
-      // May or may not match exactly depending on aggregate return types
 
       return null;
     });
@@ -745,7 +702,7 @@ public class QueryAnalysisTest {
 
       Fragment fragment = Fragment.lit("SELECT CAST(price AS DOUBLE) FROM items");
 
-      RowParser<Double> parser = RowParsers.of(DuckDbTypes.double_);
+      RowParser<Double> parser = RowParser.of(DuckDbTypes.double_);
 
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
 
@@ -762,7 +719,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE json_test (data JSON)");
 
-      RowParser<dev.typr.foundations.data.Json> parser = RowParsers.of(DuckDbTypes.json);
+      RowParser<dev.typr.foundations.data.Json> parser = RowParser.of(DuckDbTypes.json);
 
       Fragment fragment = Fragment.lit("SELECT data FROM json_test");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
@@ -778,7 +735,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE interval_test (dur INTERVAL)");
 
-      RowParser<Duration> parser = RowParsers.of(DuckDbTypes.interval);
+      RowParser<Duration> parser = RowParser.of(DuckDbTypes.interval);
 
       Fragment fragment = Fragment.lit("SELECT dur FROM interval_test");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
