@@ -54,7 +54,7 @@ public record RowParser<Row>(
       try {
         currentRow[colNum] = dbType.read().read(rs, colNum + 1);
       } catch (Exception e) {
-        throw new SqlResultParseException(rowNum, colNum, dbType, e);
+        throw new SqlResultParseException(rs, rowNum, colNum + 1, dbType, e);
       }
     }
     return this.decode().apply(currentRow);
@@ -73,7 +73,7 @@ public record RowParser<Row>(
       }
       return readRow(rs, rowNum);
     } catch (SQLException e) {
-      throw new SqlResultParseException(0, 0, null, e);
+      throw new SqlResultParseException(rs, 0, 0, null, e);
     }
   }
 
@@ -87,17 +87,43 @@ public record RowParser<Row>(
   }
 
   public static class SqlResultParseException extends SQLException {
-    public SqlResultParseException(int row, int column, DbType<?> tpe, Exception cause) {
-      super(formatMessage(row, column, tpe, cause), cause);
+    public SqlResultParseException(
+        ResultSet rs, int row, int column, DbType<?> tpe, Exception cause) {
+      super(formatMessage(rs, row, column, tpe, cause), cause);
     }
 
-    private static String formatMessage(int row, int column, DbType<?> tpe, Exception cause) {
+    private static String formatMessage(
+        ResultSet rs, int row, int column, DbType<?> tpe, Exception cause) {
       StringBuilder sb = new StringBuilder();
-      sb.append("Column ").append(column).append(": parse error\n");
+
+      // Try to get column name from metadata
+      String columnName = null;
+      String actualType = null;
+      try {
+        var meta = rs.getMetaData();
+        columnName = meta.getColumnName(column);
+        actualType = meta.getColumnTypeName(column);
+      } catch (Exception ignored) {
+        // Metadata not available
+      }
+
+      // Header
+      sb.append("Failed to read column ").append(column);
+      if (columnName != null && !columnName.isEmpty()) {
+        sb.append(" '").append(columnName).append("'");
+      }
+      sb.append("\n");
+
+      // Expected vs Actual types
       if (tpe != null) {
-        sb.append("   │ Expected type: ").append(tpe.typename().sqlType()).append("\n");
+        sb.append("   │ Expected: ").append(tpe.typename().sqlType()).append("\n");
+      }
+      if (actualType != null) {
+        sb.append("   │ Actual:   ").append(actualType).append("\n");
       }
       sb.append("   │ Row: ").append(row).append("\n");
+
+      // Cause
       if (cause != null) {
         sb.append("   └ ").append(cause.getClass().getSimpleName());
         if (cause.getMessage() != null) {

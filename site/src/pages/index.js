@@ -582,10 +582,11 @@ function ErrorMessagesSection() {
         </p>
         <div style={{display: 'grid', gap: '1.5rem', maxWidth: '800px', margin: '0 auto'}}>
           <div style={{fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.8rem', lineHeight: '1.6', whiteSpace: 'pre', background: '#1e293b', borderRadius: '8px', padding: '1.25rem', border: '1px solid #334155'}}>
-            <span style={{color: '#f87171'}}>Column 3: parse error</span>{"\n"}
-            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Expected type: </span><span style={{color: '#60a5fa'}}>timestamptz</span>{"\n"}
+            <span style={{color: '#f87171'}}>Failed to read column </span><span style={{color: '#fbbf24'}}>3</span><span style={{color: '#f87171'}}> '</span><span style={{color: '#60a5fa'}}>created_at</span><span style={{color: '#f87171'}}>'</span>{"\n"}
+            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Expected: </span><span style={{color: '#4ade80'}}>timestamptz</span>{"\n"}
+            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Actual:   </span><span style={{color: '#f87171'}}>TIMESTAMP</span>{"\n"}
             <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Row: </span><span style={{color: '#fbbf24'}}>0</span>{"\n"}
-            <span style={{color: '#94a3b8'}}>{"   └ "}</span><span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#e2e8f0'}}>: Cannot convert class java.sql.Timestamp to OffsetDateTime</span>
+            <span style={{color: '#94a3b8'}}>{"   └ "}</span><span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#e2e8f0'}}>: Cannot convert Timestamp to OffsetDateTime</span>
           </div>
           <div style={{fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.8rem', lineHeight: '1.6', whiteSpace: 'pre', background: '#1e293b', borderRadius: '8px', padding: '1.25rem', border: '1px solid #334155'}}>
             <span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#e2e8f0'}}>: Expected single row, but found more</span>

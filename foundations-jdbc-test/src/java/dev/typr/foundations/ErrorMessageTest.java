@@ -65,12 +65,16 @@ public class ErrorMessageTest {
       System.out.println("====================================");
 
       // Verify Query Analysis-aligned format
-      assertTrue("Should have 'Column X: parse error' header",
-          fullChain.contains("Column") && fullChain.contains("parse error"));
+      assertTrue("Should have 'Failed to read column' header",
+          fullChain.contains("Failed to read column"));
+      assertTrue("Should include column name from metadata",
+          fullChain.contains("'name'"));
       assertTrue("Should have box-drawing characters for structure",
           fullChain.contains("│") && fullChain.contains("└"));
       assertTrue("Should show expected type",
-          fullChain.contains("Expected type:"));
+          fullChain.contains("Expected:"));
+      assertTrue("Should show actual type from metadata",
+          fullChain.contains("Actual:") && fullChain.contains("VARCHAR"));
       assertTrue("Should show row number",
           fullChain.contains("Row:"));
       assertTrue("Should include cause exception type and message",
@@ -234,8 +238,9 @@ public class ErrorMessageTest {
     System.out.println("ACTUAL LIBRARY MESSAGES (Query Analysis-aligned format):");
     System.out.println("--------------------------------------------------------------------");
     System.out.println("  RowParser.SqlResultParseException:");
-    System.out.println("    Column 3: parse error");
-    System.out.println("       │ Expected type: timestamptz");
+    System.out.println("    Failed to read column 3 'created_at'");
+    System.out.println("       │ Expected: timestamptz");
+    System.out.println("       │ Actual:   TIMESTAMP");
     System.out.println("       │ Row: 0");
     System.out.println("       └ SQLException: Cannot convert Timestamp to OffsetDateTime");
     System.out.println();
