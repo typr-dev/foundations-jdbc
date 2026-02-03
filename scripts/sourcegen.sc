@@ -631,6 +631,156 @@ def generatePgStructBuilders(): String = {
       |""".stripMargin
 }
 
+def generateKotlinRowParserBuilders(): String = {
+  val maxArity = N - 1
+
+  val builder0 = s"""|    class Builder0<Row : Any> internal constructor() {
+                     |        private val types = mutableListOf<DbType<*>>()
+                     |        private val getters = mutableListOf<(Row) -> Any?>()
+                     |
+                     |        fun <F> field(type: DbType<F>, getter: (Row) -> F): Builder1<Row, F> {
+                     |            types.add(type)
+                     |            @Suppress("UNCHECKED_CAST")
+                     |            getters.add(getter as (Row) -> Any?)
+                     |            return Builder1(types, getters)
+                     |        }
+                     |    }""".stripMargin
+
+  val builders = 1.to(maxArity).map { n =>
+    val range = 0.until(n)
+    val tparams = range.map(i => s"T$i").mkString(", ")
+    val decodeParams = range.map(i => s"T$i").mkString(", ")
+    val decodeArgs = range.map(i => s"arr[$i] as T$i").mkString(", ")
+
+    val nextBuilder = if (n < maxArity) {
+      val nextTparams = (0 until n).map(i => s"T$i").mkString(", ")
+      s"""|
+          |        fun <F> field(type: DbType<F>, getter: (Row) -> F): Builder${n + 1}<Row, $nextTparams, F> {
+          |            types.add(type)
+          |            @Suppress("UNCHECKED_CAST")
+          |            getters.add(getter as (Row) -> Any?)
+          |            return Builder${n + 1}(types, getters)
+          |        }""".stripMargin
+    } else ""
+
+    s"""|    class Builder$n<Row : Any, $tparams> internal constructor(
+        |        private val types: MutableList<DbType<*>>,
+        |        private val getters: MutableList<(Row) -> Any?>
+        |    ) {
+        |        @Suppress("UNCHECKED_CAST")
+        |        fun build(decode: ($decodeParams) -> Row): RowParser<Row> {
+        |            val capturedGetters = getters.toList()
+        |            val javaParser = dev.typr.foundations.RowParser<Row>(
+        |                types.toList(),
+        |                { arr -> decode($decodeArgs) },
+        |                { row -> capturedGetters.map { it(row) }.toTypedArray() }
+        |            )
+        |            return RowParser(javaParser)
+        |        }$nextBuilder
+        |    }""".stripMargin
+  }
+
+  s"""|package dev.typr.foundations.kotlin
+      |
+      |import dev.typr.foundations.DbType
+      |
+      |/**
+      | * Type-safe builders for Kotlin RowParser.
+      | *
+      | * Usage:
+      | * ```kotlin
+      | * val parser: RowParser<Product> = RowParser.builder<Product>()
+      | *     .field(PgTypes.int4, Product::id)
+      | *     .field(PgTypes.text, Product::name)
+      | *     .field(PgTypes.numeric, Product::price)
+      | *     .build(::Product)
+      | * ```
+      | */
+      |object RowParserBuilders {
+      |    fun <Row : Any> builder(): Builder0<Row> = Builder0()
+      |
+      |$builder0
+      |
+      |${builders.mkString("\n\n")}
+      |}
+      |""".stripMargin
+}
+
+def generateScalaRowParserBuilders(): String = {
+  val maxArity = N - 1
+
+  val builder0 = s"""|  class Builder0[Row] private[scala] () {
+                     |    private val types = scala.collection.mutable.ListBuffer[DbType[?]]()
+                     |    private val getters = scala.collection.mutable.ListBuffer[Row => Any]()
+                     |
+                     |    def field[F](tpe: DbType[F], getter: Row => F): Builder1[Row, F] = {
+                     |      types += tpe
+                     |      getters += getter.asInstanceOf[Row => Any]
+                     |      new Builder1(types, getters)
+                     |    }
+                     |  }""".stripMargin
+
+  val builders = 1.to(maxArity).map { n =>
+    val range = 0.until(n)
+    val tparams = range.map(i => s"T$i").mkString(", ")
+    val decodeParams = range.map(i => s"T$i").mkString(", ")
+    val decodeArgs = range.map(i => s"arr($i).asInstanceOf[T$i]").mkString(", ")
+
+    val nextBuilder = if (n < maxArity) {
+      val nextTparams = (0 until n).map(i => s"T$i").mkString(", ")
+      s"""|
+          |    def field[F](tpe: DbType[F], getter: Row => F): Builder${n + 1}[Row, $nextTparams, F] = {
+          |      types += tpe
+          |      getters += getter.asInstanceOf[Row => Any]
+          |      new Builder${n + 1}(types, getters)
+          |    }""".stripMargin
+    } else ""
+
+    s"""|  class Builder$n[Row, $tparams] private[scala] (
+        |    private val types: scala.collection.mutable.ListBuffer[DbType[?]],
+        |    private val getters: scala.collection.mutable.ListBuffer[Row => Any]
+        |  ) {
+        |    def build(decode: ($decodeParams) => Row): RowParser[Row] = {
+        |      val capturedGetters = getters.toList
+        |      val javaParser = new dev.typr.foundations.RowParser[Row](
+        |        java.util.List.copyOf(types.map(_.asInstanceOf[DbType[?]]).asJava),
+        |        arr => decode($decodeArgs),
+        |        row => capturedGetters.map(_(row)).toArray
+        |      )
+        |      new RowParser(javaParser)
+        |    }$nextBuilder
+        |  }""".stripMargin
+  }
+
+  s"""|package dev.typr.foundations.scala
+      |
+      |import dev.typr.foundations.DbType
+      |import scala.jdk.CollectionConverters.*
+      |
+      |/** Type-safe builders for Scala RowParser.
+      |  *
+      |  * Usage:
+      |  * {{{
+      |  * val parser: RowParser[Product] = RowParser.builder[Product]()
+      |  *   .field(PgTypes.int4, _.id)
+      |  *   .field(PgTypes.text, _.name)
+      |  *   .field(PgTypes.numeric, _.price)
+      |  *   .build(Product.apply)
+      |  * }}}
+      |  */
+      |object RowParserBuilders {
+      |  def builder[Row](): Builder0[Row] = new Builder0()
+      |
+      |$builder0
+      |
+      |${builders.mkString("\n\n")}
+      |}
+      |""".stripMargin
+}
+
+val kotlinOutputDir = baseDir.resolve("documentation-examples-kotlin/src/kotlin/dev/typr/foundations/kotlin")
+val scalaOutputDir = baseDir.resolve("foundations-jdbc-scala/src/scala/dev/typr/foundations/scala")
+
 Files.createDirectories(outputDir)
 
 val functionsContent = generateFunctions()
@@ -669,3 +819,17 @@ val tupleContent = generateTuples()
 val tuplePath = outputDir.resolve("Tuple.java")
 Files.writeString(tuplePath, tupleContent)
 println(s"Wrote ${tuplePath}")
+
+// Generate Kotlin RowParserBuilders
+Files.createDirectories(kotlinOutputDir)
+val kotlinRowParserBuildersContent = generateKotlinRowParserBuilders()
+val kotlinRowParserBuildersPath = kotlinOutputDir.resolve("RowParserBuilders.kt")
+Files.writeString(kotlinRowParserBuildersPath, kotlinRowParserBuildersContent)
+println(s"Wrote ${kotlinRowParserBuildersPath}")
+
+// Generate Scala RowParserBuilders
+Files.createDirectories(scalaOutputDir)
+val scalaRowParserBuildersContent = generateScalaRowParserBuilders()
+val scalaRowParserBuildersPath = scalaOutputDir.resolve("RowParserBuilders.scala")
+Files.writeString(scalaRowParserBuildersPath, scalaRowParserBuildersContent)
+println(s"Wrote ${scalaRowParserBuildersPath}")

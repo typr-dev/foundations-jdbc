@@ -2,6 +2,8 @@
 title: SQL Server Types
 ---
 
+import Snippet from '@site/src/components/Snippet';
+
 # SQL Server Type Support
 
 Foundations JDBC provides comprehensive support for SQL Server data types, including geography, geometry, hierarchyid, and Unicode types.
@@ -18,16 +20,12 @@ Foundations JDBC provides comprehensive support for SQL Server data types, inclu
 
 | SQL Server Type | Java Type | Range | Notes |
 |-----------------|-----------|-------|-------|
-| `TINYINT` | `Short` | 0-255 | **Unsigned!** |
+| `TINYINT` | `Uint1` | 0-255 | **Unsigned!** |
 | `SMALLINT` | `Short` | -32,768 to 32,767 | |
 | `INT` | `Integer` | -2^31 to 2^31-1 | |
 | `BIGINT` | `Long` | -2^63 to 2^63-1 | |
 
-```java
-SqlServerType<Short> tinyType = SqlServerTypes.tinyint;   // Note: unsigned!
-SqlServerType<Integer> intType = SqlServerTypes.int_;
-SqlServerType<Long> bigType = SqlServerTypes.bigint;
-```
+<Snippet file="sqlserver/IntegerTypes" />
 
 ## Fixed-Point Types
 
@@ -38,11 +36,7 @@ SqlServerType<Long> bigType = SqlServerTypes.bigint;
 | `MONEY` | `BigDecimal` | Currency (4 decimal places) |
 | `SMALLMONEY` | `BigDecimal` | Smaller currency range |
 
-```java
-SqlServerType<BigDecimal> decimalType = SqlServerTypes.decimal;
-SqlServerType<BigDecimal> precise = SqlServerTypes.decimal(18, 4);
-SqlServerType<BigDecimal> moneyType = SqlServerTypes.money;
-```
+<Snippet file="sqlserver/FixedPointTypes" />
 
 ## Floating-Point Types
 
@@ -51,10 +45,7 @@ SqlServerType<BigDecimal> moneyType = SqlServerTypes.money;
 | `REAL` | `Float` | 32-bit IEEE 754 |
 | `FLOAT` | `Double` | 64-bit IEEE 754 |
 
-```java
-SqlServerType<Float> realType = SqlServerTypes.real;
-SqlServerType<Double> floatType = SqlServerTypes.float_;
-```
+<Snippet file="sqlserver/FloatingPointTypes" />
 
 ## Boolean Type
 
@@ -62,9 +53,7 @@ SqlServerType<Double> floatType = SqlServerTypes.float_;
 |-----------------|-----------|
 | `BIT` | `Boolean` |
 
-```java
-SqlServerType<Boolean> bitType = SqlServerTypes.bit;
-```
+<Snippet file="sqlserver/BoolType" />
 
 ## String Types (Non-Unicode)
 
@@ -75,11 +64,7 @@ SqlServerType<Boolean> bitType = SqlServerTypes.bit;
 | `VARCHAR(MAX)` | `String` | 2 GB | Large variable-length |
 | `TEXT` | `String` | 2 GB | Deprecated, use VARCHAR(MAX) |
 
-```java
-SqlServerType<String> charType = SqlServerTypes.char_(10);
-SqlServerType<String> varcharType = SqlServerTypes.varchar(255);
-SqlServerType<String> varcharMax = SqlServerTypes.varcharMax;
-```
+<Snippet file="sqlserver/StringTypes" />
 
 ## String Types (Unicode)
 
@@ -90,11 +75,7 @@ SqlServerType<String> varcharMax = SqlServerTypes.varcharMax;
 | `NVARCHAR(MAX)` | `String` | 2 GB | Large Unicode |
 | `NTEXT` | `String` | 2 GB | Deprecated |
 
-```java
-SqlServerType<String> ncharType = SqlServerTypes.nchar(10);
-SqlServerType<String> nvarcharType = SqlServerTypes.nvarchar(255);
-SqlServerType<String> nvarcharMax = SqlServerTypes.nvarcharMax;
-```
+<Snippet file="sqlserver/UnicodeStringTypes" />
 
 ## Binary Types
 
@@ -105,11 +86,7 @@ SqlServerType<String> nvarcharMax = SqlServerTypes.nvarcharMax;
 | `VARBINARY(MAX)` | `byte[]` | 2 GB |
 | `IMAGE` | `byte[]` | 2 GB (deprecated) |
 
-```java
-SqlServerType<byte[]> binaryType = SqlServerTypes.binary(16);
-SqlServerType<byte[]> varbinaryType = SqlServerTypes.varbinary(255);
-SqlServerType<byte[]> varbinaryMax = SqlServerTypes.varbinaryMax;
-```
+<Snippet file="sqlserver/BinaryTypes" />
 
 ## Date/Time Types
 
@@ -122,23 +99,7 @@ SqlServerType<byte[]> varbinaryMax = SqlServerTypes.varbinaryMax;
 | `DATETIME2` | `LocalDateTime` | 100ns | Modern |
 | `DATETIMEOFFSET` | `OffsetDateTime` | 100ns | With timezone |
 
-```java
-SqlServerType<LocalDate> dateType = SqlServerTypes.date;
-SqlServerType<LocalTime> timeType = SqlServerTypes.time;
-SqlServerType<LocalTime> time3 = SqlServerTypes.time(3);  // TIME(3)
-
-// Legacy types
-SqlServerType<LocalDateTime> datetimeType = SqlServerTypes.datetime;
-SqlServerType<LocalDateTime> smalldtType = SqlServerTypes.smalldatetime;
-
-// Modern types (recommended)
-SqlServerType<LocalDateTime> datetime2Type = SqlServerTypes.datetime2;
-SqlServerType<LocalDateTime> datetime2_3 = SqlServerTypes.datetime2(3);
-
-// Timezone-aware
-SqlServerType<OffsetDateTime> dtoType = SqlServerTypes.datetimeoffset;
-SqlServerType<OffsetDateTime> dto3 = SqlServerTypes.datetimeoffset(3);
-```
+<Snippet file="sqlserver/DateTimeTypes" />
 
 ## UNIQUEIDENTIFIER (UUID/GUID)
 
@@ -146,19 +107,15 @@ SqlServerType<OffsetDateTime> dto3 = SqlServerTypes.datetimeoffset(3);
 |-----------------|-----------|
 | `UNIQUEIDENTIFIER` | `java.util.UUID` |
 
-```java
-SqlServerType<UUID> uuidType = SqlServerTypes.uniqueidentifier;
-```
+<Snippet file="sqlserver/UuidType" />
 
 ## XML Type
 
 | SQL Server Type | Java Type |
 |-----------------|-----------|
-| `XML` | `String` |
+| `XML` | `Xml` |
 
-```java
-SqlServerType<String> xmlType = SqlServerTypes.xml;
-```
+<Snippet file="sqlserver/XmlType" />
 
 ## JSON Type
 
@@ -166,11 +123,9 @@ SQL Server 2016+ stores JSON as NVARCHAR(MAX):
 
 | SQL Server Type | Java Type | Notes |
 |-----------------|-----------|-------|
-| `NVARCHAR(MAX)` | `String` | JSON stored as Unicode string |
+| `NVARCHAR(MAX)` | `Json` | JSON stored as Unicode string |
 
-```java
-SqlServerType<String> jsonType = SqlServerTypes.json;
-```
+<Snippet file="sqlserver/JsonType" />
 
 ## Spatial Types
 
@@ -181,16 +136,7 @@ SQL Server spatial types use the JDBC driver's native classes:
 | `GEOGRAPHY` | `Geography` | Geodetic (round earth) |
 | `GEOMETRY` | `Geometry` | Planar (flat earth) |
 
-```java
-import com.microsoft.sqlserver.jdbc.Geography;
-import com.microsoft.sqlserver.jdbc.Geometry;
-
-SqlServerType<Geography> geoType = SqlServerTypes.geography;
-SqlServerType<Geometry> geomType = SqlServerTypes.geometry;
-
-// Create spatial objects using WKT
-Geography point = Geography.STPointFromText("POINT(-122.34900 47.65100)", 4326);
-```
+<Snippet file="sqlserver/SpatialTypes" />
 
 ## HIERARCHYID
 
@@ -198,11 +144,9 @@ For hierarchical tree structures:
 
 | SQL Server Type | Java Type | Notes |
 |-----------------|-----------|-------|
-| `HIERARCHYID` | `String` | Path notation like `/1/2/3/` |
+| `HIERARCHYID` | `HierarchyId` | Path notation like `/1/2/3/` |
 
-```java
-SqlServerType<String> hierarchyType = SqlServerTypes.hierarchyid;
-```
+<Snippet file="sqlserver/HierarchyIdType" />
 
 ## ROWVERSION / TIMESTAMP
 
@@ -211,9 +155,7 @@ SqlServerType<String> hierarchyType = SqlServerTypes.hierarchyid;
 | `ROWVERSION` | `byte[]` | 8-byte version number |
 | `TIMESTAMP` | `byte[]` | Alias for ROWVERSION |
 
-```java
-SqlServerType<byte[]> rowversionType = SqlServerTypes.rowversion;
-```
+<Snippet file="sqlserver/RowversionType" />
 
 ## SQL_VARIANT
 
@@ -221,9 +163,7 @@ SqlServerType<byte[]> rowversionType = SqlServerTypes.rowversion;
 |-----------------|-----------|-------|
 | `SQL_VARIANT` | `Object` | Can store various types |
 
-```java
-SqlServerType<Object> variantType = SqlServerTypes.sqlVariant;
-```
+<Snippet file="sqlserver/SqlVariantType" />
 
 ## VECTOR (SQL Server 2025)
 
@@ -231,28 +171,16 @@ SqlServerType<Object> variantType = SqlServerTypes.sqlVariant;
 |-----------------|-----------|-------|
 | `VECTOR` | `byte[]` | For embeddings/ML |
 
-```java
-SqlServerType<byte[]> vectorType = SqlServerTypes.vector;
-```
+<Snippet file="sqlserver/VectorType" />
 
 ## Nullable Types
 
-Any type can be made nullable using `.nullable()`:
+Any type can be made nullable using `.opt()`:
 
-```java
-SqlServerType<Integer> notNull = SqlServerTypes.int_;
-SqlServerType<Integer> nullable = SqlServerTypes.int_.nullable();
-```
+<Snippet file="sqlserver/NullableTypes" />
 
 ## Custom Domain Types
 
 Wrap base types with custom Java types using `bimap`:
 
-```java
-// Wrapper type
-public record OrderId(Integer value) {}
-
-// Create SqlServerType from INT
-SqlServerType<OrderId> orderIdType =
-    SqlServerTypes.int_.bimap(OrderId::new, OrderId::value);
-```
+<Snippet file="sqlserver/DomainType" />

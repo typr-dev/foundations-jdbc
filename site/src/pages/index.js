@@ -5,6 +5,7 @@ import CodeBlock from '@theme/CodeBlock';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import styles from './index.module.css';
+import Snippet from '@site/src/components/Snippet';
 
 const typeGrid = [
   {
@@ -107,283 +108,6 @@ CREATE TABLE product (
     created_at  timestamptz DEFAULT now()
 );`;
 
-const rowCode = {
-  java: `record ProductRow(
-  ProductId id,
-  String name,
-  BigDecimal price,
-  Optional<String[]> tags,            // text[]
-  Optional<Dimensions> dimensions,    // composite type
-  Optional<Jsonb> metadata,           // jsonb
-  Optional<OffsetDateTime> createdAt  // timestamptz
-) {}`,
-  kotlin: `data class ProductRow(
-  val id: ProductId,
-  val name: String,
-  val price: BigDecimal,
-  val tags: Array<String>?,            // text[]
-  val dimensions: Dimensions?,         // composite type
-  val metadata: Jsonb?,                // jsonb
-  val createdAt: OffsetDateTime?       // timestamptz
-)`,
-  scala: `case class ProductRow(
-  id: ProductId,
-  name: String,
-  price: BigDecimal,
-  tags: Option[Array[String]],            // text[]
-  dimensions: Option[Dimensions],         // composite type
-  metadata: Option[Jsonb],                // jsonb
-  createdAt: Option[OffsetDateTime]       // timestamptz
-)`,
-};
-
-const parserCode = {
-  java: `static RowParser<ProductRow> rowParser = RowParser.<ProductRow>builder()
-    .field(ProductId.pgType, ProductRow::id)
-    .field(PgTypes.text, ProductRow::name)
-    .field(PgTypes.numeric, ProductRow::price)
-    .field(PgTypes.textArray.opt(), ProductRow::tags)
-    .field(Dimensions.pgType.opt(), ProductRow::dimensions)
-    .field(PgTypes.jsonb.opt(), ProductRow::metadata)
-    .field(PgTypes.timestamptz.opt(), ProductRow::createdAt)
-    .build(ProductRow::new);
-
-// Compose parsers for joins
-RowParser<And<ProductRow, Optional<CategoryRow>>> joined =
-    ProductRow.rowParser.leftJoined(CategoryRow.rowParser);`,
-  kotlin: `val rowParser: RowParser<ProductRow> = RowParser.builder<ProductRow>()
-    .field(ProductId.pgType, ProductRow::id)
-    .field(PgTypes.text, ProductRow::name)
-    .field(PgTypes.numeric, ProductRow::price)
-    .field(PgTypes.textArray.opt(), ProductRow::tags)
-    .field(Dimensions.pgType.opt(), ProductRow::dimensions)
-    .field(PgTypes.jsonb.opt(), ProductRow::metadata)
-    .field(PgTypes.timestamptz.opt(), ProductRow::createdAt)
-    .build(::ProductRow)
-
-// Compose parsers for joins
-val joined: RowParser<And<ProductRow, ProductRow?>> =
-    ProductRow.rowParser.leftJoined(CategoryRow.rowParser)`,
-  scala: `val rowParser: RowParser[ProductRow] = RowParser.builder[ProductRow]()
-    .field(ProductId.pgType, _.id)
-    .field(PgTypes.text, _.name)
-    .field(PgTypes.numeric, _.price)
-    .field(PgTypes.textArray.opt(), _.tags)
-    .field(Dimensions.pgType.opt(), _.dimensions)
-    .field(PgTypes.jsonb.opt(), _.metadata)
-    .field(PgTypes.timestamptz.opt(), _.createdAt)
-    .build(ProductRow.apply)
-
-// Compose parsers for joins
-val joined: RowParser[And[ProductRow, Option[CategoryRow]]] =
-    ProductRow.rowParser.leftJoined(CategoryRow.rowParser)`,
-};
-
-const compositeCode = {
-  java: `record Dimensions(
-  Double width, Double height, Double depth, String unit
-) {}
-
-// PgStruct handles PostgreSQL's composite wire format
-static PgStruct<Dimensions> pgStruct = PgStruct.<Dimensions>builder("dimensions")
-    .field("width", PgTypes.float8, Dimensions::width)
-    .field("height", PgTypes.float8, Dimensions::height)
-    .field("depth", PgTypes.float8, Dimensions::depth)
-    .field("unit", PgTypes.varchar, Dimensions::unit)
-    .build(Dimensions::new);
-
-static PgType<Dimensions> pgType = pgStruct.asType();`,
-  kotlin: `data class Dimensions(
-  val width: Double, val height: Double,
-  val depth: Double, val unit: String
-)
-
-// PgStruct handles PostgreSQL's composite wire format
-val pgStruct: PgStruct<Dimensions> = PgStruct.builder<Dimensions>("dimensions")
-    .field("width", PgTypes.float8, Dimensions::width)
-    .field("height", PgTypes.float8, Dimensions::height)
-    .field("depth", PgTypes.float8, Dimensions::depth)
-    .field("unit", PgTypes.varchar, Dimensions::unit)
-    .build(::Dimensions)
-
-val pgType: PgType<Dimensions> = pgStruct.asType()`,
-  scala: `case class Dimensions(
-  width: Double, height: Double,
-  depth: Double, unit: String
-)
-
-// PgStruct handles PostgreSQL's composite wire format
-val pgStruct: PgStruct[Dimensions] = PgStruct.builder[Dimensions]("dimensions")
-    .field("width", PgTypes.float8, _.width)
-    .field("height", PgTypes.float8, _.height)
-    .field("depth", PgTypes.float8, _.depth)
-    .field("unit", PgTypes.varchar, _.unit)
-    .build(Dimensions.apply)
-
-val pgType: PgType[Dimensions] = pgStruct.asType()`,
-};
-
-const wrapperCode = {
-  java: `record ProductId(Integer value) {
-    // MariaDB int → wraps to your domain type
-    static MariaType<ProductId> mariaType =
-        MariaTypes.int_.bimap(ProductId::new, ProductId::value);
-}`,
-  kotlin: `data class ProductId(val value: Int) {
-    companion object {
-        // MariaDB int → wraps to your domain type
-        val mariaType: MariaType<ProductId> =
-            MariaTypes.int_.bimap(::ProductId, ProductId::value)
-    }
-}`,
-  scala: `case class ProductId(value: Int) extends AnyVal
-
-object ProductId:
-    // MariaDB int → wraps to your domain type
-    given mariaType: MariaType[ProductId] =
-        MariaTypes.int_.bimap(ProductId.apply, _.value)`,
-};
-
-const arrayCode = {
-  java: `// DuckDB arrays are first-class typed values
-List<String[]> tagSets = tx.execute(conn ->
-    Fragment.lit("SELECT tags FROM posts WHERE published = true")
-        .query(RowParser.of(DuckDbTypes.varcharArray).all())
-        .run(conn));`,
-  kotlin: `// DuckDB arrays are first-class typed values
-val tagSets: List<Array<String>> = tx.execute { conn ->
-    Fragment.lit("SELECT tags FROM posts WHERE published = true")
-        .query(RowParser.of(DuckDbTypes.varcharArray).all())
-        .run(conn)
-}`,
-  scala: `import dev.typr.foundations.scala.FragmentInterpolator.sql
-
-// DuckDB arrays are first-class typed values
-val tagSets: List[Array[String]] = tx.execute(conn =>
-    sql"SELECT tags FROM posts WHERE published = true"
-        .query(RowParser.of(DuckDbTypes.varcharArray).all())
-        .run(conn))`,
-};
-
-const queryCode = {
-  java: `// Build small reusable filters — SQL Server example
-Fragment byName(String name) {
-    return Fragment.interpolate("name LIKE ")
-        .param(SqlServerTypes.nvarchar, name).done();
-}
-Fragment cheaperThan(BigDecimal max) {
-    return Fragment.interpolate("price < ")
-        .param(SqlServerTypes.decimal, max).done();
-}
-
-// Compose dynamically — only include the filters that are present
-List<Fragment> filters = Stream.of(
-        Optional.of(byName("%widget%")),
-        maxPrice.map(this::cheaperThan)
-    )
-    .flatMap(Optional::stream)
-    .toList();
-
-List<OrderRow> orders = Fragment.interpolate("SELECT * FROM orders ")
-    .param(Fragment.whereAnd(filters)).done()
-    .query(OrderRow.rowParser.all())
-    .run(conn);`,
-  kotlin: `// Build small reusable filters — SQL Server example
-fun byName(name: String) =
-    Fragment.interpolate("name LIKE ")
-        .param(SqlServerTypes.nvarchar, name).done()
-
-fun cheaperThan(max: BigDecimal) =
-    Fragment.interpolate("price < ")
-        .param(SqlServerTypes.decimal, max).done()
-
-// Compose dynamically — only include the filters that are present
-val filters = listOfNotNull(
-    byName("%widget%"),
-    maxPrice?.let { cheaperThan(it) }
-)
-
-val orders: List<OrderRow> = Fragment.interpolate("SELECT * FROM orders ")
-    .param(Fragment.whereAnd(filters)).done()
-    .query(OrderRow.rowParser.all())
-    .run(conn)`,
-  scala: `import dev.typr.foundations.scala.FragmentInterpolator.sql
-
-// Build small reusable filters — SQL Server example
-def byName(name: String) =
-    sql"name LIKE \${Fragment.encode(SqlServerTypes.nvarchar, name)}"
-
-def cheaperThan(max: BigDecimal) =
-    sql"price < \${Fragment.encode(SqlServerTypes.decimal, max)}"
-
-// Compose dynamically — only include the filters that are present
-val filters: List[Fragment] = List(
-    Some(byName("%widget%")),
-    maxPrice.map(cheaperThan)
-).flatten
-
-val orders: List[OrderRow] =
-    sql"SELECT * FROM orders \${Fragment.whereAnd(filters)}"
-        .query(OrderRow.rowParser.all())
-        .run(conn)`,
-};
-
-const transactorCode = {
-  java: `// Oracle — typed config, no JDBC URL to remember
-var tx = OracleConfig.builder("localhost", 1521, "xe", "app", "secret")
-    .serviceName("XEPDB1")
-    .build()
-    .transactor();
-
-// Everything inside runs in one transaction
-String greeting = tx.execute(conn ->
-    Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
-        .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
-        .run(conn));
-
-// Built-in strategies for common patterns
-Transactor.defaultStrategy()         // begin → commit → close
-Transactor.autoCommitStrategy()      // no transaction, just close
-Transactor.rollbackOnErrorStrategy() // begin → commit, rollback on error → close
-Transactor.testStrategy()            // begin → rollback → close (for tests)`,
-  kotlin: `// Oracle — typed config, no JDBC URL to remember
-val tx = OracleConfig.builder("localhost", 1521, "xe", "app", "secret")
-    .serviceName("XEPDB1")
-    .build()
-    .transactor()
-
-// Everything inside runs in one transaction
-val greeting: String = tx.execute { conn ->
-    Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
-        .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
-        .run(conn)
-}
-
-// Built-in strategies for common patterns
-Transactor.defaultStrategy()         // begin → commit → close
-Transactor.autoCommitStrategy()      // no transaction, just close
-Transactor.rollbackOnErrorStrategy() // begin → commit, rollback on error → close
-Transactor.testStrategy()            // begin → rollback → close (for tests)`,
-  scala: `import dev.typr.foundations.scala.FragmentInterpolator.sql
-
-// Oracle — typed config, no JDBC URL to remember
-val tx = OracleConfig.builder("localhost", 1521, "xe", "app", "secret")
-    .serviceName("XEPDB1")
-    .build()
-    .transactor()
-
-// Everything inside runs in one transaction
-val greeting: String = tx.execute(conn =>
-    sql"SELECT 'Hello from Oracle' FROM dual"
-        .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
-        .run(conn))
-
-// Built-in strategies for common patterns
-Transactor.defaultStrategy()         // begin → commit → close
-Transactor.autoCommitStrategy()      // no transaction, just close
-Transactor.rollbackOnErrorStrategy() // begin → commit, rollback on error → close
-Transactor.testStrategy()            // begin → rollback → close (for tests)`,
-};
 
 const quickstartKotlin = `import dev.typr.foundations.*
 import dev.typr.foundations.connect.duckdb.*
@@ -608,31 +332,11 @@ function SchemaAndParsers() {
             <CodeBlock language="sql" title="Your database schema">{schemaSql}</CodeBlock>
           </div>
           <div className={styles.twoColRight}>
-            <Tabs groupId="language">
-              <TabItem value="java" label="Java">
-                <CodeBlock language="java" title="Row type">{rowCode.java}</CodeBlock>
-              </TabItem>
-              <TabItem value="kotlin" label="Kotlin">
-                <CodeBlock language="kotlin" title="Row type">{rowCode.kotlin}</CodeBlock>
-              </TabItem>
-              <TabItem value="scala" label="Scala">
-                <CodeBlock language="scala" title="Row type">{rowCode.scala}</CodeBlock>
-              </TabItem>
-            </Tabs>
+            <Snippet file="landing/ProductRow" />
           </div>
         </div>
         <div style={{marginTop: '2rem'}}>
-          <Tabs groupId="language">
-            <TabItem value="java" label="Java">
-              <CodeBlock language="java" title="RowParser — every column has a type">{parserCode.java}</CodeBlock>
-            </TabItem>
-            <TabItem value="kotlin" label="Kotlin">
-              <CodeBlock language="kotlin" title="RowParser — every column has a type">{parserCode.kotlin}</CodeBlock>
-            </TabItem>
-            <TabItem value="scala" label="Scala">
-              <CodeBlock language="scala" title="RowParser — every column has a type">{parserCode.scala}</CodeBlock>
-            </TabItem>
-          </Tabs>
+          <Snippet file="landing/ProductRowParser" />
         </div>
       </div>
     </section>
@@ -656,17 +360,7 @@ function TypeBuildingBlocks() {
             <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
               The <code>dimensions</code> composite type becomes a record with typed fields. <code>PgStruct</code> handles the wire format.
             </p>
-            <Tabs groupId="language">
-              <TabItem value="java" label="Java">
-                <CodeBlock language="java">{compositeCode.java}</CodeBlock>
-              </TabItem>
-              <TabItem value="kotlin" label="Kotlin">
-                <CodeBlock language="kotlin">{compositeCode.kotlin}</CodeBlock>
-              </TabItem>
-              <TabItem value="scala" label="Scala">
-                <CodeBlock language="scala">{compositeCode.scala}</CodeBlock>
-              </TabItem>
-            </Tabs>
+            <Snippet file="landing/Dimensions" />
           </div>
           <div>
             <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem'}}>
@@ -675,17 +369,7 @@ function TypeBuildingBlocks() {
             <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
               Call <code>bimap</code> (two-way mapping) on a base type — you get a full codec that works in row parsers, arrays, and JSON.
             </p>
-            <Tabs groupId="language">
-              <TabItem value="java" label="Java">
-                <CodeBlock language="java">{wrapperCode.java}</CodeBlock>
-              </TabItem>
-              <TabItem value="kotlin" label="Kotlin">
-                <CodeBlock language="kotlin">{wrapperCode.kotlin}</CodeBlock>
-              </TabItem>
-              <TabItem value="scala" label="Scala">
-                <CodeBlock language="scala">{wrapperCode.scala}</CodeBlock>
-              </TabItem>
-            </Tabs>
+            <Snippet file="landing/WrapperType" />
           </div>
           <div>
             <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem'}}>
@@ -694,17 +378,7 @@ function TypeBuildingBlocks() {
             <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
               Pass arrays directly — no <code>createArrayOf</code>, no type name strings, no connection reference.
             </p>
-            <Tabs groupId="language">
-              <TabItem value="java" label="Java">
-                <CodeBlock language="java">{arrayCode.java}</CodeBlock>
-              </TabItem>
-              <TabItem value="kotlin" label="Kotlin">
-                <CodeBlock language="kotlin">{arrayCode.kotlin}</CodeBlock>
-              </TabItem>
-              <TabItem value="scala" label="Scala">
-                <CodeBlock language="scala">{arrayCode.scala}</CodeBlock>
-              </TabItem>
-            </Tabs>
+            <Snippet file="landing/DuckDbArray" />
           </div>
         </div>
       </div>
@@ -722,17 +396,7 @@ function QueryShowcase() {
           Parameters are always bound and typed. Works across databases — here with SQL Server.
         </p>
         <div className={styles.centeredCode}>
-          <Tabs groupId="language">
-            <TabItem value="java" label="Java">
-              <CodeBlock language="java">{queryCode.java}</CodeBlock>
-            </TabItem>
-            <TabItem value="kotlin" label="Kotlin">
-              <CodeBlock language="kotlin">{queryCode.kotlin}</CodeBlock>
-            </TabItem>
-            <TabItem value="scala" label="Scala">
-              <CodeBlock language="scala">{queryCode.scala}</CodeBlock>
-            </TabItem>
-          </Tabs>
+          <Snippet file="landing/SqlServerQuery" />
         </div>
       </div>
     </section>
@@ -749,59 +413,13 @@ function TransactorShowcase() {
           Either way, you get typed builders for every database and full control over the lifecycle — here with Oracle.
         </p>
         <div className={styles.centeredCode}>
-          <Tabs groupId="language">
-            <TabItem value="java" label="Java">
-              <CodeBlock language="java">{transactorCode.java}</CodeBlock>
-            </TabItem>
-            <TabItem value="kotlin" label="Kotlin">
-              <CodeBlock language="kotlin">{transactorCode.kotlin}</CodeBlock>
-            </TabItem>
-            <TabItem value="scala" label="Scala">
-              <CodeBlock language="scala">{transactorCode.scala}</CodeBlock>
-            </TabItem>
-          </Tabs>
+          <Snippet file="landing/OracleTransactor" />
         </div>
       </div>
     </section>
   );
 }
 
-const queryAnalysisCode = {
-  java: `// Your query looks fine at compile time...
-var query = Fragment.interpolate("SELECT id, name, created_at, email FROM users WHERE active = ")
-    .param(PgTypes.boolean_, true)
-    .done()
-    .query(RowParser.<User>builder()
-        .field(PgTypes.int4, User::id)           // id: correct
-        .field(PgTypes.text, User::name)         // name: correct
-        .field(PgTypes.int4, User::createdAt)    // created_at: WRONG! Should be timestamptz
-        .field(PgTypes.text, User::email)        // email: nullable but not Optional!
-        .build(User::new)
-        .all());
-
-// But Query Analysis catches the bugs in your tests
-QueryAnalysis analysis = QueryAnalyzer.analyze(query, connection);
-if (!analysis.succeeded()) {
-    fail(analysis.report());  // Fails with the detailed report below
-}`,
-  kotlin: `// Your query looks fine at compile time...
-val query = Fragment.interpolate("SELECT id, name, created_at, email FROM users WHERE active = ")
-    .param(PgTypes.boolean_, true)
-    .done()
-    .query(RowParser.builder<User>()
-        .field(PgTypes.int4, User::id)           // id: correct
-        .field(PgTypes.text, User::name)         // name: correct
-        .field(PgTypes.int4, User::createdAt)    // created_at: WRONG! Should be timestamptz
-        .field(PgTypes.text, User::email)        // email: nullable but not Optional!
-        .build(::User)
-        .all())
-
-// But Query Analysis catches the bugs in your tests
-val analysis = QueryAnalyzer.analyze(query, connection)
-if (!analysis.succeeded()) {
-    fail(analysis.report())  // Fails with the detailed report below
-}`,
-};
 
 function QueryAnalysisReport() {
   const gray = {color: '#64748b'};
@@ -871,14 +489,7 @@ function QueryAnalysisSection() {
           <strong> Catch it in tests, not in production.</strong>
         </p>
         <div style={{marginBottom: '2rem'}}>
-          <Tabs groupId="language">
-            <TabItem value="java" label="Java">
-              <CodeBlock language="java">{queryAnalysisCode.java}</CodeBlock>
-            </TabItem>
-            <TabItem value="kotlin" label="Kotlin">
-              <CodeBlock language="kotlin">{queryAnalysisCode.kotlin}</CodeBlock>
-            </TabItem>
-          </Tabs>
+          <Snippet file="landing/QueryAnalysis" />
         </div>
         <div style={{
           maxWidth: '850px',

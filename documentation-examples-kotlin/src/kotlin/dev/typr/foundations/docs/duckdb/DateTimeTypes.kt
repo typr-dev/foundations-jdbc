@@ -1,0 +1,18 @@
+package dev.typr.foundations.docs.duckdb
+
+import dev.typr.foundations.DuckDbType
+import dev.typr.foundations.DuckDbTypes
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+
+@Suppress("unused")
+class DateTimeTypes {
+    //start
+    val dateType: DuckDbType<LocalDate> = DuckDbTypes.date
+    val tsType: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp
+    val tstzType: DuckDbType<OffsetDateTime> = DuckDbTypes.timestamptz
+    val intervalType: DuckDbType<Duration> = DuckDbTypes.interval
+    //stop
+}

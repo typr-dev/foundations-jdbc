@@ -2,8 +2,7 @@
 title: Query Analysis
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import Snippet from '@site/src/components/Snippet';
 
 # Query Analysis
 
@@ -31,52 +30,7 @@ Query Analysis uses JDBC metadata to verify your queries against the actual data
 
 ## Basic Usage
 
-<Tabs groupId="language">
-<TabItem value="java" label="Java">
-
-```java
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
-
-// Build your query as normal
-var query = Fragment.interpolate("SELECT id, name, email FROM users WHERE id = ")
-    .param(PgTypes.int4, userId)
-    .done()
-    .query(userRowParser.all());
-
-// Analyze it against the database
-QueryAnalysis analysis = QueryAnalyzer.analyze(query, connection);
-
-// Check the results
-if (!analysis.succeeded()) {
-    fail(analysis.report());
-}
-```
-
-</TabItem>
-<TabItem value="kotlin" label="Kotlin">
-
-```kotlin
-import dev.typr.foundations.analysis.QueryAnalysis
-import dev.typr.foundations.analysis.QueryAnalyzer
-
-// Build your query as normal
-val query = Fragment.interpolate("SELECT id, name, email FROM users WHERE id = ")
-    .param(PgTypes.int4, userId)
-    .done()
-    .query(userRowParser.all())
-
-// Analyze it against the database
-val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection)
-
-// Check the results
-if (!analysis.succeeded()) {
-    fail(analysis.report())
-}
-```
-
-</TabItem>
-</Tabs>
+<Snippet file="analysis/QueryAnalysisBasic" />
 
 ## Reading the Report
 
@@ -177,81 +131,7 @@ but not declared in RowParser
 
 The recommended pattern is to analyze all your queries in a dedicated test:
 
-<Tabs groupId="language">
-<TabItem value="java" label="Java">
-
-```java
-public class QueryTypeCheckTest {
-
-    @Test
-    public void allQueriesTypeCheck() throws SQLException {
-        try (var conn = testDataSource.getConnection()) {
-            // Set up any tables/types needed for the queries
-            createTestSchema(conn);
-
-            // Collect all queries to check
-            List<Operation.Query<?>> queries = List.of(
-                UserQueries.findById(1),
-                UserQueries.findByEmail("test@example.com"),
-                ProductQueries.search("widget", null),
-                OrderQueries.findByUser(1)
-            );
-
-            // Analyze each one
-            List<String> failures = new ArrayList<>();
-            for (var query : queries) {
-                QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
-                if (!analysis.succeeded()) {
-                    failures.add(analysis.report());
-                }
-            }
-
-            // Report all failures at once
-            if (!failures.isEmpty()) {
-                fail("Query type check failed:\n\n" + String.join("\n\n", failures));
-            }
-        }
-    }
-}
-```
-
-</TabItem>
-<TabItem value="kotlin" label="Kotlin">
-
-```kotlin
-class QueryTypeCheckTest {
-
-    @Test
-    fun `all queries type check`() {
-        testDataSource.connection.use { conn ->
-            // Set up any tables/types needed for the queries
-            createTestSchema(conn)
-
-            // Collect all queries to check
-            val queries = listOf(
-                UserQueries.findById(1),
-                UserQueries.findByEmail("test@example.com"),
-                ProductQueries.search("widget", null),
-                OrderQueries.findByUser(1)
-            )
-
-            // Analyze each one
-            val failures = queries.mapNotNull { query ->
-                val analysis = QueryAnalyzer.analyze(query, conn)
-                if (!analysis.succeeded()) analysis.report() else null
-            }
-
-            // Report all failures at once
-            if (failures.isNotEmpty()) {
-                fail("Query type check failed:\n\n${failures.joinToString("\n\n")}")
-            }
-        }
-    }
-}
-```
-
-</TabItem>
-</Tabs>
+<Snippet file="analysis/QueryAnalysisTestSuite" />
 
 ## What Gets Analyzed
 
