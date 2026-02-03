@@ -26,6 +26,7 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.test {
+    useJUnitPlatform()
     // Configure Docker socket for Testcontainers on macOS
     val dockerSocket = file("${System.getProperty("user.home")}/.docker/run/docker.sock")
     if (dockerSocket.exists()) {
@@ -36,7 +37,11 @@ tasks.test {
 
 dependencies {
     testImplementation(project(":foundations-jdbc-hikari"))
+    testImplementation(project(":foundations-jdbc-spring"))
+    testImplementation("org.springframework.boot:spring-boot-starter-jdbc:${property("springBootVersion")}")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:${property("springBootVersion")}")
     testImplementation("junit:junit:${property("junitVersion")}")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
     testImplementation("org.postgresql:postgresql:${property("postgresqlDriverVersion")}")
     testImplementation("org.mariadb.jdbc:mariadb-java-client:${property("mariadbDriverVersion")}")
     testImplementation("org.duckdb:duckdb_jdbc:${property("duckdbDriverVersion")}")
@@ -52,6 +57,4 @@ dependencies {
     testImplementation("org.testcontainers:oracle-free:${property("testcontainersVersion")}")
     testImplementation("org.testcontainers:db2:${property("testcontainersVersion")}")
 
-    // Logging for Testcontainers debug
-    testRuntimeOnly("org.slf4j:slf4j-simple:2.0.7")
 }
