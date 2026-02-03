@@ -580,22 +580,19 @@ function ErrorMessagesSection() {
         <p className={styles.sectionSubtitle}>
           When things go wrong, you get helpful messages that tell you exactly what happened — not a cryptic stack trace.
         </p>
-        <div style={{maxWidth: '750px', margin: '0 auto', fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.85rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', padding: '2rem'}}>
-          <span style={{color: '#ef4444', fontWeight: 600}}>SqlResultParseException:</span>{"\n"}
-          {"  Error reading or parsing row 0, (1-indexed) column 3 from ResultSet."}{"\n"}
-          {"  Expected database type timestamptz"}{"\n"}
-          {"\n"}
-          <span style={{color: '#ef4444', fontWeight: 600}}>SQLException:</span>{"\n"}
-          {"  Expected single row, but found more"}{"\n"}
-          {"\n"}
-          <span style={{color: '#ef4444', fontWeight: 600}}>SQLException:</span>{"\n"}
-          {"  No rows when expecting a single one"}{"\n"}
-          {"\n"}
-          <span style={{color: '#ef4444', fontWeight: 600}}>IllegalArgumentException:</span>{"\n"}
-          {"  Uint1 value must be between 0 and 255, got: 256"}{"\n"}
-          {"\n"}
-          <span style={{color: '#ef4444', fontWeight: 600}}>SQLException:</span>{"\n"}
-          {"  Expected int4 but got text"}
+        <div style={{display: 'grid', gap: '1.5rem', maxWidth: '800px', margin: '0 auto'}}>
+          <div style={{fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.8rem', lineHeight: '1.6', whiteSpace: 'pre', background: '#1e293b', borderRadius: '8px', padding: '1.25rem', border: '1px solid #334155'}}>
+            <span style={{color: '#f87171'}}>Column 3: parse error</span>{"\n"}
+            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Expected type: </span><span style={{color: '#60a5fa'}}>timestamptz</span>{"\n"}
+            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Row: </span><span style={{color: '#fbbf24'}}>0</span>{"\n"}
+            <span style={{color: '#94a3b8'}}>{"   └ "}</span><span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#e2e8f0'}}>: Cannot convert class java.sql.Timestamp to OffsetDateTime</span>
+          </div>
+          <div style={{fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.8rem', lineHeight: '1.6', whiteSpace: 'pre', background: '#1e293b', borderRadius: '8px', padding: '1.25rem', border: '1px solid #334155'}}>
+            <span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#e2e8f0'}}>: Expected single row, but found more</span>
+          </div>
+          <div style={{fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.8rem', lineHeight: '1.6', whiteSpace: 'pre', background: '#1e293b', borderRadius: '8px', padding: '1.25rem', border: '1px solid #334155'}}>
+            <span style={{color: '#f87171'}}>IllegalArgumentException</span><span style={{color: '#e2e8f0'}}>: Uint1 value must be between 0 and 255, got: </span><span style={{color: '#fbbf24'}}>256</span>
+          </div>
         </div>
       </div>
     </section>

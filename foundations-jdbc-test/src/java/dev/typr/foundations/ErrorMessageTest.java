@@ -24,14 +24,15 @@ public class ErrorMessageTest {
   // ==========================================================================
 
   /**
-   * ISSUE IDENTIFIED: When reading a VARCHAR as INTEGER, the error message is:
-   *   "For input string: hello"
+   * Verifies the Query Analysis-aligned error format for column parse errors.
    *
-   * This is just the NumberFormatException message - we lose context about
-   * which column failed and what type was expected.
-   *
-   * IMPROVEMENT OPPORTUNITY: The SqlResultParseException wrapper should
-   * preserve and expose its context in the message chain.
+   * <p>Format matches Query Analysis style:
+   * <pre>
+   * Column 2: parse error
+   *    │ Expected type: INTEGER
+   *    │ Row: 0
+   *    └ NumberFormatException: For input string: "hello"
+   * </pre>
    */
   @Test
   public void testColumnTypeMismatch_messageFormat() {
@@ -57,24 +58,24 @@ public class ErrorMessageTest {
       });
       fail("Expected SQLException for type mismatch");
     } catch (Exception e) {
-      String rootMessage = getRootCause(e).getMessage();
       String fullChain = getFullExceptionChain(e);
 
       System.out.println("=== Actual column type mismatch ===");
-      System.out.println("Root cause: " + rootMessage);
-      System.out.println("Full chain: " + fullChain);
+      System.out.println(fullChain);
       System.out.println("====================================");
 
-      // Current behavior: root cause is just "For input string: hello"
-      // The SqlResultParseException context is lost in getRootCause
-      assertTrue("Should have NumberFormatException in chain",
-          fullChain.contains("NumberFormatException") ||
+      // Verify Query Analysis-aligned format
+      assertTrue("Should have 'Column X: parse error' header",
+          fullChain.contains("Column") && fullChain.contains("parse error"));
+      assertTrue("Should have box-drawing characters for structure",
+          fullChain.contains("│") && fullChain.contains("└"));
+      assertTrue("Should show expected type",
+          fullChain.contains("Expected type:"));
+      assertTrue("Should show row number",
+          fullChain.contains("Row:"));
+      assertTrue("Should include cause exception type and message",
+          fullChain.contains("NumberFormatException") &&
           fullChain.contains("For input string"));
-
-      // The wrapper DOES have good context, but it's not the root cause
-      assertTrue("SqlResultParseException should be in chain",
-          fullChain.contains("Error reading or parsing row") ||
-          fullChain.contains("SqlResultParseException"));
     }
   }
 
@@ -230,48 +231,33 @@ public class ErrorMessageTest {
     System.out.println("    Hint: Use PgTypes.timestamp instead of PgTypes.timestamptz");
     System.out.println();
 
-    System.out.println("ACTUAL LIBRARY MESSAGES (verified by tests):");
+    System.out.println("ACTUAL LIBRARY MESSAGES (Query Analysis-aligned format):");
     System.out.println("--------------------------------------------------------------------");
-    System.out.println("  RowParser.SqlResultParseException (GOOD but buried in cause chain):");
-    System.out.println("    Error reading or parsing row {row}, (1-indexed) column {col}");
-    System.out.println("    from ResultSet. Expected database type {sqlType}");
+    System.out.println("  RowParser.SqlResultParseException:");
+    System.out.println("    Column 3: parse error");
+    System.out.println("       │ Expected type: timestamptz");
+    System.out.println("       │ Row: 0");
+    System.out.println("       └ SQLException: Cannot convert Timestamp to OffsetDateTime");
     System.out.println();
-    System.out.println("  ResultSetParser.ExactlyOne (GOOD, clear messages):");
+    System.out.println("  ResultSetParser.ExactlyOne:");
     System.out.println("    No rows when expecting a single one");
     System.out.println("    Expected single row, but found more");
     System.out.println();
-    System.out.println("  Uint1/Uint2/Uint4/Uint8 validation (EXCELLENT!):");
-    System.out.println("    Uint1 value must be between 0 and 255, got: {value}");
-    System.out.println();
-    System.out.println("  DuckDbRead type conversion:");
-    System.out.println("    Cannot convert {class} to LocalDateTime");
-    System.out.println("    Cannot convert {class} to OffsetDateTime");
-    System.out.println("    Cannot convert {class} to UUID");
-    System.out.println();
-    System.out.println("  PgRead type check:");
-    System.out.println("    Expected {sqlType} but got {actualType}");
+    System.out.println("  Uint1/Uint2/Uint4/Uint8 validation:");
+    System.out.println("    Uint1 value must be between 0 and 255, got: 256");
     System.out.println();
 
-    System.out.println("IMPROVEMENT OPPORTUNITIES:");
+    System.out.println("REMAINING IMPROVEMENT OPPORTUNITIES:");
     System.out.println("--------------------------------------------------------------------");
-    System.out.println("  1. Column type mismatch: root cause loses context from wrapper");
-    System.out.println("     - SqlResultParseException has good info but it's buried");
-    System.out.println("     - Consider: print full chain or enhance root message");
-    System.out.println();
-    System.out.println("  2. Add column NAME to error messages (currently only index)");
+    System.out.println("  1. Add column NAME to error messages (currently only index)");
     System.out.println("     - Would require passing column names through RowParser");
     System.out.println();
-    System.out.println("  3. Add 'Hint:' suggestions for common type mismatches");
+    System.out.println("  2. Add 'Hint:' suggestions for common type mismatches");
     System.out.println("     - timestamp vs timestamptz");
     System.out.println("     - int4 vs int8");
-    System.out.println("     - text vs varchar");
     System.out.println();
-    System.out.println("  4. Show expected vs actual column count when RowParser fails");
+    System.out.println("  3. Show expected vs actual column count when RowParser fails");
     System.out.println("     - This would catch ResultSet having wrong number of columns");
-    System.out.println();
-    System.out.println("  5. Landing page should show REALISTIC error messages");
-    System.out.println("     - Update ErrorMessagesSection to match actual output");
-    System.out.println("     - Or improve library to match aspirational messages");
     System.out.println();
   }
 

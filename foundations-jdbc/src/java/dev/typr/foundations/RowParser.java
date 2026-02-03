@@ -88,14 +88,23 @@ public record RowParser<Row>(
 
   public static class SqlResultParseException extends SQLException {
     public SqlResultParseException(int row, int column, DbType<?> tpe, Exception cause) {
-      super(
-          "Error reading or parsing row "
-              + row
-              + ", (1-indexed) column "
-              + column
-              + " from ResultSet."
-              + (tpe != null ? " Expected database type " + tpe.typename().sqlType() : ""),
-          cause);
+      super(formatMessage(row, column, tpe, cause), cause);
+    }
+
+    private static String formatMessage(int row, int column, DbType<?> tpe, Exception cause) {
+      StringBuilder sb = new StringBuilder();
+      sb.append("Column ").append(column).append(": parse error\n");
+      if (tpe != null) {
+        sb.append("   │ Expected type: ").append(tpe.typename().sqlType()).append("\n");
+      }
+      sb.append("   │ Row: ").append(row).append("\n");
+      if (cause != null) {
+        sb.append("   └ ").append(cause.getClass().getSimpleName());
+        if (cause.getMessage() != null) {
+          sb.append(": ").append(cause.getMessage());
+        }
+      }
+      return sb.toString();
     }
   }
 
