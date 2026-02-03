@@ -73,8 +73,11 @@ public class ErrorMessageTest {
           fullChain.contains("│") && fullChain.contains("└"));
       assertTrue("Should show expected type",
           fullChain.contains("Expected:"));
-      assertTrue("Should show actual type from metadata",
-          fullChain.contains("Actual:") && fullChain.contains("VARCHAR"));
+      assertTrue("Should show actual type with nullability from metadata",
+          fullChain.contains("Actual:") && fullChain.contains("VARCHAR") &&
+          fullChain.contains("nullable"));
+      assertTrue("Should show the actual value",
+          fullChain.contains("Value:") && fullChain.contains("\"hello\""));
       assertTrue("Should show row number",
           fullChain.contains("Row:"));
       assertTrue("Should include cause exception type and message",
@@ -240,7 +243,8 @@ public class ErrorMessageTest {
     System.out.println("  RowParser.SqlResultParseException:");
     System.out.println("    Failed to read column 3 'created_at'");
     System.out.println("       │ Expected: timestamptz");
-    System.out.println("       │ Actual:   TIMESTAMP");
+    System.out.println("       │ Actual:   TIMESTAMP (nullable)");
+    System.out.println("       │ Value:    \"2024-01-15 10:30:00\"");
     System.out.println("       │ Row: 0");
     System.out.println("       └ SQLException: Cannot convert Timestamp to OffsetDateTime");
     System.out.println();

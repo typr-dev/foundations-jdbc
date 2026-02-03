@@ -584,7 +584,8 @@ function ErrorMessagesSection() {
           <div style={{fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.8rem', lineHeight: '1.6', whiteSpace: 'pre', background: '#1e293b', borderRadius: '8px', padding: '1.25rem', border: '1px solid #334155'}}>
             <span style={{color: '#f87171'}}>Failed to read column </span><span style={{color: '#fbbf24'}}>3</span><span style={{color: '#f87171'}}> '</span><span style={{color: '#60a5fa'}}>created_at</span><span style={{color: '#f87171'}}>'</span>{"\n"}
             <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Expected: </span><span style={{color: '#4ade80'}}>timestamptz</span>{"\n"}
-            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Actual:   </span><span style={{color: '#f87171'}}>TIMESTAMP</span>{"\n"}
+            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Actual:   </span><span style={{color: '#f87171'}}>TIMESTAMP</span><span style={{color: '#94a3b8'}}> (nullable)</span>{"\n"}
+            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Value:    </span><span style={{color: '#fbbf24'}}>"2024-01-15 10:30:00"</span>{"\n"}
             <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Row: </span><span style={{color: '#fbbf24'}}>0</span>{"\n"}
             <span style={{color: '#94a3b8'}}>{"   └ "}</span><span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#e2e8f0'}}>: Cannot convert Timestamp to OffsetDateTime</span>
           </div>

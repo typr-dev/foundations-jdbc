@@ -96,15 +96,45 @@ public record RowParser<Row>(
         ResultSet rs, int row, int column, DbType<?> tpe, Exception cause) {
       StringBuilder sb = new StringBuilder();
 
-      // Try to get column name from metadata
+      // Try to get metadata
       String columnName = null;
       String actualType = null;
+      Boolean dbNullable = null;
       try {
         var meta = rs.getMetaData();
         columnName = meta.getColumnName(column);
         actualType = meta.getColumnTypeName(column);
+        int nullable = meta.isNullable(column);
+        if (nullable != java.sql.ResultSetMetaData.columnNullableUnknown) {
+          dbNullable = (nullable == java.sql.ResultSetMetaData.columnNullable);
+        }
       } catch (Exception ignored) {
         // Metadata not available
+      }
+
+      // Try to get the actual value
+      String valuePreview = null;
+      try {
+        String strVal = rs.getString(column);
+        if (strVal == null) {
+          valuePreview = "null";
+        } else if (strVal.length() <= 50) {
+          valuePreview = "\"" + strVal + "\"";
+        } else {
+          valuePreview = "\"" + strVal.substring(0, 50) + "...\" (" + strVal.length() + " chars)";
+        }
+      } catch (Exception e1) {
+        // Try bytes as fallback
+        try {
+          byte[] bytes = rs.getBytes(column);
+          if (bytes == null) {
+            valuePreview = "null";
+          } else {
+            valuePreview = bytesToHex(bytes, 50);
+          }
+        } catch (Exception ignored) {
+          // Can't get value
+        }
       }
 
       // Header
@@ -116,11 +146,25 @@ public record RowParser<Row>(
 
       // Expected vs Actual types
       if (tpe != null) {
-        sb.append("   │ Expected: ").append(tpe.typename().sqlType()).append("\n");
+        sb.append("   │ Expected: ").append(tpe.typename().sqlType());
+        if (tpe.isNullable()) {
+          sb.append(" (nullable)");
+        }
+        sb.append("\n");
       }
       if (actualType != null) {
-        sb.append("   │ Actual:   ").append(actualType).append("\n");
+        sb.append("   │ Actual:   ").append(actualType);
+        if (dbNullable != null) {
+          sb.append(dbNullable ? " (nullable)" : " (not null)");
+        }
+        sb.append("\n");
       }
+
+      // Value preview
+      if (valuePreview != null) {
+        sb.append("   │ Value:    ").append(valuePreview).append("\n");
+      }
+
       sb.append("   │ Row: ").append(row).append("\n");
 
       // Cause
@@ -129,6 +173,18 @@ public record RowParser<Row>(
         if (cause.getMessage() != null) {
           sb.append(": ").append(cause.getMessage());
         }
+      }
+      return sb.toString();
+    }
+
+    private static String bytesToHex(byte[] bytes, int maxBytes) {
+      int len = Math.min(bytes.length, maxBytes);
+      StringBuilder sb = new StringBuilder("0x");
+      for (int i = 0; i < len; i++) {
+        sb.append(String.format("%02X", bytes[i]));
+      }
+      if (bytes.length > maxBytes) {
+        sb.append("... (").append(bytes.length).append(" bytes)");
       }
       return sb.toString();
     }
