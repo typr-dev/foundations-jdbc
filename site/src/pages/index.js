@@ -580,13 +580,13 @@ function ErrorMessagesSection() {
         <p className={styles.sectionSubtitle}>
           When things go wrong, you get helpful messages that tell you exactly what happened — not a cryptic stack trace.
         </p>
-        <div style={{maxWidth: '650px', margin: '0 auto', fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.85rem', lineHeight: '1.7', whiteSpace: 'pre', background: '#1e293b', borderRadius: '12px', padding: '1.5rem', border: '1px solid #334155', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)'}}>
+        <div style={{maxWidth: '700px', margin: '0 auto', fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.85rem', lineHeight: '1.7', whiteSpace: 'pre', background: '#1e293b', borderRadius: '12px', padding: '1.5rem', border: '1px solid #334155', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)'}}>
           <span style={{color: '#f87171', fontWeight: 600}}>Failed to read column </span><span style={{color: '#fbbf24'}}>3</span><span style={{color: '#f87171', fontWeight: 600}}> '</span><span style={{color: '#60a5fa'}}>created_at</span><span style={{color: '#f87171', fontWeight: 600}}>'</span>{"\n"}
           <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Expected: </span><span style={{color: '#4ade80'}}>timestamptz</span>{"\n"}
-          <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Actual:   </span><span style={{color: '#f87171'}}>TIMESTAMP</span><span style={{color: '#64748b'}}> (nullable)</span>{"\n"}
+          <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Actual:   </span><span style={{color: '#f87171'}}>timestamp</span><span style={{color: '#64748b'}}> (nullable)</span>{"\n"}
           <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Value:    </span><span style={{color: '#fbbf24'}}>"2024-01-15 10:30:00"</span>{"\n"}
           <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Row: </span><span style={{color: '#fbbf24'}}>0</span>{"\n"}
-          <span style={{color: '#64748b'}}>{"   └ "}</span><span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#94a3b8'}}>: Cannot convert Timestamp to OffsetDateTime</span>
+          <span style={{color: '#64748b'}}>{"   └ "}</span><span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#94a3b8'}}>: Cannot convert LocalDateTime to OffsetDateTime</span>
         </div>
       </div>
     </section>
@@ -745,9 +745,8 @@ function TransactorShowcase() {
       <div className={styles.container}>
         <h2 className={styles.sectionTitle}>Transactions you can see</h2>
         <p className={styles.sectionSubtitle}>
-          No <code>@Transactional</code> annotation deciding your transaction boundaries somewhere else.
-          The <code>Transactor</code> makes the lifecycle explicit: before, after, oops, always — four hooks you control.
-          Typed builders for every database — here with Oracle.
+          Use Spring's <code>@Transactional</code> if that's your style, or manage transactions explicitly with <code>Transactor</code>.
+          Either way, you get typed builders for every database and full control over the lifecycle — here with Oracle.
         </p>
         <div className={styles.centeredCode}>
           <Tabs groupId="language">
@@ -804,35 +803,51 @@ if (!analysis.succeeded()) {
 }`,
 };
 
-const queryAnalysisReport = `╔══════════════════════════════════════════════════════════════════════════════╗
-║  Query Analysis Report                                                       ║
-╚══════════════════════════════════════════════════════════════════════════════╝
+function QueryAnalysisReport() {
+  const gray = {color: '#64748b'};
+  const cyan = {color: '#22d3ee'};
+  const green = {color: '#4ade80'};
+  const red = {color: '#f87171'};
+  const yellow = {color: '#fbbf24'};
+  const bold = {fontWeight: 600};
+  const white = {color: '#f8fafc'};
+  const boldRed = {color: '#f87171', fontWeight: 600};
+  const boldGreen = {color: '#4ade80', fontWeight: 600};
 
-SQL:
-  SELECT id, name, created_at, email FROM users WHERE active = ?
-
-┌─ Parameters ─────────────────────────────────────────────────────────────────┐
-│  ✓ param[1]: boolean              → bool                                     │
-└──────────────────────────────────────────────────────────────────────────────┘
-
-┌─ Columns ────────────────────────────────────────────────────────────────────┐
-│  ✓ col[1]: int4                   → id : int4                                │
-│  ✓ col[2]: text                   → name : text                              │
-│  ✗ col[3]: int4                   → created_at : timestamptz                 │
-│  ✗ col[4]: text                   → email : text (nullable)                  │
-└──────────────────────────────────────────────────────────────────────────────┘
-
-✗ 2 error(s) found:
-
-  1. Column 3 'created_at': type mismatch
-     │ Declared: int4 (JDBC: INTEGER)
-     │ Returned: timestamptz (JDBC: TIMESTAMP_WITH_TIMEZONE)
-     └ The declared type cannot read from TIMESTAMP_WITH_TIMEZONE
-
-  2. Column 4 'email': nullability mismatch
-     │ The database says this column is nullable
-     │ But the type text is not Optional
-     └ Use .opt() to make the type nullable`;
+  return (
+    <>
+      <span style={cyan}>╔══════════════════════════════════════════════════════════════════════════════╗</span>{"\n"}
+      <span style={cyan}>║</span><span style={bold}>  Query Analysis Report                                                       </span><span style={cyan}>║</span>{"\n"}
+      <span style={cyan}>╚══════════════════════════════════════════════════════════════════════════════╝</span>{"\n"}
+      {"\n"}
+      <span style={bold}>SQL:</span>{"\n"}
+      <span style={gray}>  SELECT id, name, created_at, email FROM users WHERE active = ?</span>{"\n"}
+      {"\n"}
+      <span style={gray}>┌─ </span><span style={bold}>Parameters </span><span style={gray}>─────────────────────────────────────────────────────────────────┐</span>{"\n"}
+      <span style={gray}>│  </span><span style={green}>✓</span><span style={white}> param[</span><span style={yellow}>1</span><span style={white}>]: </span><span style={cyan}>boolean             </span><span style={gray}> → </span><span style={white}>bool                                    </span><span style={gray}> │</span>{"\n"}
+      <span style={gray}>└──────────────────────────────────────────────────────────────────────────────┘</span>{"\n"}
+      {"\n"}
+      <span style={gray}>┌─ </span><span style={bold}>Columns </span><span style={gray}>────────────────────────────────────────────────────────────────────┐</span>{"\n"}
+      <span style={gray}>│  </span><span style={green}>✓</span><span style={white}> col[</span><span style={yellow}>1</span><span style={white}>]: </span><span style={cyan}>int4                </span><span style={gray}> → </span><span style={white}>id : int4                               </span><span style={gray}> │</span>{"\n"}
+      <span style={gray}>│  </span><span style={green}>✓</span><span style={white}> col[</span><span style={yellow}>2</span><span style={white}>]: </span><span style={cyan}>text                </span><span style={gray}> → </span><span style={white}>name : text                             </span><span style={gray}> │</span>{"\n"}
+      <span style={gray}>│  </span><span style={red}>✗</span><span style={white}> col[</span><span style={yellow}>3</span><span style={white}>]: </span><span style={cyan}>int4                </span><span style={gray}> → </span><span style={white}>created_at : timestamptz                </span><span style={gray}> │</span>{"\n"}
+      <span style={gray}>│  </span><span style={red}>✗</span><span style={white}> col[</span><span style={yellow}>4</span><span style={white}>]: </span><span style={cyan}>text                </span><span style={gray}> → </span><span style={white}>email : text (nullable)                 </span><span style={gray}> │</span>{"\n"}
+      <span style={gray}>└──────────────────────────────────────────────────────────────────────────────┘</span>{"\n"}
+      {"\n"}
+      <span style={boldRed}>✗ 2 error(s) found:</span>{"\n"}
+      {"\n"}
+      <span style={white}>  </span><span style={yellow}>1</span><span style={white}>. Column </span><span style={yellow}>3</span><span style={white}> '</span><span style={cyan}>created_at</span><span style={white}>': type mismatch</span>{"\n"}
+      <span style={gray}>     │ </span><span style={white}>Declared: </span><span style={green}>int4</span><span style={gray}> (JDBC: INTEGER)</span>{"\n"}
+      <span style={gray}>     │ </span><span style={white}>Returned: </span><span style={red}>timestamptz</span><span style={gray}> (JDBC: TIMESTAMP_WITH_TIMEZONE)</span>{"\n"}
+      <span style={gray}>     └ </span><span style={white}>The declared type cannot read from TIMESTAMP_WITH_TIMEZONE</span>{"\n"}
+      {"\n"}
+      <span style={white}>  </span><span style={yellow}>2</span><span style={white}>. Column </span><span style={yellow}>4</span><span style={white}> '</span><span style={cyan}>email</span><span style={white}>': nullability mismatch</span>{"\n"}
+      <span style={gray}>     │ </span><span style={white}>The database says this column is nullable</span>{"\n"}
+      <span style={gray}>     │ </span><span style={white}>But the type </span><span style={green}>text</span><span style={white}> is not Optional</span>{"\n"}
+      <span style={gray}>     └ </span><span style={white}>Use </span><span style={cyan}>.opt()</span><span style={white}> to make the type nullable</span>
+    </>
+  );
+}
 
 function QueryAnalysisSection() {
   return (
@@ -880,7 +895,7 @@ function QueryAnalysisSection() {
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           color: '#f8fafc'
         }}>
-          {queryAnalysisReport}
+          <QueryAnalysisReport />
         </div>
         <div style={{marginTop: '2.5rem', textAlign: 'center'}}>
           <div style={{

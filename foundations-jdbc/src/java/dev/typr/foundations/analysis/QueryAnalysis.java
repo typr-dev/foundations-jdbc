@@ -1,6 +1,7 @@
 package dev.typr.foundations.analysis;
 
 import dev.typr.foundations.DbType;
+import dev.typr.foundations.Str;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.List;
@@ -129,62 +130,77 @@ public record QueryAnalysis(
   }
 
   /**
-   * Generate a human-readable report of the analysis.
+   * Generate a styled report of the analysis.
+   * Use {@link #reportColored()} for ANSI colors or {@link #report()} for plain text.
    */
-  public String report() {
-    StringBuilder sb = new StringBuilder();
+  public Str styledReport() {
+    var b = Str.builder();
 
     // Header
-    sb.append("\n");
-    sb.append("╔══════════════════════════════════════════════════════════════════════════════╗\n");
-    sb.append("║  Query Analysis Report                                                       ║\n");
-    sb.append("╚══════════════════════════════════════════════════════════════════════════════╝\n");
-    sb.append("\n");
+    b.newline();
+    b.cyan("╔══════════════════════════════════════════════════════════════════════════════╗").newline();
+    b.cyan("║").bold("  Query Analysis Report                                                       ").cyan("║").newline();
+    b.cyan("╚══════════════════════════════════════════════════════════════════════════════╝").newline();
+    b.newline();
 
     // SQL
-    sb.append("SQL:\n");
-    sb.append("  ").append(truncateSql(sql, 72)).append("\n\n");
+    b.bold("SQL:").newline();
+    b.plain("  ").gray(truncateSql(sql, 72)).newline().newline();
 
     // Parameters section
-    sb.append("┌─ Parameters ");
+    b.gray("┌─ ").bold("Parameters ");
     if (!parameterMetadataAvailable) {
-      sb.append("(metadata not available) ");
+      b.yellow("(metadata not available) ");
     }
-    sb.append("─".repeat(Math.max(1, 65 - (parameterMetadataAvailable ? 0 : 26)))).append("┐\n");
+    b.gray("─".repeat(Math.max(1, 65 - (parameterMetadataAvailable ? 0 : 26))) + "┐").newline();
     if (parameterAlignment.isEmpty()) {
-      sb.append("│  (none)").append(" ".repeat(70)).append("│\n");
+      b.gray("│  (none)" + " ".repeat(70) + "│").newline();
     } else {
       for (int i = 0; i < parameterAlignment.size(); i++) {
         var align = parameterAlignment.get(i);
-        sb.append(formatAlignment(i + 1, align, true));
+        b.add(formatStyledAlignment(i + 1, align, true));
       }
     }
-    sb.append("└").append("─".repeat(78)).append("┘\n\n");
+    b.gray("└" + "─".repeat(78) + "┘").newline().newline();
 
     // Columns section
-    sb.append("┌─ Columns ").append("─".repeat(68)).append("┐\n");
+    b.gray("┌─ ").bold("Columns ").gray("─".repeat(68) + "┐").newline();
     if (columnAlignment.isEmpty()) {
-      sb.append("│  (none)").append(" ".repeat(70)).append("│\n");
+      b.gray("│  (none)" + " ".repeat(70) + "│").newline();
     } else {
       for (int i = 0; i < columnAlignment.size(); i++) {
         var align = columnAlignment.get(i);
-        sb.append(formatAlignment(i + 1, align, false));
+        b.add(formatStyledAlignment(i + 1, align, false));
       }
     }
-    sb.append("└").append("─".repeat(78)).append("┘\n\n");
+    b.gray("└" + "─".repeat(78) + "┘").newline().newline();
 
     // Errors section
     List<AlignmentError> errors = allErrors();
     if (errors.isEmpty()) {
-      sb.append("✓ No errors found\n");
+      b.boldGreen("✓ No errors found").newline();
     } else {
-      sb.append("✗ ").append(errors.size()).append(" error(s) found:\n\n");
+      b.boldRed("✗ " + errors.size() + " error(s) found:").newline().newline();
       for (int i = 0; i < errors.size(); i++) {
-        sb.append("  ").append(i + 1).append(". ").append(errors.get(i).message()).append("\n\n");
+        b.plain("  ").yellow(String.valueOf(i + 1)).plain(". ").add(errors.get(i).styledMessage()).newline().newline();
       }
     }
 
-    return sb.toString();
+    return b.build();
+  }
+
+  /**
+   * Generate a human-readable report of the analysis (plain text).
+   */
+  public String report() {
+    return styledReport().plainText();
+  }
+
+  /**
+   * Generate a human-readable report with ANSI colors.
+   */
+  public String reportColored() {
+    return styledReport().render();
   }
 
   private void checkParameterTypes(int pos, DbType<?> declared, JdbcMeta.ParameterMeta expected,
@@ -242,14 +258,14 @@ public record QueryAnalysis(
     return oneLine.substring(0, maxLen - 3) + "...";
   }
 
-  private String formatAlignment(int pos, Alignment<DbType<?>, ?> align, boolean isParameter) {
-    String status;
-    String declared = "";
-    String actual = "";
+  private Str formatStyledAlignment(int pos, Alignment<DbType<?>, ?> align, boolean isParameter) {
+    boolean ok;
+    String declared;
+    String actual;
 
     switch (align) {
       case Alignment.Both(var d, var a) -> {
-        status = "✓";
+        ok = true;
         declared = d.typename().sqlType();
         if (isParameter) {
           JdbcMeta.ParameterMeta pm = (JdbcMeta.ParameterMeta) a;
@@ -260,12 +276,12 @@ public record QueryAnalysis(
         }
       }
       case Alignment.LeftOnly(var d) -> {
-        status = "✗";
+        ok = false;
         declared = d.typename().sqlType();
         actual = "(missing)";
       }
       case Alignment.RightOnly(var a) -> {
-        status = "✗";
+        ok = false;
         declared = "(missing)";
         if (isParameter) {
           JdbcMeta.ParameterMeta pm = (JdbcMeta.ParameterMeta) a;
@@ -278,13 +294,41 @@ public record QueryAnalysis(
     }
 
     String label = isParameter ? "param" : "col";
-    String line = String.format("│  %s %s[%d]: %-20s → %-30s", status, label, pos, declared, actual);
-    // Pad to fixed width
-    if (line.length() < 79) {
-      line = line + " ".repeat(79 - line.length());
-    } else if (line.length() > 78) {
-      line = line.substring(0, 75) + "...";
+    var b = Str.builder();
+    b.gray("│  ");
+    if (ok) {
+      b.green("✓");
+    } else {
+      b.red("✗");
     }
-    return line + "│\n";
+    b.plain(" " + label + "[").yellow(String.valueOf(pos)).plain("]: ");
+
+    // Format declared type
+    String declaredPadded = String.format("%-20s", declared);
+    if (ok || !declared.equals("(missing)")) {
+      b.cyan(declaredPadded);
+    } else {
+      b.red(declaredPadded);
+    }
+
+    b.gray(" → ");
+
+    // Format actual type
+    String actualPadded = String.format("%-30s", actual);
+    if (ok || !actual.equals("(missing)")) {
+      b.plain(actualPadded);
+    } else {
+      b.red(actualPadded);
+    }
+
+    // Pad to fixed width and close
+    String line = b.build().plainText();
+    int padding = 78 - line.length();
+    if (padding > 0) {
+      b.plain(" ".repeat(padding));
+    }
+    b.gray("│").newline();
+
+    return b.build();
   }
 }

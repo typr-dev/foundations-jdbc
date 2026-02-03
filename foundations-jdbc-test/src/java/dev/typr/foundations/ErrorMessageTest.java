@@ -271,6 +271,64 @@ public class ErrorMessageTest {
   }
 
   // ==========================================================================
+  // Verify Landing Page Accuracy
+  // ==========================================================================
+
+  /**
+   * Print the EXACT output that matches the landing page.
+   * Run this test to verify landing page accuracy.
+   */
+  @Test
+  public void printExactErrorMessageForLandingPage() {
+    var tx = DuckDbConfig.builder(":memory:").build().transactor();
+
+    try {
+      tx.execute(conn -> {
+        // Create table - simulate the landing page scenario
+        Fragment.lit("CREATE TABLE users (id INTEGER, name VARCHAR, created_at VARCHAR)")
+            .update()
+            .run(conn);
+        Fragment.lit("INSERT INTO users VALUES (1, 'Alice', '2024-01-15 10:30:00')")
+            .update()
+            .run(conn);
+
+        // Try to read VARCHAR 'created_at' as timestamptz - this will fail
+        record UserRow(Integer id, String name, java.time.OffsetDateTime createdAt) {}
+        return Fragment.lit("SELECT id, name, created_at FROM users")
+            .query(RowParser.<UserRow>builder()
+                .field(DuckDbTypes.integer, UserRow::id)
+                .field(DuckDbTypes.varchar, UserRow::name)
+                .field(DuckDbTypes.timestamptz, UserRow::createdAt)  // Wrong! created_at is VARCHAR
+                .build(UserRow::new)
+                .all())
+            .run(conn);
+      });
+      fail("Expected SqlResultParseException");
+    } catch (RowParser.SqlResultParseException e) {
+      System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
+      System.out.println("║  LANDING PAGE ERROR MESSAGE (copy this exactly)              ║");
+      System.out.println("╚══════════════════════════════════════════════════════════════╝\n");
+
+      System.out.println("=== Plain text (for landing page) ===");
+      System.out.println(e.detailedPlain());
+
+      System.out.println("\n=== With ANSI colors (for terminal) ===");
+      System.out.println(e.detailedColored());
+
+      System.out.println("\n=== Brief plain ===");
+      System.out.println(e.briefPlain());
+
+      System.out.println("\n=== Brief colored ===");
+      System.out.println(e.briefColored());
+
+      System.out.println("\n=== getMessage() (should be detailedPlain) ===");
+      System.out.println(e.getMessage());
+    } catch (Exception e) {
+      fail("Unexpected exception type: " + e.getClass().getName() + ": " + e.getMessage());
+    }
+  }
+
+  // ==========================================================================
   // Helper Methods
   // ==========================================================================
 

@@ -745,4 +745,48 @@ public class QueryAnalysisTest {
       return null;
     });
   }
+
+  @Test
+  public void testReportColoredVsPlain() {
+    withConnection(conn -> {
+      conn.createStatement().execute("CREATE TABLE color_test (id INTEGER, name VARCHAR)");
+
+      // Intentionally use wrong type to generate errors
+      RowParser<IntInt> parser = RowParser.<IntInt>builder()
+          .field(DuckDbTypes.integer, IntInt::i1)
+          .field(DuckDbTypes.integer, IntInt::i2)  // Wrong type
+          .build(IntInt::new);
+
+      Fragment fragment = Fragment.lit("SELECT id, name FROM color_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+
+      // Get both versions
+      String plain = analysis.report();
+      String colored = analysis.reportColored();
+
+      System.out.println("=== Plain report ===");
+      System.out.println(plain);
+      System.out.println("=== Colored report ===");
+      System.out.println(colored);
+
+      // Colored version should contain ANSI escape codes
+      assertTrue("Colored report should contain ANSI escape codes", colored.contains("\u001b["));
+      assertFalse("Plain report should NOT contain ANSI escape codes", plain.contains("\u001b["));
+
+      // Both should contain the same structural elements
+      assertTrue("Plain should contain error count", plain.contains("error"));
+      assertTrue("Colored should contain error count", colored.contains("error"));
+
+      // Error messages should also have colored versions
+      for (var error : analysis.allErrors()) {
+        String plainMsg = error.message();
+        String coloredMsg = error.styledMessage().render();
+
+        assertTrue("Colored message should contain ANSI codes", coloredMsg.contains("\u001b["));
+        assertFalse("Plain message should NOT contain ANSI codes", plainMsg.contains("\u001b["));
+      }
+
+      return null;
+    });
+  }
 }
