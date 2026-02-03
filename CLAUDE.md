@@ -88,6 +88,15 @@ npm run start    # Development server
 Site content lives in `site/docs/` (markdown files).
 Deployed to https://typr-dev.github.io/foundations-jdbc/
 
+### Documentation Code Samples
+
+**ALL documentation code samples MUST live in the example projects**, not inline in markdown:
+- `documentation-examples-java/` - Java examples
+- `documentation-examples-kotlin/` - Kotlin examples
+- `documentation-examples-scala/` - Scala examples
+
+Use `//start:snippet-name` and `//stop:snippet-name` markers in source files, then include via `<Snippet file="path/SnippetName" />` component. This ensures all code samples are compile-checked and stay in sync across all three languages.
+
 ## Dependencies
 
 JDBC drivers are `compileOnly` in foundations-jdbc - consumers provide their own driver at runtime.
