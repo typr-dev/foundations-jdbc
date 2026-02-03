@@ -1,0 +1,49 @@
+package dev.typr.foundations.docs.analysis
+
+import dev.typr.foundations.{Fragment, Operation, PgTypes}
+import dev.typr.foundations.scala.RowParser
+import dev.typr.foundations.analysis.{QueryAnalysis, QueryAnalyzer}
+import javax.sql.DataSource
+import scala.jdk.CollectionConverters.*
+import scala.util.Using
+
+@SuppressWarnings(Array("unused"))
+object QueryAnalysisTestSuite:
+  case class User(id: Int, name: String, email: String)
+  case class Product(id: Int, name: String)
+
+  private val testDataSource: DataSource = null // placeholder
+
+  private val userParser: RowParser[User] = RowParser.builder[User]()
+    .field(PgTypes.int4, _.id)
+    .field(PgTypes.text, _.name)
+    .field(PgTypes.text, _.email)
+    .build(User.apply)
+
+  private val productParser: RowParser[Product] = RowParser.builder[Product]()
+    .field(PgTypes.int4, _.id)
+    .field(PgTypes.text, _.name)
+    .build(Product.apply)
+
+  //start
+  def allQueriesTypeCheck(): Unit =
+    Using.resource(testDataSource.getConnection) { conn =>
+      // Collect all queries to check
+      val queries: List[Operation.Query[?]] = List(
+        Fragment.interpolate("SELECT id, name, email FROM users WHERE id = ")
+          .param(PgTypes.int4, 1).done().query(userParser.all().underlying),
+        Fragment.interpolate("SELECT id, name FROM products WHERE name LIKE ")
+          .param(PgTypes.text, "%widget%").done().query(productParser.all().underlying)
+      )
+
+      // Analyze each one
+      val failures = queries.flatMap { query =>
+        val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, conn)
+        if !analysis.succeeded() then Some(analysis.report()) else None
+      }
+
+      // Report all failures at once
+      if failures.nonEmpty then
+        throw AssertionError(s"Query type check failed:\n\n${failures.mkString("\n\n")}")
+    }
+  //stop

@@ -1,0 +1,18 @@
+package dev.typr.foundations.docs.core
+
+import dev.typr.foundations.PgTypes
+import dev.typr.foundations.kotlin.RowParser
+import java.time.Instant
+
+@Suppress("unused")
+class RowParserBasic {
+    //start
+    data class Person(val id: Int, val name: String, val createdAt: Instant)
+
+    val personParser: RowParser<Person> = RowParser.builder<Person>()
+        .field(PgTypes.int4, Person::id)
+        .field(PgTypes.text, Person::name)
+        .field(PgTypes.timestamptz, Person::createdAt)
+        .build(::Person)
+    //stop
+}

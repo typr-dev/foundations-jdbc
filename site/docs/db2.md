@@ -2,6 +2,8 @@
 title: DB2 Types
 ---
 
+import Snippet from '@site/src/components/Snippet';
+
 # DB2 Type Support
 
 Foundations JDBC provides support for IBM DB2's type system, including DECFLOAT, double-byte character types (GRAPHIC/VARGRAPHIC/DBCLOB), XML, and ROWID.
@@ -14,11 +16,7 @@ Foundations JDBC provides support for IBM DB2's type system, including DECFLOAT,
 | `INTEGER` / `INT` | `Integer` | 32-bit integer |
 | `BIGINT` | `Long` | 64-bit integer |
 
-```java
-Db2Type<Short> smallType = Db2Types.smallint;
-Db2Type<Integer> intType = Db2Types.integer;
-Db2Type<Long> bigType = Db2Types.bigint;
-```
+<Snippet file="db2/IntegerTypes" />
 
 ## Fixed-Point Types
 
@@ -28,12 +26,7 @@ Db2Type<Long> bigType = Db2Types.bigint;
 | `DECIMAL(p,s)` | `BigDecimal` | With precision and scale |
 | `DECFLOAT` | `BigDecimal` | DB2-specific decimal floating point (16 or 34 digits) |
 
-```java
-Db2Type<BigDecimal> decType = Db2Types.decimal;
-Db2Type<BigDecimal> preciseType = Db2Types.decimal(10, 2);
-Db2Type<BigDecimal> decfloatType = Db2Types.decfloat;
-Db2Type<BigDecimal> decfloat16 = Db2Types.decfloat(16);
-```
+<Snippet file="db2/FixedPointTypes" />
 
 ## Floating-Point Types
 
@@ -42,10 +35,7 @@ Db2Type<BigDecimal> decfloat16 = Db2Types.decfloat(16);
 | `REAL` | `Float` | Single precision |
 | `DOUBLE` / `FLOAT` | `Double` | Double precision |
 
-```java
-Db2Type<Float> realType = Db2Types.real;
-Db2Type<Double> doubleType = Db2Types.double_;
-```
+<Snippet file="db2/FloatingPointTypes" />
 
 ## Boolean
 
@@ -53,9 +43,7 @@ Db2Type<Double> doubleType = Db2Types.double_;
 |----------|-----------|-------|
 | `BOOLEAN` | `Boolean` | Native since DB2 11.1 |
 
-```java
-Db2Type<Boolean> boolType = Db2Types.boolean_;
-```
+<Snippet file="db2/BoolType" />
 
 ## String Types (Single-Byte)
 
@@ -67,13 +55,7 @@ Db2Type<Boolean> boolType = Db2Types.boolean_;
 | `VARCHAR(n)` | `String` | Variable-length with size |
 | `CLOB` | `String` | Character Large Object |
 
-```java
-Db2Type<String> charType = Db2Types.char_;
-Db2Type<String> char10 = Db2Types.char_(10);
-Db2Type<String> varcharType = Db2Types.varchar;
-Db2Type<String> varchar255 = Db2Types.varchar(255);
-Db2Type<String> clobType = Db2Types.clob;
-```
+<Snippet file="db2/StringTypesSingleByte" />
 
 ## String Types (Double-Byte)
 
@@ -87,12 +69,7 @@ DB2 has dedicated types for double-byte character set (DBCS) strings.
 | `VARGRAPHIC(n)` | `String` | Variable-length DBCS with size |
 | `DBCLOB` | `String` | Double-byte CLOB |
 
-```java
-Db2Type<String> graphicType = Db2Types.graphic;
-Db2Type<String> graphic10 = Db2Types.graphic(10);
-Db2Type<String> vargraphicType = Db2Types.vargraphic;
-Db2Type<String> dbclobType = Db2Types.dbclob;
-```
+<Snippet file="db2/StringTypesDoubleByte" />
 
 :::note
 DB2's `JSON_OBJECT` does not support GRAPHIC, VARGRAPHIC, or DBCLOB types. JSON serialization is not available for these types.
@@ -108,12 +85,7 @@ DB2's `JSON_OBJECT` does not support GRAPHIC, VARGRAPHIC, or DBCLOB types. JSON 
 | `VARBINARY(n)` | `byte[]` | Variable-length binary with size |
 | `BLOB` | `byte[]` | Binary Large Object |
 
-```java
-Db2Type<byte[]> binaryType = Db2Types.binary;
-Db2Type<byte[]> binary16 = Db2Types.binary(16);
-Db2Type<byte[]> varbinaryType = Db2Types.varbinary;
-Db2Type<byte[]> blobType = Db2Types.blob;
-```
+<Snippet file="db2/BinaryTypes" />
 
 :::note
 DB2's `JSON_OBJECT` does not support BINARY, VARBINARY, or BLOB types. JSON serialization is not available for these types.
@@ -128,12 +100,7 @@ DB2's `JSON_OBJECT` does not support BINARY, VARBINARY, or BLOB types. JSON seri
 | `TIMESTAMP` | `LocalDateTime` | Timestamp without timezone |
 | `TIMESTAMP(p)` | `LocalDateTime` | With fractional seconds precision |
 
-```java
-Db2Type<LocalDate> dateType = Db2Types.date;
-Db2Type<LocalTime> timeType = Db2Types.time;
-Db2Type<LocalDateTime> tsType = Db2Types.timestamp;
-Db2Type<LocalDateTime> ts6 = Db2Types.timestamp(6);
-```
+<Snippet file="db2/DateTimeTypes" />
 
 ## Special Types
 
@@ -142,10 +109,7 @@ Db2Type<LocalDateTime> ts6 = Db2Types.timestamp(6);
 | `XML` | `Xml` | Native XML support |
 | `ROWID` | `byte[]` | DB2 row identifier |
 
-```java
-Db2Type<Xml> xmlType = Db2Types.xml;
-Db2Type<byte[]> rowidType = Db2Types.rowid;
-```
+<Snippet file="db2/SpecialTypes" />
 
 :::note
 DB2's `JSON_OBJECT` does not support the XML type. JSON serialization is not available for XML columns.
