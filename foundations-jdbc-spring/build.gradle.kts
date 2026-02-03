@@ -15,6 +15,9 @@ sourceSets {
         java {
             setSrcDirs(listOf("src/java"))
         }
+        resources {
+            setSrcDirs(listOf("src/resources"))
+        }
     }
 }
 
@@ -25,4 +28,5 @@ tasks.withType<JavaCompile> {
 dependencies {
     api(project(":foundations-jdbc"))
     compileOnly("org.springframework:spring-jdbc:${property("springVersion")}")
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure:${property("springBootVersion")}")
 }
