@@ -580,19 +580,22 @@ function ErrorMessagesSection() {
         <p className={styles.sectionSubtitle}>
           When things go wrong, you get helpful messages that tell you exactly what happened — not a cryptic stack trace.
         </p>
-        <div style={{maxWidth: '700px', margin: '0 auto', fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.9rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', padding: '2rem'}}>
-          <span style={{color: '#ef4444', fontWeight: 600}}>Column type mismatch at index 3 (name):</span>{"\n"}
-          {"  Expected: varchar (PgTypes.text)"}{"\n"}
-          {"  Actual: integer"}{"\n"}
+        <div style={{maxWidth: '750px', margin: '0 auto', fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.85rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', padding: '2rem'}}>
+          <span style={{color: '#ef4444', fontWeight: 600}}>SqlResultParseException:</span>{"\n"}
+          {"  Error reading or parsing row 0, (1-indexed) column 3 from ResultSet."}{"\n"}
+          {"  Expected database type timestamptz"}{"\n"}
           {"\n"}
-          <span style={{color: '#ef4444', fontWeight: 600}}>Row parsing failed:</span>{"\n"}
-          {"  Expected 5 columns, got 4"}{"\n"}
-          {"  Missing column at index 4"}{"\n"}
+          <span style={{color: '#ef4444', fontWeight: 600}}>SQLException:</span>{"\n"}
+          {"  Expected single row, but found more"}{"\n"}
           {"\n"}
-          <span style={{color: '#ef4444', fontWeight: 600}}>Type conversion error:</span>{"\n"}
-          {"  Cannot read column 'created_at' as OffsetDateTime"}{"\n"}
-          {"  Database type: timestamp without time zone"}{"\n"}
-          <span style={{color: '#22c55e', fontWeight: 600}}>{"  Hint: Use PgTypes.timestamp instead of PgTypes.timestamptz"}</span>
+          <span style={{color: '#ef4444', fontWeight: 600}}>SQLException:</span>{"\n"}
+          {"  No rows when expecting a single one"}{"\n"}
+          {"\n"}
+          <span style={{color: '#ef4444', fontWeight: 600}}>IllegalArgumentException:</span>{"\n"}
+          {"  Uint1 value must be between 0 and 255, got: 256"}{"\n"}
+          {"\n"}
+          <span style={{color: '#ef4444', fontWeight: 600}}>SQLException:</span>{"\n"}
+          {"  Expected int4 but got text"}
         </div>
       </div>
     </section>
