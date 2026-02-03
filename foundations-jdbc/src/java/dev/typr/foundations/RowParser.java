@@ -86,107 +86,65 @@ public record RowParser<Row>(
     }
   }
 
+  /**
+   * Exception thrown when parsing a column from a ResultSet fails.
+   * Provides multiple rendering options via {@link ColumnParseError}.
+   *
+   * <p>Usage:
+   * <pre>{@code
+   * try {
+   *     rowParser.parse(rs);
+   * } catch (SqlResultParseException e) {
+   *     // Detailed with colors (for terminal)
+   *     System.err.println(e.detailed().render());
+   *
+   *     // Brief without colors (for logs)
+   *     logger.error(e.brief().plainText());
+   * }
+   * }</pre>
+   */
   public static class SqlResultParseException extends SQLException {
+    private final ColumnParseError error;
+
     public SqlResultParseException(
         ResultSet rs, int row, int column, DbType<?> tpe, Exception cause) {
-      super(formatMessage(rs, row, column, tpe, cause), cause);
+      super(ColumnParseError.from(rs, row, column, tpe, cause).detailed().plainText(), cause);
+      this.error = ColumnParseError.from(rs, row, column, tpe, cause);
     }
 
-    private static String formatMessage(
-        ResultSet rs, int row, int column, DbType<?> tpe, Exception cause) {
-      StringBuilder sb = new StringBuilder();
-
-      // Try to get metadata
-      String columnName = null;
-      String actualType = null;
-      Boolean dbNullable = null;
-      try {
-        var meta = rs.getMetaData();
-        columnName = meta.getColumnName(column);
-        actualType = meta.getColumnTypeName(column);
-        int nullable = meta.isNullable(column);
-        if (nullable != java.sql.ResultSetMetaData.columnNullableUnknown) {
-          dbNullable = (nullable == java.sql.ResultSetMetaData.columnNullable);
-        }
-      } catch (Exception ignored) {
-        // Metadata not available
-      }
-
-      // Try to get the actual value
-      String valuePreview = null;
-      try {
-        String strVal = rs.getString(column);
-        if (strVal == null) {
-          valuePreview = "null";
-        } else if (strVal.length() <= 50) {
-          valuePreview = "\"" + strVal + "\"";
-        } else {
-          valuePreview = "\"" + strVal.substring(0, 50) + "...\" (" + strVal.length() + " chars)";
-        }
-      } catch (Exception e1) {
-        // Try bytes as fallback
-        try {
-          byte[] bytes = rs.getBytes(column);
-          if (bytes == null) {
-            valuePreview = "null";
-          } else {
-            valuePreview = bytesToHex(bytes, 50);
-          }
-        } catch (Exception ignored) {
-          // Can't get value
-        }
-      }
-
-      // Header
-      sb.append("Failed to read column ").append(column);
-      if (columnName != null && !columnName.isEmpty()) {
-        sb.append(" '").append(columnName).append("'");
-      }
-      sb.append("\n");
-
-      // Expected vs Actual types
-      if (tpe != null) {
-        sb.append("   │ Expected: ").append(tpe.typename().sqlType());
-        if (tpe.isNullable()) {
-          sb.append(" (nullable)");
-        }
-        sb.append("\n");
-      }
-      if (actualType != null) {
-        sb.append("   │ Actual:   ").append(actualType);
-        if (dbNullable != null) {
-          sb.append(dbNullable ? " (nullable)" : " (not null)");
-        }
-        sb.append("\n");
-      }
-
-      // Value preview
-      if (valuePreview != null) {
-        sb.append("   │ Value:    ").append(valuePreview).append("\n");
-      }
-
-      sb.append("   │ Row: ").append(row).append("\n");
-
-      // Cause
-      if (cause != null) {
-        sb.append("   └ ").append(cause.getClass().getSimpleName());
-        if (cause.getMessage() != null) {
-          sb.append(": ").append(cause.getMessage());
-        }
-      }
-      return sb.toString();
+    /** Get the structured error information */
+    public ColumnParseError error() {
+      return error;
     }
 
-    private static String bytesToHex(byte[] bytes, int maxBytes) {
-      int len = Math.min(bytes.length, maxBytes);
-      StringBuilder sb = new StringBuilder("0x");
-      for (int i = 0; i < len; i++) {
-        sb.append(String.format("%02X", bytes[i]));
-      }
-      if (bytes.length > maxBytes) {
-        sb.append("... (").append(bytes.length).append(" bytes)");
-      }
-      return sb.toString();
+    /** Detailed multi-line format (styled) */
+    public Str detailed() {
+      return error.detailed();
+    }
+
+    /** Brief single-line format (styled) */
+    public Str brief() {
+      return error.brief();
+    }
+
+    /** Detailed with ANSI colors */
+    public String detailedColored() {
+      return error.detailed().render();
+    }
+
+    /** Detailed without colors */
+    public String detailedPlain() {
+      return error.detailed().plainText();
+    }
+
+    /** Brief with ANSI colors */
+    public String briefColored() {
+      return error.brief().render();
+    }
+
+    /** Brief without colors */
+    public String briefPlain() {
+      return error.brief().plainText();
     }
   }
 

@@ -580,21 +580,13 @@ function ErrorMessagesSection() {
         <p className={styles.sectionSubtitle}>
           When things go wrong, you get helpful messages that tell you exactly what happened — not a cryptic stack trace.
         </p>
-        <div style={{display: 'grid', gap: '1.5rem', maxWidth: '800px', margin: '0 auto'}}>
-          <div style={{fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.8rem', lineHeight: '1.6', whiteSpace: 'pre', background: '#1e293b', borderRadius: '8px', padding: '1.25rem', border: '1px solid #334155'}}>
-            <span style={{color: '#f87171'}}>Failed to read column </span><span style={{color: '#fbbf24'}}>3</span><span style={{color: '#f87171'}}> '</span><span style={{color: '#60a5fa'}}>created_at</span><span style={{color: '#f87171'}}>'</span>{"\n"}
-            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Expected: </span><span style={{color: '#4ade80'}}>timestamptz</span>{"\n"}
-            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Actual:   </span><span style={{color: '#f87171'}}>TIMESTAMP</span><span style={{color: '#94a3b8'}}> (nullable)</span>{"\n"}
-            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Value:    </span><span style={{color: '#fbbf24'}}>"2024-01-15 10:30:00"</span>{"\n"}
-            <span style={{color: '#94a3b8'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Row: </span><span style={{color: '#fbbf24'}}>0</span>{"\n"}
-            <span style={{color: '#94a3b8'}}>{"   └ "}</span><span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#e2e8f0'}}>: Cannot convert Timestamp to OffsetDateTime</span>
-          </div>
-          <div style={{fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.8rem', lineHeight: '1.6', whiteSpace: 'pre', background: '#1e293b', borderRadius: '8px', padding: '1.25rem', border: '1px solid #334155'}}>
-            <span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#e2e8f0'}}>: Expected single row, but found more</span>
-          </div>
-          <div style={{fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.8rem', lineHeight: '1.6', whiteSpace: 'pre', background: '#1e293b', borderRadius: '8px', padding: '1.25rem', border: '1px solid #334155'}}>
-            <span style={{color: '#f87171'}}>IllegalArgumentException</span><span style={{color: '#e2e8f0'}}>: Uint1 value must be between 0 and 255, got: </span><span style={{color: '#fbbf24'}}>256</span>
-          </div>
+        <div style={{maxWidth: '650px', margin: '0 auto', fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.85rem', lineHeight: '1.7', whiteSpace: 'pre', background: '#1e293b', borderRadius: '12px', padding: '1.5rem', border: '1px solid #334155', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)'}}>
+          <span style={{color: '#f87171', fontWeight: 600}}>Failed to read column </span><span style={{color: '#fbbf24'}}>3</span><span style={{color: '#f87171', fontWeight: 600}}> '</span><span style={{color: '#60a5fa'}}>created_at</span><span style={{color: '#f87171', fontWeight: 600}}>'</span>{"\n"}
+          <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Expected: </span><span style={{color: '#4ade80'}}>timestamptz</span>{"\n"}
+          <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Actual:   </span><span style={{color: '#f87171'}}>TIMESTAMP</span><span style={{color: '#64748b'}}> (nullable)</span>{"\n"}
+          <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Value:    </span><span style={{color: '#fbbf24'}}>"2024-01-15 10:30:00"</span>{"\n"}
+          <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Row: </span><span style={{color: '#fbbf24'}}>0</span>{"\n"}
+          <span style={{color: '#64748b'}}>{"   └ "}</span><span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#94a3b8'}}>: Cannot convert Timestamp to OffsetDateTime</span>
         </div>
       </div>
     </section>
