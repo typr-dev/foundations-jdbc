@@ -25,6 +25,17 @@ public sealed interface Operation<Out>
     }
   }
 
+  /**
+   * Execute this operation using the given transactor.
+   *
+   * @param transactor the transactor to use
+   * @return the operation result
+   * @throws SQLException if a database error occurs
+   */
+  default Out transact(Transactor transactor) throws SQLException {
+    return transactor.execute(this);
+  }
+
   record Query<Out>(Fragment query, ResultSetParser<Out> parser) implements Operation<Out> {
     @Override
     public Out run(Connection conn) throws SQLException {
