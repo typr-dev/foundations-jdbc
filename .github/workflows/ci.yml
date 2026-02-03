@@ -29,3 +29,18 @@ jobs:
 
       - name: Run unit tests
         run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.DuckDbTypeTest" --tests "dev.typr.foundations.PgRecordParserTest"
+
+      - name: Compile documentation examples
+        run: ./gradlew :documentation-examples-java:compileJava :documentation-examples-kotlin:compileKotlin :documentation-examples-scala:compileScala
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: site/package-lock.json
+
+      - name: Build documentation site
+        working-directory: site
+        run: |
+          npm ci
+          npm run build
