@@ -2,6 +2,8 @@
 title: MariaDB/MySQL Types
 ---
 
+import Snippet from '@site/src/components/Snippet';
+
 # MariaDB/MySQL Type Support
 
 Foundations JDBC provides comprehensive support for MariaDB and MySQL data types, including unsigned integers, spatial types, and MySQL-specific features.
@@ -16,29 +18,21 @@ Foundations JDBC provides comprehensive support for MariaDB and MySQL data types
 | `INT` | `Integer` | -2,147,483,648 to 2,147,483,647 |
 | `BIGINT` | `Long` | -2^63 to 2^63-1 |
 
-```java
-MariaType<Byte> tinyType = MariaTypes.tinyint;
-MariaType<Integer> intType = MariaTypes.int_;
-MariaType<Long> bigType = MariaTypes.bigint;
-```
+<Snippet file="mariadb/IntegerTypesSigned" />
 
 ## Integer Types (Unsigned)
 
-MariaDB supports unsigned integers, which are mapped to the next larger Java type:
+MariaDB supports unsigned integers, which are wrapped in type-safe unsigned types:
 
 | MariaDB Type | Java Type | Range |
 |--------------|-----------|-------|
-| `TINYINT UNSIGNED` | `Short` | 0 to 255 |
-| `SMALLINT UNSIGNED` | `Integer` | 0 to 65,535 |
-| `MEDIUMINT UNSIGNED` | `Integer` | 0 to 16,777,215 |
-| `INT UNSIGNED` | `Long` | 0 to 4,294,967,295 |
-| `BIGINT UNSIGNED` | `BigInteger` | 0 to 2^64-1 |
+| `TINYINT UNSIGNED` | `Uint1` | 0 to 255 |
+| `SMALLINT UNSIGNED` | `Uint2` | 0 to 65,535 |
+| `MEDIUMINT UNSIGNED` | `Uint4` | 0 to 16,777,215 |
+| `INT UNSIGNED` | `Uint4` | 0 to 4,294,967,295 |
+| `BIGINT UNSIGNED` | `Uint8` | 0 to 2^64-1 |
 
-```java
-MariaType<Short> unsignedTiny = MariaTypes.tinyintUnsigned;
-MariaType<Long> unsignedInt = MariaTypes.intUnsigned;
-MariaType<BigInteger> unsignedBig = MariaTypes.bigintUnsigned;
-```
+<Snippet file="mariadb/IntegerTypesUnsigned" />
 
 ## Fixed-Point Types
 
@@ -47,10 +41,7 @@ MariaType<BigInteger> unsignedBig = MariaTypes.bigintUnsigned;
 | `DECIMAL(p,s)` | `BigDecimal` | Exact numeric |
 | `NUMERIC(p,s)` | `BigDecimal` | Alias for DECIMAL |
 
-```java
-MariaType<BigDecimal> decimalType = MariaTypes.decimal;
-MariaType<BigDecimal> preciseDecimal = MariaTypes.decimal(10, 2);  // DECIMAL(10,2)
-```
+<Snippet file="mariadb/FixedPointTypes" />
 
 ## Floating-Point Types
 
@@ -59,10 +50,7 @@ MariaType<BigDecimal> preciseDecimal = MariaTypes.decimal(10, 2);  // DECIMAL(10
 | `FLOAT` | `Float` | 32-bit IEEE 754 |
 | `DOUBLE` | `Double` | 64-bit IEEE 754 |
 
-```java
-MariaType<Float> floatType = MariaTypes.float_;
-MariaType<Double> doubleType = MariaTypes.double_;
-```
+<Snippet file="mariadb/FloatingPointTypes" />
 
 ## Boolean Type
 
@@ -71,10 +59,7 @@ MariaType<Double> doubleType = MariaTypes.double_;
 | `BOOLEAN` / `BOOL` | `Boolean` | Alias for TINYINT(1) |
 | `BIT(1)` | `Boolean` | Single bit as boolean |
 
-```java
-MariaType<Boolean> boolType = MariaTypes.bool;
-MariaType<Boolean> bitBool = MariaTypes.bit1;
-```
+<Snippet file="mariadb/BooleanType" />
 
 ## Bit Types
 
@@ -82,9 +67,7 @@ MariaType<Boolean> bitBool = MariaTypes.bit1;
 |--------------|-----------|-------|
 | `BIT(n)` | `byte[]` | Bit field (n > 1) |
 
-```java
-MariaType<byte[]> bitType = MariaTypes.bit;
-```
+<Snippet file="mariadb/BitTypes" />
 
 ## String Types
 
@@ -97,12 +80,7 @@ MariaType<byte[]> bitType = MariaTypes.bit;
 | `MEDIUMTEXT` | `String` | 16 MB |
 | `LONGTEXT` | `String` | 4 GB |
 
-```java
-MariaType<String> charType = MariaTypes.char_(10);   // CHAR(10)
-MariaType<String> varcharType = MariaTypes.varchar(255);  // VARCHAR(255)
-MariaType<String> textType = MariaTypes.text;
-MariaType<String> longType = MariaTypes.longtext;
-```
+<Snippet file="mariadb/StringTypes" />
 
 ## Binary Types
 
@@ -115,11 +93,7 @@ MariaType<String> longType = MariaTypes.longtext;
 | `MEDIUMBLOB` | `byte[]` | 16 MB |
 | `LONGBLOB` | `byte[]` | 4 GB |
 
-```java
-MariaType<byte[]> binaryType = MariaTypes.binary(16);
-MariaType<byte[]> varbinaryType = MariaTypes.varbinary(255);
-MariaType<byte[]> blobType = MariaTypes.blob;
-```
+<Snippet file="mariadb/BinaryTypes" />
 
 ## Date/Time Types
 
@@ -131,16 +105,7 @@ MariaType<byte[]> blobType = MariaTypes.blob;
 | `TIMESTAMP` | `LocalDateTime` | With auto-update |
 | `YEAR` | `Year` | 4-digit year |
 
-```java
-MariaType<LocalDate> dateType = MariaTypes.date;
-MariaType<LocalTime> timeType = MariaTypes.time;
-MariaType<LocalDateTime> datetimeType = MariaTypes.datetime;
-MariaType<Year> yearType = MariaTypes.year;
-
-// With fractional seconds precision
-MariaType<LocalTime> timeFsp = MariaTypes.time(6);       // TIME(6)
-MariaType<LocalDateTime> dtFsp = MariaTypes.datetime(3);  // DATETIME(3)
-```
+<Snippet file="mariadb/DateTimeTypes" />
 
 ## ENUM Type
 
@@ -148,13 +113,7 @@ MariaType<LocalDateTime> dtFsp = MariaTypes.datetime(3);  // DATETIME(3)
 |--------------|-----------|
 | `ENUM('a','b','c')` | Java Enum |
 
-```java
-// Define your Java enum
-public enum Status { PENDING, ACTIVE, COMPLETED }
-
-// Create MariaType for it
-MariaType<Status> statusType = MariaTypes.ofEnum("status", Status::valueOf);
-```
+<Snippet file="mariadb/EnumType" />
 
 ## SET Type
 
@@ -162,13 +121,7 @@ MariaType<Status> statusType = MariaTypes.ofEnum("status", Status::valueOf);
 |--------------|-----------|
 | `SET('a','b','c')` | `MariaSet` |
 
-```java
-MariaType<MariaSet> setType = MariaTypes.set;
-
-// Create and use sets
-MariaSet values = MariaSet.of("read", "write");
-String csv = values.toCommaSeparated();  // "read,write"
-```
+<Snippet file="mariadb/SetType" />
 
 ## JSON Type
 
@@ -176,11 +129,7 @@ String csv = values.toCommaSeparated();  // "read,write"
 |--------------|-----------|
 | `JSON` | `Json` |
 
-```java
-MariaType<Json> jsonType = MariaTypes.json;
-
-Json data = new Json("{\"name\": \"John\", \"age\": 30}");
-```
+<Snippet file="mariadb/JsonType" />
 
 ## Network Types (MariaDB 10.10+)
 
@@ -189,13 +138,7 @@ Json data = new Json("{\"name\": \"John\", \"age\": 30}");
 | `INET4` | `Inet4` | IPv4 address |
 | `INET6` | `Inet6` | IPv6 address |
 
-```java
-MariaType<Inet4> inet4Type = MariaTypes.inet4;
-MariaType<Inet6> inet6Type = MariaTypes.inet6;
-
-Inet4 ipv4 = Inet4.parse("192.168.1.1");
-Inet6 ipv6 = Inet6.parse("::1");
-```
+<Snippet file="mariadb/NetworkTypes" />
 
 ## Spatial Types
 
@@ -212,32 +155,16 @@ MariaDB spatial types use the MariaDB Connector/J geometry classes:
 | `MULTIPOLYGON` | `MultiPolygon` | Multiple polygons |
 | `GEOMETRYCOLLECTION` | `GeometryCollection` | Mixed geometries |
 
-```java
-MariaType<Point> pointType = MariaTypes.point;
-MariaType<Polygon> polygonType = MariaTypes.polygon;
-MariaType<GeometryCollection> gcType = MariaTypes.geometrycollection;
-
-// Create a point
-Point p = new Point(1.0, 2.0);
-```
+<Snippet file="mariadb/SpatialTypes" />
 
 ## Nullable Types
 
-Any type can be made nullable using `.nullable()`:
+Any type can be made nullable using `.opt()`:
 
-```java
-MariaType<Integer> notNull = MariaTypes.int_;
-MariaType<Integer> nullable = MariaTypes.int_.nullable();
-```
+<Snippet file="mariadb/NullableType" />
 
 ## Custom Domain Types
 
 Wrap base types with custom Java types using `bimap`:
 
-```java
-// Wrapper type
-public record UserId(Long value) {}
-
-// Create MariaType from bigint
-MariaType<UserId> userIdType = MariaTypes.bigint.bimap(UserId::new, UserId::value);
-```
+<Snippet file="mariadb/DomainType" />

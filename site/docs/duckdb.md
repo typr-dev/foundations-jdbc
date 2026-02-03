@@ -2,6 +2,8 @@
 title: DuckDB Types
 ---
 
+import Snippet from '@site/src/components/Snippet';
+
 # DuckDB Type Support
 
 Foundations JDBC provides comprehensive support for DuckDB's rich type system, including nested types (LIST, STRUCT, MAP, UNION) and extended integer types.
@@ -16,27 +18,19 @@ Foundations JDBC provides comprehensive support for DuckDB's rich type system, i
 | `BIGINT` | `Long` | -2^63 to 2^63-1 |
 | `HUGEINT` | `BigInteger` | -2^127 to 2^127-1 |
 
-```java
-DuckDbType<Byte> tinyType = DuckDbTypes.tinyint;
-DuckDbType<Integer> intType = DuckDbTypes.integer;
-DuckDbType<BigInteger> hugeType = DuckDbTypes.hugeint;
-```
+<Snippet file="duckdb/IntegerTypesSigned" />
 
 ## Integer Types (Unsigned)
 
 | DuckDB Type | Java Type | Range |
 |-------------|-----------|-------|
-| `UTINYINT` | `Short` | 0 to 255 |
-| `USMALLINT` | `Integer` | 0 to 65,535 |
-| `UINTEGER` | `Long` | 0 to 2^32-1 |
-| `UBIGINT` | `BigInteger` | 0 to 2^64-1 |
+| `UTINYINT` | `Uint1` | 0 to 255 |
+| `USMALLINT` | `Uint2` | 0 to 65,535 |
+| `UINTEGER` | `Uint4` | 0 to 2^32-1 |
+| `UBIGINT` | `Uint8` | 0 to 2^64-1 |
 | `UHUGEINT` | `BigInteger` | 0 to 2^128-1 |
 
-```java
-DuckDbType<Short> utinyType = DuckDbTypes.utinyint;
-DuckDbType<Long> uintType = DuckDbTypes.uinteger;
-DuckDbType<BigInteger> uhugeType = DuckDbTypes.uhugeint;
-```
+<Snippet file="duckdb/IntegerTypesUnsigned" />
 
 ## Floating-Point Types
 
@@ -45,10 +39,7 @@ DuckDbType<BigInteger> uhugeType = DuckDbTypes.uhugeint;
 | `FLOAT` / `FLOAT4` / `REAL` | `Float` | 32-bit IEEE 754 |
 | `DOUBLE` / `FLOAT8` | `Double` | 64-bit IEEE 754 |
 
-```java
-DuckDbType<Float> floatType = DuckDbTypes.float_;
-DuckDbType<Double> doubleType = DuckDbTypes.double_;
-```
+<Snippet file="duckdb/FloatingPointTypes" />
 
 ## Fixed-Point Types
 
@@ -57,10 +48,7 @@ DuckDbType<Double> doubleType = DuckDbTypes.double_;
 | `DECIMAL(p,s)` | `BigDecimal` | Arbitrary precision |
 | `NUMERIC(p,s)` | `BigDecimal` | Alias for DECIMAL |
 
-```java
-DuckDbType<BigDecimal> decimalType = DuckDbTypes.decimal;
-DuckDbType<BigDecimal> precise = DuckDbTypes.decimal(18, 6);  // DECIMAL(18,6)
-```
+<Snippet file="duckdb/FixedPointTypes" />
 
 ## Boolean Type
 
@@ -68,9 +56,7 @@ DuckDbType<BigDecimal> precise = DuckDbTypes.decimal(18, 6);  // DECIMAL(18,6)
 |-------------|-----------|
 | `BOOLEAN` / `BOOL` | `Boolean` |
 
-```java
-DuckDbType<Boolean> boolType = DuckDbTypes.boolean_;
-```
+<Snippet file="duckdb/BoolType" />
 
 ## String Types
 
@@ -79,10 +65,7 @@ DuckDbType<Boolean> boolType = DuckDbTypes.boolean_;
 | `VARCHAR` / `STRING` / `TEXT` | `String` | Variable length |
 | `CHAR(n)` | `String` | Fixed length |
 
-```java
-DuckDbType<String> varcharType = DuckDbTypes.varchar;
-DuckDbType<String> charType = DuckDbTypes.char_(10);
-```
+<Snippet file="duckdb/StringTypes" />
 
 ## Binary Types
 
@@ -90,9 +73,7 @@ DuckDbType<String> charType = DuckDbTypes.char_(10);
 |-------------|-----------|
 | `BLOB` / `BYTEA` / `BINARY` / `VARBINARY` | `byte[]` |
 
-```java
-DuckDbType<byte[]> blobType = DuckDbTypes.blob;
-```
+<Snippet file="duckdb/BinaryTypes" />
 
 ## Bit String Type
 
@@ -100,10 +81,7 @@ DuckDbType<byte[]> blobType = DuckDbTypes.blob;
 |-------------|-----------|-------|
 | `BIT` / `BITSTRING` | `String` | String of 0s and 1s |
 
-```java
-DuckDbType<String> bitType = DuckDbTypes.bit;
-DuckDbType<String> bit8 = DuckDbTypes.bit(8);  // BIT(8)
-```
+<Snippet file="duckdb/BitStringType" />
 
 ## Date/Time Types
 
@@ -116,12 +94,7 @@ DuckDbType<String> bit8 = DuckDbTypes.bit(8);  // BIT(8)
 | `TIME WITH TIME ZONE` | `OffsetDateTime` | Time with timezone |
 | `INTERVAL` | `Duration` | Time duration |
 
-```java
-DuckDbType<LocalDate> dateType = DuckDbTypes.date;
-DuckDbType<LocalDateTime> tsType = DuckDbTypes.timestamp;
-DuckDbType<OffsetDateTime> tstzType = DuckDbTypes.timestamptz;
-DuckDbType<Duration> intervalType = DuckDbTypes.interval;
-```
+<Snippet file="duckdb/DateTimeTypes" />
 
 ### Timestamp Precision Variants
 
@@ -132,11 +105,7 @@ DuckDbType<Duration> intervalType = DuckDbTypes.interval;
 | `TIMESTAMP` | `LocalDateTime` | Microseconds (default) |
 | `TIMESTAMP_NS` | `LocalDateTime` | Nanoseconds |
 
-```java
-DuckDbType<LocalDateTime> tsSeconds = DuckDbTypes.timestamp_s;
-DuckDbType<LocalDateTime> tsMillis = DuckDbTypes.timestamp_ms;
-DuckDbType<LocalDateTime> tsNanos = DuckDbTypes.timestamp_ns;
-```
+<Snippet file="duckdb/TimestampPrecision" />
 
 ## UUID Type
 
@@ -144,9 +113,7 @@ DuckDbType<LocalDateTime> tsNanos = DuckDbTypes.timestamp_ns;
 |-------------|-----------|
 | `UUID` | `java.util.UUID` |
 
-```java
-DuckDbType<UUID> uuidType = DuckDbTypes.uuid;
-```
+<Snippet file="duckdb/UuidType" />
 
 ## JSON Type
 
@@ -154,21 +121,11 @@ DuckDbType<UUID> uuidType = DuckDbTypes.uuid;
 |-------------|-----------|
 | `JSON` | `Json` |
 
-```java
-DuckDbType<Json> jsonType = DuckDbTypes.json;
-
-Json data = new Json("{\"name\": \"DuckDB\"}");
-```
+<Snippet file="duckdb/JsonType" />
 
 ## Enum Type
 
-```java
-// Define your Java enum
-public enum Status { PENDING, ACTIVE, COMPLETED }
-
-// Create DuckDbType for it
-DuckDbType<Status> statusType = DuckDbTypes.ofEnum("status", Status::valueOf);
-```
+<Snippet file="duckdb/EnumType" />
 
 ## Array Types
 
@@ -181,14 +138,7 @@ Any type can be converted to an array type using `.array()`:
 | `BOOLEAN[]` | `Boolean[]` |
 | ... | ... |
 
-```java
-DuckDbType<Integer[]> intArray = DuckDbTypes.integerArray;
-DuckDbType<String[]> strArray = DuckDbTypes.varcharArray;
-DuckDbType<UUID[]> uuidArray = DuckDbTypes.uuidArray;
-
-// Create array for any type
-DuckDbType<MyType[]> customArray = myType.array();
-```
+<Snippet file="duckdb/ArrayTypes" />
 
 ## LIST Types
 
@@ -201,17 +151,7 @@ DuckDB's LIST type is similar to arrays but with different semantics:
 | `LIST<DATE>` | `List<LocalDate>` |
 | ... | ... |
 
-```java
-// Pre-defined list types with optimized native JNI support
-DuckDbType<List<Integer>> listInt = DuckDbTypes.listInteger;
-DuckDbType<List<String>> listStr = DuckDbTypes.listVarchar;
-DuckDbType<List<Double>> listDouble = DuckDbTypes.listDouble;
-
-// Types that use SQL literal conversion (slightly slower but correct)
-DuckDbType<List<UUID>> listUuid = DuckDbTypes.listUuid;
-DuckDbType<List<LocalDate>> listDate = DuckDbTypes.listDate;
-DuckDbType<List<BigDecimal>> listDecimal = DuckDbTypes.listDecimal;
-```
+<Snippet file="duckdb/ListTypes" />
 
 ## MAP Types
 
@@ -222,15 +162,7 @@ DuckDB's MAP type for key-value pairs:
 | `MAP(VARCHAR, INTEGER)` | `Map<String, Integer>` |
 | `MAP(VARCHAR, VARCHAR)` | `Map<String, String>` |
 
-```java
-// Create map types using the mapTo() combinator
-DuckDbType<Map<String, Integer>> mapStrInt = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer);
-DuckDbType<Map<String, String>> mapStrStr = DuckDbTypes.varchar.mapTo(DuckDbTypes.varchar);
-DuckDbType<Map<UUID, LocalTime>> mapUuidTime = DuckDbTypes.uuid.mapTo(DuckDbTypes.time);
-
-// Works with any combination of types
-DuckDbType<Map<String, LocalDate>> mapStrDate = DuckDbTypes.varchar.mapTo(DuckDbTypes.date);
-```
+<Snippet file="duckdb/MapTypes" />
 
 ## STRUCT Types
 
@@ -252,21 +184,12 @@ DuckDB's UNION type for tagged unions:
 
 ## Nullable Types
 
-Any type can be made nullable using `.nullable()`:
+Any type can be made nullable using `.opt()`:
 
-```java
-DuckDbType<Integer> notNull = DuckDbTypes.integer;
-DuckDbType<Integer> nullable = DuckDbTypes.integer.nullable();
-```
+<Snippet file="duckdb/NullableTypes" />
 
 ## Custom Domain Types
 
 Wrap base types with custom Java types using `bimap`:
 
-```java
-// Wrapper type
-public record ProductId(Long value) {}
-
-// Create DuckDbType from bigint
-DuckDbType<ProductId> productIdType = DuckDbTypes.bigint.bimap(ProductId::new, ProductId::value);
-```
+<Snippet file="duckdb/DomainType" />

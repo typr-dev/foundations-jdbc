@@ -2,8 +2,7 @@
 title: Row Types & Parsers
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import Snippet from '@site/src/components/Snippet';
 
 # Row Types & Parsers
 
@@ -13,53 +12,7 @@ Row parsers define how to read a complete row from a ResultSet. They're composab
 
 A `RowParser<T>` knows how to read all columns of a row and construct an instance of `T`. It also knows how to decompose `T` back into column values for writing.
 
-<Tabs groupId="language">
-<TabItem value="java" label="Java">
-
-```java
-record Person(Integer id, String name, OffsetDateTime createdAt) {}
-
-RowParser<Person> personParser = RowParser.<Person>builder()
-    .field(PgTypes.int4, Person::id)
-    .field(PgTypes.text, Person::name)
-    .field(PgTypes.timestamptz, Person::createdAt)
-    .build(Person::new);
-
-List<Person> people = personParser.parseList(resultSet);
-```
-
-</TabItem>
-<TabItem value="kotlin" label="Kotlin">
-
-```kotlin
-data class Person(val id: Int, val name: String, val createdAt: OffsetDateTime)
-
-val personParser: RowParser<Person> = RowParser.builder<Person>()
-    .field(PgTypes.int4, Person::id)
-    .field(PgTypes.text, Person::name)
-    .field(PgTypes.timestamptz, Person::createdAt)
-    .build(::Person)
-
-val people: List<Person> = personParser.parseList(resultSet)
-```
-
-</TabItem>
-<TabItem value="scala" label="Scala">
-
-```scala
-case class Person(id: Int, name: String, createdAt: OffsetDateTime)
-
-val personParser: RowParser[Person] = RowParser.builder[Person]()
-  .field(PgTypes.int4, _.id)
-  .field(PgTypes.text, _.name)
-  .field(PgTypes.timestamptz, _.createdAt)
-  .build(Person.apply)
-
-val people: List[Person] = personParser.parseList(resultSet)
-```
-
-</TabItem>
-</Tabs>
+<Snippet file="core/RowParserBasic" />
 
 ## How It Works
 
@@ -74,83 +27,16 @@ The builder is fully type-safe: the constructor function receives exactly the ty
 
 For single-column queries, use the simpler `of()` factory:
 
-```java
-RowParser<Integer> idParser = RowParser.of(PgTypes.int4);
-```
+<Snippet file="core/SingleColumnParser" />
 
 ## Nullable Columns
 
 Use `.opt()` to wrap a type for nullable columns:
 
-<Tabs groupId="language">
-<TabItem value="java" label="Java">
-
-```java
-record Person(Integer id, String name, Optional<OffsetDateTime> createdAt) {}
-
-RowParser<Person> personParser = RowParser.<Person>builder()
-    .field(PgTypes.int4, Person::id)
-    .field(PgTypes.text, Person::name)
-    .field(PgTypes.timestamptz.opt(), Person::createdAt)
-    .build(Person::new);
-```
-
-</TabItem>
-<TabItem value="kotlin" label="Kotlin">
-
-```kotlin
-data class Person(val id: Int, val name: String, val createdAt: OffsetDateTime?)
-
-val personParser: RowParser<Person> = RowParser.builder<Person>()
-    .field(PgTypes.int4, Person::id)
-    .field(PgTypes.text, Person::name)
-    .field(PgTypes.timestamptz.opt(), Person::createdAt)
-    .build(::Person)
-```
-
-</TabItem>
-<TabItem value="scala" label="Scala">
-
-```scala
-case class Person(id: Int, name: String, createdAt: Option[OffsetDateTime])
-
-val personParser: RowParser[Person] = RowParser.builder[Person]()
-  .field(PgTypes.int4, _.id)
-  .field(PgTypes.text, _.name)
-  .field(PgTypes.timestamptz.opt(), _.createdAt)
-  .build(Person.apply)
-```
-
-</TabItem>
-</Tabs>
+<Snippet file="core/NullableColumns" />
 
 ## Composing Parsers
 
 Row parsers compose for joins. Left join gives you `Optional` on the right side:
 
-<Tabs groupId="language">
-<TabItem value="java" label="Java">
-
-```java
-RowParser<And<ProductRow, Optional<CategoryRow>>> joined =
-    ProductRow.rowParser.leftJoined(CategoryRow.rowParser);
-```
-
-</TabItem>
-<TabItem value="kotlin" label="Kotlin">
-
-```kotlin
-val joined: RowParser<And<ProductRow, ProductRow?>> =
-    ProductRow.rowParser.leftJoined(CategoryRow.rowParser)
-```
-
-</TabItem>
-<TabItem value="scala" label="Scala">
-
-```scala
-val joined: RowParser[And[ProductRow, Option[CategoryRow]]] =
-    ProductRow.rowParser.leftJoined(CategoryRow.rowParser)
-```
-
-</TabItem>
-</Tabs>
+<Snippet file="core/ComposingParsers" />

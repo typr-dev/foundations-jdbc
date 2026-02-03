@@ -2,6 +2,8 @@
 title: PostgreSQL Types
 ---
 
+import Snippet from '@site/src/components/Snippet';
+
 # PostgreSQL Type Support
 
 Foundations JDBC provides comprehensive support for all PostgreSQL data types, including the many exotic types that make PostgreSQL unique.
@@ -18,11 +20,7 @@ Foundations JDBC provides comprehensive support for all PostgreSQL data types, i
 | `numeric` / `decimal` | `BigDecimal` | Arbitrary precision |
 | `money` | `Money` | Currency with 2 decimal places |
 
-```java
-PgType<Integer> intType = PgTypes.int4;
-PgType<BigDecimal> decimalType = PgTypes.numeric;
-PgType<Money> moneyType = PgTypes.money;
-```
+<Snippet file="postgresql/NumericTypes" />
 
 ## Boolean Type
 
@@ -30,9 +28,7 @@ PgType<Money> moneyType = PgTypes.money;
 |-----------------|-----------|
 | `bool` / `boolean` | `Boolean` |
 
-```java
-PgType<Boolean> boolType = PgTypes.bool;
-```
+<Snippet file="postgresql/BoolType" />
 
 ## String Types
 
@@ -43,10 +39,7 @@ PgType<Boolean> boolType = PgTypes.bool;
 | `bpchar` / `char(n)` | `String` | Fixed-length, blank-padded |
 | `name` | `String` | 63-character identifier |
 
-```java
-PgType<String> textType = PgTypes.text;
-PgType<String> charType = PgTypes.bpchar(10);  // char(10)
-```
+<Snippet file="postgresql/StringTypes" />
 
 ## Binary Types
 
@@ -54,9 +47,7 @@ PgType<String> charType = PgTypes.bpchar(10);  // char(10)
 |-----------------|-----------|-------|
 | `bytea` | `byte[]` | Variable-length binary |
 
-```java
-PgType<byte[]> bytesType = PgTypes.bytea;
-```
+<Snippet file="postgresql/BinaryTypes" />
 
 ## Date/Time Types
 
@@ -69,11 +60,7 @@ PgType<byte[]> bytesType = PgTypes.bytea;
 | `timestamptz` | `Instant` | Date and time with timezone (stored as UTC) |
 | `interval` | `PGInterval` | Time duration |
 
-```java
-PgType<LocalDate> dateType = PgTypes.date;
-PgType<Instant> timestamptzType = PgTypes.timestamptz;
-PgType<PGInterval> intervalType = PgTypes.interval;
-```
+<Snippet file="postgresql/DateTimeTypes" />
 
 ## UUID Type
 
@@ -81,9 +68,7 @@ PgType<PGInterval> intervalType = PgTypes.interval;
 |-----------------|-----------|
 | `uuid` | `java.util.UUID` |
 
-```java
-PgType<UUID> uuidType = PgTypes.uuid;
-```
+<Snippet file="postgresql/UuidType" />
 
 ## JSON Types
 
@@ -92,13 +77,7 @@ PgType<UUID> uuidType = PgTypes.uuid;
 | `json` | `Json` | Stored as-is, validated on input |
 | `jsonb` | `Jsonb` | Binary format, indexed, normalized |
 
-```java
-PgType<Json> jsonType = PgTypes.json;
-PgType<Jsonb> jsonbType = PgTypes.jsonb;
-
-// Parse and use JSON
-Json data = new Json("{\"name\": \"John\"}");
-```
+<Snippet file="postgresql/JsonTypes" />
 
 ## Array Types
 
@@ -114,19 +93,7 @@ Any PostgreSQL type can be used as an array. Foundations JDBC supports both boxe
 | `text[]` | `String[]` | - |
 | `uuid[]` | `UUID[]` | - |
 
-```java
-// Boxed arrays
-PgType<Integer[]> intArrayBoxed = PgTypes.int4Array;
-
-// Unboxed arrays (more efficient)
-PgType<int[]> intArrayUnboxed = PgTypes.int4ArrayUnboxed;
-
-// Text arrays
-PgType<String[]> textArray = PgTypes.textArray;
-
-// Any type can be made into an array
-PgType<UUID[]> uuidArray = PgTypes.uuidArray;
-```
+<Snippet file="postgresql/ArrayTypes" />
 
 ## Range Types
 
@@ -141,17 +108,7 @@ PostgreSQL's range types represent intervals of values with inclusive/exclusive 
 | `tsrange` | `Range<LocalDateTime>` | LocalDateTime |
 | `tstzrange` | `Range<Instant>` | Instant |
 
-```java
-PgType<Range<Integer>> intRangeType = PgTypes.int4range;
-PgType<Range<LocalDate>> dateRangeType = PgTypes.daterange;
-
-// Create ranges
-Range<Integer> range = Range.INT4.closed(1, 10);      // [1, 10]
-Range<Integer> halfOpen = Range.INT4.closedOpen(1, 10); // [1, 10)
-
-// Check containment
-boolean contains = range.contains(5);  // true
-```
+<Snippet file="postgresql/RangeTypes" />
 
 ## Geometric Types
 
@@ -167,15 +124,7 @@ PostgreSQL's geometric types for 2D shapes:
 | `polygon` | `PGpolygon` | Closed polygon |
 | `circle` | `PGcircle` | Circle with center and radius |
 
-```java
-PgType<PGpoint> pointType = PgTypes.point;
-PgType<PGcircle> circleType = PgTypes.circle;
-PgType<PGpolygon> polygonType = PgTypes.polygon;
-
-// Create geometric objects
-PGpoint point = new PGpoint(1.0, 2.0);
-PGcircle circle = new PGcircle(point, 5.0);
-```
+<Snippet file="postgresql/GeometricTypes" />
 
 ## Network Types
 
@@ -188,12 +137,7 @@ Types for storing network addresses:
 | `macaddr` | `Macaddr` | MAC address (6 bytes) |
 | `macaddr8` | `Macaddr8` | MAC address (8 bytes, EUI-64) |
 
-```java
-PgType<Inet> inetType = PgTypes.inet;
-PgType<Cidr> cidrType = PgTypes.cidr;
-
-Inet addr = new Inet("192.168.1.1/24");
-```
+<Snippet file="postgresql/NetworkTypes" />
 
 ## Text Search Types
 
@@ -204,10 +148,7 @@ Full-text search types:
 | `tsvector` | `Tsvector` | Text search document |
 | `tsquery` | `Tsquery` | Text search query |
 
-```java
-PgType<Tsvector> vectorType = PgTypes.tsvector;
-PgType<Tsquery> queryType = PgTypes.tsquery;
-```
+<Snippet file="postgresql/TextSearchTypes" />
 
 ## XML Type
 
@@ -215,10 +156,7 @@ PgType<Tsquery> queryType = PgTypes.tsquery;
 |-----------------|-----------|
 | `xml` | `Xml` |
 
-```java
-PgType<Xml> xmlType = PgTypes.xml;
-Xml doc = new Xml("<root><child>text</child></root>");
-```
+<Snippet file="postgresql/XmlType" />
 
 ## Other Special Types
 
@@ -228,10 +166,7 @@ Xml doc = new Xml("<root><child>text</child></root>");
 | `vector` | `Vector` | pgvector extension |
 | `record` | `Record` | Anonymous composite type |
 
-```java
-PgType<Map<String, String>> hstoreType = PgTypes.hstore;
-PgType<Vector> vectorType = PgTypes.vector;
-```
+<Snippet file="postgresql/SpecialTypes" />
 
 ## System Types
 
@@ -249,31 +184,16 @@ Types used internally by PostgreSQL:
 
 PostgreSQL enums are mapped to Java enums:
 
-```java
-// Define your Java enum
-public enum Status { PENDING, ACTIVE, COMPLETED }
-
-// Create a PgType for it
-PgType<Status> statusType = PgTypes.ofEnum("status", Status::valueOf);
-```
+<Snippet file="postgresql/EnumType" />
 
 ## Custom Domain Types
 
 Wrap base types with custom Java types using `bimap`:
 
-```java
-// Wrapper type
-public record Email(String value) {}
-
-// Create PgType from text
-PgType<Email> emailType = PgTypes.text.bimap(Email::new, Email::value);
-```
+<Snippet file="postgresql/DomainType" />
 
 ## Nullable Types
 
-Any type can be made nullable using `.nullable()`:
+Any type can be made nullable using `.opt()`:
 
-```java
-PgType<Integer> notNull = PgTypes.int4;
-PgType<Integer> nullable = PgTypes.int4.nullable();  // null values allowed
-```
+<Snippet file="postgresql/NullableTypes" />
