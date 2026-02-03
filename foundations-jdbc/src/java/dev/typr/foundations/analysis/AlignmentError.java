@@ -1,6 +1,7 @@
 package dev.typr.foundations.analysis;
 
 import dev.typr.foundations.DbType;
+import dev.typr.foundations.Str;
 import java.util.Set;
 
 /**
@@ -15,9 +16,16 @@ public sealed interface AlignmentError {
   int position();
 
   /**
-   * Human-readable error message.
+   * Styled error message with optional ANSI colors.
    */
-  String message();
+  Str styledMessage();
+
+  /**
+   * Human-readable error message (plain text).
+   */
+  default String message() {
+    return styledMessage().plainText();
+  }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Parameter errors
@@ -32,9 +40,12 @@ public sealed interface AlignmentError {
       DbType<?> type
   ) implements AlignmentError {
     @Override
-    public String message() {
-      return "Parameter " + position + " is declared in code (" + type.typename().sqlType() +
-          ") but not expected by the query";
+    public Str styledMessage() {
+      return Str.plain("Parameter ")
+          .add(Str.yellow(String.valueOf(position)))
+          .add(" is declared in code (")
+          .add(Str.cyan(type.typename().sqlType()))
+          .add(") but not expected by the query");
     }
   }
 
@@ -47,10 +58,14 @@ public sealed interface AlignmentError {
       JdbcMeta.ParameterMeta meta
   ) implements AlignmentError {
     @Override
-    public String message() {
-      return "Parameter " + position + " is expected by the query (" +
-          meta.vendorTypeName() + " / " + JdbcMeta.jdbcTypeName(meta.jdbcType()) +
-          ") but not provided in code";
+    public Str styledMessage() {
+      return Str.plain("Parameter ")
+          .add(Str.yellow(String.valueOf(position)))
+          .add(" is expected by the query (")
+          .add(Str.red(meta.vendorTypeName()))
+          .add(" / ")
+          .add(Str.gray(JdbcMeta.jdbcTypeName(meta.jdbcType())))
+          .add(") but not provided in code");
     }
   }
 
@@ -65,15 +80,22 @@ public sealed interface AlignmentError {
       String reason
   ) implements AlignmentError {
     @Override
-    public String message() {
-      String declaredStr = declared.typename().sqlType() +
-          " (JDBC: " + formatJdbcTypes(declaredJdbcTypes) + ")";
-      String expectedStr = expected.vendorTypeName() +
-          " (JDBC: " + JdbcMeta.jdbcTypeName(expected.jdbcType()) + ")";
-      return "Parameter " + position + ": type mismatch\n" +
-          "  │ Declared: " + declaredStr + "\n" +
-          "  │ Expected: " + expectedStr + "\n" +
-          "  └ " + reason;
+    public Str styledMessage() {
+      return Str.plain("Parameter ")
+          .add(Str.yellow(String.valueOf(position)))
+          .add(": type mismatch\n")
+          .add(Str.gray("   │ "))
+          .add("Declared: ")
+          .add(Str.green(declared.typename().sqlType()))
+          .add(Str.gray(" (JDBC: " + formatJdbcTypes(declaredJdbcTypes) + ")"))
+          .add("\n")
+          .add(Str.gray("   │ "))
+          .add("Expected: ")
+          .add(Str.red(expected.vendorTypeName()))
+          .add(Str.gray(" (JDBC: " + JdbcMeta.jdbcTypeName(expected.jdbcType()) + ")"))
+          .add("\n")
+          .add(Str.gray("   └ "))
+          .add(reason);
     }
   }
 
@@ -89,9 +111,12 @@ public sealed interface AlignmentError {
       DbType<?> type
   ) implements AlignmentError {
     @Override
-    public String message() {
-      return "Column " + position + " is declared in RowParser (" + type.typename().sqlType() +
-          ") but not returned by query";
+    public Str styledMessage() {
+      return Str.plain("Column ")
+          .add(Str.yellow(String.valueOf(position)))
+          .add(" is declared in RowParser (")
+          .add(Str.cyan(type.typename().sqlType()))
+          .add(") but not returned by query");
     }
   }
 
@@ -103,10 +128,16 @@ public sealed interface AlignmentError {
       JdbcMeta.ColumnMeta meta
   ) implements AlignmentError {
     @Override
-    public String message() {
-      return "Column " + position + " '" + meta.displayName() + "' is returned by query (" +
-          meta.vendorTypeName() + " / " + JdbcMeta.jdbcTypeName(meta.jdbcType()) +
-          ") but not declared in RowParser";
+    public Str styledMessage() {
+      return Str.plain("Column ")
+          .add(Str.yellow(String.valueOf(position)))
+          .add(" '")
+          .add(Str.cyan(meta.displayName()))
+          .add("' is returned by query (")
+          .add(Str.red(meta.vendorTypeName()))
+          .add(" / ")
+          .add(Str.gray(JdbcMeta.jdbcTypeName(meta.jdbcType())))
+          .add(") but not declared in RowParser");
     }
   }
 
@@ -122,15 +153,24 @@ public sealed interface AlignmentError {
       String reason
   ) implements AlignmentError {
     @Override
-    public String message() {
-      String declaredStr = declared.typename().sqlType() +
-          " (JDBC: " + formatJdbcTypes(declaredJdbcTypes) + ")";
-      String returnedStr = returned.vendorTypeName() +
-          " (JDBC: " + JdbcMeta.jdbcTypeName(returned.jdbcType()) + ")";
-      return "Column " + position + " '" + columnName + "': type mismatch\n" +
-          "  │ Declared: " + declaredStr + "\n" +
-          "  │ Returned: " + returnedStr + "\n" +
-          "  └ " + reason;
+    public Str styledMessage() {
+      return Str.plain("Column ")
+          .add(Str.yellow(String.valueOf(position)))
+          .add(" '")
+          .add(Str.cyan(columnName))
+          .add("': type mismatch\n")
+          .add(Str.gray("   │ "))
+          .add("Declared: ")
+          .add(Str.green(declared.typename().sqlType()))
+          .add(Str.gray(" (JDBC: " + formatJdbcTypes(declaredJdbcTypes) + ")"))
+          .add("\n")
+          .add(Str.gray("   │ "))
+          .add("Returned: ")
+          .add(Str.red(returned.vendorTypeName()))
+          .add(Str.gray(" (JDBC: " + JdbcMeta.jdbcTypeName(returned.jdbcType()) + ")"))
+          .add("\n")
+          .add(Str.gray("   └ "))
+          .add(reason);
     }
   }
 
@@ -144,11 +184,22 @@ public sealed interface AlignmentError {
       DbType<?> type
   ) implements AlignmentError {
     @Override
-    public String message() {
-      return "Column " + position + " '" + columnName + "': nullability mismatch\n" +
-          "  │ The database says this column is nullable\n" +
-          "  │ But the type " + type.typename().sqlType() + " is not Optional\n" +
-          "  └ Use .opt() to make the type nullable, or ensure the column is NOT NULL";
+    public Str styledMessage() {
+      return Str.plain("Column ")
+          .add(Str.yellow(String.valueOf(position)))
+          .add(" '")
+          .add(Str.cyan(columnName))
+          .add("': nullability mismatch\n")
+          .add(Str.gray("   │ "))
+          .add("The database says this column is nullable\n")
+          .add(Str.gray("   │ "))
+          .add("But the type ")
+          .add(Str.green(type.typename().sqlType()))
+          .add(" is not Optional\n")
+          .add(Str.gray("   └ "))
+          .add("Use ")
+          .add(Str.cyan(".opt()"))
+          .add(" to make the type nullable");
     }
   }
 
