@@ -54,7 +54,7 @@ public record RowParser<Row>(
       try {
         currentRow[colNum] = dbType.read().read(rs, colNum + 1);
       } catch (Exception e) {
-        throw new SqlResultParseException(rowNum, colNum, dbType, e);
+        throw new SqlResultParseException(rs, rowNum, colNum + 1, dbType, e);
       }
     }
     return this.decode().apply(currentRow);
@@ -73,7 +73,7 @@ public record RowParser<Row>(
       }
       return readRow(rs, rowNum);
     } catch (SQLException e) {
-      throw new SqlResultParseException(0, 0, null, e);
+      throw new SqlResultParseException(rs, 0, 0, null, e);
     }
   }
 
@@ -86,16 +86,65 @@ public record RowParser<Row>(
     }
   }
 
+  /**
+   * Exception thrown when parsing a column from a ResultSet fails.
+   * Provides multiple rendering options via {@link ColumnParseError}.
+   *
+   * <p>Usage:
+   * <pre>{@code
+   * try {
+   *     rowParser.parse(rs);
+   * } catch (SqlResultParseException e) {
+   *     // Detailed with colors (for terminal)
+   *     System.err.println(e.detailed().render());
+   *
+   *     // Brief without colors (for logs)
+   *     logger.error(e.brief().plainText());
+   * }
+   * }</pre>
+   */
   public static class SqlResultParseException extends SQLException {
-    public SqlResultParseException(int row, int column, DbType<?> tpe, Exception cause) {
-      super(
-          "Error reading or parsing row "
-              + row
-              + ", (1-indexed) column "
-              + column
-              + " from ResultSet."
-              + (tpe != null ? " Expected database type " + tpe.typename().sqlType() : ""),
-          cause);
+    private final ColumnParseError error;
+
+    public SqlResultParseException(
+        ResultSet rs, int row, int column, DbType<?> tpe, Exception cause) {
+      super(ColumnParseError.from(rs, row, column, tpe, cause).detailed().plainText(), cause);
+      this.error = ColumnParseError.from(rs, row, column, tpe, cause);
+    }
+
+    /** Get the structured error information */
+    public ColumnParseError error() {
+      return error;
+    }
+
+    /** Detailed multi-line format (styled) */
+    public Str detailed() {
+      return error.detailed();
+    }
+
+    /** Brief single-line format (styled) */
+    public Str brief() {
+      return error.brief();
+    }
+
+    /** Detailed with ANSI colors */
+    public String detailedColored() {
+      return error.detailed().render();
+    }
+
+    /** Detailed without colors */
+    public String detailedPlain() {
+      return error.detailed().plainText();
+    }
+
+    /** Brief with ANSI colors */
+    public String briefColored() {
+      return error.brief().render();
+    }
+
+    /** Brief without colors */
+    public String briefPlain() {
+      return error.brief().plainText();
     }
   }
 
