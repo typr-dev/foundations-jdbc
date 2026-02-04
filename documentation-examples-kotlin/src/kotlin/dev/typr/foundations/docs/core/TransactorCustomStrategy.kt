@@ -1,12 +1,13 @@
 package dev.typr.foundations.docs.core
 
-import dev.typr.foundations.Transactor
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import java.sql.Connection
 
 @Suppress("unused")
 class TransactorCustomStrategy {
     //start
-    val customStrategy: Transactor.Strategy = Transactor.Strategy(
+    val customStrategy: Strategy = Strategy(
         { conn -> conn.autoCommit = false },  // before
         Connection::commit,                    // after (success)
         { _ -> /* handle error */ },           // oops

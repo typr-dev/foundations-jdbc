@@ -1,11 +1,7 @@
 package dev.typr.foundations.docs.analysis
 
-import dev.typr.foundations.Fragment
-import dev.typr.foundations.PgTypes
-import dev.typr.foundations.kotlin.RowParser
-import dev.typr.foundations.kotlin.query
-import dev.typr.foundations.analysis.QueryAnalysis
-import dev.typr.foundations.analysis.QueryAnalyzer
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import java.sql.Connection
 import java.sql.SQLException
 
@@ -26,7 +22,7 @@ class QueryAnalysisBasic {
     @Throws(SQLException::class)
     fun analyzeQuery() {
         // Build your query as normal
-        val query = Fragment.interpolate("SELECT id, name, email FROM users WHERE id = ")
+        val query: Query<List<User>> = Fragment.interpolate("SELECT id, name, email FROM users WHERE id = ")
             .param(PgTypes.int4, userId)
             .done()
             .query(userRowParser.all())

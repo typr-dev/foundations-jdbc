@@ -1,7 +1,8 @@
 package dev.typr.foundations.docs.core
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{And, PgTypes}
-import dev.typr.foundations.scala.RowParser
+
 
 @SuppressWarnings(Array("unused"))
 object ComposingParsers:

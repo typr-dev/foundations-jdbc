@@ -1,4 +1,4 @@
-package dev.typr.foundations.kotlin
+package dev.typr.kotlinfoundations
 
 import java.sql.ResultSet
 

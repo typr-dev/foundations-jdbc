@@ -1,6 +1,8 @@
 package dev.typr.foundations.docs.sqlserver
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{SqlServerType, SqlServerTypes}
+
 
 @SuppressWarnings(Array("unused"))
 object StringTypes:

@@ -1,9 +1,8 @@
 package dev.typr.foundations.docs.core
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{Fragment, PgTypes, SqlFunction, Transactor}
-import dev.typr.foundations.scala.RowParser
-import dev.typr.foundations.connect.ConnectionSource
-import java.math.BigDecimal
+
 import java.sql.{Connection, SQLException}
 
 @SuppressWarnings(Array("unused"))
@@ -17,7 +16,7 @@ object TransactorSetup:
     .build(ProductRow.apply)
 
   var connectionSource: ConnectionSource = null // placeholder
-  val minPrice: BigDecimal = new BigDecimal("10")
+  val minPrice: BigDecimal = BigDecimal("10")
 
   //start
   // The Transactor manages connections and transactions

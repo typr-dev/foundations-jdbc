@@ -1,6 +1,8 @@
 package dev.typr.foundations.docs.oracle
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{NonEmptyString, OracleType, OracleTypes}
+
 
 @SuppressWarnings(Array("unused"))
 object NonEmptyStringTypes:

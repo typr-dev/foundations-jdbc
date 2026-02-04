@@ -1,11 +1,7 @@
 package dev.typr.foundations.docs.landing
 
-import dev.typr.foundations.DuckDbTypes
-import dev.typr.foundations.Fragment
-import dev.typr.foundations.kotlin.RowParser
-import dev.typr.foundations.kotlin.query
-import dev.typr.foundations.SqlFunction
-import dev.typr.foundations.Transactor
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import java.sql.Connection
 
 @Suppress("unused")

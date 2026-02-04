@@ -1,9 +1,11 @@
 package dev.typr.foundations.docs.db2
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{Db2Type, Db2Types}
+
 
 @SuppressWarnings(Array("unused"))
 object BoolType:
   //start
-  val boolType: Db2Type[java.lang.Boolean] = Db2Types.boolean_
+  val boolType: Db2Type[Boolean] = Db2Types.boolean_
   //stop

@@ -1,10 +1,12 @@
 package dev.typr.foundations.docs.duckdb
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{DuckDbOptType, DuckDbType, DuckDbTypes}
+
 
 @SuppressWarnings(Array("unused"))
 object NullableTypes:
   //start
-  val notNull: DuckDbType[Integer] = DuckDbTypes.integer
-  val nullable: DuckDbOptType[Integer] = DuckDbTypes.integer.opt()
+  val notNull: DuckDbType[Int] = DuckDbTypes.integer
+  val nullable: DbType[Option[Int]] = DuckDbTypes.integer.nullable
   //stop

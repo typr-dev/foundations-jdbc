@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.postgresql
 
-import dev.typr.foundations.PgType
-import dev.typr.foundations.PgTypes
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import java.util.UUID
 
 @Suppress("unused")

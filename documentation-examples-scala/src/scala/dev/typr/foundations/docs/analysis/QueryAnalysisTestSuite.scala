@@ -1,8 +1,8 @@
 package dev.typr.foundations.docs.analysis
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{Fragment, Operation, PgTypes}
-import dev.typr.foundations.scala.RowParser
-import dev.typr.foundations.analysis.{QueryAnalysis, QueryAnalyzer}
+
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
 import scala.util.Using

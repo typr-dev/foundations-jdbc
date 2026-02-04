@@ -1,7 +1,6 @@
 package dev.typr.foundations.docs.duckdb
-
-import dev.typr.foundations.{DuckDbType, DuckDbTypes}
-import java.math.BigDecimal
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
 @SuppressWarnings(Array("unused"))
 object FixedPointTypes:

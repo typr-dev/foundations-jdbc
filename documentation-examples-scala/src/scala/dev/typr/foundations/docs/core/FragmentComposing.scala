@@ -1,11 +1,9 @@
 package dev.typr.foundations.docs.core
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{Fragment, PgTypes, Transactor}
-import dev.typr.foundations.scala.RowParser
-import java.math.BigDecimal
 import java.sql.SQLException
-import java.util.{List as JList, Optional}
-import scala.jdk.OptionConverters.*
+import java.util.{List as JList}
 import scala.jdk.CollectionConverters.*
 
 @SuppressWarnings(Array("unused"))
@@ -19,7 +17,7 @@ object FragmentComposing:
     .build(ProductRow.apply)
 
   var tx: Transactor = null // placeholder
-  val maxPrice: Optional[BigDecimal] = Optional.of(new BigDecimal("100"))
+  val maxPrice: Option[BigDecimal] = Some(BigDecimal("100"))
 
   //start
   // Build small reusable filters
@@ -34,7 +32,7 @@ object FragmentComposing:
   def query(): List[ProductRow] =
     val filters: JList[Fragment] = Seq(
       Some(byName("%widget%")),
-      maxPrice.toScala.map(cheaperThan)
+      maxPrice.map(cheaperThan)
     ).flatten.asJava
 
     Fragment.lit("SELECT * FROM product ")

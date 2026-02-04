@@ -1,8 +1,8 @@
 package dev.typr.foundations.docs.landing
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{Fragment, PgTypes}
-import dev.typr.foundations.scala.RowParser
-import dev.typr.foundations.analysis.{QueryAnalysis => QA, QueryAnalyzer}
+
 import java.sql.Connection
 
 @SuppressWarnings(Array("unused"))
@@ -12,7 +12,7 @@ object QueryAnalysis:
 
   //start
   // Your query looks fine at compile time...
-  val query = Fragment.interpolate("SELECT id, name, created_at, email FROM users WHERE active = ")
+  val query: Operation.Query[List[User]] = Fragment.interpolate("SELECT id, name, created_at, email FROM users WHERE active = ")
     .param(PgTypes.bool, true)
     .done()
     .query(RowParser.builder[User]()
@@ -25,7 +25,7 @@ object QueryAnalysis:
 
   // But Query Analysis catches the bugs in your tests
   def check(): Unit =
-    val analysis: QA = QueryAnalyzer.analyze(query, connection)
-    if !analysis.succeeded() then
-      throw new AssertionError(analysis.report())  // Fails with the detailed report
+    val result: QueryAnalysis = QueryAnalyzer.analyze(query, connection)
+    if !result.succeeded() then
+      throw new AssertionError(result.report())  // Fails with the detailed report
   //stop

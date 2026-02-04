@@ -1,6 +1,8 @@
 package dev.typr.foundations.docs.db2
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{Db2Type, Db2Types}
+
 
 @SuppressWarnings(Array("unused"))
 object StringTypesDoubleByte:
