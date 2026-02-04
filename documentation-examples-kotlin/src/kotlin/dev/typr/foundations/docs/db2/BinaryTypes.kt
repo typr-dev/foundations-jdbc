@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.db2
 
-import dev.typr.foundations.Db2Type
-import dev.typr.foundations.Db2Types
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 
 @Suppress("unused")
 class BinaryTypes {

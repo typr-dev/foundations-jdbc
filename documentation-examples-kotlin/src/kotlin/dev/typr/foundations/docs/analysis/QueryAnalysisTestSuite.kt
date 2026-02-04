@@ -1,12 +1,7 @@
 package dev.typr.foundations.docs.analysis
 
-import dev.typr.foundations.Fragment
-import dev.typr.foundations.Operation
-import dev.typr.foundations.PgTypes
-import dev.typr.foundations.kotlin.RowParser
-import dev.typr.foundations.kotlin.query
-import dev.typr.foundations.analysis.QueryAnalysis
-import dev.typr.foundations.analysis.QueryAnalyzer
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import javax.sql.DataSource
 import java.sql.SQLException
 
@@ -33,7 +28,7 @@ class QueryAnalysisTestSuite {
     fun allQueriesTypeCheck() {
         testDataSource!!.connection.use { conn ->
             // Collect all queries to check
-            val queries: List<Operation.Query<*>> = listOf(
+            val queries: List<Query<*>> = listOf(
                 Fragment.interpolate("SELECT id, name, email FROM users WHERE id = ")
                     .param(PgTypes.int4, 1).done().query(userParser.all()),
                 Fragment.interpolate("SELECT id, name FROM products WHERE name LIKE ")

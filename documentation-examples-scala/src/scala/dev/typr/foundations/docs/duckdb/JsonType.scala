@@ -1,12 +1,13 @@
 package dev.typr.foundations.docs.duckdb
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{DuckDbType, DuckDbTypes}
-import dev.typr.foundations.data.Json
+
 
 @SuppressWarnings(Array("unused"))
 object JsonType:
   //start
   val jsonType: DuckDbType[Json] = DuckDbTypes.json
 
-  val data: Json = Json("{\"name\": \"DuckDB\"}")
+  val data: Json = new Json("{\"name\": \"DuckDB\"}")
   //stop

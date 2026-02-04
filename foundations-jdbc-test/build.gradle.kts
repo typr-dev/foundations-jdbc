@@ -38,7 +38,7 @@ tasks.test {
 dependencies {
     testImplementation(project(":foundations-jdbc-hikari"))
     testImplementation(project(":foundations-jdbc-spring"))
-    testImplementation(project(":foundations-jdbc-scala_2.13"))
+    testImplementation(project(":foundations-jdbc-scala_3"))
     testImplementation(project(":foundations-jdbc-kotlin"))
     testImplementation("org.springframework.boot:spring-boot-starter-jdbc:${property("springBootVersion")}")
     testImplementation("org.springframework.boot:spring-boot-starter-test:${property("springBootVersion")}")

@@ -1,6 +1,8 @@
 package dev.typr.foundations.docs.oracle
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{OracleType, OracleTypes, PaddedString}
+
 
 @SuppressWarnings(Array("unused"))
 object PaddedStringTypes:

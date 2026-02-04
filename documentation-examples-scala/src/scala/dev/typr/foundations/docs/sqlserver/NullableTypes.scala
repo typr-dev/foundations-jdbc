@@ -1,11 +1,10 @@
 package dev.typr.foundations.docs.sqlserver
-
-import dev.typr.foundations.{SqlServerType, SqlServerTypes}
-import java.util.Optional
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
 @SuppressWarnings(Array("unused"))
 object NullableTypes:
   //start
-  val notNull: SqlServerType[Integer] = SqlServerTypes.int_
-  val nullable: SqlServerType[Optional[Integer]] = SqlServerTypes.int_.opt()
+  val notNull: SqlServerType[Int] = SqlServerTypes.int_
+  val nullable: SqlServerType[Option[Int]] = SqlServerTypes.int_.nullable
   //stop

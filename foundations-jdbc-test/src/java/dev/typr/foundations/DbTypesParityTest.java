@@ -28,8 +28,8 @@ public class DbTypesParityTest {
   public void pgTypesFieldsParity() {
     assertFieldsParity(
         PgTypes.class,
-        dev.typr.foundations.scala.PgTypes$.class,
-        dev.typr.foundations.kotlin.PgTypes.Companion.getClass()
+        dev.typr.scalafoundations.PgTypes$.class,
+        dev.typr.kotlinfoundations.PgTypes.Companion.getClass()
     );
   }
 
@@ -37,8 +37,8 @@ public class DbTypesParityTest {
   public void mariaTypesFieldsParity() {
     assertFieldsParity(
         MariaTypes.class,
-        dev.typr.foundations.scala.MariaTypes$.class,
-        dev.typr.foundations.kotlin.MariaTypes.Companion.getClass()
+        dev.typr.scalafoundations.MariaTypes$.class,
+        dev.typr.kotlinfoundations.MariaTypes.Companion.getClass()
     );
   }
 
@@ -46,8 +46,8 @@ public class DbTypesParityTest {
   public void duckDbTypesFieldsParity() {
     assertFieldsParity(
         DuckDbTypes.class,
-        dev.typr.foundations.scala.DuckDbTypes$.class,
-        dev.typr.foundations.kotlin.DuckDbTypes.Companion.getClass()
+        dev.typr.scalafoundations.DuckDbTypes$.class,
+        dev.typr.kotlinfoundations.DuckDbTypes.Companion.getClass()
     );
   }
 
@@ -55,8 +55,8 @@ public class DbTypesParityTest {
   public void oracleTypesFieldsParity() {
     assertFieldsParity(
         OracleTypes.class,
-        dev.typr.foundations.scala.OracleTypes$.class,
-        dev.typr.foundations.kotlin.OracleTypes.Companion.getClass()
+        dev.typr.scalafoundations.OracleTypes$.class,
+        dev.typr.kotlinfoundations.OracleTypes.Companion.getClass()
     );
   }
 
@@ -64,8 +64,8 @@ public class DbTypesParityTest {
   public void sqlServerTypesFieldsParity() {
     assertFieldsParity(
         SqlServerTypes.class,
-        dev.typr.foundations.scala.SqlServerTypes$.class,
-        dev.typr.foundations.kotlin.SqlServerTypes.Companion.getClass()
+        dev.typr.scalafoundations.SqlServerTypes$.class,
+        dev.typr.kotlinfoundations.SqlServerTypes.Companion.getClass()
     );
   }
 
@@ -73,8 +73,8 @@ public class DbTypesParityTest {
   public void db2TypesFieldsParity() {
     assertFieldsParity(
         Db2Types.class,
-        dev.typr.foundations.scala.Db2Types$.class,
-        dev.typr.foundations.kotlin.Db2Types.Companion.getClass()
+        dev.typr.scalafoundations.Db2Types$.class,
+        dev.typr.kotlinfoundations.Db2Types.Companion.getClass()
     );
   }
 

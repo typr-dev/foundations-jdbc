@@ -1,7 +1,8 @@
 package dev.typr.foundations.docs.oracle
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{OracleType, OracleTypes}
-import dev.typr.foundations.data.{OracleIntervalDS, OracleIntervalYM}
+
 
 @SuppressWarnings(Array("unused"))
 object IntervalTypes:

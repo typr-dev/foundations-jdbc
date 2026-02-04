@@ -1,8 +1,8 @@
 package dev.typr.foundations.docs.landing
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{Fragment, OracleTypes, SqlFunction, Transactor}
-import dev.typr.foundations.scala.RowParser
-import dev.typr.foundations.connect.oracle.OracleConfig
+
 import java.sql.Connection
 
 @SuppressWarnings(Array("unused"))

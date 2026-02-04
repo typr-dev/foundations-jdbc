@@ -1,7 +1,8 @@
 package dev.typr.foundations.docs.landing
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{DuckDbTypes, Fragment, SqlFunction, Transactor}
-import dev.typr.foundations.scala.RowParser
+
 import java.sql.Connection
 
 @SuppressWarnings(Array("unused"))

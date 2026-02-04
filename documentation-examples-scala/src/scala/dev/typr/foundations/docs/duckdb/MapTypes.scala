@@ -1,6 +1,8 @@
 package dev.typr.foundations.docs.duckdb
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{DuckDbType, DuckDbTypes}
+
 import java.time.{LocalDate, LocalTime}
 import java.util.{Map, UUID}
 
@@ -8,7 +10,7 @@ import java.util.{Map, UUID}
 object MapTypes:
   //start
   // Create map types using the mapTo() combinator
-  val mapStrInt: DuckDbType[Map[String, Integer]] = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)
+  val mapStrInt: DuckDbType[Map[String, Int]] = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)
   val mapStrStr: DuckDbType[Map[String, String]] = DuckDbTypes.varchar.mapTo(DuckDbTypes.varchar)
   val mapUuidTime: DuckDbType[Map[UUID, LocalTime]] = DuckDbTypes.uuid.mapTo(DuckDbTypes.time)
 

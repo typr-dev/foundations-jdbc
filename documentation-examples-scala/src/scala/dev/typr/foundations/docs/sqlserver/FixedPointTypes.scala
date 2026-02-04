@@ -1,7 +1,6 @@
 package dev.typr.foundations.docs.sqlserver
-
-import dev.typr.foundations.{SqlServerType, SqlServerTypes}
-import java.math.BigDecimal
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
 @SuppressWarnings(Array("unused"))
 object FixedPointTypes:

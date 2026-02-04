@@ -1,9 +1,11 @@
 package dev.typr.foundations.docs.postgresql
 
-import dev.typr.foundations.{PgType, PgTypes}
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
+
 
 @SuppressWarnings(Array("unused"))
 object BoolType:
   //start
-  val boolType: PgType[java.lang.Boolean] = PgTypes.bool
+  val boolType: PgType[Boolean] = PgTypes.bool
   //stop

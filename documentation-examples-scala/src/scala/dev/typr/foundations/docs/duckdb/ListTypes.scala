@@ -1,6 +1,8 @@
 package dev.typr.foundations.docs.duckdb
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{DuckDbType, DuckDbTypes}
+
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.{List, UUID}

@@ -1,7 +1,8 @@
 package dev.typr.foundations.docs.mariadb
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{MariaType, MariaTypes}
-import dev.typr.foundations.data.maria.MariaSet
+
 
 @SuppressWarnings(Array("unused"))
 object SetType:

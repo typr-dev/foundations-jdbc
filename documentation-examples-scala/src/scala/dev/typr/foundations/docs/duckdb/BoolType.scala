@@ -1,9 +1,11 @@
 package dev.typr.foundations.docs.duckdb
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{DuckDbType, DuckDbTypes}
+
 
 @SuppressWarnings(Array("unused"))
 object BoolType:
   //start
-  val boolType: DuckDbType[java.lang.Boolean] = DuckDbTypes.boolean_
+  val boolType: DuckDbType[Boolean] = DuckDbTypes.boolean_
   //stop

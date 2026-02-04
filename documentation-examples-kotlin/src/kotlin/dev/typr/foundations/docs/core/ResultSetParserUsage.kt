@@ -1,8 +1,7 @@
 package dev.typr.foundations.docs.core
 
-import dev.typr.foundations.PgTypes
-import dev.typr.foundations.kotlin.ResultSetParser
-import dev.typr.foundations.kotlin.RowParser
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.time.Instant
