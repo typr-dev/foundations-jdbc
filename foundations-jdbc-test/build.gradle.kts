@@ -44,6 +44,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test:${property("springBootVersion")}")
     testImplementation("junit:junit:${property("junitVersion")}")
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.postgresql:postgresql:${property("postgresqlDriverVersion")}")
     testImplementation("org.mariadb.jdbc:mariadb-java-client:${property("mariadbDriverVersion")}")
     testImplementation("org.duckdb:duckdb_jdbc:${property("duckdbDriverVersion")}")
