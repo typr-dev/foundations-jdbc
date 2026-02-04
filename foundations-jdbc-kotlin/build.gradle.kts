@@ -1,6 +1,6 @@
 plugins {
     `java-library`
-    scala
+    kotlin("jvm") version "1.9.22"
 }
 
 java {
@@ -13,15 +13,14 @@ java {
 
 sourceSets {
     main {
-        scala {
-            setSrcDirs(listOf("../foundations-jdbc-scala_2/src/scala"))
+        kotlin {
+            setSrcDirs(listOf("src/kotlin"))
         }
     }
 }
 
 dependencies {
     api(project(":foundations-jdbc"))
-    api("org.scala-lang:scala-library:${property("scala2Version")}")
 
     compileOnly("org.postgresql:postgresql:${property("postgresqlDriverVersion")}")
     compileOnly("org.mariadb.jdbc:mariadb-java-client:${property("mariadbDriverVersion")}")
