@@ -1,6 +1,8 @@
 package dev.typr.foundations.docs.landing
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{PgStruct, PgType, PgTypes}
+
 
 @SuppressWarnings(Array("unused"))
 object Dimensions:

@@ -1,6 +1,8 @@
 package dev.typr.foundations.docs.oracle
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{OracleType, OracleTypes}
+
 import java.time.{LocalDateTime, OffsetDateTime}
 
 @SuppressWarnings(Array("unused"))

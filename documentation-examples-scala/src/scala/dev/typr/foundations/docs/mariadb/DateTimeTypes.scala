@@ -1,6 +1,8 @@
 package dev.typr.foundations.docs.mariadb
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{MariaType, MariaTypes}
+
 import java.time.{LocalDate, LocalDateTime, LocalTime, Year}
 
 @SuppressWarnings(Array("unused"))

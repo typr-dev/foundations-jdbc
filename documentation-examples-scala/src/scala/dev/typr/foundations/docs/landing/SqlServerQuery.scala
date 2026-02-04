@@ -1,8 +1,7 @@
 package dev.typr.foundations.docs.landing
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{Fragment, SqlServerTypes}
-import dev.typr.foundations.scala.RowParser
-import java.math.BigDecimal
 import java.sql.Connection
 import java.util.List as JList
 import scala.jdk.CollectionConverters.*

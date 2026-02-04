@@ -1,11 +1,8 @@
 package dev.typr.foundations.docs.landing
 
-import dev.typr.foundations.And
-import dev.typr.foundations.PgType
-import dev.typr.foundations.PgTypes
-import dev.typr.foundations.kotlin.RowParser
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import dev.typr.foundations.data.Jsonb
-import dev.typr.foundations.kotlin.nullable
 import java.math.BigDecimal
 import java.time.Instant
 

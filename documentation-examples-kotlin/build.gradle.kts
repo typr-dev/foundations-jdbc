@@ -20,6 +20,7 @@ sourceSets {
 
 dependencies {
     implementation(project(":foundations-jdbc"))
+    implementation(project(":foundations-jdbc-kotlin"))
     implementation(project(":foundations-jdbc-hikari"))
 
     compileOnly("org.postgresql:postgresql:${property("postgresqlDriverVersion")}")

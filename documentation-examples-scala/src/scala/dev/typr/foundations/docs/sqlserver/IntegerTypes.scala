@@ -1,12 +1,13 @@
 package dev.typr.foundations.docs.sqlserver
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{SqlServerType, SqlServerTypes}
-import dev.typr.foundations.data.Uint1
+
 
 @SuppressWarnings(Array("unused"))
 object IntegerTypes:
   //start
   val tinyType: SqlServerType[Uint1] = SqlServerTypes.tinyint   // Note: unsigned!
-  val intType: SqlServerType[Integer] = SqlServerTypes.int_
-  val bigType: SqlServerType[java.lang.Long] = SqlServerTypes.bigint
+  val intType: SqlServerType[Int] = SqlServerTypes.int_
+  val bigType: SqlServerType[Long] = SqlServerTypes.bigint
   //stop

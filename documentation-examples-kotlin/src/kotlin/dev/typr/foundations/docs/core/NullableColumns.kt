@@ -1,8 +1,7 @@
 package dev.typr.foundations.docs.core
 
-import dev.typr.foundations.PgTypes
-import dev.typr.foundations.kotlin.RowParser
-import dev.typr.foundations.kotlin.nullable
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import java.time.Instant
 
 @Suppress("unused")

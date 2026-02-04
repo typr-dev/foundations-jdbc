@@ -1,9 +1,8 @@
 package dev.typr.foundations.docs.landing
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{And, PgType, PgTypes}
-import dev.typr.foundations.data.Jsonb
-import dev.typr.foundations.scala.{DbTypeOps, RowParser}
-import java.math.BigDecimal
+
 import java.time.Instant
 
 @SuppressWarnings(Array("unused"))

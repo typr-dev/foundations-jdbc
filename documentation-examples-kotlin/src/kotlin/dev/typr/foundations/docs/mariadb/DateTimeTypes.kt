@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.mariadb
 
-import dev.typr.foundations.MariaType
-import dev.typr.foundations.MariaTypes
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime

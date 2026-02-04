@@ -1,8 +1,7 @@
 package dev.typr.foundations.docs.duckdb
 
-import dev.typr.foundations.DuckDbOptType
-import dev.typr.foundations.DuckDbType
-import dev.typr.foundations.DuckDbTypes
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 
 @Suppress("unused")
 class NullableTypes {

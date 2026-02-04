@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.duckdb
 
-import dev.typr.foundations.DuckDbType
-import dev.typr.foundations.DuckDbTypes
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import java.time.LocalDateTime
 
 @Suppress("unused")

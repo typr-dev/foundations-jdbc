@@ -1,4 +1,4 @@
-package dev.typr.foundations.kotlin
+package dev.typr.kotlinfoundations
 
 import dev.typr.foundations.And
 import dev.typr.foundations.DbType

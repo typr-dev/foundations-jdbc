@@ -1,6 +1,8 @@
 package dev.typr.foundations.docs.postgresql
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{PgType, PgTypes}
+
 import org.postgresql.geometric.{PGcircle, PGpoint, PGpolygon}
 
 @SuppressWarnings(Array("unused"))

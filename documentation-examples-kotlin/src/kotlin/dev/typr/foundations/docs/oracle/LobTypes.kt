@@ -1,9 +1,7 @@
 package dev.typr.foundations.docs.oracle
 
-import dev.typr.foundations.NonEmptyBlob
-import dev.typr.foundations.NonEmptyString
-import dev.typr.foundations.OracleType
-import dev.typr.foundations.OracleTypes
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 
 @Suppress("unused")
 class LobTypes {

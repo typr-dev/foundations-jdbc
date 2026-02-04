@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.mariadb
 
-import dev.typr.foundations.MariaType
-import dev.typr.foundations.MariaTypes
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import org.mariadb.jdbc.type.GeometryCollection
 import org.mariadb.jdbc.type.Point
 import org.mariadb.jdbc.type.Polygon

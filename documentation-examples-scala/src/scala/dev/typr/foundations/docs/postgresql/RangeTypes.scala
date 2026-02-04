@@ -1,17 +1,18 @@
 package dev.typr.foundations.docs.postgresql
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
+import dev.typr.foundations.data.{Range as DbRange, RangeBound}
 
-import dev.typr.foundations.{PgType, PgTypes}
-import dev.typr.foundations.data.{Range, RangeBound}
 import java.time.LocalDate
 
 @SuppressWarnings(Array("unused"))
 object RangeTypes:
   //start
-  val intRangeType: PgType[Range[Integer]] = PgTypes.int4range
-  val dateRangeType: PgType[Range[LocalDate]] = PgTypes.daterange
+  val intRangeType: PgType[DbRange[Integer]] = PgTypes.int4range
+  val dateRangeType: PgType[DbRange[LocalDate]] = PgTypes.daterange
 
   // Create ranges with explicit bounds
-  val range: Range[Integer] = Range.int4(
+  val range: DbRange[Integer] = DbRange.int4(
     new RangeBound.Closed[Integer](1),
     new RangeBound.Closed[Integer](10)
   ) // [1, 11) after normalization

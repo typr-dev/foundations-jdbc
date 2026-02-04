@@ -1,4 +1,4 @@
-package dev.typr.foundations.scala
+package dev.typr.scalafoundations
 
 import java.sql.ResultSet
 import _root_.scala.jdk.CollectionConverters.*

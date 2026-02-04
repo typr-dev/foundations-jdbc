@@ -1,7 +1,6 @@
 package dev.typr.foundations.docs.db2
-
-import dev.typr.foundations.{Db2Type, Db2Types}
-import java.math.BigDecimal
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
 @SuppressWarnings(Array("unused"))
 object FixedPointTypes:

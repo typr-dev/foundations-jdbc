@@ -1,8 +1,7 @@
 package dev.typr.foundations.docs.landing
 
-import dev.typr.foundations.PgStruct
-import dev.typr.foundations.PgType
-import dev.typr.foundations.PgTypes
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 
 @Suppress("unused")
 class Dimensions {

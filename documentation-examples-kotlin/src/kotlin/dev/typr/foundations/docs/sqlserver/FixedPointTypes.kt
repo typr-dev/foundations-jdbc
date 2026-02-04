@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.sqlserver
 
-import dev.typr.foundations.SqlServerType
-import dev.typr.foundations.SqlServerTypes
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import java.math.BigDecimal
 
 @Suppress("unused")

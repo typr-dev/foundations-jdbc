@@ -1,7 +1,9 @@
 package dev.typr.foundations.docs.sqlserver
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
+
 
 import com.microsoft.sqlserver.jdbc.{Geography, Geometry}
-import dev.typr.foundations.{SqlServerType, SqlServerTypes}
 
 @SuppressWarnings(Array("unused"))
 object SpatialTypes:

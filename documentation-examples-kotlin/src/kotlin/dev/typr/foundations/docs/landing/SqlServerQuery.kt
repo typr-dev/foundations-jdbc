@@ -1,9 +1,7 @@
 package dev.typr.foundations.docs.landing
 
-import dev.typr.foundations.Fragment
-import dev.typr.foundations.kotlin.RowParser
-import dev.typr.foundations.kotlin.query
-import dev.typr.foundations.SqlServerTypes
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import java.math.BigDecimal
 import java.sql.Connection
 
@@ -25,7 +23,7 @@ class SqlServerQuery {
             .param(SqlServerTypes.decimal, max).done()
 
     // Compose dynamically - only include the filters that are present
-    val filters = listOfNotNull(
+    val filters: List<Fragment> = listOfNotNull(
         byName("%widget%"),
         maxPrice?.let { cheaperThan(it) }
     )

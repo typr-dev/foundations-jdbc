@@ -1,7 +1,8 @@
 package dev.typr.foundations.docs.dbtypes
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.*
-import dev.typr.foundations.data.{Json, Range}
+
 import org.postgresql.geometric.PGpoint
 import java.time.LocalDate
 
@@ -16,5 +17,5 @@ object TypeSafeDbTypes:
   val json: MariaType[Json] = MariaTypes.json
 
   // DuckDB types
-  val map: DuckDbType[java.util.Map[String, Integer]] = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)
+  val map: DuckDbType[java.util.Map[String, Int]] = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)
   //stop

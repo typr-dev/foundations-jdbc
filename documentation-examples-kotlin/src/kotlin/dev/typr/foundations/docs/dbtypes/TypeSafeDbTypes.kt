@@ -1,6 +1,7 @@
 package dev.typr.foundations.docs.dbtypes
 
-import dev.typr.foundations.*
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import dev.typr.foundations.data.Json
 import dev.typr.foundations.data.Range
 import org.postgresql.geometric.PGpoint

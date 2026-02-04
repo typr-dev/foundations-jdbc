@@ -1,7 +1,8 @@
 package dev.typr.foundations.docs.mariadb
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{MariaType, MariaTypes}
-import dev.typr.foundations.data.{Uint1, Uint4, Uint8}
+
 
 @SuppressWarnings(Array("unused"))
 object IntegerTypesUnsigned:

@@ -1,7 +1,8 @@
 package dev.typr.foundations.docs.duckdb
+import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.data.*
 
-import dev.typr.foundations.{DuckDbType, DuckDbTypes}
-import dev.typr.foundations.data.{Uint1, Uint4}
+
 import java.math.BigInteger
 
 @SuppressWarnings(Array("unused"))

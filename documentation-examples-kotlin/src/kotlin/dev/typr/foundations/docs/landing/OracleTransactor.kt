@@ -1,11 +1,7 @@
 package dev.typr.foundations.docs.landing
 
-import dev.typr.foundations.Fragment
-import dev.typr.foundations.OracleTypes
-import dev.typr.foundations.kotlin.RowParser
-import dev.typr.foundations.kotlin.query
-import dev.typr.foundations.SqlFunction
-import dev.typr.foundations.Transactor
+import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.data.*
 import dev.typr.foundations.connect.oracle.OracleConfig
 import java.sql.Connection
 
@@ -26,9 +22,9 @@ class OracleTransactor {
     })
 
     // Built-in strategies for common patterns
-    val defaultStrategy = Transactor.defaultStrategy()         // begin -> commit -> close
-    val autoCommit = Transactor.autoCommitStrategy()           // no transaction, just close
-    val rollbackOnError = Transactor.rollbackOnErrorStrategy() // begin -> commit, rollback on error -> close
-    val test = Transactor.testStrategy()                       // begin -> rollback -> close (for tests)
+    val defaultStrategy: Strategy = Transactor.defaultStrategy()         // begin -> commit -> close
+    val autoCommit: Strategy = Transactor.autoCommitStrategy()           // no transaction, just close
+    val rollbackOnError: Strategy = Transactor.rollbackOnErrorStrategy() // begin -> commit, rollback on error -> close
+    val test: Strategy = Transactor.testStrategy()                       // begin -> rollback -> close (for tests)
     //stop
 }
