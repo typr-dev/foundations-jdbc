@@ -413,14 +413,14 @@ function TransactorShowcase() {
           Either way, you get typed builders for every database and full control over the lifecycle — here with Oracle.
         </p>
         <Tabs groupId="transactor-style" className={styles.centeredTabs}>
-          <TabItem value="spring" label="Spring Integration" default>
-            <div className={styles.centeredCode}>
-              <Snippet file="landing/SpringTransactorExample" />
-            </div>
-          </TabItem>
-          <TabItem value="explicit" label="Explicit">
+          <TabItem value="explicit" label="Explicit" default>
             <div className={styles.centeredCode}>
               <Snippet file="landing/OracleTransactor" />
+            </div>
+          </TabItem>
+          <TabItem value="spring" label="Spring Integration">
+            <div className={styles.centeredCode}>
+              <Snippet file="landing/SpringTransactorExample" />
             </div>
           </TabItem>
         </Tabs>
