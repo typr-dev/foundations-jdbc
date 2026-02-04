@@ -31,9 +31,9 @@ object QueryAnalysisTestSuite:
       // Collect all queries to check
       val queries: List[Operation.Query[?]] = List(
         Fragment.interpolate("SELECT id, name, email FROM users WHERE id = ")
-          .param(PgTypes.int4, 1).done().query(userParser.all().underlying),
+          .param(PgTypes.int4, 1).done().query(userParser.all()),
         Fragment.interpolate("SELECT id, name FROM products WHERE name LIKE ")
-          .param(PgTypes.text, "%widget%").done().query(productParser.all().underlying)
+          .param(PgTypes.text, "%widget%").done().query(productParser.all())
       )
 
       // Analyze each one

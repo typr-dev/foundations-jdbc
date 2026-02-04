@@ -6,33 +6,8 @@ package dev.typr
 package object scalafoundations:
   // Core types
   type DbType[T] = dev.typr.foundations.DbType[T]
-  type Fragment = dev.typr.foundations.Fragment
-
-  // Wrapper object for Fragment static methods
-  object Fragment:
-    type Builder = dev.typr.foundations.Fragment.Builder
-    type Literal = dev.typr.foundations.Fragment.Literal
-    def interpolate(sql: String): Builder = dev.typr.foundations.Fragment.interpolate(sql)
-    def interpolate(fragments: Fragment*): Fragment = dev.typr.foundations.Fragment.interpolate(fragments*)
-    def empty(): Fragment = dev.typr.foundations.Fragment.empty()
-    def lit(value: String): Literal = dev.typr.foundations.Fragment.lit(value)
-    def quotedDouble(value: String): Literal = dev.typr.foundations.Fragment.quotedDouble(value)
-    def quotedSingle(value: String): Literal = dev.typr.foundations.Fragment.quotedSingle(value)
-    def and(fs: Fragment*): Fragment = dev.typr.foundations.Fragment.and(fs*)
-    def and(fs: java.util.List[? <: Fragment]): Fragment = dev.typr.foundations.Fragment.and(fs)
-    def or(fs: Fragment*): Fragment = dev.typr.foundations.Fragment.or(fs*)
-    def or(fs: java.util.List[? <: Fragment]): Fragment = dev.typr.foundations.Fragment.or(fs)
-    def whereAnd(fs: Fragment*): Fragment = dev.typr.foundations.Fragment.whereAnd(fs*)
-    def whereAnd(fs: java.util.List[? <: Fragment]): Fragment = dev.typr.foundations.Fragment.whereAnd(fs)
-    def whereOr(fs: Fragment*): Fragment = dev.typr.foundations.Fragment.whereOr(fs*)
-    def whereOr(fs: java.util.List[? <: Fragment]): Fragment = dev.typr.foundations.Fragment.whereOr(fs)
-    def set(fs: Fragment*): Fragment = dev.typr.foundations.Fragment.set(fs*)
-    def set(fs: java.util.List[? <: Fragment]): Fragment = dev.typr.foundations.Fragment.set(fs)
-    def parentheses(f: Fragment): Fragment = dev.typr.foundations.Fragment.parentheses(f)
-    def comma(fs: Fragment*): Fragment = dev.typr.foundations.Fragment.comma(fs*)
-    def comma(fs: java.util.List[? <: Fragment]): Fragment = dev.typr.foundations.Fragment.comma(fs)
-    def orderBy(fs: Fragment*): Fragment = dev.typr.foundations.Fragment.orderBy(fs*)
-    def orderBy(fs: java.util.List[? <: Fragment]): Fragment = dev.typr.foundations.Fragment.orderBy(fs)
+  // Fragment is defined as a class in Fragment.scala
+  // Operation is defined as a sealed trait in Operation.scala
   type And[A, B] = dev.typr.foundations.And[A, B]
   type Transactor = dev.typr.foundations.Transactor
 
@@ -45,13 +20,7 @@ package object scalafoundations:
     def testStrategy(): Strategy = dev.typr.foundations.Transactor.testStrategy()
 
   type SqlFunction[T, R] = dev.typr.foundations.SqlFunction[T, R]
-  type Operation[T] = dev.typr.foundations.Operation[T]
-
-  // Wrapper object for Operation types
-  object Operation:
-    type Query[T] = dev.typr.foundations.Operation.Query[T]
-    type Update = dev.typr.foundations.Operation.Update
-    type UpdateReturning[T] = dev.typr.foundations.Operation.UpdateReturning[T]
+  // Operation is defined as a sealed trait in Operation.scala
   type NonEmptyBlob = dev.typr.foundations.NonEmptyBlob
   type NonEmptyString = dev.typr.foundations.NonEmptyString
   type PaddedString = dev.typr.foundations.PaddedString
@@ -83,12 +52,20 @@ package object scalafoundations:
 
   // Wrapper object for QueryAnalyzer static methods
   object QueryAnalyzer:
+    // Java Operation overloads
     def analyze[T](query: dev.typr.foundations.Operation.Query[T], conn: java.sql.Connection): QueryAnalysis =
       dev.typr.foundations.analysis.QueryAnalyzer.analyze(query, conn)
     def analyze(update: dev.typr.foundations.Operation.Update, conn: java.sql.Connection): QueryAnalysis =
       dev.typr.foundations.analysis.QueryAnalyzer.analyze(update, conn)
     def analyze[T](op: dev.typr.foundations.Operation.UpdateReturning[T], conn: java.sql.Connection): QueryAnalysis =
       dev.typr.foundations.analysis.QueryAnalyzer.analyze(op, conn)
+    // Scala Operation overloads
+    def analyze[T](query: Operation.Query[T], conn: java.sql.Connection): QueryAnalysis =
+      dev.typr.foundations.analysis.QueryAnalyzer.analyze(query.underlying, conn)
+    def analyze(update: Operation.Update, conn: java.sql.Connection): QueryAnalysis =
+      dev.typr.foundations.analysis.QueryAnalyzer.analyze(update.underlying, conn)
+    def analyze[T](op: Operation.UpdateReturning[T], conn: java.sql.Connection): QueryAnalysis =
+      dev.typr.foundations.analysis.QueryAnalyzer.analyze(op.underlying, conn)
 
   // Connection types
   type ConnectionSource = dev.typr.foundations.connect.ConnectionSource

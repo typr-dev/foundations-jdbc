@@ -3,8 +3,6 @@ import dev.typr.scalafoundations.*
 import dev.typr.scalafoundations.data.*
 
 import java.sql.Connection
-import java.util.List as JList
-import scala.jdk.CollectionConverters.*
 
 @SuppressWarnings(Array("unused"))
 object SqlServerQuery:
@@ -24,15 +22,13 @@ object SqlServerQuery:
       .param(SqlServerTypes.decimal, max).done()
 
   // Compose dynamically - only include the filters that are present
-  val filters: JList[Fragment] = JList.of(
-    List(
-      Some(byName("%widget%")),
-      maxPrice.map(cheaperThan)
-    ).flatten*
-  )
+  val filters: List[Fragment] = List(
+    Some(byName("%widget%")),
+    maxPrice.map(cheaperThan)
+  ).flatten
 
   val orders: List[OrderRow] = Fragment.lit("SELECT * FROM orders ")
     .append(Fragment.whereAnd(filters))
-    .query(orderRowParser.all().underlying)
+    .query(orderRowParser.all())
     .runUnchecked(conn)
   //stop

@@ -19,10 +19,9 @@ public class OracleTransactor {
 
     // Everything inside runs in one transaction
     String getGreeting() throws SQLException {
-        return tx.execute(conn ->
-            Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
-                .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
-                .run(conn));
+        return Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
+            .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
+            .transact(tx);
     }
 
     // Built-in strategies for common patterns

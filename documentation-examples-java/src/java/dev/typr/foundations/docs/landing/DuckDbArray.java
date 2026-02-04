@@ -15,10 +15,9 @@ public class DuckDbArray {
     //start
     // DuckDB arrays are first-class typed values
     List<String[]> getTagSets() throws SQLException {
-        return tx.execute(conn ->
-            Fragment.lit("SELECT tags FROM posts WHERE published = true")
-                .query(RowParser.of(DuckDbTypes.varcharArray).all())
-                .run(conn));
+        return Fragment.lit("SELECT tags FROM posts WHERE published = true")
+            .query(RowParser.of(DuckDbTypes.varcharArray).all())
+            .transact(tx);
     }
     //stop
 }
