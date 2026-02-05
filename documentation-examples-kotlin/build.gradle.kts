@@ -22,6 +22,7 @@ dependencies {
     implementation(project(":foundations-jdbc"))
     implementation(project(":foundations-jdbc-kotlin"))
     implementation(project(":foundations-jdbc-hikari"))
+    compileOnly(project(":foundations-jdbc-spring"))
 
     compileOnly("org.postgresql:postgresql:${property("postgresqlDriverVersion")}")
     compileOnly("org.mariadb.jdbc:mariadb-java-client:${property("mariadbDriverVersion")}")

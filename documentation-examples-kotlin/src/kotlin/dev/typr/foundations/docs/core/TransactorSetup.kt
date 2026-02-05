@@ -4,7 +4,6 @@ import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
 import dev.typr.foundations.connect.ConnectionSource
 import java.math.BigDecimal
-import java.sql.Connection
 import java.sql.SQLException
 
 @Suppress("unused")
@@ -28,13 +27,11 @@ class TransactorSetup {
         val tx = connectionSource!!.transactor(Transactor.defaultStrategy())
 
         // Everything inside runs in one transaction: begin, commit, close
-        return tx.execute(SqlFunction { conn: Connection ->
-            Fragment.interpolate("SELECT * FROM product WHERE price > ")
-                .param(PgTypes.numeric, minPrice)
-                .done()
-                .query(rowParser.all())
-                .runUnchecked(conn)
-        })
+        return Fragment.interpolate("SELECT * FROM product WHERE price > ")
+            .param(PgTypes.numeric, minPrice)
+            .done()
+            .query(rowParser.all())
+            .transact(tx)
     }
     //stop
 }

@@ -30,13 +30,11 @@ public class TransactorSetup {
         Transactor tx = connectionSource.transactor(Transactor.defaultStrategy());
 
         // Everything inside runs in one transaction: begin, commit, close
-        return tx.execute(conn ->
-            Fragment.interpolate("SELECT * FROM product WHERE price > ")
-                .param(PgTypes.numeric, minPrice)
-                .done()
-                .query(rowParser.all())
-                .runUnchecked(conn)
-        );
+        return Fragment.interpolate("SELECT * FROM product WHERE price > ")
+            .param(PgTypes.numeric, minPrice)
+            .done()
+            .query(rowParser.all())
+            .transact(tx);
     }
     //stop
 }

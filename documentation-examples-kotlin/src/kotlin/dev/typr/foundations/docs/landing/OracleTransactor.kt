@@ -3,7 +3,6 @@ package dev.typr.foundations.docs.landing
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
 import dev.typr.foundations.connect.oracle.OracleConfig
-import java.sql.Connection
 
 @Suppress("unused")
 class OracleTransactor {
@@ -15,11 +14,9 @@ class OracleTransactor {
         .transactor()
 
     // Everything inside runs in one transaction
-    fun getGreeting(): String = tx.execute(SqlFunction { conn: Connection ->
-        Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
-            .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
-            .run(conn)
-    })
+    fun getGreeting(): String = Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
+        .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
+        .transact(tx)
 
     // Built-in strategies for common patterns
     val defaultStrategy: Strategy = Transactor.defaultStrategy()         // begin -> commit -> close

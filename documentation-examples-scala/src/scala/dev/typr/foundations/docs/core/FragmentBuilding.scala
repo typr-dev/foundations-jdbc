@@ -31,5 +31,5 @@ object FragmentBuilding:
     .done()
 
   // Execute safely - parameters are bound, not interpolated
-  val users: List[User] = query.query(userParser.all().underlying).runUnchecked(connection)
+  val users: List[User] = query.query(userParser.all()).runUnchecked(connection)
   //stop
