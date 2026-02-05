@@ -2,8 +2,7 @@ package dev.typr.foundations.docs.core
 import dev.typr.scalafoundations.*
 import dev.typr.scalafoundations.data.*
 
-
-import java.sql.{Connection, SQLException}
+import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object TransactorSetup:
@@ -26,11 +25,9 @@ object TransactorSetup:
     val tx: Transactor = connectionSource.transactor(Transactor.defaultStrategy())
 
     // Everything inside runs in one transaction: begin, commit, close
-    val op: SqlFunction[Connection, List[ProductRow]] = conn =>
-      Fragment.interpolate("SELECT * FROM product WHERE price > ")
-        .param(PgTypes.numeric, minPrice)
-        .done()
-        .query(rowParser.all().underlying)
-        .runUnchecked(conn)
-    tx.execute(op)
+    Fragment.interpolate("SELECT * FROM product WHERE price > ")
+      .param(PgTypes.numeric, minPrice)
+      .done()
+      .query(rowParser.all())
+      .transact(tx)
   //stop

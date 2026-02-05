@@ -21,7 +21,7 @@ object QueryAnalysis:
       .field(PgTypes.int4, _.createdAt)    // created_at: WRONG! Should be timestamptz
       .field(PgTypes.text, _.email)        // email: nullable but not Optional!
       .build(User.apply)
-      .all().underlying)
+      .all())
 
   // But Query Analysis catches the bugs in your tests
   def check(): Unit =

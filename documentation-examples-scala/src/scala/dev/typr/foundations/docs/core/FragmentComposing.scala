@@ -3,8 +3,6 @@ import dev.typr.scalafoundations.*
 import dev.typr.scalafoundations.data.*
 
 import java.sql.SQLException
-import java.util.{List as JList}
-import scala.jdk.CollectionConverters.*
 
 @SuppressWarnings(Array("unused"))
 object FragmentComposing:
@@ -30,13 +28,13 @@ object FragmentComposing:
   // Compose dynamically - only include the filters that are present
   @throws[SQLException]
   def query(): List[ProductRow] =
-    val filters: JList[Fragment] = Seq(
+    val filters: List[Fragment] = List(
       Some(byName("%widget%")),
       maxPrice.map(cheaperThan)
-    ).flatten.asJava
+    ).flatten
 
     Fragment.lit("SELECT * FROM product ")
       .append(Fragment.whereAnd(filters))
-      .query(rowParser.all().underlying)
+      .query(rowParser.all())
       .transact(tx)
   //stop

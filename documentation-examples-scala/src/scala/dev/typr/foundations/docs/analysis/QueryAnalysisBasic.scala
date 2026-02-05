@@ -24,7 +24,7 @@ object QueryAnalysisBasic:
     val query = Fragment.interpolate("SELECT id, name, email FROM users WHERE id = ")
       .param(PgTypes.int4, userId)
       .done()
-      .query(userRowParser.all().underlying)
+      .query(userRowParser.all())
 
     // Analyze it against the database
     val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection)

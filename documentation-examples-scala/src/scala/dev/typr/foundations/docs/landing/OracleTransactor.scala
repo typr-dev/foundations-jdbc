@@ -2,9 +2,6 @@ package dev.typr.foundations.docs.landing
 import dev.typr.scalafoundations.*
 import dev.typr.scalafoundations.data.*
 
-
-import java.sql.Connection
-
 @SuppressWarnings(Array("unused"))
 object OracleTransactor:
   //start
@@ -16,11 +13,9 @@ object OracleTransactor:
 
   // Everything inside runs in one transaction
   def getGreeting(): String =
-    val op: SqlFunction[Connection, String] = conn =>
-      Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
-        .query(RowParser.of(OracleTypes.varchar2).exactlyOne().underlying)
-        .run(conn)
-    tx.execute(op)
+    Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
+      .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
+      .transact(tx)
 
   // Built-in strategies for common patterns
   val defaultStrategy = Transactor.defaultStrategy()         // begin -> commit -> close
