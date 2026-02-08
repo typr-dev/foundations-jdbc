@@ -1,8 +1,5 @@
 package dev.typr.foundations.docs.routines
-import dev.typr.foundations.OracleTypes
 import dev.typr.scalafoundations.*
-
-import java.math.BigDecimal
 
 @SuppressWarnings(Array("unused"))
 object OracleExample:

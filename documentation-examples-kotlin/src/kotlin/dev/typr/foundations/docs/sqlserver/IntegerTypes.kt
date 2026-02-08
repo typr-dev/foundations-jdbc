@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.sqlserver
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.foundations.data.Uint1
 
 @Suppress("unused")
 class IntegerTypes {

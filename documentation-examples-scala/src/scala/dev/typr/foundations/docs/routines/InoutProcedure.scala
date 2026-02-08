@@ -1,8 +1,6 @@
 package dev.typr.foundations.docs.routines
-import dev.typr.foundations.PgTypes
 import dev.typr.scalafoundations.*
 
-import java.math.BigDecimal
 import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
