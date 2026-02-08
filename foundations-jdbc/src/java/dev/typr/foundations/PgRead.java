@@ -225,6 +225,25 @@ public sealed interface PgRead<A> extends DbRead<A>
         });
   }
 
+  // PostgreSQL JDBC driver returns Boolean for bit(1) and PGobject for bit(n>1).
+  // This reader handles both cases by using getString() which works for all bit types.
+  PgRead<String> bitString = of(ResultSet::getString);
+
+  static <T> PgRead<T[]> bitStringArray(Function<String, T> fromString, Class<T> clazz) {
+    return readString.map(
+        arrayText -> {
+          if (arrayText == null) return null;
+          java.util.List<String> elements = PgRecordParser.parseArray(arrayText);
+          @SuppressWarnings("unchecked")
+          T[] array = (T[]) Array.newInstance(clazz, elements.size());
+          for (int i = 0; i < elements.size(); i++) {
+            String elem = elements.get(i);
+            array[i] = elem == null ? null : fromString.apply(elem);
+          }
+          return array;
+        });
+  }
+
   static PgRead<String> pgObject(String sqlType) {
     return PgRead.of(
         (rs, i) -> {

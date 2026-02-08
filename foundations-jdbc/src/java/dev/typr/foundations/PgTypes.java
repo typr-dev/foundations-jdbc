@@ -56,6 +56,39 @@ public interface PgTypes {
           PgJson.boolArrayUnboxed,
           PgOutParam.readBooleanArrayUnboxed);
 
+  PgType<Bit> bit = bitType("bit");
+  PgType<Bit[]> bitArray = bit.array(PgRead.bitStringArray(Bit::new, Bit.class), Bit[]::new);
+
+  static PgType<Bit> bit(int n) {
+    return PgType.of(
+        PgTypename.of("bit", n),
+        PgRead.bitString.map(Bit::new),
+        PgWrite.pgObject("bit").contramap(Bit::value),
+        PgText.textString.contramap(Bit::value),
+        PgCompositeText.text.bimap(Bit::new, Bit::value),
+        PgJson.bit,
+        PgOutParam.bitString(Bit::new));
+  }
+
+  static PgType<Bit[]> bitArray(int n) {
+    return bit(n).array(PgRead.bitStringArray(Bit::new, Bit.class), Bit[]::new);
+  }
+
+  private static PgType<Bit> bitType(String sqlType) {
+    return PgType.of(
+        sqlType,
+        PgRead.bitString.map(Bit::new),
+        PgWrite.pgObject("bit").contramap(Bit::value),
+        PgText.textString.contramap(Bit::value),
+        PgCompositeText.text.bimap(Bit::new, Bit::value),
+        PgJson.bit,
+        PgOutParam.bitString(Bit::new));
+  }
+
+  PgType<Varbit> varbit = ofPgObject("varbit", Varbit::new, Varbit::value, PgJson.varbit);
+  PgType<Varbit[]> varbitArray =
+      varbit.array(PgRead.pgObjectArray(Varbit::new, Varbit.class), Varbit[]::new);
+
   PgType<Double> float8 =
       PgType.of(
           "float8",

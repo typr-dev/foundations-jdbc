@@ -558,6 +558,8 @@ public interface PgJson<A> extends DbJson<A> {
               "Expected number or string for money, got: " + json.getClass().getSimpleName());
         }
       };
+  PgJson<Bit> bit = text.bimap(Bit::new, Bit::value);
+  PgJson<Varbit> varbit = text.bimap(Varbit::new, Varbit::value);
   PgJson<AclItem> aclitem = text.bimap(AclItem::new, AclItem::value);
   PgJson<Xml> xml = text.bimap(Xml::new, Xml::value);
   PgJson<Xid> xid = text.bimap(Xid::new, Xid::value);
