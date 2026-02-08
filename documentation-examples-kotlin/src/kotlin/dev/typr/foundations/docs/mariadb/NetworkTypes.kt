@@ -2,8 +2,6 @@ package dev.typr.foundations.docs.mariadb
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.kotlinfoundations.data.Inet4
-import dev.typr.kotlinfoundations.data.Inet6
 
 @Suppress("unused")
 class NetworkTypes {

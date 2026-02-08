@@ -2,9 +2,6 @@ package dev.typr.foundations.docs.mariadb
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.kotlinfoundations.data.Uint1
-import dev.typr.kotlinfoundations.data.Uint4
-import dev.typr.kotlinfoundations.data.Uint8
 
 @Suppress("unused")
 class IntegerTypesUnsigned {

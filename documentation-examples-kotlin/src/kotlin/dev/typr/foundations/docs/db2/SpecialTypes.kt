@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.db2
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.kotlinfoundations.data.Xml
 
 @Suppress("unused")
 class SpecialTypes {
