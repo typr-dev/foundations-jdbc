@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.postgresql
 import dev.typr.scalafoundations.*
 import dev.typr.scalafoundations.data.*
-import dev.typr.scalafoundations.data.{Range as DbRange, RangeBound}
+import dev.typr.scalafoundations.data.{Range as DbRange}
 
 import java.time.LocalDate
 
