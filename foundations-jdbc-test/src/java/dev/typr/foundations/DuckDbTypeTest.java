@@ -1,5 +1,7 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.QueryAnalysis;
+import dev.typr.foundations.analysis.QueryAnalyzer;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.Uint1;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Test;
 
 /**
@@ -514,6 +518,51 @@ public class DuckDbTypeTest {
                 })
             .toList();
 
+    // ==================== Query Analysis Tests ====================
+    System.out.println("\n=== Query Analysis Tests (parallel) ===");
+    var analysisFailures =
+        All.stream()
+            .collect(Collectors.toMap(t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+            .values()
+            .parallelStream()
+            .flatMap(
+                t -> {
+                  var errors = new ArrayList<String>();
+                  try {
+                    withConnection(
+                        conn -> {
+                          testQueryAnalysis(conn, t);
+                          return null;
+                        });
+                  } catch (Exception e) {
+                    errors.add(
+                        "Analysis FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
+                  }
+                  if (t.hasIdentity) {
+                    try {
+                      withConnection(
+                          conn -> {
+                            testQueryAnalysisWithParam(conn, t);
+                            return null;
+                          });
+                    } catch (Exception e) {
+                      errors.add(
+                          "Param analysis FAILED "
+                              + t.type.typename().sqlType()
+                              + ": "
+                              + e.getMessage());
+                    }
+                  }
+                  return errors.stream();
+                })
+            .toList();
+
+    var allFailures = new ArrayList<>(failures);
+    allFailures.addAll(analysisFailures);
+
     // ==================== Edge Case Tests ====================
     System.out.println("\n=== Negative Test: ARRAY Size Validation ===\n");
 
@@ -524,8 +573,7 @@ public class DuckDbTypeTest {
         Statement stmt = negConn.createStatement()) {
       stmt.execute("CREATE TABLE array_size_test (vec INTEGER[5])");
       stmt.execute("INSERT INTO array_size_test VALUES (array_value(1, 2, 3, 4)::INTEGER[5])");
-      failures = new ArrayList<>(failures);
-      ((ArrayList<String>) failures).add("ARRAY size validation should have thrown error");
+      allFailures.add("ARRAY size validation should have thrown error");
     } catch (SQLException e) {
       String errMsg = e.getMessage();
       if (errMsg.contains("Conversion Error") || errMsg.contains("Cannot cast array")) {
@@ -534,17 +582,16 @@ public class DuckDbTypeTest {
                 + errMsg.substring(0, Math.min(100, errMsg.length()))
                 + "...\n");
       } else {
-        failures = new ArrayList<>(failures);
-        ((ArrayList<String>) failures).add("ARRAY size validation: unexpected error: " + errMsg);
+        allFailures.add("ARRAY size validation: unexpected error: " + errMsg);
       }
     }
 
     System.out.println("\n=====================================");
-    if (failures.isEmpty()) {
+    if (allFailures.isEmpty()) {
       System.out.println("All tests passed!");
     } else {
-      failures.forEach(System.out::println);
-      throw new RuntimeException(failures.size() + " tests failed");
+      allFailures.forEach(System.out::println);
+      throw new RuntimeException(allFailures.size() + " tests failed");
     }
     System.out.println("=====================================");
   }
@@ -687,6 +734,39 @@ public class DuckDbTypeTest {
       } catch (SQLException e) {
         // Ignore cleanup errors - transaction might be aborted
       }
+    }
+  }
+
+  static <A> void testQueryAnalysis(Connection conn, DuckDbTypeAndExample<A> t) throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("qa");
+    conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
+    try {
+      RowParser<A> parser = RowParser.of(t.type);
+      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      if (!analysis.succeeded()) {
+        throw new RuntimeException("Query analysis failed for " + sqlType + ":\n" + analysis.report());
+      }
+    } finally {
+      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+    }
+  }
+
+  static <A> void testQueryAnalysisWithParam(Connection conn, DuckDbTypeAndExample<A> t) throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("qap");
+    conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
+    try {
+      RowParser<A> parser = RowParser.of(t.type);
+      Fragment fragment = Fragment.interpolate("SELECT v FROM " + tableName + " WHERE v = ")
+          .param(t.type, t.example).done();
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      if (!analysis.succeeded()) {
+        throw new RuntimeException("Param analysis failed for " + sqlType + ":\n" + analysis.report());
+      }
+    } finally {
+      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
     }
   }
 

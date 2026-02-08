@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.Uint1;
 import dev.typr.foundations.data.Uint2;
@@ -38,7 +39,8 @@ public interface MariaTypes {
           MariaRead.readByte,
           MariaWrite.writeByte,
           MariaText.textByte,
-          MariaJson.int4.bimap(Integer::byteValue, Byte::intValue));
+          MariaJson.int4.bimap(Integer::byteValue, Byte::intValue),
+          MariaOutParam.readByte);
 
   MariaType<Short> smallint =
       MariaType.of(
@@ -46,7 +48,8 @@ public interface MariaTypes {
           MariaRead.readShort,
           MariaWrite.writeShort,
           MariaText.textShort,
-          MariaJson.int2);
+          MariaJson.int2,
+          MariaOutParam.readShort);
 
   MariaType<Integer> mediumint =
       MariaType.of(
@@ -54,7 +57,8 @@ public interface MariaTypes {
           MariaRead.readInteger,
           MariaWrite.writeInteger,
           MariaText.textInteger,
-          MariaJson.int4);
+          MariaJson.int4,
+          MariaOutParam.readInteger);
 
   MariaType<Integer> int_ =
       MariaType.of(
@@ -62,11 +66,18 @@ public interface MariaTypes {
           MariaRead.readInteger,
           MariaWrite.writeInteger,
           MariaText.textInteger,
-          MariaJson.int4);
+          MariaJson.int4,
+          MariaOutParam.readInteger)
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("integer"));
 
   MariaType<Long> bigint =
       MariaType.of(
-          "BIGINT", MariaRead.readLong, MariaWrite.writeLong, MariaText.textLong, MariaJson.int8);
+          "BIGINT",
+          MariaRead.readLong,
+          MariaWrite.writeLong,
+          MariaText.textLong,
+          MariaJson.int8,
+          MariaOutParam.readLong);
 
   // ==================== Integer Types (Unsigned) ====================
 
@@ -77,7 +88,8 @@ public interface MariaTypes {
           MariaRead.readShort.map(Uint1::new),
           MariaWrite.writeShort.contramap(Uint1::value),
           MariaText.textShort.contramap(Uint1::value),
-          MariaJson.int2.bimap(Uint1::new, Uint1::value));
+          MariaJson.int2.bimap(Uint1::new, Uint1::value),
+          MariaOutParam.readShort.map(Uint1::new));
 
   // SMALLINT UNSIGNED: 0-65535, wrapped in Uint2
   MariaType<Uint2> smallintUnsigned =
@@ -86,7 +98,8 @@ public interface MariaTypes {
           MariaRead.readInteger.map(Uint2::new),
           MariaWrite.writeInteger.contramap(Uint2::value),
           MariaText.textInteger.contramap(Uint2::value),
-          MariaJson.int4.bimap(Uint2::new, Uint2::value));
+          MariaJson.int4.bimap(Uint2::new, Uint2::value),
+          MariaOutParam.readInteger.map(Uint2::new));
 
   // MEDIUMINT UNSIGNED: 0-16777215, wrapped in Uint4
   MariaType<Uint4> mediumintUnsigned =
@@ -95,7 +108,8 @@ public interface MariaTypes {
           MariaRead.readLong.map(Uint4::new),
           MariaWrite.writeLong.contramap(Uint4::value),
           MariaText.textLong.contramap(Uint4::value),
-          MariaJson.int8.bimap(Uint4::new, Uint4::value));
+          MariaJson.int8.bimap(Uint4::new, Uint4::value),
+          MariaOutParam.readLong.map(Uint4::new));
 
   // INT UNSIGNED: 0-4294967295, wrapped in Uint4
   MariaType<Uint4> intUnsigned =
@@ -104,7 +118,9 @@ public interface MariaTypes {
           MariaRead.readLong.map(Uint4::new),
           MariaWrite.writeLong.contramap(Uint4::value),
           MariaText.textLong.contramap(Uint4::value),
-          MariaJson.int8.bimap(Uint4::new, Uint4::value));
+          MariaJson.int8.bimap(Uint4::new, Uint4::value),
+          MariaOutParam.readLong.map(Uint4::new))
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("integer unsigned"));
 
   // BIGINT UNSIGNED: 0-18446744073709551615, wrapped in Uint8
   MariaType<Uint8> bigintUnsigned =
@@ -114,7 +130,8 @@ public interface MariaTypes {
           MariaWrite.writeBigInteger.contramap(Uint8::value),
           MariaText.textBigInteger.contramap(Uint8::value),
           MariaJson.numeric.bimap(
-              v -> new Uint8(v.toBigInteger()), v -> new BigDecimal(v.value())));
+              v -> new Uint8(v.toBigInteger()), v -> new BigDecimal(v.value())),
+          MariaOutParam.readBigDecimal.map(v -> new Uint8(v.toBigInteger())));
 
   // ==================== Fixed-Point Types ====================
 
@@ -124,9 +141,11 @@ public interface MariaTypes {
           MariaRead.readBigDecimal,
           MariaWrite.writeBigDecimal,
           MariaText.textBigDecimal,
-          MariaJson.numeric);
+          MariaJson.numeric,
+          MariaOutParam.readBigDecimal);
 
-  MariaType<BigDecimal> numeric = decimal.renamed("NUMERIC");
+  MariaType<BigDecimal> numeric =
+      decimal.renamed("NUMERIC").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("decimal"));
 
   static MariaType<BigDecimal> decimal(int precision, int scale) {
     return MariaType.of(
@@ -134,7 +153,8 @@ public interface MariaTypes {
         MariaRead.readBigDecimal,
         MariaWrite.writeBigDecimal,
         MariaText.textBigDecimal,
-        MariaJson.numeric);
+        MariaJson.numeric,
+        MariaOutParam.readBigDecimal);
   }
 
   // ==================== Floating-Point Types ====================
@@ -145,7 +165,8 @@ public interface MariaTypes {
           MariaRead.readFloat,
           MariaWrite.writeFloat,
           MariaText.textFloat,
-          MariaJson.float4);
+          MariaJson.float4,
+          MariaOutParam.readFloat);
 
   MariaType<Double> double_ =
       MariaType.of(
@@ -153,7 +174,8 @@ public interface MariaTypes {
           MariaRead.readDouble,
           MariaWrite.writeDouble,
           MariaText.textDouble,
-          MariaJson.float8);
+          MariaJson.float8,
+          MariaOutParam.readDouble);
 
   // ==================== Boolean Type ====================
 
@@ -163,7 +185,8 @@ public interface MariaTypes {
           MariaRead.readBoolean,
           MariaWrite.writeBoolean,
           MariaText.textBoolean,
-          MariaJson.bool);
+          MariaJson.bool,
+          MariaOutParam.readBoolean);
 
   // ==================== Bit Types ====================
 
@@ -174,7 +197,8 @@ public interface MariaTypes {
           MariaRead.readBitAsBoolean,
           MariaWrite.writeBoolean,
           MariaText.textBoolean,
-          MariaJson.bool);
+          MariaJson.bool,
+          MariaOutParam.readBoolean);
 
   // BIT(n) as byte[]
   MariaType<byte[]> bit =
@@ -183,7 +207,8 @@ public interface MariaTypes {
           MariaRead.readBit,
           MariaWrite.writeByteArray,
           MariaText.textByteArray,
-          MariaJson.bytea);
+          MariaJson.bytea,
+          MariaOutParam.readByteArray);
 
   // ==================== String Types ====================
 
@@ -193,7 +218,8 @@ public interface MariaTypes {
           MariaRead.readString,
           MariaWrite.writeString,
           MariaText.textString,
-          MariaJson.text);
+          MariaJson.text,
+          MariaOutParam.readString);
 
   MariaType<String> varchar =
       MariaType.of(
@@ -201,7 +227,8 @@ public interface MariaTypes {
           MariaRead.readString,
           MariaWrite.writeString,
           MariaText.textString,
-          MariaJson.text);
+          MariaJson.text,
+          MariaOutParam.readString);
 
   MariaType<String> tinytext =
       MariaType.of(
@@ -209,7 +236,8 @@ public interface MariaTypes {
           MariaRead.readString,
           MariaWrite.writeString,
           MariaText.textString,
-          MariaJson.text);
+          MariaJson.text,
+          MariaOutParam.readString);
 
   MariaType<String> text =
       MariaType.of(
@@ -217,7 +245,8 @@ public interface MariaTypes {
           MariaRead.readString,
           MariaWrite.writeString,
           MariaText.textString,
-          MariaJson.text);
+          MariaJson.text,
+          MariaOutParam.readString);
 
   MariaType<String> mediumtext =
       MariaType.of(
@@ -225,7 +254,8 @@ public interface MariaTypes {
           MariaRead.readString,
           MariaWrite.writeString,
           MariaText.textString,
-          MariaJson.text);
+          MariaJson.text,
+          MariaOutParam.readString);
 
   MariaType<String> longtext =
       MariaType.of(
@@ -233,7 +263,8 @@ public interface MariaTypes {
           MariaRead.readString,
           MariaWrite.writeString,
           MariaText.textString,
-          MariaJson.text);
+          MariaJson.text,
+          MariaOutParam.readString);
 
   static MariaType<String> char_(int length) {
     return MariaType.of(
@@ -241,7 +272,8 @@ public interface MariaTypes {
         MariaRead.readString,
         MariaWrite.writeString,
         MariaText.textString,
-        MariaJson.text);
+        MariaJson.text,
+        MariaOutParam.readString);
   }
 
   static MariaType<String> varchar(int length) {
@@ -250,7 +282,8 @@ public interface MariaTypes {
         MariaRead.readString,
         MariaWrite.writeString,
         MariaText.textString,
-        MariaJson.text);
+        MariaJson.text,
+        MariaOutParam.readString);
   }
 
   // ==================== Binary Types ====================
@@ -261,7 +294,8 @@ public interface MariaTypes {
           MariaRead.readByteArray,
           MariaWrite.writeByteArray,
           MariaText.textByteArray,
-          MariaJson.bytea);
+          MariaJson.bytea,
+          MariaOutParam.readByteArray);
 
   MariaType<byte[]> varbinary =
       MariaType.of(
@@ -269,7 +303,8 @@ public interface MariaTypes {
           MariaRead.readByteArray,
           MariaWrite.writeByteArray,
           MariaText.textByteArray,
-          MariaJson.bytea);
+          MariaJson.bytea,
+          MariaOutParam.readByteArray);
 
   MariaType<byte[]> tinyblob =
       MariaType.of(
@@ -277,7 +312,8 @@ public interface MariaTypes {
           MariaRead.readBlob,
           MariaWrite.writeByteArray,
           MariaText.textByteArray,
-          MariaJson.bytea);
+          MariaJson.bytea,
+          MariaOutParam.readByteArray);
 
   MariaType<byte[]> blob =
       MariaType.of(
@@ -285,7 +321,8 @@ public interface MariaTypes {
           MariaRead.readBlob,
           MariaWrite.writeByteArray,
           MariaText.textByteArray,
-          MariaJson.bytea);
+          MariaJson.bytea,
+          MariaOutParam.readByteArray);
 
   MariaType<byte[]> mediumblob =
       MariaType.of(
@@ -293,7 +330,8 @@ public interface MariaTypes {
           MariaRead.readBlob,
           MariaWrite.writeByteArray,
           MariaText.textByteArray,
-          MariaJson.bytea);
+          MariaJson.bytea,
+          MariaOutParam.readByteArray);
 
   MariaType<byte[]> longblob =
       MariaType.of(
@@ -301,7 +339,8 @@ public interface MariaTypes {
           MariaRead.readBlob,
           MariaWrite.writeByteArray,
           MariaText.textByteArray,
-          MariaJson.bytea);
+          MariaJson.bytea,
+          MariaOutParam.readByteArray);
 
   static MariaType<byte[]> binary(int length) {
     return MariaType.of(
@@ -309,7 +348,8 @@ public interface MariaTypes {
         MariaRead.readByteArray,
         MariaWrite.writeByteArray,
         MariaText.textByteArray,
-        MariaJson.bytea);
+        MariaJson.bytea,
+        MariaOutParam.readByteArray);
   }
 
   static MariaType<byte[]> varbinary(int length) {
@@ -318,7 +358,8 @@ public interface MariaTypes {
         MariaRead.readByteArray,
         MariaWrite.writeByteArray,
         MariaText.textByteArray,
-        MariaJson.bytea);
+        MariaJson.bytea,
+        MariaOutParam.readByteArray);
   }
 
   // ==================== Date/Time Types ====================
@@ -329,7 +370,8 @@ public interface MariaTypes {
           MariaRead.readLocalDate,
           MariaWrite.passObjectToJdbc(),
           MariaText.instanceToString(),
-          MariaJson.date);
+          MariaJson.date,
+          MariaOutParam.readLocalDate);
 
   MariaType<LocalTime> time =
       MariaType.of(
@@ -337,7 +379,8 @@ public interface MariaTypes {
           MariaRead.readLocalTime,
           MariaWrite.passObjectToJdbc(),
           MariaText.instanceToString(),
-          MariaJson.time);
+          MariaJson.time,
+          MariaOutParam.readLocalTime);
 
   MariaType<LocalDateTime> datetime =
       MariaType.of(
@@ -345,7 +388,8 @@ public interface MariaTypes {
           MariaRead.readLocalDateTime,
           MariaWrite.passObjectToJdbc(),
           MariaText.instanceToString(),
-          MariaJson.timestamp);
+          MariaJson.timestamp,
+          MariaOutParam.readLocalDateTime);
 
   MariaType<LocalDateTime> timestamp =
       MariaType.of(
@@ -353,7 +397,8 @@ public interface MariaTypes {
           MariaRead.readLocalDateTime,
           MariaWrite.passObjectToJdbc(),
           MariaText.instanceToString(),
-          MariaJson.timestamp);
+          MariaJson.timestamp,
+          MariaOutParam.readLocalDateTime);
 
   MariaType<Year> year =
       MariaType.of(
@@ -361,7 +406,8 @@ public interface MariaTypes {
           MariaRead.readYear,
           MariaWrite.writeShort.contramap(y -> (short) y.getValue()),
           MariaText.textInteger.contramap(Year::getValue),
-          MariaJson.int4.bimap(Year::of, Year::getValue));
+          MariaJson.int4.bimap(Year::of, Year::getValue),
+          MariaOutParam.readYear);
 
   static MariaType<LocalTime> time(int fsp) {
     return MariaType.of(
@@ -369,7 +415,8 @@ public interface MariaTypes {
         MariaRead.readLocalTime,
         MariaWrite.passObjectToJdbc(),
         MariaText.instanceToString(),
-        MariaJson.time);
+        MariaJson.time,
+        MariaOutParam.readLocalTime);
   }
 
   static MariaType<LocalDateTime> datetime(int fsp) {
@@ -378,7 +425,8 @@ public interface MariaTypes {
         MariaRead.readLocalDateTime,
         MariaWrite.passObjectToJdbc(),
         MariaText.instanceToString(),
-        MariaJson.timestamp);
+        MariaJson.timestamp,
+        MariaOutParam.readLocalDateTime);
   }
 
   static MariaType<LocalDateTime> timestamp(int fsp) {
@@ -387,7 +435,8 @@ public interface MariaTypes {
         MariaRead.readLocalDateTime,
         MariaWrite.passObjectToJdbc(),
         MariaText.instanceToString(),
-        MariaJson.timestamp);
+        MariaJson.timestamp,
+        MariaOutParam.readLocalDateTime);
   }
 
   // ==================== ENUM Type ====================
@@ -400,12 +449,14 @@ public interface MariaTypes {
    * @return MariaType for the enum
    */
   static <E extends Enum<E>> MariaType<E> ofEnum(String sqlType, Function<String, E> fromString) {
-    return MariaType.of(
+    return MariaType.<E>of(
         sqlType,
         MariaRead.readString.map(fromString::apply),
         MariaWrite.writeString.contramap(Enum::name),
         MariaText.textString.contramap(Enum::name),
-        MariaJson.text.bimap(fromString::apply, Enum::name));
+        MariaJson.text.bimap(fromString::apply, Enum::name),
+        MariaOutParam.readString.map(fromString::apply))
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
   }
 
   // ==================== SET Type ====================
@@ -417,7 +468,9 @@ public interface MariaTypes {
           MariaRead.readString.map(MariaSet::fromString),
           MariaWrite.writeString.contramap(MariaSet::toCommaSeparated),
           MariaText.textString.contramap(MariaSet::toCommaSeparated),
-          MariaJson.text.bimap(MariaSet::fromString, MariaSet::toCommaSeparated));
+          MariaJson.text.bimap(MariaSet::fromString, MariaSet::toCommaSeparated),
+          MariaOutParam.readString.map(MariaSet::fromString))
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
 
   // ==================== JSON Type ====================
 
@@ -428,7 +481,8 @@ public interface MariaTypes {
           MariaRead.readString.map(Json::new),
           MariaWrite.writeString.contramap(Json::value),
           MariaText.textString.contramap(Json::value),
-          MariaJson.json);
+          MariaJson.json,
+          MariaOutParam.readString.map(Json::new));
 
   // ==================== Network Types ====================
 
@@ -438,7 +492,9 @@ public interface MariaTypes {
           MariaRead.readString.map(Inet4::parse),
           MariaWrite.writeString.contramap(Inet4::value),
           MariaText.textString.contramap(Inet4::value),
-          MariaJson.text.bimap(Inet4::parse, Inet4::value));
+          MariaJson.text.bimap(Inet4::parse, Inet4::value),
+          MariaOutParam.readString.map(Inet4::parse))
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
 
   MariaType<Inet6> inet6 =
       MariaType.of(
@@ -446,7 +502,9 @@ public interface MariaTypes {
           MariaRead.readString.map(Inet6::parse),
           MariaWrite.writeString.contramap(Inet6::value),
           MariaText.textString.contramap(Inet6::value),
-          MariaJson.text.bimap(Inet6::parse, Inet6::value));
+          MariaJson.text.bimap(Inet6::parse, Inet6::value),
+          MariaOutParam.readString.map(Inet6::parse))
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
 
   // ==================== Spatial Types ====================
   // Using MariaDB Connector/J types directly.
@@ -466,7 +524,8 @@ public interface MariaTypes {
               s -> {
                 throw new UnsupportedOperationException("Geometry JSON not supported");
               },
-              Object::toString));
+              Object::toString),
+          MariaOutParam.readGeometry(Geometry.class));
 
   MariaType<Point> point =
       MariaType.of(
@@ -478,7 +537,8 @@ public interface MariaTypes {
               s -> {
                 throw new UnsupportedOperationException("Point JSON not supported");
               },
-              Object::toString));
+              Object::toString),
+          MariaOutParam.readGeometry(Point.class));
 
   MariaType<LineString> linestring =
       MariaType.of(
@@ -490,7 +550,8 @@ public interface MariaTypes {
               s -> {
                 throw new UnsupportedOperationException("LineString JSON not supported");
               },
-              Object::toString));
+              Object::toString),
+          MariaOutParam.readGeometry(LineString.class));
 
   MariaType<Polygon> polygon =
       MariaType.of(
@@ -502,7 +563,8 @@ public interface MariaTypes {
               s -> {
                 throw new UnsupportedOperationException("Polygon JSON not supported");
               },
-              Object::toString));
+              Object::toString),
+          MariaOutParam.readGeometry(Polygon.class));
 
   MariaType<MultiPoint> multipoint =
       MariaType.of(
@@ -514,7 +576,8 @@ public interface MariaTypes {
               s -> {
                 throw new UnsupportedOperationException("MultiPoint JSON not supported");
               },
-              Object::toString));
+              Object::toString),
+          MariaOutParam.readGeometry(MultiPoint.class));
 
   MariaType<MultiLineString> multilinestring =
       MariaType.of(
@@ -526,7 +589,8 @@ public interface MariaTypes {
               s -> {
                 throw new UnsupportedOperationException("MultiLineString JSON not supported");
               },
-              Object::toString));
+              Object::toString),
+          MariaOutParam.readGeometry(MultiLineString.class));
 
   MariaType<MultiPolygon> multipolygon =
       MariaType.of(
@@ -538,7 +602,8 @@ public interface MariaTypes {
               s -> {
                 throw new UnsupportedOperationException("MultiPolygon JSON not supported");
               },
-              Object::toString));
+              Object::toString),
+          MariaOutParam.readGeometry(MultiPolygon.class));
 
   MariaType<GeometryCollection> geometrycollection =
       MariaType.of(
@@ -550,7 +615,8 @@ public interface MariaTypes {
               s -> {
                 throw new UnsupportedOperationException("GeometryCollection JSON not supported");
               },
-              Object::toString));
+              Object::toString),
+          MariaOutParam.readGeometry(GeometryCollection.class));
 
   // ==================== Unknown Type ====================
   // For columns whose type typr doesn't know how to handle - cast to/from string
@@ -560,6 +626,7 @@ public interface MariaTypes {
               MariaRead.readString,
               MariaWrite.writeString,
               MariaText.textString,
-              MariaJson.text)
+              MariaJson.text,
+              MariaOutParam.readString)
           .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 }

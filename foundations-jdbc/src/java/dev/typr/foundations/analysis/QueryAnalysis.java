@@ -12,26 +12,23 @@ import java.util.Set;
  * for parameters and columns, and provides methods to extract errors and generate reports.
  *
  * <p>This is the main output of {@link QueryAnalyzer#analyze}.</p>
- *
- * <p>Example usage:
- * <pre>{@code
- * QueryAnalysis analysis = QueryAnalyzer.analyze(query, connection);
- * if (!analysis.succeeded()) {
- *     System.err.println(analysis.report());
- *     throw new AssertionError("Query type check failed");
- * }
- * }</pre>
  */
 public record QueryAnalysis(
     String sql,
+    String queryName,
     List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
     List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
     boolean parameterMetadataAvailable
 ) {
 
-  /**
-   * Check all parameter alignments and return any errors found.
-   */
+  public QueryAnalysis(
+      String sql,
+      List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
+      List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
+      boolean parameterMetadataAvailable) {
+    this(sql, null, parameterAlignment, columnAlignment, parameterMetadataAvailable);
+  }
+
   public List<AlignmentError> parameterErrors() {
     if (!parameterMetadataAvailable) {
       return List.of();
@@ -56,15 +53,8 @@ public record QueryAnalysis(
     return errors;
   }
 
-  /**
-   * Check all column alignments and return any errors found.
-   */
   public List<AlignmentError> columnErrors() {
     List<AlignmentError> errors = new ArrayList<>();
-
-    // Check if nullability metadata is reliable.
-    // Some databases (like DuckDB) report ALL columns as nullable regardless of NOT NULL constraints.
-    // If every column with metadata reports as nullable, we assume nullability info is unreliable.
     boolean nullabilityReliable = isNullabilityReliable();
 
     int pos = 1;
@@ -85,10 +75,6 @@ public record QueryAnalysis(
     return errors;
   }
 
-  /**
-   * Check if nullability metadata from the database is reliable.
-   * If all columns report as nullable, it's likely the driver doesn't track NOT NULL constraints.
-   */
   private boolean isNullabilityReliable() {
     if (columnAlignment.isEmpty()) return true;
 
@@ -107,14 +93,9 @@ public record QueryAnalysis(
       }
     }
 
-    // If we have metadata and at least one column is NOT nullable, metadata is reliable
-    // If ALL columns are nullable, the driver probably doesn't track NOT NULL constraints
     return totalWithMeta == 0 || nullableCount < totalWithMeta;
   }
 
-  /**
-   * Get all errors from both parameters and columns.
-   */
   public List<AlignmentError> allErrors() {
     List<AlignmentError> all = new ArrayList<>();
     all.addAll(parameterErrors());
@@ -122,17 +103,10 @@ public record QueryAnalysis(
     return all;
   }
 
-  /**
-   * Returns true if no errors were found.
-   */
   public boolean succeeded() {
     return allErrors().isEmpty();
   }
 
-  /**
-   * Generate a styled report of the analysis.
-   * Use {@link #reportColored()} for ANSI colors or {@link #report()} for plain text.
-   */
   public Str styledReport() {
     var b = Str.builder();
 
@@ -144,7 +118,11 @@ public record QueryAnalysis(
     b.newline();
 
     // SQL
-    b.bold("SQL:").newline();
+    if (queryName != null) {
+      b.bold("SQL (").cyan(queryName).bold("):").newline();
+    } else {
+      b.bold("SQL:").newline();
+    }
     b.plain("  ").gray(truncateSql(sql, 72)).newline().newline();
 
     // Parameters section
@@ -189,58 +167,54 @@ public record QueryAnalysis(
     return b.build();
   }
 
-  /**
-   * Generate a human-readable report of the analysis (plain text).
-   */
   public String report() {
     return styledReport().plainText();
   }
 
-  /**
-   * Generate a human-readable report with ANSI colors.
-   */
   public String reportColored() {
     return styledReport().render();
   }
 
   private void checkParameterTypes(int pos, DbType<?> declared, JdbcMeta.ParameterMeta expected,
       List<AlignmentError> errors) {
-    Set<Integer> targets = declared.jdbcTargets();
+    AnalysisOptions opts = declared.analysisOptions();
+    if (opts.unchecked()) return;
 
-    // Check if our type can write to the expected JDBC type
-    if (!targets.isEmpty() && !targets.contains(expected.jdbcType())) {
-      // Special case: if we're writing OTHER, most types work
-      if (expected.jdbcType() != java.sql.Types.OTHER) {
-        errors.add(new AlignmentError.ParameterTypeMismatch(
-            pos, declared, expected, targets,
-            "The declared type cannot write to " + JdbcMeta.jdbcTypeName(expected.jdbcType())
-        ));
-      }
+    String metaName = normalizeVendorTypeName(expected.vendorTypeName());
+    if (metaName.isEmpty() || "unknown".equals(metaName)) return;
+
+    Set<String> ours = normalizeVendorTypeNames(declared.vendorTypeNames());
+    if (!ours.isEmpty() && !ours.contains(metaName)) {
+      errors.add(new AlignmentError.ParameterTypeMismatch(
+          pos, declared, expected, ours,
+          "The declared type does not match the expected vendor type \"" + metaName + "\""
+      ));
     }
   }
 
   private void checkColumnTypes(int pos, DbType<?> declared, JdbcMeta.ColumnMeta returned,
       List<AlignmentError> errors, boolean nullabilityReliable) {
-    Set<Integer> sources = declared.jdbcSources();
+    AnalysisOptions opts = declared.analysisOptions();
+    if (opts.unchecked()) return;
 
-    // Check if our type can read from the returned JDBC type
-    if (!sources.isEmpty() && !sources.contains(returned.jdbcType())) {
-      // Special case: OTHER is often used for custom types
-      if (returned.jdbcType() != java.sql.Types.OTHER) {
+    String metaName = normalizeVendorTypeName(returned.vendorTypeName());
+    if (!metaName.isEmpty() && !"unknown".equals(metaName)) {
+      Set<String> ours = normalizeVendorTypeNames(declared.vendorTypeNames());
+      if (!ours.isEmpty() && !ours.contains(metaName)) {
         errors.add(new AlignmentError.ColumnTypeMismatch(
             pos,
             returned.displayName(),
             declared,
             returned,
-            sources,
-            "The declared type cannot read from " + JdbcMeta.jdbcTypeName(returned.jdbcType())
+            ours,
+            "The declared type does not match the returned vendor type \"" + metaName + "\""
         ));
       }
     }
 
-    // Check nullability: if column is nullable but type is not optional
-    // Only check if the database's nullability metadata is reliable
-    if (nullabilityReliable
+    // Check nullability
+    if (!opts.nullableOk()
+        && nullabilityReliable
         && returned.isNullabilityKnown()
         && returned.nullable() == ResultSetMetaData.columnNullable
         && !declared.isNullable()) {
@@ -248,6 +222,46 @@ public record QueryAnalysis(
           pos, returned.displayName(), declared
       ));
     }
+  }
+
+  static Set<String> normalizeVendorTypeNames(Set<String> names) {
+    var normalized = new java.util.HashSet<String>(names.size());
+    for (String name : names) {
+      normalized.add(normalizeVendorTypeName(name));
+    }
+    return Set.copyOf(normalized);
+  }
+
+  static String normalizeVendorTypeName(String name) {
+    if (name == null || name.isEmpty()) return "";
+    String lower = name.toLowerCase().trim();
+
+    // Strip schema prefix: "typr.address_t" -> "address_t" (Oracle reports UDTs schema-qualified)
+    int dotIdx = lower.lastIndexOf('.');
+    if (dotIdx >= 0) {
+      lower = lower.substring(dotIdx + 1);
+    }
+
+    // Preserve array suffix before stripping precision
+    String suffix = "";
+    if (lower.endsWith("[]")) {
+      suffix = "[]";
+      lower = lower.substring(0, lower.length() - 2);
+    }
+
+    // Strip precision specifier like "varchar(255)" -> "varchar", "decimal(10,2)" -> "decimal"
+    int parenIdx = lower.indexOf('(');
+    if (parenIdx > 0) {
+      lower = lower.substring(0, parenIdx);
+    }
+
+    // Handle PG array prefix: "_int4" -> "int4[]"
+    if (suffix.isEmpty() && lower.startsWith("_") && !lower.contains(" ")) {
+      lower = lower.substring(1);
+      suffix = "[]";
+    }
+
+    return lower + suffix;
   }
 
   private String truncateSql(String sql, int maxLen) {
@@ -303,7 +317,6 @@ public record QueryAnalysis(
     }
     b.plain(" " + label + "[").yellow(String.valueOf(pos)).plain("]: ");
 
-    // Format declared type
     String declaredPadded = String.format("%-20s", declared);
     if (ok || !declared.equals("(missing)")) {
       b.cyan(declaredPadded);
@@ -313,7 +326,6 @@ public record QueryAnalysis(
 
     b.gray(" → ");
 
-    // Format actual type
     String actualPadded = String.format("%-30s", actual);
     if (ok || !actual.equals("(missing)")) {
       b.plain(actualPadded);
@@ -321,7 +333,6 @@ public record QueryAnalysis(
       b.red(actualPadded);
     }
 
-    // Pad to fixed width and close
     String line = b.build().plainText();
     int padding = 78 - line.length();
     if (padding > 0) {

@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.JsonValue;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -111,11 +112,14 @@ public record PgStruct<A>(
           }
         };
 
-    return new PgType<>(typename.asGeneric(), pgRead, pgWrite, pgText, pgCompositeText, json);
+    PgOutParam<A> pgOutParam = PgOutParam.pgObject(textValue -> parseFromText(textValue));
+
+    return new PgType<>(typename.asGeneric(), pgRead, pgWrite, pgText, pgCompositeText, json,
+        pgOutParam, AnalysisOptions.EMPTY);
   }
 
   /** Create an optional version of this composite type. */
-  public PgOptType<A> asOptType() {
+  public PgType<Optional<A>> opt() {
     return asType().opt();
   }
 

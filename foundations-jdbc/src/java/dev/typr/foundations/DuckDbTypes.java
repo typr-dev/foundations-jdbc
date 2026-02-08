@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.Uint1;
@@ -177,10 +178,10 @@ public interface DuckDbTypes {
           DuckDbStringifier.string,
           DuckDbJson.text);
 
-  DuckDbType<String> text = varchar.renamed("TEXT");
-  DuckDbType<String> string = varchar.renamed("STRING");
-  DuckDbType<String> char_ = varchar.renamed("CHAR");
-  DuckDbType<String> bpchar = varchar.renamed("BPCHAR");
+  DuckDbType<String> text = varchar.renamed("TEXT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+  DuckDbType<String> string = varchar.renamed("STRING").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+  DuckDbType<String> char_ = varchar.renamed("CHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+  DuckDbType<String> bpchar = varchar.renamed("BPCHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
 
   static DuckDbType<String> varchar(int length) {
     return DuckDbType.of(
@@ -192,12 +193,13 @@ public interface DuckDbTypes {
   }
 
   static DuckDbType<String> char_(int length) {
-    return DuckDbType.of(
+    return DuckDbType.<String>of(
         DuckDbTypename.of("CHAR", length),
         DuckDbRead.readString,
         DuckDbWrite.writeString,
         DuckDbStringifier.string,
-        DuckDbJson.text);
+        DuckDbJson.text)
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
   }
 
   // ==================== Binary Types ====================
@@ -330,12 +332,13 @@ public interface DuckDbTypes {
    */
   static <E extends Enum<E>> DuckDbType<E> ofEnum(
       String enumTypeName, Function<String, E> fromString) {
-    return DuckDbType.of(
+    return DuckDbType.<E>of(
         enumTypeName,
         DuckDbRead.readString.map(fromString::apply),
         DuckDbWrite.writeString.contramap(Enum::name),
         DuckDbStringifier.string.contramap(Enum::name),
-        DuckDbJson.text.bimap(fromString::apply, Enum::name));
+        DuckDbJson.text.bimap(fromString::apply, Enum::name))
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("enum"));
   }
 
   // ==================== Array Types ====================

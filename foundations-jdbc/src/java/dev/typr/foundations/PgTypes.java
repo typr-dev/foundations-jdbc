@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.*;
 import dev.typr.foundations.data.Record;
 import java.math.BigDecimal;
@@ -30,7 +31,8 @@ public interface PgTypes {
           PgWrite.writeBigDecimal,
           PgText.textBigDecimal,
           PgCompositeText.numeric,
-          PgJson.numeric);
+          PgJson.numeric,
+          PgOutParam.readBigDecimal);
   PgType<BigDecimal[]> numericArray = numeric.array(PgRead.readBigDecimalArray, BigDecimal[]::new);
   PgType<Boolean> bool =
       PgType.of(
@@ -39,7 +41,8 @@ public interface PgTypes {
           PgWrite.writeBoolean,
           PgText.textBoolean,
           PgCompositeText.bool,
-          PgJson.bool);
+          PgJson.bool,
+          PgOutParam.readBoolean);
   PgType<Boolean[]> boolArray = bool.array(PgRead.readBooleanArray, Boolean[]::new);
 
   @SuppressWarnings("unchecked")
@@ -50,7 +53,8 @@ public interface PgTypes {
           PgWrite.writeBooleanArrayUnboxed,
           PgText.boolArrayUnboxed,
           PgCompositeText.boolArrayUnboxed,
-          PgJson.boolArrayUnboxed);
+          PgJson.boolArrayUnboxed,
+          PgOutParam.readBooleanArrayUnboxed);
 
   PgType<Double> float8 =
       PgType.of(
@@ -59,7 +63,8 @@ public interface PgTypes {
           PgWrite.writeDouble,
           PgText.textDouble,
           PgCompositeText.float8,
-          PgJson.float8);
+          PgJson.float8,
+          PgOutParam.readDouble);
   PgType<Double[]> float8Array = float8.array(PgRead.readDoubleArray, Double[]::new);
 
   @SuppressWarnings("unchecked")
@@ -70,7 +75,8 @@ public interface PgTypes {
           PgWrite.writeDoubleArrayUnboxed,
           PgText.doubleArrayUnboxed,
           PgCompositeText.doubleArrayUnboxed,
-          PgJson.doubleArrayUnboxed);
+          PgJson.doubleArrayUnboxed,
+          PgOutParam.readDoubleArrayUnboxed);
 
   PgType<Float> float4 =
       PgType.of(
@@ -79,7 +85,8 @@ public interface PgTypes {
           PgWrite.writeFloat,
           PgText.textFloat,
           PgCompositeText.float4,
-          PgJson.float4);
+          PgJson.float4,
+          PgOutParam.readFloat);
   PgType<Float[]> float4Array = float4.array(PgRead.readFloatArray, Float[]::new);
 
   @SuppressWarnings("unchecked")
@@ -90,7 +97,8 @@ public interface PgTypes {
           PgWrite.writeFloatArrayUnboxed,
           PgText.floatArrayUnboxed,
           PgCompositeText.floatArrayUnboxed,
-          PgJson.floatArrayUnboxed);
+          PgJson.floatArrayUnboxed,
+          PgOutParam.readFloatArrayUnboxed);
 
   PgType<Inet> inet = ofPgObject("inet", Inet::new, Inet::value, PgJson.inet);
   PgType<Inet[]> inetArray = inet.array(PgRead.pgObjectArray(Inet::new, Inet.class), Inet[]::new);
@@ -113,7 +121,8 @@ public interface PgTypes {
           PgCompositeText.of(
               t -> t.atOffset(ZoneOffset.UTC).toString().replace('T', ' '),
               text -> OffsetDateTime.parse(text.replace(' ', 'T')).toInstant()),
-          PgJson.timestamptz);
+          PgJson.timestamptz,
+          PgOutParam.readInstant);
   PgType<Instant[]> timestamptzArray = timestamptz.array(PgRead.readInstantArray, Instant[]::new);
   PgType<Int2Vector> int2vector =
       ofPgObject("int2vector", Int2Vector::new, Int2Vector::value, PgJson.int2vector);
@@ -126,7 +135,8 @@ public interface PgTypes {
           PgWrite.writeInteger,
           PgText.textInteger,
           PgCompositeText.int4,
-          PgJson.int4);
+          PgJson.int4,
+          PgOutParam.readInteger);
   PgType<Integer[]> int4Array = int4.array(PgRead.readIntegerArray, Integer[]::new);
 
   @SuppressWarnings("unchecked")
@@ -137,7 +147,8 @@ public interface PgTypes {
           PgWrite.writeIntArrayUnboxed,
           PgText.intArrayUnboxed,
           PgCompositeText.intArrayUnboxed,
-          PgJson.intArrayUnboxed);
+          PgJson.intArrayUnboxed,
+          PgOutParam.readIntArrayUnboxed);
 
   PgType<Json> json = ofPgObject("json", Json::new, Json::value, PgJson.json);
   PgType<Json[]> jsonArray = json.array(PgRead.readJsonArray, Json[]::new);
@@ -150,7 +161,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.instance((d, sb) -> sb.append(d.toString())),
           PgCompositeText.of(LocalDate::toString, LocalDate::parse),
-          PgJson.date);
+          PgJson.date,
+          PgOutParam.readLocalDate);
   PgType<LocalDateTime> timestamp =
       PgType.of(
           "timestamp",
@@ -160,7 +172,8 @@ public interface PgTypes {
           PgCompositeText.of(
               t -> t.toString().replace('T', ' '),
               text -> LocalDateTime.parse(text.replace(' ', 'T'))),
-          PgJson.timestamp);
+          PgJson.timestamp,
+          PgOutParam.readLocalDateTime);
   PgType<LocalDateTime[]> timestampArray =
       timestamp.array(PgRead.readLocalDateTimeArray, LocalDateTime[]::new);
   PgType<LocalDate[]> dateArray = date.array(PgRead.readLocalDateArray, LocalDate[]::new);
@@ -171,7 +184,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.instance((t, sb) -> sb.append(t.toString())),
           PgCompositeText.of(LocalTime::toString, LocalTime::parse),
-          PgJson.time);
+          PgJson.time,
+          PgOutParam.readLocalTime);
   PgType<LocalTime[]> timeArray = time.array(PgRead.readLocalTimeArray, LocalTime[]::new);
   PgType<Long> int8 =
       PgType.of(
@@ -180,7 +194,8 @@ public interface PgTypes {
           PgWrite.writeLong,
           PgText.textLong,
           PgCompositeText.int8,
-          PgJson.int8);
+          PgJson.int8,
+          PgOutParam.readLong);
   PgType<Long[]> int8Array = int8.array(PgRead.readLongArray, Long[]::new);
 
   @SuppressWarnings("unchecked")
@@ -191,9 +206,9 @@ public interface PgTypes {
           PgWrite.writeLongArrayUnboxed,
           PgText.longArrayUnboxed,
           PgCompositeText.longArrayUnboxed,
-          PgJson.longArrayUnboxed);
+          PgJson.longArrayUnboxed,
+          PgOutParam.readLongArrayUnboxed);
 
-  // oid is a 32-bit unsigned integer wrapped in Oid type
   PgType<Oid> oid =
       PgType.of(
           "oid",
@@ -201,7 +216,8 @@ public interface PgTypes {
           PgWrite.writeLong.contramap(Oid::value),
           PgText.instance((o, sb) -> sb.append(o.value())),
           PgCompositeText.int8.bimap(Oid::new, Oid::value),
-          PgJson.int8.bimap(Oid::new, Oid::value));
+          PgJson.int8.bimap(Oid::new, Oid::value),
+          PgOutParam.readLong.map(Oid::new));
   PgType<Oid[]> oidArray =
       oid.array(
           PgRead.readLongArray.map(
@@ -221,7 +237,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.textMapStringString,
           PgCompositeText.hstore,
-          PgJson.hstore);
+          PgJson.hstore,
+          PgOutParam.readMapStringString);
   PgType<Money> money =
       PgType.of(
           "money",
@@ -229,9 +246,9 @@ public interface PgTypes {
           PgWrite.pgObject("money").contramap(m -> String.valueOf(m.value())),
           PgText.textDouble.contramap(Money::value),
           PgCompositeText.money,
-          PgJson.money);
+          PgJson.money,
+          PgOutParam.readDouble.map(Money::new));
   PgType<Money[]> moneyArray = money.array(PgRead.readMoneyArray, Money[]::new);
-  // name is a 63-character identifier type in PostgreSQL, mapped to String
   PgType<String> name =
       PgType.of(
           "name",
@@ -239,7 +256,8 @@ public interface PgTypes {
           PgWrite.writeString,
           PgText.textString,
           PgCompositeText.text,
-          PgJson.text);
+          PgJson.text,
+          PgOutParam.readString);
   PgType<String[]> nameArray = name.array(PgRead.readStringArray, String[]::new);
   PgType<OffsetTime> timetz =
       PgType.of(
@@ -248,7 +266,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.instance((t, sb) -> sb.append(t.toString())),
           PgCompositeText.timetz,
-          PgJson.timetz);
+          PgJson.timetz,
+          PgOutParam.readOffsetTime);
   PgType<OffsetTime[]> timetzArray = timetz.array(PgRead.readOffsetTimeArray, OffsetTime[]::new);
   PgType<OidVector> oidvector =
       ofPgObject("oidvector", OidVector::new, OidVector::value, PgJson.oidvector);
@@ -261,7 +280,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.textPGobject(),
           PgCompositeText.interval,
-          PgJson.interval);
+          PgJson.interval,
+          PgOutParam.castTo(PGInterval.class));
   PgType<PGInterval[]> intervalArray =
       interval.array(PgRead.castJdbcArrayTo(PGInterval.class), PGInterval[]::new);
   PgType<PGbox> box =
@@ -271,8 +291,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.textPGobject(),
           PgCompositeText.box,
-          PgJson.box);
-  // Geometric arrays use semicolon delimiter because elements contain commas
+          PgJson.box,
+          PgOutParam.castTo(PGbox.class));
   PgType<PGbox[]> boxArray = box.array(PgRead.castJdbcArrayTo(PGbox.class), PGbox[]::new, ';');
   PgType<PGcircle> circle =
       PgType.of(
@@ -281,7 +301,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.textPGobject(),
           PgCompositeText.circle,
-          PgJson.circle);
+          PgJson.circle,
+          PgOutParam.castTo(PGcircle.class));
   PgType<PGcircle[]> circleArray =
       circle.array(PgRead.castJdbcArrayTo(PGcircle.class), PGcircle[]::new, ';');
   PgType<PGline> line =
@@ -291,7 +312,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.textPGobject(),
           PgCompositeText.line,
-          PgJson.line);
+          PgJson.line,
+          PgOutParam.castTo(PGline.class));
   PgType<PGline[]> lineArray = line.array(PgRead.castJdbcArrayTo(PGline.class), PGline[]::new, ';');
   PgType<PGlseg> lseg =
       PgType.of(
@@ -300,7 +322,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.textPGobject(),
           PgCompositeText.lseg,
-          PgJson.lseg);
+          PgJson.lseg,
+          PgOutParam.castTo(PGlseg.class));
   PgType<PGlseg[]> lsegArray = lseg.array(PgRead.castJdbcArrayTo(PGlseg.class), PGlseg[]::new, ';');
   PgType<PGpath> path =
       PgType.of(
@@ -309,7 +332,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.textPGobject(),
           PgCompositeText.path,
-          PgJson.path);
+          PgJson.path,
+          PgOutParam.castTo(PGpath.class));
   PgType<PGpath[]> pathArray = path.array(PgRead.castJdbcArrayTo(PGpath.class), PGpath[]::new, ';');
   PgType<PGpoint> point =
       PgType.of(
@@ -318,7 +342,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.textPGobject(),
           PgCompositeText.point,
-          PgJson.point);
+          PgJson.point,
+          PgOutParam.castTo(PGpoint.class));
   PgType<PGpoint[]> pointArray =
       point.array(PgRead.castJdbcArrayTo(PGpoint.class), PGpoint[]::new, ';');
   PgType<PGpolygon> polygon =
@@ -328,7 +353,8 @@ public interface PgTypes {
           PgWrite.passObjectToJdbc(),
           PgText.textPGobject(),
           PgCompositeText.polygon,
-          PgJson.polygon);
+          PgJson.polygon,
+          PgOutParam.castTo(PGpolygon.class));
   PgType<PGpolygon[]> polygonArray =
       polygon.array(PgRead.castJdbcArrayTo(PGpolygon.class), PGpolygon[]::new, ';');
   PgType<PgNodeTree> pgNodeTree =
@@ -386,8 +412,10 @@ public interface PgTypes {
           PgWrite.writeShort,
           PgText.textShort,
           PgCompositeText.int2,
-          PgJson.int2);
-  PgType<Short> smallint = int2.withTypename(PgTypename.of("smallint"));
+          PgJson.int2,
+          PgOutParam.readShort);
+  PgType<Short> smallint = int2.withTypename(PgTypename.of("smallint"))
+      .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2"));
   PgType<Short[]> int2Array = int2.array(PgRead.readShortArray, Short[]::new);
 
   @SuppressWarnings("unchecked")
@@ -398,10 +426,13 @@ public interface PgTypes {
           PgWrite.writeShortArrayUnboxed,
           PgText.shortArrayUnboxed,
           PgCompositeText.shortArrayUnboxed,
-          PgJson.shortArrayUnboxed);
+          PgJson.shortArrayUnboxed,
+          PgOutParam.readShortArrayUnboxed);
 
-  PgType<Short[]> smallintArray = int2Array.renamed("smallint");
-  PgType<short[]> smallintArrayUnboxed = int2ArrayUnboxed.renamed("smallint");
+  PgType<Short[]> smallintArray = int2Array.renamed("smallint")
+      .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2[]"));
+  PgType<short[]> smallintArrayUnboxed = int2ArrayUnboxed.renamed("smallint")
+      .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2[]"));
   PgType<String> bpchar =
       PgType.of(
           "bpchar",
@@ -409,7 +440,8 @@ public interface PgTypes {
           PgWrite.writeString,
           PgText.textString,
           PgCompositeText.text,
-          PgJson.text);
+          PgJson.text,
+          PgOutParam.readString);
   PgType<String> text =
       PgType.of(
           "text",
@@ -417,7 +449,8 @@ public interface PgTypes {
           PgWrite.writeString,
           PgText.textString,
           PgCompositeText.text,
-          PgJson.text);
+          PgJson.text,
+          PgOutParam.readString);
   PgType<String[]> bpcharArray = bpchar.array(PgRead.readStringArray, String[]::new);
   PgType<String[]> textArray = text.array(PgRead.readStringArray, String[]::new);
   PgType<UUID> uuid =
@@ -427,7 +460,8 @@ public interface PgTypes {
           PgWrite.writeUUID,
           PgText.textUuid,
           PgCompositeText.uuid,
-          PgJson.uuid);
+          PgJson.uuid,
+          PgOutParam.readUUID);
   PgType<UUID[]> uuidArray = uuid.array(PgRead.massageJdbcArrayTo(UUID[].class), UUID[]::new);
   PgType<Xid> xid = ofPgObject("xid", Xid::new, Xid::value, PgJson.xid);
   PgType<Xid[]> xidArray = xid.array(PgRead.pgObjectArray(Xid::new, Xid.class), Xid[]::new);
@@ -438,7 +472,8 @@ public interface PgTypes {
               PgWrite.pgObject("xml"),
               PgText.textString,
               PgCompositeText.text,
-              PgJson.text)
+              PgJson.text,
+              PgOutParam.readString)
           .bimap(Xml::new, Xml::value);
   PgType<Xml[]> xmlArray = xml.array(PgRead.pgObjectArray(Xml::new, Xml.class), Xml[]::new);
   PgType<Vector> vector =
@@ -448,7 +483,8 @@ public interface PgTypes {
               PgWrite.pgObject("vector"),
               PgText.textString,
               PgCompositeText.text,
-              PgJson.text)
+              PgJson.text,
+              PgOutParam.readString)
           .bimap(Vector::new, Vector::value);
   PgType<Vector[]> vectorArray =
       vector.array(PgRead.pgObjectArray(Vector::new, Vector.class), Vector[]::new);
@@ -459,7 +495,8 @@ public interface PgTypes {
               PgWrite.pgObject("unknown"),
               PgText.textString,
               PgCompositeText.text,
-              PgJson.text)
+              PgJson.text,
+              PgOutParam.readString)
           .bimap(Unknown::new, Unknown::value);
   PgType<Unknown[]> unknownArray =
       unknown.array(PgRead.pgObjectArray(Unknown::new, Unknown.class), Unknown[]::new);
@@ -470,7 +507,8 @@ public interface PgTypes {
           PgWrite.writeByteArray,
           PgText.textByteArray,
           PgCompositeText.bytea,
-          PgJson.bytea);
+          PgJson.bytea,
+          PgOutParam.readByteArray);
 
   // Range types - discrete types (int, date) are normalized to canonical [) form via Range factory
   // methods
@@ -509,7 +547,8 @@ public interface PgTypes {
         PgWrite.writeString.contramap(Enum::name),
         PgText.textString.contramap(Enum::name),
         PgCompositeText.text.bimap(fromString::apply, Enum::name),
-        PgJson.text.bimap(fromString::apply, Enum::name));
+        PgJson.text.bimap(fromString::apply, Enum::name),
+        PgOutParam.readString.map(fromString::apply));
   }
 
   static <T> PgType<T> ofPgObject(
@@ -531,7 +570,8 @@ public interface PgTypes {
               }
             },
             extractor),
-        json);
+        json,
+        PgOutParam.pgObject(constructor));
   }
 
   // Default record type for generic composite/record columns
@@ -554,7 +594,8 @@ public interface PgTypes {
         PgWrite.passObjectToJdbc(),
         PgText.textPGobject(),
         PgCompositeText.notSupported(),
-        json);
+        json,
+        PgOutParam.castTo(clazz));
   }
 
   static PgType<String> bpchar(int precision) {
@@ -564,7 +605,8 @@ public interface PgTypes {
         PgWrite.writeString,
         PgText.textString,
         PgCompositeText.text,
-        PgJson.text);
+        PgJson.text,
+        PgOutParam.readString);
   }
 
   static PgType<String[]> bpcharArray(int n) {
@@ -591,7 +633,8 @@ public interface PgTypes {
                 throw new RuntimeException(e);
               }
             }),
-        json);
+        json,
+        PgOutParam.pgObject(str -> RangeParser.parse(str, valueParser, rangeFactory)));
   }
 
   @SuppressWarnings("unchecked")

@@ -167,7 +167,7 @@ public final class Containers {
               .withDatabaseName("typr")
               .withUsername("db2inst1")
               .withPassword("password")
-              .withStartupTimeout(Duration.ofMinutes(5))
+              .withStartupTimeout(Duration.ofMinutes(10))
               .acceptLicense();
       INSTANCE.start();
       Runtime.getRuntime().addShutdownHook(new Thread(INSTANCE::stop));

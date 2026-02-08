@@ -18,6 +18,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import dev.typr.foundations.analysis.QueryAnalysis;
+import dev.typr.foundations.analysis.QueryAnalyzer;
 import org.junit.Test;
 
 /** Tests for Oracle type codecs. Tests all types defined in OracleTypes. */
@@ -1338,13 +1342,73 @@ public class OracleTypeTest {
                 })
             .toList();
 
+    // Stored procedure callable roundtrip tests - deduplicate by SQL type, skip composites
+    System.out.println("\n=== Callable Roundtrip Tests (parallel) ===");
+    var callFailures =
+        All.stream()
+            .filter(t -> t.setupSql.isEmpty())
+            .collect(
+                java.util.stream.Collectors.toMap(
+                    t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+            .values()
+            .parallelStream()
+            .flatMap(
+                t -> {
+                  try {
+                    withConnection(
+                        conn -> {
+                          testCallableRoundtrip(conn, t);
+                          return null;
+                        });
+                    return java.util.stream.Stream.<String>empty();
+                  } catch (Exception e) {
+                    return java.util.stream.Stream.of(
+                        "Callable test FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
+                  }
+                })
+            .toList();
+
+    // Query analysis tests - deduplicated by SQL type
+    System.out.println("\n=== Query Analysis Tests (parallel) ===");
+    var analysisFailures =
+        All.stream()
+            .collect(Collectors.toMap(t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+            .values()
+            .parallelStream()
+            .flatMap(
+                t -> {
+                  try {
+                    withConnection(
+                        conn -> {
+                          testQueryAnalysis(conn, t);
+                          return null;
+                        });
+                    return Stream.<String>empty();
+                  } catch (Exception e) {
+                    return Stream.of(
+                        "Analysis FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
+                  }
+                })
+            .toList();
+
+    var allFailures = new ArrayList<String>();
+    allFailures.addAll(failures);
+    allFailures.addAll(callFailures);
+    allFailures.addAll(analysisFailures);
+
     System.out.println("\n=====================================");
-    if (failures.isEmpty()) {
+    if (allFailures.isEmpty()) {
       System.out.println("All tests passed!");
     } else {
-      failures.forEach(System.out::println);
+      allFailures.forEach(System.out::println);
       throw new RuntimeException(
-          failures.size() + " tests failed:\n" + String.join("\n", failures));
+          allFailures.size() + " tests failed:\n" + String.join("\n", allFailures));
     }
     System.out.println("=====================================");
   }
@@ -1423,6 +1487,28 @@ public class OracleTypeTest {
       try (var stmt = conn.createStatement()) {
         stmt.execute("DROP TABLE " + tableName);
       }
+    }
+  }
+
+  static <A> void testQueryAnalysis(Connection conn, OracleTypeAndExample<A> t)
+      throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("QA");
+    String createTableDDL = "CREATE TABLE " + tableName + " (v " + sqlType + ")";
+    if (sqlType.contains("ORDER_ITEMS_T") || sqlType.contains("_NESTED_TABLE")) {
+      createTableDDL += " NESTED TABLE v STORE AS " + tableName + "_STORAGE";
+    }
+    conn.createStatement().execute(createTableDDL);
+    try {
+      RowParser<A> parser = RowParser.of(t.type);
+      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      if (!analysis.succeeded()) {
+        throw new RuntimeException(
+            "Query analysis failed for " + sqlType + ":\n" + analysis.report());
+      }
+    } finally {
+      conn.createStatement().execute("DROP TABLE " + tableName);
     }
   }
 
@@ -1623,6 +1709,104 @@ public class OracleTypeTest {
       // Drop table
       try (var stmt = conn.createStatement()) {
         stmt.execute("DROP TABLE " + tableName);
+      }
+    }
+  }
+
+  // ==================== Stored Procedure Callable Roundtrip ====================
+  // For each scalar type, create an Oracle identity procedure with IN and OUT params,
+  // call it via DbProcedure.define().in().out().build(), and verify the value roundtrips.
+
+  static <A> void testCallableRoundtrip(Connection conn, OracleTypeAndExample<A> t)
+      throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+
+    // Skip types that cannot be used as procedure parameters in Oracle
+    if (sqlType.equals("LONG") || sqlType.equals("LONG RAW") || sqlType.equals("JSON")) {
+      System.out.println("Callable roundtrip SKIPPED " + sqlType + " (cannot be procedure param)");
+      return;
+    }
+
+    String safeName =
+        "PROC_ID_"
+            + sqlType
+                .replace("(", "_")
+                .replace(")", "_")
+                .replace(",", "_")
+                .replace(" ", "_")
+                .replace("\"", "");
+    int uniqueId = tableCounter.incrementAndGet();
+    String procName = safeName + "_" + uniqueId;
+
+    // Oracle PL/SQL doesn't allow size/precision constraints on procedure parameters
+    String paramType = t.type.typename().sqlTypeNoPrecision();
+    conn.createStatement()
+        .execute(
+            "CREATE OR REPLACE PROCEDURE "
+                + procName
+                + "(p_in IN "
+                + paramType
+                + ", p_out OUT "
+                + paramType
+                + ") IS BEGIN p_out := p_in; END;");
+    conn.commit();
+
+    try {
+      A input = t.example;
+      A expected = t.expected();
+
+      DbProcedure.Def1_1<A, A> proc =
+          DbProcedure.define(procName).in(t.type).out(t.type).build();
+
+      A result = proc.call(input).run(conn);
+
+      // Oracle PL/SQL uses unconstrained param types, so we need relaxed comparison:
+      // - CHAR/NCHAR: unconstrained CHAR pads to max PL/SQL size, so compare trimmed
+      // - TIMESTAMP(n>6): unconstrained TIMESTAMP defaults to precision 6
+      boolean match;
+      String baseType = paramType.toUpperCase();
+      if ((baseType.equals("CHAR") || baseType.equals("NCHAR"))
+          && result instanceof String resultStr && expected instanceof String expectedStr) {
+        match = resultStr.stripTrailing().equals(expectedStr.stripTrailing());
+      } else if (baseType.equals("TIMESTAMP")
+          && result instanceof LocalDateTime resultLdt && expected instanceof LocalDateTime expectedLdt) {
+        // Unconstrained TIMESTAMP defaults to precision 6; Oracle rounds (not truncates)
+        match = java.time.Duration.between(resultLdt, expectedLdt).abs().toNanos() < 1000;
+      } else {
+        match = areEqual(result, expected);
+      }
+
+      if (!match) {
+        throw new RuntimeException(
+            "Callable roundtrip failed for "
+                + sqlType
+                + ": expected '"
+                + format(expected)
+                + "' but got '"
+                + format(result)
+                + "'");
+      }
+      System.out.println("Callable roundtrip " + sqlType + ": PASSED");
+    } catch (SQLException e) {
+      if (e.getMessage() != null
+          && e.getMessage().contains("does not support stored procedure OUT parameters")) {
+        System.out.println("Callable roundtrip SKIPPED " + sqlType + " (not supported)");
+        return;
+      }
+      throw e;
+    } catch (RuntimeException e) {
+      if (e.getCause() instanceof SQLException sqlEx
+          && sqlEx.getMessage() != null
+          && sqlEx.getMessage().contains("does not support stored procedure OUT parameters")) {
+        System.out.println("Callable roundtrip SKIPPED " + sqlType + " (not supported)");
+        return;
+      }
+      throw e;
+    } finally {
+      try {
+        conn.createStatement().execute("DROP PROCEDURE " + procName);
+        conn.commit();
+      } catch (SQLException ignored) {
       }
     }
   }

@@ -31,10 +31,6 @@ public sealed interface AlignmentError {
   // Parameter errors
   // ─────────────────────────────────────────────────────────────────────────────
 
-  /**
-   * Parameter declared in code but not expected by SQL.
-   * The Fragment has more parameters than the query needs.
-   */
   record ExtraParameter(
       int position,
       DbType<?> type
@@ -49,10 +45,6 @@ public sealed interface AlignmentError {
     }
   }
 
-  /**
-   * Parameter expected by SQL but not declared in code.
-   * The Fragment has fewer parameters than the query needs.
-   */
   record MissingParameter(
       int position,
       JdbcMeta.ParameterMeta meta
@@ -63,20 +55,15 @@ public sealed interface AlignmentError {
           .add(Str.yellow(String.valueOf(position)))
           .add(" is expected by the query (")
           .add(Str.red(meta.vendorTypeName()))
-          .add(" / ")
-          .add(Str.gray(JdbcMeta.jdbcTypeName(meta.jdbcType())))
           .add(") but not provided in code");
     }
   }
 
-  /**
-   * Parameter type in code doesn't match what the database expects.
-   */
   record ParameterTypeMismatch(
       int position,
       DbType<?> declared,
       JdbcMeta.ParameterMeta expected,
-      Set<Integer> declaredJdbcTypes,
+      Set<String> declaredTypeNames,
       String reason
   ) implements AlignmentError {
     @Override
@@ -87,12 +74,11 @@ public sealed interface AlignmentError {
           .add(Str.gray("   │ "))
           .add("Declared: ")
           .add(Str.green(declared.typename().sqlType()))
-          .add(Str.gray(" (JDBC: " + formatJdbcTypes(declaredJdbcTypes) + ")"))
+          .add(Str.gray(" (accepts: " + formatTypeNames(declaredTypeNames) + ")"))
           .add("\n")
           .add(Str.gray("   │ "))
           .add("Expected: ")
           .add(Str.red(expected.vendorTypeName()))
-          .add(Str.gray(" (JDBC: " + JdbcMeta.jdbcTypeName(expected.jdbcType()) + ")"))
           .add("\n")
           .add(Str.gray("   └ "))
           .add(reason);
@@ -103,9 +89,6 @@ public sealed interface AlignmentError {
   // Column errors
   // ─────────────────────────────────────────────────────────────────────────────
 
-  /**
-   * Column declared in RowParser but not returned by query.
-   */
   record ExtraColumn(
       int position,
       DbType<?> type
@@ -120,9 +103,6 @@ public sealed interface AlignmentError {
     }
   }
 
-  /**
-   * Column returned by query but not declared in RowParser.
-   */
   record MissingColumn(
       int position,
       JdbcMeta.ColumnMeta meta
@@ -135,21 +115,16 @@ public sealed interface AlignmentError {
           .add(Str.cyan(meta.displayName()))
           .add("' is returned by query (")
           .add(Str.red(meta.vendorTypeName()))
-          .add(" / ")
-          .add(Str.gray(JdbcMeta.jdbcTypeName(meta.jdbcType())))
           .add(") but not declared in RowParser");
     }
   }
 
-  /**
-   * Column type in RowParser doesn't match what the database returns.
-   */
   record ColumnTypeMismatch(
       int position,
       String columnName,
       DbType<?> declared,
       JdbcMeta.ColumnMeta returned,
-      Set<Integer> declaredJdbcTypes,
+      Set<String> declaredTypeNames,
       String reason
   ) implements AlignmentError {
     @Override
@@ -162,22 +137,17 @@ public sealed interface AlignmentError {
           .add(Str.gray("   │ "))
           .add("Declared: ")
           .add(Str.green(declared.typename().sqlType()))
-          .add(Str.gray(" (JDBC: " + formatJdbcTypes(declaredJdbcTypes) + ")"))
+          .add(Str.gray(" (accepts: " + formatTypeNames(declaredTypeNames) + ")"))
           .add("\n")
           .add(Str.gray("   │ "))
           .add("Returned: ")
           .add(Str.red(returned.vendorTypeName()))
-          .add(Str.gray(" (JDBC: " + JdbcMeta.jdbcTypeName(returned.jdbcType()) + ")"))
           .add("\n")
           .add(Str.gray("   └ "))
           .add(reason);
     }
   }
 
-  /**
-   * Column is nullable in database but declared as non-optional in code.
-   * This can cause NullPointerException at runtime.
-   */
   record NullabilityMismatch(
       int position,
       String columnName,
@@ -199,7 +169,9 @@ public sealed interface AlignmentError {
           .add(Str.gray("   └ "))
           .add("Use ")
           .add(Str.cyan(".opt()"))
-          .add(" to make the type nullable");
+          .add(" to make the type nullable, or ")
+          .add(Str.cyan(".nullableOk()"))
+          .add(" to suppress this check");
     }
   }
 
@@ -207,13 +179,10 @@ public sealed interface AlignmentError {
   // Helpers
   // ─────────────────────────────────────────────────────────────────────────────
 
-  private static String formatJdbcTypes(Set<Integer> types) {
-    if (types.isEmpty()) {
+  private static String formatTypeNames(Set<String> names) {
+    if (names.isEmpty()) {
       return "none";
     }
-    return String.join(", ", types.stream()
-        .map(JdbcMeta::jdbcTypeName)
-        .sorted()
-        .toList());
+    return String.join(", ", names.stream().sorted().toList());
   }
 }

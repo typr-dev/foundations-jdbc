@@ -468,7 +468,9 @@ def generatePgStructBuilders(): String = {
                      |                elementType.write().array(elementType.typename()),
                      |                elementType.pgText().array(),
                      |                elementType.pgCompositeText().array(arrayFactory),
-                     |                elementType.pgJson().array(arrayFactory));
+                     |                elementType.pgJson().array(arrayFactory),
+                     |                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                     |                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
                      |            return field(name, arrayType, getter);
                      |        }
                      |
@@ -507,7 +509,9 @@ def generatePgStructBuilders(): String = {
           |                elementType.write().array(elementType.typename()),
           |                elementType.pgText().array(),
           |                elementType.pgCompositeText().array(arrayFactory),
-          |                elementType.pgJson().array(arrayFactory));
+          |                elementType.pgJson().array(arrayFactory),
+          |                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+          |                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
           |            return field(name, arrayType, getter);
           |        }
           |
@@ -778,6 +782,706 @@ def generateScalaRowParserBuilders(): String = {
       |""".stripMargin
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// DbProcedure / DbFunction generators (max 10 inputs, max 10 outputs)
+// ─────────────────────────────────────────────────────────────────────────────
+
+val PROC_N = 11 // 0..10 inclusive
+
+def generateDbProcedure(): String = {
+  val maxArity = PROC_N - 1 // 10
+
+  // Helpers
+  def iParams(i: Int) = 0.until(i).map(n => s"I$n").toList
+  def oParams(o: Int) = 0.until(o).map(n => s"O$n").toList
+  def allTypeParams(i: Int, o: Int) = iParams(i) ++ oParams(o)
+  def typeParamDecl(ps: List[String]) = if (ps.isEmpty) "" else s"<${ps.mkString(", ")}>"
+  def callArgs(i: Int) = 0.until(i).map(n => s"I$n i$n").mkString(", ")
+  def callArgNames(i: Int) = 0.until(i).map(n => s"i$n").mkString(", ")
+  def outType(o: Int): String = o match {
+    case 0 => "Void"
+    case 1 => "O0"
+    case n => s"Tuple.Tuple$n<${oParams(n).mkString(", ")}>"
+  }
+
+  // Def interfaces: 11x11 matrix
+  val defs = for {
+    i <- 0 to maxArity
+    o <- 0 to maxArity
+  } yield {
+    val tpDecl = typeParamDecl(allTypeParams(i, o))
+    val retType = outType(o)
+    s"""    /** Procedure definition with $i input(s) and $o output(s). */
+       |    @FunctionalInterface
+       |    public interface Def${i}_${o}$tpDecl {
+       |        Operation<$retType> call(${ callArgs(i) });
+       |    }""".stripMargin
+  }
+
+  // Builder classes: 11x11 matrix
+  val builders = for {
+    i <- 0 to maxArity
+    o <- 0 to maxArity
+  } yield {
+    val tp = allTypeParams(i, o)
+    val tpDecl = typeParamDecl(tp)
+    val tpDiamond = if (tp.isEmpty) "" else "<>"
+
+    // in method: only if i < maxArity
+    val inMethod = if (i < maxArity) {
+      val newI = s"I$i"
+      val nextTp = allTypeParams(i + 1, o)
+      s"""        public <$newI> Builder_${i + 1}_${o}${typeParamDecl(nextTp)} in(DbType<$newI> type) {
+         |            params.add(ParamDef.in(type));
+         |            return new Builder_${i + 1}_${o}<>(name, params);
+         |        }""".stripMargin
+    } else ""
+
+    // out method: only if o < maxArity
+    val outMethod = if (o < maxArity) {
+      val newO = s"O$o"
+      val nextTp = allTypeParams(i, o + 1)
+      s"""        public <$newO> Builder_${i}_${o + 1}${typeParamDecl(nextTp)} out(DbType<$newO> type) {
+         |            params.add(ParamDef.of(type, ParamDef.Mode.OUT));
+         |            return new Builder_${i}_${o + 1}<>(name, params);
+         |        }""".stripMargin
+    } else ""
+
+    // inout method: only if i < maxArity AND o < maxArity
+    val inoutMethod = if (i < maxArity && o < maxArity) {
+      // INOUT: X goes at position I{i} in inputs and O{o} in outputs
+      val inoutTp = iParams(i) ::: List("X") ::: oParams(o) ::: List("X")
+      s"""        public <X> Builder_${i + 1}_${o + 1}${typeParamDecl(inoutTp)} inout(DbType<X> type) {
+         |            params.add(ParamDef.of(type, ParamDef.Mode.INOUT));
+         |            return new Builder_${i + 1}_${o + 1}<>(name, params);
+         |        }""".stripMargin
+    } else ""
+
+    val methods = List(inMethod, outMethod, inoutMethod).filter(_.nonEmpty).mkString("\n")
+    val methodsBlock = if (methods.nonEmpty) s"$methods\n" else ""
+
+    // build method
+    val retType = outType(o)
+    val lambdaArgs = if (i == 0) "()" else s"(${callArgNames(i)})"
+    val delegateCall = s"delegate.call(${callArgNames(i)})"
+
+    val buildBody = o match {
+      case 0 =>
+        s"""            Procedure<Void> delegate = Procedure.buildVoid(name, java.util.List.copyOf(params));
+           |            return $lambdaArgs -> $delegateCall;""".stripMargin
+      case 1 =>
+        s"""            Procedure<O0> delegate = Procedure.buildSingleOut(name, java.util.List.copyOf(params));
+           |            return $lambdaArgs -> $delegateCall;""".stripMargin
+      case n =>
+        val castArgs = 0.until(n).map(k => s"(O$k) values[$k]").mkString(", ")
+        s"""            Procedure<$retType> delegate = Procedure.buildMultiOut(name, java.util.List.copyOf(params), values -> Tuple.of($castArgs));
+           |            return $lambdaArgs -> $delegateCall;""".stripMargin
+    }
+
+    s"""    public static final class Builder_${i}_${o}$tpDecl {
+       |        private final String name;
+       |        private final java.util.List<ParamDef> params;
+       |
+       |        Builder_${i}_${o}(String name, java.util.List<ParamDef> params) {
+       |            this.name = name;
+       |            this.params = params;
+       |        }
+       |$methodsBlock
+       |        @SuppressWarnings("unchecked")
+       |        public Def${i}_${o}${typeParamDecl(allTypeParams(i, o))} build() {
+       |$buildBody
+       |        }
+       |    }""".stripMargin
+  }
+
+  s"""|package dev.typr.foundations;
+      |
+      |/**
+      | * Type-safe stored procedure definitions with fully typed inputs and outputs.
+      | * <p>
+      | * The builder tracks both input types (via {@code .in()}) and output types (via {@code .out()}/{@code .inout()}).
+      | * The resulting interface has a {@code call()} method with typed parameters instead of varargs.
+      | * <p>
+      | * Usage:
+      | * <pre>{@code
+      | * // Procedure with typed inputs — compile-time checking!
+      | * DbProcedure.Def1_2<Integer, String, String> getUser = DbProcedure.define("get_user_by_id")
+      | *     .in(PgTypes.int4)
+      | *     .out(PgTypes.text)
+      | *     .out(PgTypes.text)
+      | *     .build();
+      | * Tuple.Tuple2<String, String> result = getUser.call(42).transact(tx);  // Integer enforced!
+      | * // getUser.call("wrong");  // COMPILE ERROR - String not Integer
+      | *
+      | * // Void procedure (no outputs)
+      | * DbProcedure.Def1_0<String> auditLog = DbProcedure.define("audit_log")
+      | *     .in(PgTypes.text)
+      | *     .build();
+      | *
+      | * // INOUT — value goes in and comes back modified
+      | * DbProcedure.Def2_1<String, BigDecimal, BigDecimal> applyDiscount = DbProcedure.define("apply_discount")
+      | *     .in(PgTypes.text)
+      | *     .inout(PgTypes.numeric)
+      | *     .build();
+      | * BigDecimal finalPrice = applyDiscount.call("SAVE20", price).transact(tx);
+      | * }</pre>
+      | *
+      | * @see DbFunction for stored functions (single return value via SELECT)
+      | */
+      |public final class DbProcedure {
+      |    private DbProcedure() {}
+      |
+      |    /** Start defining a stored procedure. */
+      |    public static Builder_0_0 define(String name) {
+      |        return new Builder_0_0(name, new java.util.ArrayList<>());
+      |    }
+      |
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |    // Procedure definition interfaces (${PROC_N * PROC_N} total: ${PROC_N}×${PROC_N} matrix of input×output arities)
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${defs.mkString("\n\n")}
+      |
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |    // Procedure builders (${PROC_N * PROC_N} total: ${PROC_N}×${PROC_N} matrix)
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${builders.mkString("\n\n")}
+      |}
+      |""".stripMargin
+}
+
+def generateDbFunction(): String = {
+  val maxArity = PROC_N - 1 // 10
+
+  def iParams(i: Int) = 0.until(i).map(n => s"I$n").toList
+  def typeParamDecl(ps: List[String]) = if (ps.isEmpty) "" else s"<${ps.mkString(", ")}>"
+  def callArgs(i: Int) = 0.until(i).map(n => s"I$n i$n").mkString(", ")
+  def callArgNames(i: Int) = 0.until(i).map(n => s"i$n").mkString(", ")
+
+  // Def interfaces: 11 total
+  val defs = (0 to maxArity).map { i =>
+    val tp = iParams(i) ::: List("R")
+    s"""    /** Function definition with $i input(s). */
+       |    @FunctionalInterface
+       |    public interface Def$i${typeParamDecl(tp)} {
+       |        Operation<R> call(${callArgs(i)});
+       |    }""".stripMargin
+  }
+
+  // Builder classes: 11 total
+  val builders = (0 to maxArity).map { i =>
+    val tp = iParams(i) ::: List("R")
+    val tpDecl = typeParamDecl(tp)
+
+    val inMethod = if (i < maxArity) {
+      val newI = s"I$i"
+      val nextTp = iParams(i + 1) ::: List("R")
+      s"""        public <$newI> Builder_${i + 1}${typeParamDecl(nextTp)} in(DbType<$newI> type) {
+         |            inParams.add(ParamDef.in(type));
+         |            return new Builder_${i + 1}<>(name, inParams, returnType);
+         |        }
+         |""".stripMargin
+    } else ""
+
+    val lambdaArgs = if (i == 0) "()" else s"(${callArgNames(i)})"
+    val delegateCall = s"delegate.call(${callArgNames(i)})"
+
+    s"""    public static final class Builder_$i$tpDecl {
+       |        private final String name;
+       |        private final java.util.List<ParamDef> inParams;
+       |        private final DbType<R> returnType;
+       |
+       |        Builder_$i(String name, java.util.List<ParamDef> inParams, DbType<R> returnType) {
+       |            this.name = name;
+       |            this.inParams = inParams;
+       |            this.returnType = returnType;
+       |        }
+       |$inMethod
+       |        public Def$i$tpDecl build() {
+       |            Procedure<R> delegate = Procedure.buildFunction(name, java.util.List.copyOf(inParams), returnType);
+       |            return $lambdaArgs -> $delegateCall;
+       |        }
+       |    }""".stripMargin
+  }
+
+  s"""|package dev.typr.foundations;
+      |
+      |/**
+      | * Type-safe stored function definitions with fully typed inputs.
+      | * <p>
+      | * The builder tracks input types (via {@code .in()}). The resulting interface has a
+      | * {@code call()} method with typed parameters instead of varargs.
+      | * <p>
+      | * Usage:
+      | * <pre>{@code
+      | * // Function with typed inputs — compile-time checking!
+      | * DbFunction.Def2<BigDecimal, String, BigDecimal> calcTax = DbFunction.define("calculate_tax", PgTypes.numeric)
+      | *     .in(PgTypes.numeric)
+      | *     .in(PgTypes.text)
+      | *     .build();
+      | * BigDecimal tax = calcTax.call(amount, "US").transact(tx);  // Types enforced!
+      | * // calcTax.call("wrong", 42);  // COMPILE ERROR
+      | *
+      | * // Zero-argument function
+      | * DbFunction.Def0<java.time.LocalDateTime> now = DbFunction.define("now", PgTypes.timestamp)
+      | *     .build();
+      | * LocalDateTime serverTime = now.call().transact(tx);
+      | * }</pre>
+      | *
+      | * @see DbProcedure for stored procedures (with OUT/INOUT parameters)
+      | */
+      |public final class DbFunction {
+      |    private DbFunction() {}
+      |
+      |    /** Start defining a stored function (single return value, uses SELECT). */
+      |    public static <R> Builder_0<R> define(String name, DbType<R> returnType) {
+      |        return new Builder_0<>(name, new java.util.ArrayList<>(), returnType);
+      |    }
+      |
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |    // Function definition interfaces (${PROC_N} total: 0-${maxArity} inputs)
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${defs.mkString("\n\n")}
+      |
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |    // Function builders (${PROC_N} total: 0-${maxArity} inputs)
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${builders.mkString("\n\n")}
+      |}
+      |""".stripMargin
+}
+
+def generateScalaDbProcedure(): String = {
+  val maxArity = PROC_N - 1
+
+  def iParams(i: Int) = 0.until(i).map(n => s"I$n").toList
+  def oParams(o: Int) = 0.until(o).map(n => s"O$n").toList
+  def allTypeParams(i: Int, o: Int) = iParams(i) ++ oParams(o)
+  def typeParamDecl(ps: List[String]) = if (ps.isEmpty) "" else s"[${ps.mkString(", ")}]"
+  def callParams(i: Int) = 0.until(i).map(n => s"i$n: I$n").mkString(", ")
+  def callArgNames(i: Int) = 0.until(i).map(n => s"i$n").mkString(", ")
+  def outType(o: Int): String = o match {
+    case 0 => "Unit"
+    case 1 => "O0"
+    case n => s"dev.typr.foundations.Tuple.Tuple$n[${oParams(n).mkString(", ")}]"
+  }
+
+  // Def traits: 11x11
+  val defs = for {
+    i <- 0 to maxArity
+    o <- 0 to maxArity
+  } yield {
+    val tpDecl = typeParamDecl(allTypeParams(i, o))
+    val retType = outType(o)
+    s"""  /** Procedure definition with $i input(s) and $o output(s). */
+       |  trait Def${i}_${o}$tpDecl {
+       |    def call(${callParams(i)}): ProcedureOp[$retType]
+       |  }""".stripMargin
+  }
+
+  // Builder classes: 11x11
+  val builders = for {
+    i <- 0 to maxArity
+    o <- 0 to maxArity
+  } yield {
+    val tp = allTypeParams(i, o)
+    val tpDecl = typeParamDecl(tp)
+    val javaTpDecl = if (tp.isEmpty) "" else s"[${tp.mkString(", ")}]"
+
+    // in method
+    val inMethod = if (i < maxArity) {
+      val nextTp = allTypeParams(i + 1, o)
+      s"""    def in[I$i](tpe: DbType[I$i]): Builder_${i + 1}_${o}${typeParamDecl(nextTp)} =
+         |      new Builder_${i + 1}_${o}(underlying.in(tpe))""".stripMargin
+    } else ""
+
+    // out method
+    val outMethod = if (o < maxArity) {
+      val nextTp = allTypeParams(i, o + 1)
+      s"""    def out[O$o](tpe: DbType[O$o]): Builder_${i}_${o + 1}${typeParamDecl(nextTp)} =
+         |      new Builder_${i}_${o + 1}(underlying.out(tpe))""".stripMargin
+    } else ""
+
+    // inout method
+    val inoutMethod = if (i < maxArity && o < maxArity) {
+      val inoutTp = iParams(i) ::: List("X") ::: oParams(o) ::: List("X")
+      s"""    def inout[X](tpe: DbType[X]): Builder_${i + 1}_${o + 1}${typeParamDecl(inoutTp)} =
+         |      new Builder_${i + 1}_${o + 1}(underlying.inout(tpe))""".stripMargin
+    } else ""
+
+    val methods = List(inMethod, outMethod, inoutMethod).filter(_.nonEmpty).mkString("\n")
+    val methodsBlock = if (methods.nonEmpty) s"$methods\n" else ""
+
+    // build method
+    val retType = outType(o)
+    val defTpDecl = typeParamDecl(allTypeParams(i, o))
+    val callParamsStr = callParams(i)
+    val callArgNamesStr = callArgNames(i)
+
+    val castExpr = o match {
+      case 0 => "_ => ()"
+      case 1 => "_.asInstanceOf[O0]"
+      case n => s"_.asInstanceOf[$retType]"
+    }
+
+    val javaCallArgs = if (i == 0) "" else callArgNamesStr
+
+    s"""  class Builder_${i}_${o}$tpDecl private[scalafoundations] (
+       |    private val underlying: dev.typr.foundations.DbProcedure.Builder_${i}_${o}$javaTpDecl
+       |  ) {
+       |$methodsBlock
+       |    def build(): Def${i}_${o}$defTpDecl = {
+       |      val javaProc = underlying.build()
+       |      new Def${i}_${o}$defTpDecl {
+       |        def call($callParamsStr): ProcedureOp[$retType] =
+       |          new ProcedureOp(javaProc.call($javaCallArgs).asInstanceOf[dev.typr.foundations.Operation[Any]], $castExpr)
+       |      }
+       |    }
+       |  }""".stripMargin
+  }
+
+  s"""|package dev.typr.scalafoundations
+      |
+      |import dev.typr.foundations.DbType
+      |
+      |/** Type-safe stored procedure definitions with fully typed inputs and outputs.
+      |  *
+      |  * Usage:
+      |  * {{{
+      |  * val getUser: DbProcedure.Def1_2[Int, String, String] = DbProcedure.define("get_user_by_id")
+      |  *   .in(PgTypes.int4)
+      |  *   .out(PgTypes.text)
+      |  *   .out(PgTypes.text)
+      |  *   .build()
+      |  * val result = getUser.call(42).transact(tx)  // Int enforced!
+      |  * }}}
+      |  *
+      |  * @see [[DbFunction]] for stored functions (single return value via SELECT)
+      |  */
+      |object DbProcedure {
+      |
+      |  /** Start defining a stored procedure. */
+      |  def define(name: String): Builder_0_0 =
+      |    new Builder_0_0(dev.typr.foundations.DbProcedure.define(name))
+      |
+      |  // ─────────────────────────────────────────────────────────────────────────────
+      |  // Procedure definition interfaces (${PROC_N * PROC_N} total: ${PROC_N}×${PROC_N} matrix of input×output arities)
+      |  // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${defs.mkString("\n\n")}
+      |
+      |  // ─────────────────────────────────────────────────────────────────────────────
+      |  // Procedure builders (${PROC_N * PROC_N} total: ${PROC_N}×${PROC_N} matrix)
+      |  // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${builders.mkString("\n\n")}
+      |}
+      |""".stripMargin
+}
+
+def generateScalaDbFunction(): String = {
+  val maxArity = PROC_N - 1
+
+  def iParams(i: Int) = 0.until(i).map(n => s"I$n").toList
+  def typeParamDecl(ps: List[String]) = if (ps.isEmpty) "" else s"[${ps.mkString(", ")}]"
+  def callParams(i: Int) = 0.until(i).map(n => s"i$n: I$n").mkString(", ")
+  def callArgNames(i: Int) = 0.until(i).map(n => s"i$n").mkString(", ")
+
+  // Def traits: 11 total
+  val defs = (0 to maxArity).map { i =>
+    val tp = iParams(i) ::: List("R")
+    s"""  /** Function definition with $i input(s). */
+       |  trait Def$i${typeParamDecl(tp)} {
+       |    def call(${callParams(i)}): ProcedureOp[R]
+       |  }""".stripMargin
+  }
+
+  // Builder classes: 11 total
+  val builders = (0 to maxArity).map { i =>
+    val tp = iParams(i) ::: List("R")
+    val tpDecl = typeParamDecl(tp)
+    val javaTpDecl = typeParamDecl(tp)
+
+    val inMethod = if (i < maxArity) {
+      val nextTp = iParams(i + 1) ::: List("R")
+      s"""    def in[I$i](tpe: DbType[I$i]): Builder_${i + 1}${typeParamDecl(nextTp)} =
+         |      new Builder_${i + 1}(underlying.in(tpe))
+         |""".stripMargin
+    } else ""
+
+    val callParamsStr = callParams(i)
+    val javaCallArgs = if (i == 0) "" else callArgNames(i)
+
+    s"""  class Builder_$i$tpDecl private[scalafoundations] (
+       |    private val underlying: dev.typr.foundations.DbFunction.Builder_$i$javaTpDecl
+       |  ) {
+       |$inMethod
+       |    def build(): Def$i$tpDecl = {
+       |      val javaFn = underlying.build()
+       |      new Def$i$tpDecl {
+       |        def call($callParamsStr): ProcedureOp[R] =
+       |          new ProcedureOp(javaFn.call($javaCallArgs).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[R])
+       |      }
+       |    }
+       |  }""".stripMargin
+  }
+
+  s"""|package dev.typr.scalafoundations
+      |
+      |import dev.typr.foundations.DbType
+      |
+      |/** Type-safe stored function definitions with fully typed inputs.
+      |  *
+      |  * Usage:
+      |  * {{{
+      |  * val calcTax: DbFunction.Def2[BigDecimal, String, BigDecimal] = DbFunction.define("calculate_tax", PgTypes.numeric)
+      |  *   .in(PgTypes.numeric)
+      |  *   .in(PgTypes.text)
+      |  *   .build()
+      |  * val tax = calcTax.call(amount, "US").transact(tx)  // Types enforced!
+      |  * }}}
+      |  *
+      |  * @see [[DbProcedure]] for stored procedures (with OUT/INOUT parameters)
+      |  */
+      |object DbFunction {
+      |
+      |  /** Start defining a stored function (single return value, uses SELECT). */
+      |  def define[R](name: String, returnType: DbType[R]): Builder_0[R] =
+      |    new Builder_0(dev.typr.foundations.DbFunction.define(name, returnType))
+      |
+      |  // ─────────────────────────────────────────────────────────────────────────────
+      |  // Function definition interfaces (${PROC_N} total: 0-${maxArity} inputs)
+      |  // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${defs.mkString("\n\n")}
+      |
+      |  // ─────────────────────────────────────────────────────────────────────────────
+      |  // Function builders (${PROC_N} total: 0-${maxArity} inputs)
+      |  // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${builders.mkString("\n\n")}
+      |}
+      |""".stripMargin
+}
+
+def generateKotlinDbProcedure(): String = {
+  val maxArity = PROC_N - 1
+
+  def iParams(i: Int) = 0.until(i).map(n => s"I$n").toList
+  def oParams(o: Int) = 0.until(o).map(n => s"O$n").toList
+  def allTypeParams(i: Int, o: Int) = iParams(i) ++ oParams(o)
+  def typeParamDecl(ps: List[String]) = if (ps.isEmpty) "" else s"<${ps.mkString(", ")}>"
+  def callParams(i: Int) = 0.until(i).map(n => s"i$n: I$n").mkString(", ")
+  def callArgNames(i: Int) = 0.until(i).map(n => s"i$n").mkString(", ")
+  def outType(o: Int): String = o match {
+    case 0 => "Unit"
+    case 1 => "O0"
+    case n => s"dev.typr.foundations.Tuple.Tuple$n<${oParams(n).mkString(", ")}>"
+  }
+
+  // Def interfaces: 11x11
+  val defs = for {
+    i <- 0 to maxArity
+    o <- 0 to maxArity
+  } yield {
+    val tpDecl = typeParamDecl(allTypeParams(i, o))
+    val retType = outType(o)
+    s"""    /** Procedure definition with $i input(s) and $o output(s). */
+       |    fun interface Def${i}_${o}$tpDecl {
+       |        fun call(${ callParams(i) }): ProcedureOp<$retType>
+       |    }""".stripMargin
+  }
+
+  // Builder classes: 11x11
+  val builders = for {
+    i <- 0 to maxArity
+    o <- 0 to maxArity
+  } yield {
+    val tp = allTypeParams(i, o)
+    val tpDecl = typeParamDecl(tp)
+    val javaTpDecl = tpDecl
+
+    // in method
+    val inMethod = if (i < maxArity) {
+      val nextTp = allTypeParams(i + 1, o)
+      s"""        fun <I$i> `in`(type: DbType<I$i>): Builder_${i + 1}_${o}${typeParamDecl(nextTp)} =
+         |            Builder_${i + 1}_${o}(underlying.`in`(type))""".stripMargin
+    } else ""
+
+    // out method
+    val outMethod = if (o < maxArity) {
+      val nextTp = allTypeParams(i, o + 1)
+      s"""        fun <O$o> out(type: DbType<O$o>): Builder_${i}_${o + 1}${typeParamDecl(nextTp)} =
+         |            Builder_${i}_${o + 1}(underlying.out(type))""".stripMargin
+    } else ""
+
+    // inout method
+    val inoutMethod = if (i < maxArity && o < maxArity) {
+      val inoutTp = iParams(i) ::: List("X") ::: oParams(o) ::: List("X")
+      s"""        fun <X> inout(type: DbType<X>): Builder_${i + 1}_${o + 1}${typeParamDecl(inoutTp)} =
+         |            Builder_${i + 1}_${o + 1}(underlying.inout(type))""".stripMargin
+    } else ""
+
+    val methods = List(inMethod, outMethod, inoutMethod).filter(_.nonEmpty).mkString("\n")
+    val methodsBlock = if (methods.nonEmpty) s"$methods\n" else ""
+
+    // build method
+    val retType = outType(o)
+    val callParamsStr = callParams(i)
+    val javaCallArgs = if (i == 0) "" else callArgNames(i)
+
+    // Lambda params for Kotlin
+    val lambdaParams = if (i == 0) " ->" else s" ${callParams(i)} ->"
+
+    val castExpr = o match {
+      case 0 => "{ }"
+      case 1 => "{ it as O0 }"
+      case n => s"{ it as $retType }"
+    }
+
+    s"""    class Builder_${i}_${o}$tpDecl internal constructor(
+       |        private val underlying: dev.typr.foundations.DbProcedure.Builder_${i}_${o}$javaTpDecl
+       |    ) {
+       |$methodsBlock
+       |        fun build(): Def${i}_${o}$tpDecl {
+       |            val javaProc = underlying.build()
+       |            return Def${i}_${o} {$lambdaParams
+       |                @Suppress("UNCHECKED_CAST")
+       |                ProcedureOp(javaProc.call($javaCallArgs) as dev.typr.foundations.Operation<Any?>) $castExpr
+       |            }
+       |        }
+       |    }""".stripMargin
+  }
+
+  s"""|package dev.typr.kotlinfoundations
+      |
+      |import dev.typr.foundations.DbType
+      |
+      |/**
+      | * Type-safe stored procedure definitions with fully typed inputs and outputs.
+      | *
+      | * Usage:
+      | * ```kotlin
+      | * val getUser: DbProcedure.Def1_2<Int, String, String> = DbProcedure.define("get_user_by_id")
+      | *     .`in`(PgTypes.int4)
+      | *     .out(PgTypes.text)
+      | *     .out(PgTypes.text)
+      | *     .build()
+      | * val result = getUser.call(42).transact(tx)  // Int enforced!
+      | * ```
+      | *
+      | * @see DbFunction for stored functions (single return value via SELECT)
+      | */
+      |object DbProcedure {
+      |
+      |    /** Start defining a stored procedure. */
+      |    fun define(name: String): Builder_0_0 =
+      |        Builder_0_0(dev.typr.foundations.DbProcedure.define(name))
+      |
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |    // Procedure definition interfaces (${PROC_N * PROC_N} total: ${PROC_N}×${PROC_N} matrix of input×output arities)
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${defs.mkString("\n\n")}
+      |
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |    // Procedure builders (${PROC_N * PROC_N} total: ${PROC_N}×${PROC_N} matrix)
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${builders.mkString("\n\n")}
+      |}
+      |""".stripMargin
+}
+
+def generateKotlinDbFunction(): String = {
+  val maxArity = PROC_N - 1
+
+  def iParams(i: Int) = 0.until(i).map(n => s"I$n").toList
+  def typeParamDecl(ps: List[String]) = if (ps.isEmpty) "" else s"<${ps.mkString(", ")}>"
+  def callParams(i: Int) = 0.until(i).map(n => s"i$n: I$n").mkString(", ")
+  def callArgNames(i: Int) = 0.until(i).map(n => s"i$n").mkString(", ")
+
+  // Def interfaces: 11 total
+  val defs = (0 to maxArity).map { i =>
+    val tp = iParams(i) ::: List("R")
+    s"""    /** Function definition with $i input(s). */
+       |    fun interface Def$i${typeParamDecl(tp)} {
+       |        fun call(${callParams(i)}): ProcedureOp<R>
+       |    }""".stripMargin
+  }
+
+  // Builder classes: 11 total
+  val builders = (0 to maxArity).map { i =>
+    val tp = iParams(i) ::: List("R")
+    val tpDecl = typeParamDecl(tp)
+
+    val inMethod = if (i < maxArity) {
+      val nextTp = iParams(i + 1) ::: List("R")
+      s"""        fun <I$i> `in`(type: DbType<I$i>): Builder_${i + 1}${typeParamDecl(nextTp)} =
+         |            Builder_${i + 1}(underlying.`in`(type))
+         |""".stripMargin
+    } else ""
+
+    val callParamsStr = callParams(i)
+    val javaCallArgs = if (i == 0) "" else callArgNames(i)
+    val lambdaParams = if (i == 0) " ->" else s" ${callParams(i)} ->"
+
+    s"""    class Builder_$i$tpDecl internal constructor(
+       |        private val underlying: dev.typr.foundations.DbFunction.Builder_$i$tpDecl
+       |    ) {
+       |$inMethod
+       |        fun build(): Def$i$tpDecl {
+       |            val javaFn = underlying.build()
+       |            return Def$i {$lambdaParams
+       |                @Suppress("UNCHECKED_CAST")
+       |                ProcedureOp(javaFn.call($javaCallArgs) as dev.typr.foundations.Operation<Any?>) { it as R }
+       |            }
+       |        }
+       |    }""".stripMargin
+  }
+
+  s"""|package dev.typr.kotlinfoundations
+      |
+      |import dev.typr.foundations.DbType
+      |
+      |/**
+      | * Type-safe stored function definitions with fully typed inputs.
+      | *
+      | * Usage:
+      | * ```kotlin
+      | * val calcTax: DbFunction.Def2<BigDecimal, String, BigDecimal> = DbFunction.define("calculate_tax", PgTypes.numeric)
+      | *     .`in`(PgTypes.numeric)
+      | *     .`in`(PgTypes.text)
+      | *     .build()
+      | * val tax = calcTax.call(amount, "US").transact(tx)  // Types enforced!
+      | * ```
+      | *
+      | * @see DbProcedure for stored procedures (with OUT/INOUT parameters)
+      | */
+      |object DbFunction {
+      |
+      |    /** Start defining a stored function (single return value, uses SELECT). */
+      |    fun <R> define(name: String, returnType: DbType<R>): Builder_0<R> =
+      |        Builder_0(dev.typr.foundations.DbFunction.define(name, returnType))
+      |
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |    // Function definition interfaces (${PROC_N} total: 0-${maxArity} inputs)
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${defs.mkString("\n\n")}
+      |
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |    // Function builders (${PROC_N} total: 0-${maxArity} inputs)
+      |    // ─────────────────────────────────────────────────────────────────────────────
+      |
+      |${builders.mkString("\n\n")}
+      |}
+      |""".stripMargin
+}
+
 val kotlinOutputDir = baseDir.resolve("foundations-jdbc-kotlin/src/kotlin/dev/typr/kotlinfoundations")
 val scalaOutputDir = baseDir.resolve("foundations-jdbc-scala/src/scala/dev/typr/scalafoundations")
 
@@ -820,6 +1524,8 @@ val tuplePath = outputDir.resolve("Tuple.java")
 Files.writeString(tuplePath, tupleContent)
 println(s"Wrote ${tuplePath}")
 
+
+
 // Generate Kotlin RowParserBuilders
 Files.createDirectories(kotlinOutputDir)
 val kotlinRowParserBuildersContent = generateKotlinRowParserBuilders()
@@ -833,3 +1539,41 @@ val scalaRowParserBuildersContent = generateScalaRowParserBuilders()
 val scalaRowParserBuildersPath = scalaOutputDir.resolve("RowParserBuilders.scala")
 Files.writeString(scalaRowParserBuildersPath, scalaRowParserBuildersContent)
 println(s"Wrote ${scalaRowParserBuildersPath}")
+
+
+
+// Generate DbProcedure.java
+val dbProcedureContent = generateDbProcedure()
+val dbProcedurePath = outputDir.resolve("DbProcedure.java")
+Files.writeString(dbProcedurePath, dbProcedureContent)
+println(s"Wrote ${dbProcedurePath}")
+
+// Generate DbFunction.java
+val dbFunctionContent = generateDbFunction()
+val dbFunctionPath = outputDir.resolve("DbFunction.java")
+Files.writeString(dbFunctionPath, dbFunctionContent)
+println(s"Wrote ${dbFunctionPath}")
+
+// Generate Scala DbProcedure
+val scalaDbProcedureContent = generateScalaDbProcedure()
+val scalaDbProcedurePath = scalaOutputDir.resolve("DbProcedure.scala")
+Files.writeString(scalaDbProcedurePath, scalaDbProcedureContent)
+println(s"Wrote ${scalaDbProcedurePath}")
+
+// Generate Scala DbFunction
+val scalaDbFunctionContent = generateScalaDbFunction()
+val scalaDbFunctionPath = scalaOutputDir.resolve("DbFunction.scala")
+Files.writeString(scalaDbFunctionPath, scalaDbFunctionContent)
+println(s"Wrote ${scalaDbFunctionPath}")
+
+// Generate Kotlin DbProcedure
+val kotlinDbProcedureContent = generateKotlinDbProcedure()
+val kotlinDbProcedurePath = kotlinOutputDir.resolve("DbProcedure.kt")
+Files.writeString(kotlinDbProcedurePath, kotlinDbProcedureContent)
+println(s"Wrote ${kotlinDbProcedurePath}")
+
+// Generate Kotlin DbFunction
+val kotlinDbFunctionContent = generateKotlinDbFunction()
+val kotlinDbFunctionPath = kotlinOutputDir.resolve("DbFunction.kt")
+Files.writeString(kotlinDbFunctionPath, kotlinDbFunctionContent)
+println(s"Wrote ${kotlinDbFunctionPath}")

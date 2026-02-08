@@ -25,7 +25,8 @@ public interface SqlServerTypes {
           SqlServerRead.readUint1,
           SqlServerWrite.writeUint1,
           SqlServerText.textShort.contramap(dev.typr.foundations.data.Uint1::value),
-          SqlServerJson.int2.bimap(dev.typr.foundations.data.Uint1::new, u -> (short) u.value()));
+          SqlServerJson.int2.bimap(dev.typr.foundations.data.Uint1::new, u -> (short) u.value()),
+          SqlServerOutParam.readShort.map(dev.typr.foundations.data.Uint1::new));
 
   SqlServerType<Short> smallint =
       SqlServerType.of(
@@ -33,7 +34,8 @@ public interface SqlServerTypes {
           SqlServerRead.readShort,
           SqlServerWrite.writeShort,
           SqlServerText.textShort,
-          SqlServerJson.int2);
+          SqlServerJson.int2,
+          SqlServerOutParam.readShort);
 
   SqlServerType<Integer> int_ =
       SqlServerType.of(
@@ -41,7 +43,8 @@ public interface SqlServerTypes {
           SqlServerRead.readInteger,
           SqlServerWrite.writeInteger,
           SqlServerText.textInteger,
-          SqlServerJson.int4);
+          SqlServerJson.int4,
+          SqlServerOutParam.readInteger);
 
   SqlServerType<Long> bigint =
       SqlServerType.of(
@@ -49,7 +52,8 @@ public interface SqlServerTypes {
           SqlServerRead.readLong,
           SqlServerWrite.writeLong,
           SqlServerText.textLong,
-          SqlServerJson.int8);
+          SqlServerJson.int8,
+          SqlServerOutParam.readLong);
 
   // ==================== Fixed-Point Types ====================
 
@@ -59,7 +63,8 @@ public interface SqlServerTypes {
           SqlServerRead.readBigDecimal,
           SqlServerWrite.writeBigDecimal,
           SqlServerText.textBigDecimal,
-          SqlServerJson.numeric);
+          SqlServerJson.numeric,
+          SqlServerOutParam.readBigDecimal);
 
   SqlServerType<BigDecimal> numeric = decimal.renamed("NUMERIC");
 
@@ -69,7 +74,8 @@ public interface SqlServerTypes {
         SqlServerRead.readBigDecimal,
         SqlServerWrite.writeBigDecimal,
         SqlServerText.textBigDecimal,
-        SqlServerJson.numeric);
+        SqlServerJson.numeric,
+        SqlServerOutParam.readBigDecimal);
   }
 
   static SqlServerType<BigDecimal> numeric(int precision, int scale) {
@@ -82,7 +88,8 @@ public interface SqlServerTypes {
           SqlServerRead.readBigDecimal,
           SqlServerWrite.writeBigDecimal,
           SqlServerText.textBigDecimal,
-          SqlServerJson.numeric);
+          SqlServerJson.numeric,
+          SqlServerOutParam.readBigDecimal);
 
   SqlServerType<BigDecimal> smallmoney =
       SqlServerType.of(
@@ -90,7 +97,8 @@ public interface SqlServerTypes {
           SqlServerRead.readBigDecimal,
           SqlServerWrite.writeBigDecimal,
           SqlServerText.textBigDecimal,
-          SqlServerJson.numeric);
+          SqlServerJson.numeric,
+          SqlServerOutParam.readBigDecimal);
 
   // ==================== Floating-Point Types ====================
 
@@ -100,7 +108,8 @@ public interface SqlServerTypes {
           SqlServerRead.readFloat,
           SqlServerWrite.writeFloat,
           SqlServerText.textFloat,
-          SqlServerJson.float4);
+          SqlServerJson.float4,
+          SqlServerOutParam.readFloat);
 
   SqlServerType<Double> float_ =
       SqlServerType.of(
@@ -108,7 +117,8 @@ public interface SqlServerTypes {
           SqlServerRead.readDouble,
           SqlServerWrite.writeDouble,
           SqlServerText.textDouble,
-          SqlServerJson.float8);
+          SqlServerJson.float8,
+          SqlServerOutParam.readDouble);
 
   // ==================== Boolean Type ====================
 
@@ -118,7 +128,8 @@ public interface SqlServerTypes {
           SqlServerRead.readBoolean,
           SqlServerWrite.writeBoolean,
           SqlServerText.textBoolean,
-          SqlServerJson.bool);
+          SqlServerJson.bool,
+          SqlServerOutParam.readBoolean);
 
   // ==================== String Types (Non-Unicode) ====================
 
@@ -128,7 +139,8 @@ public interface SqlServerTypes {
           SqlServerRead.readString,
           SqlServerWrite.writeString,
           SqlServerText.textString,
-          SqlServerJson.text);
+          SqlServerJson.text,
+          SqlServerOutParam.readString);
 
   static SqlServerType<String> char_(int length) {
     return SqlServerType.of(
@@ -136,7 +148,8 @@ public interface SqlServerTypes {
         SqlServerRead.readString,
         SqlServerWrite.writeString,
         SqlServerText.textString,
-        SqlServerJson.text);
+        SqlServerJson.text,
+        SqlServerOutParam.readString);
   }
 
   SqlServerType<String> varchar =
@@ -145,7 +158,8 @@ public interface SqlServerTypes {
           SqlServerRead.readString,
           SqlServerWrite.writeString,
           SqlServerText.textString,
-          SqlServerJson.text);
+          SqlServerJson.text,
+          SqlServerOutParam.readString);
 
   static SqlServerType<String> varchar(int length) {
     return SqlServerType.of(
@@ -153,17 +167,20 @@ public interface SqlServerTypes {
         SqlServerRead.readString,
         SqlServerWrite.writeString,
         SqlServerText.textString,
-        SqlServerJson.text);
+        SqlServerJson.text,
+        SqlServerOutParam.readString);
   }
 
   SqlServerType<String> varcharMax = varchar.renamed("VARCHAR(MAX)");
+
   SqlServerType<String> text =
       SqlServerType.of(
           "TEXT",
           SqlServerRead.readString,
           SqlServerWrite.writeText,
           SqlServerText.textString,
-          SqlServerJson.text);
+          SqlServerJson.text,
+          SqlServerOutParam.readString);
 
   // ==================== String Types (Unicode) ====================
 
@@ -173,7 +190,8 @@ public interface SqlServerTypes {
           SqlServerRead.readString,
           SqlServerWrite.writeString,
           SqlServerText.textString,
-          SqlServerJson.text);
+          SqlServerJson.text,
+          SqlServerOutParam.readString);
 
   static SqlServerType<String> nchar(int length) {
     return SqlServerType.of(
@@ -181,7 +199,8 @@ public interface SqlServerTypes {
         SqlServerRead.readString,
         SqlServerWrite.writeString,
         SqlServerText.textString,
-        SqlServerJson.text);
+        SqlServerJson.text,
+        SqlServerOutParam.readString);
   }
 
   SqlServerType<String> nvarchar =
@@ -190,7 +209,8 @@ public interface SqlServerTypes {
           SqlServerRead.readString,
           SqlServerWrite.writeString,
           SqlServerText.textString,
-          SqlServerJson.text);
+          SqlServerJson.text,
+          SqlServerOutParam.readString);
 
   static SqlServerType<String> nvarchar(int length) {
     return SqlServerType.of(
@@ -198,17 +218,20 @@ public interface SqlServerTypes {
         SqlServerRead.readString,
         SqlServerWrite.writeString,
         SqlServerText.textString,
-        SqlServerJson.text);
+        SqlServerJson.text,
+        SqlServerOutParam.readString);
   }
 
   SqlServerType<String> nvarcharMax = nvarchar.renamed("NVARCHAR(MAX)");
+
   SqlServerType<String> ntext =
       SqlServerType.of(
           "NTEXT",
           SqlServerRead.readString,
           SqlServerWrite.writeNText,
           SqlServerText.textString,
-          SqlServerJson.text);
+          SqlServerJson.text,
+          SqlServerOutParam.readString);
 
   // ==================== Binary Types ====================
 
@@ -218,7 +241,8 @@ public interface SqlServerTypes {
           SqlServerRead.readByteArray,
           SqlServerWrite.writeByteArray,
           SqlServerText.textByteArray,
-          SqlServerJson.bytea);
+          SqlServerJson.bytea,
+          SqlServerOutParam.readByteArray);
 
   static SqlServerType<byte[]> binary(int length) {
     return SqlServerType.of(
@@ -226,7 +250,8 @@ public interface SqlServerTypes {
         SqlServerRead.readByteArray,
         SqlServerWrite.writeByteArray,
         SqlServerText.textByteArray,
-        SqlServerJson.bytea);
+        SqlServerJson.bytea,
+        SqlServerOutParam.readByteArray);
   }
 
   SqlServerType<byte[]> varbinary =
@@ -235,7 +260,8 @@ public interface SqlServerTypes {
           SqlServerRead.readByteArray,
           SqlServerWrite.writeByteArray,
           SqlServerText.textByteArray,
-          SqlServerJson.bytea);
+          SqlServerJson.bytea,
+          SqlServerOutParam.readByteArray);
 
   static SqlServerType<byte[]> varbinary(int length) {
     return SqlServerType.of(
@@ -243,7 +269,8 @@ public interface SqlServerTypes {
         SqlServerRead.readByteArray,
         SqlServerWrite.writeByteArray,
         SqlServerText.textByteArray,
-        SqlServerJson.bytea);
+        SqlServerJson.bytea,
+        SqlServerOutParam.readByteArray);
   }
 
   SqlServerType<byte[]> varbinaryMax = varbinary.renamed("VARBINARY(MAX)");
@@ -257,7 +284,8 @@ public interface SqlServerTypes {
           SqlServerRead.readDate,
           SqlServerWrite.writeDate,
           SqlServerText.instanceToString(),
-          SqlServerJson.date);
+          SqlServerJson.date,
+          SqlServerOutParam.readLocalDate);
 
   SqlServerType<LocalTime> time =
       SqlServerType.of(
@@ -265,7 +293,8 @@ public interface SqlServerTypes {
           SqlServerRead.readTime,
           SqlServerWrite.writeTime,
           SqlServerText.instanceToString(),
-          SqlServerJson.time);
+          SqlServerJson.time,
+          SqlServerOutParam.readLocalTime);
 
   static SqlServerType<LocalTime> time(int scale) {
     return SqlServerType.of(
@@ -273,7 +302,8 @@ public interface SqlServerTypes {
         SqlServerRead.readTime,
         SqlServerWrite.writeTime,
         SqlServerText.instanceToString(),
-        SqlServerJson.time);
+        SqlServerJson.time,
+        SqlServerOutParam.readLocalTime);
   }
 
   // DATETIME - legacy type with 3.33ms precision
@@ -283,7 +313,8 @@ public interface SqlServerTypes {
           SqlServerRead.readTimestamp,
           SqlServerWrite.writeTimestamp,
           SqlServerText.instanceToString(),
-          SqlServerJson.timestamp);
+          SqlServerJson.timestamp,
+          SqlServerOutParam.readLocalDateTime);
 
   // SMALLDATETIME - minute precision
   SqlServerType<LocalDateTime> smalldatetime =
@@ -292,7 +323,8 @@ public interface SqlServerTypes {
           SqlServerRead.readTimestamp,
           SqlServerWrite.writeTimestamp,
           SqlServerText.instanceToString(),
-          SqlServerJson.timestamp);
+          SqlServerJson.timestamp,
+          SqlServerOutParam.readLocalDateTime);
 
   // DATETIME2 - modern type with 100ns precision
   SqlServerType<LocalDateTime> datetime2 =
@@ -301,7 +333,8 @@ public interface SqlServerTypes {
           SqlServerRead.readTimestamp,
           SqlServerWrite.writeTimestamp,
           SqlServerText.instanceToString(),
-          SqlServerJson.timestamp);
+          SqlServerJson.timestamp,
+          SqlServerOutParam.readLocalDateTime);
 
   static SqlServerType<LocalDateTime> datetime2(int scale) {
     return SqlServerType.of(
@@ -309,7 +342,8 @@ public interface SqlServerTypes {
         SqlServerRead.readTimestamp,
         SqlServerWrite.writeTimestamp,
         SqlServerText.instanceToString(),
-        SqlServerJson.timestamp);
+        SqlServerJson.timestamp,
+        SqlServerOutParam.readLocalDateTime);
   }
 
   // DATETIMEOFFSET - datetime with timezone offset (SQL Server specific!)
@@ -319,7 +353,8 @@ public interface SqlServerTypes {
           SqlServerRead.readOffsetDateTime,
           SqlServerWrite.writeOffsetDateTime,
           SqlServerText.instanceToString(),
-          SqlServerJson.timestamptz);
+          SqlServerJson.timestamptz,
+          SqlServerOutParam.readOffsetDateTime);
 
   static SqlServerType<OffsetDateTime> datetimeoffset(int scale) {
     return SqlServerType.of(
@@ -327,7 +362,8 @@ public interface SqlServerTypes {
         SqlServerRead.readOffsetDateTime,
         SqlServerWrite.writeOffsetDateTime,
         SqlServerText.instanceToString(),
-        SqlServerJson.timestamptz);
+        SqlServerJson.timestamptz,
+        SqlServerOutParam.readOffsetDateTime);
   }
 
   // ==================== Special Types ====================
@@ -339,7 +375,8 @@ public interface SqlServerTypes {
           SqlServerRead.readUUID,
           SqlServerWrite.writeUUID,
           SqlServerText.textUUID,
-          SqlServerJson.uuid);
+          SqlServerJson.uuid,
+          SqlServerOutParam.readString.map(java.util.UUID::fromString));
 
   // XML
   SqlServerType<dev.typr.foundations.data.Xml> xml =
@@ -349,7 +386,8 @@ public interface SqlServerTypes {
           SqlServerWrite.writeXml,
           SqlServerText.textString.contramap(dev.typr.foundations.data.Xml::value),
           SqlServerJson.text.bimap(
-              dev.typr.foundations.data.Xml::new, dev.typr.foundations.data.Xml::value));
+              dev.typr.foundations.data.Xml::new, dev.typr.foundations.data.Xml::value),
+          SqlServerOutParam.readXmlAsString.map(dev.typr.foundations.data.Xml::new));
 
   // JSON - SQL Server 2016+, stored as NVARCHAR
   SqlServerType<dev.typr.foundations.data.Json> json =
@@ -358,7 +396,8 @@ public interface SqlServerTypes {
           SqlServerRead.readJson,
           SqlServerWrite.writeJson,
           SqlServerText.textString.contramap(dev.typr.foundations.data.Json::value),
-          SqlServerJson.text.contramap(dev.typr.foundations.data.Json::value));
+          SqlServerJson.text.contramap(dev.typr.foundations.data.Json::value),
+          SqlServerOutParam.readString.map(dev.typr.foundations.data.Json::new));
 
   // VECTOR - SQL Server 2025 (stored as binary for now)
   SqlServerType<byte[]> vector =
@@ -367,7 +406,8 @@ public interface SqlServerTypes {
           SqlServerRead.readVector,
           SqlServerWrite.writeVector,
           SqlServerText.textByteArray,
-          SqlServerJson.bytea);
+          SqlServerJson.bytea,
+          SqlServerOutParam.readByteArray);
 
   // ==================== System Types ====================
 
@@ -378,7 +418,8 @@ public interface SqlServerTypes {
           SqlServerRead.readByteArray,
           SqlServerWrite.writeByteArray,
           SqlServerText.textByteArray,
-          SqlServerJson.bytea);
+          SqlServerJson.bytea,
+          SqlServerOutParam.readByteArray);
 
   SqlServerType<byte[]> timestamp = rowversion.renamed("TIMESTAMP");
 
@@ -391,7 +432,8 @@ public interface SqlServerTypes {
           SqlServerText.textString.contramap(dev.typr.foundations.data.HierarchyId::toString),
           SqlServerJson.text.bimap(
               dev.typr.foundations.data.HierarchyId::parse,
-              dev.typr.foundations.data.HierarchyId::toString));
+              dev.typr.foundations.data.HierarchyId::toString),
+          SqlServerOutParam.notSupported("HIERARCHYID"));
 
   // SQL_VARIANT - can store values of various types
   SqlServerType<Object> sqlVariant =
@@ -400,7 +442,8 @@ public interface SqlServerTypes {
           SqlServerRead.readObject,
           SqlServerWrite.writeObject,
           SqlServerText.textObject,
-          SqlServerJson.unknown);
+          SqlServerJson.unknown,
+          SqlServerOutParam.readSqlVariant);
 
   // ==================== Spatial Types ====================
   // Use JDBC driver's Geography and Geometry classes
@@ -411,7 +454,8 @@ public interface SqlServerTypes {
           SqlServerRead.readGeography,
           SqlServerWrite.writeGeography,
           SqlServerText.textGeography,
-          SqlServerJson.jsonGeography);
+          SqlServerJson.jsonGeography,
+          SqlServerOutParam.notSupported("GEOGRAPHY"));
 
   SqlServerType<com.microsoft.sqlserver.jdbc.Geometry> geometry =
       SqlServerType.of(
@@ -419,7 +463,8 @@ public interface SqlServerTypes {
           SqlServerRead.readGeometry,
           SqlServerWrite.writeGeometry,
           SqlServerText.textGeometry,
-          SqlServerJson.jsonGeometry);
+          SqlServerJson.jsonGeometry,
+          SqlServerOutParam.notSupported("GEOMETRY"));
 
   // ==================== Unknown Type ====================
   // For columns whose type typr doesn't know how to handle - cast to/from string
@@ -429,6 +474,7 @@ public interface SqlServerTypes {
               SqlServerRead.readString,
               SqlServerWrite.writeString,
               SqlServerText.textString,
-              SqlServerJson.text)
+              SqlServerJson.text,
+              SqlServerOutParam.readString)
           .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 }

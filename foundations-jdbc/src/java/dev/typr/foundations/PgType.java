@@ -1,7 +1,9 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.dsl.Bijection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
@@ -11,8 +13,22 @@ public record PgType<A>(
     PgWrite<A> write,
     PgText<A> pgText,
     PgCompositeText<A> pgCompositeText,
-    PgJson<A> pgJson)
+    PgJson<A> pgJson,
+    PgOutParam<A> pgOutParam,
+    AnalysisOptions analysisOptions)
     implements DbType<A> {
+
+
+  @Override
+  public Optional<DbOutParam<A>> outParam() {
+    return Optional.of(pgOutParam);
+  }
+
+  @Override
+  public boolean isNullable() {
+    return typename instanceof PgTypename.Opt;
+  }
+
   @Override
   public DbText<A> text() {
     return pgText;
@@ -23,12 +39,27 @@ public record PgType<A>(
     return pgJson;
   }
 
+  @Override
+  public Set<String> vendorTypeNames() {
+    var aliases = analysisOptions.vendorTypeNames();
+    if (aliases.isEmpty()) return Set.of(typename.sqlType().toLowerCase());
+    var all = new java.util.HashSet<>(aliases);
+    all.add(typename.sqlType().toLowerCase());
+    return Set.copyOf(all);
+  }
+
+  public PgType<A> unchecked() { return withAnalysis(analysisOptions.withUnchecked()); }
+  public PgType<A> nullableOk() { return withAnalysis(analysisOptions.withNullableOk()); }
+  public PgType<A> withAnalysis(AnalysisOptions opts) {
+    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, opts);
+  }
+
   public Fragment.Value<A> encode(A value) {
     return new Fragment.Value<>(value, this);
   }
 
   public PgType<A> withTypename(PgTypename<A> typename) {
-    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson);
+    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions);
   }
 
   public PgType<A> withTypename(String sqlType) {
@@ -44,34 +75,40 @@ public record PgType<A>(
   }
 
   public PgType<A> withRead(PgRead<A> read) {
-    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson);
+    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions);
   }
 
   public PgType<A> withWrite(PgWrite<A> write) {
-    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson);
+    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions);
   }
 
   public PgType<A> withText(PgText<A> text) {
-    return new PgType<>(typename, read, write, text, pgCompositeText, pgJson);
+    return new PgType<>(typename, read, write, text, pgCompositeText, pgJson, pgOutParam, analysisOptions);
   }
 
   public PgType<A> withCompositeText(PgCompositeText<A> compositeText) {
-    return new PgType<>(typename, read, write, pgText, compositeText, pgJson);
+    return new PgType<>(typename, read, write, pgText, compositeText, pgJson, pgOutParam, analysisOptions);
   }
 
   public PgType<A> withJson(PgJson<A> json) {
-    return new PgType<>(typename, read, write, pgText, pgCompositeText, json);
+    return new PgType<>(typename, read, write, pgText, pgCompositeText, json, pgOutParam, analysisOptions);
+  }
+
+  public PgType<A> withOutParam(PgOutParam<A> outParam) {
+    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, outParam, analysisOptions);
   }
 
   @Override
-  public PgOptType<A> opt() {
-    return new PgOptType<>(
+  public PgType<Optional<A>> opt() {
+    return new PgType<>(
         typename.opt(),
         read.opt(),
         write.opt(typename),
         pgText.opt(),
         pgCompositeText.opt(),
-        pgJson.opt());
+        pgJson.opt(),
+        pgOutParam.opt(),
+        analysisOptions);
   }
 
   public PgType<A[]> array(PgRead<A[]> read, IntFunction<A[]> arrayFactory) {
@@ -81,15 +118,11 @@ public record PgType<A>(
         write.array(typename),
         pgText.array(),
         pgCompositeText.array(arrayFactory),
-        pgJson.array(arrayFactory));
+        pgJson.array(arrayFactory),
+        PgOutParam.parsedArray(arrayFactory, pgCompositeText::decode),
+        analysisOptions);
   }
 
-  /**
-   * Create an array type with a custom delimiter for composite text encoding/decoding.
-   *
-   * <p>PostgreSQL uses semicolon (;) as the delimiter for geometric type arrays (box[], circle[],
-   * line[], lseg[], path[], point[], polygon[]) because their elements contain commas.
-   */
   public PgType<A[]> array(
       PgRead<A[]> read, IntFunction<A[]> arrayFactory, char compositeTextDelimiter) {
     return new PgType<>(
@@ -98,7 +131,9 @@ public record PgType<A>(
         write.array(typename),
         pgText.array(),
         pgCompositeText.array(arrayFactory, compositeTextDelimiter),
-        pgJson.array(arrayFactory));
+        pgJson.array(arrayFactory),
+        PgOutParam.parsedArray(arrayFactory, pgCompositeText::decode),
+        analysisOptions);
   }
 
   public PgType<A[]> array(PgRead<A[]> read, PgWrite<A[]> write, IntFunction<A[]> arrayFactory) {
@@ -108,7 +143,9 @@ public record PgType<A>(
         write,
         pgText.array(),
         pgCompositeText.array(arrayFactory),
-        pgJson.array(arrayFactory));
+        pgJson.array(arrayFactory),
+        PgOutParam.parsedArray(arrayFactory, pgCompositeText::decode),
+        analysisOptions);
   }
 
   public <B> PgType<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
@@ -126,7 +163,9 @@ public record PgType<A>(
               }
             },
             g),
-        pgJson.bimap(f, g));
+        pgJson.bimap(f, g),
+        pgOutParam.map(f),
+        analysisOptions);
   }
 
   public <B> PgType<B> to(Bijection<A, B> bijection) {
@@ -136,12 +175,15 @@ public record PgType<A>(
         write.contramap(bijection::from),
         pgText.contramap(bijection::from),
         pgCompositeText.bimap(bijection::underlying, bijection::from),
-        pgJson.bimap(bijection::underlying, bijection::from));
+        pgJson.bimap(bijection::underlying, bijection::from),
+        pgOutParam.map(bijection::underlying),
+        analysisOptions);
   }
 
   public static <A> PgType<A> of(
-      String tpe, PgRead<A> r, PgWrite<A> w, PgText<A> t, PgCompositeText<A> ct, PgJson<A> j) {
-    return new PgType<>(PgTypename.of(tpe), r, w, t, ct, j);
+      String tpe, PgRead<A> r, PgWrite<A> w, PgText<A> t, PgCompositeText<A> ct, PgJson<A> j,
+      PgOutParam<A> cr) {
+    return new PgType<>(PgTypename.of(tpe), r, w, t, ct, j, cr, AnalysisOptions.EMPTY);
   }
 
   public static <A> PgType<A> of(
@@ -150,7 +192,8 @@ public record PgType<A>(
       PgWrite<A> w,
       PgText<A> t,
       PgCompositeText<A> ct,
-      PgJson<A> j) {
-    return new PgType<>(typename, r, w, t, ct, j);
+      PgJson<A> j,
+      PgOutParam<A> cr) {
+    return new PgType<>(typename, r, w, t, ct, j, cr, AnalysisOptions.EMPTY);
   }
 }

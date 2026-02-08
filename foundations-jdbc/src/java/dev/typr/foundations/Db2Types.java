@@ -24,16 +24,32 @@ public interface Db2Types {
 
   Db2Type<Short> smallint =
       Db2Type.of(
-          "SMALLINT", Db2Read.readShort, Db2Write.writeShort, Db2Text.textShort, Db2Json.int2);
+          "SMALLINT",
+          Db2Read.readShort,
+          Db2Write.writeShort,
+          Db2Text.textShort,
+          Db2Json.int2,
+          Db2OutParam.readShort);
 
   Db2Type<Integer> integer =
       Db2Type.of(
-          "INTEGER", Db2Read.readInteger, Db2Write.writeInteger, Db2Text.textInteger, Db2Json.int4);
+          "INTEGER",
+          Db2Read.readInteger,
+          Db2Write.writeInteger,
+          Db2Text.textInteger,
+          Db2Json.int4,
+          Db2OutParam.readInteger);
 
   Db2Type<Integer> int_ = integer.renamed("INT");
 
   Db2Type<Long> bigint =
-      Db2Type.of("BIGINT", Db2Read.readLong, Db2Write.writeLong, Db2Text.textLong, Db2Json.int8);
+      Db2Type.of(
+          "BIGINT",
+          Db2Read.readLong,
+          Db2Write.writeLong,
+          Db2Text.textLong,
+          Db2Json.int8,
+          Db2OutParam.readLong);
 
   // ==================== Fixed-Point Types ====================
 
@@ -43,7 +59,8 @@ public interface Db2Types {
           Db2Read.readBigDecimal,
           Db2Write.writeBigDecimal,
           Db2Text.textBigDecimal,
-          Db2Json.numeric);
+          Db2Json.numeric,
+          Db2OutParam.readBigDecimal);
 
   Db2Type<BigDecimal> numeric = decimal.renamed("NUMERIC");
 
@@ -55,7 +72,8 @@ public interface Db2Types {
         Db2Read.readBigDecimal,
         Db2Write.writeBigDecimal,
         Db2Text.textBigDecimal,
-        Db2Json.numeric);
+        Db2Json.numeric,
+        Db2OutParam.readBigDecimal);
   }
 
   static Db2Type<BigDecimal> numeric(int precision, int scale) {
@@ -69,7 +87,8 @@ public interface Db2Types {
           Db2Read.readDecFloat,
           Db2Write.writeDecFloat,
           Db2Text.textBigDecimal,
-          Db2Json.numeric);
+          Db2Json.numeric,
+          Db2OutParam.readBigDecimal);
 
   static Db2Type<BigDecimal> decfloat(int precision) {
     return Db2Type.of(
@@ -77,17 +96,29 @@ public interface Db2Types {
         Db2Read.readDecFloat,
         Db2Write.writeDecFloat,
         Db2Text.textBigDecimal,
-        Db2Json.numeric);
+        Db2Json.numeric,
+        Db2OutParam.readBigDecimal);
   }
 
   // ==================== Floating-Point Types ====================
 
   Db2Type<Float> real =
-      Db2Type.of("REAL", Db2Read.readFloat, Db2Write.writeFloat, Db2Text.textFloat, Db2Json.float4);
+      Db2Type.of(
+          "REAL",
+          Db2Read.readFloat,
+          Db2Write.writeFloat,
+          Db2Text.textFloat,
+          Db2Json.float4,
+          Db2OutParam.readFloat);
 
   Db2Type<Double> double_ =
       Db2Type.of(
-          "DOUBLE", Db2Read.readDouble, Db2Write.writeDouble, Db2Text.textDouble, Db2Json.float8);
+          "DOUBLE",
+          Db2Read.readDouble,
+          Db2Write.writeDouble,
+          Db2Text.textDouble,
+          Db2Json.float8,
+          Db2OutParam.readDouble);
 
   Db2Type<Double> float_ = double_.renamed("FLOAT");
 
@@ -96,13 +127,23 @@ public interface Db2Types {
   // Native BOOLEAN support since DB2 11.1
   Db2Type<Boolean> boolean_ =
       Db2Type.of(
-          "BOOLEAN", Db2Read.readBoolean, Db2Write.writeBoolean, Db2Text.textBoolean, Db2Json.bool);
+          "BOOLEAN",
+          Db2Read.readBoolean,
+          Db2Write.writeBoolean,
+          Db2Text.textBoolean,
+          Db2Json.bool,
+          Db2OutParam.readBoolean);
 
   // ==================== String Types (SBCS - Single-Byte) ====================
 
   Db2Type<String> char_ =
       Db2Type.of(
-          "CHAR", Db2Read.readString, Db2Write.writeString, Db2Text.textString, Db2Json.text);
+          "CHAR",
+          Db2Read.readString,
+          Db2Write.writeString,
+          Db2Text.textString,
+          Db2Json.text,
+          Db2OutParam.readString);
 
   Db2Type<String> character = char_.renamed("CHARACTER");
 
@@ -112,12 +153,18 @@ public interface Db2Types {
         Db2Read.readString,
         Db2Write.writeString,
         Db2Text.textString,
-        Db2Json.text);
+        Db2Json.text,
+        Db2OutParam.readString);
   }
 
   Db2Type<String> varchar =
       Db2Type.of(
-          "VARCHAR", Db2Read.readString, Db2Write.writeString, Db2Text.textString, Db2Json.text);
+          "VARCHAR",
+          Db2Read.readString,
+          Db2Write.writeString,
+          Db2Text.textString,
+          Db2Json.text,
+          Db2OutParam.readString);
 
   static Db2Type<String> varchar(int length) {
     return Db2Type.of(
@@ -125,12 +172,19 @@ public interface Db2Types {
         Db2Read.readString,
         Db2Write.writeString,
         Db2Text.textString,
-        Db2Json.text);
+        Db2Json.text,
+        Db2OutParam.readString);
   }
 
   // CLOB - Character Large Object
   Db2Type<String> clob =
-      Db2Type.of("CLOB", Db2Read.readClob, Db2Write.writeClob, Db2Text.textString, Db2Json.text);
+      Db2Type.of(
+          "CLOB",
+          Db2Read.readClob,
+          Db2Write.writeClob,
+          Db2Text.textString,
+          Db2Json.text,
+          Db2OutParam.readString);
 
   static Db2Type<String> clob(int length) {
     return Db2Type.of(
@@ -138,7 +192,8 @@ public interface Db2Types {
         Db2Read.readClob,
         Db2Write.writeClob,
         Db2Text.textString,
-        Db2Json.text);
+        Db2Json.text,
+        Db2OutParam.readString);
   }
 
   // ==================== String Types (DBCS - Double-Byte) ====================
@@ -151,7 +206,8 @@ public interface Db2Types {
           Db2Read.readGraphic,
           Db2Write.writeGraphic,
           Db2Text.textString,
-          Db2Json.unsupported("GRAPHIC"));
+          Db2Json.unsupported("GRAPHIC"),
+          Db2OutParam.readString);
 
   static Db2Type<String> graphic(int length) {
     return Db2Type.of(
@@ -159,7 +215,8 @@ public interface Db2Types {
         Db2Read.readGraphic,
         Db2Write.writeGraphic,
         Db2Text.textString,
-        Db2Json.unsupported("GRAPHIC"));
+        Db2Json.unsupported("GRAPHIC"),
+        Db2OutParam.readString);
   }
 
   // VARGRAPHIC - Variable-length double-byte character string
@@ -169,7 +226,8 @@ public interface Db2Types {
           Db2Read.readVarGraphic,
           Db2Write.writeVarGraphic,
           Db2Text.textString,
-          Db2Json.unsupported("VARGRAPHIC"));
+          Db2Json.unsupported("VARGRAPHIC"),
+          Db2OutParam.readString);
 
   static Db2Type<String> vargraphic(int length) {
     return Db2Type.of(
@@ -177,7 +235,8 @@ public interface Db2Types {
         Db2Read.readVarGraphic,
         Db2Write.writeVarGraphic,
         Db2Text.textString,
-        Db2Json.unsupported("VARGRAPHIC"));
+        Db2Json.unsupported("VARGRAPHIC"),
+        Db2OutParam.readString);
   }
 
   // DBCLOB - Double-byte Character Large Object
@@ -187,7 +246,8 @@ public interface Db2Types {
           Db2Read.readDbClob,
           Db2Write.writeDbClob,
           Db2Text.textString,
-          Db2Json.unsupported("DBCLOB"));
+          Db2Json.unsupported("DBCLOB"),
+          Db2OutParam.readString);
 
   static Db2Type<String> dbclob(int length) {
     return Db2Type.of(
@@ -195,7 +255,8 @@ public interface Db2Types {
         Db2Read.readDbClob,
         Db2Write.writeDbClob,
         Db2Text.textString,
-        Db2Json.unsupported("DBCLOB"));
+        Db2Json.unsupported("DBCLOB"),
+        Db2OutParam.readString);
   }
 
   // ==================== Binary Types ====================
@@ -207,7 +268,8 @@ public interface Db2Types {
           Db2Read.readByteArray,
           Db2Write.writeByteArray,
           Db2Text.textByteArray,
-          Db2Json.unsupported("BINARY"));
+          Db2Json.unsupported("BINARY"),
+          Db2OutParam.readByteArray);
 
   static Db2Type<byte[]> binary(int length) {
     return Db2Type.of(
@@ -215,7 +277,8 @@ public interface Db2Types {
         Db2Read.readByteArray,
         Db2Write.writeByteArray,
         Db2Text.textByteArray,
-        Db2Json.unsupported("BINARY"));
+        Db2Json.unsupported("BINARY"),
+        Db2OutParam.readByteArray);
   }
 
   Db2Type<byte[]> varbinary =
@@ -224,7 +287,8 @@ public interface Db2Types {
           Db2Read.readByteArray,
           Db2Write.writeByteArray,
           Db2Text.textByteArray,
-          Db2Json.unsupported("VARBINARY"));
+          Db2Json.unsupported("VARBINARY"),
+          Db2OutParam.readByteArray);
 
   static Db2Type<byte[]> varbinary(int length) {
     return Db2Type.of(
@@ -232,7 +296,8 @@ public interface Db2Types {
         Db2Read.readByteArray,
         Db2Write.writeByteArray,
         Db2Text.textByteArray,
-        Db2Json.unsupported("VARBINARY"));
+        Db2Json.unsupported("VARBINARY"),
+        Db2OutParam.readByteArray);
   }
 
   // BLOB - Binary Large Object
@@ -242,7 +307,8 @@ public interface Db2Types {
           Db2Read.readBlob,
           Db2Write.writeBlob,
           Db2Text.textByteArray,
-          Db2Json.unsupported("BLOB"));
+          Db2Json.unsupported("BLOB"),
+          Db2OutParam.readByteArray);
 
   static Db2Type<byte[]> blob(int length) {
     return Db2Type.of(
@@ -250,18 +316,29 @@ public interface Db2Types {
         Db2Read.readBlob,
         Db2Write.writeBlob,
         Db2Text.textByteArray,
-        Db2Json.unsupported("BLOB"));
+        Db2Json.unsupported("BLOB"),
+        Db2OutParam.readByteArray);
   }
 
   // ==================== Date/Time Types ====================
 
   Db2Type<LocalDate> date =
       Db2Type.of(
-          "DATE", Db2Read.readDate, Db2Write.writeDate, Db2Text.instanceToString(), Db2Json.date);
+          "DATE",
+          Db2Read.readDate,
+          Db2Write.writeDate,
+          Db2Text.instanceToString(),
+          Db2Json.date,
+          Db2OutParam.readLocalDate);
 
   Db2Type<LocalTime> time =
       Db2Type.of(
-          "TIME", Db2Read.readTime, Db2Write.writeTime, Db2Text.instanceToString(), Db2Json.time);
+          "TIME",
+          Db2Read.readTime,
+          Db2Write.writeTime,
+          Db2Text.instanceToString(),
+          Db2Json.time,
+          Db2OutParam.readLocalTime);
 
   // TIMESTAMP without time zone
   Db2Type<LocalDateTime> timestamp =
@@ -270,7 +347,8 @@ public interface Db2Types {
           Db2Read.readTimestamp,
           Db2Write.writeTimestamp,
           Db2Text.instanceToString(),
-          Db2Json.timestamp);
+          Db2Json.timestamp,
+          Db2OutParam.readLocalDateTime);
 
   static Db2Type<LocalDateTime> timestamp(int scale) {
     return Db2Type.of(
@@ -278,7 +356,8 @@ public interface Db2Types {
         Db2Read.readTimestamp,
         Db2Write.writeTimestamp,
         Db2Text.instanceToString(),
-        Db2Json.timestamp);
+        Db2Json.timestamp,
+        Db2OutParam.readLocalDateTime);
   }
 
   // ==================== Special Types ====================
@@ -291,17 +370,28 @@ public interface Db2Types {
           Db2Read.readXml,
           Db2Write.writeXml,
           Db2Text.textString.contramap(dev.typr.foundations.data.Xml::value),
-          Db2Json.unsupported("XML"));
+          Db2Json.unsupported("XML"),
+          Db2OutParam.readXmlAsString.map(dev.typr.foundations.data.Xml::new));
 
   // ROWID - DB2 row identifier
   Db2Type<byte[]> rowid =
       Db2Type.of(
-          "ROWID", Db2Read.readRowId, Db2Write.writeRowId, Db2Text.textByteArray, Db2Json.bytea);
+          "ROWID",
+          Db2Read.readRowId,
+          Db2Write.writeRowId,
+          Db2Text.textByteArray,
+          Db2Json.bytea,
+          Db2OutParam.readRowId);
 
   // Generic object for unknown types
   Db2Type<Object> object =
       Db2Type.of(
-          "OBJECT", Db2Read.readObject, Db2Write.writeObject, Db2Text.textObject, Db2Json.unknown);
+          "OBJECT",
+          Db2Read.readObject,
+          Db2Write.writeObject,
+          Db2Text.textObject,
+          Db2Json.unknown,
+          Db2OutParam.readObject);
 
   // ==================== Unknown Type ====================
   // For columns whose type typr doesn't know how to handle - cast to/from string
@@ -311,6 +401,7 @@ public interface Db2Types {
               Db2Read.readString,
               Db2Write.writeString,
               Db2Text.textString,
-              Db2Json.text)
+              Db2Json.text,
+              Db2OutParam.readString)
           .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 }

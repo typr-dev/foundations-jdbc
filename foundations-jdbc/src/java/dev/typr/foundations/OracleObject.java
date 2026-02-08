@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.JsonValue;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -97,7 +98,9 @@ public record OracleObject<A>(
     // Generate OracleJson codec
     OracleJson<A> json = generateJson();
 
-    return new OracleType<>(typename.asGeneric(), read, write, json);
+    OracleOutParam<A> outParam = OracleOutParam.struct(typename.sqlName(), reader, attributes);
+
+    return new OracleType<>(typename.asGeneric(), read, write, json, outParam, AnalysisOptions.EMPTY);
   }
 
   /** Generate JSON codec for this OBJECT type. */
