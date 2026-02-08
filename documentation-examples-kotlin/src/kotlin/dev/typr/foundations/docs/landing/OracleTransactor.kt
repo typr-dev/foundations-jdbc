@@ -18,10 +18,5 @@ class OracleTransactor {
         .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
         .transact(tx)
 
-    // Built-in strategies for common patterns
-    val defaultStrategy: Strategy = Transactor.defaultStrategy()         // begin -> commit -> close
-    val autoCommit: Strategy = Transactor.autoCommitStrategy()           // no transaction, just close
-    val rollbackOnError: Strategy = Transactor.rollbackOnErrorStrategy() // begin -> commit, rollback on error -> close
-    val test: Strategy = Transactor.testStrategy()                       // begin -> rollback -> close (for tests)
     //stop
 }

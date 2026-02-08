@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.analysis
 import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.Fragment.sql
 import dev.typr.scalafoundations.data.*
 
 
@@ -15,14 +16,14 @@ object QueryAnalysisTestSuite:
   private val testDataSource: DataSource = null // placeholder
 
   private val userParser: RowParser[User] = RowParser.builder[User]()
-    .field(PgTypes.int4, _.id)
-    .field(PgTypes.text, _.name)
-    .field(PgTypes.text, _.email)
+    .field(PgTypes.int4)(_.id)
+    .field(PgTypes.text)(_.name)
+    .field(PgTypes.text)(_.email)
     .build(User.apply)
 
   private val productParser: RowParser[Product] = RowParser.builder[Product]()
-    .field(PgTypes.int4, _.id)
-    .field(PgTypes.text, _.name)
+    .field(PgTypes.int4)(_.id)
+    .field(PgTypes.text)(_.name)
     .build(Product.apply)
 
   //start
@@ -30,10 +31,10 @@ object QueryAnalysisTestSuite:
     Using.resource(testDataSource.getConnection) { conn =>
       // Collect all queries to check
       val queries: List[Operation.Query[?]] = List(
-        Fragment.interpolate("SELECT id, name, email FROM users WHERE id = ")
-          .param(PgTypes.int4, 1).done().query(userParser.all()),
-        Fragment.interpolate("SELECT id, name FROM products WHERE name LIKE ")
-          .param(PgTypes.text, "%widget%").done().query(productParser.all())
+        sql"SELECT id, name, email FROM users WHERE id = ${Fragment.encode(PgTypes.int4, 1)}"
+          .query(userParser.all()),
+        sql"SELECT id, name FROM products WHERE name LIKE ${Fragment.encode(PgTypes.text, "%widget%")}"
+          .query(productParser.all())
       )
 
       // Analyze each one

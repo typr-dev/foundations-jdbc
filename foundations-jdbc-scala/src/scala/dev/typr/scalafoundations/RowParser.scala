@@ -90,6 +90,17 @@ class RowParser[Row](val underlying: dev.typr.foundations.RowParser[Row]) {
   /** Parse a single row from the current position in ResultSet.
     */
   def parse(rs: ResultSet): Row = underlying.parse(rs)
+
+  /** Create a DbJson codec that encodes rows as JSON arrays.
+    */
+  def jsonArray(): dev.typr.foundations.DbJson[Row] =
+    dev.typr.foundations.DbJsonRow.jsonArray(underlying)
+
+  /** Create a DbJson codec that encodes rows as JSON objects with named fields.
+    */
+  def jsonObject(columnNames: List[String]): dev.typr.foundations.DbJson[Row] =
+    import _root_.scala.jdk.CollectionConverters.*
+    dev.typr.foundations.DbJsonRow.jsonObject(underlying, columnNames.asJava)
 }
 
 object RowParser {

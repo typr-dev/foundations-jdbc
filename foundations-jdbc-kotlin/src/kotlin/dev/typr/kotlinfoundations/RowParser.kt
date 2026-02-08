@@ -117,6 +117,18 @@ class RowParser<Row : Any>(val underlying: dev.typr.foundations.RowParser<Row>) 
      * Parse a single row from the current position in ResultSet.
      */
     fun parse(rs: ResultSet): Row = underlying.parse(rs)
+
+    /**
+     * Create a DbJson codec that encodes rows as JSON arrays.
+     */
+    fun jsonArray(): dev.typr.foundations.DbJson<Row> =
+        dev.typr.foundations.DbJsonRow.jsonArray(underlying)
+
+    /**
+     * Create a DbJson codec that encodes rows as JSON objects with named fields.
+     */
+    fun jsonObject(columnNames: List<String>): dev.typr.foundations.DbJson<Row> =
+        dev.typr.foundations.DbJsonRow.jsonObject(underlying, columnNames)
 }
 
 /**

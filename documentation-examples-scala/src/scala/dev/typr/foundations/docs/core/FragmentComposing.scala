@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.Fragment.sql
 import dev.typr.scalafoundations.data.*
 
 import java.sql.SQLException
@@ -9,9 +10,9 @@ object FragmentComposing:
   case class ProductRow(id: Int, name: String, price: BigDecimal)
 
   val rowParser: RowParser[ProductRow] = RowParser.builder[ProductRow]()
-    .field(PgTypes.int4, _.id)
-    .field(PgTypes.text, _.name)
-    .field(PgTypes.numeric, _.price)
+    .field(PgTypes.int4)(_.id)
+    .field(PgTypes.text)(_.name)
+    .field(PgTypes.numeric)(_.price)
     .build(ProductRow.apply)
 
   var tx: Transactor = null // placeholder
@@ -20,10 +21,10 @@ object FragmentComposing:
   //start
   // Build small reusable filters
   def byName(name: String): Fragment =
-    Fragment.interpolate("name ILIKE ").param(PgTypes.text, name).done()
+    sql"name ILIKE ${Fragment.encode(PgTypes.text, name)}"
 
   def cheaperThan(max: BigDecimal): Fragment =
-    Fragment.interpolate("price < ").param(PgTypes.numeric, max).done()
+    sql"price < ${Fragment.encode(PgTypes.numeric, max)}"
 
   // Compose dynamically - only include the filters that are present
   @throws[SQLException]
@@ -33,8 +34,7 @@ object FragmentComposing:
       maxPrice.map(cheaperThan)
     ).flatten
 
-    Fragment.lit("SELECT * FROM product ")
-      .append(Fragment.whereAnd(filters))
+    sql"SELECT * FROM product ${Fragment.whereAnd(filters)}"
       .query(rowParser.all())
       .transact(tx)
   //stop

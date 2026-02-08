@@ -8,9 +8,9 @@ import scala.jdk.CollectionConverters.*
   * Usage:
   * {{{
   * val parser: RowParser[Product] = RowParser.builder[Product]()
-  *   .field(PgTypes.int4, _.id)
-  *   .field(PgTypes.text, _.name)
-  *   .field(PgTypes.numeric, _.price)
+  *   .field(PgTypes.int4)(_.id)
+  *   .field(PgTypes.text)(_.name)
+  *   .field(PgTypes.numeric)(_.price)
   *   .build(Product.apply)
   * }}}
   */
@@ -21,7 +21,7 @@ object RowParserBuilders {
     private val types = scala.collection.mutable.ListBuffer[DbType[?]]()
     private val getters = scala.collection.mutable.ListBuffer[Row => Any]()
 
-    def field[F](tpe: DbType[F], getter: Row => F): Builder1[Row, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder1[Row, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder1(types, getters)
@@ -41,7 +41,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder2[Row, T0, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder2[Row, T0, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder2(types, getters)
@@ -61,7 +61,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder3[Row, T0, T1, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder3[Row, T0, T1, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder3(types, getters)
@@ -81,7 +81,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder4[Row, T0, T1, T2, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder4[Row, T0, T1, T2, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder4(types, getters)
@@ -101,7 +101,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder5[Row, T0, T1, T2, T3, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder5[Row, T0, T1, T2, T3, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder5(types, getters)
@@ -121,7 +121,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder6[Row, T0, T1, T2, T3, T4, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder6[Row, T0, T1, T2, T3, T4, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder6(types, getters)
@@ -141,7 +141,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder7[Row, T0, T1, T2, T3, T4, T5, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder7[Row, T0, T1, T2, T3, T4, T5, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder7(types, getters)
@@ -161,7 +161,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder8[Row, T0, T1, T2, T3, T4, T5, T6, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder8[Row, T0, T1, T2, T3, T4, T5, T6, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder8(types, getters)
@@ -181,7 +181,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder9[Row, T0, T1, T2, T3, T4, T5, T6, T7, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder9[Row, T0, T1, T2, T3, T4, T5, T6, T7, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder9(types, getters)
@@ -201,7 +201,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder10[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder10[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder10(types, getters)
@@ -221,7 +221,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder11[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder11[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder11(types, getters)
@@ -241,7 +241,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder12[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder12[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder12(types, getters)
@@ -261,7 +261,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder13[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder13[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder13(types, getters)
@@ -281,7 +281,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder14[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder14[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder14(types, getters)
@@ -301,7 +301,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder15[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder15[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder15(types, getters)
@@ -321,7 +321,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder16[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder16[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder16(types, getters)
@@ -341,7 +341,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder17[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder17[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder17(types, getters)
@@ -361,7 +361,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder18[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder18[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder18(types, getters)
@@ -381,7 +381,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder19[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder19[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder19(types, getters)
@@ -401,7 +401,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder20[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder20[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder20(types, getters)
@@ -421,7 +421,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder21[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder21[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder21(types, getters)
@@ -441,7 +441,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder22[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder22[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder22(types, getters)
@@ -461,7 +461,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder23[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder23[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder23(types, getters)
@@ -481,7 +481,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder24[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder24[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder24(types, getters)
@@ -501,7 +501,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder25[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder25[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder25(types, getters)
@@ -521,7 +521,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder26[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder26[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder26(types, getters)
@@ -541,7 +541,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder27[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder27[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder27(types, getters)
@@ -561,7 +561,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder28[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder28[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder28(types, getters)
@@ -581,7 +581,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder29[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder29[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder29(types, getters)
@@ -601,7 +601,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder30[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder30[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder30(types, getters)
@@ -621,7 +621,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder31[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder31[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder31(types, getters)
@@ -641,7 +641,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder32[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder32[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder32(types, getters)
@@ -661,7 +661,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder33[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder33[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder33(types, getters)
@@ -681,7 +681,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder34[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder34[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder34(types, getters)
@@ -701,7 +701,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder35[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder35[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder35(types, getters)
@@ -721,7 +721,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder36[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder36[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder36(types, getters)
@@ -741,7 +741,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder37[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder37[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder37(types, getters)
@@ -761,7 +761,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder38[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder38[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder38(types, getters)
@@ -781,7 +781,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder39[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder39[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder39(types, getters)
@@ -801,7 +801,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder40[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder40[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder40(types, getters)
@@ -821,7 +821,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder41[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder41[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder41(types, getters)
@@ -841,7 +841,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder42[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder42[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder42(types, getters)
@@ -861,7 +861,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder43[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder43[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder43(types, getters)
@@ -881,7 +881,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder44[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder44[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder44(types, getters)
@@ -901,7 +901,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder45[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder45[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder45(types, getters)
@@ -921,7 +921,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder46[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder46[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder46(types, getters)
@@ -941,7 +941,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder47[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder47[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder47(types, getters)
@@ -961,7 +961,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder48[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder48[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder48(types, getters)
@@ -981,7 +981,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder49[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder49[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder49(types, getters)
@@ -1001,7 +1001,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder50[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder50[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder50(types, getters)
@@ -1021,7 +1021,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder51[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder51[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder51(types, getters)
@@ -1041,7 +1041,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder52[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder52[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder52(types, getters)
@@ -1061,7 +1061,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder53[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder53[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder53(types, getters)
@@ -1081,7 +1081,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder54[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder54[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder54(types, getters)
@@ -1101,7 +1101,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder55[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder55[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder55(types, getters)
@@ -1121,7 +1121,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder56[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder56[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder56(types, getters)
@@ -1141,7 +1141,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder57[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder57[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder57(types, getters)
@@ -1161,7 +1161,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder58[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder58[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder58(types, getters)
@@ -1181,7 +1181,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder59[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder59[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder59(types, getters)
@@ -1201,7 +1201,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder60[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder60[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder60(types, getters)
@@ -1221,7 +1221,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder61[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder61[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder61(types, getters)
@@ -1241,7 +1241,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder62[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder62[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder62(types, getters)
@@ -1261,7 +1261,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder63[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder63[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder63(types, getters)
@@ -1281,7 +1281,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder64[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder64[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder64(types, getters)
@@ -1301,7 +1301,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder65[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder65[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder65(types, getters)
@@ -1321,7 +1321,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder66[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder66[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder66(types, getters)
@@ -1341,7 +1341,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder67[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder67[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder67(types, getters)
@@ -1361,7 +1361,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder68[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder68[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder68(types, getters)
@@ -1381,7 +1381,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder69[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder69[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder69(types, getters)
@@ -1401,7 +1401,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder70[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder70[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder70(types, getters)
@@ -1421,7 +1421,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder71[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder71[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder71(types, getters)
@@ -1441,7 +1441,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder72[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder72[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder72(types, getters)
@@ -1461,7 +1461,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder73[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder73[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder73(types, getters)
@@ -1481,7 +1481,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder74[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder74[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder74(types, getters)
@@ -1501,7 +1501,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder75[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder75[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder75(types, getters)
@@ -1521,7 +1521,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder76[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder76[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder76(types, getters)
@@ -1541,7 +1541,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder77[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder77[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder77(types, getters)
@@ -1561,7 +1561,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder78[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder78[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder78(types, getters)
@@ -1581,7 +1581,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder79[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder79[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder79(types, getters)
@@ -1601,7 +1601,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder80[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder80[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder80(types, getters)
@@ -1621,7 +1621,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder81[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder81[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder81(types, getters)
@@ -1641,7 +1641,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder82[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder82[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder82(types, getters)
@@ -1661,7 +1661,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder83[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder83[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder83(types, getters)
@@ -1681,7 +1681,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder84[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder84[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder84(types, getters)
@@ -1701,7 +1701,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder85[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder85[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder85(types, getters)
@@ -1721,7 +1721,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder86[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder86[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder86(types, getters)
@@ -1741,7 +1741,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder87[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder87[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder87(types, getters)
@@ -1761,7 +1761,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder88[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder88[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder88(types, getters)
@@ -1781,7 +1781,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder89[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder89[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder89(types, getters)
@@ -1801,7 +1801,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder90[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder90[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder90(types, getters)
@@ -1821,7 +1821,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder91[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder91[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder91(types, getters)
@@ -1841,7 +1841,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder92[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder92[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder92(types, getters)
@@ -1861,7 +1861,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder93[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder93[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder93(types, getters)
@@ -1881,7 +1881,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder94[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder94[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder94(types, getters)
@@ -1901,7 +1901,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder95[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder95[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder95(types, getters)
@@ -1921,7 +1921,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder96[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder96[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder96(types, getters)
@@ -1941,7 +1941,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder97[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder97[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder97(types, getters)
@@ -1961,7 +1961,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder98[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder98[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder98(types, getters)
@@ -1981,7 +1981,7 @@ object RowParserBuilders {
       )
       new RowParser(javaParser)
     }
-    def field[F](tpe: DbType[F], getter: Row => F): Builder99[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, F] = {
+    def field[F](tpe: DbType[F])(getter: Row => F): Builder99[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, F] = {
       types += tpe
       getters += getter.asInstanceOf[Row => Any]
       new Builder99(types, getters)

@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.Fragment.sql
 import dev.typr.scalafoundations.data.*
 
 
@@ -11,10 +12,10 @@ object FragmentBuilding:
   case class User(id: Int, name: String, status: String, createdAt: Instant)
 
   val userParser: RowParser[User] = RowParser.builder[User]()
-    .field(PgTypes.int4, _.id)
-    .field(PgTypes.text, _.name)
-    .field(PgTypes.text, _.status)
-    .field(PgTypes.timestamptz, _.createdAt)
+    .field(PgTypes.int4)(_.id)
+    .field(PgTypes.text)(_.name)
+    .field(PgTypes.text)(_.status)
+    .field(PgTypes.timestamptz)(_.createdAt)
     .build(User.apply)
 
   var connection: Connection = null // placeholder
@@ -22,13 +23,12 @@ object FragmentBuilding:
   val cutoffDate: Instant = Instant.now()
 
   //start
-  val query: Fragment = Fragment.interpolate("SELECT * FROM users WHERE id = ")
-    .param(PgTypes.int4, userId)
-    .sql(" AND status = ")
-    .param(PgTypes.text, "active")
-    .sql(" AND created_at > ")
-    .param(PgTypes.timestamptz, cutoffDate)
-    .done()
+  val id = Fragment.encode(PgTypes.int4, userId)
+  val status = Fragment.encode(PgTypes.text, "active")
+  val cutoff = Fragment.encode(PgTypes.timestamptz, cutoffDate)
+
+  val query: Fragment =
+    sql"SELECT * FROM users WHERE id = $id AND status = $status AND created_at > $cutoff"
 
   // Execute safely - parameters are bound, not interpolated
   val users: List[User] = query.query(userParser.all()).runUnchecked(connection)
