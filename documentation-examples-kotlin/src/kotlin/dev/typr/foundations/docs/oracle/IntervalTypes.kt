@@ -2,8 +2,6 @@ package dev.typr.foundations.docs.oracle
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.kotlinfoundations.data.OracleIntervalDS
-import dev.typr.kotlinfoundations.data.OracleIntervalYM
 
 @Suppress("unused")
 class IntervalTypes {

@@ -2,8 +2,6 @@ package dev.typr.foundations.docs.postgresql
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.kotlinfoundations.data.Json
-import dev.typr.kotlinfoundations.data.Jsonb
 
 @Suppress("unused")
 class JsonTypes {
