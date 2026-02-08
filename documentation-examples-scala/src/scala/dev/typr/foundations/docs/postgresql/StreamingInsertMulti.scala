@@ -9,11 +9,11 @@ object StreamingInsertMulti:
 
   //start
   // Define a RowParser for your row type
-  val productParser: dev.typr.foundations.RowParser[ProductRow] =
-    dev.typr.foundations.RowParser.builder[ProductRow]()
-      .field(PgTypes.text, (p: ProductRow) => p.name)
-      .field(PgTypes.numeric, (p: ProductRow) => p.price)
-      .field(PgTypes.int4, (p: ProductRow) => Integer.valueOf(p.quantity))
+  val productParser: RowParser[ProductRow] =
+    RowParser.builder[ProductRow]()
+      .field(PgTypes.text)(_.name)
+      .field(PgTypes.numeric)(_.price)
+      .field(PgTypes.int4)(p => Integer.valueOf(p.quantity))
       .build(ProductRow.apply)
 
   // PgText.from() derives a text encoder from the RowParser

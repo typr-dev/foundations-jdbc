@@ -44,6 +44,8 @@ package object scalafoundations:
   // Streaming inserts (PostgreSQL COPY protocol)
   type PgText[T] = dev.typr.foundations.PgText[T]
   object PgText:
+    def from[A](rowParser: RowParser[A]): dev.typr.foundations.PgText[A] =
+      dev.typr.foundations.PgText.from(rowParser.underlying)
     def from[A](rowParser: dev.typr.foundations.RowParser[A]): dev.typr.foundations.PgText[A] =
       dev.typr.foundations.PgText.from(rowParser)
     def instance[A](f: java.util.function.BiConsumer[A, java.lang.StringBuilder]): dev.typr.foundations.PgText[A] =
@@ -84,6 +86,20 @@ package object scalafoundations:
       dev.typr.foundations.analysis.QueryAnalyzer.analyze(update.underlying, conn)
     def analyze[T](op: Operation.UpdateReturning[T], conn: java.sql.Connection): QueryAnalysis =
       dev.typr.foundations.analysis.QueryAnalyzer.analyze(op.underlying, conn)
+    // Named overloads (Java Operation)
+    def analyze[T](name: String, query: dev.typr.foundations.Operation.Query[T], conn: java.sql.Connection): QueryAnalysis =
+      dev.typr.foundations.analysis.QueryAnalyzer.analyze(name, query, conn)
+    def analyze(name: String, update: dev.typr.foundations.Operation.Update, conn: java.sql.Connection): QueryAnalysis =
+      dev.typr.foundations.analysis.QueryAnalyzer.analyze(name, update, conn)
+    def analyze[T](name: String, op: dev.typr.foundations.Operation.UpdateReturning[T], conn: java.sql.Connection): QueryAnalysis =
+      dev.typr.foundations.analysis.QueryAnalyzer.analyze(name, op, conn)
+    // Named overloads (Scala Operation)
+    def analyze[T](name: String, query: Operation.Query[T], conn: java.sql.Connection): QueryAnalysis =
+      dev.typr.foundations.analysis.QueryAnalyzer.analyze(name, query.underlying, conn)
+    def analyze(name: String, update: Operation.Update, conn: java.sql.Connection): QueryAnalysis =
+      dev.typr.foundations.analysis.QueryAnalyzer.analyze(name, update.underlying, conn)
+    def analyze[T](name: String, op: Operation.UpdateReturning[T], conn: java.sql.Connection): QueryAnalysis =
+      dev.typr.foundations.analysis.QueryAnalyzer.analyze(name, op.underlying, conn)
 
   // Connection types
   type ConnectionSource = dev.typr.foundations.connect.ConnectionSource

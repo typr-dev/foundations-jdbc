@@ -27,7 +27,7 @@ class QueryAnalysisNamed {
             .query(userRowParser.all())
 
         // Give your query a name - it shows up in the error report
-        val analysis = dev.typr.foundations.analysis.QueryAnalyzer.analyze("findUserById", query, connection)
+        val analysis = QueryAnalyzer.analyze("findUserById", query, connection)
 
         if (!analysis.succeeded()) {
             throw AssertionError(analysis.report())
