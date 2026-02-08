@@ -1,0 +1,38 @@
+package dev.typr.foundations.docs.postgresql
+
+import dev.typr.kotlinfoundations.*
+
+import java.math.BigDecimal
+
+@Suppress("unused")
+class StreamingInsert {
+
+    //start:single-column
+    // Insert a list of strings using COPY
+    fun insertNames(names: List<String>, tx: Transactor): Long {
+        return streamingInsert
+            .of("COPY users(name) FROM STDIN", 1000, names.iterator(), PgTypes.text.pgText())
+            .transact(tx)
+    }
+    //stop:single-column
+
+    data class ProductRow(val name: String, val price: BigDecimal, val quantity: Int)
+
+    //start:multi-column
+    // Define a RowParser for your row type
+    val productParser: RowParser<ProductRow> = RowParser.builder<ProductRow>()
+        .field(PgTypes.text, ProductRow::name)
+        .field(PgTypes.numeric, ProductRow::price)
+        .field(PgTypes.int4, ProductRow::quantity)
+        .build(::ProductRow)
+
+    // PgText.from() derives a text encoder from the RowParser
+    val productText: PgText<ProductRow> = PgText.from(productParser.underlying)
+
+    fun insertProducts(products: List<ProductRow>, tx: Transactor): Long {
+        return streamingInsert
+            .of("COPY products(name, price, quantity) FROM STDIN", 1000, products.iterator(), productText)
+            .transact(tx)
+    }
+    //stop:multi-column
+}

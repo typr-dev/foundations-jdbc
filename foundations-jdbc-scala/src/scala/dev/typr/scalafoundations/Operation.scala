@@ -63,4 +63,12 @@ object Operation {
     def apply[Out](query: Fragment, parser: ResultSetParser[Out]): UpdateReturning[Out] =
       new UpdateReturning(new dev.typr.foundations.Operation.UpdateReturning(query.underlying, parser.underlying))
   }
+
+  /** Streaming COPY insert that returns the number of rows inserted */
+  class StreamingCopy(val underlying: dev.typr.foundations.Operation[java.lang.Long]) extends Operation[Long] {
+    override def run(conn: Connection): Long = underlying.run(conn)
+
+    override def transact(transactor: dev.typr.foundations.Transactor): Long =
+      underlying.transact(transactor)
+  }
 }

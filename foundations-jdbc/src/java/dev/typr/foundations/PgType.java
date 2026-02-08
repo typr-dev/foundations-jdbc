@@ -30,8 +30,8 @@ public record PgType<A>(
   }
 
   @Override
-  public DbText<A> text() {
-    return pgText;
+  public java.util.Optional<DbText<A>> text() {
+    return java.util.Optional.of(pgText);
   }
 
   @Override

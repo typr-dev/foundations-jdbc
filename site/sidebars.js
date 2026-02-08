@@ -10,6 +10,7 @@ const sidebars = {
     {type: "doc", id: "transactors", label: "Transactors"},
     {type: "doc", id: "stored-procedures", label: "Stored Procedures"},
     {type: "doc", id: "query-analysis", label: "Query Analysis"},
+    {type: "doc", id: "streaming-inserts", label: "Streaming Inserts"},
     {
       type: "category",
       label: "Database Types",

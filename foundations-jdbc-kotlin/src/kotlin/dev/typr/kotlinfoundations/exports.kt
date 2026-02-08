@@ -23,6 +23,10 @@ typealias PgStruct<T> = dev.typr.foundations.PgStruct<T>
 typealias DuckDbStruct<T> = dev.typr.foundations.DuckDbStruct<T>
 typealias OracleObject<T> = dev.typr.foundations.OracleObject<T>
 
+// Streaming inserts (PostgreSQL COPY protocol)
+typealias PgText<T> = dev.typr.foundations.PgText<T>
+typealias streamingInsert = dev.typr.foundations.streamingInsert
+
 // Re-export database-specific type classes
 typealias PgType<T> = dev.typr.foundations.PgType<T>
 typealias MariaType<T> = dev.typr.foundations.MariaType<T>
