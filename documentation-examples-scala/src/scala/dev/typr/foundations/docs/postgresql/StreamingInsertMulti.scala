@@ -13,7 +13,7 @@ object StreamingInsertMulti:
     RowParser.builder[ProductRow]()
       .field(PgTypes.text)(_.name)
       .field(PgTypes.numeric)(_.price)
-      .field(PgTypes.int4)(p => Integer.valueOf(p.quantity))
+      .field(PgTypes.int4)(_.quantity)
       .build(ProductRow.apply)
 
   // PgText.from() derives a text encoder from the RowParser
