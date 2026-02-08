@@ -18,7 +18,7 @@ Streaming inserts use PostgreSQL's COPY protocol to load data significantly fast
 
 For simple cases, use the `PgText` encoder from the type directly:
 
-<Snippet file="postgresql/StreamingInsert" snippet="single-column" />
+<Snippet file="postgresql/StreamingInsertSingle" />
 
 | Parameter | Description |
 |-----------|-------------|
@@ -31,7 +31,7 @@ For simple cases, use the `PgText` encoder from the type directly:
 
 For rows with multiple columns, derive a `PgText` encoder from a `RowParser`:
 
-<Snippet file="postgresql/StreamingInsert" snippet="multi-column" />
+<Snippet file="postgresql/StreamingInsertMulti" />
 
 `PgText.from(rowParser)` uses each column's text encoder to produce tab-delimited COPY format. The same `RowParser` you use for reading rows can drive bulk loading.
 

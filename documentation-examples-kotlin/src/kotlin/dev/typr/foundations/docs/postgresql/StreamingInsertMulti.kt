@@ -5,20 +5,11 @@ import dev.typr.kotlinfoundations.*
 import java.math.BigDecimal
 
 @Suppress("unused")
-class StreamingInsert {
-
-    //start:single-column
-    // Insert a list of strings using COPY
-    fun insertNames(names: List<String>, tx: Transactor): Long {
-        return streamingInsert
-            .of("COPY users(name) FROM STDIN", 1000, names.iterator(), PgTypes.text.pgText())
-            .transact(tx)
-    }
-    //stop:single-column
+class StreamingInsertMulti {
 
     data class ProductRow(val name: String, val price: BigDecimal, val quantity: Int)
 
-    //start:multi-column
+    //start
     // Define a RowParser for your row type
     val productParser: RowParser<ProductRow> = RowParser.builder<ProductRow>()
         .field(PgTypes.text, ProductRow::name)
@@ -34,5 +25,5 @@ class StreamingInsert {
             .of("COPY products(name, price, quantity) FROM STDIN", 1000, products.iterator(), productText)
             .transact(tx)
     }
-    //stop:multi-column
+    //stop
 }

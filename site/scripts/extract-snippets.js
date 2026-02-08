@@ -65,6 +65,12 @@ function extractSnippet(content, filePath) {
     throw new Error(`File "${filePath}" has //stop but no matching //start`);
   }
 
+  // Fail if file has multiple snippets - split into separate files instead
+  const allStarts = content.match(/\/\/\s*start\b/g);
+  if (allStarts && allStarts.length > 1) {
+    throw new Error(`File "${filePath}" has ${allStarts.length} //start markers. Only one snippet per file is allowed - split into separate files.`);
+  }
+
   if (!startMatch) {
     // No markers - the entire file content (minus package/imports header) is the snippet
     return {
