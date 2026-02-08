@@ -56,6 +56,13 @@ public interface PgTypes {
           PgJson.boolArrayUnboxed,
           PgOutParam.readBooleanArrayUnboxed);
 
+  PgType<Bit> bit = ofPgObject("bit", Bit::new, Bit::value, PgJson.bit);
+  PgType<Bit[]> bitArray = bit.array(PgRead.pgObjectArray(Bit::new, Bit.class), Bit[]::new);
+
+  PgType<Varbit> varbit = ofPgObject("varbit", Varbit::new, Varbit::value, PgJson.varbit);
+  PgType<Varbit[]> varbitArray =
+      varbit.array(PgRead.pgObjectArray(Varbit::new, Varbit.class), Varbit[]::new);
+
   PgType<Double> float8 =
       PgType.of(
           "float8",
