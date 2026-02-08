@@ -8,6 +8,7 @@ const sidebars = {
     {type: "doc", id: "result-sets", label: "Result Sets"},
     {type: "doc", id: "fragments", label: "Fragments"},
     {type: "doc", id: "transactors", label: "Transactors"},
+    {type: "doc", id: "stored-procedures", label: "Stored Procedures"},
     {type: "doc", id: "query-analysis", label: "Query Analysis"},
     {
       type: "category",

@@ -1,6 +1,7 @@
 package dev.typr.foundations;
 
 import dev.typr.foundations.analysis.AlignmentError;
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.analysis.QueryAnalysis;
 import dev.typr.foundations.analysis.QueryAnalyzer;
 import dev.typr.foundations.data.Uint1;
@@ -785,6 +786,198 @@ public class QueryAnalysisTest {
         assertTrue("Colored message should contain ANSI codes", coloredMsg.contains("\u001b["));
         assertFalse("Plain message should NOT contain ANSI codes", plainMsg.contains("\u001b["));
       }
+
+      return null;
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // LEFT JOIN nullability tests
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Test
+  public void testLeftJoinNullability() {
+    withConnection(conn -> {
+      conn.createStatement().execute("""
+          CREATE TABLE lj_users (id INTEGER NOT NULL, name VARCHAR NOT NULL);
+          CREATE TABLE lj_orders (id INTEGER NOT NULL, user_id INTEGER NOT NULL, total DECIMAL(10, 2) NOT NULL);
+          """);
+
+      record JoinRow(Integer userId, String name, Optional<BigDecimal> total) {}
+      RowParser<JoinRow> parser = RowParser.<JoinRow>builder()
+          .field(DuckDbTypes.integer, JoinRow::userId)
+          .field(DuckDbTypes.varchar, JoinRow::name)
+          .field(DuckDbTypes.decimal.opt(), JoinRow::total)
+          .build(JoinRow::new);
+
+      Fragment fragment = Fragment.lit("""
+          SELECT u.id, u.name, o.total
+          FROM lj_users u
+          LEFT JOIN lj_orders o ON u.id = o.user_id
+          """);
+
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+
+      System.out.println(analysis.report());
+      assertTrue("LEFT JOIN with opt() should succeed", analysis.succeeded());
+
+      return null;
+    });
+  }
+
+  @Test
+  public void testLeftJoinNullabilityMismatch() {
+    withConnection(conn -> {
+      conn.createStatement().execute("""
+          CREATE TABLE ljm_users (id INTEGER NOT NULL, name VARCHAR NOT NULL);
+          CREATE TABLE ljm_orders (id INTEGER NOT NULL, user_id INTEGER NOT NULL, total DECIMAL(10, 2) NOT NULL);
+          """);
+
+      record JoinRow(Integer userId, String name, BigDecimal total) {}
+      RowParser<JoinRow> parser = RowParser.<JoinRow>builder()
+          .field(DuckDbTypes.integer, JoinRow::userId)
+          .field(DuckDbTypes.varchar, JoinRow::name)
+          .field(DuckDbTypes.decimal, JoinRow::total)
+          .build(JoinRow::new);
+
+      Fragment fragment = Fragment.lit("""
+          SELECT u.id, u.name, o.total
+          FROM ljm_users u
+          LEFT JOIN ljm_orders o ON u.id = o.user_id
+          """);
+
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+
+      System.out.println(analysis.report());
+
+      return null;
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // unchecked() escape hatch
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Test
+  public void testUncheckedSkipsAnalysis() {
+    withConnection(conn -> {
+      conn.createStatement().execute("CREATE TABLE uc_test (name VARCHAR)");
+
+      RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer.unchecked());
+
+      Fragment fragment = Fragment.lit("SELECT name FROM uc_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+
+      System.out.println(analysis.report());
+
+      assertTrue("unchecked() should skip type checking", analysis.succeeded());
+
+      return null;
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // nullableOk() escape hatch
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Test
+  public void testNullableOkSkipsNullabilityCheck() {
+    withConnection(conn -> {
+      conn.createStatement().execute(
+          "CREATE TABLE nok_test (id INTEGER NOT NULL, name VARCHAR)"
+      );
+
+      record Row(Integer id, String name) {}
+      RowParser<Row> parser = RowParser.<Row>builder()
+          .field(DuckDbTypes.integer, Row::id)
+          .field(DuckDbTypes.varchar.nullableOk(), Row::name)
+          .build(Row::new);
+
+      Fragment fragment = Fragment.lit("SELECT id, name FROM nok_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+
+      System.out.println(analysis.report());
+
+      List<AlignmentError> nullErrors = analysis.columnErrors().stream()
+          .filter(e -> e instanceof AlignmentError.NullabilityMismatch)
+          .toList();
+
+      assertEquals("nullableOk() should suppress nullability errors", 0, nullErrors.size());
+
+      return null;
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Named queries
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Test
+  public void testNamedQuery() {
+    withConnection(conn -> {
+      conn.createStatement().execute("CREATE TABLE nq_test (id INTEGER, name VARCHAR)");
+
+      RowParser<IntStr> parser = RowParser.<IntStr>builder()
+          .field(DuckDbTypes.integer, IntStr::i)
+          .field(DuckDbTypes.varchar, IntStr::s)
+          .build(IntStr::new);
+
+      Fragment fragment = Fragment.lit("SELECT id, name FROM nq_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze("findUsers", fragment.query(parser.all()), conn);
+
+      System.out.println(analysis.report());
+
+      assertTrue("Named query should succeed", analysis.succeeded());
+      String report = analysis.report();
+      assertTrue("Report should contain query name", report.contains("findUsers"));
+
+      return null;
+    });
+  }
+
+  @Test
+  public void testNamedQueryWithError() {
+    withConnection(conn -> {
+      conn.createStatement().execute("CREATE TABLE nqe_test (name VARCHAR)");
+
+      RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer);
+
+      Fragment fragment = Fragment.lit("SELECT name FROM nqe_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze("getUserId", fragment.query(parser.all()), conn);
+
+      System.out.println(analysis.report());
+
+      assertFalse("Named query with type mismatch should fail", analysis.succeeded());
+      String report = analysis.report();
+      assertTrue("Error report should contain query name", report.contains("getUserId"));
+
+      return null;
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // VIEW analysis
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Test
+  public void testViewAnalysis() {
+    withConnection(conn -> {
+      conn.createStatement().execute("""
+          CREATE TABLE va_users (id INTEGER NOT NULL, name VARCHAR NOT NULL);
+          CREATE VIEW va_users_view AS SELECT id, name FROM va_users;
+          """);
+
+      RowParser<IntStr> parser = RowParser.<IntStr>builder()
+          .field(DuckDbTypes.integer, IntStr::i)
+          .field(DuckDbTypes.varchar, IntStr::s)
+          .build(IntStr::new);
+
+      Fragment fragment = Fragment.lit("SELECT id, name FROM va_users_view");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+
+      System.out.println(analysis.report());
+
+      assertTrue("View analysis should succeed", analysis.succeeded());
 
       return null;
     });

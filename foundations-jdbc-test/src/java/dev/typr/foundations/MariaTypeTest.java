@@ -18,6 +18,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import dev.typr.foundations.analysis.QueryAnalysis;
+import dev.typr.foundations.analysis.QueryAnalyzer;
 import org.junit.Test;
 
 /** Tests for MariaDB type codecs. Tests all types defined in MariaTypes. */
@@ -360,14 +364,133 @@ public class MariaTypeTest {
                 })
             .toList();
 
+    // Callable roundtrip tests - test stored procedure IN/OUT parameter roundtrip
+    System.out.println("\n=== Callable Roundtrip Tests (parallel) ===");
+    var callFailures =
+        All.stream()
+            .collect(
+                java.util.stream.Collectors.toMap(
+                    t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+            .values()
+            .parallelStream()
+            .flatMap(
+                t -> {
+                  try {
+                    withConnection(
+                        conn -> {
+                          testCallableRoundtrip(conn, t);
+                          return null;
+                        });
+                    return java.util.stream.Stream.<String>empty();
+                  } catch (Exception e) {
+                    if (e.getMessage() != null
+                        && e.getMessage()
+                            .contains("does not support stored procedure OUT parameters")) {
+                      return java.util.stream.Stream.empty();
+                    }
+                    return java.util.stream.Stream.of(
+                        "Callable test FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
+                  }
+                })
+            .toList();
+
+    // Query analysis tests - deduplicated by SQL type, run in parallel
+    System.out.println("\n=== Query Analysis Tests (parallel) ===");
+    var analysisFailures =
+        All.stream()
+            .collect(Collectors.toMap(t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+            .values()
+            .parallelStream()
+            .flatMap(
+                t -> {
+                  var errors = new java.util.ArrayList<String>();
+                  try {
+                    withConnection(
+                        conn -> {
+                          testQueryAnalysis(conn, t);
+                          return null;
+                        });
+                  } catch (Exception e) {
+                    errors.add(
+                        "Analysis FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
+                  }
+                  if (t.hasIdentity) {
+                    try {
+                      withConnection(
+                          conn -> {
+                            testQueryAnalysisWithParam(conn, t);
+                            return null;
+                          });
+                    } catch (Exception e) {
+                      errors.add(
+                          "Param analysis FAILED "
+                              + t.type.typename().sqlType()
+                              + ": "
+                              + e.getMessage());
+                    }
+                  }
+                  return errors.stream();
+                })
+            .toList();
+
+    var allFailures = new java.util.ArrayList<String>();
+    allFailures.addAll(failures);
+    allFailures.addAll(callFailures);
+    allFailures.addAll(analysisFailures);
+
     System.out.println("\n=====================================");
-    if (failures.isEmpty()) {
+    if (allFailures.isEmpty()) {
       System.out.println("All tests passed!");
     } else {
-      failures.forEach(System.out::println);
-      throw new RuntimeException(failures.size() + " tests failed");
+      allFailures.forEach(System.out::println);
+      throw new RuntimeException(allFailures.size() + " tests failed");
     }
     System.out.println("=====================================");
+  }
+
+  static <A> void testQueryAnalysis(Connection conn, MariaTypeAndExample<A> t) throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("qa");
+    conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
+    try {
+      RowParser<A> parser = RowParser.of(t.type);
+      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      if (!analysis.succeeded()) {
+        throw new RuntimeException(
+            "Query analysis failed for " + sqlType + ":\n" + analysis.report());
+      }
+    } finally {
+      conn.createStatement().execute("DROP TEMPORARY TABLE IF EXISTS " + tableName);
+    }
+  }
+
+  static <A> void testQueryAnalysisWithParam(Connection conn, MariaTypeAndExample<A> t)
+      throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("qap");
+    conn.createStatement()
+        .execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
+    try {
+      RowParser<A> parser = RowParser.of(t.type);
+      Fragment fragment =
+          Fragment.interpolate("SELECT v FROM " + tableName + " WHERE v = ")
+              .param(t.type, t.example)
+              .done();
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      if (!analysis.succeeded()) {
+        throw new RuntimeException(
+            "Param analysis failed for " + sqlType + ":\n" + analysis.report());
+      }
+    } finally {
+      conn.createStatement().execute("DROP TEMPORARY TABLE IF EXISTS " + tableName);
+    }
   }
 
   static <A> void testJsonRoundtrip(MariaTypeAndExample<A> t) {
@@ -503,6 +626,53 @@ public class MariaTypeTest {
     } finally {
       // Drop temp table
       conn.createStatement().execute("DROP TEMPORARY TABLE IF EXISTS " + tableName);
+    }
+  }
+
+  static <A> void testCallableRoundtrip(Connection conn, MariaTypeAndExample<A> t)
+      throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String procName = uniqueTableName("test_proc");
+
+    var proc =
+        DbProcedure.define(procName)
+            .in(t.type)
+            .out(t.type)
+            .build();
+
+    conn.createStatement()
+        .execute(
+            "CREATE PROCEDURE "
+                + procName
+                + "(IN p_in "
+                + sqlType
+                + ", OUT p_out "
+                + sqlType
+                + ") BEGIN SET p_out = p_in; END");
+
+    try {
+      A result = proc.call(t.example).run(conn);
+
+      System.out.println(
+          "Callable roundtrip "
+              + sqlType
+              + ": "
+              + format(t.example)
+              + " -> "
+              + format(result));
+
+      if (t.hasIdentity() && !areEqual(result, t.example)) {
+        throw new RuntimeException(
+            "Callable roundtrip failed for "
+                + sqlType
+                + ": expected '"
+                + format(t.example)
+                + "' but got '"
+                + format(result)
+                + "'");
+      }
+    } finally {
+      conn.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName);
     }
   }
 

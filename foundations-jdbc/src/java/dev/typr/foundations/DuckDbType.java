@@ -1,6 +1,8 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -14,41 +16,18 @@ public record DuckDbType<A>(
     DuckDbStringifier<A> stringifier,
     DuckDbJson<A> duckDbJson,
     DuckDbText<A> duckDbText,
-    DuckDbMapSupport<A> mapSupport)
+    DuckDbMapSupport<A> mapSupport,
+    AnalysisOptions analysisOptions)
     implements DbType<A> {
-  /** Constructor for backwards compatibility - uses cast-based map extraction. */
-  public DuckDbType(
-      DuckDbTypename<A> typename,
-      DuckDbRead<A> read,
-      DuckDbWrite<A> write,
-      DuckDbStringifier<A> stringifier,
-      DuckDbJson<A> duckDbJson) {
-    this(
-        typename,
-        read,
-        write,
-        stringifier,
-        duckDbJson,
-        DuckDbText.instance((a, sb) -> stringifier.unsafeEncode(a, sb, false)),
-        DuckDbMapSupport.cast());
+
+  @Override
+  public Optional<DbOutParam<A>> outParam() {
+    return Optional.empty();
   }
 
-  /** Constructor with custom map extractor. */
-  public DuckDbType(
-      DuckDbTypename<A> typename,
-      DuckDbRead<A> read,
-      DuckDbWrite<A> write,
-      DuckDbStringifier<A> stringifier,
-      DuckDbJson<A> duckDbJson,
-      DuckDbMapSupport<A> mapSupport) {
-    this(
-        typename,
-        read,
-        write,
-        stringifier,
-        duckDbJson,
-        DuckDbText.instance((a, sb) -> stringifier.unsafeEncode(a, sb, false)),
-        mapSupport);
+  @Override
+  public boolean isNullable() {
+    return typename instanceof DuckDbTypename.Opt;
   }
 
   @Override
@@ -61,12 +40,27 @@ public record DuckDbType<A>(
     return duckDbJson;
   }
 
+  @Override
+  public Set<String> vendorTypeNames() {
+    var aliases = analysisOptions.vendorTypeNames();
+    if (aliases.isEmpty()) return Set.of(typename.sqlType().toLowerCase());
+    var all = new java.util.HashSet<>(aliases);
+    all.add(typename.sqlType().toLowerCase());
+    return Set.copyOf(all);
+  }
+
+  public DuckDbType<A> unchecked() { return withAnalysis(analysisOptions.withUnchecked()); }
+  public DuckDbType<A> nullableOk() { return withAnalysis(analysisOptions.withNullableOk()); }
+  public DuckDbType<A> withAnalysis(AnalysisOptions opts) {
+    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, duckDbText, mapSupport, opts);
+  }
+
   public Fragment.Value<A> encode(A value) {
     return new Fragment.Value<>(value, this);
   }
 
   public DuckDbType<A> withTypename(DuckDbTypename<A> typename) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson);
+    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, duckDbText, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withTypename(String sqlType) {
@@ -82,40 +76,33 @@ public record DuckDbType<A>(
   }
 
   public DuckDbType<A> withRead(DuckDbRead<A> read) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson);
+    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, duckDbText, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withWrite(DuckDbWrite<A> write) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson);
+    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, duckDbText, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withStringifier(DuckDbStringifier<A> stringifier) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson);
+    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, duckDbText, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withJson(DuckDbJson<A> json) {
-    return new DuckDbType<>(typename, read, write, stringifier, json);
+    return new DuckDbType<>(typename, read, write, stringifier, json, duckDbText, mapSupport, analysisOptions);
   }
 
   @Override
-  public DuckDbOptType<A> opt() {
-    return new DuckDbOptType<>(
-        typename.opt(), read.opt(), write.opt(typename), stringifier.opt(), duckDbJson.opt());
+  public DuckDbType<Optional<A>> opt() {
+    return new DuckDbType<>(
+        typename.opt(), read.opt(), write.opt(typename), stringifier.opt(), duckDbJson.opt(),
+        DuckDbText.instance((a, sb) -> stringifier.opt().unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(),
+        analysisOptions);
   }
 
-  /**
-   * Create an array type from this element type. Uses SQL literal conversion for writing, which
-   * works for all types. The resulting type can be used with bimap() for custom wrapper types.
-   *
-   * <p>Note: DuckDB internally uses LIST, but we expose it as Java arrays for consistency with
-   * PostgreSQL.
-   *
-   * @return DuckDbType for array of this element type
-   */
   @SuppressWarnings("unchecked")
   public DuckDbType<A[]> array() {
     DuckDbTypename<A[]> arrayTypename = typename.array();
-    // Read: DuckDB JDBC returns Object[], cast elements
     DuckDbRead<A[]> arrayRead =
         DuckDbRead.of(
             (rs, idx) -> {
@@ -128,7 +115,6 @@ public record DuckDbType<A>(
               }
               return result;
             });
-    // Write: convert array to List, use existing list writer
     DuckDbWrite<A[]> arrayWrite =
         DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier)
             .contramap(arr -> java.util.Arrays.asList(arr));
@@ -148,7 +134,6 @@ public record DuckDbType<A>(
               }
               sb.append("]");
             });
-    // JSON: reuse list codec and convert
     DuckDbJson<A[]> arrayJson =
         new DuckDbJson<>() {
           private final DuckDbJson<java.util.List<A>> listJson = duckDbJson.list();
@@ -165,17 +150,11 @@ public record DuckDbType<A>(
             return (A[]) list.toArray();
           }
         };
-    return new DuckDbType<>(arrayTypename, arrayRead, arrayWrite, arrayStringifier, arrayJson);
+    return new DuckDbType<>(arrayTypename, arrayRead, arrayWrite, arrayStringifier, arrayJson,
+        DuckDbText.instance((a, sb) -> arrayStringifier.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), analysisOptions);
   }
 
-  /**
-   * Create a MAP type from this key type and a value type. Uses the mapSupport to convert
-   * keys/values when reading from DuckDB JDBC, and SQL literal conversion for writing.
-   *
-   * @param valueType the value type for the map
-   * @param <V> the value type
-   * @return DuckDbType for Map with this type as keys and valueType as values
-   */
   public <V> DuckDbType<java.util.Map<A, V>> mapTo(DuckDbType<V> valueType) {
     DuckDbTypename<java.util.Map<A, V>> mapTypename = typename.mapTo(valueType.typename);
     String sqlType = mapTypename.sqlType();
@@ -202,25 +181,12 @@ public record DuckDbType<A>(
               sb.append("}");
             });
     return new DuckDbType<>(
-        mapTypename,
-        mapRead,
-        mapWrite,
-        mapStringifier,
-        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson));
+        mapTypename, mapRead, mapWrite, mapStringifier,
+        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
+        DuckDbText.instance((a, sb) -> mapStringifier.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), analysisOptions);
   }
 
-  /**
-   * Create a variable-length LIST type from this element type using native JNI array writing. LIST
-   * is ALWAYS variable-length - each row can have a different number of elements. Use this for
-   * types that DuckDB JNI handles natively: Boolean, Byte, Short, Integer, Long, Float, Double,
-   * String.
-   *
-   * <p>For fixed-length arrays (e.g., embedding vectors), use arrayNative() instead.
-   *
-   * @param elementClass the Java class of elements (needed for JDBC reading)
-   * @param toArray function to create typed array for DuckDBUserArray
-   * @return DuckDbType for variable-length List of this element type
-   */
   public DuckDbType<java.util.List<A>> listNative(
       Class<A> elementClass, java.util.function.IntFunction<A[]> toArray) {
     DuckDbTypename<java.util.List<A>> listTypename = typename.list();
@@ -242,21 +208,11 @@ public record DuckDbType<A>(
               }
               sb.append("]");
             });
-    return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list());
+    return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list(),
+        DuckDbText.instance((a, sb) -> listStringifier.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), analysisOptions);
   }
 
-  /**
-   * Create a variable-length LIST type from this element type using SQL literal string conversion
-   * for writing. LIST is ALWAYS variable-length - each row can have a different number of elements.
-   * Use this for types that DuckDB JNI doesn't handle natively: UUID, LocalTime, LocalDate,
-   * LocalDateTime, OffsetDateTime, BigDecimal, BigInteger, Duration.
-   *
-   * <p>For fixed-length arrays (e.g., embedding vectors), use arrayViaSqlLiteral() instead.
-   *
-   * @param elementClass the Java class of elements (what DuckDB JDBC returns)
-   * @param elementStringifier how to format elements as SQL literals
-   * @return DuckDbType for variable-length List of this element type
-   */
   public DuckDbType<java.util.List<A>> listViaSqlLiteral(
       Class<A> elementClass, DuckDbStringifier<A> elementStringifier) {
     DuckDbTypename<java.util.List<A>> listTypename = typename.list();
@@ -279,22 +235,11 @@ public record DuckDbType<A>(
               }
               sb.append("]");
             });
-    return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list());
+    return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list(),
+        DuckDbText.instance((a, sb) -> listStringifier.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), analysisOptions);
   }
 
-  /**
-   * Create a LIST type from this element type using SQL literal string conversion for writing, with
-   * a converter for reading when DuckDB JDBC returns a different type than expected.
-   *
-   * <p>Use this when the wire type (what DuckDB JDBC returns in arrays) differs from the target
-   * type. For example, TIMESTAMP[] returns java.sql.Timestamp elements, not LocalDateTime.
-   *
-   * @param wireClass the Java class that DuckDB JDBC actually returns in arrays
-   * @param wireToElement function to convert wire type to target element type
-   * @param elementStringifier how to format elements as SQL literals
-   * @param <W> wire type
-   * @return DuckDbType for List of this element type
-   */
   public <W> DuckDbType<java.util.List<A>> listViaSqlLiteral(
       Class<W> wireClass,
       java.util.function.Function<W, A> wireToElement,
@@ -319,24 +264,11 @@ public record DuckDbType<A>(
               }
               sb.append("]");
             });
-    return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list());
+    return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list(),
+        DuckDbText.instance((a, sb) -> listStringifier.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), analysisOptions);
   }
 
-  /**
-   * Create a fixed-size ARRAY type from this element type using native JNI array writing. ARRAY is
-   * ALWAYS fixed-length - every row must have exactly 'size' elements. Use this for embedding
-   * vectors (word embeddings, image embeddings) and other fixed-size arrays.
-   *
-   * <p>For variable-length lists, use listNative() instead.
-   *
-   * <p>From JDBC perspective, ARRAY and LIST are identical - both return DuckDBArray. The
-   * difference is only in the typename (includes size) and database-side validation.
-   *
-   * @param size the fixed size of the array (every row must have exactly this many elements)
-   * @param elementClass the Java class of elements (needed for JDBC reading)
-   * @param toArray function to create typed array for DuckDBUserArray
-   * @return DuckDbType for fixed-size array of this element type
-   */
   public DuckDbType<java.util.List<A>> arrayNative(
       int size, Class<A> elementClass, java.util.function.IntFunction<A[]> toArray) {
     DuckDbTypename<java.util.List<A>> arrayTypename = new DuckDbTypename.ArrayOf<>(typename, size);
@@ -359,7 +291,9 @@ public record DuckDbType<A>(
               sb.append("]");
             });
     return new DuckDbType<>(
-        arrayTypename, arrayRead, arrayWrite, arrayStringifier, duckDbJson.list());
+        arrayTypename, arrayRead, arrayWrite, arrayStringifier, duckDbJson.list(),
+        DuckDbText.instance((a, sb) -> arrayStringifier.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), analysisOptions);
   }
 
   public DuckDbType<java.util.List<A>> arrayViaSqlLiteral(
@@ -385,7 +319,9 @@ public record DuckDbType<A>(
               sb.append("]");
             });
     return new DuckDbType<>(
-        arrayTypename, arrayRead, arrayWrite, arrayStringifier, duckDbJson.list());
+        arrayTypename, arrayRead, arrayWrite, arrayStringifier, duckDbJson.list(),
+        DuckDbText.instance((a, sb) -> arrayStringifier.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), analysisOptions);
   }
 
   public <V> DuckDbType<java.util.Map<A, V>> mapToNative(
@@ -414,11 +350,10 @@ public record DuckDbType<A>(
               sb.append("}");
             });
     return new DuckDbType<>(
-        mapTypename,
-        mapRead,
-        mapWrite,
-        mapStringifier,
-        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson));
+        mapTypename, mapRead, mapWrite, mapStringifier,
+        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
+        DuckDbText.instance((a, sb) -> mapStringifier.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), analysisOptions);
   }
 
   public <V> DuckDbType<java.util.Map<A, V>> mapToViaSqlLiteral(
@@ -452,11 +387,10 @@ public record DuckDbType<A>(
               sb.append("}");
             });
     return new DuckDbType<>(
-        mapTypename,
-        mapRead,
-        mapWrite,
-        mapStringifier,
-        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson));
+        mapTypename, mapRead, mapWrite, mapStringifier,
+        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
+        DuckDbText.instance((a, sb) -> mapStringifier.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), analysisOptions);
   }
 
   public <B> DuckDbType<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
@@ -466,6 +400,7 @@ public record DuckDbType<A>(
         write.contramap(g),
         stringifier.contramap(g),
         duckDbJson.bimap(f, g),
+        DuckDbText.instance((b, sb) -> stringifier.contramap(g).unsafeEncode(b, sb, false)),
         mapSupport.bimap(
             a -> {
               try {
@@ -474,7 +409,8 @@ public record DuckDbType<A>(
                 throw new RuntimeException(e);
               }
             },
-            g));
+            g),
+        analysisOptions);
   }
 
   @Override
@@ -485,12 +421,16 @@ public record DuckDbType<A>(
         write.contramap(bijection::from),
         stringifier.contramap(bijection::from),
         duckDbJson.bimap(bijection::underlying, bijection::from),
-        mapSupport.bimap(bijection::underlying, bijection::from));
+        DuckDbText.instance((b, sb) -> stringifier.contramap(bijection::from).unsafeEncode(b, sb, false)),
+        mapSupport.bimap(bijection::underlying, bijection::from),
+        analysisOptions);
   }
 
   public static <A> DuckDbType<A> of(
       String tpe, DuckDbRead<A> r, DuckDbWrite<A> w, DuckDbStringifier<A> s, DuckDbJson<A> j) {
-    return new DuckDbType<>(DuckDbTypename.of(tpe), r, w, s, j);
+    return new DuckDbType<>(DuckDbTypename.of(tpe), r, w, s, j,
+        DuckDbText.instance((a, sb) -> s.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
   }
 
   public static <A> DuckDbType<A> of(
@@ -499,6 +439,8 @@ public record DuckDbType<A>(
       DuckDbWrite<A> w,
       DuckDbStringifier<A> s,
       DuckDbJson<A> j) {
-    return new DuckDbType<>(typename, r, w, s, j);
+    return new DuckDbType<>(typename, r, w, s, j,
+        DuckDbText.instance((a, sb) -> s.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
   }
 }

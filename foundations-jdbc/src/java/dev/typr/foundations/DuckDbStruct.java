@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;
@@ -84,11 +85,13 @@ public record DuckDbStruct<A>(
               sb.append("}");
             });
 
-    return new DuckDbType<>(typename.asGeneric(), duckDbRead, duckDbWrite, stringifier, json);
+    return new DuckDbType<>(typename.asGeneric(), duckDbRead, duckDbWrite, stringifier, json,
+        DuckDbText.instance((a, sb) -> stringifier.unsafeEncode(a, sb, false)),
+        DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
   }
 
   /** Create an optional version of this STRUCT type. */
-  public DuckDbOptType<A> asOptType() {
+  public DuckDbType<java.util.Optional<A>> opt() {
     return asType().opt();
   }
 

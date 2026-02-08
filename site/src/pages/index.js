@@ -422,6 +422,11 @@ function TransactorShowcase() {
             </div>
           </TabItem>
         </Tabs>
+        <p style={{textAlign: 'center', marginTop: '1.5rem'}}>
+          <Link to="/docs/transactors" style={{color: '#60a5fa', fontSize: '0.95rem'}}>
+            Read the full documentation &rarr;
+          </Link>
+        </p>
       </div>
     </section>
   );
@@ -441,6 +446,29 @@ function JsonSection() {
         <div className={styles.centeredCode}>
           <Snippet file="landing/JsonCodecs" />
         </div>
+      </div>
+    </section>
+  );
+}
+
+function StoredProcedureSection() {
+  return (
+    <section className={styles.sectionDark}>
+      <div className={styles.container}>
+        <h2 className={styles.sectionTitle}>Type-safe stored procedures</h2>
+        <p className={styles.sectionSubtitle}>
+          Define a procedure or function once — the builder tracks IN and OUT types statically.
+          Functions use <code>SELECT</code> so every <code>DbType</code> reads correctly through the normal codec path.
+          OUT params use a <code>CallableStatement</code> adapter that reuses the same <code>DbRead</code> logic.
+        </p>
+        <div className={styles.centeredCode}>
+          <Snippet file="landing/StoredProcedure" />
+        </div>
+        <p style={{textAlign: 'center', marginTop: '1.5rem'}}>
+          <Link to="/docs/stored-procedures" style={{color: '#60a5fa', fontSize: '0.95rem'}}>
+            Read the full documentation &rarr;
+          </Link>
+        </p>
       </div>
     </section>
   );
@@ -737,6 +765,7 @@ export default function Home() {
         <QueryShowcase />
         <TransactorShowcase />
         <JsonSection />
+        <StoredProcedureSection />
         <QueryAnalysisSection />
         <TypeShowcase />
         <ComparisonSection />

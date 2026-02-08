@@ -1,0 +1,31 @@
+package dev.typr.foundations.docs.routines
+
+import dev.typr.foundations.PgTypes
+import dev.typr.kotlinfoundations.*
+import java.math.BigDecimal
+import java.sql.SQLException
+
+@Suppress("unused")
+class FunctionExample {
+    private val tx: dev.typr.foundations.Transactor? = null // placeholder
+
+    //start
+    companion object {
+        // Functions use SELECT instead of CALL — every DbType reads correctly
+        val calcTax: DbFunction.Def2<BigDecimal, String, BigDecimal> =
+            DbFunction.define("calculate_tax", PgTypes.numeric)
+                .`in`(PgTypes.numeric)    // amount
+                .`in`(PgTypes.text)       // region
+                .build()
+
+        // Zero-argument function
+        val nextId: DbFunction.Def0<Int> =
+            DbFunction.define("next_id", PgTypes.int4)
+                .build()
+    }
+
+    @Throws(SQLException::class)
+    fun calculateTax(amount: BigDecimal, region: String): BigDecimal =
+        calcTax.call(amount, region).transact(tx!!)
+    //stop
+}

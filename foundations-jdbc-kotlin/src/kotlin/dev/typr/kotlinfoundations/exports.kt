@@ -25,10 +25,8 @@ typealias OracleObject<T> = dev.typr.foundations.OracleObject<T>
 
 // Re-export database-specific type classes
 typealias PgType<T> = dev.typr.foundations.PgType<T>
-typealias PgOptType<T> = dev.typr.foundations.PgOptType<T>
 typealias MariaType<T> = dev.typr.foundations.MariaType<T>
 typealias DuckDbType<T> = dev.typr.foundations.DuckDbType<T>
-typealias DuckDbOptType<T> = dev.typr.foundations.DuckDbOptType<T>
 typealias OracleType<T> = dev.typr.foundations.OracleType<T>
 typealias SqlServerType<T> = dev.typr.foundations.SqlServerType<T>
 typealias Db2Type<T> = dev.typr.foundations.Db2Type<T>

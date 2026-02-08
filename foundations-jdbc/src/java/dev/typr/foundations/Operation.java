@@ -14,7 +14,9 @@ public sealed interface Operation<Out>
         Operation.UpdateReturningGeneratedKeys,
         Operation.UpdateManyReturning,
         Operation.UpdateMany,
-        Operation.UpdateReturningEach {
+        Operation.UpdateReturningEach,
+        Procedure.ProcedureCall,
+        Procedure.FunctionCall {
   Out run(Connection conn) throws SQLException;
 
   default Out runUnchecked(Connection conn) {

@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.OracleIntervalDS;
 import dev.typr.foundations.data.OracleIntervalYM;
@@ -32,12 +33,20 @@ public interface OracleTypes {
    */
   OracleType<BigDecimal> number =
       OracleType.of(
-          "NUMBER", OracleRead.readBigDecimal, OracleWrite.writeBigDecimal, OracleJson.numeric);
+          "NUMBER",
+          OracleRead.readBigDecimal,
+          OracleWrite.writeBigDecimal,
+          OracleJson.numeric,
+          OracleOutParam.readBigDecimal);
 
   /** NUMBER(p,0) where p<=9 -> Integer */
   OracleType<Integer> numberInt =
       OracleType.of(
-          "NUMBER", OracleRead.readNumberAsInt, OracleWrite.writeInteger, OracleJson.int4);
+          "NUMBER",
+          OracleRead.readNumberAsInt,
+          OracleWrite.writeInteger,
+          OracleJson.int4,
+          OracleOutParam.readInteger);
 
   /**
    * NUMBER(p,0) where 9
@@ -45,7 +54,12 @@ public interface OracleTypes {
    * <p<=18 ->Long
    */
   OracleType<Long> numberLong =
-      OracleType.of("NUMBER", OracleRead.readNumberAsLong, OracleWrite.writeLong, OracleJson.int8);
+      OracleType.of(
+          "NUMBER",
+          OracleRead.readNumberAsLong,
+          OracleWrite.writeLong,
+          OracleJson.int8,
+          OracleOutParam.readLong);
 
   /** NUMBER with precision and scale factory methods */
   static OracleType<BigDecimal> number(int precision) {
@@ -53,7 +67,8 @@ public interface OracleTypes {
         OracleTypename.of("NUMBER", precision),
         OracleRead.readBigDecimal,
         OracleWrite.writeBigDecimal,
-        OracleJson.numeric);
+        OracleJson.numeric,
+        OracleOutParam.readBigDecimal);
   }
 
   static OracleType<BigDecimal> number(int precision, int scale) {
@@ -61,7 +76,8 @@ public interface OracleTypes {
         OracleTypename.of("NUMBER", precision, scale),
         OracleRead.readBigDecimal,
         OracleWrite.writeBigDecimal,
-        OracleJson.numeric);
+        OracleJson.numeric,
+        OracleOutParam.readBigDecimal);
   }
 
   static OracleType<Integer> numberAsInt(int precision) {
@@ -69,7 +85,8 @@ public interface OracleTypes {
         OracleTypename.of("NUMBER", precision),
         OracleRead.readInteger,
         OracleWrite.writeInteger,
-        OracleJson.int4);
+        OracleJson.int4,
+        OracleOutParam.readInteger);
   }
 
   static OracleType<Long> numberAsLong(int precision) {
@@ -77,32 +94,49 @@ public interface OracleTypes {
         OracleTypename.of("NUMBER", precision),
         OracleRead.readLong,
         OracleWrite.writeLong,
-        OracleJson.int8);
+        OracleJson.int8,
+        OracleOutParam.readLong);
   }
 
   /** BINARY_FLOAT - 32-bit IEEE 754 floating point. Range: +/-1.17549E-38 to +/-3.40282E+38 */
   OracleType<Float> binaryFloat =
       OracleType.of(
-          "BINARY_FLOAT", OracleRead.readBinaryFloat, OracleWrite.writeFloat, OracleJson.float4);
+          "BINARY_FLOAT",
+          OracleRead.readBinaryFloat,
+          OracleWrite.writeFloat,
+          OracleJson.float4,
+          OracleOutParam.readFloat);
 
   /** BINARY_DOUBLE - 64-bit IEEE 754 floating point. Range: +/-2.22507E-308 to +/-1.79769E+308 */
   OracleType<Double> binaryDouble =
       OracleType.of(
-          "BINARY_DOUBLE", OracleRead.readBinaryDouble, OracleWrite.writeDouble, OracleJson.float8);
+          "BINARY_DOUBLE",
+          OracleRead.readBinaryDouble,
+          OracleWrite.writeDouble,
+          OracleJson.float8,
+          OracleOutParam.readDouble);
 
   /**
    * FLOAT(precision) - ANSI float type (actually maps to NUMBER internally). Binary precision 1-126
    * (approximately 1-38 decimal digits).
    */
   OracleType<Double> float_ =
-      OracleType.of("FLOAT", OracleRead.readDouble, OracleWrite.writeDouble, OracleJson.float8);
+      OracleType.of(
+          "FLOAT",
+          OracleRead.readDouble,
+          OracleWrite.writeDouble,
+          OracleJson.float8,
+          OracleOutParam.readDouble)
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("number"));
 
   static OracleType<Double> float_(int binaryPrecision) {
     return OracleType.of(
         OracleTypename.of("FLOAT", binaryPrecision),
         OracleRead.readDouble,
         OracleWrite.writeDouble,
-        OracleJson.float8);
+        OracleJson.float8,
+        OracleOutParam.readDouble)
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("number"));
   }
 
   /** INTEGER - Equivalent to NUMBER(38,0). Used for ANSI compatibility. */
@@ -126,14 +160,20 @@ public interface OracleTypes {
    * MAX_STRING_SIZE=EXTENDED).
    */
   OracleType<String> varchar2 =
-      OracleType.of("VARCHAR2", OracleRead.readString, OracleWrite.writeString, OracleJson.text);
+      OracleType.of(
+          "VARCHAR2",
+          OracleRead.readString,
+          OracleWrite.writeString,
+          OracleJson.text,
+          OracleOutParam.readString);
 
   static OracleType<String> varchar2(int maxLength) {
     return OracleType.of(
         OracleTypename.of("VARCHAR2", maxLength),
         OracleRead.readString,
         OracleWrite.writeString,
-        OracleJson.text);
+        OracleJson.text,
+        OracleOutParam.readString);
   }
 
   /**
@@ -145,19 +185,26 @@ public interface OracleTypes {
         OracleTypename.of("VARCHAR2", maxLength),
         OracleRead.readNonEmptyString,
         OracleWrite.writeNonEmptyString,
-        OracleJson.nonEmptyString);
+        OracleJson.nonEmptyString,
+        OracleOutParam.readString.map(NonEmptyString::force));
   }
 
   /** CHAR(n) - Fixed-length character string, blank-padded. Max 2000 bytes. */
   OracleType<String> char_ =
-      OracleType.of("CHAR", OracleRead.readString, OracleWrite.writeString, OracleJson.text);
+      OracleType.of(
+          "CHAR",
+          OracleRead.readString,
+          OracleWrite.writeString,
+          OracleJson.text,
+          OracleOutParam.readString);
 
   static OracleType<String> char_(int length) {
     return OracleType.of(
         OracleTypename.of("CHAR", length),
         OracleRead.readString,
         OracleWrite.writeString,
-        OracleJson.text);
+        OracleJson.text,
+        OracleOutParam.readString);
   }
 
   /**
@@ -169,7 +216,8 @@ public interface OracleTypes {
         OracleTypename.of("CHAR", length),
         OracleRead.readPaddedString(length),
         OracleWrite.writePaddedString(),
-        OracleJson.paddedString(length));
+        OracleJson.paddedString(length),
+        OracleOutParam.readString.map(s -> PaddedString.force(s.stripTrailing(), length)));
   }
 
   /**
@@ -177,14 +225,20 @@ public interface OracleTypes {
    * on national character set.
    */
   OracleType<String> nvarchar2 =
-      OracleType.of("NVARCHAR2", OracleRead.readString, OracleWrite.writeString, OracleJson.text);
+      OracleType.of(
+          "NVARCHAR2",
+          OracleRead.readString,
+          OracleWrite.writeString,
+          OracleJson.text,
+          OracleOutParam.readString);
 
   static OracleType<String> nvarchar2(int maxLength) {
     return OracleType.of(
         OracleTypename.of("NVARCHAR2", maxLength),
         OracleRead.readString,
         OracleWrite.writeString,
-        OracleJson.text);
+        OracleJson.text,
+        OracleOutParam.readString);
   }
 
   /**
@@ -196,19 +250,26 @@ public interface OracleTypes {
         OracleTypename.of("NVARCHAR2", maxLength),
         OracleRead.readNonEmptyString,
         OracleWrite.writeNonEmptyString,
-        OracleJson.nonEmptyString);
+        OracleJson.nonEmptyString,
+        OracleOutParam.readString.map(NonEmptyString::force));
   }
 
   /** NCHAR(n) - Fixed-length National character string. */
   OracleType<String> nchar =
-      OracleType.of("NCHAR", OracleRead.readString, OracleWrite.writeString, OracleJson.text);
+      OracleType.of(
+          "NCHAR",
+          OracleRead.readString,
+          OracleWrite.writeString,
+          OracleJson.text,
+          OracleOutParam.readString);
 
   static OracleType<String> nchar(int length) {
     return OracleType.of(
         OracleTypename.of("NCHAR", length),
         OracleRead.readString,
         OracleWrite.writeString,
-        OracleJson.text);
+        OracleJson.text,
+        OracleOutParam.readString);
   }
 
   /**
@@ -220,12 +281,18 @@ public interface OracleTypes {
         OracleTypename.of("NCHAR", length),
         OracleRead.readPaddedString(length),
         OracleWrite.writePaddedString(),
-        OracleJson.paddedString(length));
+        OracleJson.paddedString(length),
+        OracleOutParam.readString.map(s -> PaddedString.force(s.stripTrailing(), length)));
   }
 
   /** CLOB - Character Large Object. Up to (4GB - 1) * DB_BLOCK_SIZE. */
   OracleType<String> clob =
-      OracleType.of("CLOB", OracleRead.readClob, OracleWrite.writeClobForStruct(), OracleJson.text);
+      OracleType.of(
+          "CLOB",
+          OracleRead.readClob,
+          OracleWrite.writeClobForStruct(),
+          OracleJson.text,
+          OracleOutParam.readString);
 
   /**
    * CLOB - Character Large Object, using NonEmptyString. For NOT NULL columns - guarantees
@@ -236,12 +303,17 @@ public interface OracleTypes {
           "CLOB",
           OracleRead.readClob.map(NonEmptyString::force),
           OracleWrite.writeClob.contramap(NonEmptyString::value),
-          OracleJson.nonEmptyString);
+          OracleJson.nonEmptyString,
+          OracleOutParam.readString.map(NonEmptyString::force));
 
   /** NCLOB - National Character Large Object. */
   OracleType<String> nclob =
       OracleType.of(
-          "NCLOB", OracleRead.readClob, OracleWrite.writeClobForStruct(), OracleJson.text);
+          "NCLOB",
+          OracleRead.readClob,
+          OracleWrite.writeClobForStruct(),
+          OracleJson.text,
+          OracleOutParam.readString);
 
   /**
    * NCLOB - National Character Large Object, using NonEmptyString. For NOT NULL columns -
@@ -252,14 +324,20 @@ public interface OracleTypes {
           "NCLOB",
           OracleRead.readClob.map(NonEmptyString::force),
           OracleWrite.writeClob.contramap(NonEmptyString::value),
-          OracleJson.nonEmptyString);
+          OracleJson.nonEmptyString,
+          OracleOutParam.readString.map(NonEmptyString::force));
 
   /**
    * LONG - Deprecated character type (for backward compatibility only). Use CLOB instead for new
    * applications.
    */
   OracleType<String> long_ =
-      OracleType.of("LONG", OracleRead.readString, OracleWrite.writeString, OracleJson.text);
+      OracleType.of(
+          "LONG",
+          OracleRead.readString,
+          OracleWrite.writeString,
+          OracleJson.text,
+          OracleOutParam.readString);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Binary Types
@@ -270,14 +348,20 @@ public interface OracleTypes {
    * MAX_STRING_SIZE=EXTENDED).
    */
   OracleType<byte[]> raw =
-      OracleType.of("RAW", OracleRead.readByteArray, OracleWrite.writeRaw(), OracleJson.bytea);
+      OracleType.of(
+          "RAW",
+          OracleRead.readByteArray,
+          OracleWrite.writeRaw(),
+          OracleJson.bytea,
+          OracleOutParam.readByteArray);
 
   static OracleType<byte[]> raw(int maxLength) {
     return OracleType.of(
         OracleTypename.of("RAW", maxLength),
         OracleRead.readByteArray,
         OracleWrite.writeRaw(),
-        OracleJson.bytea);
+        OracleJson.bytea,
+        OracleOutParam.readByteArray);
   }
 
   /**
@@ -289,13 +373,18 @@ public interface OracleTypes {
         OracleTypename.of("RAW", maxLength),
         OracleRead.readNonEmptyBlob,
         OracleWrite.writeNonEmptyBlob,
-        OracleJson.nonEmptyBlob);
+        OracleJson.nonEmptyBlob,
+        OracleOutParam.readByteArray.map(NonEmptyBlob::force));
   }
 
   /** BLOB - Binary Large Object. Up to (4GB - 1) * DB_BLOCK_SIZE. */
   OracleType<byte[]> blob =
       OracleType.of(
-          "BLOB", OracleRead.readBlob, OracleWrite.writeBlobForStruct(), OracleJson.bytea);
+          "BLOB",
+          OracleRead.readBlob,
+          OracleWrite.writeBlobForStruct(),
+          OracleJson.bytea,
+          OracleOutParam.readByteArray);
 
   /**
    * BLOB - Binary Large Object, using NonEmptyBlob. For NOT NULL columns - guarantees non-empty
@@ -306,7 +395,8 @@ public interface OracleTypes {
           "BLOB",
           OracleRead.readBlob.map(NonEmptyBlob::force),
           OracleWrite.writeBlob.contramap(NonEmptyBlob::value),
-          OracleJson.nonEmptyBlob);
+          OracleJson.nonEmptyBlob,
+          OracleOutParam.readByteArray.map(NonEmptyBlob::force));
 
   /**
    * LONG RAW - Deprecated binary type (for backward compatibility only). Use BLOB instead for new
@@ -314,7 +404,11 @@ public interface OracleTypes {
    */
   OracleType<byte[]> longRaw =
       OracleType.of(
-          "LONG RAW", OracleRead.readByteArray, OracleWrite.writeByteArray, OracleJson.bytea);
+          "LONG RAW",
+          OracleRead.readByteArray,
+          OracleWrite.writeByteArray,
+          OracleJson.bytea,
+          OracleOutParam.readByteArray);
 
   // BFILE - External file pointer (read-only, references files on server filesystem)
   // Omitted: Requires special handling and rarely used in typical applications
@@ -328,7 +422,12 @@ public interface OracleTypes {
    * DATE! Range: January 1, 4712 BC to December 31, 9999 AD.
    */
   OracleType<LocalDateTime> date =
-      OracleType.of("DATE", OracleRead.readLocalDateTime, OracleWrite.writeDate(), OracleJson.date);
+      OracleType.of(
+          "DATE",
+          OracleRead.readLocalDateTime,
+          OracleWrite.writeDate(),
+          OracleJson.date,
+          OracleOutParam.readLocalDateTime);
 
   /** TIMESTAMP - Timestamp with fractional seconds. Default precision is 6 (microseconds). */
   OracleType<LocalDateTime> timestamp =
@@ -336,14 +435,16 @@ public interface OracleTypes {
           "TIMESTAMP",
           OracleRead.readTimestamp,
           OracleWrite.writeTimestamp(),
-          OracleJson.timestamp);
+          OracleJson.timestamp,
+          OracleOutParam.readLocalDateTime);
 
   static OracleType<LocalDateTime> timestamp(int fractionalSecondsPrecision) {
     return OracleType.of(
         OracleTypename.of("TIMESTAMP", fractionalSecondsPrecision),
         OracleRead.readTimestamp,
         OracleWrite.writeTimestamp(),
-        OracleJson.timestamp);
+        OracleJson.timestamp,
+        OracleOutParam.readLocalDateTime);
   }
 
   /**
@@ -355,14 +456,16 @@ public interface OracleTypes {
           "TIMESTAMP WITH TIME ZONE",
           OracleRead.readOffsetDateTime,
           OracleWrite.writeTimestampWithTimeZone(),
-          OracleJson.timestampWithTimeZone);
+          OracleJson.timestampWithTimeZone,
+          OracleOutParam.readOffsetDateTime);
 
   static OracleType<OffsetDateTime> timestampWithTimeZone(int fractionalSecondsPrecision) {
     return OracleType.of(
         OracleTypename.of("TIMESTAMP(" + fractionalSecondsPrecision + ") WITH TIME ZONE"),
         OracleRead.readOffsetDateTime,
         OracleWrite.writeTimestampWithTimeZone(),
-        OracleJson.timestampWithTimeZone);
+        OracleJson.timestampWithTimeZone,
+        OracleOutParam.readOffsetDateTime);
   }
 
   /**
@@ -374,14 +477,16 @@ public interface OracleTypes {
           "TIMESTAMP WITH LOCAL TIME ZONE",
           OracleRead.readLocalTimezoneTimestamp,
           OracleWrite.writeTimestampWithLocalTimeZone(),
-          OracleJson.timestampWithTimeZone);
+          OracleJson.timestampWithTimeZone,
+          OracleOutParam.readOffsetDateTime);
 
   static OracleType<OffsetDateTime> timestampWithLocalTimeZone(int fractionalSecondsPrecision) {
     return OracleType.of(
         OracleTypename.of("TIMESTAMP(" + fractionalSecondsPrecision + ") WITH LOCAL TIME ZONE"),
         OracleRead.readLocalTimezoneTimestamp,
         OracleWrite.writeTimestampWithLocalTimeZone(),
-        OracleJson.timestampWithTimeZone);
+        OracleJson.timestampWithTimeZone,
+        OracleOutParam.readOffsetDateTime);
   }
 
   /**
@@ -390,17 +495,21 @@ public interface OracleTypes {
    */
   OracleType<OracleIntervalYM> intervalYearToMonth =
       OracleType.of(
-          "INTERVAL YEAR TO MONTH",
-          OracleRead.readIntervalYearToMonth,
-          OracleWrite.writeIntervalYearToMonth(),
-          OracleJson.intervalYearToMonth);
+              "INTERVAL YEAR TO MONTH",
+              OracleRead.readIntervalYearToMonth,
+              OracleWrite.writeIntervalYearToMonth(),
+              OracleJson.intervalYearToMonth,
+              OracleOutParam.readString.map(OracleIntervalYM::parse))
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("intervalym"));
 
   static OracleType<OracleIntervalYM> intervalYearToMonth(int yearPrecision) {
     return OracleType.of(
-        OracleTypename.of("INTERVAL YEAR(" + yearPrecision + ") TO MONTH"),
-        OracleRead.readIntervalYearToMonth,
-        OracleWrite.writeIntervalYearToMonth(),
-        OracleJson.intervalYearToMonth);
+            OracleTypename.of("INTERVAL YEAR(" + yearPrecision + ") TO MONTH"),
+            OracleRead.readIntervalYearToMonth,
+            OracleWrite.writeIntervalYearToMonth(),
+            OracleJson.intervalYearToMonth,
+            OracleOutParam.readString.map(OracleIntervalYM::parse))
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("intervalym"));
   }
 
   /**
@@ -410,19 +519,23 @@ public interface OracleTypes {
    */
   OracleType<OracleIntervalDS> intervalDayToSecond =
       OracleType.of(
-          "INTERVAL DAY TO SECOND",
-          OracleRead.readIntervalDayToSecond,
-          OracleWrite.writeIntervalDayToSecond(),
-          OracleJson.intervalDayToSecond);
+              "INTERVAL DAY TO SECOND",
+              OracleRead.readIntervalDayToSecond,
+              OracleWrite.writeIntervalDayToSecond(),
+              OracleJson.intervalDayToSecond,
+              OracleOutParam.readString.map(OracleIntervalDS::parse))
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("intervalds"));
 
   static OracleType<OracleIntervalDS> intervalDayToSecond(
       int dayPrecision, int fractionalSecondsPrecision) {
     return OracleType.of(
-        OracleTypename.of(
-            "INTERVAL DAY(" + dayPrecision + ") TO SECOND(" + fractionalSecondsPrecision + ")"),
-        OracleRead.readIntervalDayToSecond,
-        OracleWrite.writeIntervalDayToSecond(),
-        OracleJson.intervalDayToSecond);
+            OracleTypename.of(
+                "INTERVAL DAY(" + dayPrecision + ") TO SECOND(" + fractionalSecondsPrecision + ")"),
+            OracleRead.readIntervalDayToSecond,
+            OracleWrite.writeIntervalDayToSecond(),
+            OracleJson.intervalDayToSecond,
+            OracleOutParam.readString.map(OracleIntervalDS::parse))
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("intervalds"));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -434,21 +547,32 @@ public interface OracleTypes {
    * 18-character base-64 string.
    */
   OracleType<String> rowId =
-      OracleType.of("ROWID", OracleRead.readRowId, OracleWrite.writeString, OracleJson.rowId);
+      OracleType.of(
+          "ROWID",
+          OracleRead.readRowId,
+          OracleWrite.writeString,
+          OracleJson.rowId,
+          OracleOutParam.readString);
 
   /**
    * UROWID - Universal ROWID for index-organized tables and foreign tables. Variable length, max
    * 4000 bytes.
    */
   OracleType<String> uRowId =
-      OracleType.of("UROWID", OracleRead.readRowId, OracleWrite.writeString, OracleJson.rowId);
+      OracleType.of(
+          "UROWID",
+          OracleRead.readRowId,
+          OracleWrite.writeString,
+          OracleJson.rowId,
+          OracleOutParam.readString);
 
   static OracleType<String> uRowId(int maxLength) {
     return OracleType.of(
         OracleTypename.of("UROWID", maxLength),
         OracleRead.readRowId,
         OracleWrite.writeString,
-        OracleJson.rowId);
+        OracleJson.rowId,
+        OracleOutParam.readString);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -457,7 +581,12 @@ public interface OracleTypes {
 
   /** XMLTYPE - XML document storage. Supports XQuery, XPath, and XML Schema validation. */
   OracleType<String> xmlType =
-      OracleType.of("XMLTYPE", OracleRead.readClob, OracleWrite.writeClob, OracleJson.xmlType);
+      OracleType.of(
+          "XMLTYPE",
+          OracleRead.readClob,
+          OracleWrite.writeClob,
+          OracleJson.xmlType,
+          OracleOutParam.readString);
 
   /**
    * JSON - Native JSON type (Oracle 21c+). Binary optimized storage with efficient query support.
@@ -467,7 +596,8 @@ public interface OracleTypes {
           "JSON",
           OracleRead.readString.map(Json::new),
           OracleWrite.writeString.contramap(Json::value),
-          OracleJson.json);
+          OracleJson.json,
+          OracleOutParam.readJsonAsString.map(Json::new));
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Boolean Type (Oracle 23c+)
@@ -477,7 +607,12 @@ public interface OracleTypes {
    * BOOLEAN - Native boolean type (Oracle 23c+). Prior to 23c, use NUMBER(1) with 0/1 convention.
    */
   OracleType<Boolean> boolean_ =
-      OracleType.of("BOOLEAN", OracleRead.readBoolean, OracleWrite.writeBoolean, OracleJson.bool);
+      OracleType.of(
+          "BOOLEAN",
+          OracleRead.readBoolean,
+          OracleWrite.writeBoolean,
+          OracleJson.bool,
+          OracleOutParam.readBoolean);
 
   /**
    * NUMBER(1) as Boolean - Traditional Oracle boolean representation. 0 = false, 1 = true (or any
@@ -488,7 +623,8 @@ public interface OracleTypes {
           OracleTypename.of("NUMBER", 1),
           OracleRead.readInteger.map(i -> i != 0),
           OracleWrite.writeInteger.contramap(b -> b ? 1 : 0),
-          OracleJson.bool);
+          OracleJson.bool,
+          OracleOutParam.readInteger.map(i -> i != 0));
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ENUM Type Helper
@@ -507,7 +643,8 @@ public interface OracleTypes {
         sqlType,
         OracleRead.readString.map(fromString::apply),
         OracleWrite.writeString.contramap(Enum::name),
-        OracleJson.text.bimap(fromString::apply, Enum::name));
+        OracleJson.text.bimap(fromString::apply, Enum::name),
+        OracleOutParam.readString.map(fromString::apply));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -552,6 +689,10 @@ public interface OracleTypes {
   // For columns whose type typr doesn't know how to handle - cast to/from string
   OracleType<dev.typr.foundations.data.Unknown> unknown =
       OracleType.of(
-              "VARCHAR2(4000)", OracleRead.readString, OracleWrite.writeString, OracleJson.text)
+              "VARCHAR2(4000)",
+              OracleRead.readString,
+              OracleWrite.writeString,
+              OracleJson.text,
+              OracleOutParam.readString)
           .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 }

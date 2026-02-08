@@ -1,6 +1,8 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.dsl.Bijection;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -26,6 +28,11 @@ public interface DbType<A> {
    */
   DbJson<A> json();
 
+  /**
+   * Get the callable read codec for reading OUT/INOUT parameter values from a CallableStatement.
+   */
+  Optional<DbOutParam<A>> outParam();
+
   /** Create an optional version of this type. */
   DbType<java.util.Optional<A>> opt();
 
@@ -44,45 +51,24 @@ public interface DbType<A> {
   // ─────────────────────────────────────────────────────────────────────────────
 
   /**
-   * JDBC type codes (java.sql.Types constants) this type can write to when used as a parameter.
-   * Used by query analysis to verify parameter type compatibility.
-   *
-   * <p>The default implementation looks up the JDBC types from a registry based on
-   * {@link #typename()}.sqlType(). Override to customize.
-   *
-   * @return set of java.sql.Types constants this type can write to
-   */
-  default Set<Integer> jdbcTargets() {
-    return dev.typr.foundations.analysis.JdbcTypeRegistry.jdbcTargets(typename().sqlType());
-  }
-
-  /**
-   * JDBC type codes (java.sql.Types constants) this type can read from when used in a RowParser.
-   * Used by query analysis to verify column type compatibility.
-   *
-   * <p>This is often broader than jdbcTargets() because types can often read from related types
-   * (e.g., an int4 type might read from SMALLINT, INTEGER, or BIGINT).
-   *
-   * <p>The default implementation looks up the JDBC types from a registry based on
-   * {@link #typename()}.sqlType(). Override to customize.
-   *
-   * @return set of java.sql.Types constants this type can read from
-   */
-  default Set<Integer> jdbcSources() {
-    return dev.typr.foundations.analysis.JdbcTypeRegistry.jdbcSources(typename().sqlType());
-  }
-
-  /**
    * Vendor-specific type names this type recognizes (case-insensitive).
-   * Used by query analysis to provide better error messages.
+   * Used by query analysis to match against database metadata.
    *
-   * <p>Examples: "int4", "integer", "serial" for PostgreSQL integer types.
+   * <p>The default returns a singleton set of the typename's sqlType() in lowercase.
+   * Concrete types override to combine typename().sqlType() with any aliases from analysisOptions().
    *
    * @return set of vendor type names (lowercase)
    */
   default Set<String> vendorTypeNames() {
-    return dev.typr.foundations.analysis.JdbcTypeRegistry.lookup(typename().sqlType()).vendorTypeNames();
+    return Set.of(typename().sqlType().toLowerCase());
   }
+
+  /**
+   * Analysis options controlling type checking behavior.
+   *
+   * @return analysis options for this type
+   */
+  AnalysisOptions analysisOptions();
 
   /**
    * Whether this type allows null values. Types created with .opt() return true.

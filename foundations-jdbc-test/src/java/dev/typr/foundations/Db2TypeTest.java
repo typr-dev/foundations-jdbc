@@ -13,6 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import dev.typr.foundations.analysis.QueryAnalysis;
+import dev.typr.foundations.analysis.QueryAnalyzer;
 import org.junit.Test;
 
 /** Tests for DB2 type codecs. Tests all types defined in Db2Types. */
@@ -207,13 +211,92 @@ public class Db2TypeTest {
                 })
             .toList();
 
+    // Callable roundtrip tests (stored procedure IN/OUT)
+    System.out.println("\n=== Callable Roundtrip Tests (parallel) ===");
+    var callableFailures =
+        All.parallelStream()
+            .flatMap(
+                t -> {
+                  var errors = new ArrayList<String>();
+                  try {
+                    withConnection(
+                        conn -> {
+                          testCallableRoundtrip(conn, t);
+                          return null;
+                        });
+                  } catch (Exception e) {
+                    String msg = e.getMessage();
+                    if (msg != null && msg.contains("does not support stored procedure OUT parameters")) {
+                      System.out.println(
+                          "Callable roundtrip "
+                              + t.type.typename().sqlType()
+                              + ": SKIP (not supported)");
+                    } else {
+                      errors.add(
+                          "Callable test FAILED "
+                              + t.type.typename().sqlType()
+                              + ": "
+                              + msg);
+                    }
+                  }
+                  return errors.stream();
+                })
+            .toList();
+
+    // Query analysis tests - deduplicated by SQL type, run in parallel
+    System.out.println("\n=== Query Analysis Tests (parallel) ===");
+    var analysisFailures =
+        All.stream()
+            .collect(Collectors.toMap(t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+            .values()
+            .parallelStream()
+            .flatMap(
+                t -> {
+                  var errors = new ArrayList<String>();
+                  try {
+                    withConnection(
+                        conn -> {
+                          testQueryAnalysis(conn, t);
+                          return null;
+                        });
+                  } catch (Exception e) {
+                    errors.add(
+                        "Analysis FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
+                  }
+                  if (t.hasIdentity) {
+                    try {
+                      withConnection(
+                          conn -> {
+                            testQueryAnalysisWithParam(conn, t);
+                            return null;
+                          });
+                    } catch (Exception e) {
+                      errors.add(
+                          "Param analysis FAILED "
+                              + t.type.typename().sqlType()
+                              + ": "
+                              + e.getMessage());
+                    }
+                  }
+                  return errors.stream();
+                })
+            .toList();
+
+    var allFailures = new ArrayList<String>();
+    allFailures.addAll(failures);
+    allFailures.addAll(callableFailures);
+    allFailures.addAll(analysisFailures);
+
     System.out.println("\n=====================================");
-    if (failures.isEmpty()) {
+    if (allFailures.isEmpty()) {
       System.out.println("All tests passed!");
     } else {
-      failures.forEach(System.out::println);
+      allFailures.forEach(System.out::println);
       throw new RuntimeException(
-          failures.size() + " tests failed:\n" + String.join("\n", failures));
+          allFailures.size() + " tests failed:\n" + String.join("\n", allFailures));
     }
     System.out.println("=====================================");
   }
@@ -222,6 +305,63 @@ public class Db2TypeTest {
    * Test JSON roundtrip in-memory. Returns true if test passed/skipped, false if type doesn't
    * support JSON.
    */
+  static <A> void testQueryAnalysis(Connection conn, Db2TypeAndExample<A> t) throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("QA");
+    try {
+      conn.createStatement().execute("DROP TABLE " + tableName);
+    } catch (SQLException e) {
+      // Table might not exist, ignore
+    }
+    conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
+    try {
+      RowParser<A> parser = RowParser.of(t.type);
+      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      if (!analysis.succeeded()) {
+        throw new RuntimeException(
+            "Query analysis failed for " + sqlType + ":\n" + analysis.report());
+      }
+    } finally {
+      try {
+        conn.createStatement().execute("DROP TABLE " + tableName);
+      } catch (SQLException e) {
+        // Ignore cleanup errors
+      }
+    }
+  }
+
+  static <A> void testQueryAnalysisWithParam(Connection conn, Db2TypeAndExample<A> t)
+      throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("QAP");
+    try {
+      conn.createStatement().execute("DROP TABLE " + tableName);
+    } catch (SQLException e) {
+      // Table might not exist, ignore
+    }
+    conn.createStatement()
+        .execute("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
+    try {
+      RowParser<A> parser = RowParser.of(t.type);
+      Fragment fragment =
+          Fragment.interpolate("SELECT v FROM " + tableName + " WHERE v = ")
+              .param(t.type, t.example)
+              .done();
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      if (!analysis.succeeded()) {
+        throw new RuntimeException(
+            "Param analysis failed for " + sqlType + ":\n" + analysis.report());
+      }
+    } finally {
+      try {
+        conn.createStatement().execute("DROP TABLE " + tableName);
+      } catch (SQLException e) {
+        // Ignore cleanup errors
+      }
+    }
+  }
+
   static <A> boolean testJsonRoundtrip(Db2TypeAndExample<A> t) {
     try {
       Db2Json<A> jsonCodec = t.type.db2Json();
@@ -404,6 +544,54 @@ public class Db2TypeTest {
       // Drop temp table
       try {
         conn.createStatement().execute("DROP TABLE " + tableName);
+      } catch (SQLException e) {
+        // Ignore cleanup errors
+      }
+    }
+  }
+
+  static <A> void testCallableRoundtrip(Connection conn, Db2TypeAndExample<A> t)
+      throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String procName = uniqueTableName("CP");
+
+    DbProcedure.Def1_1<A, A> proc = DbProcedure.define(procName).in(t.type).out(t.type).build();
+
+    conn.createStatement()
+        .execute(
+            "CREATE OR REPLACE PROCEDURE "
+                + procName
+                + "(IN p_in "
+                + sqlType
+                + ", OUT p_out "
+                + sqlType
+                + ") BEGIN SET p_out = p_in; END");
+
+    try {
+      A expected = t.example;
+      A actual = proc.call(expected).run(conn);
+
+      System.out.println(
+          "Callable roundtrip "
+              + sqlType
+              + ": "
+              + format(expected)
+              + " -> "
+              + format(actual));
+
+      if (!areEqual(actual, expected)) {
+        throw new RuntimeException(
+            "Callable roundtrip failed for "
+                + sqlType
+                + ": expected '"
+                + format(expected)
+                + "' but got '"
+                + format(actual)
+                + "'");
+      }
+    } finally {
+      try {
+        conn.createStatement().execute("DROP PROCEDURE " + procName);
       } catch (SQLException e) {
         // Ignore cleanup errors
       }

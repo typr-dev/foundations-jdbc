@@ -1,10 +1,14 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.QueryAnalysis;
+import dev.typr.foundations.analysis.QueryAnalyzer;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Test;
 
 /**
@@ -286,15 +290,134 @@ public class SqlServerTypeTest {
                 })
             .toList();
 
+    // Callable roundtrip tests (stored procedure IN/OUT) - parallel
+    System.out.println("\n=== Callable Roundtrip Tests (parallel) ===");
+    var callableFailures =
+        All.parallelStream()
+            .flatMap(
+                t -> {
+                  var errors = new ArrayList<String>();
+                  try {
+                    withConnection(
+                        conn -> {
+                          testCallableRoundtrip(conn, t);
+                          return null;
+                        });
+                  } catch (Exception e) {
+                    String msg = e.getMessage() != null ? e.getMessage() : e.toString();
+                    if (msg.contains("does not support stored procedure OUT parameters")) {
+                      System.out.println(
+                          "Callable SKIPPED "
+                              + t.type.typename().sqlType()
+                              + ": not supported for OUT params");
+                    } else {
+                      errors.add(
+                          "Callable test FAILED "
+                              + t.type.typename().sqlType()
+                              + ": "
+                              + msg);
+                    }
+                  }
+                  return errors.stream();
+                })
+            .toList();
+
+    // Query analysis tests - deduplicated by SQL type, run in parallel
+    System.out.println("\n=== Query Analysis Tests (parallel) ===");
+    var analysisFailures =
+        All.stream()
+            .collect(Collectors.toMap(t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+            .values()
+            .parallelStream()
+            .flatMap(
+                t -> {
+                  var errors = new ArrayList<String>();
+                  try {
+                    withConnection(
+                        conn -> {
+                          testQueryAnalysis(conn, t);
+                          return null;
+                        });
+                  } catch (Exception e) {
+                    errors.add(
+                        "Analysis FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
+                  }
+                  if (t.hasIdentity) {
+                    try {
+                      withConnection(
+                          conn -> {
+                            testQueryAnalysisWithParam(conn, t);
+                            return null;
+                          });
+                    } catch (Exception e) {
+                      errors.add(
+                          "Param analysis FAILED "
+                              + t.type.typename().sqlType()
+                              + ": "
+                              + e.getMessage());
+                    }
+                  }
+                  return errors.stream();
+                })
+            .toList();
+
+    var allFailures = new ArrayList<String>();
+    allFailures.addAll(failures);
+    allFailures.addAll(callableFailures);
+    allFailures.addAll(analysisFailures);
+
     System.out.println("\n=====================================");
-    if (failures.isEmpty()) {
+    if (allFailures.isEmpty()) {
       System.out.println("All tests passed!");
     } else {
-      failures.forEach(System.out::println);
+      allFailures.forEach(System.out::println);
       throw new RuntimeException(
-          failures.size() + " tests failed:\n" + String.join("\n", failures));
+          allFailures.size() + " tests failed:\n" + String.join("\n", allFailures));
     }
     System.out.println("=====================================");
+  }
+
+  static <A> void testQueryAnalysis(Connection conn, SqlServerTypeAndExample<A> t)
+      throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("#qa");
+    conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
+    try {
+      RowParser<A> parser = RowParser.of(t.type);
+      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      if (!analysis.succeeded()) {
+        throw new RuntimeException(
+            "Query analysis failed for " + sqlType + ":\n" + analysis.report());
+      }
+    } finally {
+      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+    }
+  }
+
+  static <A> void testQueryAnalysisWithParam(Connection conn, SqlServerTypeAndExample<A> t)
+      throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("#qap");
+    conn.createStatement()
+        .execute("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
+    try {
+      RowParser<A> parser = RowParser.of(t.type);
+      Fragment fragment =
+          Fragment.interpolate("SELECT v FROM " + tableName + " WHERE v = ")
+              .param(t.type, t.example)
+              .done();
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      if (!analysis.succeeded()) {
+        throw new RuntimeException(
+            "Param analysis failed for " + sqlType + ":\n" + analysis.report());
+      }
+    } finally {
+      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+    }
   }
 
   static <A> void testJsonRoundtrip(SqlServerTypeAndExample<A> t) {
@@ -427,12 +550,62 @@ public class SqlServerTypeTest {
     }
   }
 
+  private static final Set<String> UNSUPPORTED_PROC_PARAM_TYPES =
+      Set.of("TEXT", "NTEXT", "IMAGE", "ROWVERSION", "TIMESTAMP");
+
+  static <A> void testCallableRoundtrip(Connection conn, SqlServerTypeAndExample<A> t)
+      throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+
+    if (UNSUPPORTED_PROC_PARAM_TYPES.contains(sqlType.toUpperCase())) {
+      System.out.println(
+          "Callable SKIPPED " + sqlType + ": cannot be used as stored procedure parameter");
+      return;
+    }
+
+    String procName = "dbo." + uniqueTableName("proc_callable");
+    String createSql =
+        "CREATE PROCEDURE "
+            + procName
+            + " @p_in "
+            + sqlType
+            + ", @p_out "
+            + sqlType
+            + " OUTPUT AS BEGIN SET @p_out = @p_in; END";
+    conn.createStatement().execute(createSql);
+
+    try {
+      DbProcedure.Def1_1<A, A> proc =
+          DbProcedure.define(procName).in(t.type).out(t.type).build();
+
+      A result = proc.call(t.example).run(conn);
+
+      System.out.println(
+          "Callable roundtrip "
+              + sqlType
+              + ": "
+              + format(t.example)
+              + " -> proc -> "
+              + format(result));
+
+      if (t.hasIdentity && !areEqual(result, t.example)) {
+        throw new RuntimeException("Callable roundtrip failed for " + sqlType);
+      }
+    } finally {
+      conn.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName);
+    }
+  }
+
   static <A> boolean areEqual(A actual, A expected) {
     if (expected instanceof byte[]) {
       return Arrays.equals((byte[]) actual, (byte[]) expected);
     }
     if (expected instanceof Object[]) {
       return Arrays.equals((Object[]) actual, (Object[]) expected);
+    }
+    // For BigDecimal, compare numerically (ignore scale differences)
+    if (expected instanceof BigDecimal) {
+      return ((BigDecimal) actual).compareTo((BigDecimal) expected) == 0;
     }
     // For floating point, allow small differences
     if (expected instanceof Float) {
