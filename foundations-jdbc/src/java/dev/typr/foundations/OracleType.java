@@ -32,12 +32,6 @@ public record OracleType<A>(
   }
 
   @Override
-  public DbText<A> text() {
-    throw new UnsupportedOperationException(
-        "Oracle doesn't support text-based streaming inserts. Use batch operations instead.");
-  }
-
-  @Override
   public DbJson<A> json() {
     return oracleJson;
   }

@@ -92,17 +92,13 @@ public class DuckDbTypeTest {
   DuckDbType<IntOrString> intOrStringType = intOrStringUnion.asType();
 
   record DuckDbTypeAndExample<A>(
-      DuckDbType<A> type, A example, boolean hasIdentity, boolean supportsTextRoundtrip) {
+      DuckDbType<A> type, A example, boolean hasIdentity) {
     public DuckDbTypeAndExample(DuckDbType<A> type, A example) {
-      this(type, example, true, true);
+      this(type, example, true);
     }
 
     public DuckDbTypeAndExample<A> noIdentity() {
-      return new DuckDbTypeAndExample<>(type, example, false, supportsTextRoundtrip);
-    }
-
-    public DuckDbTypeAndExample<A> noTextRoundtrip() {
-      return new DuckDbTypeAndExample<>(type, example, hasIdentity, false);
+      return new DuckDbTypeAndExample<>(type, example, false);
     }
   }
 
@@ -198,16 +194,11 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(DuckDbTypes.char_(10), "hello"),
 
           // ==================== Binary Types ====================
-          // BLOB: Binary data cannot roundtrip through textual JSON COPY format
-          // JSON treats base64 strings as VARCHAR literals, storing text instead of binary.
-          // Use Parquet/Arrow formats for proper binary data streaming.
-          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {0x01, 0x02, 0x03, 0x04, 0x05})
-              .noTextRoundtrip(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {}).noTextRoundtrip(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {0x01, 0x02, 0x03, 0x04, 0x05}),
+          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {}),
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.blob, new byte[] {(byte) 0xFF, 0x00, 0x7F, (byte) 0x80})
-              .noTextRoundtrip(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {0x00}).noTextRoundtrip(),
+                  DuckDbTypes.blob, new byte[] {(byte) 0xFF, 0x00, 0x7F, (byte) 0x80}),
+          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {0x00}),
 
           // ==================== Date/Time Types ====================
           new DuckDbTypeAndExample<>(DuckDbTypes.date, LocalDate.of(2024, 6, 15)),
@@ -417,10 +408,10 @@ public class DuckDbTypeTest {
           // ==================== UNION Types ====================
           new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Num(42))
               .noIdentity()
-              .noTextRoundtrip(),
+,
           new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Str("hello"))
               .noIdentity()
-              .noTextRoundtrip(),
+,
 
           // ==================== ARRAY Types (Fixed-Size) ====================
           new DuckDbTypeAndExample<>(
@@ -463,11 +454,6 @@ public class DuckDbTypeTest {
     All.parallelStream().forEach(DuckDbTypeTest::testJsonRoundtrip);
     System.out.println();
 
-    // Test Text encoding (no database connection needed) - parallel
-    System.out.println("=== Text Encoding Tests (parallel) ===");
-    All.parallelStream().forEach(DuckDbTypeTest::testTextEncoding);
-    System.out.println();
-
     // Run all DB tests in parallel - each test gets its own connection
     System.out.println("=== DB Roundtrip Tests (parallel) ===");
     var failures =
@@ -489,29 +475,6 @@ public class DuckDbTypeTest {
                             + t.type.typename().sqlType()
                             + ": "
                             + e.getMessage());
-                  }
-
-                  // Text roundtrip test
-                  if (t.supportsTextRoundtrip) {
-                    try {
-                      withConnection(
-                          conn -> {
-                            try {
-                              testTextRoundtrip(conn, t);
-                            } catch (Exception e) {
-                              throw new RuntimeException(e);
-                            }
-                            return null;
-                          });
-                    } catch (UnsupportedOperationException e) {
-                      // Don't count as failure
-                    } catch (Exception e) {
-                      errors.add(
-                          "Text roundtrip FAILED "
-                              + t.type.typename().sqlType()
-                              + ": "
-                              + e.getMessage());
-                    }
                   }
 
                   return errors.stream();
@@ -633,109 +596,6 @@ public class DuckDbTypeTest {
     }
   }
 
-  static <A> void testTextEncoding(DuckDbTypeAndExample<A> t) {
-    try {
-      DbText<A> textCodec = t.type.text();
-      A original = t.example;
-
-      // Test text encoding (format to CSV string)
-      StringBuilder sb = new StringBuilder();
-      textCodec.unsafeEncode(original, sb);
-      String encoded = sb.toString();
-
-      System.out.println(
-          "Text encoding "
-              + t.type.typename().sqlType()
-              + ": "
-              + format(original)
-              + " -> "
-              + encoded);
-
-    } catch (UnsupportedOperationException e) {
-      // Some types don't support text encoding yet
-      System.out.println("Text encoding " + t.type.typename().sqlType() + ": NOT SUPPORTED");
-    } catch (Exception e) {
-      throw new RuntimeException("Text encoding test failed for " + t.type.typename().sqlType(), e);
-    }
-  }
-
-  static <A> void testTextRoundtrip(Connection conn, DuckDbTypeAndExample<A> t) throws Exception {
-    if (!t.supportsTextRoundtrip) {
-      System.out.println(
-          "Text roundtrip "
-              + t.type.typename().sqlType()
-              + ": SKIPPED (not supported for this type)");
-      return;
-    }
-
-    String sqlType = t.type.typename().sqlType();
-    DuckDbJson<A> jsonCodec = t.type.duckDbJson();
-    A original = t.example;
-
-    // Encode to JSON (simpler than CSV for complex types!)
-    String jsonValue = jsonCodec.toJson(original).encode();
-
-    // Use unique table name to avoid conflicts if previous test failed
-    String tableName = "text_test_" + System.nanoTime();
-
-    // Create temp table
-    conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
-
-    try {
-      // Write JSON to temp file (one value per line - newline-delimited JSON)
-      // DuckDB expects each line to be a JSON object matching the table structure
-      java.io.File tempFile = java.io.File.createTempFile("duckdb_test_", ".json");
-      tempFile.deleteOnExit();
-      String jsonLine = "{\"v\":" + jsonValue + "}\n";
-      java.nio.file.Files.writeString(tempFile.toPath(), jsonLine);
-
-      // Import JSON using COPY
-      // DuckDB can parse JSON directly!
-      String copyCommand =
-          "COPY " + tableName + " FROM '" + tempFile.getAbsolutePath() + "' (FORMAT JSON)";
-      try {
-        conn.createStatement().execute(copyCommand);
-      } catch (SQLException e) {
-        throw new RuntimeException(
-            "COPY command failed: " + copyCommand + "\nJSON line: " + jsonLine, e);
-      }
-
-      // Read back the value
-      var rs = conn.createStatement().executeQuery("SELECT v FROM " + tableName);
-      if (!rs.next()) {
-        throw new RuntimeException("No rows returned from JSON import");
-      }
-      A decoded = t.type.read().read(rs, 1);
-      rs.close();
-
-      // Verify roundtrip
-      if (t.hasIdentity && !areEqual(decoded, original)) {
-        throw new RuntimeException(
-            "Text roundtrip failed: expected '"
-                + format(original)
-                + "' but got '"
-                + format(decoded)
-                + "'");
-      }
-
-      System.out.println(
-          "Text roundtrip "
-              + sqlType
-              + ": "
-              + format(original)
-              + " -> "
-              + jsonValue
-              + " -> "
-              + format(decoded));
-
-    } finally {
-      try {
-        conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
-      } catch (SQLException e) {
-        // Ignore cleanup errors - transaction might be aborted
-      }
-    }
-  }
 
   static <A> void testQueryAnalysis(Connection conn, DuckDbTypeAndExample<A> t) throws SQLException {
     String sqlType = t.type.typename().sqlType();

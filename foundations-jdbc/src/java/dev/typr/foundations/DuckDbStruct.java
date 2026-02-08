@@ -86,7 +86,6 @@ public record DuckDbStruct<A>(
             });
 
     return new DuckDbType<>(typename.asGeneric(), duckDbRead, duckDbWrite, stringifier, json,
-        DuckDbText.instance((a, sb) -> stringifier.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
   }
 

@@ -7,7 +7,8 @@ import java.util.function.Function;
 
 /**
  * Combines DuckDB type name, read, write, stringification, and JSON encoding for a type. Similar to
- * PgType but for DuckDB.
+ * PgType but for DuckDB. Note: DuckDB doesn't support text-based streaming inserts via JDBC (like
+ * PostgreSQL's COPY), so there is no DuckDbText component.
  */
 public record DuckDbType<A>(
     DuckDbTypename<A> typename,
@@ -15,7 +16,6 @@ public record DuckDbType<A>(
     DuckDbWrite<A> write,
     DuckDbStringifier<A> stringifier,
     DuckDbJson<A> duckDbJson,
-    DuckDbText<A> duckDbText,
     DuckDbMapSupport<A> mapSupport,
     AnalysisOptions analysisOptions)
     implements DbType<A> {
@@ -28,11 +28,6 @@ public record DuckDbType<A>(
   @Override
   public boolean isNullable() {
     return typename instanceof DuckDbTypename.Opt;
-  }
-
-  @Override
-  public DbText<A> text() {
-    return duckDbText;
   }
 
   @Override
@@ -52,7 +47,7 @@ public record DuckDbType<A>(
   public DuckDbType<A> unchecked() { return withAnalysis(analysisOptions.withUnchecked()); }
   public DuckDbType<A> nullableOk() { return withAnalysis(analysisOptions.withNullableOk()); }
   public DuckDbType<A> withAnalysis(AnalysisOptions opts) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, duckDbText, mapSupport, opts);
+    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, opts);
   }
 
   public Fragment.Value<A> encode(A value) {
@@ -60,7 +55,7 @@ public record DuckDbType<A>(
   }
 
   public DuckDbType<A> withTypename(DuckDbTypename<A> typename) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, duckDbText, mapSupport, analysisOptions);
+    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withTypename(String sqlType) {
@@ -76,26 +71,25 @@ public record DuckDbType<A>(
   }
 
   public DuckDbType<A> withRead(DuckDbRead<A> read) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, duckDbText, mapSupport, analysisOptions);
+    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withWrite(DuckDbWrite<A> write) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, duckDbText, mapSupport, analysisOptions);
+    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withStringifier(DuckDbStringifier<A> stringifier) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, duckDbText, mapSupport, analysisOptions);
+    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withJson(DuckDbJson<A> json) {
-    return new DuckDbType<>(typename, read, write, stringifier, json, duckDbText, mapSupport, analysisOptions);
+    return new DuckDbType<>(typename, read, write, stringifier, json, mapSupport, analysisOptions);
   }
 
   @Override
   public DuckDbType<Optional<A>> opt() {
     return new DuckDbType<>(
         typename.opt(), read.opt(), write.opt(typename), stringifier.opt(), duckDbJson.opt(),
-        DuckDbText.instance((a, sb) -> stringifier.opt().unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(),
         analysisOptions);
   }
@@ -151,7 +145,6 @@ public record DuckDbType<A>(
           }
         };
     return new DuckDbType<>(arrayTypename, arrayRead, arrayWrite, arrayStringifier, arrayJson,
-        DuckDbText.instance((a, sb) -> arrayStringifier.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), analysisOptions);
   }
 
@@ -183,7 +176,6 @@ public record DuckDbType<A>(
     return new DuckDbType<>(
         mapTypename, mapRead, mapWrite, mapStringifier,
         DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbText.instance((a, sb) -> mapStringifier.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), analysisOptions);
   }
 
@@ -209,7 +201,6 @@ public record DuckDbType<A>(
               sb.append("]");
             });
     return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list(),
-        DuckDbText.instance((a, sb) -> listStringifier.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), analysisOptions);
   }
 
@@ -236,7 +227,6 @@ public record DuckDbType<A>(
               sb.append("]");
             });
     return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list(),
-        DuckDbText.instance((a, sb) -> listStringifier.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), analysisOptions);
   }
 
@@ -265,7 +255,6 @@ public record DuckDbType<A>(
               sb.append("]");
             });
     return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list(),
-        DuckDbText.instance((a, sb) -> listStringifier.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), analysisOptions);
   }
 
@@ -292,7 +281,6 @@ public record DuckDbType<A>(
             });
     return new DuckDbType<>(
         arrayTypename, arrayRead, arrayWrite, arrayStringifier, duckDbJson.list(),
-        DuckDbText.instance((a, sb) -> arrayStringifier.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), analysisOptions);
   }
 
@@ -320,7 +308,6 @@ public record DuckDbType<A>(
             });
     return new DuckDbType<>(
         arrayTypename, arrayRead, arrayWrite, arrayStringifier, duckDbJson.list(),
-        DuckDbText.instance((a, sb) -> arrayStringifier.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), analysisOptions);
   }
 
@@ -352,7 +339,6 @@ public record DuckDbType<A>(
     return new DuckDbType<>(
         mapTypename, mapRead, mapWrite, mapStringifier,
         DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbText.instance((a, sb) -> mapStringifier.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), analysisOptions);
   }
 
@@ -389,7 +375,6 @@ public record DuckDbType<A>(
     return new DuckDbType<>(
         mapTypename, mapRead, mapWrite, mapStringifier,
         DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbText.instance((a, sb) -> mapStringifier.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), analysisOptions);
   }
 
@@ -400,7 +385,6 @@ public record DuckDbType<A>(
         write.contramap(g),
         stringifier.contramap(g),
         duckDbJson.bimap(f, g),
-        DuckDbText.instance((b, sb) -> stringifier.contramap(g).unsafeEncode(b, sb, false)),
         mapSupport.bimap(
             a -> {
               try {
@@ -421,7 +405,6 @@ public record DuckDbType<A>(
         write.contramap(bijection::from),
         stringifier.contramap(bijection::from),
         duckDbJson.bimap(bijection::underlying, bijection::from),
-        DuckDbText.instance((b, sb) -> stringifier.contramap(bijection::from).unsafeEncode(b, sb, false)),
         mapSupport.bimap(bijection::underlying, bijection::from),
         analysisOptions);
   }
@@ -429,7 +412,6 @@ public record DuckDbType<A>(
   public static <A> DuckDbType<A> of(
       String tpe, DuckDbRead<A> r, DuckDbWrite<A> w, DuckDbStringifier<A> s, DuckDbJson<A> j) {
     return new DuckDbType<>(DuckDbTypename.of(tpe), r, w, s, j,
-        DuckDbText.instance((a, sb) -> s.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
   }
 
@@ -440,7 +422,6 @@ public record DuckDbType<A>(
       DuckDbStringifier<A> s,
       DuckDbJson<A> j) {
     return new DuckDbType<>(typename, r, w, s, j,
-        DuckDbText.instance((a, sb) -> s.unsafeEncode(a, sb, false)),
         DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
   }
 }

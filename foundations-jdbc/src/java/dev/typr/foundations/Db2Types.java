@@ -27,7 +27,6 @@ public interface Db2Types {
           "SMALLINT",
           Db2Read.readShort,
           Db2Write.writeShort,
-          Db2Text.textShort,
           Db2Json.int2,
           Db2OutParam.readShort);
 
@@ -36,7 +35,6 @@ public interface Db2Types {
           "INTEGER",
           Db2Read.readInteger,
           Db2Write.writeInteger,
-          Db2Text.textInteger,
           Db2Json.int4,
           Db2OutParam.readInteger);
 
@@ -47,7 +45,6 @@ public interface Db2Types {
           "BIGINT",
           Db2Read.readLong,
           Db2Write.writeLong,
-          Db2Text.textLong,
           Db2Json.int8,
           Db2OutParam.readLong);
 
@@ -58,7 +55,6 @@ public interface Db2Types {
           "DECIMAL",
           Db2Read.readBigDecimal,
           Db2Write.writeBigDecimal,
-          Db2Text.textBigDecimal,
           Db2Json.numeric,
           Db2OutParam.readBigDecimal);
 
@@ -71,7 +67,6 @@ public interface Db2Types {
         Db2Typename.of("DECIMAL", precision, scale),
         Db2Read.readBigDecimal,
         Db2Write.writeBigDecimal,
-        Db2Text.textBigDecimal,
         Db2Json.numeric,
         Db2OutParam.readBigDecimal);
   }
@@ -86,7 +81,6 @@ public interface Db2Types {
           "DECFLOAT",
           Db2Read.readDecFloat,
           Db2Write.writeDecFloat,
-          Db2Text.textBigDecimal,
           Db2Json.numeric,
           Db2OutParam.readBigDecimal);
 
@@ -95,7 +89,6 @@ public interface Db2Types {
         Db2Typename.of("DECFLOAT", precision),
         Db2Read.readDecFloat,
         Db2Write.writeDecFloat,
-        Db2Text.textBigDecimal,
         Db2Json.numeric,
         Db2OutParam.readBigDecimal);
   }
@@ -107,7 +100,6 @@ public interface Db2Types {
           "REAL",
           Db2Read.readFloat,
           Db2Write.writeFloat,
-          Db2Text.textFloat,
           Db2Json.float4,
           Db2OutParam.readFloat);
 
@@ -116,7 +108,6 @@ public interface Db2Types {
           "DOUBLE",
           Db2Read.readDouble,
           Db2Write.writeDouble,
-          Db2Text.textDouble,
           Db2Json.float8,
           Db2OutParam.readDouble);
 
@@ -130,7 +121,6 @@ public interface Db2Types {
           "BOOLEAN",
           Db2Read.readBoolean,
           Db2Write.writeBoolean,
-          Db2Text.textBoolean,
           Db2Json.bool,
           Db2OutParam.readBoolean);
 
@@ -141,7 +131,6 @@ public interface Db2Types {
           "CHAR",
           Db2Read.readString,
           Db2Write.writeString,
-          Db2Text.textString,
           Db2Json.text,
           Db2OutParam.readString);
 
@@ -152,7 +141,6 @@ public interface Db2Types {
         Db2Typename.of("CHAR", length),
         Db2Read.readString,
         Db2Write.writeString,
-        Db2Text.textString,
         Db2Json.text,
         Db2OutParam.readString);
   }
@@ -162,7 +150,6 @@ public interface Db2Types {
           "VARCHAR",
           Db2Read.readString,
           Db2Write.writeString,
-          Db2Text.textString,
           Db2Json.text,
           Db2OutParam.readString);
 
@@ -171,7 +158,6 @@ public interface Db2Types {
         Db2Typename.of("VARCHAR", length),
         Db2Read.readString,
         Db2Write.writeString,
-        Db2Text.textString,
         Db2Json.text,
         Db2OutParam.readString);
   }
@@ -182,7 +168,6 @@ public interface Db2Types {
           "CLOB",
           Db2Read.readClob,
           Db2Write.writeClob,
-          Db2Text.textString,
           Db2Json.text,
           Db2OutParam.readString);
 
@@ -191,7 +176,6 @@ public interface Db2Types {
         Db2Typename.of("CLOB", length),
         Db2Read.readClob,
         Db2Write.writeClob,
-        Db2Text.textString,
         Db2Json.text,
         Db2OutParam.readString);
   }
@@ -205,7 +189,6 @@ public interface Db2Types {
           "GRAPHIC",
           Db2Read.readGraphic,
           Db2Write.writeGraphic,
-          Db2Text.textString,
           Db2Json.unsupported("GRAPHIC"),
           Db2OutParam.readString);
 
@@ -214,7 +197,6 @@ public interface Db2Types {
         Db2Typename.of("GRAPHIC", length),
         Db2Read.readGraphic,
         Db2Write.writeGraphic,
-        Db2Text.textString,
         Db2Json.unsupported("GRAPHIC"),
         Db2OutParam.readString);
   }
@@ -225,7 +207,6 @@ public interface Db2Types {
           "VARGRAPHIC",
           Db2Read.readVarGraphic,
           Db2Write.writeVarGraphic,
-          Db2Text.textString,
           Db2Json.unsupported("VARGRAPHIC"),
           Db2OutParam.readString);
 
@@ -234,7 +215,6 @@ public interface Db2Types {
         Db2Typename.of("VARGRAPHIC", length),
         Db2Read.readVarGraphic,
         Db2Write.writeVarGraphic,
-        Db2Text.textString,
         Db2Json.unsupported("VARGRAPHIC"),
         Db2OutParam.readString);
   }
@@ -245,7 +225,6 @@ public interface Db2Types {
           "DBCLOB",
           Db2Read.readDbClob,
           Db2Write.writeDbClob,
-          Db2Text.textString,
           Db2Json.unsupported("DBCLOB"),
           Db2OutParam.readString);
 
@@ -254,7 +233,6 @@ public interface Db2Types {
         Db2Typename.of("DBCLOB", length),
         Db2Read.readDbClob,
         Db2Write.writeDbClob,
-        Db2Text.textString,
         Db2Json.unsupported("DBCLOB"),
         Db2OutParam.readString);
   }
@@ -267,7 +245,6 @@ public interface Db2Types {
           "BINARY",
           Db2Read.readByteArray,
           Db2Write.writeByteArray,
-          Db2Text.textByteArray,
           Db2Json.unsupported("BINARY"),
           Db2OutParam.readByteArray);
 
@@ -276,7 +253,6 @@ public interface Db2Types {
         Db2Typename.of("BINARY", length),
         Db2Read.readByteArray,
         Db2Write.writeByteArray,
-        Db2Text.textByteArray,
         Db2Json.unsupported("BINARY"),
         Db2OutParam.readByteArray);
   }
@@ -286,7 +262,6 @@ public interface Db2Types {
           "VARBINARY",
           Db2Read.readByteArray,
           Db2Write.writeByteArray,
-          Db2Text.textByteArray,
           Db2Json.unsupported("VARBINARY"),
           Db2OutParam.readByteArray);
 
@@ -295,7 +270,6 @@ public interface Db2Types {
         Db2Typename.of("VARBINARY", length),
         Db2Read.readByteArray,
         Db2Write.writeByteArray,
-        Db2Text.textByteArray,
         Db2Json.unsupported("VARBINARY"),
         Db2OutParam.readByteArray);
   }
@@ -306,7 +280,6 @@ public interface Db2Types {
           "BLOB",
           Db2Read.readBlob,
           Db2Write.writeBlob,
-          Db2Text.textByteArray,
           Db2Json.unsupported("BLOB"),
           Db2OutParam.readByteArray);
 
@@ -315,7 +288,6 @@ public interface Db2Types {
         Db2Typename.of("BLOB", length),
         Db2Read.readBlob,
         Db2Write.writeBlob,
-        Db2Text.textByteArray,
         Db2Json.unsupported("BLOB"),
         Db2OutParam.readByteArray);
   }
@@ -327,7 +299,6 @@ public interface Db2Types {
           "DATE",
           Db2Read.readDate,
           Db2Write.writeDate,
-          Db2Text.instanceToString(),
           Db2Json.date,
           Db2OutParam.readLocalDate);
 
@@ -336,7 +307,6 @@ public interface Db2Types {
           "TIME",
           Db2Read.readTime,
           Db2Write.writeTime,
-          Db2Text.instanceToString(),
           Db2Json.time,
           Db2OutParam.readLocalTime);
 
@@ -346,7 +316,6 @@ public interface Db2Types {
           "TIMESTAMP",
           Db2Read.readTimestamp,
           Db2Write.writeTimestamp,
-          Db2Text.instanceToString(),
           Db2Json.timestamp,
           Db2OutParam.readLocalDateTime);
 
@@ -355,7 +324,6 @@ public interface Db2Types {
         Db2Typename.of("TIMESTAMP", scale),
         Db2Read.readTimestamp,
         Db2Write.writeTimestamp,
-        Db2Text.instanceToString(),
         Db2Json.timestamp,
         Db2OutParam.readLocalDateTime);
   }
@@ -369,7 +337,6 @@ public interface Db2Types {
           "XML",
           Db2Read.readXml,
           Db2Write.writeXml,
-          Db2Text.textString.contramap(dev.typr.foundations.data.Xml::value),
           Db2Json.unsupported("XML"),
           Db2OutParam.readXmlAsString.map(dev.typr.foundations.data.Xml::new));
 
@@ -379,7 +346,6 @@ public interface Db2Types {
           "ROWID",
           Db2Read.readRowId,
           Db2Write.writeRowId,
-          Db2Text.textByteArray,
           Db2Json.bytea,
           Db2OutParam.readRowId);
 
@@ -389,7 +355,6 @@ public interface Db2Types {
           "OBJECT",
           Db2Read.readObject,
           Db2Write.writeObject,
-          Db2Text.textObject,
           Db2Json.unknown,
           Db2OutParam.readObject);
 
@@ -400,7 +365,6 @@ public interface Db2Types {
               "VARCHAR(32672)",
               Db2Read.readString,
               Db2Write.writeString,
-              Db2Text.textString,
               Db2Json.text,
               Db2OutParam.readString)
           .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);

@@ -87,7 +87,7 @@ public abstract class PgText<A> implements DbText<A> {
             if (i > 0) {
               sb.append(PgText.DELIMETER);
             }
-            DbText<Object> text = (DbText<Object>) rowParser.columns().get(i).text();
+            DbText<Object> text = (DbText<Object>) rowParser.columns().get(i).text().orElseThrow();
             text.unsafeEncode(encoded[i], sb);
           }
         });
