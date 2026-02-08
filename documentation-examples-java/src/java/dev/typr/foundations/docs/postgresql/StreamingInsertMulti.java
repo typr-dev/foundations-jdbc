@@ -8,20 +8,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class StreamingInsert {
-
-    //start:single-column
-    // Insert a list of strings using COPY
-    long insertNames(List<String> names, Transactor tx) throws SQLException {
-        return streamingInsert
-            .of("COPY users(name) FROM STDIN", 1000, names.iterator(), PgTypes.text.pgText())
-            .transact(tx);
-    }
-    //stop:single-column
+public class StreamingInsertMulti {
 
     record ProductRow(String name, BigDecimal price, int quantity) {}
 
-    //start:multi-column
+    //start
     // Define a RowParser for your row type
     static RowParser<ProductRow> productParser = RowParser.<ProductRow>builder()
         .field(PgTypes.text, ProductRow::name)
@@ -37,5 +28,5 @@ public class StreamingInsert {
             .of("COPY products(name, price, quantity) FROM STDIN", 1000, products.iterator(), productText)
             .transact(tx);
     }
-    //stop:multi-column
+    //stop
 }

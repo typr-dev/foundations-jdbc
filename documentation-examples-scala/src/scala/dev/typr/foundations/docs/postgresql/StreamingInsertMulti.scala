@@ -3,19 +3,11 @@ package dev.typr.foundations.docs.postgresql
 import dev.typr.scalafoundations.*
 
 @SuppressWarnings(Array("unused"))
-object StreamingInsert:
-
-  //start:single-column
-  // Insert a list of strings using COPY
-  def insertNames(names: java.util.List[String], tx: Transactor): Long =
-    streamingInsert
-      .of("COPY users(name) FROM STDIN", 1000, names.iterator(), PgTypes.text.pgText())
-      .transact(tx)
-  //stop:single-column
+object StreamingInsertMulti:
 
   case class ProductRow(name: String, price: BigDecimal, quantity: Int)
 
-  //start:multi-column
+  //start
   // Define a RowParser for your row type
   val productParser: dev.typr.foundations.RowParser[ProductRow] =
     dev.typr.foundations.RowParser.builder[ProductRow]()
@@ -31,4 +23,4 @@ object StreamingInsert:
     streamingInsert
       .of("COPY products(name, price, quantity) FROM STDIN", 1000, products.iterator(), productText)
       .transact(tx)
-  //stop:multi-column
+  //stop
