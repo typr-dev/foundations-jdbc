@@ -1,6 +1,5 @@
 package dev.typr.foundations.docs.landing
 import dev.typr.scalafoundations.*
-import dev.typr.foundations.Tuple
 
 import java.sql.SQLException
 

@@ -1,13 +1,12 @@
 package dev.typr.foundations.docs.routines
 
-import dev.typr.foundations.PgTypes
 import dev.typr.kotlinfoundations.*
 import java.math.BigDecimal
 import java.sql.SQLException
 
 @Suppress("unused")
 class FunctionExample {
-    private val tx: dev.typr.foundations.Transactor? = null // placeholder
+    private val tx: Transactor? = null // placeholder
 
     //start
     companion object {

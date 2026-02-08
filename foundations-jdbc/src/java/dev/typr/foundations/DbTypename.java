@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.dsl.Bijection;
 
 /**
  * Common interface for database type names. Implemented by both PgTypename (PostgreSQL) and

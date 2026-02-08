@@ -2,8 +2,8 @@ package dev.typr.foundations.docs.dbtypes
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.foundations.data.Json
-import dev.typr.foundations.data.Range
+import dev.typr.kotlinfoundations.data.Json
+import dev.typr.kotlinfoundations.data.Range
 import org.postgresql.geometric.PGpoint
 import java.time.LocalDate
 

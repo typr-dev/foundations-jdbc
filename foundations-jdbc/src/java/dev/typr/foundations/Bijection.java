@@ -1,4 +1,4 @@
-package dev.typr.foundations.dsl;
+package dev.typr.foundations;
 
 import java.util.function.Function;
 
