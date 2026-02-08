@@ -5,7 +5,7 @@ import dev.typr.foundations.connect.ConnectionSource;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Iterator;
 
 @SuppressWarnings("unused")
 public class StreamingInsertMulti {
@@ -23,9 +23,9 @@ public class StreamingInsertMulti {
     // PgText.from() derives a text encoder from the RowParser
     static PgText<ProductRow> productText = PgText.from(productParser);
 
-    long insertProducts(List<ProductRow> products, Transactor tx) throws SQLException {
+    long insertProducts(Iterator<ProductRow> products, Transactor tx) throws SQLException {
         return streamingInsert
-            .of("COPY products(name, price, quantity) FROM STDIN", 1000, products.iterator(), productText)
+            .of("COPY products(name, price, quantity) FROM STDIN", 1000, products, productText)
             .transact(tx);
     }
     //stop
