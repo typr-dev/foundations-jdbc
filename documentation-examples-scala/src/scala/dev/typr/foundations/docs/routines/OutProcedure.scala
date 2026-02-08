@@ -1,5 +1,4 @@
 package dev.typr.foundations.docs.routines
-import dev.typr.foundations.{PgTypes, Tuple}
 import dev.typr.scalafoundations.*
 
 import java.sql.SQLException
@@ -10,7 +9,7 @@ object OutProcedure:
 
   //start
   // OUT parameters — the builder tracks output types statically
-  val getUser: DbProcedure.Def1_2[Integer, String, String] =
+  val getUser: DbProcedure.Def1_2[Int, String, String] =
     DbProcedure.define("get_user_by_id")
       .in(PgTypes.int4)       // user_id IN
       .out(PgTypes.text)      // name OUT

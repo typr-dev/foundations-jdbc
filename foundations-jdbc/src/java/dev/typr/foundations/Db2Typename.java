@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.dsl.Bijection;
 import java.util.Optional;
 
 /**

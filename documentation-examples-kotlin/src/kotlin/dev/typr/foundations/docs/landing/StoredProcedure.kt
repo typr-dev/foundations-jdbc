@@ -1,7 +1,6 @@
 package dev.typr.foundations.docs.landing
 
 import dev.typr.kotlinfoundations.*
-import dev.typr.foundations.Tuple
 import java.sql.SQLException
 
 @Suppress("unused")
@@ -21,7 +20,7 @@ class StoredProcedure {
 
     // call() returns a ProcedureOp — use it like any other operation
     @Throws(SQLException::class)
-    fun findUser(userId: Int): Tuple.Tuple2<String, String> =
+    fun findUser(userId: Int): Tuple2<String, String> =
         getUser.call(userId).transact(tx)
     //stop
 }

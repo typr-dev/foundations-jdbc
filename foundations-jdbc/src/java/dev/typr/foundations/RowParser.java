@@ -1,7 +1,6 @@
 package dev.typr.foundations;
 
 import dev.typr.foundations.data.JsonValue;
-import dev.typr.foundations.dsl.Bijection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

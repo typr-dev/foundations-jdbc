@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.sqlserver
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.foundations.data.HierarchyId
+import dev.typr.kotlinfoundations.data.HierarchyId
 
 @Suppress("unused")
 class HierarchyIdType {

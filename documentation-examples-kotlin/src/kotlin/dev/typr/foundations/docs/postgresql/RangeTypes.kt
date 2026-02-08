@@ -2,8 +2,6 @@ package dev.typr.foundations.docs.postgresql
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.foundations.data.Range
-import dev.typr.foundations.data.RangeBound
 import java.time.LocalDate
 
 @Suppress("unused")
@@ -14,8 +12,8 @@ class RangeTypes {
 
     // Create ranges with explicit bounds
     val range: Range<Int> = Range.int4(
-        RangeBound.Closed(1),
-        RangeBound.Closed(10)
+        RangeBoundClosed(1),
+        RangeBoundClosed(10)
     )  // [1, 11) after normalization
 
     // Check containment

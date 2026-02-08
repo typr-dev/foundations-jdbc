@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.postgresql
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.foundations.data.Money
+import dev.typr.kotlinfoundations.data.Money
 import java.math.BigDecimal
 
 @Suppress("unused")

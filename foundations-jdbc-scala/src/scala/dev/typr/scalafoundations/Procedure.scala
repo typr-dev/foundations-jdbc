@@ -23,6 +23,18 @@ object Procedure {
 
   private[scalafoundations] def fromJava[Out](jp: dev.typr.foundations.Procedure[Out]): Procedure[Out] =
     new Procedure(jp, _.asInstanceOf[Out])
+
+  def buildVoid(name: String, params: java.util.List[dev.typr.foundations.ParamDef]): dev.typr.foundations.Procedure[Void] =
+    dev.typr.foundations.Procedure.buildVoid(name, params)
+
+  def buildSingleOut[O](name: String, params: java.util.List[dev.typr.foundations.ParamDef]): dev.typr.foundations.Procedure[O] =
+    dev.typr.foundations.Procedure.buildSingleOut(name, params)
+
+  def buildMultiOut[O](name: String, params: java.util.List[dev.typr.foundations.ParamDef], assembler: java.util.function.Function[Array[AnyRef], O]): dev.typr.foundations.Procedure[O] =
+    dev.typr.foundations.Procedure.buildMultiOut(name, params, assembler)
+
+  def buildFunction[R](name: String, inParams: java.util.List[dev.typr.foundations.ParamDef], returnType: dev.typr.foundations.DbType[R]): dev.typr.foundations.Procedure[R] =
+    dev.typr.foundations.Procedure.buildFunction(name, inParams, returnType)
 }
 
 /** Operation returned by Procedure.call() — wraps a Java Operation with result conversion. */

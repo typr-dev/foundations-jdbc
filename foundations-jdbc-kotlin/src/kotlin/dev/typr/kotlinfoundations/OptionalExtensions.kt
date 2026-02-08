@@ -1,7 +1,7 @@
 package dev.typr.kotlinfoundations
 
 import dev.typr.foundations.DbType
-import dev.typr.foundations.dsl.Bijection
+import dev.typr.foundations.Bijection
 import java.util.Optional
 
 /**

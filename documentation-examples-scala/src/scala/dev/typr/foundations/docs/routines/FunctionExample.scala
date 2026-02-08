@@ -1,8 +1,6 @@
 package dev.typr.foundations.docs.routines
-import dev.typr.foundations.PgTypes
 import dev.typr.scalafoundations.*
 
-import java.math.BigDecimal
 import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
@@ -18,7 +16,7 @@ object FunctionExample:
       .build()
 
   // Zero-argument function
-  val nextId: DbFunction.Def0[Integer] =
+  val nextId: DbFunction.Def0[Int] =
     DbFunction.define("next_id", PgTypes.int4)
       .build()
 

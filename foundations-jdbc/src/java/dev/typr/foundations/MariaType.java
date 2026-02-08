@@ -1,7 +1,6 @@
 package dev.typr.foundations;
 
 import dev.typr.foundations.analysis.AnalysisOptions;
-import dev.typr.foundations.dsl.Bijection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;

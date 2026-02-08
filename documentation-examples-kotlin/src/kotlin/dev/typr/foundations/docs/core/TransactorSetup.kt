@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.core
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.foundations.connect.ConnectionSource
 import java.math.BigDecimal
 import java.sql.SQLException
 

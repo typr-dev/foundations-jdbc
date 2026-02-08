@@ -54,9 +54,27 @@ typealias OracleType<T> = dev.typr.foundations.OracleType<T>
 typealias SqlServerType<T> = dev.typr.foundations.SqlServerType<T>
 typealias Db2Type<T> = dev.typr.foundations.Db2Type<T>
 
+// Re-export Tuple and nested types (typealiases don't expose nested classes)
+typealias Tuple = dev.typr.foundations.Tuple
+typealias Tuple2<T0, T1> = dev.typr.foundations.Tuple.Tuple2<T0, T1>
+typealias Tuple3<T0, T1, T2> = dev.typr.foundations.Tuple.Tuple3<T0, T1, T2>
+typealias Tuple4<T0, T1, T2, T3> = dev.typr.foundations.Tuple.Tuple4<T0, T1, T2, T3>
+typealias Tuple5<T0, T1, T2, T3, T4> = dev.typr.foundations.Tuple.Tuple5<T0, T1, T2, T3, T4>
+typealias Tuple6<T0, T1, T2, T3, T4, T5> = dev.typr.foundations.Tuple.Tuple6<T0, T1, T2, T3, T4, T5>
+typealias Tuple7<T0, T1, T2, T3, T4, T5, T6> = dev.typr.foundations.Tuple.Tuple7<T0, T1, T2, T3, T4, T5, T6>
+typealias Tuple8<T0, T1, T2, T3, T4, T5, T6, T7> = dev.typr.foundations.Tuple.Tuple8<T0, T1, T2, T3, T4, T5, T6, T7>
+typealias Tuple9<T0, T1, T2, T3, T4, T5, T6, T7, T8> = dev.typr.foundations.Tuple.Tuple9<T0, T1, T2, T3, T4, T5, T6, T7, T8>
+typealias Tuple10<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> = dev.typr.foundations.Tuple.Tuple10<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
+typealias ParamDef = dev.typr.foundations.ParamDef
+
 // Re-export analysis types
 typealias QueryAnalysis = dev.typr.foundations.analysis.QueryAnalysis
 typealias QueryAnalyzer = dev.typr.foundations.analysis.QueryAnalyzer
+typealias QueryChecker = dev.typr.foundations.analysis.QueryChecker
+
+fun dev.typr.foundations.analysis.QueryChecker.checkRoutine(procedure: Procedure<*>) {
+    checkRoutine(procedure.javaProcedure)
+}
 
 // Re-export connection types
 typealias ConnectionSource = dev.typr.foundations.connect.ConnectionSource
