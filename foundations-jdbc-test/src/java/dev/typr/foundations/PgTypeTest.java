@@ -85,6 +85,21 @@ public class PgTypeTest {
           new PgTypeAndExample<>(
               PgTypes.boolArrayUnboxed, new boolean[] {}), // Edge case: empty array
 
+          // ==================== Bit String Types ====================
+          new PgTypeAndExample<>(PgTypes.bit, new Bit("1")),
+          new PgTypeAndExample<>(PgTypes.bit, new Bit("0")),
+          new PgTypeAndExample<>(PgTypes.bitArray, new Bit[] {new Bit("1"), new Bit("0")}),
+          new PgTypeAndExample<>(PgTypes.bitArray, new Bit[] {}),
+          new PgTypeAndExample<>(PgTypes.bit(8), new Bit("10110011")),
+          new PgTypeAndExample<>(PgTypes.bit(8), new Bit("00000000")),
+          new PgTypeAndExample<>(PgTypes.bitArray(8), new Bit[] {new Bit("10110011")}),
+          new PgTypeAndExample<>(PgTypes.varbit, new Varbit("1")),
+          new PgTypeAndExample<>(PgTypes.varbit, new Varbit("101")),
+          new PgTypeAndExample<>(PgTypes.varbit, new Varbit("00000000")),
+          new PgTypeAndExample<>(
+              PgTypes.varbitArray, new Varbit[] {new Varbit("101"), new Varbit("110")}),
+          new PgTypeAndExample<>(PgTypes.varbitArray, new Varbit[] {}),
+
           // ==================== Geometric Types ====================
           new PgTypeAndExample<>(PgTypes.box, new PGbox(42, 42, 42, 42)).noIdentity(),
           new PgTypeAndExample<>(PgTypes.box, new PGbox(-100, -50, 100, 50))

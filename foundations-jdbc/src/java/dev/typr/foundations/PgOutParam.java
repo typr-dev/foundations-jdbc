@@ -161,6 +161,22 @@ public interface PgOutParam<A> extends DbOutParam<A> {
     });
   }
 
+  static <T> PgOutParam<T> bitString(SqlFunction<String, T> constructor) {
+    return of(Types.OTHER, (stmt, i) -> {
+      var obj = stmt.getObject(i);
+      if (obj == null) return null;
+      String value;
+      if (obj instanceof org.postgresql.util.PGobject pgObj) {
+        value = pgObj.getValue();
+      } else if (obj instanceof Boolean b) {
+        value = b ? "1" : "0";
+      } else {
+        value = obj.toString();
+      }
+      return constructor.apply(value);
+    });
+  }
+
   /**
    * Create an optional version of this OUT param codec.
    */
