@@ -21,6 +21,7 @@ package object scalafoundations:
 
   type SqlFunction[T, R] = dev.typr.foundations.SqlFunction[T, R]
   // Operation is defined as a sealed trait in Operation.scala
+  type DbJson[T] = dev.typr.foundations.DbJson[T]
   type NonEmptyBlob = dev.typr.foundations.NonEmptyBlob
   type NonEmptyString = dev.typr.foundations.NonEmptyString
   type PaddedString = dev.typr.foundations.PaddedString
@@ -128,3 +129,25 @@ package object scalafoundations:
   extension [T](dbType: dev.typr.foundations.Db2Type[T])
     def nullable: dev.typr.foundations.Db2Type[Option[T]] =
       dbType.opt().bimap(opt => if opt.isPresent then Some(opt.get) else None, _.fold(java.util.Optional.empty[T]())(java.util.Optional.of))
+
+  // Extension methods for Scala-friendly DbJson combinators
+  extension [A](codec: dev.typr.foundations.DbJson[A])
+    /** Create a list codec that uses Scala List instead of java.util.List. */
+    def asList: dev.typr.foundations.DbJson[List[A]] =
+      import _root_.scala.jdk.CollectionConverters.*
+      val javaListCodec = codec.list()
+      new dev.typr.foundations.DbJson[List[A]]:
+        override def toJson(value: List[A]): dev.typr.foundations.data.JsonValue =
+          javaListCodec.toJson(value.asJava)
+        override def fromJson(json: dev.typr.foundations.data.JsonValue): List[A] =
+          javaListCodec.fromJson(json).asScala.toList
+
+    /** Create an optional codec that uses Scala Option instead of java.util.Optional. */
+    def asOption: dev.typr.foundations.DbJson[Option[A]] =
+      val javaOptCodec = codec.opt()
+      new dev.typr.foundations.DbJson[Option[A]]:
+        override def toJson(value: Option[A]): dev.typr.foundations.data.JsonValue =
+          javaOptCodec.toJson(value.fold(java.util.Optional.empty[A]())(java.util.Optional.of))
+        override def fromJson(json: dev.typr.foundations.data.JsonValue): Option[A] =
+          val opt = javaOptCodec.fromJson(json)
+          if opt.isPresent then Some(opt.get) else None

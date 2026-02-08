@@ -24,10 +24,5 @@ public class OracleTransactor {
             .transact(tx);
     }
 
-    // Built-in strategies for common patterns
-    Transactor.Strategy defaultStrategy = Transactor.defaultStrategy();         // begin -> commit -> close
-    Transactor.Strategy autoCommit = Transactor.autoCommitStrategy();           // no transaction, just close
-    Transactor.Strategy rollbackOnError = Transactor.rollbackOnErrorStrategy(); // begin -> commit, rollback on error -> close
-    Transactor.Strategy test = Transactor.testStrategy();                       // begin -> rollback -> close (for tests)
     //stop
 }

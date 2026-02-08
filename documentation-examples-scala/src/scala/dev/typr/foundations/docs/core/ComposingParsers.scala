@@ -11,13 +11,13 @@ object ComposingParsers:
   case class CategoryRow(id: Int, categoryName: String)
 
   val productRowParser: RowParser[ProductRow] = RowParser.builder[ProductRow]()
-    .field(PgTypes.int4, _.id)
-    .field(PgTypes.text, _.name)
+    .field(PgTypes.int4)(_.id)
+    .field(PgTypes.text)(_.name)
     .build(ProductRow.apply)
 
   val categoryRowParser: RowParser[CategoryRow] = RowParser.builder[CategoryRow]()
-    .field(PgTypes.int4, _.id)
-    .field(PgTypes.text, _.categoryName)
+    .field(PgTypes.int4)(_.id)
+    .field(PgTypes.text)(_.categoryName)
     .build(CategoryRow.apply)
 
   // leftJoined() returns Option right side automatically

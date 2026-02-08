@@ -11,9 +11,9 @@ object ResultSetParserUsage:
   case class Person(id: Int, name: String, createdAt: Instant)
 
   val personParser: RowParser[Person] = RowParser.builder[Person]()
-    .field(PgTypes.int4, _.id)
-    .field(PgTypes.text, _.name)
-    .field(PgTypes.timestamptz, _.createdAt)
+    .field(PgTypes.int4)(_.id)
+    .field(PgTypes.text)(_.name)
+    .field(PgTypes.timestamptz)(_.createdAt)
     .build(Person.apply)
 
   var resultSet: ResultSet = null // placeholder

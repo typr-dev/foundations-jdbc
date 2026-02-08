@@ -11,8 +11,8 @@ object NullableColumns:
   case class Person(id: Int, name: String, createdAt: Option[Instant])
 
   val personParser: RowParser[Person] = RowParser.builder[Person]()
-    .field(PgTypes.int4, _.id)
-    .field(PgTypes.text, _.name)
-    .field(PgTypes.timestamptz.nullable, _.createdAt)
+    .field(PgTypes.int4)(_.id)
+    .field(PgTypes.text)(_.name)
+    .field(PgTypes.timestamptz.nullable)(_.createdAt)
     .build(Person.apply)
   //stop
