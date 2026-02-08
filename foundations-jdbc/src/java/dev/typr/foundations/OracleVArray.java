@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.JsonValue;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -94,7 +95,9 @@ public class OracleVArray {
     // Generate OracleJson codec
     OracleJson<List<T>> json = json(elementType);
 
-    return new OracleType<>(OracleTypename.of(varrayTypeName), read, write, json);
+    OracleOutParam<List<T>> outParam = OracleOutParam.oracleArray(varrayTypeName, elementType);
+
+    return new OracleType<>(OracleTypename.of(varrayTypeName), read, write, json, outParam, AnalysisOptions.EMPTY);
   }
 
   /** Generate JSON codec for list type. */

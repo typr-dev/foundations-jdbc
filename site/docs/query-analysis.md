@@ -21,7 +21,7 @@ Traditional JDBC gives you no compile-time or test-time feedback about your quer
 
 ## The Solution
 
-Query Analysis uses JDBC metadata to verify your queries against the actual database schema. Run it in your test suite, and you'll know immediately when:
+Query Analysis uses JDBC metadata to verify your queries against the actual database schema. It compares vendor type names (e.g., `int4`, `varchar`, `timestamptz`) directly — no JDBC integer code mapping needed. Run it in your test suite, and you'll know immediately when:
 
 1. **Parameter types don't match** — You're passing a String where the database expects an Integer
 2. **Column types don't match** — Your RowParser expects a timestamp but the column is a date
@@ -32,6 +32,14 @@ Query Analysis uses JDBC metadata to verify your queries against the actual data
 
 <Snippet file="analysis/QueryAnalysisBasic" />
 
+## Named Queries
+
+Give your queries names for clearer error reports:
+
+<Snippet file="analysis/QueryAnalysisNamed" />
+
+Named queries show the name in the report header, making it easy to find which query failed in a large test suite.
+
 ## Reading the Report
 
 When analysis fails, you get a detailed report showing exactly what went wrong:
@@ -41,7 +49,7 @@ When analysis fails, you get a detailed report showing exactly what went wrong:
 ║  Query Analysis Report                                                       ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-SQL:
+SQL (findUserById):
   SELECT id, name, created_at, status FROM users WHERE id = ?
 
 ┌─ Parameters ─────────────────────────────────────────────────────────────────┐
@@ -58,11 +66,11 @@ SQL:
 ✗ 2 error(s) found:
 
   1. Column 3 'created_at': type mismatch
-     │ Declared: int4 (JDBC: INTEGER)
-     │ Returned: timestamptz (JDBC: TIMESTAMP_WITH_TIMEZONE)
-     └ The declared type cannot read from TIMESTAMP_WITH_TIMEZONE
+     │ Declared: int4 (accepts: int4)
+     │ Returned: timestamptz
+     └ The declared type does not match the returned vendor type "timestamptz"
 
-  2. Column 4 'status' is returned by query (varchar / VARCHAR) but not declared in RowParser
+  2. Column 4 'status' is returned by query (varchar) but not declared in RowParser
 ```
 
 ## Error Types
@@ -73,9 +81,9 @@ When you pass a parameter of the wrong type:
 
 ```
 Parameter 1: type mismatch
-  │ Declared: text (JDBC: VARCHAR)
-  │ Expected: int4 (JDBC: INTEGER)
-  └ The declared type cannot write to INTEGER
+  │ Declared: text (accepts: text)
+  │ Expected: int4
+  └ The declared type does not match the expected vendor type "int4"
 ```
 
 **Fix:** Change the parameter type to match what the database expects.
@@ -86,9 +94,9 @@ When your RowParser expects a different type than the database returns:
 
 ```
 Column 2 'price': type mismatch
-  │ Declared: int4 (JDBC: INTEGER)
-  │ Returned: numeric (JDBC: DECIMAL)
-  └ The declared type cannot read from DECIMAL
+  │ Declared: int4 (accepts: int4)
+  │ Returned: numeric
+  └ The declared type does not match the returned vendor type "numeric"
 ```
 
 **Fix:** Use the correct DbType in your RowParser. Here, use `PgTypes.numeric` instead of `PgTypes.int4`.
@@ -101,10 +109,11 @@ When a nullable column isn't wrapped in Optional:
 Column 3 'email': nullability mismatch
   │ The database says this column is nullable
   │ But the type text is not Optional
-  └ Use .opt() to make the type nullable, or ensure the column is NOT NULL
+  └ Use .opt() to make the type nullable, .nullableOk() to suppress this warning,
+    or ensure the column is NOT NULL
 ```
 
-**Fix:** Use `.opt()` on the type: `PgTypes.text.opt()` instead of `PgTypes.text`.
+**Fix:** Use `.opt()` on the type: `PgTypes.text.opt()` instead of `PgTypes.text`. Or use `.nullableOk()` if you know it's safe (see [Escape Hatches](#escape-hatches)).
 
 ### Missing Column
 
@@ -121,11 +130,39 @@ Column 5 is declared in RowParser (boolean) but not returned by query
 When the query returns more columns than your RowParser expects:
 
 ```
-Column 4 'updated_at' is returned by query (timestamptz / TIMESTAMP_WITH_TIMEZONE)
-but not declared in RowParser
+Column 4 'updated_at' is returned by query (timestamptz) but not declared in RowParser
 ```
 
 **Fix:** Either add the column to your RowParser, or remove it from your SELECT.
+
+## Escape Hatches
+
+Sometimes strict type checking is too strict. Two escape hatches let you selectively relax checking:
+
+### `.nullableOk()` — Suppress Nullability Warnings
+
+Use when you know a column won't be null in practice, even though the database says it could be. Common with outer joins:
+
+<Snippet file="analysis/QueryAnalysisNullableOk" />
+
+### `.unchecked()` — Skip Type Checking Entirely
+
+Use when you know the type is correct but the database metadata disagrees, or for computed columns with unpredictable types:
+
+<Snippet file="analysis/QueryAnalysisUnchecked" />
+
+## Routine Analysis
+
+Verify stored procedures and functions against the database:
+
+<Snippet file="analysis/QueryAnalysisRoutine" />
+
+Routine analysis checks:
+- The routine exists in the database
+- Parameter count matches
+- Parameter types match (by vendor type name)
+- Parameter modes match (IN, OUT, INOUT)
+- Return type matches (for functions)
 
 ## Test Suite Integration
 
@@ -141,6 +178,9 @@ The recommended pattern is to analyze all your queries in a dedicated test:
 // Full query with parameters and result parser
 QueryAnalyzer.analyze(fragment.query(rowParser.all()), conn);
 
+// Named query
+QueryAnalyzer.analyze("findUsers", fragment.query(rowParser.all()), conn);
+
 // Update-returning operations
 QueryAnalyzer.analyze(fragment.updateReturning(rowParser), conn);
 ```
@@ -150,6 +190,9 @@ QueryAnalyzer.analyze(fragment.updateReturning(rowParser), conn);
 ```java
 // Updates have no result columns, only parameters
 QueryAnalyzer.analyze(fragment.update(), conn);
+
+// Named update
+QueryAnalyzer.analyze("updateUser", fragment.update(), conn);
 ```
 
 ### Low-Level Analysis
@@ -158,6 +201,18 @@ QueryAnalyzer.analyze(fragment.update(), conn);
 // Analyze a fragment + parser directly
 QueryAnalyzer.analyzeFragmentAndParser(fragment, resultSetParser, conn);
 ```
+
+## How It Works
+
+1. **Extract declared types** — The Fragment knows the DbType of each parameter. The RowParser knows the DbType of each column.
+
+2. **Prepare the statement** — We call `connection.prepareStatement(sql)` to get JDBC metadata.
+
+3. **Extract vendor type names** — ParameterMetaData and ResultSetMetaData provide vendor-specific type names (e.g., `int4`, `varchar`, `timestamptz`).
+
+4. **Normalize and compare** — Type names are normalized (lowercased, precision stripped) and compared against the declared type's vendor type names. For example, `VARCHAR(255)` and `VARCHAR` both normalize to `varchar`.
+
+5. **Report errors** — Any mismatches become detailed error messages explaining exactly what's wrong and how to fix it.
 
 ## Database Support
 
@@ -175,18 +230,6 @@ Query Analysis works with all supported databases, with some caveats:
 \* DuckDB reports all columns as nullable; nullability checks are skipped.
 
 \*\* MariaDB/MySQL parameter metadata is not always reliable; parameter type checks may be skipped.
-
-## How It Works
-
-1. **Extract declared types** — The Fragment knows the DbType of each parameter. The RowParser knows the DbType of each column.
-
-2. **Prepare the statement** — We call `connection.prepareStatement(sql)` to get JDBC metadata.
-
-3. **Extract JDBC metadata** — ParameterMetaData tells us what types the database expects for parameters. ResultSetMetaData tells us what types the query returns.
-
-4. **Align and compare** — We line up declared types with JDBC metadata by position and check for compatibility.
-
-5. **Report errors** — Any mismatches become detailed error messages explaining exactly what's wrong and how to fix it.
 
 ## Tips
 
@@ -231,11 +274,16 @@ Preparing a statement and reading metadata is fast — milliseconds per query. Y
 // Analyze a query operation
 static <T> QueryAnalysis analyze(Operation.Query<T> query, Connection conn)
 
+// Analyze a named query operation
+static <T> QueryAnalysis analyze(String name, Operation.Query<T> query, Connection conn)
+
 // Analyze an update-returning operation
 static <T> QueryAnalysis analyze(Operation.UpdateReturning<T> op, Connection conn)
+static <T> QueryAnalysis analyze(String name, Operation.UpdateReturning<T> op, Connection conn)
 
 // Analyze an update operation (parameters only)
 static QueryAnalysis analyze(Operation.Update update, Connection conn)
+static QueryAnalysis analyze(String name, Operation.Update update, Connection conn)
 
 // Low-level: analyze fragment + parser directly
 static QueryAnalysis analyzeFragmentAndParser(
@@ -256,11 +304,50 @@ List<AlignmentError> parameterErrors()
 List<AlignmentError> columnErrors()
 
 // Generate human-readable report
-String report()
+String report()          // plain text
+String reportColored()   // with ANSI color codes
 
 // Access raw alignment data
 List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment()
 List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment()
+```
+
+### QueryChecker (Test Interface)
+
+```java
+interface QueryChecker {
+    Transactor transactor();
+
+    // Check queries
+    void check(Operation.Query<?> query)
+    void check(String name, Operation.Query<?> query)
+
+    // Check updates
+    void check(Operation.Update update)
+    void check(String name, Operation.Update update)
+
+    // Check update-returning
+    void check(Operation.UpdateReturning<?> op)
+    void check(String name, Operation.UpdateReturning<?> op)
+
+    // Check fragments with parsers
+    void check(Fragment fragment, ResultSetParser<?> parser)
+    void check(Fragment fragment, RowParser<?> parser)
+
+    // Batch check
+    void checkAll(Operation.Query<?>... queries)
+
+    // Routine analysis
+    void checkRoutine(Procedure<?> procedure)
+}
+```
+
+### AnalysisOptions
+
+```java
+// Escape hatches on any DbType
+PgTypes.text.unchecked()     // skip all type checking for this column/parameter
+PgTypes.text.nullableOk()    // suppress nullability mismatch warnings
 ```
 
 ### AlignmentError Types
@@ -269,18 +356,19 @@ List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment()
 sealed interface AlignmentError {
     int position();
     String message();
+    Str styledMessage();
 
     // Parameter errors
     record ExtraParameter(int position, DbType<?> type)
     record MissingParameter(int position, JdbcMeta.ParameterMeta meta)
     record ParameterTypeMismatch(int position, DbType<?> declared,
-        JdbcMeta.ParameterMeta expected, Set<Integer> declaredJdbcTypes, String reason)
+        JdbcMeta.ParameterMeta expected, Set<String> declaredTypeNames, String reason)
 
     // Column errors
     record ExtraColumn(int position, DbType<?> type)
     record MissingColumn(int position, JdbcMeta.ColumnMeta meta)
     record ColumnTypeMismatch(int position, String columnName, DbType<?> declared,
-        JdbcMeta.ColumnMeta returned, Set<Integer> declaredJdbcTypes, String reason)
+        JdbcMeta.ColumnMeta returned, Set<String> declaredTypeNames, String reason)
     record NullabilityMismatch(int position, String columnName, DbType<?> type)
 }
 ```

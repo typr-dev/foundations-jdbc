@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.JsonValue;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -84,7 +85,9 @@ public class OracleNestedTable {
     // Generate OracleJson codec
     OracleJson<List<T>> json = json(elementType);
 
-    return new OracleType<>(OracleTypename.of(nestedTableTypeName), read, write, json);
+    OracleOutParam<List<T>> outParam = OracleOutParam.oracleArray(nestedTableTypeName, elementType);
+
+    return new OracleType<>(OracleTypename.of(nestedTableTypeName), read, write, json, outParam, AnalysisOptions.EMPTY);
   }
 
   /** Generate JSON codec for nested table type. */

@@ -1,7 +1,9 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.dsl.Bijection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -13,8 +15,22 @@ public record Db2Type<A>(
     Db2Read<A> read,
     Db2Write<A> write,
     Db2Text<A> db2Text,
-    Db2Json<A> db2Json)
+    Db2Json<A> db2Json,
+    Db2OutParam<A> db2OutParam,
+    AnalysisOptions analysisOptions)
     implements DbType<A> {
+
+
+  @Override
+  public java.util.Optional<DbOutParam<A>> outParam() {
+    return java.util.Optional.of(db2OutParam);
+  }
+
+  @Override
+  public boolean isNullable() {
+    return typename instanceof Db2Typename.Opt;
+  }
+
   @Override
   public DbText<A> text() {
     return db2Text;
@@ -25,8 +41,23 @@ public record Db2Type<A>(
     return db2Json;
   }
 
+  @Override
+  public Set<String> vendorTypeNames() {
+    var aliases = analysisOptions.vendorTypeNames();
+    if (aliases.isEmpty()) return Set.of(typename.sqlType().toLowerCase());
+    var all = new java.util.HashSet<>(aliases);
+    all.add(typename.sqlType().toLowerCase());
+    return Set.copyOf(all);
+  }
+
+  public Db2Type<A> unchecked() { return withAnalysis(analysisOptions.withUnchecked()); }
+  public Db2Type<A> nullableOk() { return withAnalysis(analysisOptions.withNullableOk()); }
+  public Db2Type<A> withAnalysis(AnalysisOptions opts) {
+    return new Db2Type<>(typename, read, write, db2Text, db2Json, db2OutParam, opts);
+  }
+
   public Db2Type<A> withTypename(Db2Typename<A> typename) {
-    return new Db2Type<>(typename, read, write, db2Text, db2Json);
+    return new Db2Type<>(typename, read, write, db2Text, db2Json, db2OutParam, analysisOptions);
   }
 
   public Db2Type<A> withTypename(String sqlType) {
@@ -42,29 +73,35 @@ public record Db2Type<A>(
   }
 
   public Db2Type<A> withRead(Db2Read<A> read) {
-    return new Db2Type<>(typename, read, write, db2Text, db2Json);
+    return new Db2Type<>(typename, read, write, db2Text, db2Json, db2OutParam, analysisOptions);
   }
 
   public Db2Type<A> withWrite(Db2Write<A> write) {
-    return new Db2Type<>(typename, read, write, db2Text, db2Json);
+    return new Db2Type<>(typename, read, write, db2Text, db2Json, db2OutParam, analysisOptions);
   }
 
   public Db2Type<A> withText(Db2Text<A> text) {
-    return new Db2Type<>(typename, read, write, text, db2Json);
+    return new Db2Type<>(typename, read, write, text, db2Json, db2OutParam, analysisOptions);
   }
 
   public Db2Type<A> withJson(Db2Json<A> json) {
-    return new Db2Type<>(typename, read, write, db2Text, json);
+    return new Db2Type<>(typename, read, write, db2Text, json, db2OutParam, analysisOptions);
+  }
+
+  public Db2Type<A> withOutParam(Db2OutParam<A> outParam) {
+    return new Db2Type<>(typename, read, write, db2Text, db2Json, outParam, analysisOptions);
   }
 
   public Db2Type<Optional<A>> opt() {
     return new Db2Type<>(
-        typename.opt(), read.opt(), write.opt(typename), db2Text.opt(), db2Json.opt());
+        typename.opt(), read.opt(), write.opt(typename), db2Text.opt(), db2Json.opt(),
+        db2OutParam.opt(), analysisOptions);
   }
 
   public <B> Db2Type<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
     return new Db2Type<>(
-        typename.as(), read.map(f), write.contramap(g), db2Text.contramap(g), db2Json.bimap(f, g));
+        typename.as(), read.map(f), write.contramap(g), db2Text.contramap(g), db2Json.bimap(f, g),
+        db2OutParam.map(f), analysisOptions);
   }
 
   public <B> Db2Type<B> to(Bijection<A, B> bijection) {
@@ -73,16 +110,20 @@ public record Db2Type<A>(
         read.map(bijection::underlying),
         write.contramap(bijection::from),
         db2Text.contramap(bijection::from),
-        db2Json.bimap(bijection::underlying, bijection::from));
+        db2Json.bimap(bijection::underlying, bijection::from),
+        db2OutParam.map(bijection::underlying),
+        analysisOptions);
   }
 
   public static <A> Db2Type<A> of(
-      String tpe, Db2Read<A> r, Db2Write<A> w, Db2Text<A> t, Db2Json<A> j) {
-    return new Db2Type<>(Db2Typename.of(tpe), r, w, t, j);
+      String tpe, Db2Read<A> r, Db2Write<A> w, Db2Text<A> t, Db2Json<A> j,
+      Db2OutParam<A> cr) {
+    return new Db2Type<>(Db2Typename.of(tpe), r, w, t, j, cr, AnalysisOptions.EMPTY);
   }
 
   public static <A> Db2Type<A> of(
-      Db2Typename<A> typename, Db2Read<A> r, Db2Write<A> w, Db2Text<A> t, Db2Json<A> j) {
-    return new Db2Type<>(typename, r, w, t, j);
+      Db2Typename<A> typename, Db2Read<A> r, Db2Write<A> w, Db2Text<A> t, Db2Json<A> j,
+      Db2OutParam<A> cr) {
+    return new Db2Type<>(typename, r, w, t, j, cr, AnalysisOptions.EMPTY);
   }
 }

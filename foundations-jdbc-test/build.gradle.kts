@@ -33,6 +33,9 @@ tasks.test {
         environment("DOCKER_HOST", "unix://${dockerSocket.absolutePath}")
         environment("TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE", dockerSocket.absolutePath)
     }
+    // Docker Engine 29+ requires minimum API version 1.44
+    environment("DOCKER_API_VERSION", "1.44")
+    systemProperty("api.version", "1.44")
 }
 
 dependencies {

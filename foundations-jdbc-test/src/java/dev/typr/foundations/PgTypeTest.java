@@ -1,5 +1,7 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.analysis.QueryAnalysis;
+import dev.typr.foundations.analysis.QueryAnalyzer;
 import dev.typr.foundations.data.*;
 import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.Vector;
@@ -572,10 +574,68 @@ public class PgTypeTest {
           return null;
         });
 
+    // Stored procedure roundtrip tests - deduplicate by SQL type, run in parallel
+    System.out.println("\n=== Call Roundtrip Tests (parallel) ===");
+    var callFailures =
+        All.stream()
+            .collect(
+                java.util.stream.Collectors.toMap(
+                    t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+            .values()
+            .parallelStream()
+            .flatMap(
+                t -> {
+                  try {
+                    withConnection(
+                        conn -> {
+                          testCallRoundtrip(conn, t);
+                          return null;
+                        });
+                    return java.util.stream.Stream.<String>empty();
+                  } catch (Exception e) {
+                    return java.util.stream.Stream.of(
+                        "Call test FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
+                  }
+                })
+            .toList();
+
+    // Query analysis tests - deduplicated by SQL type, run in parallel
+    System.out.println("\n=== Query Analysis Tests (parallel) ===");
+    var analysisFailures =
+        All.stream()
+            .collect(
+                java.util.stream.Collectors.toMap(
+                    t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+            .values()
+            .parallelStream()
+            .flatMap(
+                t -> {
+                  try {
+                    withConnection(
+                        conn -> {
+                          testQueryAnalysis(conn, t);
+                          return null;
+                        });
+                    return java.util.stream.Stream.<String>empty();
+                  } catch (Exception e) {
+                    return java.util.stream.Stream.of(
+                        "Analysis FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
+                  }
+                })
+            .toList();
+
     // Report results
     var allFailures = new ArrayList<String>();
     allFailures.addAll(failures);
     allFailures.addAll(compositeFailures);
+    allFailures.addAll(callFailures);
+    allFailures.addAll(analysisFailures);
 
     System.out.println("\n=====================================");
     if (allFailures.isEmpty()) {
@@ -887,6 +947,22 @@ public class PgTypeTest {
     }
   }
 
+  static <A> void testQueryAnalysis(Connection conn, PgTypeAndExample<A> t) throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("qa");
+    conn.createStatement().execute("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")");
+    try {
+      RowParser<A> parser = RowParser.of(t.type);
+      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      if (!analysis.succeeded()) {
+        throw new RuntimeException("Query analysis failed for " + sqlType + ":\n" + analysis.report());
+      }
+    } finally {
+      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+    }
+  }
+
   static <A> void testCase(Connection conn, PgTypeAndExample<A> t) throws SQLException {
     String tableName = uniqueTableName("test");
     conn.createStatement()
@@ -927,6 +1003,56 @@ public class PgTypeTest {
     assertEquals(rows.get(0).t0(), expected);
     if (t.streamingWorks) {
       assertEquals(rows.get(1).t0(), expected);
+    }
+  }
+
+  // ==================== Stored Procedure Roundtrip ====================
+  // For each type, create a PL/pgSQL identity function, call it via Call.function(),
+  // and verify the value roundtrips through CallableStatement.
+
+  static <A> void testCallRoundtrip(Connection conn, PgTypeAndExample<A> t) throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    String safeName =
+        "identity_"
+            + sqlType
+                .replace("(", "_")
+                .replace(")", "_")
+                .replace(",", "_")
+                .replace(" ", "_")
+                .replace("[", "_arr_")
+                .replace("]", "")
+                .replace("\"", "");
+    int uniqueId = tableCounter.incrementAndGet();
+    String funcName = safeName + "_" + uniqueId;
+
+    conn.createStatement()
+        .execute(
+            "CREATE OR REPLACE FUNCTION "
+                + funcName
+                + "(p "
+                + sqlType
+                + ") RETURNS "
+                + sqlType
+                + " AS $$ BEGIN RETURN p; END; $$ LANGUAGE plpgsql");
+
+    try {
+      Procedure<A> proc = Procedure.buildFunction(funcName,
+          java.util.List.of(ParamDef.in(t.type)), t.type);
+
+      A result = proc.call(t.example).run(conn);
+
+      if (!areEqual(result, t.example)) {
+        throw new RuntimeException(
+            "Call roundtrip failed for "
+                + sqlType
+                + ": expected '"
+                + format(t.example)
+                + "' but got '"
+                + format(result)
+                + "'");
+      }
+    } finally {
+      conn.createStatement().execute("DROP FUNCTION IF EXISTS " + funcName);
     }
   }
 

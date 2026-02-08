@@ -10,6 +10,9 @@ package object scalafoundations:
   // Operation is defined as a sealed trait in Operation.scala
   type And[A, B] = dev.typr.foundations.And[A, B]
   type Transactor = dev.typr.foundations.Transactor
+  // Procedure is defined as a class in Procedure.scala
+  // ProcedureOp is defined as a class in Procedure.scala
+  type ParamDef = dev.typr.foundations.ParamDef
 
   // Wrapper object for Transactor static methods
   object Transactor:
@@ -40,10 +43,8 @@ package object scalafoundations:
 
   // Database-specific type classes
   type PgType[T] = dev.typr.foundations.PgType[T]
-  type PgOptType[T] = dev.typr.foundations.PgOptType[T]
   type MariaType[T] = dev.typr.foundations.MariaType[T]
   type DuckDbType[T] = dev.typr.foundations.DuckDbType[T]
-  type DuckDbOptType[T] = dev.typr.foundations.DuckDbOptType[T]
   type OracleType[T] = dev.typr.foundations.OracleType[T]
   type SqlServerType[T] = dev.typr.foundations.SqlServerType[T]
   type Db2Type[T] = dev.typr.foundations.Db2Type[T]
@@ -104,18 +105,16 @@ package object scalafoundations:
 
   // Extension methods for Scala-friendly nullable() that returns Option instead of Optional
   // Named "nullable" to avoid conflict with Java opt() method
-  // PgType.opt() returns PgOptType; to(Bijection) returns DbType (implementation returns PgType)
   extension [T](dbType: dev.typr.foundations.PgType[T])
-    def nullable: dev.typr.foundations.DbType[Option[T]] =
+    def nullable: dev.typr.foundations.PgType[Option[T]] =
       dbType.opt().to(optionalToOptionBijection)
 
   extension [T](dbType: dev.typr.foundations.MariaType[T])
     def nullable: dev.typr.foundations.MariaType[Option[T]] =
       dbType.opt().bimap(opt => if opt.isPresent then Some(opt.get) else None, _.fold(java.util.Optional.empty[T]())(java.util.Optional.of))
 
-  // DuckDbType.opt() returns DuckDbOptType; to(Bijection) returns DbType (implementation returns DuckDbType)
   extension [T](dbType: dev.typr.foundations.DuckDbType[T])
-    def nullable: dev.typr.foundations.DbType[Option[T]] =
+    def nullable: dev.typr.foundations.DuckDbType[Option[T]] =
       dbType.opt().to(optionalToOptionBijection)
 
   extension [T](dbType: dev.typr.foundations.OracleType[T])

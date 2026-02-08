@@ -49,7 +49,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -92,7 +94,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -135,7 +139,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -178,7 +184,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -221,7 +229,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -264,7 +274,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -307,7 +319,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -350,7 +364,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -393,7 +409,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -436,7 +454,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -479,7 +499,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -522,7 +544,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -565,7 +589,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -608,7 +634,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -651,7 +679,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -694,7 +724,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -737,7 +769,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -780,7 +814,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -823,7 +859,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -866,7 +904,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -909,7 +949,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -952,7 +994,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -995,7 +1039,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1038,7 +1084,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1081,7 +1129,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1124,7 +1174,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1167,7 +1219,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1210,7 +1264,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1253,7 +1309,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1296,7 +1354,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1339,7 +1399,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1382,7 +1444,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1425,7 +1489,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1468,7 +1534,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1511,7 +1579,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1554,7 +1624,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1597,7 +1669,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1640,7 +1714,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1683,7 +1759,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1726,7 +1804,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1769,7 +1849,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1812,7 +1894,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1855,7 +1939,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1898,7 +1984,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1941,7 +2029,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -1984,7 +2074,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2027,7 +2119,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2070,7 +2164,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2113,7 +2209,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2156,7 +2254,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2199,7 +2299,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2242,7 +2344,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2285,7 +2389,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2328,7 +2434,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2371,7 +2479,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2414,7 +2524,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2457,7 +2569,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2500,7 +2614,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2543,7 +2659,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2586,7 +2704,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2629,7 +2749,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2672,7 +2794,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2715,7 +2839,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2758,7 +2884,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2801,7 +2929,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2844,7 +2974,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2887,7 +3019,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2930,7 +3064,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -2973,7 +3109,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3016,7 +3154,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3059,7 +3199,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3102,7 +3244,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3145,7 +3289,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3188,7 +3334,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3231,7 +3379,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3274,7 +3424,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3317,7 +3469,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3360,7 +3514,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3403,7 +3559,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3446,7 +3604,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3489,7 +3649,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3532,7 +3694,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3575,7 +3739,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3618,7 +3784,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3661,7 +3829,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3704,7 +3874,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3747,7 +3919,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3790,7 +3964,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3833,7 +4009,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3876,7 +4054,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3919,7 +4099,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -3962,7 +4144,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -4005,7 +4189,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -4048,7 +4234,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -4091,7 +4279,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -4134,7 +4324,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -4177,7 +4369,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -4220,7 +4414,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
@@ -4263,7 +4459,9 @@ public final class PgStructBuilders {
                 elementType.write().array(elementType.typename()),
                 elementType.pgText().array(),
                 elementType.pgCompositeText().array(arrayFactory),
-                elementType.pgJson().array(arrayFactory));
+                elementType.pgJson().array(arrayFactory),
+                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
+                dev.typr.foundations.analysis.AnalysisOptions.EMPTY);
             return field(name, arrayType, getter);
         }
 
