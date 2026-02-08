@@ -5,7 +5,7 @@ import java.sql.SQLException
 
 /** Kotlin wrapper for dev.typr.foundations.Procedure with Unit instead of Void. */
 class Procedure<Out> internal constructor(
-    internal val javaProcedure: dev.typr.foundations.Procedure<*>,
+    @JvmField val javaProcedure: dev.typr.foundations.Procedure<*>,
     private val mapResult: (Any?) -> Out
 ) {
 
@@ -24,6 +24,18 @@ class Procedure<Out> internal constructor(
         @Suppress("UNCHECKED_CAST")
         internal fun <Out> fromJava(jp: dev.typr.foundations.Procedure<Out>): Procedure<Out> =
             Procedure(jp) { it as Out }
+
+        fun buildVoid(name: String, params: List<dev.typr.foundations.ParamDef>): Procedure<Unit> =
+            fromVoid(dev.typr.foundations.Procedure.buildVoid(name, params))
+
+        fun <R> buildFunction(name: String, inParams: List<dev.typr.foundations.ParamDef>, returnType: dev.typr.foundations.DbType<R>): Procedure<R> =
+            fromJava(dev.typr.foundations.Procedure.buildFunction(name, inParams, returnType))
+
+        fun <O> buildSingleOut(name: String, params: List<dev.typr.foundations.ParamDef>): Procedure<O> =
+            fromJava(dev.typr.foundations.Procedure.buildSingleOut(name, params))
+
+        fun <O> buildMultiOut(name: String, params: List<dev.typr.foundations.ParamDef>, assembler: java.util.function.Function<Array<Any?>, O>): Procedure<O> =
+            fromJava(dev.typr.foundations.Procedure.buildMultiOut(name, params, assembler))
     }
 }
 

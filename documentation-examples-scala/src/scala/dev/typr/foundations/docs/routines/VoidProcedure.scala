@@ -1,5 +1,4 @@
 package dev.typr.foundations.docs.routines
-import dev.typr.foundations.{PgTypes, Tuple}
 import dev.typr.scalafoundations.*
 
 import java.sql.SQLException

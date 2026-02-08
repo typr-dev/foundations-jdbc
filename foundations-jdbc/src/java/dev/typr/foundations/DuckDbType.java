@@ -398,7 +398,7 @@ public record DuckDbType<A>(
   }
 
   @Override
-  public <B> DuckDbType<B> to(dev.typr.foundations.dsl.Bijection<A, B> bijection) {
+  public <B> DuckDbType<B> to(Bijection<A, B> bijection) {
     return new DuckDbType<>(
         typename.as(),
         read.map(bijection::underlying),

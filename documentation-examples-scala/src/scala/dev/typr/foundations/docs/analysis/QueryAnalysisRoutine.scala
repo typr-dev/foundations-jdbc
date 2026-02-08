@@ -1,6 +1,5 @@
 package dev.typr.foundations.docs.analysis
-import dev.typr.foundations.{ParamDef, PgTypes, Procedure}
-import dev.typr.foundations.analysis.QueryChecker
+import dev.typr.scalafoundations.*
 
 @SuppressWarnings(Array("unused"))
 object QueryAnalysisRoutine:

@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.mariadb
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.foundations.data.maria.MariaSet
 
 @Suppress("unused")
 class SetType {

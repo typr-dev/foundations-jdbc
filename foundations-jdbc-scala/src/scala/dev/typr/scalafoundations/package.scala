@@ -13,6 +13,12 @@ package object scalafoundations:
   // Procedure is defined as a class in Procedure.scala
   // ProcedureOp is defined as a class in Procedure.scala
   type ParamDef = dev.typr.foundations.ParamDef
+  object ParamDef:
+    def in(dbType: dev.typr.foundations.DbType[?]): dev.typr.foundations.ParamDef =
+      dev.typr.foundations.ParamDef.in(dbType)
+    def of(dbType: dev.typr.foundations.DbType[?], mode: dev.typr.foundations.ParamDef.Mode): dev.typr.foundations.ParamDef =
+      dev.typr.foundations.ParamDef.of(dbType, mode)
+    type Mode = dev.typr.foundations.ParamDef.Mode
 
   // Wrapper object for Transactor static methods
   object Transactor:
@@ -67,8 +73,23 @@ package object scalafoundations:
   type SqlServerType[T] = dev.typr.foundations.SqlServerType[T]
   type Db2Type[T] = dev.typr.foundations.Db2Type[T]
 
+  // Utility types
+  type Tuple = dev.typr.foundations.Tuple
+  object Tuple:
+    type Tuple1[T0] = dev.typr.foundations.Tuple.Tuple1[T0]
+    type Tuple2[T0, T1] = dev.typr.foundations.Tuple.Tuple2[T0, T1]
+    type Tuple3[T0, T1, T2] = dev.typr.foundations.Tuple.Tuple3[T0, T1, T2]
+    type Tuple4[T0, T1, T2, T3] = dev.typr.foundations.Tuple.Tuple4[T0, T1, T2, T3]
+    type Tuple5[T0, T1, T2, T3, T4] = dev.typr.foundations.Tuple.Tuple5[T0, T1, T2, T3, T4]
+    type Tuple6[T0, T1, T2, T3, T4, T5] = dev.typr.foundations.Tuple.Tuple6[T0, T1, T2, T3, T4, T5]
+    type Tuple7[T0, T1, T2, T3, T4, T5, T6] = dev.typr.foundations.Tuple.Tuple7[T0, T1, T2, T3, T4, T5, T6]
+    type Tuple8[T0, T1, T2, T3, T4, T5, T6, T7] = dev.typr.foundations.Tuple.Tuple8[T0, T1, T2, T3, T4, T5, T6, T7]
+    type Tuple9[T0, T1, T2, T3, T4, T5, T6, T7, T8] = dev.typr.foundations.Tuple.Tuple9[T0, T1, T2, T3, T4, T5, T6, T7, T8]
+    type Tuple10[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9] = dev.typr.foundations.Tuple.Tuple10[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]
+
   // Analysis types
   type QueryAnalysis = dev.typr.foundations.analysis.QueryAnalysis
+  type QueryChecker = dev.typr.foundations.analysis.QueryChecker
 
   // Wrapper object for QueryAnalyzer static methods
   object QueryAnalyzer:
@@ -129,8 +150,8 @@ package object scalafoundations:
       dev.typr.foundations.connect.db2.Db2Config.builder(host, port, database, username, password)
 
   // Bijection for converting Java Optional to Scala Option
-  private def optionalToOptionBijection[T]: dev.typr.foundations.dsl.Bijection[java.util.Optional[T], Option[T]] =
-    dev.typr.foundations.dsl.Bijection.of(
+  private def optionalToOptionBijection[T]: dev.typr.foundations.Bijection[java.util.Optional[T], Option[T]] =
+    dev.typr.foundations.Bijection.of(
       (opt: java.util.Optional[T]) => if opt.isPresent then Some(opt.get) else None,
       (opt: Option[T]) => opt.fold(java.util.Optional.empty[T]())(java.util.Optional.of)
     )

@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.oracle
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.foundations.data.Json
 
 @Suppress("unused")
 class XmlJsonTypes {

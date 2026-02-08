@@ -2,8 +2,6 @@ package dev.typr.foundations.docs.mariadb
 
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
-import dev.typr.foundations.data.maria.Inet4
-import dev.typr.foundations.data.maria.Inet6
 
 @Suppress("unused")
 class NetworkTypes {
