@@ -7,9 +7,9 @@ class StreamingInsertSingle {
 
     //start
     // Insert a list of strings using COPY
-    fun insertNames(names: List<String>, tx: Transactor): Long {
+    fun insertNames(names: Iterator<String>, tx: Transactor): Long {
         return streamingInsert
-            .of("COPY users(name) FROM STDIN", 1000, names.iterator(), PgTypes.text.pgText())
+            .of("COPY users(name) FROM STDIN", 1000, names, PgTypes.text.pgText())
             .transact(tx)
     }
     //stop

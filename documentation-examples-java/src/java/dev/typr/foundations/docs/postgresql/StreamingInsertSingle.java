@@ -4,16 +4,16 @@ import dev.typr.foundations.*;
 import dev.typr.foundations.connect.ConnectionSource;
 
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Iterator;
 
 @SuppressWarnings("unused")
 public class StreamingInsertSingle {
 
     //start
     // Insert a list of strings using COPY
-    long insertNames(List<String> names, Transactor tx) throws SQLException {
+    long insertNames(Iterator<String> names, Transactor tx) throws SQLException {
         return streamingInsert
-            .of("COPY users(name) FROM STDIN", 1000, names.iterator(), PgTypes.text.pgText())
+            .of("COPY users(name) FROM STDIN", 1000, names, PgTypes.text.pgText())
             .transact(tx);
     }
     //stop

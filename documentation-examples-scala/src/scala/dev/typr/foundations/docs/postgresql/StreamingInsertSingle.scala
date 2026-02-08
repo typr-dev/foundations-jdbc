@@ -7,8 +7,8 @@ object StreamingInsertSingle:
 
   //start
   // Insert a list of strings using COPY
-  def insertNames(names: List[String], tx: Transactor): Long =
+  def insertNames(names: Iterator[String], tx: Transactor): Long =
     streamingInsert
-      .of("COPY users(name) FROM STDIN", 1000, names.iterator, PgTypes.text.pgText())
+      .of("COPY users(name) FROM STDIN", 1000, names, PgTypes.text.pgText())
       .transact(tx)
   //stop
