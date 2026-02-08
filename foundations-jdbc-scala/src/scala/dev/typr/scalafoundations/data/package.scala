@@ -11,6 +11,8 @@ package object data:
   type Int2Vector = dev.typr.foundations.data.Int2Vector
   type Json = dev.typr.foundations.data.Json
   type JsonValue = dev.typr.foundations.data.JsonValue
+  object JsonValue:
+    def parse(json: String): JsonValue = dev.typr.foundations.data.JsonValue.parse(json)
   type Jsonb = dev.typr.foundations.data.Jsonb
   type MacAddr = dev.typr.foundations.data.MacAddr
   type MacAddr8 = dev.typr.foundations.data.MacAddr8

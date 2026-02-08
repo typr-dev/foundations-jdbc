@@ -680,7 +680,7 @@ def generateKotlinRowParserBuilders(): String = {
         |    }""".stripMargin
   }
 
-  s"""|package dev.typr.foundations.kotlin
+  s"""|package dev.typr.kotlinfoundations
       |
       |import dev.typr.foundations.DbType
       |
@@ -709,11 +709,11 @@ def generateKotlinRowParserBuilders(): String = {
 def generateScalaRowParserBuilders(): String = {
   val maxArity = N - 1
 
-  val builder0 = s"""|  class Builder0[Row] private[scala] () {
+  val builder0 = s"""|  class Builder0[Row] private[scalafoundations] () {
                      |    private val types = scala.collection.mutable.ListBuffer[DbType[?]]()
                      |    private val getters = scala.collection.mutable.ListBuffer[Row => Any]()
                      |
-                     |    def field[F](tpe: DbType[F], getter: Row => F): Builder1[Row, F] = {
+                     |    def field[F](tpe: DbType[F])(getter: Row => F): Builder1[Row, F] = {
                      |      types += tpe
                      |      getters += getter.asInstanceOf[Row => Any]
                      |      new Builder1(types, getters)
@@ -729,14 +729,14 @@ def generateScalaRowParserBuilders(): String = {
     val nextBuilder = if (n < maxArity) {
       val nextTparams = (0 until n).map(i => s"T$i").mkString(", ")
       s"""|
-          |    def field[F](tpe: DbType[F], getter: Row => F): Builder${n + 1}[Row, $nextTparams, F] = {
+          |    def field[F](tpe: DbType[F])(getter: Row => F): Builder${n + 1}[Row, $nextTparams, F] = {
           |      types += tpe
           |      getters += getter.asInstanceOf[Row => Any]
           |      new Builder${n + 1}(types, getters)
           |    }""".stripMargin
     } else ""
 
-    s"""|  class Builder$n[Row, $tparams] private[scala] (
+    s"""|  class Builder$n[Row, $tparams] private[scalafoundations] (
         |    private val types: scala.collection.mutable.ListBuffer[DbType[?]],
         |    private val getters: scala.collection.mutable.ListBuffer[Row => Any]
         |  ) {
@@ -752,7 +752,7 @@ def generateScalaRowParserBuilders(): String = {
         |  }""".stripMargin
   }
 
-  s"""|package dev.typr.foundations.scala
+  s"""|package dev.typr.scalafoundations
       |
       |import dev.typr.foundations.DbType
       |import scala.jdk.CollectionConverters.*
@@ -762,9 +762,9 @@ def generateScalaRowParserBuilders(): String = {
       |  * Usage:
       |  * {{{
       |  * val parser: RowParser[Product] = RowParser.builder[Product]()
-      |  *   .field(PgTypes.int4, _.id)
-      |  *   .field(PgTypes.text, _.name)
-      |  *   .field(PgTypes.numeric, _.price)
+      |  *   .field(PgTypes.int4)(_.id)
+      |  *   .field(PgTypes.text)(_.name)
+      |  *   .field(PgTypes.numeric)(_.price)
       |  *   .build(Product.apply)
       |  * }}}
       |  */
@@ -778,8 +778,8 @@ def generateScalaRowParserBuilders(): String = {
       |""".stripMargin
 }
 
-val kotlinOutputDir = baseDir.resolve("documentation-examples-kotlin/src/kotlin/dev/typr/foundations/kotlin")
-val scalaOutputDir = baseDir.resolve("foundations-jdbc-scala/src/scala/dev/typr/foundations/scala")
+val kotlinOutputDir = baseDir.resolve("foundations-jdbc-kotlin/src/kotlin/dev/typr/kotlinfoundations")
+val scalaOutputDir = baseDir.resolve("foundations-jdbc-scala/src/scala/dev/typr/scalafoundations")
 
 Files.createDirectories(outputDir)
 

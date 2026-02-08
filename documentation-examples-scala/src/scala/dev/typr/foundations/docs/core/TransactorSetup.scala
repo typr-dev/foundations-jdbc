@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.Fragment.sql
 import dev.typr.scalafoundations.data.*
 
 import java.sql.SQLException
@@ -9,9 +10,9 @@ object TransactorSetup:
   case class ProductRow(id: Int, name: String, price: BigDecimal)
 
   val rowParser: RowParser[ProductRow] = RowParser.builder[ProductRow]()
-    .field(PgTypes.int4, _.id)
-    .field(PgTypes.text, _.name)
-    .field(PgTypes.numeric, _.price)
+    .field(PgTypes.int4)(_.id)
+    .field(PgTypes.text)(_.name)
+    .field(PgTypes.numeric)(_.price)
     .build(ProductRow.apply)
 
   var connectionSource: ConnectionSource = null // placeholder
@@ -25,9 +26,7 @@ object TransactorSetup:
     val tx: Transactor = connectionSource.transactor(Transactor.defaultStrategy())
 
     // Everything inside runs in one transaction: begin, commit, close
-    Fragment.interpolate("SELECT * FROM product WHERE price > ")
-      .param(PgTypes.numeric, minPrice)
-      .done()
+    sql"SELECT * FROM product WHERE price > ${Fragment.encode(PgTypes.numeric, minPrice)}"
       .query(rowParser.all())
       .transact(tx)
   //stop

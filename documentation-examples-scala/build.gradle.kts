@@ -24,6 +24,8 @@ dependencies {
     implementation(project(":foundations-jdbc-scala_3"))
     api("org.scala-lang:scala3-library_3:${property("scala3Version")}")
     compileOnly(project(":foundations-jdbc-spring"))
+    compileOnly("org.springframework:spring-context:${property("springVersion")}")
+    compileOnly("org.springframework:spring-tx:${property("springVersion")}")
 
     compileOnly("org.postgresql:postgresql:${property("postgresqlDriverVersion")}")
     compileOnly("org.mariadb.jdbc:mariadb-java-client:${property("mariadbDriverVersion")}")

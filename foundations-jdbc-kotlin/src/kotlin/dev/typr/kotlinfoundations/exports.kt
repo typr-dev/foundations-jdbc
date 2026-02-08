@@ -15,6 +15,7 @@ typealias Update = dev.typr.foundations.Operation.Update
 typealias UpdateReturning<T> = dev.typr.foundations.Operation.UpdateReturning<T>
 typealias Strategy = dev.typr.foundations.Transactor.Strategy
 
+typealias DbJson<T> = dev.typr.foundations.DbJson<T>
 typealias NonEmptyBlob = dev.typr.foundations.NonEmptyBlob
 typealias NonEmptyString = dev.typr.foundations.NonEmptyString
 typealias PaddedString = dev.typr.foundations.PaddedString

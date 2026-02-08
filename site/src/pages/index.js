@@ -114,11 +114,9 @@ import dev.typr.foundations.connect.duckdb.*
 
 fun main() {
     val tx = DuckDbConfig.builder(":memory:").build().transactor()
-    val answer: Int = tx.execute { conn ->
-        Fragment.lit("SELECT 42")
-            .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
-            .run(conn)
-    }
+    val answer: Int = Fragment.lit("SELECT 42")
+        .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
+        .transact(tx)
     println("Result: $answer")
 }`;
 
@@ -198,26 +196,26 @@ function ProblemSection() {
   return (
     <section className={styles.sectionDark}>
       <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>The Problem with JDBC</h2>
+        <h2 className={styles.sectionTitle}>What existing libraries still get wrong</h2>
         <p className={styles.sectionSubtitle}>
-          JDBC is notoriously difficult to use correctly. The API is verbose, error-prone,
-          and makes it almost impossible to handle all column types properly.
+          ORMs and query builders solve the verbosity of raw JDBC. But fundamental problems remain —
+          problems that surface in production as silent data corruption, runtime exceptions, and database lock-in.
         </p>
         <div className={styles.twoCol}>
           <div>
             <h3 style={{color: '#ef4444', fontSize: '1.2rem', marginBottom: '1rem'}}>What goes wrong</h3>
             <ul style={{listStyle: 'none', padding: 0, margin: 0}}>
               <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.08)', borderLeft: '3px solid #ef4444'}}>
-                <strong>Null handling</strong> — Was that column nullable? Did you remember <code>wasNull()</code>?
+                <strong>Queries are unchecked strings</strong> — Rename a column in the schema and nothing fails until production. No library catches this at test time.
               </li>
               <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.08)', borderLeft: '3px solid #ef4444'}}>
-                <strong>Type conversions</strong> — Does <code>getObject()</code> return what you expect? Often not.
+                <strong>Nullability is invisible</strong> — A nullable column and a non-nullable column have the same Java type. Nothing in the API tells you which columns can be null.
               </li>
               <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.08)', borderLeft: '3px solid #ef4444'}}>
-                <strong>Resource management</strong> — Did you close that ResultSet? Statement? Connection?
+                <strong>Type fidelity is lost</strong> — ORMs map database types to a handful of Java primitives. Your <code>NUMERIC(38,18)</code> loses precision through <code>double</code>. Read a value, write it back — it's not the same value anymore.
               </li>
               <li style={{padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.08)', borderLeft: '3px solid #ef4444'}}>
-                <strong>Database differences</strong> — Code that works on PostgreSQL may silently corrupt data on Oracle.
+                <strong>DB-specific features are second-class</strong> — Libraries target the lowest common denominator. PostgreSQL arrays, Oracle <code>MULTISET</code>, MariaDB unsigned types — all require escape hatches.
               </li>
             </ul>
           </div>
@@ -225,16 +223,16 @@ function ProblemSection() {
             <h3 style={{color: '#22c55e', fontSize: '1.2rem', marginBottom: '1rem'}}>What we built</h3>
             <ul style={{listStyle: 'none', padding: 0, margin: 0}}>
               <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.08)', borderLeft: '3px solid #22c55e'}}>
-                <strong>Type-safe database types</strong> — Every column type modeled correctly for each database.
+                <strong>Query Analysis catches bugs in tests</strong> — Validate every query against a real database in your test suite. Schema changes break tests, not production.
               </li>
               <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.08)', borderLeft: '3px solid #22c55e'}}>
-                <strong>Full roundtrip support</strong> — Read a value, write it back — no loss, no corruption.
+                <strong>Nullable means Optional</strong> — <code>.nullable()</code> changes the return type to <code>Optional</code>. If the type isn't optional, the column is guaranteed non-null.
               </li>
               <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.08)', borderLeft: '3px solid #22c55e'}}>
-                <strong>Automatic resource management</strong> — Connections, statements, and result sets managed for you.
+                <strong>Every database type, modeled exactly</strong> — Not just primitives. Composite types, domains, enums, arrays, intervals — all first-class, with full roundtrip fidelity.
               </li>
               <li style={{padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.08)', borderLeft: '3px solid #22c55e'}}>
-                <strong>Multi-database</strong> — PostgreSQL, MariaDB, DuckDB, Oracle, SQL Server, and DB2.
+                <strong>Database-specific by design</strong> — Dedicated type classes for each database. <code>PgTypes</code>, <code>OracleTypes</code>, <code>MariaDbTypes</code> — use your database's full feature set.
               </li>
             </ul>
           </div>
@@ -352,35 +350,35 @@ function TypeBuildingBlocks() {
           Composite types, wrapper types, and arrays — each database has its own type system,
           and each one is modeled faithfully.
         </p>
-        <div className={styles.typeBlocksGrid}>
-          <div>
-            <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem'}}>
-              Composite types <span className={styles.dbBadge}>PostgreSQL</span>
-            </h3>
+        <Tabs groupId="type-blocks" className={styles.centeredTabs}>
+          <TabItem value="composite" label="Composite Types" default>
             <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
               The <code>dimensions</code> composite type becomes a record with typed fields. <code>PgStruct</code> handles the wire format.
             </p>
+            <CodeBlock language="sql" title="PostgreSQL DDL">
+              {`CREATE TYPE dimensions AS (\n    width   double precision,\n    height  double precision,\n    depth   double precision,\n    unit    varchar(10)\n);`}
+            </CodeBlock>
             <Snippet file="landing/Dimensions" />
-          </div>
-          <div>
-            <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem'}}>
-              Wrapper types <span className={styles.dbBadge}>MariaDB</span>
-            </h3>
+          </TabItem>
+          <TabItem value="wrapper" label="Wrapper Types">
             <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
               Call <code>bimap</code> (two-way mapping) on a base type — you get a full codec that works in row parsers, arrays, and JSON.
             </p>
+            <CodeBlock language="sql" title="MariaDB DDL">
+              {`CREATE TABLE products (\n    id   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\n    name VARCHAR(255) NOT NULL\n);`}
+            </CodeBlock>
             <Snippet file="landing/WrapperType" />
-          </div>
-          <div>
-            <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem'}}>
-              Arrays <span className={styles.dbBadge}>DuckDB</span>
-            </h3>
+          </TabItem>
+          <TabItem value="arrays" label="Arrays">
             <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
               Pass arrays directly — no <code>createArrayOf</code>, no type name strings, no connection reference.
             </p>
+            <CodeBlock language="sql" title="DuckDB DDL">
+              {`CREATE TABLE posts (\n    id        INTEGER,\n    tags      VARCHAR[],\n    published BOOLEAN\n);`}
+            </CodeBlock>
             <Snippet file="landing/DuckDbArray" />
-          </div>
-        </div>
+          </TabItem>
+        </Tabs>
       </div>
     </section>
   );
@@ -429,6 +427,24 @@ function TransactorShowcase() {
   );
 }
 
+
+function JsonSection() {
+  return (
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <h2 className={styles.sectionTitle}>Built-in JSON codecs</h2>
+        <p className={styles.sectionSubtitle}>
+          Every type has a JSON codec. Your <code>RowParser</code> works for both <code>ResultSet</code> and JSON —
+          define once, use everywhere. Aggregate child rows with <code>json_agg()</code>, <code>JSON_ARRAYAGG</code>,
+          or <code>FOR JSON</code> and parse them with the same parser that reads your regular queries.
+        </p>
+        <div className={styles.centeredCode}>
+          <Snippet file="landing/JsonCodecs" />
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function QueryAnalysisReport() {
   const gray = {color: '#64748b'};
@@ -630,13 +646,13 @@ function ComparisonSection() {
               <tr>
                 <td>Composites, arrays, ranges</td>
                 <td style={cellStyle('green')}>First-class</td>
-                <td style={cellStyle('yellow')}>Via UserType</td>
+                <td style={cellStyle('yellow')}>Partial<sup>1</sup></td>
                 <td style={cellStyle('yellow')}>Manual mapping</td>
                 <td style={cellStyle('red')}>Raw JDBC only</td>
-                <td style={cellStyle('yellow')}>Custom column types</td>
+                <td style={cellStyle('yellow')}>Partial<sup>2</sup></td>
               </tr>
               <tr>
-                <td>Reflection</td>
+                <td>Reflection<sup>6</sup></td>
                 <td style={cellStyle('green')}>None</td>
                 <td style={cellStyle('red')}>Heavy</td>
                 <td style={cellStyle('yellow')}>Moderate</td>
@@ -646,7 +662,7 @@ function ComparisonSection() {
               <tr>
                 <td>Query type checking</td>
                 <td style={cellStyle('green')}>At test time</td>
-                <td style={cellStyle('red')}>No</td>
+                <td style={cellStyle('yellow')}>Opt-in<sup>3</sup></td>
                 <td style={cellStyle('red')}>No</td>
                 <td style={cellStyle('red')}>No</td>
                 <td style={cellStyle('yellow')}>DSL only (compile)</td>
@@ -662,16 +678,22 @@ function ComparisonSection() {
               <tr>
                 <td>Code generation</td>
                 <td>Optional (Typr)</td>
+                <td>Reverse engineering<sup>4</sup></td>
                 <td style={cellStyle('red')}>Not supported</td>
                 <td style={cellStyle('red')}>Not supported</td>
-                <td style={cellStyle('red')}>Not supported</td>
-                <td style={cellStyle('red')}>Not supported</td>
+                <td>Gradle plugin<sup>5</sup></td>
               </tr>
             </tbody>
           </table>
-          <p style={{fontSize: '0.85rem', color: '#94a3b8', marginTop: '1rem', maxWidth: '700px', margin: '1rem auto 0'}}>
-            * If you need to switch databases, regenerating code from your new schema may be more reliable than hoping the leaky abstraction holds.
-          </p>
+          <div style={{fontSize: '0.8rem', color: '#94a3b8', marginTop: '1rem', maxWidth: '800px', margin: '1rem auto 0', lineHeight: '1.6'}}>
+            <p style={{margin: '0.25rem 0'}}>* If you need to switch databases, regenerating code from your new schema may be more reliable than hoping the leaky abstraction holds.</p>
+            <p style={{margin: '0.25rem 0'}}><sup>1</sup> Hibernate 6.2+ has <code>@Struct</code> for composites and built-in basic array mapping. Ranges still need third-party libraries (Hypersistence Utils).</p>
+            <p style={{margin: '0.25rem 0'}}><sup>2</sup> Exposed has built-in array support. Ranges and composite types require custom <code>ColumnType</code> implementations.</p>
+            <p style={{margin: '0.25rem 0'}}><sup>3</sup> <code>@CheckHQL</code> (6.3+) validates HQL at compile time against the entity metamodel, not the database schema. Not enabled by default.</p>
+            <p style={{margin: '0.25rem 0'}}><sup>4</sup> Hibernate Tools generates entity classes from database schemas.</p>
+            <p style={{margin: '0.25rem 0'}}><sup>5</sup> Official JetBrains plugin generates Exposed table definitions from database schemas.</p>
+            <p style={{margin: '0.25rem 0'}}><sup>6</sup> Reflection affects GraalVM native-image compatibility, startup time, and debuggability. Libraries using runtime proxies or bytecode generation require additional configuration for native compilation.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -714,6 +736,7 @@ export default function Home() {
         <TypeBuildingBlocks />
         <QueryShowcase />
         <TransactorShowcase />
+        <JsonSection />
         <QueryAnalysisSection />
         <TypeShowcase />
         <ComparisonSection />

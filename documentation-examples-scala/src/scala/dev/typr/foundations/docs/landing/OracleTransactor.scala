@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.landing
 import dev.typr.scalafoundations.*
+import dev.typr.scalafoundations.Fragment.sql
 import dev.typr.scalafoundations.data.*
 
 @SuppressWarnings(Array("unused"))
@@ -13,13 +14,8 @@ object OracleTransactor:
 
   // Everything inside runs in one transaction
   def getGreeting(): String =
-    Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
+    sql"SELECT 'Hello from Oracle' FROM dual"
       .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
       .transact(tx)
 
-  // Built-in strategies for common patterns
-  val defaultStrategy = Transactor.defaultStrategy()         // begin -> commit -> close
-  val autoCommit = Transactor.autoCommitStrategy()           // no transaction, just close
-  val rollbackOnError = Transactor.rollbackOnErrorStrategy() // begin -> commit, rollback on error -> close
-  val test = Transactor.testStrategy()                       // begin -> rollback -> close (for tests)
   //stop
