@@ -8,6 +8,11 @@ import org.postgresql.PGConnection;
 import org.postgresql.util.PSQLException;
 
 public class streamingInsert {
+  public static <T> Operation<Long> of(
+      String copyCommand, int batchSize, Iterator<T> rows, PgText<T> text) {
+    return new Operation.StreamingCopy<>(copyCommand, batchSize, rows, text);
+  }
+
   public static <T> long insertUnchecked(
       String copyCommand, int batchSize, Iterator<T> rows, Connection c, PgText<T> T) {
     try {

@@ -38,7 +38,6 @@ public interface MariaTypes {
           "TINYINT",
           MariaRead.readByte,
           MariaWrite.writeByte,
-          MariaText.textByte,
           MariaJson.int4.bimap(Integer::byteValue, Byte::intValue),
           MariaOutParam.readByte);
 
@@ -47,7 +46,6 @@ public interface MariaTypes {
           "SMALLINT",
           MariaRead.readShort,
           MariaWrite.writeShort,
-          MariaText.textShort,
           MariaJson.int2,
           MariaOutParam.readShort);
 
@@ -56,7 +54,6 @@ public interface MariaTypes {
           "MEDIUMINT",
           MariaRead.readInteger,
           MariaWrite.writeInteger,
-          MariaText.textInteger,
           MariaJson.int4,
           MariaOutParam.readInteger);
 
@@ -65,7 +62,6 @@ public interface MariaTypes {
           "INT",
           MariaRead.readInteger,
           MariaWrite.writeInteger,
-          MariaText.textInteger,
           MariaJson.int4,
           MariaOutParam.readInteger)
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("integer"));
@@ -75,7 +71,6 @@ public interface MariaTypes {
           "BIGINT",
           MariaRead.readLong,
           MariaWrite.writeLong,
-          MariaText.textLong,
           MariaJson.int8,
           MariaOutParam.readLong);
 
@@ -87,7 +82,6 @@ public interface MariaTypes {
           "TINYINT UNSIGNED",
           MariaRead.readShort.map(Uint1::new),
           MariaWrite.writeShort.contramap(Uint1::value),
-          MariaText.textShort.contramap(Uint1::value),
           MariaJson.int2.bimap(Uint1::new, Uint1::value),
           MariaOutParam.readShort.map(Uint1::new));
 
@@ -97,7 +91,6 @@ public interface MariaTypes {
           "SMALLINT UNSIGNED",
           MariaRead.readInteger.map(Uint2::new),
           MariaWrite.writeInteger.contramap(Uint2::value),
-          MariaText.textInteger.contramap(Uint2::value),
           MariaJson.int4.bimap(Uint2::new, Uint2::value),
           MariaOutParam.readInteger.map(Uint2::new));
 
@@ -107,7 +100,6 @@ public interface MariaTypes {
           "MEDIUMINT UNSIGNED",
           MariaRead.readLong.map(Uint4::new),
           MariaWrite.writeLong.contramap(Uint4::value),
-          MariaText.textLong.contramap(Uint4::value),
           MariaJson.int8.bimap(Uint4::new, Uint4::value),
           MariaOutParam.readLong.map(Uint4::new));
 
@@ -117,7 +109,6 @@ public interface MariaTypes {
           "INT UNSIGNED",
           MariaRead.readLong.map(Uint4::new),
           MariaWrite.writeLong.contramap(Uint4::value),
-          MariaText.textLong.contramap(Uint4::value),
           MariaJson.int8.bimap(Uint4::new, Uint4::value),
           MariaOutParam.readLong.map(Uint4::new))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("integer unsigned"));
@@ -128,7 +119,6 @@ public interface MariaTypes {
           "BIGINT UNSIGNED",
           MariaRead.readBigInteger.map(Uint8::new),
           MariaWrite.writeBigInteger.contramap(Uint8::value),
-          MariaText.textBigInteger.contramap(Uint8::value),
           MariaJson.numeric.bimap(
               v -> new Uint8(v.toBigInteger()), v -> new BigDecimal(v.value())),
           MariaOutParam.readBigDecimal.map(v -> new Uint8(v.toBigInteger())));
@@ -140,7 +130,6 @@ public interface MariaTypes {
           "DECIMAL",
           MariaRead.readBigDecimal,
           MariaWrite.writeBigDecimal,
-          MariaText.textBigDecimal,
           MariaJson.numeric,
           MariaOutParam.readBigDecimal);
 
@@ -152,7 +141,6 @@ public interface MariaTypes {
         MariaTypename.of("DECIMAL", precision, scale),
         MariaRead.readBigDecimal,
         MariaWrite.writeBigDecimal,
-        MariaText.textBigDecimal,
         MariaJson.numeric,
         MariaOutParam.readBigDecimal);
   }
@@ -164,7 +152,6 @@ public interface MariaTypes {
           "FLOAT",
           MariaRead.readFloat,
           MariaWrite.writeFloat,
-          MariaText.textFloat,
           MariaJson.float4,
           MariaOutParam.readFloat);
 
@@ -173,7 +160,6 @@ public interface MariaTypes {
           "DOUBLE",
           MariaRead.readDouble,
           MariaWrite.writeDouble,
-          MariaText.textDouble,
           MariaJson.float8,
           MariaOutParam.readDouble);
 
@@ -184,7 +170,6 @@ public interface MariaTypes {
           "BOOLEAN",
           MariaRead.readBoolean,
           MariaWrite.writeBoolean,
-          MariaText.textBoolean,
           MariaJson.bool,
           MariaOutParam.readBoolean);
 
@@ -196,7 +181,6 @@ public interface MariaTypes {
           "BIT",
           MariaRead.readBitAsBoolean,
           MariaWrite.writeBoolean,
-          MariaText.textBoolean,
           MariaJson.bool,
           MariaOutParam.readBoolean);
 
@@ -206,7 +190,6 @@ public interface MariaTypes {
           "BIT",
           MariaRead.readBit,
           MariaWrite.writeByteArray,
-          MariaText.textByteArray,
           MariaJson.bytea,
           MariaOutParam.readByteArray);
 
@@ -217,7 +200,6 @@ public interface MariaTypes {
           "CHAR",
           MariaRead.readString,
           MariaWrite.writeString,
-          MariaText.textString,
           MariaJson.text,
           MariaOutParam.readString);
 
@@ -226,7 +208,6 @@ public interface MariaTypes {
           "VARCHAR",
           MariaRead.readString,
           MariaWrite.writeString,
-          MariaText.textString,
           MariaJson.text,
           MariaOutParam.readString);
 
@@ -235,7 +216,6 @@ public interface MariaTypes {
           "TINYTEXT",
           MariaRead.readString,
           MariaWrite.writeString,
-          MariaText.textString,
           MariaJson.text,
           MariaOutParam.readString);
 
@@ -244,7 +224,6 @@ public interface MariaTypes {
           "TEXT",
           MariaRead.readString,
           MariaWrite.writeString,
-          MariaText.textString,
           MariaJson.text,
           MariaOutParam.readString);
 
@@ -253,7 +232,6 @@ public interface MariaTypes {
           "MEDIUMTEXT",
           MariaRead.readString,
           MariaWrite.writeString,
-          MariaText.textString,
           MariaJson.text,
           MariaOutParam.readString);
 
@@ -262,7 +240,6 @@ public interface MariaTypes {
           "LONGTEXT",
           MariaRead.readString,
           MariaWrite.writeString,
-          MariaText.textString,
           MariaJson.text,
           MariaOutParam.readString);
 
@@ -271,7 +248,6 @@ public interface MariaTypes {
         MariaTypename.of("CHAR", length),
         MariaRead.readString,
         MariaWrite.writeString,
-        MariaText.textString,
         MariaJson.text,
         MariaOutParam.readString);
   }
@@ -281,7 +257,6 @@ public interface MariaTypes {
         MariaTypename.of("VARCHAR", length),
         MariaRead.readString,
         MariaWrite.writeString,
-        MariaText.textString,
         MariaJson.text,
         MariaOutParam.readString);
   }
@@ -293,7 +268,6 @@ public interface MariaTypes {
           "BINARY",
           MariaRead.readByteArray,
           MariaWrite.writeByteArray,
-          MariaText.textByteArray,
           MariaJson.bytea,
           MariaOutParam.readByteArray);
 
@@ -302,7 +276,6 @@ public interface MariaTypes {
           "VARBINARY",
           MariaRead.readByteArray,
           MariaWrite.writeByteArray,
-          MariaText.textByteArray,
           MariaJson.bytea,
           MariaOutParam.readByteArray);
 
@@ -311,7 +284,6 @@ public interface MariaTypes {
           "TINYBLOB",
           MariaRead.readBlob,
           MariaWrite.writeByteArray,
-          MariaText.textByteArray,
           MariaJson.bytea,
           MariaOutParam.readByteArray);
 
@@ -320,7 +292,6 @@ public interface MariaTypes {
           "BLOB",
           MariaRead.readBlob,
           MariaWrite.writeByteArray,
-          MariaText.textByteArray,
           MariaJson.bytea,
           MariaOutParam.readByteArray);
 
@@ -329,7 +300,6 @@ public interface MariaTypes {
           "MEDIUMBLOB",
           MariaRead.readBlob,
           MariaWrite.writeByteArray,
-          MariaText.textByteArray,
           MariaJson.bytea,
           MariaOutParam.readByteArray);
 
@@ -338,7 +308,6 @@ public interface MariaTypes {
           "LONGBLOB",
           MariaRead.readBlob,
           MariaWrite.writeByteArray,
-          MariaText.textByteArray,
           MariaJson.bytea,
           MariaOutParam.readByteArray);
 
@@ -347,7 +316,6 @@ public interface MariaTypes {
         MariaTypename.of("BINARY", length),
         MariaRead.readByteArray,
         MariaWrite.writeByteArray,
-        MariaText.textByteArray,
         MariaJson.bytea,
         MariaOutParam.readByteArray);
   }
@@ -357,7 +325,6 @@ public interface MariaTypes {
         MariaTypename.of("VARBINARY", length),
         MariaRead.readByteArray,
         MariaWrite.writeByteArray,
-        MariaText.textByteArray,
         MariaJson.bytea,
         MariaOutParam.readByteArray);
   }
@@ -369,7 +336,6 @@ public interface MariaTypes {
           "DATE",
           MariaRead.readLocalDate,
           MariaWrite.passObjectToJdbc(),
-          MariaText.instanceToString(),
           MariaJson.date,
           MariaOutParam.readLocalDate);
 
@@ -378,7 +344,6 @@ public interface MariaTypes {
           "TIME",
           MariaRead.readLocalTime,
           MariaWrite.passObjectToJdbc(),
-          MariaText.instanceToString(),
           MariaJson.time,
           MariaOutParam.readLocalTime);
 
@@ -387,7 +352,6 @@ public interface MariaTypes {
           "DATETIME",
           MariaRead.readLocalDateTime,
           MariaWrite.passObjectToJdbc(),
-          MariaText.instanceToString(),
           MariaJson.timestamp,
           MariaOutParam.readLocalDateTime);
 
@@ -396,7 +360,6 @@ public interface MariaTypes {
           "TIMESTAMP",
           MariaRead.readLocalDateTime,
           MariaWrite.passObjectToJdbc(),
-          MariaText.instanceToString(),
           MariaJson.timestamp,
           MariaOutParam.readLocalDateTime);
 
@@ -405,7 +368,6 @@ public interface MariaTypes {
           "YEAR",
           MariaRead.readYear,
           MariaWrite.writeShort.contramap(y -> (short) y.getValue()),
-          MariaText.textInteger.contramap(Year::getValue),
           MariaJson.int4.bimap(Year::of, Year::getValue),
           MariaOutParam.readYear);
 
@@ -414,7 +376,6 @@ public interface MariaTypes {
         MariaTypename.of("TIME", fsp),
         MariaRead.readLocalTime,
         MariaWrite.passObjectToJdbc(),
-        MariaText.instanceToString(),
         MariaJson.time,
         MariaOutParam.readLocalTime);
   }
@@ -424,7 +385,6 @@ public interface MariaTypes {
         MariaTypename.of("DATETIME", fsp),
         MariaRead.readLocalDateTime,
         MariaWrite.passObjectToJdbc(),
-        MariaText.instanceToString(),
         MariaJson.timestamp,
         MariaOutParam.readLocalDateTime);
   }
@@ -434,7 +394,6 @@ public interface MariaTypes {
         MariaTypename.of("TIMESTAMP", fsp),
         MariaRead.readLocalDateTime,
         MariaWrite.passObjectToJdbc(),
-        MariaText.instanceToString(),
         MariaJson.timestamp,
         MariaOutParam.readLocalDateTime);
   }
@@ -453,7 +412,6 @@ public interface MariaTypes {
         sqlType,
         MariaRead.readString.map(fromString::apply),
         MariaWrite.writeString.contramap(Enum::name),
-        MariaText.textString.contramap(Enum::name),
         MariaJson.text.bimap(fromString::apply, Enum::name),
         MariaOutParam.readString.map(fromString::apply))
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
@@ -467,7 +425,6 @@ public interface MariaTypes {
           "SET",
           MariaRead.readString.map(MariaSet::fromString),
           MariaWrite.writeString.contramap(MariaSet::toCommaSeparated),
-          MariaText.textString.contramap(MariaSet::toCommaSeparated),
           MariaJson.text.bimap(MariaSet::fromString, MariaSet::toCommaSeparated),
           MariaOutParam.readString.map(MariaSet::fromString))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
@@ -480,7 +437,6 @@ public interface MariaTypes {
           "JSON",
           MariaRead.readString.map(Json::new),
           MariaWrite.writeString.contramap(Json::value),
-          MariaText.textString.contramap(Json::value),
           MariaJson.json,
           MariaOutParam.readString.map(Json::new));
 
@@ -491,7 +447,6 @@ public interface MariaTypes {
           "INET4",
           MariaRead.readString.map(Inet4::parse),
           MariaWrite.writeString.contramap(Inet4::value),
-          MariaText.textString.contramap(Inet4::value),
           MariaJson.text.bimap(Inet4::parse, Inet4::value),
           MariaOutParam.readString.map(Inet4::parse))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
@@ -501,7 +456,6 @@ public interface MariaTypes {
           "INET6",
           MariaRead.readString.map(Inet6::parse),
           MariaWrite.writeString.contramap(Inet6::value),
-          MariaText.textString.contramap(Inet6::value),
           MariaJson.text.bimap(Inet6::parse, Inet6::value),
           MariaOutParam.readString.map(Inet6::parse))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
@@ -519,7 +473,6 @@ public interface MariaTypes {
           "GEOMETRY",
           MariaRead.readGeometry(Geometry.class),
           MariaWrite.passObjectToJdbc(),
-          MariaText.NotWorking(),
           MariaJson.text.bimap(
               s -> {
                 throw new UnsupportedOperationException("Geometry JSON not supported");
@@ -532,7 +485,6 @@ public interface MariaTypes {
           "POINT",
           MariaRead.readGeometry(Point.class),
           MariaWrite.passObjectToJdbc(),
-          MariaText.NotWorking(),
           MariaJson.text.bimap(
               s -> {
                 throw new UnsupportedOperationException("Point JSON not supported");
@@ -545,7 +497,6 @@ public interface MariaTypes {
           "LINESTRING",
           MariaRead.readGeometry(LineString.class),
           MariaWrite.passObjectToJdbc(),
-          MariaText.NotWorking(),
           MariaJson.text.bimap(
               s -> {
                 throw new UnsupportedOperationException("LineString JSON not supported");
@@ -558,7 +509,6 @@ public interface MariaTypes {
           "POLYGON",
           MariaRead.readGeometry(Polygon.class),
           MariaWrite.passObjectToJdbc(),
-          MariaText.NotWorking(),
           MariaJson.text.bimap(
               s -> {
                 throw new UnsupportedOperationException("Polygon JSON not supported");
@@ -571,7 +521,6 @@ public interface MariaTypes {
           "MULTIPOINT",
           MariaRead.readGeometry(MultiPoint.class),
           MariaWrite.passObjectToJdbc(),
-          MariaText.NotWorking(),
           MariaJson.text.bimap(
               s -> {
                 throw new UnsupportedOperationException("MultiPoint JSON not supported");
@@ -584,7 +533,6 @@ public interface MariaTypes {
           "MULTILINESTRING",
           MariaRead.readGeometry(MultiLineString.class),
           MariaWrite.passObjectToJdbc(),
-          MariaText.NotWorking(),
           MariaJson.text.bimap(
               s -> {
                 throw new UnsupportedOperationException("MultiLineString JSON not supported");
@@ -597,7 +545,6 @@ public interface MariaTypes {
           "MULTIPOLYGON",
           MariaRead.readGeometry(MultiPolygon.class),
           MariaWrite.passObjectToJdbc(),
-          MariaText.NotWorking(),
           MariaJson.text.bimap(
               s -> {
                 throw new UnsupportedOperationException("MultiPolygon JSON not supported");
@@ -610,7 +557,6 @@ public interface MariaTypes {
           "GEOMETRYCOLLECTION",
           MariaRead.readGeometry(GeometryCollection.class),
           MariaWrite.passObjectToJdbc(),
-          MariaText.NotWorking(),
           MariaJson.text.bimap(
               s -> {
                 throw new UnsupportedOperationException("GeometryCollection JSON not supported");
@@ -625,7 +571,6 @@ public interface MariaTypes {
               "TEXT",
               MariaRead.readString,
               MariaWrite.writeString,
-              MariaText.textString,
               MariaJson.text,
               MariaOutParam.readString)
           .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);

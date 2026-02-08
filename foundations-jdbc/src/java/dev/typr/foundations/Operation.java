@@ -15,6 +15,8 @@ public sealed interface Operation<Out>
         Operation.UpdateManyReturning,
         Operation.UpdateMany,
         Operation.UpdateReturningEach,
+        Operation.StreamingCopy,
+        Operation.Mapped,
         Procedure.ProcedureCall,
         Procedure.FunctionCall {
   Out run(Connection conn) throws SQLException;
@@ -36,6 +38,10 @@ public sealed interface Operation<Out>
    */
   default Out transact(Transactor transactor) throws SQLException {
     return transactor.execute(this);
+  }
+
+  default <B> Operation<B> map(SqlFunction<Out, B> f) {
+    return new Mapped<>(this, f);
   }
 
   record Query<Out>(Fragment query, ResultSetParser<Out> parser) implements Operation<Out> {
@@ -145,6 +151,22 @@ public sealed interface Operation<Out>
         }
       }
       return results;
+    }
+  }
+
+  record StreamingCopy<Row>(
+      String copyCommand, int batchSize, Iterator<Row> rows, PgText<Row> text)
+      implements Operation<Long> {
+    @Override
+    public Long run(Connection conn) throws SQLException {
+      return streamingInsert.insert(copyCommand, batchSize, rows, conn, text);
+    }
+  }
+
+  record Mapped<A, B>(Operation<A> source, SqlFunction<A, B> f) implements Operation<B> {
+    @Override
+    public B run(Connection conn) throws SQLException {
+      return f.apply(source.run(conn));
     }
   }
 }

@@ -7,14 +7,14 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Combines MariaDB type name, read, write, text encoding, and JSON encoding for a type. Similar to
- * PgType but for MariaDB.
+ * Combines MariaDB type name, read, write, and JSON encoding for a type. Similar to PgType but for
+ * MariaDB. Note: MariaDB doesn't support text-based streaming inserts (like PostgreSQL's COPY), so
+ * there is no MariaText component.
  */
 public record MariaType<A>(
     MariaTypename<A> typename,
     MariaRead<A> read,
     MariaWrite<A> write,
-    MariaText<A> mariaText,
     MariaJson<A> mariaJson,
     MariaOutParam<A> mariaOutParam,
     AnalysisOptions analysisOptions)
@@ -29,11 +29,6 @@ public record MariaType<A>(
   @Override
   public boolean isNullable() {
     return typename instanceof MariaTypename.Opt;
-  }
-
-  @Override
-  public DbText<A> text() {
-    return mariaText;
   }
 
   @Override
@@ -53,7 +48,7 @@ public record MariaType<A>(
   public MariaType<A> unchecked() { return withAnalysis(analysisOptions.withUnchecked()); }
   public MariaType<A> nullableOk() { return withAnalysis(analysisOptions.withNullableOk()); }
   public MariaType<A> withAnalysis(AnalysisOptions opts) {
-    return new MariaType<>(typename, read, write, mariaText, mariaJson, mariaOutParam, opts);
+    return new MariaType<>(typename, read, write, mariaJson, mariaOutParam, opts);
   }
 
   public Fragment.Value<A> encode(A value) {
@@ -61,7 +56,7 @@ public record MariaType<A>(
   }
 
   public MariaType<A> withTypename(MariaTypename<A> typename) {
-    return new MariaType<>(typename, read, write, mariaText, mariaJson, mariaOutParam, analysisOptions);
+    return new MariaType<>(typename, read, write, mariaJson, mariaOutParam, analysisOptions);
   }
 
   public MariaType<A> withTypename(String sqlType) {
@@ -77,40 +72,31 @@ public record MariaType<A>(
   }
 
   public MariaType<A> withRead(MariaRead<A> read) {
-    return new MariaType<>(typename, read, write, mariaText, mariaJson, mariaOutParam, analysisOptions);
+    return new MariaType<>(typename, read, write, mariaJson, mariaOutParam, analysisOptions);
   }
 
   public MariaType<A> withWrite(MariaWrite<A> write) {
-    return new MariaType<>(typename, read, write, mariaText, mariaJson, mariaOutParam, analysisOptions);
-  }
-
-  public MariaType<A> withText(MariaText<A> text) {
-    return new MariaType<>(typename, read, write, text, mariaJson, mariaOutParam, analysisOptions);
+    return new MariaType<>(typename, read, write, mariaJson, mariaOutParam, analysisOptions);
   }
 
   public MariaType<A> withJson(MariaJson<A> json) {
-    return new MariaType<>(typename, read, write, mariaText, json, mariaOutParam, analysisOptions);
+    return new MariaType<>(typename, read, write, json, mariaOutParam, analysisOptions);
   }
 
   public MariaType<A> withOutParam(MariaOutParam<A> outParam) {
-    return new MariaType<>(typename, read, write, mariaText, mariaJson, outParam, analysisOptions);
+    return new MariaType<>(typename, read, write, mariaJson, outParam, analysisOptions);
   }
 
   public MariaType<Optional<A>> opt() {
     return new MariaType<>(
-        typename.opt(), read.opt(), write.opt(typename), mariaText.opt(), mariaJson.opt(),
+        typename.opt(), read.opt(), write.opt(typename), mariaJson.opt(),
         mariaOutParam.opt(), analysisOptions);
   }
 
   public <B> MariaType<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
     return new MariaType<>(
-        typename.as(),
-        read.map(f),
-        write.contramap(g),
-        mariaText.contramap(g),
-        mariaJson.bimap(f, g),
-        mariaOutParam.map(f),
-        analysisOptions);
+        typename.as(), read.map(f), write.contramap(g), mariaJson.bimap(f, g),
+        mariaOutParam.map(f), analysisOptions);
   }
 
   public <B> MariaType<B> to(Bijection<A, B> bijection) {
@@ -118,21 +104,20 @@ public record MariaType<A>(
         typename.as(),
         read.map(bijection::underlying),
         write.contramap(bijection::from),
-        mariaText.contramap(bijection::from),
         mariaJson.bimap(bijection::underlying, bijection::from),
         mariaOutParam.map(bijection::underlying),
         analysisOptions);
   }
 
   public static <A> MariaType<A> of(
-      String tpe, MariaRead<A> r, MariaWrite<A> w, MariaText<A> t, MariaJson<A> j,
+      String tpe, MariaRead<A> r, MariaWrite<A> w, MariaJson<A> j,
       MariaOutParam<A> cr) {
-    return new MariaType<>(MariaTypename.of(tpe), r, w, t, j, cr, AnalysisOptions.EMPTY);
+    return new MariaType<>(MariaTypename.of(tpe), r, w, j, cr, AnalysisOptions.EMPTY);
   }
 
   public static <A> MariaType<A> of(
-      MariaTypename<A> typename, MariaRead<A> r, MariaWrite<A> w, MariaText<A> t, MariaJson<A> j,
+      MariaTypename<A> typename, MariaRead<A> r, MariaWrite<A> w, MariaJson<A> j,
       MariaOutParam<A> cr) {
-    return new MariaType<>(typename, r, w, t, j, cr, AnalysisOptions.EMPTY);
+    return new MariaType<>(typename, r, w, j, cr, AnalysisOptions.EMPTY);
   }
 }

@@ -41,6 +41,21 @@ package object scalafoundations:
     def builder[A](objectTypeName: String): dev.typr.foundations.OracleObjectBuilders.Builder0[A] =
       dev.typr.foundations.OracleObject.builder(objectTypeName)
 
+  // Streaming inserts (PostgreSQL COPY protocol)
+  type PgText[T] = dev.typr.foundations.PgText[T]
+  object PgText:
+    def from[A](rowParser: dev.typr.foundations.RowParser[A]): dev.typr.foundations.PgText[A] =
+      dev.typr.foundations.PgText.from(rowParser)
+    def instance[A](f: java.util.function.BiConsumer[A, java.lang.StringBuilder]): dev.typr.foundations.PgText[A] =
+      dev.typr.foundations.PgText.instance(f)
+  object streamingInsert:
+    def of[T](copyCommand: String, batchSize: Int, rows: java.util.Iterator[T], text: dev.typr.foundations.PgText[T]): Operation.StreamingCopy =
+      new Operation.StreamingCopy(dev.typr.foundations.streamingInsert.of(copyCommand, batchSize, rows, text))
+    def insert[T](copyCommand: String, batchSize: Int, rows: java.util.Iterator[T], c: java.sql.Connection, t: dev.typr.foundations.PgText[T]): Long =
+      dev.typr.foundations.streamingInsert.insert(copyCommand, batchSize, rows, c, t)
+    def insertUnchecked[T](copyCommand: String, batchSize: Int, rows: java.util.Iterator[T], c: java.sql.Connection, t: dev.typr.foundations.PgText[T]): Long =
+      dev.typr.foundations.streamingInsert.insertUnchecked(copyCommand, batchSize, rows, c, t)
+
   // Database-specific type classes
   type PgType[T] = dev.typr.foundations.PgType[T]
   type MariaType[T] = dev.typr.foundations.MariaType[T]

@@ -19,8 +19,10 @@ public interface DbType<A> {
   /** Get the write codec for setting PreparedStatement parameters. */
   DbWrite<A> write();
 
-  /** Get the text encoder for bulk loading (COPY/LOAD DATA). */
-  DbText<A> text();
+  /** Get the text encoder for bulk loading (COPY). Only supported for PostgreSQL. */
+  default java.util.Optional<DbText<A>> text() {
+    return java.util.Optional.empty();
+  }
 
   /**
    * Get the JSON codec for converting values to/from JSON format that the database can
