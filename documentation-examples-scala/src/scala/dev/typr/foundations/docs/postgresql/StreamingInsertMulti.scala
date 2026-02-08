@@ -19,8 +19,8 @@ object StreamingInsertMulti:
   // PgText.from() derives a text encoder from the RowParser
   val productText: PgText[ProductRow] = PgText.from(productParser)
 
-  def insertProducts(products: java.util.List[ProductRow], tx: Transactor): Long =
+  def insertProducts(products: List[ProductRow], tx: Transactor): Long =
     streamingInsert
-      .of("COPY products(name, price, quantity) FROM STDIN", 1000, products.iterator(), productText)
+      .of("COPY products(name, price, quantity) FROM STDIN", 1000, products.iterator, productText)
       .transact(tx)
   //stop
