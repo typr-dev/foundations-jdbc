@@ -27,10 +27,10 @@ public class FragmentComposing {
     //start
     // Build small reusable filters
     Fragment byName(String name) {
-        return Fragment.interpolate("name ILIKE ").param(PgTypes.text, name).done();
+        return Fragment.of("name ILIKE ").value(PgTypes.text, name);
     }
     Fragment cheaperThan(BigDecimal max) {
-        return Fragment.interpolate("price < ").param(PgTypes.numeric, max).done();
+        return Fragment.of("price < ").value(PgTypes.numeric, max);
     }
 
     // Compose dynamically — only include the filters that are present
@@ -42,7 +42,7 @@ public class FragmentComposing {
             .flatMap(Optional::stream)
             .toList();
 
-        return Fragment.lit("SELECT * FROM product ")
+        return Fragment.of("SELECT * FROM product ")
             .append(Fragment.whereAnd(filters))
             .query(rowParser.all())
             .transact(tx);

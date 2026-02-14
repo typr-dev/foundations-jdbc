@@ -1,6 +1,6 @@
 package dev.typr.scalafoundations
 
-import dev.typr.foundations.{PgType, PgTypes => JavaPgTypes}
+import dev.typr.foundations.{PgTypes => JavaPgTypes}
 import scala.jdk.CollectionConverters.*
 
 /** Scala-friendly PgType instances that use Scala types instead of Java boxed types.
@@ -10,181 +10,181 @@ import scala.jdk.CollectionConverters.*
   */
 class PgTypes {
   // Primitives - convert Java boxed types to Scala native types
-  val bool: PgType[Boolean] = JavaPgTypes.bool.bimap(b => b, b => b)
-  val int2: PgType[Short] = JavaPgTypes.int2.bimap(s => s, s => s)
-  val smallint: PgType[Short] = JavaPgTypes.smallint.bimap(s => s, s => s)
-  val int4: PgType[Int] = JavaPgTypes.int4.bimap(i => i, i => i)
-  val int8: PgType[Long] = JavaPgTypes.int8.bimap(l => l, l => l)
-  val float4: PgType[Float] = JavaPgTypes.float4.bimap(f => f, f => f)
-  val float8: PgType[Double] = JavaPgTypes.float8.bimap(d => d, d => d)
+  val bool: PgType[Boolean] = PgType(JavaPgTypes.bool.bimap(b => b, b => b))
+  val int2: PgType[Short] = PgType(JavaPgTypes.int2.bimap(s => s, s => s))
+  val smallint: PgType[Short] = PgType(JavaPgTypes.smallint.bimap(s => s, s => s))
+  val int4: PgType[Int] = PgType(JavaPgTypes.int4.bimap(i => i, i => i))
+  val int8: PgType[Long] = PgType(JavaPgTypes.int8.bimap(l => l, l => l))
+  val float4: PgType[Float] = PgType(JavaPgTypes.float4.bimap(f => f, f => f))
+  val float8: PgType[Double] = PgType(JavaPgTypes.float8.bimap(d => d, d => d))
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
-  val numeric: PgType[BigDecimal] = JavaPgTypes.numeric.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal)
+  val numeric: PgType[BigDecimal] = PgType(JavaPgTypes.numeric.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Collections - convert Java collections to Scala collections
-  val hstore: PgType[Map[String, String]] = JavaPgTypes.hstore.bimap(javaMap => javaMap.asScala.toMap, scalaMap => scalaMap.asJava)
+  val hstore: PgType[Map[String, String]] = PgType(JavaPgTypes.hstore.bimap(javaMap => javaMap.asScala.toMap, scalaMap => scalaMap.asJava))
 
   // Array types - convert Java boxed arrays to Scala native arrays
-  val boolArray: PgType[Array[Boolean]] = JavaPgTypes.boolArray.bimap(
+  val boolArray: PgType[Array[Boolean]] = PgType(JavaPgTypes.boolArray.bimap(
     arr => arr.map(_.booleanValue()),
     arr => arr.map(java.lang.Boolean.valueOf)
-  )
-  val int2Array: PgType[Array[Short]] = JavaPgTypes.int2Array.bimap(
+  ))
+  val int2Array: PgType[Array[Short]] = PgType(JavaPgTypes.int2Array.bimap(
     arr => arr.map(_.shortValue()),
     arr => arr.map(java.lang.Short.valueOf)
-  )
+  ))
   val smallintArray: PgType[Array[Short]] = int2Array
-  val int4Array: PgType[Array[Int]] = JavaPgTypes.int4Array.bimap(
+  val int4Array: PgType[Array[Int]] = PgType(JavaPgTypes.int4Array.bimap(
     arr => arr.map(_.intValue()),
     arr => arr.map(java.lang.Integer.valueOf)
-  )
-  val int8Array: PgType[Array[Long]] = JavaPgTypes.int8Array.bimap(
+  ))
+  val int8Array: PgType[Array[Long]] = PgType(JavaPgTypes.int8Array.bimap(
     arr => arr.map(_.longValue()),
     arr => arr.map(java.lang.Long.valueOf)
-  )
-  val float4Array: PgType[Array[Float]] = JavaPgTypes.float4Array.bimap(
+  ))
+  val float4Array: PgType[Array[Float]] = PgType(JavaPgTypes.float4Array.bimap(
     arr => arr.map(_.floatValue()),
     arr => arr.map(java.lang.Float.valueOf)
-  )
-  val float8Array: PgType[Array[Double]] = JavaPgTypes.float8Array.bimap(
+  ))
+  val float8Array: PgType[Array[Double]] = PgType(JavaPgTypes.float8Array.bimap(
     arr => arr.map(_.doubleValue()),
     arr => arr.map(java.lang.Double.valueOf)
-  )
-  val numericArray: PgType[Array[BigDecimal]] = JavaPgTypes.numericArray.bimap(
+  ))
+  val numericArray: PgType[Array[BigDecimal]] = PgType(JavaPgTypes.numericArray.bimap(
     arr => arr.map(BigDecimal(_)),
     arr => arr.map(_.bigDecimal)
-  )
+  ))
 
   // Forward all other types directly from Java
-  val aclitem = JavaPgTypes.aclitem
-  val aclitemArray = JavaPgTypes.aclitemArray
-  val anyarray = JavaPgTypes.anyarray
-  val anyarrayArray = JavaPgTypes.anyarrayArray
-  val boolArrayUnboxed = JavaPgTypes.boolArrayUnboxed
-  val float8ArrayUnboxed = JavaPgTypes.float8ArrayUnboxed
-  val float4ArrayUnboxed = JavaPgTypes.float4ArrayUnboxed
-  val inet = JavaPgTypes.inet
-  val inetArray = JavaPgTypes.inetArray
-  val cidr = JavaPgTypes.cidr
-  val cidrArray = JavaPgTypes.cidrArray
-  val macaddr = JavaPgTypes.macaddr
-  val macaddrArray = JavaPgTypes.macaddrArray
-  val macaddr8 = JavaPgTypes.macaddr8
-  val macaddr8Array = JavaPgTypes.macaddr8Array
-  val timestamptz = JavaPgTypes.timestamptz
-  val timestamptzArray = JavaPgTypes.timestamptzArray
-  val int2vector = JavaPgTypes.int2vector
-  val int2vectorArray = JavaPgTypes.int2vectorArray
-  val int4ArrayUnboxed = JavaPgTypes.int4ArrayUnboxed
-  val json = JavaPgTypes.json
-  val jsonArray = JavaPgTypes.jsonArray
-  val jsonb = JavaPgTypes.jsonb
-  val jsonbArray = JavaPgTypes.jsonbArray
-  val date = JavaPgTypes.date
-  val timestamp = JavaPgTypes.timestamp
-  val timestampArray = JavaPgTypes.timestampArray
-  val dateArray = JavaPgTypes.dateArray
-  val time = JavaPgTypes.time
-  val timeArray = JavaPgTypes.timeArray
-  val int8ArrayUnboxed = JavaPgTypes.int8ArrayUnboxed
-  val oid = JavaPgTypes.oid
-  val oidArray = JavaPgTypes.oidArray
-  val money = JavaPgTypes.money
-  val moneyArray = JavaPgTypes.moneyArray
-  val name = JavaPgTypes.name
-  val nameArray = JavaPgTypes.nameArray
-  val timetz = JavaPgTypes.timetz
-  val timetzArray = JavaPgTypes.timetzArray
-  val oidvector = JavaPgTypes.oidvector
-  val oidvectorArray = JavaPgTypes.oidvectorArray
-  val interval = JavaPgTypes.interval
-  val intervalArray = JavaPgTypes.intervalArray
-  val box = JavaPgTypes.box
-  val boxArray = JavaPgTypes.boxArray
-  val circle = JavaPgTypes.circle
-  val circleArray = JavaPgTypes.circleArray
-  val line = JavaPgTypes.line
-  val lineArray = JavaPgTypes.lineArray
-  val lseg = JavaPgTypes.lseg
-  val lsegArray = JavaPgTypes.lsegArray
-  val path = JavaPgTypes.path
-  val pathArray = JavaPgTypes.pathArray
-  val point = JavaPgTypes.point
-  val pointArray = JavaPgTypes.pointArray
-  val polygon = JavaPgTypes.polygon
-  val polygonArray = JavaPgTypes.polygonArray
-  val pgNodeTree = JavaPgTypes.pgNodeTree
-  val pgNodeTreeArray = JavaPgTypes.pgNodeTreeArray
-  val regclass = JavaPgTypes.regclass
-  val regclassArray = JavaPgTypes.regclassArray
-  val regconfig = JavaPgTypes.regconfig
-  val regconfigArray = JavaPgTypes.regconfigArray
-  val regdictionary = JavaPgTypes.regdictionary
-  val regdictionaryArray = JavaPgTypes.regdictionaryArray
-  val regnamespace = JavaPgTypes.regnamespace
-  val regnamespaceArray = JavaPgTypes.regnamespaceArray
-  val regoper = JavaPgTypes.regoper
-  val regoperArray = JavaPgTypes.regoperArray
-  val regoperator = JavaPgTypes.regoperator
-  val regoperatorArray = JavaPgTypes.regoperatorArray
-  val regproc = JavaPgTypes.regproc
-  val regprocArray = JavaPgTypes.regprocArray
-  val regprocedure = JavaPgTypes.regprocedure
-  val regprocedureArray = JavaPgTypes.regprocedureArray
-  val regrole = JavaPgTypes.regrole
-  val regroleArray = JavaPgTypes.regroleArray
-  val regtype = JavaPgTypes.regtype
-  val regtypeArray = JavaPgTypes.regtypeArray
-  val int2ArrayUnboxed = JavaPgTypes.int2ArrayUnboxed
-  val smallintArrayUnboxed = JavaPgTypes.smallintArrayUnboxed
-  val bpchar = JavaPgTypes.bpchar
-  val text = JavaPgTypes.text
-  val bpcharArray = JavaPgTypes.bpcharArray
-  val textArray = JavaPgTypes.textArray
-  val uuid = JavaPgTypes.uuid
-  val uuidArray = JavaPgTypes.uuidArray
-  val xid = JavaPgTypes.xid
-  val xidArray = JavaPgTypes.xidArray
-  val xml = JavaPgTypes.xml
-  val xmlArray = JavaPgTypes.xmlArray
-  val vector = JavaPgTypes.vector
-  val vectorArray = JavaPgTypes.vectorArray
-  val unknown = JavaPgTypes.unknown
-  val unknownArray = JavaPgTypes.unknownArray
-  val bytea = JavaPgTypes.bytea
-  val int4range = JavaPgTypes.int4range
-  val int4rangeArray = JavaPgTypes.int4rangeArray
-  val int8range = JavaPgTypes.int8range
-  val int8rangeArray = JavaPgTypes.int8rangeArray
-  val numrange = JavaPgTypes.numrange
-  val numrangeArray = JavaPgTypes.numrangeArray
-  val daterange = JavaPgTypes.daterange
-  val daterangeArray = JavaPgTypes.daterangeArray
-  val tsrange = JavaPgTypes.tsrange
-  val tsrangeArray = JavaPgTypes.tsrangeArray
-  val tstzrange = JavaPgTypes.tstzrange
-  val tstzrangeArray = JavaPgTypes.tstzrangeArray
-  val record = JavaPgTypes.record
-  val recordArray = JavaPgTypes.recordArray
+  val aclitem = PgType(JavaPgTypes.aclitem)
+  val aclitemArray = PgType(JavaPgTypes.aclitemArray)
+  val anyarray = PgType(JavaPgTypes.anyarray)
+  val anyarrayArray = PgType(JavaPgTypes.anyarrayArray)
+  val boolArrayUnboxed = PgType(JavaPgTypes.boolArrayUnboxed)
+  val float8ArrayUnboxed = PgType(JavaPgTypes.float8ArrayUnboxed)
+  val float4ArrayUnboxed = PgType(JavaPgTypes.float4ArrayUnboxed)
+  val inet = PgType(JavaPgTypes.inet)
+  val inetArray = PgType(JavaPgTypes.inetArray)
+  val cidr = PgType(JavaPgTypes.cidr)
+  val cidrArray = PgType(JavaPgTypes.cidrArray)
+  val macaddr = PgType(JavaPgTypes.macaddr)
+  val macaddrArray = PgType(JavaPgTypes.macaddrArray)
+  val macaddr8 = PgType(JavaPgTypes.macaddr8)
+  val macaddr8Array = PgType(JavaPgTypes.macaddr8Array)
+  val timestamptz = PgType(JavaPgTypes.timestamptz)
+  val timestamptzArray = PgType(JavaPgTypes.timestamptzArray)
+  val int2vector = PgType(JavaPgTypes.int2vector)
+  val int2vectorArray = PgType(JavaPgTypes.int2vectorArray)
+  val int4ArrayUnboxed = PgType(JavaPgTypes.int4ArrayUnboxed)
+  val json = PgType(JavaPgTypes.json)
+  val jsonArray = PgType(JavaPgTypes.jsonArray)
+  val jsonb = PgType(JavaPgTypes.jsonb)
+  val jsonbArray = PgType(JavaPgTypes.jsonbArray)
+  val date = PgType(JavaPgTypes.date)
+  val timestamp = PgType(JavaPgTypes.timestamp)
+  val timestampArray = PgType(JavaPgTypes.timestampArray)
+  val dateArray = PgType(JavaPgTypes.dateArray)
+  val time = PgType(JavaPgTypes.time)
+  val timeArray = PgType(JavaPgTypes.timeArray)
+  val int8ArrayUnboxed = PgType(JavaPgTypes.int8ArrayUnboxed)
+  val oid = PgType(JavaPgTypes.oid)
+  val oidArray = PgType(JavaPgTypes.oidArray)
+  val money = PgType(JavaPgTypes.money)
+  val moneyArray = PgType(JavaPgTypes.moneyArray)
+  val name = PgType(JavaPgTypes.name)
+  val nameArray = PgType(JavaPgTypes.nameArray)
+  val timetz = PgType(JavaPgTypes.timetz)
+  val timetzArray = PgType(JavaPgTypes.timetzArray)
+  val oidvector = PgType(JavaPgTypes.oidvector)
+  val oidvectorArray = PgType(JavaPgTypes.oidvectorArray)
+  val interval = PgType(JavaPgTypes.interval)
+  val intervalArray = PgType(JavaPgTypes.intervalArray)
+  val box = PgType(JavaPgTypes.box)
+  val boxArray = PgType(JavaPgTypes.boxArray)
+  val circle = PgType(JavaPgTypes.circle)
+  val circleArray = PgType(JavaPgTypes.circleArray)
+  val line = PgType(JavaPgTypes.line)
+  val lineArray = PgType(JavaPgTypes.lineArray)
+  val lseg = PgType(JavaPgTypes.lseg)
+  val lsegArray = PgType(JavaPgTypes.lsegArray)
+  val path = PgType(JavaPgTypes.path)
+  val pathArray = PgType(JavaPgTypes.pathArray)
+  val point = PgType(JavaPgTypes.point)
+  val pointArray = PgType(JavaPgTypes.pointArray)
+  val polygon = PgType(JavaPgTypes.polygon)
+  val polygonArray = PgType(JavaPgTypes.polygonArray)
+  val pgNodeTree = PgType(JavaPgTypes.pgNodeTree)
+  val pgNodeTreeArray = PgType(JavaPgTypes.pgNodeTreeArray)
+  val regclass = PgType(JavaPgTypes.regclass)
+  val regclassArray = PgType(JavaPgTypes.regclassArray)
+  val regconfig = PgType(JavaPgTypes.regconfig)
+  val regconfigArray = PgType(JavaPgTypes.regconfigArray)
+  val regdictionary = PgType(JavaPgTypes.regdictionary)
+  val regdictionaryArray = PgType(JavaPgTypes.regdictionaryArray)
+  val regnamespace = PgType(JavaPgTypes.regnamespace)
+  val regnamespaceArray = PgType(JavaPgTypes.regnamespaceArray)
+  val regoper = PgType(JavaPgTypes.regoper)
+  val regoperArray = PgType(JavaPgTypes.regoperArray)
+  val regoperator = PgType(JavaPgTypes.regoperator)
+  val regoperatorArray = PgType(JavaPgTypes.regoperatorArray)
+  val regproc = PgType(JavaPgTypes.regproc)
+  val regprocArray = PgType(JavaPgTypes.regprocArray)
+  val regprocedure = PgType(JavaPgTypes.regprocedure)
+  val regprocedureArray = PgType(JavaPgTypes.regprocedureArray)
+  val regrole = PgType(JavaPgTypes.regrole)
+  val regroleArray = PgType(JavaPgTypes.regroleArray)
+  val regtype = PgType(JavaPgTypes.regtype)
+  val regtypeArray = PgType(JavaPgTypes.regtypeArray)
+  val int2ArrayUnboxed = PgType(JavaPgTypes.int2ArrayUnboxed)
+  val smallintArrayUnboxed = PgType(JavaPgTypes.smallintArrayUnboxed)
+  val bpchar = PgType(JavaPgTypes.bpchar)
+  val text = PgType(JavaPgTypes.text)
+  val bpcharArray = PgType(JavaPgTypes.bpcharArray)
+  val textArray = PgType(JavaPgTypes.textArray)
+  val uuid = PgType(JavaPgTypes.uuid)
+  val uuidArray = PgType(JavaPgTypes.uuidArray)
+  val xid = PgType(JavaPgTypes.xid)
+  val xidArray = PgType(JavaPgTypes.xidArray)
+  val xml = PgType(JavaPgTypes.xml)
+  val xmlArray = PgType(JavaPgTypes.xmlArray)
+  val vector = PgType(JavaPgTypes.vector)
+  val vectorArray = PgType(JavaPgTypes.vectorArray)
+  val unknown = PgType(JavaPgTypes.unknown)
+  val unknownArray = PgType(JavaPgTypes.unknownArray)
+  val bytea = PgType(JavaPgTypes.bytea)
+  val int4range = PgType(JavaPgTypes.int4range)
+  val int4rangeArray = PgType(JavaPgTypes.int4rangeArray)
+  val int8range = PgType(JavaPgTypes.int8range)
+  val int8rangeArray = PgType(JavaPgTypes.int8rangeArray)
+  val numrange = PgType(JavaPgTypes.numrange)
+  val numrangeArray = PgType(JavaPgTypes.numrangeArray)
+  val daterange = PgType(JavaPgTypes.daterange)
+  val daterangeArray = PgType(JavaPgTypes.daterangeArray)
+  val tsrange = PgType(JavaPgTypes.tsrange)
+  val tsrangeArray = PgType(JavaPgTypes.tsrangeArray)
+  val tstzrange = PgType(JavaPgTypes.tstzrange)
+  val tstzrangeArray = PgType(JavaPgTypes.tstzrangeArray)
+  val record = PgType(JavaPgTypes.record)
+  val recordArray = PgType(JavaPgTypes.recordArray)
 
   // Forward static methods
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): PgType[E] =
-    JavaPgTypes.ofEnum(sqlType, fromString)
+    PgType(JavaPgTypes.ofEnum(sqlType, fromString))
 
   def ofPgObject[T](sqlType: String, constructor: dev.typr.foundations.SqlFunction[String, T], extractor: java.util.function.Function[T, String], json: dev.typr.foundations.PgJson[T]): PgType[T] =
-    JavaPgTypes.ofPgObject(sqlType, constructor, extractor, json)
+    PgType(JavaPgTypes.ofPgObject(sqlType, constructor, extractor, json))
 
   def record(sqlType: String): PgType[dev.typr.foundations.data.Record] =
-    JavaPgTypes.record(sqlType)
+    PgType(JavaPgTypes.record(sqlType))
 
   def recordArray(sqlType: String): PgType[Array[dev.typr.foundations.data.Record]] =
-    JavaPgTypes.recordArray(sqlType)
+    PgType(JavaPgTypes.recordArray(sqlType))
 
   def bpchar(precision: Int): PgType[String] =
-    JavaPgTypes.bpchar(precision)
+    PgType(JavaPgTypes.bpchar(precision))
 
   def bpcharArray(n: Int): PgType[Array[String]] =
-    JavaPgTypes.bpcharArray(n)
+    PgType(JavaPgTypes.bpcharArray(n))
 }
 
 object PgTypes extends PgTypes

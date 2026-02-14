@@ -39,7 +39,7 @@ object QueryAnalysisTestSuite:
 
       // Analyze each one
       val failures = queries.flatMap { query =>
-        val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, conn)
+        val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, conn).head
         if !analysis.succeeded() then Some(analysis.report()) else None
       }
 

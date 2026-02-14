@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.routines
 
 import dev.typr.kotlinfoundations.*
 import java.math.BigDecimal
-import java.sql.SQLException
 
 @Suppress("unused")
 class InoutProcedure {
@@ -18,7 +17,6 @@ class InoutProcedure {
                 .build()
     }
 
-    @Throws(SQLException::class)
     fun applyDiscount(code: String, price: BigDecimal): BigDecimal =
         InoutProcedure.applyDiscount.call(code, price).transact(tx!!)
     //stop

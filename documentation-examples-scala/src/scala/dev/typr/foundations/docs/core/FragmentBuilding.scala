@@ -31,5 +31,5 @@ object FragmentBuilding:
     sql"SELECT * FROM users WHERE id = $id AND status = $status AND created_at > $cutoff"
 
   // Execute safely - parameters are bound, not interpolated
-  val users: List[User] = query.query(userParser.all()).runUnchecked(connection)
+  val users: List[User] = query.query(userParser.all()).run(connection)
   //stop

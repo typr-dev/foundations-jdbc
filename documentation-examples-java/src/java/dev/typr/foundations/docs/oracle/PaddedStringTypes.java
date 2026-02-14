@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.oracle;
 
 import dev.typr.foundations.OracleType;
 import dev.typr.foundations.OracleTypes;
-import dev.typr.foundations.PaddedString;
+import dev.typr.foundations.data.PaddedString;
 
 @SuppressWarnings("unused")
 public class PaddedStringTypes {

@@ -47,6 +47,9 @@ typealias Unknown = dev.typr.foundations.data.Unknown
 typealias Vector = dev.typr.foundations.data.Vector
 typealias Xid = dev.typr.foundations.data.Xid
 typealias Xml = dev.typr.foundations.data.Xml
+typealias NonEmptyBlob = dev.typr.foundations.data.NonEmptyBlob
+typealias NonEmptyString = dev.typr.foundations.data.NonEmptyString
+typealias PaddedString = dev.typr.foundations.data.PaddedString
 
 // MariaDB data types
 typealias Inet4 = dev.typr.foundations.data.maria.Inet4

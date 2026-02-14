@@ -2,8 +2,10 @@ package dev.typr.foundations;
 
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.JsonValue;
+import dev.typr.foundations.data.NonEmptyString;
 import dev.typr.foundations.data.OracleIntervalDS;
 import dev.typr.foundations.data.OracleIntervalYM;
+import dev.typr.foundations.data.PaddedString;
 import dev.typr.foundations.hikari.PooledDataSource;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -20,8 +22,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
 import org.junit.Test;
 
 /** Tests for Oracle type codecs. Tests all types defined in OracleTypes. */
@@ -1501,8 +1501,8 @@ public class OracleTypeTest {
     conn.createStatement().execute(createTableDDL);
     try {
       RowParser<A> parser = RowParser.of(t.type);
-      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException(
             "Query analysis failed for " + sqlType + ":\n" + analysis.report());
@@ -1758,7 +1758,7 @@ public class OracleTypeTest {
       DbProcedure.Def1_1<A, A> proc =
           DbProcedure.define(procName).in(t.type).out(t.type).build();
 
-      A result = proc.call(input).run(conn);
+      A result = proc.call(input).runChecked(conn);
 
       // Oracle PL/SQL uses unconstrained param types, so we need relaxed comparison:
       // - CHAR/NCHAR: unconstrained CHAR pads to max PL/SQL size, so compare trimmed

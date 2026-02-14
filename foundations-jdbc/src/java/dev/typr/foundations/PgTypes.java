@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.*;
 import dev.typr.foundations.data.Record;
 import java.math.BigDecimal;

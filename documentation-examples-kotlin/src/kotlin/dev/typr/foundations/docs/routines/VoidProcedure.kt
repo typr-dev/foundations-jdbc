@@ -1,7 +1,6 @@
 package dev.typr.foundations.docs.routines
 
 import dev.typr.kotlinfoundations.*
-import java.sql.SQLException
 
 @Suppress("unused")
 class VoidProcedure {
@@ -17,7 +16,6 @@ class VoidProcedure {
                 .build()
     }
 
-    @Throws(SQLException::class)
     fun logAction(action: String, details: String) {
         auditLog.call(action, details).transact(tx!!)
     }

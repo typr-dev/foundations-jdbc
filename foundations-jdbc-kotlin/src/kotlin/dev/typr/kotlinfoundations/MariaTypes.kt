@@ -1,6 +1,5 @@
 package dev.typr.kotlinfoundations
 
-import dev.typr.foundations.MariaType
 import dev.typr.foundations.SqlFunction
 import dev.typr.foundations.MariaTypes as JavaMariaTypes
 
@@ -12,76 +11,75 @@ import dev.typr.foundations.MariaTypes as JavaMariaTypes
  */
 open class MariaTypes {
     // Primitives - convert Java boxed types to Kotlin native types
-    open val tinyint: MariaType<Byte> = JavaMariaTypes.tinyint.bimap(SqlFunction { it }, { it })
-    open val smallint: MariaType<Short> = JavaMariaTypes.smallint.bimap(SqlFunction { it }, { it })
-    open val mediumint: MariaType<Int> = JavaMariaTypes.mediumint.bimap(SqlFunction { it }, { it })
-    open val int_: MariaType<Int> = JavaMariaTypes.int_.bimap(SqlFunction { it }, { it })
-    open val bigint: MariaType<Long> = JavaMariaTypes.bigint.bimap(SqlFunction { it }, { it })
-    open val float_: MariaType<Float> = JavaMariaTypes.float_.bimap(SqlFunction { it }, { it })
-    open val double_: MariaType<Double> = JavaMariaTypes.double_.bimap(SqlFunction { it }, { it })
-    open val bool: MariaType<Boolean> = JavaMariaTypes.bool.bimap(SqlFunction { it }, { it })
-    open val bit1: MariaType<Boolean> = JavaMariaTypes.bit1.bimap(SqlFunction { it }, { it })
+    open val tinyint: MariaType<Byte> = MariaType(JavaMariaTypes.tinyint.bimap(SqlFunction { it }, { it }))
+    open val smallint: MariaType<Short> = MariaType(JavaMariaTypes.smallint.bimap(SqlFunction { it }, { it }))
+    open val mediumint: MariaType<Int> = MariaType(JavaMariaTypes.mediumint.bimap(SqlFunction { it }, { it }))
+    open val int_: MariaType<Int> = MariaType(JavaMariaTypes.int_.bimap(SqlFunction { it }, { it }))
+    open val bigint: MariaType<Long> = MariaType(JavaMariaTypes.bigint.bimap(SqlFunction { it }, { it }))
+    open val float_: MariaType<Float> = MariaType(JavaMariaTypes.float_.bimap(SqlFunction { it }, { it }))
+    open val double_: MariaType<Double> = MariaType(JavaMariaTypes.double_.bimap(SqlFunction { it }, { it }))
+    open val bool: MariaType<Boolean> = MariaType(JavaMariaTypes.bool.bimap(SqlFunction { it }, { it }))
+    open val bit1: MariaType<Boolean> = MariaType(JavaMariaTypes.bit1.bimap(SqlFunction { it }, { it }))
 
     // Forward all other types directly from Java (including BigDecimal which stays as java.math.BigDecimal in Kotlin)
-    open val decimal = JavaMariaTypes.decimal
-    open val numeric = JavaMariaTypes.numeric
-    open val tinyintUnsigned = JavaMariaTypes.tinyintUnsigned
-    open val smallintUnsigned = JavaMariaTypes.smallintUnsigned
-    open val mediumintUnsigned = JavaMariaTypes.mediumintUnsigned
-    open val intUnsigned = JavaMariaTypes.intUnsigned
-    open val bigintUnsigned = JavaMariaTypes.bigintUnsigned
-    open val bit = JavaMariaTypes.bit
-    open val char_ = JavaMariaTypes.char_
-    open val varchar = JavaMariaTypes.varchar
-    open val tinytext = JavaMariaTypes.tinytext
-    open val text = JavaMariaTypes.text
-    open val mediumtext = JavaMariaTypes.mediumtext
-    open val longtext = JavaMariaTypes.longtext
-    open val binary = JavaMariaTypes.binary
-    open val varbinary = JavaMariaTypes.varbinary
-    open val tinyblob = JavaMariaTypes.tinyblob
-    open val blob = JavaMariaTypes.blob
-    open val mediumblob = JavaMariaTypes.mediumblob
-    open val longblob = JavaMariaTypes.longblob
-    open val date = JavaMariaTypes.date
-    open val time = JavaMariaTypes.time
-    open val datetime = JavaMariaTypes.datetime
-    open val timestamp = JavaMariaTypes.timestamp
-    open val year = JavaMariaTypes.year
-    open val set = JavaMariaTypes.set
-    open val json = JavaMariaTypes.json
-    open val inet4 = JavaMariaTypes.inet4
-    open val inet6 = JavaMariaTypes.inet6
-    open val geometry = JavaMariaTypes.geometry
-    open val point = JavaMariaTypes.point
-    open val linestring = JavaMariaTypes.linestring
-    open val polygon = JavaMariaTypes.polygon
-    open val multipoint = JavaMariaTypes.multipoint
-    open val multilinestring = JavaMariaTypes.multilinestring
-    open val multipolygon = JavaMariaTypes.multipolygon
-    open val geometrycollection = JavaMariaTypes.geometrycollection
-    open val unknown = JavaMariaTypes.unknown
+    open val decimal = MariaType(JavaMariaTypes.decimal)
+    open val numeric = MariaType(JavaMariaTypes.numeric)
+    open val tinyintUnsigned = MariaType(JavaMariaTypes.tinyintUnsigned)
+    open val smallintUnsigned = MariaType(JavaMariaTypes.smallintUnsigned)
+    open val mediumintUnsigned = MariaType(JavaMariaTypes.mediumintUnsigned)
+    open val intUnsigned = MariaType(JavaMariaTypes.intUnsigned)
+    open val bigintUnsigned = MariaType(JavaMariaTypes.bigintUnsigned)
+    open val bit = MariaType(JavaMariaTypes.bit)
+    open val char_ = MariaType(JavaMariaTypes.char_)
+    open val varchar = MariaType(JavaMariaTypes.varchar)
+    open val tinytext = MariaType(JavaMariaTypes.tinytext)
+    open val text = MariaType(JavaMariaTypes.text)
+    open val mediumtext = MariaType(JavaMariaTypes.mediumtext)
+    open val longtext = MariaType(JavaMariaTypes.longtext)
+    open val binary = MariaType(JavaMariaTypes.binary)
+    open val varbinary = MariaType(JavaMariaTypes.varbinary)
+    open val tinyblob = MariaType(JavaMariaTypes.tinyblob)
+    open val blob = MariaType(JavaMariaTypes.blob)
+    open val mediumblob = MariaType(JavaMariaTypes.mediumblob)
+    open val longblob = MariaType(JavaMariaTypes.longblob)
+    open val date = MariaType(JavaMariaTypes.date)
+    open val time = MariaType(JavaMariaTypes.time)
+    open val datetime = MariaType(JavaMariaTypes.datetime)
+    open val timestamp = MariaType(JavaMariaTypes.timestamp)
+    open val year = MariaType(JavaMariaTypes.year)
+    open val set = MariaType(JavaMariaTypes.set)
+    open val json = MariaType(JavaMariaTypes.json)
+    open val inet4 = MariaType(JavaMariaTypes.inet4)
+    open val inet6 = MariaType(JavaMariaTypes.inet6)
+    open val geometry = MariaType(JavaMariaTypes.geometry)
+    open val point = MariaType(JavaMariaTypes.point)
+    open val linestring = MariaType(JavaMariaTypes.linestring)
+    open val polygon = MariaType(JavaMariaTypes.polygon)
+    open val multipoint = MariaType(JavaMariaTypes.multipoint)
+    open val multilinestring = MariaType(JavaMariaTypes.multilinestring)
+    open val multipolygon = MariaType(JavaMariaTypes.multipolygon)
+    open val geometrycollection = MariaType(JavaMariaTypes.geometrycollection)
+    open val unknown = MariaType(JavaMariaTypes.unknown)
 
     // Parameterized methods
-    open fun decimal(precision: Int, scale: Int): MariaType<java.math.BigDecimal> =
-        JavaMariaTypes.decimal(precision, scale)
+    open fun decimal(precision: Int, scale: Int) = MariaType(JavaMariaTypes.decimal(precision, scale))
 
-    open fun char_(length: Int): MariaType<String> = JavaMariaTypes.char_(length)
+    open fun char_(length: Int) = MariaType(JavaMariaTypes.char_(length))
 
-    open fun varchar(length: Int): MariaType<String> = JavaMariaTypes.varchar(length)
+    open fun varchar(length: Int) = MariaType(JavaMariaTypes.varchar(length))
 
-    open fun binary(length: Int): MariaType<ByteArray> = JavaMariaTypes.binary(length)
+    open fun binary(length: Int) = MariaType(JavaMariaTypes.binary(length))
 
-    open fun varbinary(length: Int): MariaType<ByteArray> = JavaMariaTypes.varbinary(length)
+    open fun varbinary(length: Int) = MariaType(JavaMariaTypes.varbinary(length))
 
-    open fun time(fsp: Int): MariaType<java.time.LocalTime> = JavaMariaTypes.time(fsp)
+    open fun time(fsp: Int) = MariaType(JavaMariaTypes.time(fsp))
 
-    open fun datetime(fsp: Int): MariaType<java.time.LocalDateTime> = JavaMariaTypes.datetime(fsp)
+    open fun datetime(fsp: Int) = MariaType(JavaMariaTypes.datetime(fsp))
 
-    open fun timestamp(fsp: Int): MariaType<java.time.LocalDateTime> = JavaMariaTypes.timestamp(fsp)
+    open fun timestamp(fsp: Int) = MariaType(JavaMariaTypes.timestamp(fsp))
 
-    open fun <E : Enum<E>> ofEnum(sqlType: String, fromString: java.util.function.Function<String, E>): MariaType<E> =
-        JavaMariaTypes.ofEnum(sqlType, fromString)
+    open fun <E : Enum<E>> ofEnum(sqlType: String, fromString: java.util.function.Function<String, E>) =
+        MariaType(JavaMariaTypes.ofEnum(sqlType, fromString))
 
     companion object : MariaTypes()
 }

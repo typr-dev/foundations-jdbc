@@ -1,7 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
 import dev.typr.foundations.data.*;
 import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.Vector;
@@ -968,8 +966,8 @@ public class PgTypeTest {
     conn.createStatement().execute("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")");
     try {
       RowParser<A> parser = RowParser.of(t.type);
-      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException("Query analysis failed for " + sqlType + ":\n" + analysis.report());
       }
@@ -1054,7 +1052,7 @@ public class PgTypeTest {
       Procedure<A> proc = Procedure.buildFunction(funcName,
           java.util.List.of(ParamDef.in(t.type)), t.type);
 
-      A result = proc.call(t.example).run(conn);
+      A result = proc.call(t.example).runChecked(conn);
 
       if (!areEqual(result, t.example)) {
         throw new RuntimeException(

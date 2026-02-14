@@ -10,17 +10,17 @@ class SqlServerQuery {
     data class OrderRow(val id: Int, val name: String, val price: BigDecimal)
     val orderRowParser: RowParser<OrderRow>? = null // placeholder
     val maxPrice: BigDecimal? = null
-    val conn: Connection? = null // placeholder
+    lateinit var conn: Connection
 
     //start
     // Build small reusable filters - SQL Server example
     fun byName(name: String): Fragment =
-        Fragment.interpolate("name LIKE ")
-            .param(SqlServerTypes.nvarchar, name).done()
+        Fragment.of("name LIKE ")
+            .value(SqlServerTypes.nvarchar, name)
 
     fun cheaperThan(max: BigDecimal): Fragment =
-        Fragment.interpolate("price < ")
-            .param(SqlServerTypes.decimal, max).done()
+        Fragment.of("price < ")
+            .value(SqlServerTypes.decimal, max)
 
     // Compose dynamically - only include the filters that are present
     val filters: List<Fragment> = listOfNotNull(
@@ -28,9 +28,9 @@ class SqlServerQuery {
         maxPrice?.let { cheaperThan(it) }
     )
 
-    val orders: List<OrderRow> = Fragment.interpolate("SELECT * FROM orders ")
-        .param(Fragment.whereAnd(filters)).done()
+    val orders: List<OrderRow> = Fragment.of("SELECT * FROM orders ")
+        .append(Fragment.whereAnd(filters))
         .query(orderRowParser!!.all())
-        .runUnchecked(conn)
+        .run(conn)
     //stop
 }

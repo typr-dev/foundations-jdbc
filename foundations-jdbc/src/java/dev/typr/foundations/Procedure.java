@@ -112,7 +112,7 @@ public sealed interface Procedure<Out>
       implements Operation<Out> {
 
     @Override
-    public Out run(Connection conn) throws SQLException {
+    public Out runChecked(Connection conn) throws SQLException {
       StringBuilder sb = new StringBuilder("{call ");
       sb.append(name);
       sb.append('(');
@@ -151,7 +151,7 @@ public sealed interface Procedure<Out>
       implements Operation<R> {
 
     @Override
-    public R run(Connection conn) throws SQLException {
+    public R runChecked(Connection conn) throws SQLException {
       StringBuilder sb = new StringBuilder("SELECT ");
       sb.append(name);
       sb.append('(');

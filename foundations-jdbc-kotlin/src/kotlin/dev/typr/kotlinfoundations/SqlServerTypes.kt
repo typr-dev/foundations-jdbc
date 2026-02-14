@@ -1,6 +1,5 @@
 package dev.typr.kotlinfoundations
 
-import dev.typr.foundations.SqlServerType
 import dev.typr.foundations.SqlFunction
 import dev.typr.foundations.SqlServerTypes as JavaSqlServerTypes
 
@@ -12,73 +11,71 @@ import dev.typr.foundations.SqlServerTypes as JavaSqlServerTypes
  */
 open class SqlServerTypes {
     // Primitives - convert Java boxed types to Kotlin native types
-    open val smallint: SqlServerType<Short> = JavaSqlServerTypes.smallint.bimap(SqlFunction { it }, { it })
-    open val int_: SqlServerType<Int> = JavaSqlServerTypes.int_.bimap(SqlFunction { it }, { it })
-    open val bigint: SqlServerType<Long> = JavaSqlServerTypes.bigint.bimap(SqlFunction { it }, { it })
-    open val real: SqlServerType<Float> = JavaSqlServerTypes.real.bimap(SqlFunction { it }, { it })
-    open val float_: SqlServerType<Double> = JavaSqlServerTypes.float_.bimap(SqlFunction { it }, { it })
-    open val bit: SqlServerType<Boolean> = JavaSqlServerTypes.bit.bimap(SqlFunction { it }, { it })
+    open val smallint: SqlServerType<Short> = SqlServerType(JavaSqlServerTypes.smallint.bimap(SqlFunction { it }, { it }))
+    open val int_: SqlServerType<Int> = SqlServerType(JavaSqlServerTypes.int_.bimap(SqlFunction { it }, { it }))
+    open val bigint: SqlServerType<Long> = SqlServerType(JavaSqlServerTypes.bigint.bimap(SqlFunction { it }, { it }))
+    open val real: SqlServerType<Float> = SqlServerType(JavaSqlServerTypes.real.bimap(SqlFunction { it }, { it }))
+    open val float_: SqlServerType<Double> = SqlServerType(JavaSqlServerTypes.float_.bimap(SqlFunction { it }, { it }))
+    open val bit: SqlServerType<Boolean> = SqlServerType(JavaSqlServerTypes.bit.bimap(SqlFunction { it }, { it }))
 
     // Forward all other types directly from Java
-    open val tinyint = JavaSqlServerTypes.tinyint
-    open val decimal = JavaSqlServerTypes.decimal
-    open val numeric = JavaSqlServerTypes.numeric
-    open val money = JavaSqlServerTypes.money
-    open val smallmoney = JavaSqlServerTypes.smallmoney
-    open val char_ = JavaSqlServerTypes.char_
-    open val varchar = JavaSqlServerTypes.varchar
-    open val varcharMax = JavaSqlServerTypes.varcharMax
-    open val text = JavaSqlServerTypes.text
-    open val nchar = JavaSqlServerTypes.nchar
-    open val nvarchar = JavaSqlServerTypes.nvarchar
-    open val nvarcharMax = JavaSqlServerTypes.nvarcharMax
-    open val ntext = JavaSqlServerTypes.ntext
-    open val binary = JavaSqlServerTypes.binary
-    open val varbinary = JavaSqlServerTypes.varbinary
-    open val varbinaryMax = JavaSqlServerTypes.varbinaryMax
-    open val image = JavaSqlServerTypes.image
-    open val date = JavaSqlServerTypes.date
-    open val time = JavaSqlServerTypes.time
-    open val datetime = JavaSqlServerTypes.datetime
-    open val smalldatetime = JavaSqlServerTypes.smalldatetime
-    open val datetime2 = JavaSqlServerTypes.datetime2
-    open val datetimeoffset = JavaSqlServerTypes.datetimeoffset
-    open val uniqueidentifier = JavaSqlServerTypes.uniqueidentifier
-    open val xml = JavaSqlServerTypes.xml
-    open val json = JavaSqlServerTypes.json
-    open val vector = JavaSqlServerTypes.vector
-    open val rowversion = JavaSqlServerTypes.rowversion
-    open val timestamp = JavaSqlServerTypes.timestamp
-    open val hierarchyid = JavaSqlServerTypes.hierarchyid
-    open val sqlVariant = JavaSqlServerTypes.sqlVariant
-    open val geography = JavaSqlServerTypes.geography
-    open val geometry = JavaSqlServerTypes.geometry
-    open val unknown = JavaSqlServerTypes.unknown
+    open val tinyint = SqlServerType(JavaSqlServerTypes.tinyint)
+    open val decimal = SqlServerType(JavaSqlServerTypes.decimal)
+    open val numeric = SqlServerType(JavaSqlServerTypes.numeric)
+    open val money = SqlServerType(JavaSqlServerTypes.money)
+    open val smallmoney = SqlServerType(JavaSqlServerTypes.smallmoney)
+    open val char_ = SqlServerType(JavaSqlServerTypes.char_)
+    open val varchar = SqlServerType(JavaSqlServerTypes.varchar)
+    open val varcharMax = SqlServerType(JavaSqlServerTypes.varcharMax)
+    open val text = SqlServerType(JavaSqlServerTypes.text)
+    open val nchar = SqlServerType(JavaSqlServerTypes.nchar)
+    open val nvarchar = SqlServerType(JavaSqlServerTypes.nvarchar)
+    open val nvarcharMax = SqlServerType(JavaSqlServerTypes.nvarcharMax)
+    open val ntext = SqlServerType(JavaSqlServerTypes.ntext)
+    open val binary = SqlServerType(JavaSqlServerTypes.binary)
+    open val varbinary = SqlServerType(JavaSqlServerTypes.varbinary)
+    open val varbinaryMax = SqlServerType(JavaSqlServerTypes.varbinaryMax)
+    open val image = SqlServerType(JavaSqlServerTypes.image)
+    open val date = SqlServerType(JavaSqlServerTypes.date)
+    open val time = SqlServerType(JavaSqlServerTypes.time)
+    open val datetime = SqlServerType(JavaSqlServerTypes.datetime)
+    open val smalldatetime = SqlServerType(JavaSqlServerTypes.smalldatetime)
+    open val datetime2 = SqlServerType(JavaSqlServerTypes.datetime2)
+    open val datetimeoffset = SqlServerType(JavaSqlServerTypes.datetimeoffset)
+    open val uniqueidentifier = SqlServerType(JavaSqlServerTypes.uniqueidentifier)
+    open val xml = SqlServerType(JavaSqlServerTypes.xml)
+    open val json = SqlServerType(JavaSqlServerTypes.json)
+    open val vector = SqlServerType(JavaSqlServerTypes.vector)
+    open val rowversion = SqlServerType(JavaSqlServerTypes.rowversion)
+    open val timestamp = SqlServerType(JavaSqlServerTypes.timestamp)
+    open val hierarchyid = SqlServerType(JavaSqlServerTypes.hierarchyid)
+    open val sqlVariant = SqlServerType(JavaSqlServerTypes.sqlVariant)
+    open val geography = SqlServerType(JavaSqlServerTypes.geography)
+    open val geometry = SqlServerType(JavaSqlServerTypes.geometry)
+    open val unknown = SqlServerType(JavaSqlServerTypes.unknown)
 
     // Parameterized methods
-    open fun decimal(precision: Int, scale: Int): SqlServerType<java.math.BigDecimal> =
-        JavaSqlServerTypes.decimal(precision, scale)
+    open fun decimal(precision: Int, scale: Int) = SqlServerType(JavaSqlServerTypes.decimal(precision, scale))
 
-    open fun numeric(precision: Int, scale: Int): SqlServerType<java.math.BigDecimal> =
-        JavaSqlServerTypes.numeric(precision, scale)
+    open fun numeric(precision: Int, scale: Int) = SqlServerType(JavaSqlServerTypes.numeric(precision, scale))
 
-    open fun char_(length: Int): SqlServerType<String> = JavaSqlServerTypes.char_(length)
+    open fun char_(length: Int) = SqlServerType(JavaSqlServerTypes.char_(length))
 
-    open fun varchar(length: Int): SqlServerType<String> = JavaSqlServerTypes.varchar(length)
+    open fun varchar(length: Int) = SqlServerType(JavaSqlServerTypes.varchar(length))
 
-    open fun nchar(length: Int): SqlServerType<String> = JavaSqlServerTypes.nchar(length)
+    open fun nchar(length: Int) = SqlServerType(JavaSqlServerTypes.nchar(length))
 
-    open fun nvarchar(length: Int): SqlServerType<String> = JavaSqlServerTypes.nvarchar(length)
+    open fun nvarchar(length: Int) = SqlServerType(JavaSqlServerTypes.nvarchar(length))
 
-    open fun binary(length: Int): SqlServerType<ByteArray> = JavaSqlServerTypes.binary(length)
+    open fun binary(length: Int) = SqlServerType(JavaSqlServerTypes.binary(length))
 
-    open fun varbinary(length: Int): SqlServerType<ByteArray> = JavaSqlServerTypes.varbinary(length)
+    open fun varbinary(length: Int) = SqlServerType(JavaSqlServerTypes.varbinary(length))
 
-    open fun time(scale: Int): SqlServerType<java.time.LocalTime> = JavaSqlServerTypes.time(scale)
+    open fun time(scale: Int) = SqlServerType(JavaSqlServerTypes.time(scale))
 
-    open fun datetime2(scale: Int): SqlServerType<java.time.LocalDateTime> = JavaSqlServerTypes.datetime2(scale)
+    open fun datetime2(scale: Int) = SqlServerType(JavaSqlServerTypes.datetime2(scale))
 
-    open fun datetimeoffset(scale: Int): SqlServerType<java.time.OffsetDateTime> = JavaSqlServerTypes.datetimeoffset(scale)
+    open fun datetimeoffset(scale: Int) = SqlServerType(JavaSqlServerTypes.datetimeoffset(scale))
 
     companion object : SqlServerTypes()
 }

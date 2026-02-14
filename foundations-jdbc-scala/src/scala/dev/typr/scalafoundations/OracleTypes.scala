@@ -1,6 +1,6 @@
 package dev.typr.scalafoundations
 
-import dev.typr.foundations.{OracleType, OracleTypes => JavaOracleTypes}
+import dev.typr.foundations.{OracleTypes => JavaOracleTypes}
 
 /** Scala-friendly OracleType instances that use Scala types instead of Java boxed types.
   * All types from dev.typr.foundations.OracleTypes are available here, with primitives and BigDecimal converted to Scala types.
@@ -9,113 +9,113 @@ import dev.typr.foundations.{OracleType, OracleTypes => JavaOracleTypes}
   */
 class OracleTypes {
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
-  val number: OracleType[BigDecimal] = JavaOracleTypes.number.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal)
-  val integer: OracleType[BigDecimal] = JavaOracleTypes.integer.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal)
-  val smallint: OracleType[BigDecimal] = JavaOracleTypes.smallint.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal)
+  val number: OracleType[BigDecimal] = OracleType(JavaOracleTypes.number.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val integer: OracleType[BigDecimal] = OracleType(JavaOracleTypes.integer.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val smallint: OracleType[BigDecimal] = OracleType(JavaOracleTypes.smallint.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Primitives
-  val numberInt: OracleType[Int] = JavaOracleTypes.numberInt.bimap(i => i, i => i)
-  val numberLong: OracleType[Long] = JavaOracleTypes.numberLong.bimap(l => l, l => l)
-  val binaryFloat: OracleType[Float] = JavaOracleTypes.binaryFloat.bimap(f => f, f => f)
-  val binaryDouble: OracleType[Double] = JavaOracleTypes.binaryDouble.bimap(d => d, d => d)
-  val float_ : OracleType[Double] = JavaOracleTypes.float_.bimap(d => d, d => d)
-  val real: OracleType[Double] = JavaOracleTypes.real.bimap(d => d, d => d)
-  val doublePrecision: OracleType[Double] = JavaOracleTypes.doublePrecision.bimap(d => d, d => d)
-  val boolean_ : OracleType[Boolean] = JavaOracleTypes.boolean_.bimap(b => b, b => b)
-  val numberAsBoolean: OracleType[Boolean] = JavaOracleTypes.numberAsBoolean.bimap(b => b, b => b)
+  val numberInt: OracleType[Int] = OracleType(JavaOracleTypes.numberInt.bimap(i => i, i => i))
+  val numberLong: OracleType[Long] = OracleType(JavaOracleTypes.numberLong.bimap(l => l, l => l))
+  val binaryFloat: OracleType[Float] = OracleType(JavaOracleTypes.binaryFloat.bimap(f => f, f => f))
+  val binaryDouble: OracleType[Double] = OracleType(JavaOracleTypes.binaryDouble.bimap(d => d, d => d))
+  val float_ : OracleType[Double] = OracleType(JavaOracleTypes.float_.bimap(d => d, d => d))
+  val real: OracleType[Double] = OracleType(JavaOracleTypes.real.bimap(d => d, d => d))
+  val doublePrecision: OracleType[Double] = OracleType(JavaOracleTypes.doublePrecision.bimap(d => d, d => d))
+  val boolean_ : OracleType[Boolean] = OracleType(JavaOracleTypes.boolean_.bimap(b => b, b => b))
+  val numberAsBoolean: OracleType[Boolean] = OracleType(JavaOracleTypes.numberAsBoolean.bimap(b => b, b => b))
 
   // Forward all other types directly from Java
-  val varchar2 = JavaOracleTypes.varchar2
-  val char_ = JavaOracleTypes.char_
-  val nvarchar2 = JavaOracleTypes.nvarchar2
-  val nchar = JavaOracleTypes.nchar
-  val clob = JavaOracleTypes.clob
-  val clobNonEmpty = JavaOracleTypes.clobNonEmpty
-  val nclob = JavaOracleTypes.nclob
-  val nclobNonEmpty = JavaOracleTypes.nclobNonEmpty
-  val long_ = JavaOracleTypes.long_
-  val raw = JavaOracleTypes.raw
-  val blob = JavaOracleTypes.blob
-  val blobNonEmpty = JavaOracleTypes.blobNonEmpty
-  val longRaw = JavaOracleTypes.longRaw
-  val date = JavaOracleTypes.date
-  val timestamp = JavaOracleTypes.timestamp
-  val timestampWithTimeZone = JavaOracleTypes.timestampWithTimeZone
-  val timestampWithLocalTimeZone = JavaOracleTypes.timestampWithLocalTimeZone
-  val intervalYearToMonth = JavaOracleTypes.intervalYearToMonth
-  val intervalDayToSecond = JavaOracleTypes.intervalDayToSecond
-  val rowId = JavaOracleTypes.rowId
-  val uRowId = JavaOracleTypes.uRowId
-  val xmlType = JavaOracleTypes.xmlType
-  val json = JavaOracleTypes.json
-  val unknown = JavaOracleTypes.unknown
+  val varchar2 = OracleType(JavaOracleTypes.varchar2)
+  val char_ = OracleType(JavaOracleTypes.char_)
+  val nvarchar2 = OracleType(JavaOracleTypes.nvarchar2)
+  val nchar = OracleType(JavaOracleTypes.nchar)
+  val clob = OracleType(JavaOracleTypes.clob)
+  val clobNonEmpty = OracleType(JavaOracleTypes.clobNonEmpty)
+  val nclob = OracleType(JavaOracleTypes.nclob)
+  val nclobNonEmpty = OracleType(JavaOracleTypes.nclobNonEmpty)
+  val long_ = OracleType(JavaOracleTypes.long_)
+  val raw = OracleType(JavaOracleTypes.raw)
+  val blob = OracleType(JavaOracleTypes.blob)
+  val blobNonEmpty = OracleType(JavaOracleTypes.blobNonEmpty)
+  val longRaw = OracleType(JavaOracleTypes.longRaw)
+  val date = OracleType(JavaOracleTypes.date)
+  val timestamp = OracleType(JavaOracleTypes.timestamp)
+  val timestampWithTimeZone = OracleType(JavaOracleTypes.timestampWithTimeZone)
+  val timestampWithLocalTimeZone = OracleType(JavaOracleTypes.timestampWithLocalTimeZone)
+  val intervalYearToMonth = OracleType(JavaOracleTypes.intervalYearToMonth)
+  val intervalDayToSecond = OracleType(JavaOracleTypes.intervalDayToSecond)
+  val rowId = OracleType(JavaOracleTypes.rowId)
+  val uRowId = OracleType(JavaOracleTypes.uRowId)
+  val xmlType = OracleType(JavaOracleTypes.xmlType)
+  val json = OracleType(JavaOracleTypes.json)
+  val unknown = OracleType(JavaOracleTypes.unknown)
 
   // Forward static methods with Scala type conversion
   def number(precision: Int): OracleType[BigDecimal] =
-    JavaOracleTypes.number(precision).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal)
+    OracleType(JavaOracleTypes.number(precision).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def number(precision: Int, scale: Int): OracleType[BigDecimal] =
-    JavaOracleTypes.number(precision, scale).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal)
+    OracleType(JavaOracleTypes.number(precision, scale).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def numberAsInt(precision: Int): OracleType[Int] =
-    JavaOracleTypes.numberAsInt(precision).bimap(i => i, i => i)
+    OracleType(JavaOracleTypes.numberAsInt(precision).bimap(i => i, i => i))
 
   def numberAsLong(precision: Int): OracleType[Long] =
-    JavaOracleTypes.numberAsLong(precision).bimap(l => l, l => l)
+    OracleType(JavaOracleTypes.numberAsLong(precision).bimap(l => l, l => l))
 
   def float_(binaryPrecision: Int): OracleType[Double] =
-    JavaOracleTypes.float_(binaryPrecision).bimap(d => d, d => d)
+    OracleType(JavaOracleTypes.float_(binaryPrecision).bimap(d => d, d => d))
 
   def varchar2(maxLength: Int): OracleType[String] =
-    JavaOracleTypes.varchar2(maxLength)
+    OracleType(JavaOracleTypes.varchar2(maxLength))
 
-  def varchar2NonEmpty(maxLength: Int): OracleType[dev.typr.foundations.NonEmptyString] =
-    JavaOracleTypes.varchar2NonEmpty(maxLength)
+  def varchar2NonEmpty(maxLength: Int): OracleType[dev.typr.foundations.data.NonEmptyString] =
+    OracleType(JavaOracleTypes.varchar2NonEmpty(maxLength))
 
   def char_(length: Int): OracleType[String] =
-    JavaOracleTypes.char_(length)
+    OracleType(JavaOracleTypes.char_(length))
 
-  def charPadded(length: Int): OracleType[dev.typr.foundations.PaddedString] =
-    JavaOracleTypes.charPadded(length)
+  def charPadded(length: Int): OracleType[dev.typr.foundations.data.PaddedString] =
+    OracleType(JavaOracleTypes.charPadded(length))
 
   def nvarchar2(maxLength: Int): OracleType[String] =
-    JavaOracleTypes.nvarchar2(maxLength)
+    OracleType(JavaOracleTypes.nvarchar2(maxLength))
 
-  def nvarchar2NonEmpty(maxLength: Int): OracleType[dev.typr.foundations.NonEmptyString] =
-    JavaOracleTypes.nvarchar2NonEmpty(maxLength)
+  def nvarchar2NonEmpty(maxLength: Int): OracleType[dev.typr.foundations.data.NonEmptyString] =
+    OracleType(JavaOracleTypes.nvarchar2NonEmpty(maxLength))
 
   def nchar(length: Int): OracleType[String] =
-    JavaOracleTypes.nchar(length)
+    OracleType(JavaOracleTypes.nchar(length))
 
-  def ncharPadded(length: Int): OracleType[dev.typr.foundations.PaddedString] =
-    JavaOracleTypes.ncharPadded(length)
+  def ncharPadded(length: Int): OracleType[dev.typr.foundations.data.PaddedString] =
+    OracleType(JavaOracleTypes.ncharPadded(length))
 
   def raw(maxLength: Int): OracleType[Array[Byte]] =
-    JavaOracleTypes.raw(maxLength)
+    OracleType(JavaOracleTypes.raw(maxLength))
 
-  def rawNonEmpty(maxLength: Int): OracleType[dev.typr.foundations.NonEmptyBlob] =
-    JavaOracleTypes.rawNonEmpty(maxLength)
+  def rawNonEmpty(maxLength: Int): OracleType[dev.typr.foundations.data.NonEmptyBlob] =
+    OracleType(JavaOracleTypes.rawNonEmpty(maxLength))
 
   def timestamp(fractionalSecondsPrecision: Int): OracleType[java.time.LocalDateTime] =
-    JavaOracleTypes.timestamp(fractionalSecondsPrecision)
+    OracleType(JavaOracleTypes.timestamp(fractionalSecondsPrecision))
 
   def timestampWithTimeZone(fractionalSecondsPrecision: Int): OracleType[java.time.OffsetDateTime] =
-    JavaOracleTypes.timestampWithTimeZone(fractionalSecondsPrecision)
+    OracleType(JavaOracleTypes.timestampWithTimeZone(fractionalSecondsPrecision))
 
   def timestampWithLocalTimeZone(fractionalSecondsPrecision: Int): OracleType[java.time.OffsetDateTime] =
-    JavaOracleTypes.timestampWithLocalTimeZone(fractionalSecondsPrecision)
+    OracleType(JavaOracleTypes.timestampWithLocalTimeZone(fractionalSecondsPrecision))
 
   def intervalYearToMonth(yearPrecision: Int): OracleType[dev.typr.foundations.data.OracleIntervalYM] =
-    JavaOracleTypes.intervalYearToMonth(yearPrecision)
+    OracleType(JavaOracleTypes.intervalYearToMonth(yearPrecision))
 
   def intervalDayToSecond(dayPrecision: Int, fractionalSecondsPrecision: Int): OracleType[dev.typr.foundations.data.OracleIntervalDS] =
-    JavaOracleTypes.intervalDayToSecond(dayPrecision, fractionalSecondsPrecision)
+    OracleType(JavaOracleTypes.intervalDayToSecond(dayPrecision, fractionalSecondsPrecision))
 
   def uRowId(maxLength: Int): OracleType[String] =
-    JavaOracleTypes.uRowId(maxLength)
+    OracleType(JavaOracleTypes.uRowId(maxLength))
 
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): OracleType[E] =
-    JavaOracleTypes.ofEnum(sqlType, fromString)
+    OracleType(JavaOracleTypes.ofEnum(sqlType, fromString))
 }
 
 object OracleTypes extends OracleTypes

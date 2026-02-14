@@ -5,7 +5,7 @@ import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object VoidProcedure:
-  private val tx: dev.typr.foundations.Transactor = null // placeholder
+  private val tx: Transactor = null // placeholder
 
   //start
   // A void procedure — no OUT parameters, just side effects

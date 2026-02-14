@@ -1,11 +1,10 @@
 package dev.typr.foundations.docs.routines
 
 import dev.typr.kotlinfoundations.*
-import java.sql.SQLException
 
 @Suppress("unused")
 class OutProcedure {
-    private val tx: Transactor? = null // placeholder
+    private lateinit var tx: Transactor
 
     //start
     companion object {
@@ -19,8 +18,7 @@ class OutProcedure {
     }
 
     // call() is fully typed — wrong argument types won't compile
-    @Throws(SQLException::class)
-    fun findUser(userId: Int): Tuple2<String, String> =
-        getUser.call(userId).transact(tx!!)
+    fun findUser(userId: Int) =
+        getUser.call(userId).transact(tx)
     //stop
 }

@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Bean;
  *     }
  *
  *     public List<Product> findAll() throws SQLException {
- *         return Fragment.lit("SELECT * FROM product")
+ *         return Fragment.of("SELECT * FROM product")
  *             .query(Product.rowParser.all())
  *             .transact(tx);
  *     }

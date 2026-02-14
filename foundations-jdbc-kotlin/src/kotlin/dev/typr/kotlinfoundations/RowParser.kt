@@ -1,7 +1,6 @@
 package dev.typr.kotlinfoundations
 
 import dev.typr.foundations.And
-import dev.typr.foundations.DbType
 import java.sql.ResultSet
 import java.util.Optional
 
@@ -11,7 +10,7 @@ import java.util.Optional
  * This class has the same API surface as the Java RowParser but returns Kotlin types (T?)
  * instead of Java types (Optional<T>).
  */
-class RowParser<Row : Any>(val underlying: dev.typr.foundations.RowParser<Row>) {
+open class RowParser<Row : Any>(open val underlying: dev.typr.foundations.RowParser<Row>) {
 
     companion object {
         /**
@@ -20,9 +19,14 @@ class RowParser<Row : Any>(val underlying: dev.typr.foundations.RowParser<Row>) 
         fun <Row : Any> builder(): RowParserBuilders.Builder0<Row> = RowParserBuilders.builder()
 
         /**
+         * Create a type-safe named builder for RowParser.
+         */
+        fun <Row : Any> namedBuilder(): RowParserNamedBuilders.Builder0<Row> = RowParserNamedBuilders.builder()
+
+        /**
          * Create a single-column row parser.
          */
-        fun <T : Any> of(type: DbType<T>): RowParser<T> = RowParser(dev.typr.foundations.RowParser.of(type))
+        fun <T : Any> of(type: DbType<T>): RowParser<T> = RowParser(dev.typr.foundations.RowParser.of(type.underlying))
     }
 
     /**
@@ -30,8 +34,7 @@ class RowParser<Row : Any>(val underlying: dev.typr.foundations.RowParser<Row>) 
      * Returns Kotlin List instead of java.util.List.
      */
     fun all(): ResultSetParser<List<Row>> {
-        val javaParser = underlying.all()
-        return ResultSetParser(dev.typr.foundations.ResultSetParser { rs -> javaParser.apply(rs).toList() })
+        return ResultSetParser(underlying.all().map { it.toList() })
     }
 
     /**
@@ -49,7 +52,7 @@ class RowParser<Row : Any>(val underlying: dev.typr.foundations.RowParser<Row>) 
     fun <Row2 : Any> leftJoined(other: RowParser<Row2>?): RowParser<And<Row, Row2?>> {
         val javaResult: dev.typr.foundations.RowParser<And<Row, Optional<Row2>>> =
             underlying.leftJoined(other?.underlying)
-        val converted = javaResult.to(leftJoinToNullable<Row, Row2>())
+        val converted = javaResult.to(Bijection.leftJoinToNullable<Row, Row2>())
         return RowParser(converted)
     }
 
@@ -60,7 +63,7 @@ class RowParser<Row : Any>(val underlying: dev.typr.foundations.RowParser<Row>) 
     fun <Row2 : Any> rightJoined(other: RowParser<Row2>): RowParser<And<Row?, Row2>> {
         val javaResult: dev.typr.foundations.RowParser<And<Optional<Row>, Row2>> =
             underlying.rightJoined(other.underlying)
-        val converted = javaResult.to(rightJoinToNullable<Row, Row2>())
+        val converted = javaResult.to(Bijection.rightJoinToNullable<Row, Row2>())
         return RowParser(converted)
     }
 
@@ -71,7 +74,7 @@ class RowParser<Row : Any>(val underlying: dev.typr.foundations.RowParser<Row>) 
     fun <Row2 : Any> fullJoined(other: RowParser<Row2>): RowParser<And<Row?, Row2?>> {
         val javaResult: dev.typr.foundations.RowParser<And<Optional<Row>, Optional<Row2>>> =
             underlying.fullJoined(other.underlying)
-        val converted = javaResult.to(fullJoinToNullable<Row, Row2>())
+        val converted = javaResult.to(Bijection.fullJoinToNullable<Row, Row2>())
         return RowParser(converted)
     }
 
@@ -88,30 +91,16 @@ class RowParser<Row : Any>(val underlying: dev.typr.foundations.RowParser<Row>) 
      * Returns Row? instead of Optional<Row>.
      */
     fun first(): ResultSetParser<Row?> {
-        val javaParser = dev.typr.foundations.ResultSetParser.First(underlying)
-        return ResultSetParser(dev.typr.foundations.ResultSetParser { rs -> javaParser.apply(rs).orElse(null) })
+        return ResultSetParser(underlying.first().map { it.orElse(null) })
     }
-
-    /**
-     * Parse the first row from a ResultSet or null if empty.
-     * Alias for first() to match Java API.
-     */
-    fun firstOrNull(): ResultSetParser<Row?> = first()
 
     /**
      * Parse at most one row from a ResultSet or null.
      * Returns Row? instead of Optional<Row>.
      */
     fun maxOne(): ResultSetParser<Row?> {
-        val javaParser = dev.typr.foundations.ResultSetParser.MaxOne(underlying)
-        return ResultSetParser(dev.typr.foundations.ResultSetParser { rs -> javaParser.apply(rs).orElse(null) })
+        return ResultSetParser(underlying.maxOne().map { it.orElse(null) })
     }
-
-    /**
-     * Parse at most one row from a ResultSet or null.
-     * Alias for maxOne() to match Kotlin conventions.
-     */
-    fun maxOneOrNull(): ResultSetParser<Row?> = maxOne()
 
     /**
      * Parse a single row from the current position in ResultSet.
@@ -132,8 +121,20 @@ class RowParser<Row : Any>(val underlying: dev.typr.foundations.RowParser<Row>) 
 }
 
 /**
- * Convert a Java RowParser to a Kotlin RowParser.
+ * Kotlin wrapper for dev.typr.foundations.RowParserNamed.
+ * Adds columnNames() and columnList() accessors, and a no-argument jsonObject().
  */
-fun <Row : Any> dev.typr.foundations.RowParser<Row>.asKotlin(): RowParser<Row> {
-    return RowParser(this)
+class RowParserNamed<Row : Any>(
+    override val underlying: dev.typr.foundations.RowParserNamed<Row>
+) : RowParser<Row>(underlying) {
+
+    val columnNames: List<String>
+        get() = underlying.columnNames().toList()
+
+    val columnList: Fragment
+        get() = Fragment(underlying.columnList())
+
+    fun jsonObject(): dev.typr.foundations.DbJson<Row> =
+        dev.typr.foundations.DbJsonRow.jsonObject(underlying)
 }
+

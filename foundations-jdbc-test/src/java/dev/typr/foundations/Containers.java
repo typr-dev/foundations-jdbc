@@ -1,11 +1,11 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.connect.db2.Db2Config;
-import dev.typr.foundations.connect.mariadb.MariaDbConfig;
-import dev.typr.foundations.connect.oracle.OracleConfig;
-import dev.typr.foundations.connect.postgres.PostgresConfig;
-import dev.typr.foundations.connect.sqlserver.SqlServerConfig;
-import dev.typr.foundations.connect.sqlserver.SqlServerEncrypt;
+import dev.typr.foundations.connect.Db2Config;
+import dev.typr.foundations.connect.MariaDbConfig;
+import dev.typr.foundations.connect.OracleConfig;
+import dev.typr.foundations.connect.PostgresConfig;
+import dev.typr.foundations.connect.SqlServerConfig;
+import dev.typr.foundations.connect.SqlServerEncrypt;
 import dev.typr.foundations.hikari.HikariDataSourceFactory;
 import dev.typr.foundations.hikari.PoolConfig;
 import dev.typr.foundations.hikari.PooledDataSource;

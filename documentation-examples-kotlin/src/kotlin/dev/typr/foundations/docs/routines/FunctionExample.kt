@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.routines
 
 import dev.typr.kotlinfoundations.*
 import java.math.BigDecimal
-import java.sql.SQLException
 
 @Suppress("unused")
 class FunctionExample {
@@ -23,7 +22,6 @@ class FunctionExample {
                 .build()
     }
 
-    @Throws(SQLException::class)
     fun calculateTax(amount: BigDecimal, region: String): BigDecimal =
         calcTax.call(amount, region).transact(tx!!)
     //stop

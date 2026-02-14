@@ -26,7 +26,7 @@ object QueryAnalysisBasic:
       .query(userRowParser.all())
 
     // Analyze it against the database
-    val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection)
+    val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection).head
 
     // Check the results
     if !analysis.succeeded() then

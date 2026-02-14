@@ -23,7 +23,7 @@ public class SpringTransactorExample {
 
         @Transactional
         String getGreeting() throws SQLException {
-            return Fragment.lit("SELECT 'Hello from Oracle' FROM dual")
+            return Fragment.of("SELECT 'Hello from Oracle' FROM dual")
                 .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
                 .transact(tx);
         }

@@ -3,7 +3,6 @@ package dev.typr.foundations.docs.core
 import dev.typr.kotlinfoundations.*
 import dev.typr.kotlinfoundations.data.*
 import java.math.BigDecimal
-import java.sql.SQLException
 
 @Suppress("unused")
 class FragmentComposing {
@@ -15,26 +14,25 @@ class FragmentComposing {
         .field(PgTypes.numeric, ProductRow::price)
         .build(::ProductRow)
 
-    val tx: Transactor? = null // placeholder
+    lateinit var tx: Transactor
     val maxPrice: BigDecimal? = BigDecimal("100")
 
     //start
     // Build small reusable filters
     fun byName(name: String): Fragment =
-        Fragment.interpolate("name ILIKE ").param(PgTypes.text, name).done()
+        Fragment.of("name ILIKE ").value(PgTypes.text, name)
 
     fun cheaperThan(max: BigDecimal): Fragment =
-        Fragment.interpolate("price < ").param(PgTypes.numeric, max).done()
+        Fragment.of("price < ").value(PgTypes.numeric, max)
 
     // Compose dynamically — only include the filters that are present
-    @Throws(SQLException::class)
     fun query(): List<ProductRow> {
         val filters = listOfNotNull(
             byName("%widget%"),
             maxPrice?.let(::cheaperThan)
         )
 
-        return Fragment.lit("SELECT * FROM product ")
+        return Fragment.of("SELECT * FROM product ")
             .append(Fragment.whereAnd(filters))
             .query(rowParser.all())
             .transact(tx)

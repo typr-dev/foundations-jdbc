@@ -27,7 +27,7 @@ object QueryAnalysis:
 
   // But Query Analysis catches the bugs in your tests
   def check(): Unit =
-    val result: QueryAnalysis = QueryAnalyzer.analyze(query, connection)
+    val result: QueryAnalysis = QueryAnalyzer.analyze(query, connection).head
     if !result.succeeded() then
       throw new AssertionError(result.report())
   //stop

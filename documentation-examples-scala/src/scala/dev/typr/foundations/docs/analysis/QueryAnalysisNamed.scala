@@ -24,7 +24,7 @@ object QueryAnalysisNamed:
       .query(userRowParser.all())
 
     // Give your query a name - it shows up in the error report
-    val analysis = QueryAnalyzer.analyze("findUserById", query, connection)
+    val analysis = QueryAnalyzer.analyze("findUserById", query, connection).head
 
     if !analysis.succeeded() then
       throw AssertionError(analysis.report())

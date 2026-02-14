@@ -8,5 +8,5 @@ import dev.typr.scalafoundations.data.*
 object NullableTypes:
   //start
   val notNull: PgType[Int] = PgTypes.int4
-  val nullable: DbType[Option[Int]] = PgTypes.int4.nullable  // null values allowed
+  val nullable: PgType[Option[Int]] = PgTypes.int4.opt
   //stop
