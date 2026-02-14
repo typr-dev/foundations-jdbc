@@ -1,6 +1,6 @@
 plugins {
     `java-library`
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "2.3.0"
 }
 
 java {
@@ -14,7 +14,7 @@ java {
 sourceSets {
     main {
         kotlin {
-            setSrcDirs(listOf("src/kotlin"))
+            setSrcDirs(listOf("src/kotlin", "generated-and-checked-in"))
         }
     }
 }

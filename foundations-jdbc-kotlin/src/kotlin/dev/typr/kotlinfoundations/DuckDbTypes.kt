@@ -1,6 +1,5 @@
 package dev.typr.kotlinfoundations
 
-import dev.typr.foundations.DuckDbType
 import dev.typr.foundations.SqlFunction
 import dev.typr.foundations.DuckDbTypes as JavaDuckDbTypes
 
@@ -12,102 +11,101 @@ import dev.typr.foundations.DuckDbTypes as JavaDuckDbTypes
  */
 open class DuckDbTypes {
     // Primitives - convert Java boxed types to Kotlin native types
-    open val tinyint: DuckDbType<Byte> = JavaDuckDbTypes.tinyint.bimap(SqlFunction { it }, { it })
-    open val smallint: DuckDbType<Short> = JavaDuckDbTypes.smallint.bimap(SqlFunction { it }, { it })
-    open val integer: DuckDbType<Int> = JavaDuckDbTypes.integer.bimap(SqlFunction { it }, { it })
-    open val bigint: DuckDbType<Long> = JavaDuckDbTypes.bigint.bimap(SqlFunction { it }, { it })
-    open val float_: DuckDbType<Float> = JavaDuckDbTypes.float_.bimap(SqlFunction { it }, { it })
-    open val double_: DuckDbType<Double> = JavaDuckDbTypes.double_.bimap(SqlFunction { it }, { it })
-    open val boolean_: DuckDbType<Boolean> = JavaDuckDbTypes.boolean_.bimap(SqlFunction { it }, { it })
-    open val bool: DuckDbType<Boolean> = JavaDuckDbTypes.bool.bimap(SqlFunction { it }, { it })
+    open val tinyint: DuckDbType<Byte> = DuckDbType(JavaDuckDbTypes.tinyint.bimap(SqlFunction { it }, { it }))
+    open val smallint: DuckDbType<Short> = DuckDbType(JavaDuckDbTypes.smallint.bimap(SqlFunction { it }, { it }))
+    open val integer: DuckDbType<Int> = DuckDbType(JavaDuckDbTypes.integer.bimap(SqlFunction { it }, { it }))
+    open val bigint: DuckDbType<Long> = DuckDbType(JavaDuckDbTypes.bigint.bimap(SqlFunction { it }, { it }))
+    open val float_: DuckDbType<Float> = DuckDbType(JavaDuckDbTypes.float_.bimap(SqlFunction { it }, { it }))
+    open val double_: DuckDbType<Double> = DuckDbType(JavaDuckDbTypes.double_.bimap(SqlFunction { it }, { it }))
+    open val boolean_: DuckDbType<Boolean> = DuckDbType(JavaDuckDbTypes.boolean_.bimap(SqlFunction { it }, { it }))
+
 
     // Forward all other types directly from Java
-    open val decimal = JavaDuckDbTypes.decimal
-    open val numeric = JavaDuckDbTypes.numeric
-    open val hugeint = JavaDuckDbTypes.hugeint
-    open val utinyint = JavaDuckDbTypes.utinyint
-    open val usmallint = JavaDuckDbTypes.usmallint
-    open val uinteger = JavaDuckDbTypes.uinteger
-    open val ubigint = JavaDuckDbTypes.ubigint
-    open val uhugeint = JavaDuckDbTypes.uhugeint
-    open val real = JavaDuckDbTypes.real
-    open val float4 = JavaDuckDbTypes.float4
-    open val float8 = JavaDuckDbTypes.float8
-    open val varchar = JavaDuckDbTypes.varchar
-    open val text = JavaDuckDbTypes.text
-    open val string = JavaDuckDbTypes.string
-    open val char_ = JavaDuckDbTypes.char_
-    open val bpchar = JavaDuckDbTypes.bpchar
-    open val blob = JavaDuckDbTypes.blob
-    open val bytea = JavaDuckDbTypes.bytea
-    open val binary = JavaDuckDbTypes.binary
-    open val varbinary = JavaDuckDbTypes.varbinary
-    open val bit = JavaDuckDbTypes.bit
-    open val bitstring = JavaDuckDbTypes.bitstring
-    open val date = JavaDuckDbTypes.date
-    open val time = JavaDuckDbTypes.time
-    open val timestamp = JavaDuckDbTypes.timestamp
-    open val datetime = JavaDuckDbTypes.datetime
-    open val timestamptz = JavaDuckDbTypes.timestamptz
-    open val timetz = JavaDuckDbTypes.timetz
-    open val timestamp_s = JavaDuckDbTypes.timestamp_s
-    open val timestamp_ms = JavaDuckDbTypes.timestamp_ms
-    open val timestamp_ns = JavaDuckDbTypes.timestamp_ns
-    open val interval = JavaDuckDbTypes.interval
-    open val uuid = JavaDuckDbTypes.uuid
-    open val json = JavaDuckDbTypes.json
-    open val tinyintArray = JavaDuckDbTypes.tinyintArray
-    open val smallintArray = JavaDuckDbTypes.smallintArray
-    open val integerArray = JavaDuckDbTypes.integerArray
-    open val bigintArray = JavaDuckDbTypes.bigintArray
-    open val hugeintArray = JavaDuckDbTypes.hugeintArray
-    open val utinyintArray = JavaDuckDbTypes.utinyintArray
-    open val usmallintArray = JavaDuckDbTypes.usmallintArray
-    open val uintegerArray = JavaDuckDbTypes.uintegerArray
-    open val ubigintArray = JavaDuckDbTypes.ubigintArray
-    open val floatArray = JavaDuckDbTypes.floatArray
-    open val doubleArray = JavaDuckDbTypes.doubleArray
-    open val decimalArray = JavaDuckDbTypes.decimalArray
-    open val booleanArray = JavaDuckDbTypes.booleanArray
-    open val varcharArray = JavaDuckDbTypes.varcharArray
-    open val blobArray = JavaDuckDbTypes.blobArray
-    open val dateArray = JavaDuckDbTypes.dateArray
-    open val timeArray = JavaDuckDbTypes.timeArray
-    open val timestampArray = JavaDuckDbTypes.timestampArray
-    open val timestamptzArray = JavaDuckDbTypes.timestamptzArray
-    open val intervalArray = JavaDuckDbTypes.intervalArray
-    open val uuidArray = JavaDuckDbTypes.uuidArray
-    open val jsonArray = JavaDuckDbTypes.jsonArray
-    open val listBoolean = JavaDuckDbTypes.listBoolean
-    open val listTinyint = JavaDuckDbTypes.listTinyint
-    open val listSmallint = JavaDuckDbTypes.listSmallint
-    open val listInteger = JavaDuckDbTypes.listInteger
-    open val listBigint = JavaDuckDbTypes.listBigint
-    open val listFloat = JavaDuckDbTypes.listFloat
-    open val listDouble = JavaDuckDbTypes.listDouble
-    open val listVarchar = JavaDuckDbTypes.listVarchar
-    open val listUuid = JavaDuckDbTypes.listUuid
-    open val listDate = JavaDuckDbTypes.listDate
-    open val listTime = JavaDuckDbTypes.listTime
-    open val listTimestamp = JavaDuckDbTypes.listTimestamp
-    open val listTimestamptz = JavaDuckDbTypes.listTimestamptz
-    open val listDecimal = JavaDuckDbTypes.listDecimal
-    open val listHugeint = JavaDuckDbTypes.listHugeint
-    open val listInterval = JavaDuckDbTypes.listInterval
-    open val unknown = JavaDuckDbTypes.unknown
+    open val decimal = DuckDbType(JavaDuckDbTypes.decimal)
+    open val numeric = DuckDbType(JavaDuckDbTypes.numeric)
+    open val hugeint = DuckDbType(JavaDuckDbTypes.hugeint)
+    open val utinyint = DuckDbType(JavaDuckDbTypes.utinyint)
+    open val usmallint = DuckDbType(JavaDuckDbTypes.usmallint)
+    open val uinteger = DuckDbType(JavaDuckDbTypes.uinteger)
+    open val ubigint = DuckDbType(JavaDuckDbTypes.ubigint)
+    open val uhugeint = DuckDbType(JavaDuckDbTypes.uhugeint)
+    open val real = DuckDbType(JavaDuckDbTypes.real)
+    open val float4 = DuckDbType(JavaDuckDbTypes.float4)
+    open val float8 = DuckDbType(JavaDuckDbTypes.float8)
+    open val varchar = DuckDbType(JavaDuckDbTypes.varchar)
+    open val text = DuckDbType(JavaDuckDbTypes.text)
+    open val string = DuckDbType(JavaDuckDbTypes.string)
+    open val char_ = DuckDbType(JavaDuckDbTypes.char_)
+    open val bpchar = DuckDbType(JavaDuckDbTypes.bpchar)
+    open val blob = DuckDbType(JavaDuckDbTypes.blob)
+    open val bytea = DuckDbType(JavaDuckDbTypes.bytea)
+    open val binary = DuckDbType(JavaDuckDbTypes.binary)
+    open val varbinary = DuckDbType(JavaDuckDbTypes.varbinary)
+    open val bit = DuckDbType(JavaDuckDbTypes.bit)
+    open val bitstring = DuckDbType(JavaDuckDbTypes.bitstring)
+    open val date = DuckDbType(JavaDuckDbTypes.date)
+    open val time = DuckDbType(JavaDuckDbTypes.time)
+    open val timestamp = DuckDbType(JavaDuckDbTypes.timestamp)
+    open val datetime = DuckDbType(JavaDuckDbTypes.datetime)
+    open val timestamptz = DuckDbType(JavaDuckDbTypes.timestamptz)
+    open val timetz = DuckDbType(JavaDuckDbTypes.timetz)
+    open val timestamp_s = DuckDbType(JavaDuckDbTypes.timestamp_s)
+    open val timestamp_ms = DuckDbType(JavaDuckDbTypes.timestamp_ms)
+    open val timestamp_ns = DuckDbType(JavaDuckDbTypes.timestamp_ns)
+    open val interval = DuckDbType(JavaDuckDbTypes.interval)
+    open val uuid = DuckDbType(JavaDuckDbTypes.uuid)
+    open val json = DuckDbType(JavaDuckDbTypes.json)
+    open val tinyintArray = DuckDbType(JavaDuckDbTypes.tinyintArray)
+    open val smallintArray = DuckDbType(JavaDuckDbTypes.smallintArray)
+    open val integerArray = DuckDbType(JavaDuckDbTypes.integerArray)
+    open val bigintArray = DuckDbType(JavaDuckDbTypes.bigintArray)
+    open val hugeintArray = DuckDbType(JavaDuckDbTypes.hugeintArray)
+    open val utinyintArray = DuckDbType(JavaDuckDbTypes.utinyintArray)
+    open val usmallintArray = DuckDbType(JavaDuckDbTypes.usmallintArray)
+    open val uintegerArray = DuckDbType(JavaDuckDbTypes.uintegerArray)
+    open val ubigintArray = DuckDbType(JavaDuckDbTypes.ubigintArray)
+    open val floatArray = DuckDbType(JavaDuckDbTypes.floatArray)
+    open val doubleArray = DuckDbType(JavaDuckDbTypes.doubleArray)
+    open val decimalArray = DuckDbType(JavaDuckDbTypes.decimalArray)
+    open val booleanArray = DuckDbType(JavaDuckDbTypes.booleanArray)
+    open val varcharArray = DuckDbType(JavaDuckDbTypes.varcharArray)
+    open val blobArray = DuckDbType(JavaDuckDbTypes.blobArray)
+    open val dateArray = DuckDbType(JavaDuckDbTypes.dateArray)
+    open val timeArray = DuckDbType(JavaDuckDbTypes.timeArray)
+    open val timestampArray = DuckDbType(JavaDuckDbTypes.timestampArray)
+    open val timestamptzArray = DuckDbType(JavaDuckDbTypes.timestamptzArray)
+    open val intervalArray = DuckDbType(JavaDuckDbTypes.intervalArray)
+    open val uuidArray = DuckDbType(JavaDuckDbTypes.uuidArray)
+    open val jsonArray = DuckDbType(JavaDuckDbTypes.jsonArray)
+    open val listBoolean = DuckDbType(JavaDuckDbTypes.listBoolean)
+    open val listTinyint = DuckDbType(JavaDuckDbTypes.listTinyint)
+    open val listSmallint = DuckDbType(JavaDuckDbTypes.listSmallint)
+    open val listInteger = DuckDbType(JavaDuckDbTypes.listInteger)
+    open val listBigint = DuckDbType(JavaDuckDbTypes.listBigint)
+    open val listFloat = DuckDbType(JavaDuckDbTypes.listFloat)
+    open val listDouble = DuckDbType(JavaDuckDbTypes.listDouble)
+    open val listVarchar = DuckDbType(JavaDuckDbTypes.listVarchar)
+    open val listUuid = DuckDbType(JavaDuckDbTypes.listUuid)
+    open val listDate = DuckDbType(JavaDuckDbTypes.listDate)
+    open val listTime = DuckDbType(JavaDuckDbTypes.listTime)
+    open val listTimestamp = DuckDbType(JavaDuckDbTypes.listTimestamp)
+    open val listTimestamptz = DuckDbType(JavaDuckDbTypes.listTimestamptz)
+    open val listDecimal = DuckDbType(JavaDuckDbTypes.listDecimal)
+    open val listHugeint = DuckDbType(JavaDuckDbTypes.listHugeint)
+    open val listInterval = DuckDbType(JavaDuckDbTypes.listInterval)
+    open val unknown = DuckDbType(JavaDuckDbTypes.unknown)
 
     // Parameterized methods
-    open fun decimal(precision: Int, scale: Int): DuckDbType<java.math.BigDecimal> =
-        JavaDuckDbTypes.decimal(precision, scale)
+    open fun decimal(precision: Int, scale: Int) = DuckDbType(JavaDuckDbTypes.decimal(precision, scale))
 
-    open fun varchar(length: Int): DuckDbType<String> = JavaDuckDbTypes.varchar(length)
+    open fun varchar(length: Int) = DuckDbType(JavaDuckDbTypes.varchar(length))
 
-    open fun char_(length: Int): DuckDbType<String> = JavaDuckDbTypes.char_(length)
+    open fun char_(length: Int) = DuckDbType(JavaDuckDbTypes.char_(length))
 
-    open fun bit(length: Int): DuckDbType<String> = JavaDuckDbTypes.bit(length)
+    open fun bit(length: Int) = DuckDbType(JavaDuckDbTypes.bit(length))
 
-    open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: java.util.function.Function<String, E>): DuckDbType<E> =
-        JavaDuckDbTypes.ofEnum(enumTypeName, fromString)
+    open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: java.util.function.Function<String, E>) =
+        DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, fromString))
 
     companion object : DuckDbTypes()
 }

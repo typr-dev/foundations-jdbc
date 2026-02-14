@@ -4,7 +4,7 @@ import dev.typr.foundations.ParamDef;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.Procedure;
 import dev.typr.foundations.Transactor;
-import dev.typr.foundations.analysis.QueryChecker;
+import dev.typr.foundations.QueryChecker;
 import java.util.List;
 
 @SuppressWarnings("unused")

@@ -26,7 +26,7 @@ object QueryAnalysisNullableOk:
       LEFT JOIN orders o ON u.id = o.user_id"""
       .query(orderParser.all())
 
-    val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection)
+    val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection).head
     if !analysis.succeeded() then
       throw AssertionError(analysis.report())
   //stop

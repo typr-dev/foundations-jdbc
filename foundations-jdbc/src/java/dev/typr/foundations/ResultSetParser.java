@@ -6,9 +6,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
-public interface ResultSetParser<Out> {
+public sealed interface ResultSetParser<Out> {
   Out apply(ResultSet resultSet) throws SQLException;
+
+  default <Out2> ResultSetParser<Out2> map(Function<Out, Out2> f) {
+    return new Mapped<>(this, f);
+  }
+
+  record Mapped<In, Out>(ResultSetParser<In> inner, Function<In, Out> f)
+      implements ResultSetParser<Out> {
+    @Override
+    public Out apply(ResultSet resultSet) throws SQLException {
+      return f.apply(inner.apply(resultSet));
+    }
+  }
 
   record All<Out>(RowParser<Out> rowParser) implements ResultSetParser<List<Out>> {
     @Override

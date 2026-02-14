@@ -33,8 +33,8 @@ object Procedure {
   def buildMultiOut[O](name: String, params: java.util.List[dev.typr.foundations.ParamDef], assembler: java.util.function.Function[Array[AnyRef], O]): dev.typr.foundations.Procedure[O] =
     dev.typr.foundations.Procedure.buildMultiOut(name, params, assembler)
 
-  def buildFunction[R](name: String, inParams: java.util.List[dev.typr.foundations.ParamDef], returnType: dev.typr.foundations.DbType[R]): dev.typr.foundations.Procedure[R] =
-    dev.typr.foundations.Procedure.buildFunction(name, inParams, returnType)
+  def buildFunction[R](name: String, inParams: java.util.List[dev.typr.foundations.ParamDef], returnType: DbType[R]): dev.typr.foundations.Procedure[R] =
+    dev.typr.foundations.Procedure.buildFunction(name, inParams, returnType.underlying)
 }
 
 /** Operation returned by Procedure.call() — wraps a Java Operation with result conversion. */
@@ -44,13 +44,13 @@ class ProcedureOp[Out] private[scalafoundations] (
 ) {
 
   @throws[SQLException]
-  def run(conn: Connection): Out = mapResult(javaOp.run(conn))
+  def runChecked(conn: Connection): Out = mapResult(javaOp.runChecked(conn))
 
-  def runUnchecked(conn: Connection): Out =
-    try run(conn)
+  def run(conn: Connection): Out =
+    try runChecked(conn)
     catch { case e: SQLException => throw new RuntimeException(e) }
 
   @throws[SQLException]
-  def transact(transactor: dev.typr.foundations.Transactor): Out =
-    mapResult(javaOp.transact(transactor))
+  def transact(transactor: Transactor): Out =
+    mapResult(javaOp.transact(transactor.underlying))
 }

@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.Uint1;
@@ -165,8 +164,6 @@ public interface DuckDbTypes {
           DuckDbWrite.writeBoolean,
           DuckDbStringifier.bool,
           DuckDbJson.bool);
-
-  DuckDbType<Boolean> bool = boolean_.renamed("BOOL");
 
   // ==================== String Types ====================
 

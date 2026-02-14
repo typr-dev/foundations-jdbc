@@ -22,10 +22,10 @@ class ProductRowParser {
         .field(productIdType, Product::id)
         .field(PgTypes.text, Product::name)
         .field(PgTypes.numeric, Product::price)
-        .field(PgTypes.textArray.nullable, Product::tags)
-        .field(dimensionsType!!.nullable, Product::dimensions)
-        .field(PgTypes.jsonb.nullable, Product::metadata)
-        .field(PgTypes.timestamptz.nullable, Product::createdAt)
+        .field(PgTypes.textArray.opt(), Product::tags)
+        .field(dimensionsType!!.opt(), Product::dimensions)
+        .field(PgTypes.jsonb.opt(), Product::metadata)
+        .field(PgTypes.timestamptz.opt(), Product::createdAt)
         .build(::Product)
 
     // Compose parsers for joins

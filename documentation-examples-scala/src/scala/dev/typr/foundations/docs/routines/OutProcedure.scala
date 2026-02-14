@@ -5,7 +5,7 @@ import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object OutProcedure:
-  private val tx: dev.typr.foundations.Transactor = null // placeholder
+  private val tx: Transactor = null // placeholder
 
   //start
   // OUT parameters — the builder tracks output types statically

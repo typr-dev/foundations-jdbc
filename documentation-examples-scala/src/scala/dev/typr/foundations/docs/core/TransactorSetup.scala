@@ -23,7 +23,7 @@ object TransactorSetup:
   // You choose the strategy - it handles the lifecycle
   @throws[SQLException]
   def query(): List[ProductRow] =
-    val tx: Transactor = connectionSource.transactor(Transactor.defaultStrategy())
+    val tx = connectionSource.transactor(Transactor.defaultStrategy())
 
     // Everything inside runs in one transaction: begin, commit, close
     sql"SELECT * FROM product WHERE price > ${Fragment.encode(PgTypes.numeric, minPrice)}"

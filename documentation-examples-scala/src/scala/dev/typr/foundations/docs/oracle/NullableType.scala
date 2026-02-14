@@ -6,5 +6,5 @@ import dev.typr.scalafoundations.data.*
 object NullableType:
   //start
   val notNull: OracleType[Int] = OracleTypes.numberInt
-  val nullable: OracleType[Option[Int]] = OracleTypes.numberInt.nullable
+  val nullable: OracleType[Option[Int]] = OracleTypes.numberInt.opt
   //stop

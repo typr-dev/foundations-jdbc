@@ -4,8 +4,8 @@ import dev.typr.foundations.Fragment;
 import dev.typr.foundations.Operation;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowParser;
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
+import dev.typr.foundations.QueryAnalysis;
+import dev.typr.foundations.QueryAnalyzer;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,16 +35,16 @@ public class QueryAnalysisTestSuite {
         try (var conn = testDataSource.getConnection()) {
             // Collect all queries to check
             List<Operation.Query<?>> queries = List.of(
-                Fragment.interpolate("SELECT id, name, email FROM users WHERE id = ")
-                    .param(PgTypes.int4, 1).done().query(userParser.all()),
-                Fragment.interpolate("SELECT id, name FROM products WHERE name LIKE ")
-                    .param(PgTypes.text, "%widget%").done().query(productParser.all())
+                Fragment.of("SELECT id, name, email FROM users WHERE id = ")
+                    .value(PgTypes.int4, 1).query(userParser.all()),
+                Fragment.of("SELECT id, name FROM products WHERE name LIKE ")
+                    .value(PgTypes.text, "%widget%").query(productParser.all())
             );
 
             // Analyze each one
             List<String> failures = new ArrayList<>();
             for (var query : queries) {
-                QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
+                QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
                 if (!analysis.succeeded()) {
                     failures.add(analysis.report());
                 }

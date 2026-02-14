@@ -1,6 +1,6 @@
 package dev.typr.scalafoundations
 
-import dev.typr.foundations.{MariaType, MariaTypes => JavaMariaTypes}
+import dev.typr.foundations.{MariaTypes => JavaMariaTypes}
 
 /** Scala-friendly MariaType instances that use Scala types instead of Java boxed types.
   * All types from dev.typr.foundations.MariaTypes are available here, with primitives and BigDecimal converted to Scala types.
@@ -9,89 +9,89 @@ import dev.typr.foundations.{MariaType, MariaTypes => JavaMariaTypes}
   */
 class MariaTypes {
   // Primitives - convert Java boxed types to Scala native types
-  val tinyint: MariaType[Byte] = JavaMariaTypes.tinyint.bimap(b => b, b => b)
-  val smallint: MariaType[Short] = JavaMariaTypes.smallint.bimap(s => s, s => s)
-  val mediumint: MariaType[Int] = JavaMariaTypes.mediumint.bimap(i => i, i => i)
-  val int_ : MariaType[Int] = JavaMariaTypes.int_.bimap(i => i, i => i)
-  val bigint: MariaType[Long] = JavaMariaTypes.bigint.bimap(l => l, l => l)
+  val tinyint: MariaType[Byte] = MariaType(JavaMariaTypes.tinyint.bimap(b => b, b => b))
+  val smallint: MariaType[Short] = MariaType(JavaMariaTypes.smallint.bimap(s => s, s => s))
+  val mediumint: MariaType[Int] = MariaType(JavaMariaTypes.mediumint.bimap(i => i, i => i))
+  val int_ : MariaType[Int] = MariaType(JavaMariaTypes.int_.bimap(i => i, i => i))
+  val bigint: MariaType[Long] = MariaType(JavaMariaTypes.bigint.bimap(l => l, l => l))
 
   // Floating point
-  val float_ : MariaType[Float] = JavaMariaTypes.float_.bimap(f => f, f => f)
-  val double_ : MariaType[Double] = JavaMariaTypes.double_.bimap(d => d, d => d)
+  val float_ : MariaType[Float] = MariaType(JavaMariaTypes.float_.bimap(f => f, f => f))
+  val double_ : MariaType[Double] = MariaType(JavaMariaTypes.double_.bimap(d => d, d => d))
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
-  val decimal: MariaType[BigDecimal] = JavaMariaTypes.decimal.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal)
-  val numeric: MariaType[BigDecimal] = JavaMariaTypes.numeric.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal)
+  val decimal: MariaType[BigDecimal] = MariaType(JavaMariaTypes.decimal.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val numeric: MariaType[BigDecimal] = MariaType(JavaMariaTypes.numeric.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Boolean
-  val bool: MariaType[Boolean] = JavaMariaTypes.bool.bimap(b => b, b => b)
-  val bit1: MariaType[Boolean] = JavaMariaTypes.bit1.bimap(b => b, b => b)
+  val bool: MariaType[Boolean] = MariaType(JavaMariaTypes.bool.bimap(b => b, b => b))
+  val bit1: MariaType[Boolean] = MariaType(JavaMariaTypes.bit1.bimap(b => b, b => b))
 
   // Forward all other types directly from Java
-  val tinyintUnsigned = JavaMariaTypes.tinyintUnsigned
-  val smallintUnsigned = JavaMariaTypes.smallintUnsigned
-  val mediumintUnsigned = JavaMariaTypes.mediumintUnsigned
-  val intUnsigned = JavaMariaTypes.intUnsigned
-  val bigintUnsigned = JavaMariaTypes.bigintUnsigned
-  val bit = JavaMariaTypes.bit
-  val char_ = JavaMariaTypes.char_
-  val varchar = JavaMariaTypes.varchar
-  val tinytext = JavaMariaTypes.tinytext
-  val text = JavaMariaTypes.text
-  val mediumtext = JavaMariaTypes.mediumtext
-  val longtext = JavaMariaTypes.longtext
-  val binary = JavaMariaTypes.binary
-  val varbinary = JavaMariaTypes.varbinary
-  val tinyblob = JavaMariaTypes.tinyblob
-  val blob = JavaMariaTypes.blob
-  val mediumblob = JavaMariaTypes.mediumblob
-  val longblob = JavaMariaTypes.longblob
-  val date = JavaMariaTypes.date
-  val time = JavaMariaTypes.time
-  val datetime = JavaMariaTypes.datetime
-  val timestamp = JavaMariaTypes.timestamp
-  val year = JavaMariaTypes.year
-  val set = JavaMariaTypes.set
-  val json = JavaMariaTypes.json
-  val inet4 = JavaMariaTypes.inet4
-  val inet6 = JavaMariaTypes.inet6
-  val geometry = JavaMariaTypes.geometry
-  val point = JavaMariaTypes.point
-  val linestring = JavaMariaTypes.linestring
-  val polygon = JavaMariaTypes.polygon
-  val multipoint = JavaMariaTypes.multipoint
-  val multilinestring = JavaMariaTypes.multilinestring
-  val multipolygon = JavaMariaTypes.multipolygon
-  val geometrycollection = JavaMariaTypes.geometrycollection
-  val unknown = JavaMariaTypes.unknown
+  val tinyintUnsigned = MariaType(JavaMariaTypes.tinyintUnsigned)
+  val smallintUnsigned = MariaType(JavaMariaTypes.smallintUnsigned)
+  val mediumintUnsigned = MariaType(JavaMariaTypes.mediumintUnsigned)
+  val intUnsigned = MariaType(JavaMariaTypes.intUnsigned)
+  val bigintUnsigned = MariaType(JavaMariaTypes.bigintUnsigned)
+  val bit = MariaType(JavaMariaTypes.bit)
+  val char_ = MariaType(JavaMariaTypes.char_)
+  val varchar = MariaType(JavaMariaTypes.varchar)
+  val tinytext = MariaType(JavaMariaTypes.tinytext)
+  val text = MariaType(JavaMariaTypes.text)
+  val mediumtext = MariaType(JavaMariaTypes.mediumtext)
+  val longtext = MariaType(JavaMariaTypes.longtext)
+  val binary = MariaType(JavaMariaTypes.binary)
+  val varbinary = MariaType(JavaMariaTypes.varbinary)
+  val tinyblob = MariaType(JavaMariaTypes.tinyblob)
+  val blob = MariaType(JavaMariaTypes.blob)
+  val mediumblob = MariaType(JavaMariaTypes.mediumblob)
+  val longblob = MariaType(JavaMariaTypes.longblob)
+  val date = MariaType(JavaMariaTypes.date)
+  val time = MariaType(JavaMariaTypes.time)
+  val datetime = MariaType(JavaMariaTypes.datetime)
+  val timestamp = MariaType(JavaMariaTypes.timestamp)
+  val year = MariaType(JavaMariaTypes.year)
+  val set = MariaType(JavaMariaTypes.set)
+  val json = MariaType(JavaMariaTypes.json)
+  val inet4 = MariaType(JavaMariaTypes.inet4)
+  val inet6 = MariaType(JavaMariaTypes.inet6)
+  val geometry = MariaType(JavaMariaTypes.geometry)
+  val point = MariaType(JavaMariaTypes.point)
+  val linestring = MariaType(JavaMariaTypes.linestring)
+  val polygon = MariaType(JavaMariaTypes.polygon)
+  val multipoint = MariaType(JavaMariaTypes.multipoint)
+  val multilinestring = MariaType(JavaMariaTypes.multilinestring)
+  val multipolygon = MariaType(JavaMariaTypes.multipolygon)
+  val geometrycollection = MariaType(JavaMariaTypes.geometrycollection)
+  val unknown = MariaType(JavaMariaTypes.unknown)
 
   // Forward static methods with Scala type conversion
   def decimal(precision: Int, scale: Int): MariaType[BigDecimal] =
-    JavaMariaTypes.decimal(precision, scale).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal)
+    MariaType(JavaMariaTypes.decimal(precision, scale).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def char_(length: Int): MariaType[String] =
-    JavaMariaTypes.char_(length)
+    MariaType(JavaMariaTypes.char_(length))
 
   def varchar(length: Int): MariaType[String] =
-    JavaMariaTypes.varchar(length)
+    MariaType(JavaMariaTypes.varchar(length))
 
   def binary(length: Int): MariaType[Array[Byte]] =
-    JavaMariaTypes.binary(length)
+    MariaType(JavaMariaTypes.binary(length))
 
   def varbinary(length: Int): MariaType[Array[Byte]] =
-    JavaMariaTypes.varbinary(length)
+    MariaType(JavaMariaTypes.varbinary(length))
 
   def time(fsp: Int): MariaType[java.time.LocalTime] =
-    JavaMariaTypes.time(fsp)
+    MariaType(JavaMariaTypes.time(fsp))
 
   def datetime(fsp: Int): MariaType[java.time.LocalDateTime] =
-    JavaMariaTypes.datetime(fsp)
+    MariaType(JavaMariaTypes.datetime(fsp))
 
   def timestamp(fsp: Int): MariaType[java.time.LocalDateTime] =
-    JavaMariaTypes.timestamp(fsp)
+    MariaType(JavaMariaTypes.timestamp(fsp))
 
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): MariaType[E] =
-    JavaMariaTypes.ofEnum(sqlType, fromString)
+    MariaType(JavaMariaTypes.ofEnum(sqlType, fromString))
 }
 
 object MariaTypes extends MariaTypes

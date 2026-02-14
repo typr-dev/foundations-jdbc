@@ -21,6 +21,6 @@ object ComposingParsers:
     .build(CategoryRow.apply)
 
   // leftJoined() returns Option right side automatically
-  val joined: RowParser[And[ProductRow, Option[CategoryRow]]] =
+  val joined: RowParser[(ProductRow, Option[CategoryRow])] =
     productRowParser.leftJoined(categoryRowParser)
   //stop

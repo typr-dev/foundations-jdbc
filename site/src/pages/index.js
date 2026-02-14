@@ -109,12 +109,12 @@ CREATE TABLE product (
 );`;
 
 
-const quickstartKotlin = `import dev.typr.foundations.*
-import dev.typr.foundations.connect.duckdb.*
+const quickstartKotlin = `import dev.typr.kotlinfoundations.*
+import dev.typr.kotlinfoundations.connect.*
 
 fun main() {
-    val tx = DuckDbConfig.builder(":memory:").build().transactor()
-    val answer: Int = Fragment.lit("SELECT 42")
+    val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
+    val answer: Int = Fragment.of("SELECT 42")
         .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
         .transact(tx)
     println("Result: $answer")
@@ -164,7 +164,7 @@ function QuickstartSection() {
               <TabItem value="gradle" label="Gradle">
                 <CodeBlock language="kotlin" title="build.gradle.kts">
                   {`dependencies {
-    implementation("dev.typr:foundations-jdbc:0.1.0-SNAPSHOT")
+    implementation("dev.typr:foundations-jdbc-kotlin:1.0.0-M1")
     // Add your driver
     runtimeOnly("org.duckdb:duckdb_jdbc:1.1.3")
 }`}
@@ -174,8 +174,8 @@ function QuickstartSection() {
                 <CodeBlock language="xml" title="pom.xml">
                   {`<dependency>
   <groupId>dev.typr</groupId>
-  <artifactId>foundations-jdbc</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <artifactId>foundations-jdbc-kotlin</artifactId>
+  <version>1.0.0-M1</version>
 </dependency>
 <dependency>
   <groupId>org.duckdb</groupId>

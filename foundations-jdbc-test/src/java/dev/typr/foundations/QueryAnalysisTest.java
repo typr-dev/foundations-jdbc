@@ -1,9 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.AlignmentError;
-import dev.typr.foundations.analysis.AnalysisOptions;
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
 import dev.typr.foundations.data.Uint1;
 import dev.typr.foundations.data.Uint2;
 import dev.typr.foundations.data.Uint4;
@@ -72,10 +68,10 @@ public class QueryAnalysisTest {
 
       RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer);
 
-      Fragment fragment = Fragment.lit("SELECT id FROM users");
+      Fragment fragment = Fragment.of("SELECT id FROM users");
       Operation.Query<List<Integer>> query = fragment.query(parser.all());
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -94,13 +90,12 @@ public class QueryAnalysisTest {
 
       RowParser<String> parser = RowParser.of(DuckDbTypes.varchar);
 
-      Fragment fragment = Fragment.interpolate("SELECT name FROM products WHERE id = ")
-          .param(DuckDbTypes.integer, 42)
-          .done();
+      Fragment fragment = Fragment.of("SELECT name FROM products WHERE id = ")
+          .value(DuckDbTypes.integer, 42);
 
       Operation.Query<List<String>> query = fragment.query(parser.all());
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -118,10 +113,10 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.varchar, IntStr::s)
           .build(IntStr::new);
 
-      Fragment fragment = Fragment.lit("SELECT id FROM simple");
+      Fragment fragment = Fragment.of("SELECT id FROM simple");
       Operation.Query<List<IntStr>> query = fragment.query(parser.all());
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -148,10 +143,10 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.varchar, IntStr::s)
           .build(IntStr::new);
 
-      Fragment fragment = Fragment.lit("SELECT id, name, active FROM multi");
+      Fragment fragment = Fragment.of("SELECT id, name, active FROM multi");
       Operation.Query<List<IntStr>> query = fragment.query(parser.all());
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -179,10 +174,10 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.varchar, IntStr::s)
           .build(IntStr::new);
 
-      Fragment fragment = Fragment.lit("SELECT id, name FROM nullable_test");
+      Fragment fragment = Fragment.of("SELECT id, name FROM nullable_test");
       Operation.Query<List<IntStr>> query = fragment.query(parser.all());
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -205,10 +200,10 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.varchar.opt(), IntOptStr::s)
           .build(IntOptStr::new);
 
-      Fragment fragment = Fragment.lit("SELECT id, name FROM nullable_correct");
+      Fragment fragment = Fragment.of("SELECT id, name FROM nullable_correct");
       Operation.Query<List<IntOptStr>> query = fragment.query(parser.all());
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -232,10 +227,10 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.integer, IntInt::i2)
           .build(IntInt::new);
 
-      Fragment fragment = Fragment.lit("SELECT id, ts FROM typed");
+      Fragment fragment = Fragment.of("SELECT id, ts FROM typed");
       Operation.Query<List<IntInt>> query = fragment.query(parser.all());
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -267,10 +262,10 @@ public class QueryAnalysisTest {
           // missing d column
           .build(IntIntDouble::new);
 
-      Fragment fragment = Fragment.lit("SELECT a, b, c, d FROM report_test");
+      Fragment fragment = Fragment.of("SELECT a, b, c, d FROM report_test");
       Operation.Query<List<IntIntDouble>> query = fragment.query(parser.all());
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
       String report = analysis.report();
       System.out.println(report);
@@ -286,21 +281,19 @@ public class QueryAnalysisTest {
 
   @Test
   public void testFragmentParameterTypes() {
-    Fragment simple = Fragment.lit("SELECT 1");
+    Fragment simple = Fragment.of("SELECT 1");
     assertEquals("Literal fragment should have no parameters", 0, simple.parameterTypes().size());
 
-    Fragment withParam = Fragment.interpolate("SELECT * FROM t WHERE id = ")
-        .param(DuckDbTypes.integer, 42)
-        .done();
+    Fragment withParam = Fragment.of("SELECT * FROM t WHERE id = ")
+        .value(DuckDbTypes.integer, 42);
     assertEquals("Fragment with one param should have 1 parameter type", 1, withParam.parameterTypes().size());
 
-    Fragment multiParam = Fragment.interpolate("SELECT * FROM t WHERE a = ")
-        .param(DuckDbTypes.integer, 1)
-        .sql(" AND b = ")
-        .param(DuckDbTypes.varchar, "test")
-        .sql(" AND c = ")
-        .param(DuckDbTypes.boolean_, true)
-        .done();
+    Fragment multiParam = Fragment.of("SELECT * FROM t WHERE a = ")
+        .value(DuckDbTypes.integer, 1)
+        .append(" AND b = ")
+        .value(DuckDbTypes.varchar, "test")
+        .append(" AND c = ")
+        .value(DuckDbTypes.boolean_, true);
     assertEquals("Fragment with three params should have 3 parameter types", 3, multiParam.parameterTypes().size());
 
     List<DbType<?>> types = multiParam.parameterTypes();
@@ -323,15 +316,14 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE update_test (id INTEGER, name VARCHAR)");
 
-      Fragment fragment = Fragment.interpolate("UPDATE update_test SET name = ")
-          .param(DuckDbTypes.varchar, "new_name")
-          .sql(" WHERE id = ")
-          .param(DuckDbTypes.integer, 1)
-          .done();
+      Fragment fragment = Fragment.of("UPDATE update_test SET name = ")
+          .value(DuckDbTypes.varchar, "new_name")
+          .append(" WHERE id = ")
+          .value(DuckDbTypes.integer, 1);
 
       Operation.Update update = fragment.update();
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(update, conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(update, conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -366,8 +358,8 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.hugeint, IntTypes::h)
           .build(IntTypes::new);
 
-      Fragment fragment = Fragment.lit("SELECT tiny, small, med, big, huge FROM int_types");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT tiny, small, med, big, huge FROM int_types");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
       assertTrue("Integer types should match", analysis.succeeded());
@@ -397,8 +389,8 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.uhugeint, UIntTypes::h)
           .build(UIntTypes::new);
 
-      Fragment fragment = Fragment.lit("SELECT utiny, usmall, umed, ubig, uhuge FROM uint_types");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT utiny, usmall, umed, ubig, uhuge FROM uint_types");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -423,8 +415,8 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.decimal, FloatTypes::dec)
           .build(FloatTypes::new);
 
-      Fragment fragment = Fragment.lit("SELECT f, d, dec FROM float_types");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT f, d, dec FROM float_types");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
       assertTrue("Floating point types should match", analysis.succeeded());
@@ -450,8 +442,8 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.char_, StrStrStr::c)
           .build(StrStrStr::new);
 
-      Fragment fragment = Fragment.lit("SELECT v, t, c FROM string_types");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT v, t, c FROM string_types");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
       assertTrue("String types should match", analysis.succeeded());
@@ -467,8 +459,8 @@ public class QueryAnalysisTest {
 
       RowParser<Boolean> parser = RowParser.of(DuckDbTypes.boolean_);
 
-      Fragment fragment = Fragment.lit("SELECT b FROM bool_types");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT b FROM bool_types");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
       assertTrue("Boolean type should match", analysis.succeeded());
@@ -496,8 +488,8 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.timestamptz, DateTimeTypes::tstz)
           .build(DateTimeTypes::new);
 
-      Fragment fragment = Fragment.lit("SELECT d, t, ts, tstz FROM datetime_types");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT d, t, ts, tstz FROM datetime_types");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -512,8 +504,8 @@ public class QueryAnalysisTest {
 
       RowParser<UUID> parser = RowParser.of(DuckDbTypes.uuid);
 
-      Fragment fragment = Fragment.lit("SELECT u FROM uuid_types");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT u FROM uuid_types");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -528,8 +520,8 @@ public class QueryAnalysisTest {
 
       RowParser<byte[]> parser = RowParser.of(DuckDbTypes.blob);
 
-      Fragment fragment = Fragment.lit("SELECT b FROM blob_types");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT b FROM blob_types");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -552,8 +544,8 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.varcharArray, ArrayTypes::strs)
           .build(ArrayTypes::new);
 
-      Fragment fragment = Fragment.lit("SELECT int_arr, str_arr FROM array_types");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT int_arr, str_arr FROM array_types");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -568,8 +560,8 @@ public class QueryAnalysisTest {
 
       RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer);
 
-      Fragment fragment = Fragment.lit("SELECT name FROM mismatch1");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT name FROM mismatch1");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -588,8 +580,8 @@ public class QueryAnalysisTest {
 
       RowParser<String> parser = RowParser.of(DuckDbTypes.varchar);
 
-      Fragment fragment = Fragment.lit("SELECT flag FROM mismatch2");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT flag FROM mismatch2");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -606,8 +598,8 @@ public class QueryAnalysisTest {
 
       RowParser<LocalDateTime> parser = RowParser.of(DuckDbTypes.timestamp);
 
-      Fragment fragment = Fragment.lit("SELECT d FROM mismatch3");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT d FROM mismatch3");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -620,13 +612,12 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE multi_param (id INTEGER, name VARCHAR, active BOOLEAN)");
 
-      Fragment fragment = Fragment.interpolate("SELECT * FROM multi_param WHERE id = ")
-          .param(DuckDbTypes.integer, 1)
-          .sql(" AND name = ")
-          .param(DuckDbTypes.varchar, "test")
-          .sql(" AND active = ")
-          .param(DuckDbTypes.boolean_, true)
-          .done();
+      Fragment fragment = Fragment.of("SELECT * FROM multi_param WHERE id = ")
+          .value(DuckDbTypes.integer, 1)
+          .append(" AND name = ")
+          .value(DuckDbTypes.varchar, "test")
+          .append(" AND active = ")
+          .value(DuckDbTypes.boolean_, true);
 
       RowParser<IntStrBool> parser = RowParser.<IntStrBool>builder()
           .field(DuckDbTypes.integer, IntStrBool::i)
@@ -634,7 +625,7 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.boolean_, IntStrBool::b)
           .build(IntStrBool::new);
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -652,7 +643,7 @@ public class QueryAnalysisTest {
           CREATE TABLE orders (id INTEGER, user_id INTEGER, total DECIMAL(10, 2));
           """);
 
-      Fragment fragment = Fragment.lit("""
+      Fragment fragment = Fragment.of("""
           SELECT u.id, u.name, o.total
           FROM users u
           JOIN orders o ON u.id = o.user_id
@@ -665,7 +656,7 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.decimal, JoinRow::total)
           .build(JoinRow::new);
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -680,7 +671,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE sales (amount DECIMAL(10, 2))");
 
-      Fragment fragment = Fragment.lit("SELECT SUM(amount), AVG(amount), COUNT(*) FROM sales");
+      Fragment fragment = Fragment.of("SELECT SUM(amount), AVG(amount), COUNT(*) FROM sales");
 
       RowParser<DecDoubleInt> parser = RowParser.<DecDoubleInt>builder()
           .field(DuckDbTypes.decimal, DecDoubleInt::sum)
@@ -688,7 +679,7 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.bigint, DecDoubleInt::cnt)
           .build(DecDoubleInt::new);
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -701,11 +692,11 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE items (price INTEGER)");
 
-      Fragment fragment = Fragment.lit("SELECT CAST(price AS DOUBLE) FROM items");
+      Fragment fragment = Fragment.of("SELECT CAST(price AS DOUBLE) FROM items");
 
       RowParser<Double> parser = RowParser.of(DuckDbTypes.double_);
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -722,8 +713,8 @@ public class QueryAnalysisTest {
 
       RowParser<dev.typr.foundations.data.Json> parser = RowParser.of(DuckDbTypes.json);
 
-      Fragment fragment = Fragment.lit("SELECT data FROM json_test");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT data FROM json_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -738,8 +729,8 @@ public class QueryAnalysisTest {
 
       RowParser<Duration> parser = RowParser.of(DuckDbTypes.interval);
 
-      Fragment fragment = Fragment.lit("SELECT dur FROM interval_test");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT dur FROM interval_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -758,8 +749,8 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.integer, IntInt::i2)  // Wrong type
           .build(IntInt::new);
 
-      Fragment fragment = Fragment.lit("SELECT id, name FROM color_test");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT id, name FROM color_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       // Get both versions
       String plain = analysis.report();
@@ -810,13 +801,13 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.decimal.opt(), JoinRow::total)
           .build(JoinRow::new);
 
-      Fragment fragment = Fragment.lit("""
+      Fragment fragment = Fragment.of("""
           SELECT u.id, u.name, o.total
           FROM lj_users u
           LEFT JOIN lj_orders o ON u.id = o.user_id
           """);
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
       assertTrue("LEFT JOIN with opt() should succeed", analysis.succeeded());
@@ -840,13 +831,13 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.decimal, JoinRow::total)
           .build(JoinRow::new);
 
-      Fragment fragment = Fragment.lit("""
+      Fragment fragment = Fragment.of("""
           SELECT u.id, u.name, o.total
           FROM ljm_users u
           LEFT JOIN ljm_orders o ON u.id = o.user_id
           """);
 
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -865,8 +856,8 @@ public class QueryAnalysisTest {
 
       RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer.unchecked());
 
-      Fragment fragment = Fragment.lit("SELECT name FROM uc_test");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT name FROM uc_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -893,8 +884,8 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.varchar.nullableOk(), Row::name)
           .build(Row::new);
 
-      Fragment fragment = Fragment.lit("SELECT id, name FROM nok_test");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT id, name FROM nok_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -922,8 +913,8 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.varchar, IntStr::s)
           .build(IntStr::new);
 
-      Fragment fragment = Fragment.lit("SELECT id, name FROM nq_test");
-      QueryAnalysis analysis = QueryAnalyzer.analyze("findUsers", fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT id, name FROM nq_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze("findUsers", fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -942,8 +933,8 @@ public class QueryAnalysisTest {
 
       RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer);
 
-      Fragment fragment = Fragment.lit("SELECT name FROM nqe_test");
-      QueryAnalysis analysis = QueryAnalyzer.analyze("getUserId", fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT name FROM nqe_test");
+      QueryAnalysis analysis = QueryAnalyzer.analyze("getUserId", fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -972,8 +963,8 @@ public class QueryAnalysisTest {
           .field(DuckDbTypes.varchar, IntStr::s)
           .build(IntStr::new);
 
-      Fragment fragment = Fragment.lit("SELECT id, name FROM va_users_view");
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT id, name FROM va_users_view");
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
       System.out.println(analysis.report());
 

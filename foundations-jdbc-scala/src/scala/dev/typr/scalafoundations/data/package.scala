@@ -72,6 +72,9 @@ package object data:
   type Vector = dev.typr.foundations.data.Vector
   type Xid = dev.typr.foundations.data.Xid
   type Xml = dev.typr.foundations.data.Xml
+  type NonEmptyBlob = dev.typr.foundations.data.NonEmptyBlob
+  type NonEmptyString = dev.typr.foundations.data.NonEmptyString
+  type PaddedString = dev.typr.foundations.data.PaddedString
 
   // MariaDB data types
   type Inet4 = dev.typr.foundations.data.maria.Inet4

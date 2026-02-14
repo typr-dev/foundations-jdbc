@@ -28,8 +28,8 @@ class Procedure<Out> internal constructor(
         fun buildVoid(name: String, params: List<dev.typr.foundations.ParamDef>): Procedure<Unit> =
             fromVoid(dev.typr.foundations.Procedure.buildVoid(name, params))
 
-        fun <R> buildFunction(name: String, inParams: List<dev.typr.foundations.ParamDef>, returnType: dev.typr.foundations.DbType<R>): Procedure<R> =
-            fromJava(dev.typr.foundations.Procedure.buildFunction(name, inParams, returnType))
+        fun <R> buildFunction(name: String, inParams: List<dev.typr.foundations.ParamDef>, returnType: DbType<R>): Procedure<R> =
+            fromJava(dev.typr.foundations.Procedure.buildFunction(name, inParams, returnType.underlying))
 
         fun <O> buildSingleOut(name: String, params: List<dev.typr.foundations.ParamDef>): Procedure<O> =
             fromJava(dev.typr.foundations.Procedure.buildSingleOut(name, params))
@@ -46,12 +46,12 @@ class ProcedureOp<Out> internal constructor(
 ) {
 
     @Throws(SQLException::class)
-    fun run(conn: Connection): Out = mapResult(javaOp.run(conn))
+    fun runChecked(conn: Connection): Out = mapResult(javaOp.runChecked(conn))
 
-    fun runUnchecked(conn: Connection): Out =
-        try { run(conn) } catch (e: SQLException) { throw RuntimeException(e) }
+    fun run(conn: Connection): Out =
+        try { runChecked(conn) } catch (e: SQLException) { throw RuntimeException(e) }
 
     @Throws(SQLException::class)
-    fun transact(transactor: dev.typr.foundations.Transactor): Out =
-        mapResult(javaOp.transact(transactor))
+    fun transact(transactor: Transactor): Out =
+        mapResult(javaOp.transact(transactor.underlying))
 }

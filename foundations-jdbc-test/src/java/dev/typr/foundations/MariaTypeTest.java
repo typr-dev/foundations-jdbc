@@ -20,8 +20,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
 import org.junit.Test;
 
 /** Tests for MariaDB type codecs. Tests all types defined in MariaTypes. */
@@ -460,8 +458,8 @@ public class MariaTypeTest {
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
     try {
       RowParser<A> parser = RowParser.of(t.type);
-      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException(
             "Query analysis failed for " + sqlType + ":\n" + analysis.report());
@@ -480,10 +478,9 @@ public class MariaTypeTest {
     try {
       RowParser<A> parser = RowParser.of(t.type);
       Fragment fragment =
-          Fragment.interpolate("SELECT v FROM " + tableName + " WHERE v = ")
-              .param(t.type, t.example)
-              .done();
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+          Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
+              .value(t.type, t.example);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException(
             "Param analysis failed for " + sqlType + ":\n" + analysis.report());
@@ -651,7 +648,7 @@ public class MariaTypeTest {
                 + ") BEGIN SET p_out = p_in; END");
 
     try {
-      A result = proc.call(t.example).run(conn);
+      A result = proc.call(t.example).runChecked(conn);
 
       System.out.println(
           "Callable roundtrip "

@@ -5,7 +5,7 @@ import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object FunctionExample:
-  private val tx: dev.typr.foundations.Transactor = null // placeholder
+  private val tx: Transactor = null // placeholder
 
   //start
   // Functions use SELECT instead of CALL — every DbType reads correctly

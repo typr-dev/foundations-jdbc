@@ -3,8 +3,8 @@ package dev.typr.foundations.docs.analysis;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowParser;
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
+import dev.typr.foundations.QueryAnalysis;
+import dev.typr.foundations.QueryAnalyzer;
 import java.sql.Connection;
 import java.sql.SQLException;
 

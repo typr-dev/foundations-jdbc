@@ -21,6 +21,14 @@ A `Transactor` manages database connections and transactions. It provides a clea
 | `Transactor.rollbackOnErrorStrategy()` | begin, commit on success, rollback on error, close |
 | `Transactor.testStrategy()` | begin, rollback, close (for tests) |
 
+## Multi-Operation Transactions
+
+Compose multiple operations with `.with()` to run them in a single transaction:
+
+<Snippet file="core/ComposingWith" />
+
+See [Composing Operations](./composing-operations) for the full set of combinators.
+
 ## Custom Strategies
 
 Define your own with explicit hooks:

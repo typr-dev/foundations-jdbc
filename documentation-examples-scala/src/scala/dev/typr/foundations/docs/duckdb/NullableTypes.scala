@@ -8,5 +8,5 @@ import dev.typr.scalafoundations.data.*
 object NullableTypes:
   //start
   val notNull: DuckDbType[Int] = DuckDbTypes.integer
-  val nullable: DbType[Option[Int]] = DuckDbTypes.integer.nullable
+  val nullable: DuckDbType[Option[Int]] = DuckDbTypes.integer.opt
   //stop

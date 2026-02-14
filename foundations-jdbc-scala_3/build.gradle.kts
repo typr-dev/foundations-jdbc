@@ -14,7 +14,7 @@ java {
 sourceSets {
     main {
         scala {
-            setSrcDirs(listOf("../foundations-jdbc-scala/src/scala"))
+            setSrcDirs(listOf("../foundations-jdbc-scala/src/scala", "../foundations-jdbc-scala/generated-and-checked-in"))
         }
     }
 }

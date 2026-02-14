@@ -16,20 +16,21 @@ class FragmentBuilding {
         .field(PgTypes.timestamptz, User::createdAt)
         .build(::User)
 
-    val connection: Connection? = null // placeholder
+    lateinit var connection: Connection
     val userId: Int = 1
     val cutoffDate: Instant = Instant.now()
 
     //start
-    val query: Fragment = Fragment.interpolate("SELECT * FROM users WHERE id = ")
-        .param(PgTypes.int4, userId)
-        .sql(" AND status = ")
-        .param(PgTypes.text, "active")
-        .sql(" AND created_at > ")
-        .param(PgTypes.timestamptz, cutoffDate)
-        .done()
+    val query: Fragment =
+        Fragment.of("SELECT * FROM users WHERE id = ")
+            .value(PgTypes.int4, userId)
+            .append(" AND status = ")
+            .value(PgTypes.text, "active")
+            .append(" AND created_at > ")
+            .value(PgTypes.timestamptz, cutoffDate)
 
     // Execute safely — parameters are bound, not interpolated
-    val users: List<User> = query.query(userParser.all()).runUnchecked(connection)
+    val users: List<User> =
+        query.query(userParser.all()).run(connection)
     //stop
 }

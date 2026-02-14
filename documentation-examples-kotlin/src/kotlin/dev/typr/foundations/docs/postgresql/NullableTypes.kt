@@ -7,6 +7,6 @@ import dev.typr.kotlinfoundations.data.*
 class NullableTypes {
     //start
     val notNull: PgType<Int> = PgTypes.int4
-    val nullable: DbType<Int?> = PgTypes.int4.nullable  // null values allowed
+    val nullable: PgType<Int?> = PgTypes.int4.opt()
     //stop
 }

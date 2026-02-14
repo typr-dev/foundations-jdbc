@@ -5,7 +5,7 @@ import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object InoutProcedure:
-  private val tx: dev.typr.foundations.Transactor = null // placeholder
+  private val tx: Transactor = null // placeholder
 
   //start
   // INOUT — the value goes in and comes back modified

@@ -4,13 +4,15 @@
 const sidebars = {
   jdbcSidebar: [
     {type: "doc", id: "readme", label: "Getting Started"},
-    {type: "doc", id: "row-types", label: "Row Types & Parsers"},
-    {type: "doc", id: "result-sets", label: "Result Sets"},
-    {type: "doc", id: "fragments", label: "Fragments"},
     {type: "doc", id: "transactors", label: "Transactors"},
-    {type: "doc", id: "stored-procedures", label: "Stored Procedures"},
+    {type: "doc", id: "result-parsers", label: "Result Parsers"},
+    {type: "doc", id: "named-row-parsers", label: "Named Row Parsers"},
     {type: "doc", id: "query-analysis", label: "Query Analysis"},
+    {type: "doc", id: "stored-procedures", label: "Stored Procedures"},
     {type: "doc", id: "streaming-inserts", label: "Streaming Inserts"},
+    {type: "doc", id: "sql-templates", label: "SQL Templates"},
+    {type: "doc", id: "composing-operations", label: "Composing Operations"},
+    {type: "doc", id: "production-patterns", label: "Production Patterns"},
     {
       type: "category",
       label: "Database Types",

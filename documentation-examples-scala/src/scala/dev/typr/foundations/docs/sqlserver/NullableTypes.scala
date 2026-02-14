@@ -6,5 +6,5 @@ import dev.typr.scalafoundations.data.*
 object NullableTypes:
   //start
   val notNull: SqlServerType[Int] = SqlServerTypes.int_
-  val nullable: SqlServerType[Option[Int]] = SqlServerTypes.int_.nullable
+  val nullable: SqlServerType[Option[Int]] = SqlServerTypes.int_.opt
   //stop

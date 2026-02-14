@@ -1,6 +1,6 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.connect.duckdb.DuckDbConfig;
+import dev.typr.foundations.connect.DuckDbConfig;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.JsonValue;
 import java.math.BigDecimal;
@@ -19,11 +19,11 @@ public class DbJsonRowTest {
   record OrderLine(String product, int qty, BigDecimal price) {}
 
   // Define once — used for both ResultSet reading and JSON parsing
-  static final RowParser<OrderLine> lineParser =
-      RowParser.<OrderLine>builder()
-          .field(DuckDbTypes.varchar, OrderLine::product)
-          .field(DuckDbTypes.integer, OrderLine::qty)
-          .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
+  static final RowParserNamed<OrderLine> lineParser =
+      RowParser.<OrderLine>namedBuilder()
+          .field("product", DuckDbTypes.varchar, OrderLine::product)
+          .field("qty", DuckDbTypes.integer, OrderLine::qty)
+          .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
           .build(OrderLine::new);
 
   static final DbJson<List<OrderLine>> linesCodec =
@@ -47,16 +47,15 @@ public class DbJsonRowTest {
 
     String json = linesCodec.toJson(original).encode();
 
-    Fragment.lit("CREATE TABLE orders (lines JSON)").update().transact(tx);
+    Fragment.of("CREATE TABLE orders (lines JSON)").update().transact(tx);
 
-    Fragment.interpolate("INSERT INTO orders (lines) VALUES (")
-        .param(DuckDbTypes.json, new Json(json))
-        .sql(")")
-        .done()
+    Fragment.of("INSERT INTO orders (lines) VALUES (")
+        .value(DuckDbTypes.json, new Json(json))
+        .append(")")
         .update()
         .transact(tx);
 
-    Json fromDb = Fragment.lit("SELECT lines FROM orders")
+    Json fromDb = Fragment.of("SELECT lines FROM orders")
         .query(RowParser.of(DuckDbTypes.json).exactlyOne())
         .transact(tx);
 
@@ -68,12 +67,12 @@ public class DbJsonRowTest {
   public void aggregateChildRowsAsJson() throws Exception {
     var tx = newDuckDbTransactor();
 
-    Fragment.lit("CREATE TABLE customers (id INTEGER, name VARCHAR)").update().transact(tx);
-    Fragment.lit("CREATE TABLE order_lines (customer_id INTEGER, product VARCHAR, qty INTEGER, price DECIMAL(10,2))")
+    Fragment.of("CREATE TABLE customers (id INTEGER, name VARCHAR)").update().transact(tx);
+    Fragment.of("CREATE TABLE order_lines (customer_id INTEGER, product VARCHAR, qty INTEGER, price DECIMAL(10,2))")
         .update().transact(tx);
-    Fragment.lit("INSERT INTO customers VALUES (1, 'Alice'), (2, 'Bob')")
+    Fragment.of("INSERT INTO customers VALUES (1, 'Alice'), (2, 'Bob')")
         .update().transact(tx);
-    Fragment.lit("INSERT INTO order_lines VALUES "
+    Fragment.of("INSERT INTO order_lines VALUES "
         + "(1, 'Widget', 3, 9.99), (1, 'Gadget', 1, 24.50), (2, 'Sprocket', 12, 0.75)")
         .update().transact(tx);
 
@@ -85,7 +84,7 @@ public class DbJsonRowTest {
         .field(DuckDbTypes.json, CustomerWithLines::linesJson)
         .build(CustomerWithLines::new);
 
-    List<CustomerWithLines> customers = Fragment.lit(
+    List<CustomerWithLines> customers = Fragment.of(
         "SELECT c.name, "
             + "(SELECT json_group_array(json_array(l.product, l.qty, l.price)) "
             + " FROM order_lines l WHERE l.customer_id = c.id) "
@@ -114,7 +113,7 @@ public class DbJsonRowTest {
   @Test
   public void objectEncoding() throws Exception {
     DbJson<List<OrderLine>> objectCodec =
-        DbJsonRow.jsonObject(lineParser, List.of("product", "qty", "price")).list();
+        DbJsonRow.jsonObject(lineParser).list();
 
     List<OrderLine> original = List.of(
         new OrderLine("Widget", 3, new BigDecimal("9.99")),
@@ -123,16 +122,15 @@ public class DbJsonRowTest {
     String json = objectCodec.toJson(original).encode();
 
     var tx = newDuckDbTransactor();
-    Fragment.lit("CREATE TABLE orders (lines JSON)").update().transact(tx);
+    Fragment.of("CREATE TABLE orders (lines JSON)").update().transact(tx);
 
-    Fragment.interpolate("INSERT INTO orders (lines) VALUES (")
-        .param(DuckDbTypes.json, new Json(json))
-        .sql(")")
-        .done()
+    Fragment.of("INSERT INTO orders (lines) VALUES (")
+        .value(DuckDbTypes.json, new Json(json))
+        .append(")")
         .update()
         .transact(tx);
 
-    Json fromDb = Fragment.lit("SELECT lines FROM orders")
+    Json fromDb = Fragment.of("SELECT lines FROM orders")
         .query(RowParser.of(DuckDbTypes.json).exactlyOne())
         .transact(tx);
 

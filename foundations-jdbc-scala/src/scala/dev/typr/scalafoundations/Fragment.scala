@@ -28,14 +28,37 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
   def update(): Operation.Update =
     Operation.Update(this)
 
+  def execute(): Operation[Unit] = update().voided
+
   def updateReturning[T](parser: ResultSetParser[T]): Operation.UpdateReturning[T] =
     Operation.UpdateReturning(this, parser)
+
+  def append(s: String): Fragment = new Fragment(underlying.append(s))
+
+  def value[T](dbType: DbType[T], value: T): Fragment = new Fragment(underlying.value(dbType.underlying, value))
+
+  def appendAll(fragments: List[Fragment], separator: Fragment): Fragment =
+    new Fragment(underlying.appendAll(fragments.map(_.underlying).asJava, separator.underlying))
+
+  def valueNullable[T](dbType: DbType[T], value: Option[T]): Fragment = {
+    import _root_.scala.jdk.OptionConverters.*
+    new Fragment(underlying.value(dbType.underlying.opt(), value.toJava))
+  }
+
+  def paramRow[Row](parser: RowParserNamed[Row], except: String*): RowParamBuilder[Row] =
+    new RowParamBuilder(underlying.paramRow(parser.underlying, except*))
+
+  def row[Row](parser: RowParserNamed[Row], row: Row, except: String*): Fragment =
+    new Fragment(underlying.row(parser.underlying, row, except*))
+
+  def param[P0](dbType: DbType[P0]): ParamBuilders.ParamBuilder1[P0] =
+    new ParamBuilders.ParamBuilder1(underlying.param(dbType.underlying))
 }
 
 object Fragment {
   val EMPTY: Fragment = new Fragment(dev.typr.foundations.Fragment.EMPTY)
 
-  def lit(value: String): Fragment = new Fragment(dev.typr.foundations.Fragment.lit(value))
+  def of(value: String): Fragment = new Fragment(dev.typr.foundations.Fragment.of(value))
 
   def empty(): Fragment = EMPTY
 
@@ -43,11 +66,11 @@ object Fragment {
 
   def quotedSingle(value: String): Fragment = new Fragment(dev.typr.foundations.Fragment.quotedSingle(value))
 
-  def value[A](value: A, dbType: dev.typr.foundations.DbType[A]): Fragment =
-    new Fragment(dev.typr.foundations.Fragment.value(value, dbType))
+  def value[A](value: A, dbType: DbType[A]): Fragment =
+    new Fragment(dev.typr.foundations.Fragment.value(value, dbType.underlying))
 
-  def encode[A](dbType: dev.typr.foundations.DbType[A], value: A): Fragment =
-    new Fragment(dev.typr.foundations.Fragment.encode(dbType, value))
+  def encode[A](dbType: DbType[A], value: A): Fragment =
+    new Fragment(dev.typr.foundations.Fragment.encode(dbType.underlying, value))
 
   def and(fragments: Fragment*): Fragment =
     new Fragment(dev.typr.foundations.Fragment.and(fragments.map(_.underlying)*))
@@ -109,7 +132,7 @@ object Fragment {
       if (parts.hasNext) {
         val first = parts.next()
         if (first.nonEmpty) {
-          frags += dev.typr.foundations.Fragment.lit(first)
+          frags += dev.typr.foundations.Fragment.of(first)
         }
       }
 
@@ -118,7 +141,7 @@ object Fragment {
         frags += argsIt.next().underlying
         val part = parts.next()
         if (part.nonEmpty) {
-          frags += dev.typr.foundations.Fragment.lit(part)
+          frags += dev.typr.foundations.Fragment.of(part)
         }
       }
 
@@ -137,29 +160,6 @@ object Fragment {
     }
   }
 
-  /** Builder for creating Fragments with a fluent API */
-  class Builder(private val underlying: dev.typr.foundations.Fragment.Builder) {
-    def sql(s: String): Builder = {
-      underlying.sql(s)
-      this
-    }
-
-    def param[T](dbType: dev.typr.foundations.DbType[T], value: T): Builder = {
-      underlying.param(dbType, value)
-      this
-    }
-
-    def param(fragment: Fragment): Builder = {
-      underlying.param(fragment.underlying)
-      this
-    }
-
-    def done(): Fragment = new Fragment(underlying.done())
-  }
-
-  def interpolate(initial: String): Builder =
-    new Builder(dev.typr.foundations.Fragment.interpolate(initial))
-
-  def interpolate(fragments: Fragment*): Fragment =
-    new Fragment(dev.typr.foundations.Fragment.interpolate(fragments.map(_.underlying)*))
+  def of(fragments: Fragment*): Fragment =
+    new Fragment(dev.typr.foundations.Fragment.of(fragments.map(_.underlying)*))
 }

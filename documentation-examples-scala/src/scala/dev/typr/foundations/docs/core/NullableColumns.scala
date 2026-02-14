@@ -13,6 +13,6 @@ object NullableColumns:
   val personParser: RowParser[Person] = RowParser.builder[Person]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
-    .field(PgTypes.timestamptz.nullable)(_.createdAt)
+    .field(PgTypes.timestamptz.opt)(_.createdAt)
     .build(Person.apply)
   //stop

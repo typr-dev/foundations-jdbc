@@ -4,8 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
 
 public sealed interface Operation<Out>
     permits Operation.Query,
@@ -17,13 +21,17 @@ public sealed interface Operation<Out>
         Operation.UpdateReturningEach,
         Operation.StreamingCopy,
         Operation.Mapped,
+        Operation.Pure,
+        Operation.With,
+        Operation.IfEmpty,
+        Operation.Then,
         Procedure.ProcedureCall,
         Procedure.FunctionCall {
-  Out run(Connection conn) throws SQLException;
+  Out runChecked(Connection conn) throws SQLException;
 
-  default Out runUnchecked(Connection conn) {
+  default Out run(Connection conn) {
     try {
-      return run(conn);
+      return runChecked(conn);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -44,9 +52,221 @@ public sealed interface Operation<Out>
     return new Mapped<>(this, f);
   }
 
+  default <B> Operation<And<Out, B>> with(Operation<B> other) {
+    return new With<>(this, other);
+  }
+
+  default <B, R> Operation<R> with(Operation<B> other, BiFunction<Out, B, R> combine) {
+    return with(other).map(and -> combine.apply(and.left(), and.right()));
+  }
+
+  default <B, C, R> Operation<R> with(
+      Operation<B> b, Operation<C> c, Functions.Function3<Out, B, C, R> combine) {
+    return with(b)
+        .with(c)
+        .map(
+            and ->
+                combine.apply(and.left().left(), and.left().right(), and.right()));
+  }
+
+  default <B, C, D, R> Operation<R> with(
+      Operation<B> b,
+      Operation<C> c,
+      Operation<D> d,
+      Functions.Function4<Out, B, C, D, R> combine) {
+    return with(b)
+        .with(c)
+        .with(d)
+        .map(
+            and ->
+                combine.apply(
+                    and.left().left().left(),
+                    and.left().left().right(),
+                    and.left().right(),
+                    and.right()));
+  }
+
+  default <B, C, D, E, R> Operation<R> with(
+      Operation<B> b,
+      Operation<C> c,
+      Operation<D> d,
+      Operation<E> e,
+      Functions.Function5<Out, B, C, D, E, R> combine) {
+    return with(b)
+        .with(c)
+        .with(d)
+        .with(e)
+        .map(
+            and ->
+                combine.apply(
+                    and.left().left().left().left(),
+                    and.left().left().left().right(),
+                    and.left().left().right(),
+                    and.left().right(),
+                    and.right()));
+  }
+
+  default <B, C, D, E, F, R> Operation<R> with(
+      Operation<B> b,
+      Operation<C> c,
+      Operation<D> d,
+      Operation<E> e,
+      Operation<F> f,
+      Functions.Function6<Out, B, C, D, E, F, R> combine) {
+    return with(b)
+        .with(c)
+        .with(d)
+        .with(e)
+        .with(f)
+        .map(
+            and ->
+                combine.apply(
+                    and.left().left().left().left().left(),
+                    and.left().left().left().left().right(),
+                    and.left().left().left().right(),
+                    and.left().left().right(),
+                    and.left().right(),
+                    and.right()));
+  }
+
+  default <B, C, D, E, F, G, R> Operation<R> with(
+      Operation<B> b,
+      Operation<C> c,
+      Operation<D> d,
+      Operation<E> e,
+      Operation<F> f,
+      Operation<G> g,
+      Functions.Function7<Out, B, C, D, E, F, G, R> combine) {
+    return with(b)
+        .with(c)
+        .with(d)
+        .with(e)
+        .with(f)
+        .with(g)
+        .map(
+            and ->
+                combine.apply(
+                    and.left().left().left().left().left().left(),
+                    and.left().left().left().left().left().right(),
+                    and.left().left().left().left().right(),
+                    and.left().left().left().right(),
+                    and.left().left().right(),
+                    and.left().right(),
+                    and.right()));
+  }
+
+  default <B, C, D, E, F, G, H, R> Operation<R> with(
+      Operation<B> b,
+      Operation<C> c,
+      Operation<D> d,
+      Operation<E> e,
+      Operation<F> f,
+      Operation<G> g,
+      Operation<H> h,
+      Functions.Function8<Out, B, C, D, E, F, G, H, R> combine) {
+    return with(b)
+        .with(c)
+        .with(d)
+        .with(e)
+        .with(f)
+        .with(g)
+        .with(h)
+        .map(
+            and ->
+                combine.apply(
+                    and.left().left().left().left().left().left().left(),
+                    and.left().left().left().left().left().left().right(),
+                    and.left().left().left().left().left().right(),
+                    and.left().left().left().left().right(),
+                    and.left().left().left().right(),
+                    and.left().left().right(),
+                    and.left().right(),
+                    and.right()));
+  }
+
+  default <B, C, D, E, F, G, H, I, R> Operation<R> with(
+      Operation<B> b,
+      Operation<C> c,
+      Operation<D> d,
+      Operation<E> e,
+      Operation<F> f,
+      Operation<G> g,
+      Operation<H> h,
+      Operation<I> i,
+      Functions.Function9<Out, B, C, D, E, F, G, H, I, R> combine) {
+    return with(b)
+        .with(c)
+        .with(d)
+        .with(e)
+        .with(f)
+        .with(g)
+        .with(h)
+        .with(i)
+        .map(
+            and ->
+                combine.apply(
+                    and.left().left().left().left().left().left().left().left(),
+                    and.left().left().left().left().left().left().left().right(),
+                    and.left().left().left().left().left().left().right(),
+                    and.left().left().left().left().left().right(),
+                    and.left().left().left().left().right(),
+                    and.left().left().left().right(),
+                    and.left().left().right(),
+                    and.left().right(),
+                    and.right()));
+  }
+
+  default <B> Operation<Out> thenIgnore(Operation<B> other) {
+    return with(other).map(and -> and.left());
+  }
+
+  default <B> Operation<B> then(SqlTemplate<Out, B> next) {
+    return new Then<>(this, java.util.function.Function.identity(), next);
+  }
+
+  default Operation<Void> voided() {
+    return map(ignored -> null);
+  }
+
+  static <T> Operation<T> pure(T value) {
+    return new Pure<>(value);
+  }
+
+  static <T> Operation<List<T>> sequence(List<Operation<T>> ops) {
+    if (ops.isEmpty()) return pure(List.of());
+    Operation<List<T>> result = ops.getFirst().map(List::of);
+    for (int i = 1; i < ops.size(); i++) {
+      result =
+          result
+              .with(ops.get(i))
+              .map(
+                  and -> {
+                    var list = new ArrayList<>(and.left());
+                    list.add(and.right());
+                    return Collections.unmodifiableList(list);
+                  });
+    }
+    return result;
+  }
+
+  @SuppressWarnings("unchecked")
+  static Operation<Void> allOf(Operation<?>... ops) {
+    if (ops.length == 0) return pure(null);
+    Operation<Void> result = ((Operation<Object>) ops[0]).voided();
+    for (int i = 1; i < ops.length; i++) {
+      result = result.thenIgnore((Operation<Object>) ops[i]);
+    }
+    return result;
+  }
+
+  static <T> Operation<T> ifEmpty(
+      Operation<Optional<T>> check, Operation<T> fallback) {
+    return new IfEmpty<>(check, fallback);
+  }
+
   record Query<Out>(Fragment query, ResultSetParser<Out> parser) implements Operation<Out> {
     @Override
-    public Out run(Connection conn) throws SQLException {
+    public Out runChecked(Connection conn) throws SQLException {
       try (PreparedStatement stmt = conn.prepareStatement(query.render())) {
         query.set(stmt);
         try (ResultSet rs = stmt.executeQuery()) {
@@ -58,7 +278,7 @@ public sealed interface Operation<Out>
 
   record Update(Fragment query) implements Operation<Integer> {
     @Override
-    public Integer run(Connection conn) throws SQLException {
+    public Integer runChecked(Connection conn) throws SQLException {
       try (PreparedStatement stmt = conn.prepareStatement(query.render())) {
         query.set(stmt);
         return stmt.executeUpdate();
@@ -69,7 +289,7 @@ public sealed interface Operation<Out>
   record UpdateReturning<Out>(Fragment query, ResultSetParser<Out> parser)
       implements Operation<Out> {
     @Override
-    public Out run(Connection conn) throws SQLException {
+    public Out runChecked(Connection conn) throws SQLException {
       try (PreparedStatement stmt = conn.prepareStatement(query.render())) {
         query.set(stmt);
         try (ResultSet rs = stmt.executeQuery()) {
@@ -82,7 +302,7 @@ public sealed interface Operation<Out>
   record UpdateReturningGeneratedKeys<Out>(
       Fragment query, String[] columnNames, ResultSetParser<Out> parser) implements Operation<Out> {
     @Override
-    public Out run(Connection conn) throws SQLException {
+    public Out runChecked(Connection conn) throws SQLException {
       try (PreparedStatement stmt = conn.prepareStatement(query.render(), columnNames)) {
         query.set(stmt);
         stmt.executeUpdate();
@@ -96,7 +316,7 @@ public sealed interface Operation<Out>
   record UpdateMany<Row>(Fragment query, RowParser<Row> parser, Iterator<Row> rows)
       implements Operation<int[]> {
     @Override
-    public int[] run(Connection conn) throws SQLException {
+    public int[] runChecked(Connection conn) throws SQLException {
       try (PreparedStatement stmt = conn.prepareStatement(query.render())) {
         query.set(stmt);
         while (rows.hasNext()) {
@@ -112,7 +332,7 @@ public sealed interface Operation<Out>
   record UpdateManyReturning<Row>(Fragment query, RowParser<Row> parser, Iterator<Row> rows)
       implements Operation<List<Row>> {
     @Override
-    public List<Row> run(Connection conn) throws SQLException {
+    public List<Row> runChecked(Connection conn) throws SQLException {
       try (PreparedStatement stmt =
           conn.prepareStatement(query.render(), java.sql.Statement.RETURN_GENERATED_KEYS)) {
         query.set(stmt);
@@ -137,7 +357,7 @@ public sealed interface Operation<Out>
   record UpdateReturningEach<Row>(Fragment query, RowParser<Row> parser, Iterator<Row> rows)
       implements Operation<List<Row>> {
     @Override
-    public List<Row> run(Connection conn) throws SQLException {
+    public List<Row> runChecked(Connection conn) throws SQLException {
       java.util.ArrayList<Row> results = new java.util.ArrayList<>();
       String sql = query.render();
       while (rows.hasNext()) {
@@ -158,15 +378,51 @@ public sealed interface Operation<Out>
       String copyCommand, int batchSize, Iterator<Row> rows, PgText<Row> text)
       implements Operation<Long> {
     @Override
-    public Long run(Connection conn) throws SQLException {
+    public Long runChecked(Connection conn) throws SQLException {
       return streamingInsert.insert(copyCommand, batchSize, rows, conn, text);
     }
   }
 
   record Mapped<A, B>(Operation<A> source, SqlFunction<A, B> f) implements Operation<B> {
     @Override
-    public B run(Connection conn) throws SQLException {
-      return f.apply(source.run(conn));
+    public B runChecked(Connection conn) throws SQLException {
+      return f.apply(source.runChecked(conn));
+    }
+  }
+
+  record Pure<T>(T value) implements Operation<T> {
+    @Override
+    public T runChecked(Connection conn) {
+      return value;
+    }
+  }
+
+  record With<A, B>(Operation<A> first, Operation<B> second) implements Operation<And<A, B>> {
+    @Override
+    public And<A, B> runChecked(Connection conn) throws SQLException {
+      return new And<>(first.runChecked(conn), second.runChecked(conn));
+    }
+  }
+
+  record IfEmpty<T>(Operation<Optional<T>> check, Operation<T> fallback)
+      implements Operation<T> {
+    @Override
+    public T runChecked(Connection conn) throws SQLException {
+      Optional<T> result = check.runChecked(conn);
+      return result.isPresent() ? result.get() : fallback.runChecked(conn);
+    }
+  }
+
+  record Then<A, In, B>(
+      Operation<A> source,
+      java.util.function.Function<A, In> extract,
+      SqlTemplate<In, B> continuation)
+      implements Operation<B> {
+    @Override
+    public B runChecked(Connection conn) throws SQLException {
+      A a = source.runChecked(conn);
+      In in = extract.apply(a);
+      return continuation.on(in).runChecked(conn);
     }
   }
 }
