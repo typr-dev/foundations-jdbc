@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 open class DbType<T>(open val underlying: dev.typr.foundations.DbType<T>) {
     open fun opt(): DbType<T?> =

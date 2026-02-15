@@ -1,4 +1,4 @@
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 /**
  * Type-safe stored function definitions with fully typed inputs.

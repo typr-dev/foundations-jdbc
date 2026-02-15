@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 type ParamDef = dev.typr.foundations.ParamDef
 

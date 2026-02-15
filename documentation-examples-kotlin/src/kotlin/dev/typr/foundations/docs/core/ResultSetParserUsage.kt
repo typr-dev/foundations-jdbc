@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.core
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import java.sql.ResultSet
 
 import java.time.Instant

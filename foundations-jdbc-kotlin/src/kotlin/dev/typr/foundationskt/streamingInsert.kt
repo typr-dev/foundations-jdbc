@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 object streamingInsert {
     private fun <T> Iterator<T>.asMutable(): MutableIterator<T> = object : MutableIterator<T> {

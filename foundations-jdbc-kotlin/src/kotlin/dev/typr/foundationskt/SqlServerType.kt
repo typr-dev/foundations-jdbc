@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 class SqlServerType<T>(override val underlying: dev.typr.foundations.SqlServerType<T>) : DbType<T>(underlying) {
     override fun opt(): SqlServerType<T?> =

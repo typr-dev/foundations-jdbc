@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 class MariaType<T>(override val underlying: dev.typr.foundations.MariaType<T>) : DbType<T>(underlying) {
     override fun opt(): MariaType<T?> =

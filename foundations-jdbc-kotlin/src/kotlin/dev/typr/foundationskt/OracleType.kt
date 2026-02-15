@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 class OracleType<T>(override val underlying: dev.typr.foundations.OracleType<T>) : DbType<T>(underlying) {
     override fun opt(): OracleType<T?> =

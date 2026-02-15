@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.postgresql
 
-import dev.typr.scalafoundations.*
+import dev.typr.foundationssc.*
 
 @SuppressWarnings(Array("unused"))
 object StreamingInsertSingle:

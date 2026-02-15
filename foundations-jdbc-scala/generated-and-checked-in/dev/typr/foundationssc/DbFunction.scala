@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 /** Type-safe stored function definitions with fully typed inputs.
   *
@@ -82,7 +82,7 @@ object DbFunction {
   // Function builders (11 total: 0-10 inputs)
   // ─────────────────────────────────────────────────────────────────────────────
 
-  class Builder_0[R] private[scalafoundations] (
+  class Builder_0[R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_0[R]
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1[I0, R] =
@@ -97,7 +97,7 @@ object DbFunction {
     }
   }
 
-  class Builder_1[I0, R] private[scalafoundations] (
+  class Builder_1[I0, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_1[I0, R]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2[I0, I1, R] =
@@ -112,7 +112,7 @@ object DbFunction {
     }
   }
 
-  class Builder_2[I0, I1, R] private[scalafoundations] (
+  class Builder_2[I0, I1, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_2[I0, I1, R]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3[I0, I1, I2, R] =
@@ -127,7 +127,7 @@ object DbFunction {
     }
   }
 
-  class Builder_3[I0, I1, I2, R] private[scalafoundations] (
+  class Builder_3[I0, I1, I2, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_3[I0, I1, I2, R]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4[I0, I1, I2, I3, R] =
@@ -142,7 +142,7 @@ object DbFunction {
     }
   }
 
-  class Builder_4[I0, I1, I2, I3, R] private[scalafoundations] (
+  class Builder_4[I0, I1, I2, I3, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_4[I0, I1, I2, I3, R]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5[I0, I1, I2, I3, I4, R] =
@@ -157,7 +157,7 @@ object DbFunction {
     }
   }
 
-  class Builder_5[I0, I1, I2, I3, I4, R] private[scalafoundations] (
+  class Builder_5[I0, I1, I2, I3, I4, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_5[I0, I1, I2, I3, I4, R]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6[I0, I1, I2, I3, I4, I5, R] =
@@ -172,7 +172,7 @@ object DbFunction {
     }
   }
 
-  class Builder_6[I0, I1, I2, I3, I4, I5, R] private[scalafoundations] (
+  class Builder_6[I0, I1, I2, I3, I4, I5, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_6[I0, I1, I2, I3, I4, I5, R]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7[I0, I1, I2, I3, I4, I5, I6, R] =
@@ -187,7 +187,7 @@ object DbFunction {
     }
   }
 
-  class Builder_7[I0, I1, I2, I3, I4, I5, I6, R] private[scalafoundations] (
+  class Builder_7[I0, I1, I2, I3, I4, I5, I6, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_7[I0, I1, I2, I3, I4, I5, I6, R]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8[I0, I1, I2, I3, I4, I5, I6, I7, R] =
@@ -202,7 +202,7 @@ object DbFunction {
     }
   }
 
-  class Builder_8[I0, I1, I2, I3, I4, I5, I6, I7, R] private[scalafoundations] (
+  class Builder_8[I0, I1, I2, I3, I4, I5, I6, I7, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_8[I0, I1, I2, I3, I4, I5, I6, I7, R]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, R] =
@@ -217,7 +217,7 @@ object DbFunction {
     }
   }
 
-  class Builder_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, R] private[scalafoundations] (
+  class Builder_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, R]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, R] =
@@ -232,7 +232,7 @@ object DbFunction {
     }
   }
 
-  class Builder_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, R] private[scalafoundations] (
+  class Builder_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, R]
   ) {
 

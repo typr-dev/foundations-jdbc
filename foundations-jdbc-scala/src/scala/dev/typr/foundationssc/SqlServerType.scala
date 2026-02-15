@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 class SqlServerType[T](override val underlying: dev.typr.foundations.SqlServerType[T]) extends DbType[T](underlying):
   override def opt: SqlServerType[Option[T]] =

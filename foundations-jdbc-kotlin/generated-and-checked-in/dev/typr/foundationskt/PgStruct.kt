@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 class PgStruct<T>(val underlying: dev.typr.foundations.PgStruct<T>) {
     fun asType(): PgType<T> = PgType(underlying.asType())

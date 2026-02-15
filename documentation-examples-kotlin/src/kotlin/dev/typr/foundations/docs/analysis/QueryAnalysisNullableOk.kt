@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.analysis
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import java.math.BigDecimal
 import java.sql.Connection
 

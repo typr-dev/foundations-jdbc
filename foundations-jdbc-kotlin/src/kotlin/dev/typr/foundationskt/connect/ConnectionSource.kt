@@ -1,6 +1,6 @@
-package dev.typr.kotlinfoundations.connect
+package dev.typr.foundationskt.connect
 
-import dev.typr.kotlinfoundations.Transactor
+import dev.typr.foundationskt.Transactor
 import java.sql.Connection
 
 interface ConnectionSource {

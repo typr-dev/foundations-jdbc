@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.postgresql
 
-import dev.typr.kotlinfoundations.*
+import dev.typr.foundationskt.*
 
 import java.math.BigDecimal
 

@@ -1,6 +1,6 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
-class RowParamBuilder[Row] private[scalafoundations] (
+class RowParamBuilder[Row] private[foundationssc] (
   private val underlying: dev.typr.foundations.RowParamBuilder[Row]
 ):
   def append(s: String): RowParamBuilder[Row] = new RowParamBuilder(underlying.append(s))

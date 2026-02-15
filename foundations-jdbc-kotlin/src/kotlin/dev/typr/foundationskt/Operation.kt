@@ -1,7 +1,6 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
-import dev.typr.foundations.And
 import java.sql.Connection
 import java.sql.SQLException
 import java.util.Optional
@@ -23,35 +22,35 @@ sealed class Operation<Out> {
         Mapped(this.underlying, this, f)
 
     @Suppress("UNCHECKED_CAST")
-    fun <B> with(other: Operation<B>): Operation<And<Out, B>> =
+    fun <B> with(other: Operation<B>): Operation<Pair<Out, B>> =
         With(dev.typr.foundations.Operation.With(underlying as dev.typr.foundations.Operation<Out>, other.underlying as dev.typr.foundations.Operation<B>), this, other)
 
     fun <B, R> with(other: Operation<B>, combine: (Out, B) -> R): Operation<R> =
-        with(other).map { and -> combine(and.left(), and.right()) }
+        with(other).map { pair -> combine(pair.first, pair.second) }
 
     fun <B, C, R> with(b: Operation<B>, c: Operation<C>, combine: (Out, B, C) -> R): Operation<R> =
-        with(b).with(c).map { and -> combine(and.left().left(), and.left().right(), and.right()) }
+        with(b).with(c).map { pair -> combine(pair.first.first, pair.first.second, pair.second) }
 
     fun <B, C, D, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, combine: (Out, B, C, D) -> R): Operation<R> =
-        with(b).with(c).with(d).map { and -> combine(and.left().left().left(), and.left().left().right(), and.left().right(), and.right()) }
+        with(b).with(c).with(d).map { pair -> combine(pair.first.first.first, pair.first.first.second, pair.first.second, pair.second) }
 
     fun <B, C, D, E, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, combine: (Out, B, C, D, E) -> R): Operation<R> =
-        with(b).with(c).with(d).with(e).map { and -> combine(and.left().left().left().left(), and.left().left().left().right(), and.left().left().right(), and.left().right(), and.right()) }
+        with(b).with(c).with(d).with(e).map { pair -> combine(pair.first.first.first.first, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
 
     fun <B, C, D, E, F, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, combine: (Out, B, C, D, E, F) -> R): Operation<R> =
-        with(b).with(c).with(d).with(e).with(f).map { and -> combine(and.left().left().left().left().left(), and.left().left().left().left().right(), and.left().left().left().right(), and.left().left().right(), and.left().right(), and.right()) }
+        with(b).with(c).with(d).with(e).with(f).map { pair -> combine(pair.first.first.first.first.first, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
 
     fun <B, C, D, E, F, G, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, g: Operation<G>, combine: (Out, B, C, D, E, F, G) -> R): Operation<R> =
-        with(b).with(c).with(d).with(e).with(f).with(g).map { and -> combine(and.left().left().left().left().left().left(), and.left().left().left().left().left().right(), and.left().left().left().left().right(), and.left().left().left().right(), and.left().left().right(), and.left().right(), and.right()) }
+        with(b).with(c).with(d).with(e).with(f).with(g).map { pair -> combine(pair.first.first.first.first.first.first, pair.first.first.first.first.first.second, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
 
     fun <B, C, D, E, F, G, H, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, g: Operation<G>, h: Operation<H>, combine: (Out, B, C, D, E, F, G, H) -> R): Operation<R> =
-        with(b).with(c).with(d).with(e).with(f).with(g).with(h).map { and -> combine(and.left().left().left().left().left().left().left(), and.left().left().left().left().left().left().right(), and.left().left().left().left().left().right(), and.left().left().left().left().right(), and.left().left().left().right(), and.left().left().right(), and.left().right(), and.right()) }
+        with(b).with(c).with(d).with(e).with(f).with(g).with(h).map { pair -> combine(pair.first.first.first.first.first.first.first, pair.first.first.first.first.first.first.second, pair.first.first.first.first.first.second, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
 
     fun <B, C, D, E, F, G, H, I, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, g: Operation<G>, h: Operation<H>, i: Operation<I>, combine: (Out, B, C, D, E, F, G, H, I) -> R): Operation<R> =
-        with(b).with(c).with(d).with(e).with(f).with(g).with(h).with(i).map { and -> combine(and.left().left().left().left().left().left().left().left(), and.left().left().left().left().left().left().left().right(), and.left().left().left().left().left().left().right(), and.left().left().left().left().left().right(), and.left().left().left().left().right(), and.left().left().left().right(), and.left().left().right(), and.left().right(), and.right()) }
+        with(b).with(c).with(d).with(e).with(f).with(g).with(h).with(i).map { pair -> combine(pair.first.first.first.first.first.first.first.first, pair.first.first.first.first.first.first.first.second, pair.first.first.first.first.first.first.second, pair.first.first.first.first.first.second, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
 
     fun <B> thenIgnore(other: Operation<B>): Operation<Out> =
-        with(other).map { and -> and.left() }
+        with(other).map { pair -> pair.first }
 
     fun <B> then(template: SqlTemplate<Out, B>): Operation<B> {
         val javaTemplate = template.underlying
@@ -103,10 +102,10 @@ sealed class Operation<Out> {
         override val underlying: dev.typr.foundations.Operation.With<A, B>,
         val first: Operation<A>,
         val second: Operation<B>
-    ) : Operation<And<A, B>>() {
+    ) : Operation<Pair<A, B>>() {
         @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): And<A, B> =
-            And(first.runChecked(conn), second.runChecked(conn))
+        override fun runChecked(conn: Connection): Pair<A, B> =
+            Pair(first.runChecked(conn), second.runChecked(conn))
     }
 
     class IfEmpty<T : Any>(
@@ -141,8 +140,8 @@ sealed class Operation<Out> {
             if (operations.isEmpty()) return pure(emptyList())
             var result: Operation<List<T>> = operations.first().map { listOf(it) }
             for (i in 1 until operations.size) {
-                result = result.with(operations[i]).map { and ->
-                    and.left() + listOf(and.right())
+                result = result.with(operations[i]).map { pair ->
+                    pair.first + listOf(pair.second)
                 }
             }
             return result

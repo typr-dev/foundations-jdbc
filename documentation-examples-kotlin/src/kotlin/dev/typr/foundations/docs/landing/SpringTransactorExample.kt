@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.landing
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

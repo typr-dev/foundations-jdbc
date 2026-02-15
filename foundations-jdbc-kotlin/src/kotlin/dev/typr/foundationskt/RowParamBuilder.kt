@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 class RowParamBuilder<Row : Any>(private val underlying: dev.typr.foundations.RowParamBuilder<Row>) {
 

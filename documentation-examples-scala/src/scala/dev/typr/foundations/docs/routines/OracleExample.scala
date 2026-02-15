@@ -1,5 +1,5 @@
 package dev.typr.foundations.docs.routines
-import dev.typr.scalafoundations.*
+import dev.typr.foundationssc.*
 
 @SuppressWarnings(Array("unused"))
 object OracleExample:

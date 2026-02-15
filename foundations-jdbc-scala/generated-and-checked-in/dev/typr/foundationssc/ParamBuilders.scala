@@ -1,7 +1,7 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 object ParamBuilders:
-  class ParamBuilder1[P0] private[scalafoundations] (
+  class ParamBuilder1[P0] private[foundationssc] (
     private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder1[P0]
   ):
     def append(s: String): ParamBuilder1[P0] = new ParamBuilder1(underlying.append(s))
@@ -20,7 +20,7 @@ object ParamBuilders:
 
     def done(): Fragment = new Fragment(underlying.done())
 
-  class ParamBuilder2[P0, P1] private[scalafoundations] (
+  class ParamBuilder2[P0, P1] private[foundationssc] (
     private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder2[P0, P1]
   ):
     def append(s: String): ParamBuilder2[P0, P1] = new ParamBuilder2(underlying.append(s))
@@ -39,7 +39,7 @@ object ParamBuilders:
 
     def done(): Fragment = new Fragment(underlying.done())
 
-  class ParamBuilder3[P0, P1, P2] private[scalafoundations] (
+  class ParamBuilder3[P0, P1, P2] private[foundationssc] (
     private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder3[P0, P1, P2]
   ):
     def append(s: String): ParamBuilder3[P0, P1, P2] = new ParamBuilder3(underlying.append(s))
@@ -58,7 +58,7 @@ object ParamBuilders:
 
     def done(): Fragment = new Fragment(underlying.done())
 
-  class ParamBuilder4[P0, P1, P2, P3] private[scalafoundations] (
+  class ParamBuilder4[P0, P1, P2, P3] private[foundationssc] (
     private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder4[P0, P1, P2, P3]
   ):
     def append(s: String): ParamBuilder4[P0, P1, P2, P3] = new ParamBuilder4(underlying.append(s))
@@ -77,7 +77,7 @@ object ParamBuilders:
 
     def done(): Fragment = new Fragment(underlying.done())
 
-  class ParamBuilder5[P0, P1, P2, P3, P4] private[scalafoundations] (
+  class ParamBuilder5[P0, P1, P2, P3, P4] private[foundationssc] (
     private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder5[P0, P1, P2, P3, P4]
   ):
     def append(s: String): ParamBuilder5[P0, P1, P2, P3, P4] = new ParamBuilder5(underlying.append(s))
@@ -96,7 +96,7 @@ object ParamBuilders:
 
     def done(): Fragment = new Fragment(underlying.done())
 
-  class ParamBuilder6[P0, P1, P2, P3, P4, P5] private[scalafoundations] (
+  class ParamBuilder6[P0, P1, P2, P3, P4, P5] private[foundationssc] (
     private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder6[P0, P1, P2, P3, P4, P5]
   ):
     def append(s: String): ParamBuilder6[P0, P1, P2, P3, P4, P5] = new ParamBuilder6(underlying.append(s))
@@ -115,7 +115,7 @@ object ParamBuilders:
 
     def done(): Fragment = new Fragment(underlying.done())
 
-  class ParamBuilder7[P0, P1, P2, P3, P4, P5, P6] private[scalafoundations] (
+  class ParamBuilder7[P0, P1, P2, P3, P4, P5, P6] private[foundationssc] (
     private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder7[P0, P1, P2, P3, P4, P5, P6]
   ):
     def append(s: String): ParamBuilder7[P0, P1, P2, P3, P4, P5, P6] = new ParamBuilder7(underlying.append(s))
@@ -134,7 +134,7 @@ object ParamBuilders:
 
     def done(): Fragment = new Fragment(underlying.done())
 
-  class ParamBuilder8[P0, P1, P2, P3, P4, P5, P6, P7] private[scalafoundations] (
+  class ParamBuilder8[P0, P1, P2, P3, P4, P5, P6, P7] private[foundationssc] (
     private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder8[P0, P1, P2, P3, P4, P5, P6, P7]
   ):
     def append(s: String): ParamBuilder8[P0, P1, P2, P3, P4, P5, P6, P7] = new ParamBuilder8(underlying.append(s))
@@ -153,7 +153,7 @@ object ParamBuilders:
 
     def done(): Fragment = new Fragment(underlying.done())
 
-  class ParamBuilder9[P0, P1, P2, P3, P4, P5, P6, P7, P8] private[scalafoundations] (
+  class ParamBuilder9[P0, P1, P2, P3, P4, P5, P6, P7, P8] private[foundationssc] (
     private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder9[P0, P1, P2, P3, P4, P5, P6, P7, P8]
   ):
     def append(s: String): ParamBuilder9[P0, P1, P2, P3, P4, P5, P6, P7, P8] = new ParamBuilder9(underlying.append(s))
@@ -172,7 +172,7 @@ object ParamBuilders:
 
     def done(): Fragment = new Fragment(underlying.done())
 
-  class ParamBuilder10[P0, P1, P2, P3, P4, P5, P6, P7, P8, P9] private[scalafoundations] (
+  class ParamBuilder10[P0, P1, P2, P3, P4, P5, P6, P7, P8, P9] private[foundationssc] (
     private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder10[P0, P1, P2, P3, P4, P5, P6, P7, P8, P9]
   ):
     def append(s: String): ParamBuilder10[P0, P1, P2, P3, P4, P5, P6, P7, P8, P9] = new ParamBuilder10(underlying.append(s))

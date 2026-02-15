@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 import java.sql.PreparedStatement
 import java.util.concurrent.atomic.AtomicInteger

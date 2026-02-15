@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 object QueryAnalyzer:
   def analyze(op: Operation[?], conn: java.sql.Connection): List[QueryAnalysis] =

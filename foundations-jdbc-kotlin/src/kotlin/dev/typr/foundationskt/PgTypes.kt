@@ -1,4 +1,4 @@
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 import dev.typr.foundations.SqlFunction
 import dev.typr.foundations.PgTypes as JavaPgTypes

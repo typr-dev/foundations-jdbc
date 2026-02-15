@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 class PgType<T>(override val underlying: dev.typr.foundations.PgType<T>) : DbType<T>(underlying) {
     override fun opt(): PgType<T?> =

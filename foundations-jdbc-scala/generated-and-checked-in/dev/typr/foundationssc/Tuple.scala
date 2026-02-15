@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 type Tuple = dev.typr.foundations.Tuple
 

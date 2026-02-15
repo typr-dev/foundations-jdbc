@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 sealed class SqlTemplate<In, Out> {
     abstract val underlying: dev.typr.foundations.SqlTemplate<*, *>

@@ -1,5 +1,6 @@
 plugins {
     java
+    kotlin("jvm") version "2.3.0"
 }
 
 java {
@@ -14,6 +15,9 @@ sourceSets {
     test {
         java {
             setSrcDirs(listOf("src/java"))
+        }
+        kotlin {
+            setSrcDirs(listOf("src/kotlin"))
         }
         resources {
             setSrcDirs(listOf("src/resources"))

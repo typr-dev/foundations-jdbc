@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations.data
+package dev.typr.foundationskt.data
 
 // Re-export data types
 typealias AclItem = dev.typr.foundations.data.AclItem

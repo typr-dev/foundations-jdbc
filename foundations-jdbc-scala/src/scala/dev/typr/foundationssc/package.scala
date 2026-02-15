@@ -3,7 +3,7 @@ package dev.typr
 // NOTE: Using type aliases because Gradle's Zinc doesn't handle Scala 3 exports.
 // See: https://github.com/gradle/gradle/issues/29286
 // For Java classes with static methods, use fully qualified names (e.g., Fragment.of).
-package object scalafoundations:
+package object foundationssc:
   // Core types
   type And[A, B] = (A, B)
   type SqlFunction[T, R] = dev.typr.foundations.SqlFunction[T, R]

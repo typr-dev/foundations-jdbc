@@ -8,7 +8,7 @@ val N = 100
 val PROC_N = 11
 val STRUCT_N = 31
 val baseDir = Path.of(sys.props.getOrElse("user.dir", "."))
-val generatedOutputDir = baseDir.resolve("foundations-jdbc-kotlin/generated-and-checked-in/dev/typr/kotlinfoundations")
+val generatedOutputDir = baseDir.resolve("foundations-jdbc-kotlin/generated-and-checked-in/dev/typr/foundationskt")
 
 def generateKotlinRowParserBuilders(): String = {
   val maxArity = N - 1
@@ -59,7 +59,7 @@ def generateKotlinRowParserBuilders(): String = {
         |    }""".stripMargin
   }
 
-  s"""|package dev.typr.kotlinfoundations
+  s"""|package dev.typr.foundationskt
       |
       |/**
       | * Type-safe builders for Kotlin RowParser.
@@ -137,7 +137,7 @@ def generateKotlinNamedRowParserBuilders(): String = {
         |    }""".stripMargin
   }
 
-  s"""|package dev.typr.kotlinfoundations
+  s"""|package dev.typr.foundationskt
       |
       |/**
       | * Type-safe named builders for Kotlin RowParser.
@@ -250,7 +250,7 @@ def generateKotlinDbProcedure(): String = {
        |    }""".stripMargin
   }
 
-  s"""|package dev.typr.kotlinfoundations
+  s"""|package dev.typr.foundationskt
       |
       |/**
       | * Type-safe stored procedure definitions with fully typed inputs and outputs.
@@ -335,7 +335,7 @@ def generateKotlinDbFunction(): String = {
        |    }""".stripMargin
   }
 
-  s"""|package dev.typr.kotlinfoundations
+  s"""|package dev.typr.foundationskt
       |
       |/**
       | * Type-safe stored function definitions with fully typed inputs.
@@ -404,7 +404,7 @@ def generateKotlinDuckDbStructBuilders(): String = {
   }
 
   s"""|@file:Suppress("unused")
-      |package dev.typr.kotlinfoundations
+      |package dev.typr.foundationskt
       |
       |class DuckDbStruct<T>(val underlying: dev.typr.foundations.DuckDbStruct<T>) {
       |    fun asType(): DuckDbType<T> = DuckDbType(underlying.asType())
@@ -465,7 +465,7 @@ def generateKotlinPgStructBuilders(): String = {
   }
 
   s"""|@file:Suppress("unused")
-      |package dev.typr.kotlinfoundations
+      |package dev.typr.foundationskt
       |
       |class PgStruct<T>(val underlying: dev.typr.foundations.PgStruct<T>) {
       |    fun asType(): PgType<T> = PgType(underlying.asType())
@@ -514,7 +514,7 @@ def generateKotlinOracleObjectBuilders(): String = {
   }
 
   s"""|@file:Suppress("unused")
-      |package dev.typr.kotlinfoundations
+      |package dev.typr.foundationskt
       |
       |class OracleObject<T>(val underlying: dev.typr.foundations.OracleObject<T>) {
       |    fun asType(): OracleType<T> = OracleType(underlying.asType())
@@ -563,7 +563,7 @@ def generateKotlinTuple(): String = {
   }
 
   s"""|@file:Suppress("unused")
-      |package dev.typr.kotlinfoundations
+      |package dev.typr.foundationskt
       |
       |import dev.typr.foundations.Tuple as JavaTuple
       |
@@ -636,7 +636,7 @@ def generateKotlinSqlTemplate(): String = {
   }
 
   s"""|@file:Suppress("unused")
-      |package dev.typr.kotlinfoundations
+      |package dev.typr.foundationskt
       |
       |sealed class SqlTemplate<In, Out> {
       |    abstract val underlying: dev.typr.foundations.SqlTemplate<*, *>
@@ -685,7 +685,7 @@ def generateKotlinParamBuilders(): String = {
   }
 
   s"""|@file:Suppress("unused")
-      |package dev.typr.kotlinfoundations
+      |package dev.typr.foundationskt
       |
       |object ParamBuilders {
       |${builders.mkString("\n\n")}

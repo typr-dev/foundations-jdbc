@@ -1,5 +1,5 @@
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.connect.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.connect.*
 
 fun main() {
     val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()

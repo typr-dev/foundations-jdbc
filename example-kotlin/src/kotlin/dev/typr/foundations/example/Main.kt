@@ -1,7 +1,7 @@
 package dev.typr.foundations.example
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.connect.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.connect.*
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.OffsetDateTime

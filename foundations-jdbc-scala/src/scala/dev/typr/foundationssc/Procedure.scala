@@ -1,11 +1,11 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 import java.sql.{Connection, SQLException}
 
 /** Scala wrapper for dev.typr.foundations.Procedure with Unit instead of Void. */
-class Procedure[Out] private[scalafoundations] (
-    private[scalafoundations] val javaProcedure: dev.typr.foundations.Procedure[?],
-    private[scalafoundations] val mapResult: Any => Out
+class Procedure[Out] private[foundationssc] (
+    private[foundationssc] val javaProcedure: dev.typr.foundations.Procedure[?],
+    private[foundationssc] val mapResult: Any => Out
 ) {
 
   def call(inValues: Any*): ProcedureOp[Out] = {
@@ -18,10 +18,10 @@ class Procedure[Out] private[scalafoundations] (
 
 object Procedure {
 
-  private[scalafoundations] def fromVoid(jp: dev.typr.foundations.Procedure[Void]): Procedure[Unit] =
+  private[foundationssc] def fromVoid(jp: dev.typr.foundations.Procedure[Void]): Procedure[Unit] =
     new Procedure(jp, _ => ())
 
-  private[scalafoundations] def fromJava[Out](jp: dev.typr.foundations.Procedure[Out]): Procedure[Out] =
+  private[foundationssc] def fromJava[Out](jp: dev.typr.foundations.Procedure[Out]): Procedure[Out] =
     new Procedure(jp, _.asInstanceOf[Out])
 
   def buildVoid(name: String, params: java.util.List[dev.typr.foundations.ParamDef]): dev.typr.foundations.Procedure[Void] =
@@ -38,7 +38,7 @@ object Procedure {
 }
 
 /** Operation returned by Procedure.call() — wraps a Java Operation with result conversion. */
-class ProcedureOp[Out] private[scalafoundations] (
+class ProcedureOp[Out] private[foundationssc] (
     private val javaOp: dev.typr.foundations.Operation[Any],
     private val mapResult: Any => Out
 ) {

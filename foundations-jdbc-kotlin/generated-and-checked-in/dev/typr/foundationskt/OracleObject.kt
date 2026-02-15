@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 class OracleObject<T>(val underlying: dev.typr.foundations.OracleObject<T>) {
     fun asType(): OracleType<T> = OracleType(underlying.asType())

@@ -1,6 +1,6 @@
 package dev.typr.foundations.example
 
-import dev.typr.kotlinfoundations.Transactor
+import dev.typr.foundationskt.Transactor
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.OffsetDateTime

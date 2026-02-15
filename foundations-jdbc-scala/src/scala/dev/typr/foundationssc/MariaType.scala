@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 class MariaType[T](override val underlying: dev.typr.foundations.MariaType[T]) extends DbType[T](underlying):
   override def opt: MariaType[Option[T]] =

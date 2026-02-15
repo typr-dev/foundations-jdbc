@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 import scala.jdk.CollectionConverters.*
 
@@ -16,7 +16,7 @@ import scala.jdk.CollectionConverters.*
 object RowParserNamedBuilders {
   def builder[Row](): Builder0[Row] = new Builder0()
 
-  class Builder0[Row] private[scalafoundations] () {
+  class Builder0[Row] private[foundationssc] () {
     private val names = scala.collection.mutable.ListBuffer[String]()
     private val types = scala.collection.mutable.ListBuffer[DbType[?]]()
     private val getters = scala.collection.mutable.ListBuffer[Row => Any]()
@@ -29,7 +29,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder1[Row, T0] private[scalafoundations] (
+  class Builder1[Row, T0] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -52,7 +52,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder2[Row, T0, T1] private[scalafoundations] (
+  class Builder2[Row, T0, T1] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -75,7 +75,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder3[Row, T0, T1, T2] private[scalafoundations] (
+  class Builder3[Row, T0, T1, T2] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -98,7 +98,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder4[Row, T0, T1, T2, T3] private[scalafoundations] (
+  class Builder4[Row, T0, T1, T2, T3] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -121,7 +121,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder5[Row, T0, T1, T2, T3, T4] private[scalafoundations] (
+  class Builder5[Row, T0, T1, T2, T3, T4] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -144,7 +144,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder6[Row, T0, T1, T2, T3, T4, T5] private[scalafoundations] (
+  class Builder6[Row, T0, T1, T2, T3, T4, T5] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -167,7 +167,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder7[Row, T0, T1, T2, T3, T4, T5, T6] private[scalafoundations] (
+  class Builder7[Row, T0, T1, T2, T3, T4, T5, T6] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -190,7 +190,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder8[Row, T0, T1, T2, T3, T4, T5, T6, T7] private[scalafoundations] (
+  class Builder8[Row, T0, T1, T2, T3, T4, T5, T6, T7] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -213,7 +213,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder9[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8] private[scalafoundations] (
+  class Builder9[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -236,7 +236,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder10[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9] private[scalafoundations] (
+  class Builder10[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -259,7 +259,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder11[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10] private[scalafoundations] (
+  class Builder11[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -282,7 +282,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder12[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11] private[scalafoundations] (
+  class Builder12[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -305,7 +305,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder13[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12] private[scalafoundations] (
+  class Builder13[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -328,7 +328,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder14[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] private[scalafoundations] (
+  class Builder14[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -351,7 +351,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder15[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14] private[scalafoundations] (
+  class Builder15[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -374,7 +374,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder16[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15] private[scalafoundations] (
+  class Builder16[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -397,7 +397,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder17[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16] private[scalafoundations] (
+  class Builder17[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -420,7 +420,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder18[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17] private[scalafoundations] (
+  class Builder18[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -443,7 +443,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder19[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] private[scalafoundations] (
+  class Builder19[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -466,7 +466,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder20[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19] private[scalafoundations] (
+  class Builder20[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -489,7 +489,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder21[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20] private[scalafoundations] (
+  class Builder21[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -512,7 +512,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder22[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21] private[scalafoundations] (
+  class Builder22[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -535,7 +535,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder23[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22] private[scalafoundations] (
+  class Builder23[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -558,7 +558,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder24[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23] private[scalafoundations] (
+  class Builder24[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -581,7 +581,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder25[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24] private[scalafoundations] (
+  class Builder25[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -604,7 +604,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder26[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25] private[scalafoundations] (
+  class Builder26[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -627,7 +627,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder27[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26] private[scalafoundations] (
+  class Builder27[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -650,7 +650,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder28[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27] private[scalafoundations] (
+  class Builder28[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -673,7 +673,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder29[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28] private[scalafoundations] (
+  class Builder29[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -696,7 +696,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder30[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29] private[scalafoundations] (
+  class Builder30[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -719,7 +719,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder31[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30] private[scalafoundations] (
+  class Builder31[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -742,7 +742,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder32[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31] private[scalafoundations] (
+  class Builder32[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -765,7 +765,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder33[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32] private[scalafoundations] (
+  class Builder33[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -788,7 +788,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder34[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33] private[scalafoundations] (
+  class Builder34[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -811,7 +811,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder35[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34] private[scalafoundations] (
+  class Builder35[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -834,7 +834,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder36[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35] private[scalafoundations] (
+  class Builder36[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -857,7 +857,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder37[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36] private[scalafoundations] (
+  class Builder37[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -880,7 +880,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder38[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37] private[scalafoundations] (
+  class Builder38[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -903,7 +903,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder39[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38] private[scalafoundations] (
+  class Builder39[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -926,7 +926,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder40[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39] private[scalafoundations] (
+  class Builder40[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -949,7 +949,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder41[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40] private[scalafoundations] (
+  class Builder41[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -972,7 +972,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder42[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41] private[scalafoundations] (
+  class Builder42[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -995,7 +995,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder43[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42] private[scalafoundations] (
+  class Builder43[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1018,7 +1018,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder44[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43] private[scalafoundations] (
+  class Builder44[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1041,7 +1041,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder45[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44] private[scalafoundations] (
+  class Builder45[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1064,7 +1064,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder46[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45] private[scalafoundations] (
+  class Builder46[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1087,7 +1087,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder47[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46] private[scalafoundations] (
+  class Builder47[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1110,7 +1110,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder48[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47] private[scalafoundations] (
+  class Builder48[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1133,7 +1133,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder49[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48] private[scalafoundations] (
+  class Builder49[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1156,7 +1156,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder50[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49] private[scalafoundations] (
+  class Builder50[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1179,7 +1179,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder51[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50] private[scalafoundations] (
+  class Builder51[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1202,7 +1202,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder52[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51] private[scalafoundations] (
+  class Builder52[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1225,7 +1225,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder53[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52] private[scalafoundations] (
+  class Builder53[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1248,7 +1248,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder54[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53] private[scalafoundations] (
+  class Builder54[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1271,7 +1271,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder55[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54] private[scalafoundations] (
+  class Builder55[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1294,7 +1294,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder56[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55] private[scalafoundations] (
+  class Builder56[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1317,7 +1317,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder57[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56] private[scalafoundations] (
+  class Builder57[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1340,7 +1340,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder58[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57] private[scalafoundations] (
+  class Builder58[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1363,7 +1363,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder59[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58] private[scalafoundations] (
+  class Builder59[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1386,7 +1386,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder60[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59] private[scalafoundations] (
+  class Builder60[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1409,7 +1409,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder61[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60] private[scalafoundations] (
+  class Builder61[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1432,7 +1432,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder62[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61] private[scalafoundations] (
+  class Builder62[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1455,7 +1455,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder63[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62] private[scalafoundations] (
+  class Builder63[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1478,7 +1478,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder64[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63] private[scalafoundations] (
+  class Builder64[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1501,7 +1501,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder65[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64] private[scalafoundations] (
+  class Builder65[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1524,7 +1524,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder66[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65] private[scalafoundations] (
+  class Builder66[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1547,7 +1547,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder67[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66] private[scalafoundations] (
+  class Builder67[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1570,7 +1570,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder68[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67] private[scalafoundations] (
+  class Builder68[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1593,7 +1593,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder69[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68] private[scalafoundations] (
+  class Builder69[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1616,7 +1616,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder70[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69] private[scalafoundations] (
+  class Builder70[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1639,7 +1639,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder71[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70] private[scalafoundations] (
+  class Builder71[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1662,7 +1662,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder72[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71] private[scalafoundations] (
+  class Builder72[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1685,7 +1685,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder73[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72] private[scalafoundations] (
+  class Builder73[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1708,7 +1708,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder74[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73] private[scalafoundations] (
+  class Builder74[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1731,7 +1731,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder75[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74] private[scalafoundations] (
+  class Builder75[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1754,7 +1754,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder76[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75] private[scalafoundations] (
+  class Builder76[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1777,7 +1777,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder77[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76] private[scalafoundations] (
+  class Builder77[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1800,7 +1800,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder78[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77] private[scalafoundations] (
+  class Builder78[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1823,7 +1823,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder79[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78] private[scalafoundations] (
+  class Builder79[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1846,7 +1846,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder80[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79] private[scalafoundations] (
+  class Builder80[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1869,7 +1869,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder81[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80] private[scalafoundations] (
+  class Builder81[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1892,7 +1892,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder82[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81] private[scalafoundations] (
+  class Builder82[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1915,7 +1915,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder83[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82] private[scalafoundations] (
+  class Builder83[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1938,7 +1938,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder84[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83] private[scalafoundations] (
+  class Builder84[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1961,7 +1961,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder85[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84] private[scalafoundations] (
+  class Builder85[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -1984,7 +1984,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder86[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85] private[scalafoundations] (
+  class Builder86[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2007,7 +2007,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder87[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86] private[scalafoundations] (
+  class Builder87[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2030,7 +2030,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder88[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87] private[scalafoundations] (
+  class Builder88[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2053,7 +2053,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder89[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88] private[scalafoundations] (
+  class Builder89[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2076,7 +2076,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder90[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89] private[scalafoundations] (
+  class Builder90[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2099,7 +2099,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder91[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90] private[scalafoundations] (
+  class Builder91[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2122,7 +2122,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder92[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91] private[scalafoundations] (
+  class Builder92[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2145,7 +2145,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder93[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92] private[scalafoundations] (
+  class Builder93[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2168,7 +2168,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder94[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93] private[scalafoundations] (
+  class Builder94[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2191,7 +2191,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder95[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94] private[scalafoundations] (
+  class Builder95[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2214,7 +2214,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder96[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95] private[scalafoundations] (
+  class Builder96[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2237,7 +2237,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder97[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96] private[scalafoundations] (
+  class Builder97[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2260,7 +2260,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder98[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97] private[scalafoundations] (
+  class Builder98[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -2283,7 +2283,7 @@ object RowParserNamedBuilders {
     }
   }
 
-  class Builder99[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, T98] private[scalafoundations] (
+  class Builder99[Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, T98] private[foundationssc] (
     private val names: scala.collection.mutable.ListBuffer[String],
     private val types: scala.collection.mutable.ListBuffer[DbType[?]],
     private val getters: scala.collection.mutable.ListBuffer[Row => Any]

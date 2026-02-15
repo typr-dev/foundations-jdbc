@@ -8,12 +8,12 @@ val N = 100
 val PROC_N = 11
 val STRUCT_N = 31
 val baseDir = Path.of(sys.props.getOrElse("user.dir", "."))
-val generatedOutputDir = baseDir.resolve("foundations-jdbc-scala/generated-and-checked-in/dev/typr/scalafoundations")
+val generatedOutputDir = baseDir.resolve("foundations-jdbc-scala/generated-and-checked-in/dev/typr/foundationssc")
 
 def generateScalaRowParserBuilders(): String = {
   val maxArity = N - 1
 
-  val builder0 = s"""|  class Builder0[Row] private[scalafoundations] () {
+  val builder0 = s"""|  class Builder0[Row] private[foundationssc] () {
                      |    private val types = scala.collection.mutable.ListBuffer[DbType[?]]()
                      |    private val getters = scala.collection.mutable.ListBuffer[Row => Any]()
                      |
@@ -40,7 +40,7 @@ def generateScalaRowParserBuilders(): String = {
           |    }""".stripMargin
     } else ""
 
-    s"""|  class Builder$n[Row, $tparams] private[scalafoundations] (
+    s"""|  class Builder$n[Row, $tparams] private[foundationssc] (
         |    private val types: scala.collection.mutable.ListBuffer[DbType[?]],
         |    private val getters: scala.collection.mutable.ListBuffer[Row => Any]
         |  ) {
@@ -56,7 +56,7 @@ def generateScalaRowParserBuilders(): String = {
         |  }""".stripMargin
   }
 
-  s"""|package dev.typr.scalafoundations
+  s"""|package dev.typr.foundationssc
       |
       |import scala.jdk.CollectionConverters.*
       |
@@ -84,7 +84,7 @@ def generateScalaRowParserBuilders(): String = {
 def generateScalaNamedRowParserBuilders(): String = {
   val maxArity = N - 1
 
-  val builder0 = s"""|  class Builder0[Row] private[scalafoundations] () {
+  val builder0 = s"""|  class Builder0[Row] private[foundationssc] () {
                      |    private val names = scala.collection.mutable.ListBuffer[String]()
                      |    private val types = scala.collection.mutable.ListBuffer[DbType[?]]()
                      |    private val getters = scala.collection.mutable.ListBuffer[Row => Any]()
@@ -114,7 +114,7 @@ def generateScalaNamedRowParserBuilders(): String = {
           |    }""".stripMargin
     } else ""
 
-    s"""|  class Builder$n[Row, $tparams] private[scalafoundations] (
+    s"""|  class Builder$n[Row, $tparams] private[foundationssc] (
         |    private val names: scala.collection.mutable.ListBuffer[String],
         |    private val types: scala.collection.mutable.ListBuffer[DbType[?]],
         |    private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -132,7 +132,7 @@ def generateScalaNamedRowParserBuilders(): String = {
         |  }""".stripMargin
   }
 
-  s"""|package dev.typr.scalafoundations
+  s"""|package dev.typr.foundationssc
       |
       |import scala.jdk.CollectionConverters.*
       |
@@ -232,7 +232,7 @@ def generateScalaDbProcedure(): String = {
 
     val javaCallArgs = if (i == 0) "" else callArgNamesStr
 
-    s"""  class Builder_${i}_${o}$tpDecl private[scalafoundations] (
+    s"""  class Builder_${i}_${o}$tpDecl private[foundationssc] (
        |    private val underlying: dev.typr.foundations.DbProcedure.Builder_${i}_${o}$javaTpDecl
        |  ) {
        |$methodsBlock
@@ -246,7 +246,7 @@ def generateScalaDbProcedure(): String = {
        |  }""".stripMargin
   }
 
-  s"""|package dev.typr.scalafoundations
+  s"""|package dev.typr.foundationssc
       |
       |/** Type-safe stored procedure definitions with fully typed inputs and outputs.
       |  *
@@ -316,7 +316,7 @@ def generateScalaDbFunction(): String = {
     val callParamsStr = callParams(i)
     val javaCallArgs = if (i == 0) "" else callArgNames(i)
 
-    s"""  class Builder_$i$tpDecl private[scalafoundations] (
+    s"""  class Builder_$i$tpDecl private[foundationssc] (
        |    private val underlying: dev.typr.foundations.DbFunction.Builder_$i$javaTpDecl
        |  ) {
        |$inMethod
@@ -330,7 +330,7 @@ def generateScalaDbFunction(): String = {
        |  }""".stripMargin
   }
 
-  s"""|package dev.typr.scalafoundations
+  s"""|package dev.typr.foundationssc
       |
       |/** Type-safe stored function definitions with fully typed inputs.
       |  *
@@ -369,7 +369,7 @@ def generateScalaDbFunction(): String = {
 def generateScalaPgStructBuilders(): String = {
   val maxArity = STRUCT_N - 1
 
-  val builder0 = s"""|  class Builder0[A] private[scalafoundations] (
+  val builder0 = s"""|  class Builder0[A] private[foundationssc] (
                      |    private val underlying: dev.typr.foundations.PgStructBuilders.Builder0[A]
                      |  ):
                      |    def field[F](name: String, tpe: PgType[F], getter: A => F): Builder1[A, F] =
@@ -391,7 +391,7 @@ def generateScalaPgStructBuilders(): String = {
           |      Builder${n + 1}(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))""".stripMargin
     } else ""
 
-    s"""|  class Builder$n[A, $tparams] private[scalafoundations] (
+    s"""|  class Builder$n[A, $tparams] private[foundationssc] (
         |    private val underlying: dev.typr.foundations.PgStructBuilders.Builder$n[A, $tparams]
         |  ):
         |    def build(decode: ($tparams) => A): PgStruct[A] =
@@ -399,7 +399,7 @@ def generateScalaPgStructBuilders(): String = {
         |$nextBuilder""".stripMargin
   }
 
-  s"""|package dev.typr.scalafoundations
+  s"""|package dev.typr.foundationssc
       |
       |class PgStruct[A](val underlying: dev.typr.foundations.PgStruct[A]):
       |  def asType(): PgType[A] = PgType(underlying.asType())
@@ -417,7 +417,7 @@ def generateScalaPgStructBuilders(): String = {
 def generateScalaDuckDbStructBuilders(): String = {
   val maxArity = STRUCT_N - 1
 
-  val builder0 = s"""|  class Builder0[A] private[scalafoundations] (
+  val builder0 = s"""|  class Builder0[A] private[foundationssc] (
                      |    private val underlying: dev.typr.foundations.DuckDbStructBuilders.Builder0[A]
                      |  ):
                      |    def field[F](name: String, tpe: DuckDbType[F], getter: A => F): Builder1[A, F] =
@@ -435,7 +435,7 @@ def generateScalaDuckDbStructBuilders(): String = {
           |      Builder${n + 1}(underlying.field(name, tpe.underlying, a => getter(a)))""".stripMargin
     } else ""
 
-    s"""|  class Builder$n[A, $tparams] private[scalafoundations] (
+    s"""|  class Builder$n[A, $tparams] private[foundationssc] (
         |    private val underlying: dev.typr.foundations.DuckDbStructBuilders.Builder$n[A, $tparams]
         |  ):
         |    def build(decode: ($tparams) => A): DuckDbStruct[A] =
@@ -443,7 +443,7 @@ def generateScalaDuckDbStructBuilders(): String = {
         |$nextBuilder""".stripMargin
   }
 
-  s"""|package dev.typr.scalafoundations
+  s"""|package dev.typr.foundationssc
       |
       |class DuckDbStruct[A](val underlying: dev.typr.foundations.DuckDbStruct[A]):
       |  def asType(): DuckDbType[A] = DuckDbType(underlying.asType())
@@ -461,7 +461,7 @@ def generateScalaDuckDbStructBuilders(): String = {
 def generateScalaOracleObjectBuilders(): String = {
   val maxArity = STRUCT_N - 1
 
-  val builder0 = s"""|  class Builder0[A] private[scalafoundations] (
+  val builder0 = s"""|  class Builder0[A] private[foundationssc] (
                      |    private val underlying: dev.typr.foundations.OracleObjectBuilders.Builder0[A]
                      |  ):
                      |    def field[F](name: String, tpe: OracleType[F], getter: A => F): Builder1[A, F] =
@@ -479,7 +479,7 @@ def generateScalaOracleObjectBuilders(): String = {
           |      Builder${n + 1}(underlying.field(name, tpe.underlying, a => getter(a)))""".stripMargin
     } else ""
 
-    s"""|  class Builder$n[A, $tparams] private[scalafoundations] (
+    s"""|  class Builder$n[A, $tparams] private[foundationssc] (
         |    private val underlying: dev.typr.foundations.OracleObjectBuilders.Builder$n[A, $tparams]
         |  ):
         |    def build(decode: ($tparams) => A): OracleObject[A] =
@@ -487,7 +487,7 @@ def generateScalaOracleObjectBuilders(): String = {
         |$nextBuilder""".stripMargin
   }
 
-  s"""|package dev.typr.scalafoundations
+  s"""|package dev.typr.foundationssc
       |
       |class OracleObject[A](val underlying: dev.typr.foundations.OracleObject[A]):
       |  def asType(): OracleType[A] = OracleType(underlying.asType())
@@ -517,7 +517,7 @@ def generateScalaTuple(): String = {
     s"  def of[$tparams]($params): dev.typr.foundations.Tuple.Tuple$n[$tparams] =\n    dev.typr.foundations.Tuple.of($args)"
   }
 
-  s"""|package dev.typr.scalafoundations
+  s"""|package dev.typr.foundationssc
       |
       |type Tuple = dev.typr.foundations.Tuple
       |
@@ -578,7 +578,7 @@ def generateScalaSqlTemplate(): String = {
     }
   }
 
-  s"""|package dev.typr.scalafoundations
+  s"""|package dev.typr.foundationssc
       |
       |sealed trait SqlTemplate[In, Out]:
       |  def underlying: dev.typr.foundations.SqlTemplate[?, ?]
@@ -608,7 +608,7 @@ def generateScalaParamBuilders(): String = {
           |      new ParamBuilder${n + 1}(underlying.param(tpe.underlying))""".stripMargin
     } else ""
 
-    s"""|  class ParamBuilder$n[$tparams] private[scalafoundations] (
+    s"""|  class ParamBuilder$n[$tparams] private[foundationssc] (
         |    private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder$n[$tparams]
         |  ):
         |    def append(s: String): ParamBuilder$n[$tparams] = new ParamBuilder$n(underlying.append(s))
@@ -626,7 +626,7 @@ def generateScalaParamBuilders(): String = {
         |    def done(): Fragment = new Fragment(underlying.done())""".stripMargin
   }
 
-  s"""|package dev.typr.scalafoundations
+  s"""|package dev.typr.foundationssc
       |
       |object ParamBuilders:
       |${builders.mkString("\n\n")}
