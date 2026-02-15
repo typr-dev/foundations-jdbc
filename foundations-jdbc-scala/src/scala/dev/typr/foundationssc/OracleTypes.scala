@@ -9,20 +9,20 @@ import dev.typr.foundations.{OracleTypes => JavaOracleTypes}
   */
 class OracleTypes {
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
-  val number: OracleType[BigDecimal] = OracleType(JavaOracleTypes.number.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
-  val integer: OracleType[BigDecimal] = OracleType(JavaOracleTypes.integer.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
-  val smallint: OracleType[BigDecimal] = OracleType(JavaOracleTypes.smallint.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val number: OracleType[BigDecimal] = OracleType(JavaOracleTypes.number.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val integer: OracleType[BigDecimal] = OracleType(JavaOracleTypes.integer.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val smallint: OracleType[BigDecimal] = OracleType(JavaOracleTypes.smallint.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Primitives
-  val numberInt: OracleType[Int] = OracleType(JavaOracleTypes.numberInt.bimap(i => i, i => i))
-  val numberLong: OracleType[Long] = OracleType(JavaOracleTypes.numberLong.bimap(l => l, l => l))
-  val binaryFloat: OracleType[Float] = OracleType(JavaOracleTypes.binaryFloat.bimap(f => f, f => f))
-  val binaryDouble: OracleType[Double] = OracleType(JavaOracleTypes.binaryDouble.bimap(d => d, d => d))
-  val float_ : OracleType[Double] = OracleType(JavaOracleTypes.float_.bimap(d => d, d => d))
-  val real: OracleType[Double] = OracleType(JavaOracleTypes.real.bimap(d => d, d => d))
-  val doublePrecision: OracleType[Double] = OracleType(JavaOracleTypes.doublePrecision.bimap(d => d, d => d))
-  val boolean_ : OracleType[Boolean] = OracleType(JavaOracleTypes.boolean_.bimap(b => b, b => b))
-  val numberAsBoolean: OracleType[Boolean] = OracleType(JavaOracleTypes.numberAsBoolean.bimap(b => b, b => b))
+  val numberInt: OracleType[Int] = OracleType(JavaOracleTypes.numberInt.transform(i => i, i => i))
+  val numberLong: OracleType[Long] = OracleType(JavaOracleTypes.numberLong.transform(l => l, l => l))
+  val binaryFloat: OracleType[Float] = OracleType(JavaOracleTypes.binaryFloat.transform(f => f, f => f))
+  val binaryDouble: OracleType[Double] = OracleType(JavaOracleTypes.binaryDouble.transform(d => d, d => d))
+  val float_ : OracleType[Double] = OracleType(JavaOracleTypes.float_.transform(d => d, d => d))
+  val real: OracleType[Double] = OracleType(JavaOracleTypes.real.transform(d => d, d => d))
+  val doublePrecision: OracleType[Double] = OracleType(JavaOracleTypes.doublePrecision.transform(d => d, d => d))
+  val boolean_ : OracleType[Boolean] = OracleType(JavaOracleTypes.boolean_.transform(b => b, b => b))
+  val numberAsBoolean: OracleType[Boolean] = OracleType(JavaOracleTypes.numberAsBoolean.transform(b => b, b => b))
 
   // Forward all other types directly from Java
   val varchar2 = OracleType(JavaOracleTypes.varchar2)
@@ -52,19 +52,19 @@ class OracleTypes {
 
   // Forward static methods with Scala type conversion
   def number(precision: Int): OracleType[BigDecimal] =
-    OracleType(JavaOracleTypes.number(precision).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+    OracleType(JavaOracleTypes.number(precision).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def number(precision: Int, scale: Int): OracleType[BigDecimal] =
-    OracleType(JavaOracleTypes.number(precision, scale).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+    OracleType(JavaOracleTypes.number(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def numberAsInt(precision: Int): OracleType[Int] =
-    OracleType(JavaOracleTypes.numberAsInt(precision).bimap(i => i, i => i))
+    OracleType(JavaOracleTypes.numberAsInt(precision).transform(i => i, i => i))
 
   def numberAsLong(precision: Int): OracleType[Long] =
-    OracleType(JavaOracleTypes.numberAsLong(precision).bimap(l => l, l => l))
+    OracleType(JavaOracleTypes.numberAsLong(precision).transform(l => l, l => l))
 
   def float_(binaryPrecision: Int): OracleType[Double] =
-    OracleType(JavaOracleTypes.float_(binaryPrecision).bimap(d => d, d => d))
+    OracleType(JavaOracleTypes.float_(binaryPrecision).transform(d => d, d => d))
 
   def varchar2(maxLength: Int): OracleType[String] =
     OracleType(JavaOracleTypes.varchar2(maxLength))

@@ -11,5 +11,5 @@ object DomainType:
   case class ProductId(value: Long)
 
   // Create DuckDbType from bigint
-  val productIdType: DuckDbType[ProductId] = DuckDbTypes.bigint.bimap(ProductId.apply, _.value)
+  val productIdType: DuckDbType[ProductId] = DuckDbTypes.bigint.transform(ProductId.apply, _.value)
   //stop

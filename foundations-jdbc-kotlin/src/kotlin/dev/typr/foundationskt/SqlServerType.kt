@@ -8,8 +8,8 @@ class SqlServerType<T>(override val underlying: dev.typr.foundations.SqlServerTy
     override fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): SqlServerType<B> =
         SqlServerType(underlying.to(bijection))
 
-    fun <B> bimap(f: dev.typr.foundations.SqlFunction<T, B>, g: (B) -> T): SqlServerType<B> =
-        SqlServerType(underlying.bimap(f, g))
+    fun <B> transform(f: dev.typr.foundations.SqlFunction<T, B>, g: (B) -> T): SqlServerType<B> =
+        SqlServerType(underlying.transform(f, g))
 
     fun unchecked(): SqlServerType<T> = SqlServerType(underlying.unchecked())
     fun nullableOk(): SqlServerType<T> = SqlServerType(underlying.nullableOk())

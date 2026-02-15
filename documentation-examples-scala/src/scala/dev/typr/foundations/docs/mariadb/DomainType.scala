@@ -11,5 +11,5 @@ object DomainType:
   case class UserId(value: Long)
 
   // Create MariaType from bigint
-  val userIdType: MariaType[UserId] = MariaTypes.bigint.bimap(UserId.apply, _.value)
+  val userIdType: MariaType[UserId] = MariaTypes.bigint.transform(UserId.apply, _.value)
   //stop

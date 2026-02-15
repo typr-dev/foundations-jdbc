@@ -8,8 +8,8 @@ class OracleType<T>(override val underlying: dev.typr.foundations.OracleType<T>)
     override fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): OracleType<B> =
         OracleType(underlying.to(bijection))
 
-    fun <B> bimap(f: dev.typr.foundations.SqlFunction<T, B>, g: (B) -> T): OracleType<B> =
-        OracleType(underlying.bimap(f, g))
+    fun <B> transform(f: dev.typr.foundations.SqlFunction<T, B>, g: (B) -> T): OracleType<B> =
+        OracleType(underlying.transform(f, g))
 
     fun unchecked(): OracleType<T> = OracleType(underlying.unchecked())
     fun nullableOk(): OracleType<T> = OracleType(underlying.nullableOk())

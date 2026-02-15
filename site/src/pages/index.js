@@ -114,7 +114,7 @@ import dev.typr.foundationskt.connect.*
 
 fun main() {
     val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
-    val answer: Int = Fragment.of("SELECT 42")
+    val answer: Int = Sql { "SELECT 42" }
         .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
         .transact(tx)
     println("Result: $answer")
@@ -226,7 +226,7 @@ function ProblemSection() {
                 <strong>Query Analysis catches bugs in tests</strong> — Validate every query against a real database in your test suite. Schema changes break tests, not production.
               </li>
               <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.08)', borderLeft: '3px solid #22c55e'}}>
-                <strong>Nullable means Optional</strong> — <code>.nullable()</code> changes the return type to <code>Optional</code>. If the type isn't optional, the column is guaranteed non-null.
+                <strong>Nullable means Optional</strong> — <code>.opt()</code> changes the return type to <code>Optional</code> / <code>T?</code> / <code>Option[T]</code>. If the type isn't optional, the column is guaranteed non-null.
               </li>
               <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.08)', borderLeft: '3px solid #22c55e'}}>
                 <strong>Every database type, modeled exactly</strong> — Not just primitives. Composite types, domains, enums, arrays, intervals — all first-class, with full roundtrip fidelity.
@@ -362,7 +362,7 @@ function TypeBuildingBlocks() {
           </TabItem>
           <TabItem value="wrapper" label="Wrapper Types">
             <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
-              Call <code>bimap</code> (two-way mapping) on a base type — you get a full codec that works in row parsers, arrays, and JSON.
+              Call <code>transform</code> (two-way mapping) on a base type — you get a full codec that works in row parsers, arrays, and JSON.
             </p>
             <CodeBlock language="sql" title="MariaDB DDL">
               {`CREATE TABLE products (\n    id   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\n    name VARCHAR(255) NOT NULL\n);`}

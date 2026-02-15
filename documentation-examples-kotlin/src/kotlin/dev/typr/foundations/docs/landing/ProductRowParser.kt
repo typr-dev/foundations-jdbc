@@ -13,7 +13,7 @@ class ProductRowParser {
     data class Dim(val width: Double, val height: Double, val depth: Double, val unit: String)
     data class Category(val id: Int, val name: String)
 
-    val productIdType: PgType<ProductId> = PgTypes.int4.bimap(::ProductId, ProductId::value)
+    val productIdType: PgType<ProductId> = PgTypes.int4.transform(::ProductId, ProductId::value)
     val dimensionsType: PgType<Dim>? = null // placeholder
     val categoryRowParser: RowParser<Category>? = null // placeholder
 

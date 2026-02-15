@@ -9,20 +9,20 @@ import dev.typr.foundations.{Db2Types => JavaDb2Types}
   */
 class Db2Types {
   // Primitives - convert Java boxed types to Scala native types
-  val smallint: Db2Type[Short] = Db2Type(JavaDb2Types.smallint.bimap(s => s, s => s))
-  val integer: Db2Type[Int] = Db2Type(JavaDb2Types.integer.bimap(i => i, i => i))
-  val int_ : Db2Type[Int] = Db2Type(JavaDb2Types.int_.bimap(i => i, i => i))
-  val bigint: Db2Type[Long] = Db2Type(JavaDb2Types.bigint.bimap(l => l, l => l))
-  val real: Db2Type[Float] = Db2Type(JavaDb2Types.real.bimap(f => f, f => f))
-  val double_ : Db2Type[Double] = Db2Type(JavaDb2Types.double_.bimap(d => d, d => d))
-  val float_ : Db2Type[Double] = Db2Type(JavaDb2Types.float_.bimap(d => d, d => d))
-  val boolean_ : Db2Type[Boolean] = Db2Type(JavaDb2Types.boolean_.bimap(b => b, b => b))
+  val smallint: Db2Type[Short] = Db2Type(JavaDb2Types.smallint.transform(s => s, s => s))
+  val integer: Db2Type[Int] = Db2Type(JavaDb2Types.integer.transform(i => i, i => i))
+  val int_ : Db2Type[Int] = Db2Type(JavaDb2Types.int_.transform(i => i, i => i))
+  val bigint: Db2Type[Long] = Db2Type(JavaDb2Types.bigint.transform(l => l, l => l))
+  val real: Db2Type[Float] = Db2Type(JavaDb2Types.real.transform(f => f, f => f))
+  val double_ : Db2Type[Double] = Db2Type(JavaDb2Types.double_.transform(d => d, d => d))
+  val float_ : Db2Type[Double] = Db2Type(JavaDb2Types.float_.transform(d => d, d => d))
+  val boolean_ : Db2Type[Boolean] = Db2Type(JavaDb2Types.boolean_.transform(b => b, b => b))
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
-  val decimal: Db2Type[BigDecimal] = Db2Type(JavaDb2Types.decimal.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
-  val numeric: Db2Type[BigDecimal] = Db2Type(JavaDb2Types.numeric.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
-  val dec: Db2Type[BigDecimal] = Db2Type(JavaDb2Types.dec.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
-  val decfloat: Db2Type[BigDecimal] = Db2Type(JavaDb2Types.decfloat.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val decimal: Db2Type[BigDecimal] = Db2Type(JavaDb2Types.decimal.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val numeric: Db2Type[BigDecimal] = Db2Type(JavaDb2Types.numeric.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val dec: Db2Type[BigDecimal] = Db2Type(JavaDb2Types.dec.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val decfloat: Db2Type[BigDecimal] = Db2Type(JavaDb2Types.decfloat.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Forward all other types directly from Java
   val char_ = Db2Type(JavaDb2Types.char_)
@@ -45,13 +45,13 @@ class Db2Types {
 
   // Forward static methods with Scala type conversion
   def decimal(precision: Int, scale: Int): Db2Type[BigDecimal] =
-    Db2Type(JavaDb2Types.decimal(precision, scale).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+    Db2Type(JavaDb2Types.decimal(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def numeric(precision: Int, scale: Int): Db2Type[BigDecimal] =
-    Db2Type(JavaDb2Types.numeric(precision, scale).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+    Db2Type(JavaDb2Types.numeric(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def decfloat(precision: Int): Db2Type[BigDecimal] =
-    Db2Type(JavaDb2Types.decfloat(precision).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+    Db2Type(JavaDb2Types.decfloat(precision).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def char_(length: Int): Db2Type[String] =
     Db2Type(JavaDb2Types.char_(length))

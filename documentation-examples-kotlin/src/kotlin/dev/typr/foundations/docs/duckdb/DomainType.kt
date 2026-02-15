@@ -10,6 +10,6 @@ class DomainType {
     data class ProductId(val value: Long)
 
     // Create DuckDbType from bigint
-    val productIdType: DuckDbType<ProductId> = DuckDbTypes.bigint.bimap(::ProductId, ProductId::value)
+    val productIdType: DuckDbType<ProductId> = DuckDbTypes.bigint.transform(::ProductId, ProductId::value)
     //stop
 }

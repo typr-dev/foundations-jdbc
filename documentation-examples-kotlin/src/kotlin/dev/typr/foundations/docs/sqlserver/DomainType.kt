@@ -11,6 +11,6 @@ class DomainType {
 
     // Create SqlServerType from INT
     val orderIdType: SqlServerType<OrderId> =
-        SqlServerTypes.int_.bimap(::OrderId, OrderId::value)
+        SqlServerTypes.int_.transform(::OrderId, OrderId::value)
     //stop
 }

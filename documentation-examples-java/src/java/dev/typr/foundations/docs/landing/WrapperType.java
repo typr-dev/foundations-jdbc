@@ -9,7 +9,7 @@ public class WrapperType {
     record ProductId(Integer value) {
         // MariaDB int -> wraps to your domain type
         static MariaType<ProductId> mariaType =
-            MariaTypes.int_.bimap(ProductId::new, ProductId::value);
+            MariaTypes.int_.transform(ProductId::new, ProductId::value);
     }
     //stop
 }

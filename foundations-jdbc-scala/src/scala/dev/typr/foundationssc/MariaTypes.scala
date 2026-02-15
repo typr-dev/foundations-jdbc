@@ -9,23 +9,23 @@ import dev.typr.foundations.{MariaTypes => JavaMariaTypes}
   */
 class MariaTypes {
   // Primitives - convert Java boxed types to Scala native types
-  val tinyint: MariaType[Byte] = MariaType(JavaMariaTypes.tinyint.bimap(b => b, b => b))
-  val smallint: MariaType[Short] = MariaType(JavaMariaTypes.smallint.bimap(s => s, s => s))
-  val mediumint: MariaType[Int] = MariaType(JavaMariaTypes.mediumint.bimap(i => i, i => i))
-  val int_ : MariaType[Int] = MariaType(JavaMariaTypes.int_.bimap(i => i, i => i))
-  val bigint: MariaType[Long] = MariaType(JavaMariaTypes.bigint.bimap(l => l, l => l))
+  val tinyint: MariaType[Byte] = MariaType(JavaMariaTypes.tinyint.transform(b => b, b => b))
+  val smallint: MariaType[Short] = MariaType(JavaMariaTypes.smallint.transform(s => s, s => s))
+  val mediumint: MariaType[Int] = MariaType(JavaMariaTypes.mediumint.transform(i => i, i => i))
+  val int_ : MariaType[Int] = MariaType(JavaMariaTypes.int_.transform(i => i, i => i))
+  val bigint: MariaType[Long] = MariaType(JavaMariaTypes.bigint.transform(l => l, l => l))
 
   // Floating point
-  val float_ : MariaType[Float] = MariaType(JavaMariaTypes.float_.bimap(f => f, f => f))
-  val double_ : MariaType[Double] = MariaType(JavaMariaTypes.double_.bimap(d => d, d => d))
+  val float_ : MariaType[Float] = MariaType(JavaMariaTypes.float_.transform(f => f, f => f))
+  val double_ : MariaType[Double] = MariaType(JavaMariaTypes.double_.transform(d => d, d => d))
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
-  val decimal: MariaType[BigDecimal] = MariaType(JavaMariaTypes.decimal.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
-  val numeric: MariaType[BigDecimal] = MariaType(JavaMariaTypes.numeric.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val decimal: MariaType[BigDecimal] = MariaType(JavaMariaTypes.decimal.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val numeric: MariaType[BigDecimal] = MariaType(JavaMariaTypes.numeric.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Boolean
-  val bool: MariaType[Boolean] = MariaType(JavaMariaTypes.bool.bimap(b => b, b => b))
-  val bit1: MariaType[Boolean] = MariaType(JavaMariaTypes.bit1.bimap(b => b, b => b))
+  val bool: MariaType[Boolean] = MariaType(JavaMariaTypes.bool.transform(b => b, b => b))
+  val bit1: MariaType[Boolean] = MariaType(JavaMariaTypes.bit1.transform(b => b, b => b))
 
   // Forward all other types directly from Java
   val tinyintUnsigned = MariaType(JavaMariaTypes.tinyintUnsigned)
@@ -67,7 +67,7 @@ class MariaTypes {
 
   // Forward static methods with Scala type conversion
   def decimal(precision: Int, scale: Int): MariaType[BigDecimal] =
-    MariaType(JavaMariaTypes.decimal(precision, scale).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+    MariaType(JavaMariaTypes.decimal(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def char_(length: Int): MariaType[String] =
     MariaType(JavaMariaTypes.char_(length))

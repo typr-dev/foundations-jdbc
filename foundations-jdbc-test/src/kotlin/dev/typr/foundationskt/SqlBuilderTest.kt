@@ -1,8 +1,12 @@
 package dev.typr.foundationskt
 
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.sql.DriverManager
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.atomic.AtomicReference
 
@@ -159,6 +163,109 @@ class SqlBuilderTest {
             val result = frag.query(parser.exactlyOne()).runChecked(conn)
             assertEquals(1, result.id)
             assertEquals("Alice", result.name)
+        }
+    }
+
+    @Test
+    fun virtualThreadSafety() {
+        val results = ConcurrentLinkedQueue<Pair<Int, String>>()
+
+        val threads = (0 until 1000).map { i ->
+            Thread.ofVirtual().start {
+                val frag = Sql { "SELECT ${DuckDbTypes.integer(i)} AS val" }
+                results.add(i to frag.render())
+            }
+        }
+
+        threads.forEach { it.join() }
+
+        assertEquals(1000, results.size)
+        val byIndex = results.associateBy({ it.first }, { it.second })
+        for (i in 0 until 1000) {
+            assertEquals("SELECT ?::INTEGER AS val", byIndex[i])
+        }
+    }
+
+    @Test
+    fun coroutinesSafety() {
+        val results = runBlocking {
+            (0 until 1000).map { i ->
+                async(Dispatchers.Default) {
+                    val frag = Sql { "SELECT ${DuckDbTypes.integer(i)} AS val" }
+                    i to frag.render()
+                }
+            }.awaitAll()
+        }
+
+        assertEquals(1000, results.size)
+        val byIndex = results.associateBy({ it.first }, { it.second })
+        for (i in 0 until 1000) {
+            assertEquals("SELECT ?::INTEGER AS val", byIndex[i])
+        }
+    }
+
+    @Test
+    fun coroutinesWithContextSwitch() {
+        runBlocking {
+            val frag1 = withContext(Dispatchers.Default) {
+                Sql { "SELECT ${DuckDbTypes.integer(1)} AS a" }
+            }
+            val frag2 = withContext(Dispatchers.IO) {
+                Sql { "SELECT ${DuckDbTypes.varchar("hello")} AS b" }
+            }
+
+            assertEquals("SELECT ?::INTEGER AS a", frag1.render())
+            assertEquals("SELECT ?::VARCHAR AS b", frag2.render())
+        }
+    }
+
+    @Test
+    fun virtualThreadsWithDuckDbExecution() {
+        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
+            val results = ConcurrentLinkedQueue<Pair<Int, Int>>()
+
+            val threads = (0 until 1000).map { i ->
+                Thread.ofVirtual().start {
+                    val frag = Sql { "SELECT ${DuckDbTypes.integer(i)}" }
+                    val result = synchronized(conn) {
+                        frag.query(RowParser.of(DuckDbTypes.integer).exactlyOne()).runChecked(conn)
+                    }
+                    results.add(i to result)
+                }
+            }
+
+            threads.forEach { it.join() }
+
+            assertEquals(1000, results.size)
+            val byIndex = results.associateBy({ it.first }, { it.second })
+            for (i in 0 until 1000) {
+                assertEquals(i, byIndex[i])
+            }
+        }
+    }
+
+    @Test
+    fun coroutinesWithDuckDbExecution() {
+        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
+            val mutex = Mutex()
+
+            val results = runBlocking {
+                (0 until 1000).map { i ->
+                    async(Dispatchers.Default) {
+                        val frag = Sql { "SELECT ${DuckDbTypes.integer(i)}" }
+                        val result = mutex.withLock {
+                            frag.query(RowParser.of(DuckDbTypes.integer).exactlyOne()).runChecked(conn)
+                        }
+                        i to result
+                    }
+                }.awaitAll()
+            }
+
+            assertEquals(1000, results.size)
+            val byIndex = results.associateBy({ it.first }, { it.second })
+            for (i in 0 until 1000) {
+                assertEquals(i, byIndex[i])
+            }
         }
     }
 }

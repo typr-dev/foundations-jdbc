@@ -12,5 +12,5 @@ object DomainType:
 
   // Create OracleType from NUMBER
   val empIdType: OracleType[EmployeeId] =
-    OracleTypes.numberLong.bimap(EmployeeId.apply, _.value)
+    OracleTypes.numberLong.transform(EmployeeId.apply, _.value)
   //stop

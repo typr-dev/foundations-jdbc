@@ -10,7 +10,7 @@ class WrapperType {
         companion object {
             // MariaDB int -> wraps to your domain type
             val mariaType: MariaType<ProductId> =
-                MariaTypes.int_.bimap(::ProductId, ProductId::value)
+                MariaTypes.int_.transform(::ProductId, ProductId::value)
         }
     }
     //stop

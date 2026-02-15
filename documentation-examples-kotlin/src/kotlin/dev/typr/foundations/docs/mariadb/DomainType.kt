@@ -10,6 +10,6 @@ class DomainType {
     data class UserId(val value: Long)
 
     // Create MariaType from bigint
-    val userIdType: MariaType<UserId> = MariaTypes.bigint.bimap(::UserId, UserId::value)
+    val userIdType: MariaType<UserId> = MariaTypes.bigint.transform(::UserId, UserId::value)
     //stop
 }

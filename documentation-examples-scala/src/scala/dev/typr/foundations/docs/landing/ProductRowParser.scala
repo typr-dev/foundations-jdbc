@@ -13,7 +13,7 @@ object ProductRowParser:
   case class Dim(width: Double, height: Double, depth: Double, unit: String)
   case class Category(id: Int, name: String)
 
-  val productIdType: PgType[ProductId] = PgTypes.int4.bimap(ProductId.apply, _.value)
+  val productIdType: PgType[ProductId] = PgTypes.int4.transform(ProductId.apply, _.value)
   val dimensionsType: PgType[Dim] = null // placeholder
   val categoryRowParser: RowParser[Category] = null // placeholder
 

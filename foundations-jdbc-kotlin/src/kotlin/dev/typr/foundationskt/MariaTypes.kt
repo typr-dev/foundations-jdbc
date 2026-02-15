@@ -11,15 +11,15 @@ import dev.typr.foundations.MariaTypes as JavaMariaTypes
  */
 open class MariaTypes {
     // Primitives - convert Java boxed types to Kotlin native types
-    open val tinyint: MariaType<Byte> = MariaType(JavaMariaTypes.tinyint.bimap(SqlFunction { it }, { it }))
-    open val smallint: MariaType<Short> = MariaType(JavaMariaTypes.smallint.bimap(SqlFunction { it }, { it }))
-    open val mediumint: MariaType<Int> = MariaType(JavaMariaTypes.mediumint.bimap(SqlFunction { it }, { it }))
-    open val int_: MariaType<Int> = MariaType(JavaMariaTypes.int_.bimap(SqlFunction { it }, { it }))
-    open val bigint: MariaType<Long> = MariaType(JavaMariaTypes.bigint.bimap(SqlFunction { it }, { it }))
-    open val float_: MariaType<Float> = MariaType(JavaMariaTypes.float_.bimap(SqlFunction { it }, { it }))
-    open val double_: MariaType<Double> = MariaType(JavaMariaTypes.double_.bimap(SqlFunction { it }, { it }))
-    open val bool: MariaType<Boolean> = MariaType(JavaMariaTypes.bool.bimap(SqlFunction { it }, { it }))
-    open val bit1: MariaType<Boolean> = MariaType(JavaMariaTypes.bit1.bimap(SqlFunction { it }, { it }))
+    open val tinyint: MariaType<Byte> = MariaType(JavaMariaTypes.tinyint.transform(SqlFunction { it }, { it }))
+    open val smallint: MariaType<Short> = MariaType(JavaMariaTypes.smallint.transform(SqlFunction { it }, { it }))
+    open val mediumint: MariaType<Int> = MariaType(JavaMariaTypes.mediumint.transform(SqlFunction { it }, { it }))
+    open val int_: MariaType<Int> = MariaType(JavaMariaTypes.int_.transform(SqlFunction { it }, { it }))
+    open val bigint: MariaType<Long> = MariaType(JavaMariaTypes.bigint.transform(SqlFunction { it }, { it }))
+    open val float_: MariaType<Float> = MariaType(JavaMariaTypes.float_.transform(SqlFunction { it }, { it }))
+    open val double_: MariaType<Double> = MariaType(JavaMariaTypes.double_.transform(SqlFunction { it }, { it }))
+    open val bool: MariaType<Boolean> = MariaType(JavaMariaTypes.bool.transform(SqlFunction { it }, { it }))
+    open val bit1: MariaType<Boolean> = MariaType(JavaMariaTypes.bit1.transform(SqlFunction { it }, { it }))
 
     // Forward all other types directly from Java (including BigDecimal which stays as java.math.BigDecimal in Kotlin)
     open val decimal = MariaType(JavaMariaTypes.decimal)

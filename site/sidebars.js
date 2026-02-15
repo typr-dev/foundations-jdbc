@@ -13,6 +13,7 @@ const sidebars = {
     {type: "doc", id: "sql-templates", label: "SQL Templates"},
     {type: "doc", id: "composing-operations", label: "Composing Operations"},
     {type: "doc", id: "production-patterns", label: "Production Patterns"},
+    {type: "doc", id: "kotlin-interpolation", label: "Kotlin String Interpolation"},
     {
       type: "category",
       label: "Database Types",

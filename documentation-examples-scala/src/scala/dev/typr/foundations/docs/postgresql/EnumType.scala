@@ -11,8 +11,8 @@ object EnumType:
   enum Status:
     case PENDING, ACTIVE, COMPLETED
 
-  // Create a PgType using bimap (Scala 3 enums don't extend java.lang.Enum)
-  val statusType: PgType[Status] = PgTypes.text.bimap(
+  // Create a PgType using transform (Scala 3 enums don't extend java.lang.Enum)
+  val statusType: PgType[Status] = PgTypes.text.transform(
     Status.valueOf,
     _.toString
   )

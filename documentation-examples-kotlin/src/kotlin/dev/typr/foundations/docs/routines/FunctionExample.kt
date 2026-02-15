@@ -10,14 +10,14 @@ class FunctionExample {
     //start
     companion object {
         // Functions use SELECT instead of CALL — every DbType reads correctly
-        val calcTax: DbFunction.Def2<BigDecimal, String, BigDecimal> =
+        val calcTax =
             DbFunction.define("calculate_tax", PgTypes.numeric)
                 .`in`(PgTypes.numeric)    // amount
                 .`in`(PgTypes.text)       // region
                 .build()
 
         // Zero-argument function
-        val nextId: DbFunction.Def0<Int> =
+        val nextId =
             DbFunction.define("next_id", PgTypes.int4)
                 .build()
     }

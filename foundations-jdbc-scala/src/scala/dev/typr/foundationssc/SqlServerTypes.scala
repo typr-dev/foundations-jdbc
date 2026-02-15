@@ -9,18 +9,18 @@ import dev.typr.foundations.{SqlServerTypes => JavaSqlServerTypes}
   */
 class SqlServerTypes {
   // Primitives - convert Java boxed types to Scala native types
-  val smallint: SqlServerType[Short] = SqlServerType(JavaSqlServerTypes.smallint.bimap(s => s, s => s))
-  val int_ : SqlServerType[Int] = SqlServerType(JavaSqlServerTypes.int_.bimap(i => i, i => i))
-  val bigint: SqlServerType[Long] = SqlServerType(JavaSqlServerTypes.bigint.bimap(l => l, l => l))
-  val real: SqlServerType[Float] = SqlServerType(JavaSqlServerTypes.real.bimap(f => f, f => f))
-  val float_ : SqlServerType[Double] = SqlServerType(JavaSqlServerTypes.float_.bimap(d => d, d => d))
-  val bit: SqlServerType[Boolean] = SqlServerType(JavaSqlServerTypes.bit.bimap(b => b, b => b))
+  val smallint: SqlServerType[Short] = SqlServerType(JavaSqlServerTypes.smallint.transform(s => s, s => s))
+  val int_ : SqlServerType[Int] = SqlServerType(JavaSqlServerTypes.int_.transform(i => i, i => i))
+  val bigint: SqlServerType[Long] = SqlServerType(JavaSqlServerTypes.bigint.transform(l => l, l => l))
+  val real: SqlServerType[Float] = SqlServerType(JavaSqlServerTypes.real.transform(f => f, f => f))
+  val float_ : SqlServerType[Double] = SqlServerType(JavaSqlServerTypes.float_.transform(d => d, d => d))
+  val bit: SqlServerType[Boolean] = SqlServerType(JavaSqlServerTypes.bit.transform(b => b, b => b))
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
-  val decimal: SqlServerType[BigDecimal] = SqlServerType(JavaSqlServerTypes.decimal.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
-  val numeric: SqlServerType[BigDecimal] = SqlServerType(JavaSqlServerTypes.numeric.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
-  val money: SqlServerType[BigDecimal] = SqlServerType(JavaSqlServerTypes.money.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
-  val smallmoney: SqlServerType[BigDecimal] = SqlServerType(JavaSqlServerTypes.smallmoney.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val decimal: SqlServerType[BigDecimal] = SqlServerType(JavaSqlServerTypes.decimal.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val numeric: SqlServerType[BigDecimal] = SqlServerType(JavaSqlServerTypes.numeric.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val money: SqlServerType[BigDecimal] = SqlServerType(JavaSqlServerTypes.money.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val smallmoney: SqlServerType[BigDecimal] = SqlServerType(JavaSqlServerTypes.smallmoney.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Forward all other types directly from Java
   val tinyint = SqlServerType(JavaSqlServerTypes.tinyint)
@@ -56,10 +56,10 @@ class SqlServerTypes {
 
   // Forward static methods with Scala type conversion
   def decimal(precision: Int, scale: Int): SqlServerType[BigDecimal] =
-    SqlServerType(JavaSqlServerTypes.decimal(precision, scale).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+    SqlServerType(JavaSqlServerTypes.decimal(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def numeric(precision: Int, scale: Int): SqlServerType[BigDecimal] =
-    SqlServerType(JavaSqlServerTypes.numeric(precision, scale).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+    SqlServerType(JavaSqlServerTypes.numeric(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def char_(length: Int): SqlServerType[String] =
     SqlServerType(JavaSqlServerTypes.char_(length))

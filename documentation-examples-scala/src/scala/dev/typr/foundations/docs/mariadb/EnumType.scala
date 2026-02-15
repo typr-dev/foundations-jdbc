@@ -11,8 +11,8 @@ object EnumType:
   enum Status:
     case PENDING, ACTIVE, COMPLETED
 
-  // Create a MariaType using bimap (Scala 3 enums don't extend java.lang.Enum)
-  val statusType: MariaType[Status] = MariaTypes.text.bimap(
+  // Create a MariaType using transform (Scala 3 enums don't extend java.lang.Enum)
+  val statusType: MariaType[Status] = MariaTypes.text.transform(
     Status.valueOf,
     _.toString
   )

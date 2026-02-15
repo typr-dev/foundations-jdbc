@@ -11,12 +11,12 @@ import dev.typr.foundations.SqlServerTypes as JavaSqlServerTypes
  */
 open class SqlServerTypes {
     // Primitives - convert Java boxed types to Kotlin native types
-    open val smallint: SqlServerType<Short> = SqlServerType(JavaSqlServerTypes.smallint.bimap(SqlFunction { it }, { it }))
-    open val int_: SqlServerType<Int> = SqlServerType(JavaSqlServerTypes.int_.bimap(SqlFunction { it }, { it }))
-    open val bigint: SqlServerType<Long> = SqlServerType(JavaSqlServerTypes.bigint.bimap(SqlFunction { it }, { it }))
-    open val real: SqlServerType<Float> = SqlServerType(JavaSqlServerTypes.real.bimap(SqlFunction { it }, { it }))
-    open val float_: SqlServerType<Double> = SqlServerType(JavaSqlServerTypes.float_.bimap(SqlFunction { it }, { it }))
-    open val bit: SqlServerType<Boolean> = SqlServerType(JavaSqlServerTypes.bit.bimap(SqlFunction { it }, { it }))
+    open val smallint: SqlServerType<Short> = SqlServerType(JavaSqlServerTypes.smallint.transform(SqlFunction { it }, { it }))
+    open val int_: SqlServerType<Int> = SqlServerType(JavaSqlServerTypes.int_.transform(SqlFunction { it }, { it }))
+    open val bigint: SqlServerType<Long> = SqlServerType(JavaSqlServerTypes.bigint.transform(SqlFunction { it }, { it }))
+    open val real: SqlServerType<Float> = SqlServerType(JavaSqlServerTypes.real.transform(SqlFunction { it }, { it }))
+    open val float_: SqlServerType<Double> = SqlServerType(JavaSqlServerTypes.float_.transform(SqlFunction { it }, { it }))
+    open val bit: SqlServerType<Boolean> = SqlServerType(JavaSqlServerTypes.bit.transform(SqlFunction { it }, { it }))
 
     // Forward all other types directly from Java
     open val tinyint = SqlServerType(JavaSqlServerTypes.tinyint)

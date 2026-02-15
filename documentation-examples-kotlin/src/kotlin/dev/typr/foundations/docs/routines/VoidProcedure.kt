@@ -9,7 +9,7 @@ class VoidProcedure {
     //start
     companion object {
         // A void procedure — no OUT parameters, just side effects
-        val auditLog: DbProcedure.Def2_0<String, String> =
+        val auditLog =
             DbProcedure.define("audit_log")
                 .`in`(PgTypes.text)       // action
                 .`in`(PgTypes.text)       // details

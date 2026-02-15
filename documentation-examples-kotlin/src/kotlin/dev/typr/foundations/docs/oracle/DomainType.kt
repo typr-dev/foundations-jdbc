@@ -11,6 +11,6 @@ class DomainType {
 
     // Create OracleType from NUMBER
     val empIdType: OracleType<EmployeeId> =
-        OracleTypes.numberLong.bimap(::EmployeeId, EmployeeId::value)
+        OracleTypes.numberLong.transform(::EmployeeId, EmployeeId::value)
     //stop
 }

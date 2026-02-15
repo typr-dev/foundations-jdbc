@@ -58,6 +58,7 @@ dependencies {
     testImplementation("com.oracle.database.jdbc:ojdbc11:${property("oracleDriverVersion")}")
     testImplementation("com.microsoft.sqlserver:mssql-jdbc:${property("sqlserverDriverVersion")}")
     testImplementation("com.ibm.db2:jcc:${property("db2DriverVersion")}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
 
     // Testcontainers
     testImplementation("org.testcontainers:testcontainers:${property("testcontainersVersion")}")

@@ -11,15 +11,15 @@ import dev.typr.foundations.OracleTypes as JavaOracleTypes
  */
 open class OracleTypes {
     // Primitives - convert Java boxed types to Kotlin native types
-    open val numberInt: OracleType<Int> = OracleType(JavaOracleTypes.numberInt.bimap(SqlFunction { it }, { it }))
-    open val numberLong: OracleType<Long> = OracleType(JavaOracleTypes.numberLong.bimap(SqlFunction { it }, { it }))
-    open val binaryFloat: OracleType<Float> = OracleType(JavaOracleTypes.binaryFloat.bimap(SqlFunction { it }, { it }))
-    open val binaryDouble: OracleType<Double> = OracleType(JavaOracleTypes.binaryDouble.bimap(SqlFunction { it }, { it }))
-    open val float_: OracleType<Double> = OracleType(JavaOracleTypes.float_.bimap(SqlFunction { it }, { it }))
-    open val real: OracleType<Double> = OracleType(JavaOracleTypes.real.bimap(SqlFunction { it }, { it }))
-    open val doublePrecision: OracleType<Double> = OracleType(JavaOracleTypes.doublePrecision.bimap(SqlFunction { it }, { it }))
-    open val boolean_: OracleType<Boolean> = OracleType(JavaOracleTypes.boolean_.bimap(SqlFunction { it }, { it }))
-    open val numberAsBoolean: OracleType<Boolean> = OracleType(JavaOracleTypes.numberAsBoolean.bimap(SqlFunction { it }, { it }))
+    open val numberInt: OracleType<Int> = OracleType(JavaOracleTypes.numberInt.transform(SqlFunction { it }, { it }))
+    open val numberLong: OracleType<Long> = OracleType(JavaOracleTypes.numberLong.transform(SqlFunction { it }, { it }))
+    open val binaryFloat: OracleType<Float> = OracleType(JavaOracleTypes.binaryFloat.transform(SqlFunction { it }, { it }))
+    open val binaryDouble: OracleType<Double> = OracleType(JavaOracleTypes.binaryDouble.transform(SqlFunction { it }, { it }))
+    open val float_: OracleType<Double> = OracleType(JavaOracleTypes.float_.transform(SqlFunction { it }, { it }))
+    open val real: OracleType<Double> = OracleType(JavaOracleTypes.real.transform(SqlFunction { it }, { it }))
+    open val doublePrecision: OracleType<Double> = OracleType(JavaOracleTypes.doublePrecision.transform(SqlFunction { it }, { it }))
+    open val boolean_: OracleType<Boolean> = OracleType(JavaOracleTypes.boolean_.transform(SqlFunction { it }, { it }))
+    open val numberAsBoolean: OracleType<Boolean> = OracleType(JavaOracleTypes.numberAsBoolean.transform(SqlFunction { it }, { it }))
 
     // Forward all other types directly from Java
     open val number = OracleType(JavaOracleTypes.number)
@@ -56,13 +56,13 @@ open class OracleTypes {
     open fun number(precision: Int, scale: Int) = OracleType(JavaOracleTypes.number(precision, scale))
 
     open fun numberAsInt(precision: Int): OracleType<Int> =
-        OracleType(JavaOracleTypes.numberAsInt(precision).bimap(SqlFunction { it }, { it }))
+        OracleType(JavaOracleTypes.numberAsInt(precision).transform(SqlFunction { it }, { it }))
 
     open fun numberAsLong(precision: Int): OracleType<Long> =
-        OracleType(JavaOracleTypes.numberAsLong(precision).bimap(SqlFunction { it }, { it }))
+        OracleType(JavaOracleTypes.numberAsLong(precision).transform(SqlFunction { it }, { it }))
 
     open fun float_(binaryPrecision: Int): OracleType<Double> =
-        OracleType(JavaOracleTypes.float_(binaryPrecision).bimap(SqlFunction { it }, { it }))
+        OracleType(JavaOracleTypes.float_(binaryPrecision).transform(SqlFunction { it }, { it }))
 
     open fun varchar2(maxLength: Int) = OracleType(JavaOracleTypes.varchar2(maxLength))
 

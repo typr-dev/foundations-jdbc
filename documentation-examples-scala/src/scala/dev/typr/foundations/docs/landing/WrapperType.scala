@@ -12,5 +12,5 @@ object WrapperType:
   object ProductId:
     // MariaDB int -> wraps to your domain type
     val mariaType: MariaType[ProductId] =
-      MariaTypes.int_.bimap(ProductId.apply, _.value)
+      MariaTypes.int_.transform(ProductId.apply, _.value)
   //stop

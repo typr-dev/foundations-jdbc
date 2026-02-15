@@ -11,16 +11,16 @@ import dev.typr.foundations.PgTypes as JavaPgTypes
  */
 open class PgTypes {
     // Primitives - convert Java boxed types to Kotlin native types
-    open val bool: PgType<Boolean> = PgType(JavaPgTypes.bool.bimap(SqlFunction { it }, { it }))
-    open val int2: PgType<Short> = PgType(JavaPgTypes.int2.bimap(SqlFunction { it }, { it }))
-    open val smallint: PgType<Short> = PgType(JavaPgTypes.smallint.bimap(SqlFunction { it }, { it }))
-    open val int4: PgType<Int> = PgType(JavaPgTypes.int4.bimap(SqlFunction { it }, { it }))
-    open val int8: PgType<Long> = PgType(JavaPgTypes.int8.bimap(SqlFunction { it }, { it }))
-    open val float4: PgType<Float> = PgType(JavaPgTypes.float4.bimap(SqlFunction { it }, { it }))
-    open val float8: PgType<Double> = PgType(JavaPgTypes.float8.bimap(SqlFunction { it }, { it }))
+    open val bool: PgType<Boolean> = PgType(JavaPgTypes.bool.transform(SqlFunction { it }, { it }))
+    open val int2: PgType<Short> = PgType(JavaPgTypes.int2.transform(SqlFunction { it }, { it }))
+    open val smallint: PgType<Short> = PgType(JavaPgTypes.smallint.transform(SqlFunction { it }, { it }))
+    open val int4: PgType<Int> = PgType(JavaPgTypes.int4.transform(SqlFunction { it }, { it }))
+    open val int8: PgType<Long> = PgType(JavaPgTypes.int8.transform(SqlFunction { it }, { it }))
+    open val float4: PgType<Float> = PgType(JavaPgTypes.float4.transform(SqlFunction { it }, { it }))
+    open val float8: PgType<Double> = PgType(JavaPgTypes.float8.transform(SqlFunction { it }, { it }))
 
     // Collections - convert Java Map to Kotlin Map
-    open val hstore = PgType(JavaPgTypes.hstore.bimap(
+    open val hstore = PgType(JavaPgTypes.hstore.transform(
         SqlFunction { javaMap -> javaMap.toMap() },
         { kotlinMap -> kotlinMap.toMap(java.util.HashMap()) }
     ))

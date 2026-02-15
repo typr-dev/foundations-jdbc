@@ -645,7 +645,7 @@ public interface OracleTypes {
         sqlType,
         OracleRead.readString.map(fromString::apply),
         OracleWrite.writeString.contramap(Enum::name),
-        OracleJson.text.bimap(fromString::apply, Enum::name),
+        OracleJson.text.transform(fromString::apply, Enum::name),
         OracleOutParam.readString.map(fromString::apply));
   }
 
@@ -696,5 +696,5 @@ public interface OracleTypes {
               OracleWrite.writeString,
               OracleJson.text,
               OracleOutParam.readString)
-          .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+          .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 }

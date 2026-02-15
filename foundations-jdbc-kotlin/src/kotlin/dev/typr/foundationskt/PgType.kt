@@ -8,8 +8,8 @@ class PgType<T>(override val underlying: dev.typr.foundations.PgType<T>) : DbTyp
     override fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): PgType<B> =
         PgType(underlying.to(bijection))
 
-    fun <B> bimap(f: dev.typr.foundations.SqlFunction<T, B>, g: (B) -> T): PgType<B> =
-        PgType(underlying.bimap(f, g))
+    fun <B> transform(f: dev.typr.foundations.SqlFunction<T, B>, g: (B) -> T): PgType<B> =
+        PgType(underlying.transform(f, g))
 
     fun pgText(): dev.typr.foundations.PgText<T> = underlying.pgText()
 

@@ -11,5 +11,5 @@ object DomainType:
   case class Email(value: String)
 
   // Create PgType from text
-  val emailType: PgType[Email] = PgTypes.text.bimap(Email.apply, _.value)
+  val emailType: PgType[Email] = PgTypes.text.transform(Email.apply, _.value)
   //stop

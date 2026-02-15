@@ -10,47 +10,47 @@ import scala.jdk.CollectionConverters.*
   */
 class PgTypes {
   // Primitives - convert Java boxed types to Scala native types
-  val bool: PgType[Boolean] = PgType(JavaPgTypes.bool.bimap(b => b, b => b))
-  val int2: PgType[Short] = PgType(JavaPgTypes.int2.bimap(s => s, s => s))
-  val smallint: PgType[Short] = PgType(JavaPgTypes.smallint.bimap(s => s, s => s))
-  val int4: PgType[Int] = PgType(JavaPgTypes.int4.bimap(i => i, i => i))
-  val int8: PgType[Long] = PgType(JavaPgTypes.int8.bimap(l => l, l => l))
-  val float4: PgType[Float] = PgType(JavaPgTypes.float4.bimap(f => f, f => f))
-  val float8: PgType[Double] = PgType(JavaPgTypes.float8.bimap(d => d, d => d))
+  val bool: PgType[Boolean] = PgType(JavaPgTypes.bool.transform(b => b, b => b))
+  val int2: PgType[Short] = PgType(JavaPgTypes.int2.transform(s => s, s => s))
+  val smallint: PgType[Short] = PgType(JavaPgTypes.smallint.transform(s => s, s => s))
+  val int4: PgType[Int] = PgType(JavaPgTypes.int4.transform(i => i, i => i))
+  val int8: PgType[Long] = PgType(JavaPgTypes.int8.transform(l => l, l => l))
+  val float4: PgType[Float] = PgType(JavaPgTypes.float4.transform(f => f, f => f))
+  val float8: PgType[Double] = PgType(JavaPgTypes.float8.transform(d => d, d => d))
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
-  val numeric: PgType[BigDecimal] = PgType(JavaPgTypes.numeric.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val numeric: PgType[BigDecimal] = PgType(JavaPgTypes.numeric.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Collections - convert Java collections to Scala collections
-  val hstore: PgType[Map[String, String]] = PgType(JavaPgTypes.hstore.bimap(javaMap => javaMap.asScala.toMap, scalaMap => scalaMap.asJava))
+  val hstore: PgType[Map[String, String]] = PgType(JavaPgTypes.hstore.transform(javaMap => javaMap.asScala.toMap, scalaMap => scalaMap.asJava))
 
   // Array types - convert Java boxed arrays to Scala native arrays
-  val boolArray: PgType[Array[Boolean]] = PgType(JavaPgTypes.boolArray.bimap(
+  val boolArray: PgType[Array[Boolean]] = PgType(JavaPgTypes.boolArray.transform(
     arr => arr.map(_.booleanValue()),
     arr => arr.map(java.lang.Boolean.valueOf)
   ))
-  val int2Array: PgType[Array[Short]] = PgType(JavaPgTypes.int2Array.bimap(
+  val int2Array: PgType[Array[Short]] = PgType(JavaPgTypes.int2Array.transform(
     arr => arr.map(_.shortValue()),
     arr => arr.map(java.lang.Short.valueOf)
   ))
   val smallintArray: PgType[Array[Short]] = int2Array
-  val int4Array: PgType[Array[Int]] = PgType(JavaPgTypes.int4Array.bimap(
+  val int4Array: PgType[Array[Int]] = PgType(JavaPgTypes.int4Array.transform(
     arr => arr.map(_.intValue()),
     arr => arr.map(java.lang.Integer.valueOf)
   ))
-  val int8Array: PgType[Array[Long]] = PgType(JavaPgTypes.int8Array.bimap(
+  val int8Array: PgType[Array[Long]] = PgType(JavaPgTypes.int8Array.transform(
     arr => arr.map(_.longValue()),
     arr => arr.map(java.lang.Long.valueOf)
   ))
-  val float4Array: PgType[Array[Float]] = PgType(JavaPgTypes.float4Array.bimap(
+  val float4Array: PgType[Array[Float]] = PgType(JavaPgTypes.float4Array.transform(
     arr => arr.map(_.floatValue()),
     arr => arr.map(java.lang.Float.valueOf)
   ))
-  val float8Array: PgType[Array[Double]] = PgType(JavaPgTypes.float8Array.bimap(
+  val float8Array: PgType[Array[Double]] = PgType(JavaPgTypes.float8Array.transform(
     arr => arr.map(_.doubleValue()),
     arr => arr.map(java.lang.Double.valueOf)
   ))
-  val numericArray: PgType[Array[BigDecimal]] = PgType(JavaPgTypes.numericArray.bimap(
+  val numericArray: PgType[Array[BigDecimal]] = PgType(JavaPgTypes.numericArray.transform(
     arr => arr.map(BigDecimal(_)),
     arr => arr.map(_.bigDecimal)
   ))

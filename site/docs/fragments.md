@@ -10,7 +10,9 @@ A Fragment is a composable SQL building block — it holds a SQL string together
 
 ## String Interpolation
 
-Kotlin uses `Sql { }` and Scala uses `sql""` to build fragments from string templates. Database values are embedded as typed, bound parameters — never concatenated into the SQL string:
+Kotlin uses `Sql { }` and Scala uses `sql""` to build fragments from string templates. Database values are embedded as typed, bound parameters — never concatenated into the SQL string.
+
+> For a thorough explanation of how `Sql { }` works internally and its thread safety guarantees, see [Kotlin String Interpolation](./kotlin-interpolation).
 
 <Snippet file="core/FragmentBuilding" />
 
