@@ -25,8 +25,7 @@ class TransactorSetup {
         val tx = connectionSource.transactor(Transactor.defaultStrategy())
 
         // Everything inside runs in one transaction: begin, commit, close
-        return Fragment.of("SELECT * FROM product WHERE price > ")
-            .value(PgTypes.numeric, minPrice)
+        return Sql { "SELECT * FROM product WHERE price > ${PgTypes.numeric(minPrice)}" }
             .query(rowParser.all())
             .transact(tx)
     }

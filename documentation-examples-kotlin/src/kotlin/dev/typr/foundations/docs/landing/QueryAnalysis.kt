@@ -12,8 +12,7 @@ class QueryAnalysis {
 
     //start
     // Your query looks fine at compile time...
-    val query: Operation.Query<List<User>> = Fragment.of("SELECT id, name, created_at, email FROM users WHERE active = ")
-        .value(PgTypes.bool, true)
+    val query: Operation.Query<List<User>> = Sql { "SELECT id, name, created_at, email FROM users WHERE active = ${PgTypes.bool(true)}" }
         .query(RowParser.builder<User>()
             .field(PgTypes.int4, User::id)           // id: correct
             .field(PgTypes.text, User::name)         // name: correct

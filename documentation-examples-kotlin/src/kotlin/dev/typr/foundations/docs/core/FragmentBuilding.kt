@@ -21,13 +21,9 @@ class FragmentBuilding {
     val cutoffDate: Instant = Instant.now()
 
     //start
-    val query: Fragment =
-        Fragment.of("SELECT * FROM users WHERE id = ")
-            .value(PgTypes.int4, userId)
-            .append(" AND status = ")
-            .value(PgTypes.text, "active")
-            .append(" AND created_at > ")
-            .value(PgTypes.timestamptz, cutoffDate)
+    val query: Fragment = Sql {
+        "SELECT * FROM users WHERE id = ${PgTypes.int4(userId)} AND status = ${PgTypes.text("active")} AND created_at > ${PgTypes.timestamptz(cutoffDate)}"
+    }
 
     // Execute safely — parameters are bound, not interpolated
     val users: List<User> =

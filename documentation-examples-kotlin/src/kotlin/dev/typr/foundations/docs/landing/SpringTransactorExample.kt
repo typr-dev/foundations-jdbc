@@ -12,7 +12,7 @@ class SpringTransactorExample {
     class OrderService(private val tx: Transactor) {
 
         @Transactional
-        fun getGreeting(): String = Fragment.of("SELECT 'Hello from Oracle' FROM dual")
+        fun getGreeting(): String = Sql { "SELECT 'Hello from Oracle' FROM dual" }
             .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
             .transact(tx)
     }

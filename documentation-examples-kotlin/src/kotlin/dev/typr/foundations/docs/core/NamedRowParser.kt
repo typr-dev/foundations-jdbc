@@ -18,6 +18,6 @@ class NamedRowParser {
         .build(::Product)
 
     // Column list for SQL — no hand-written strings to keep in sync
-    val allProducts = Fragment.of("SELECT ").append(productParser.columnList).append(" FROM product")
+    val allProducts = Sql { "SELECT ${productParser.columnList} FROM product" }
     //stop
 }

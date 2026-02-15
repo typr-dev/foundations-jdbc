@@ -15,7 +15,7 @@ class ExecuteTransact {
     lateinit var tx: Transactor
 
     val findCities: Operation<List<City>> =
-        Fragment.of("SELECT name, population FROM city ORDER BY population DESC")
+        Sql { "SELECT name, population FROM city ORDER BY population DESC" }
             .query(cityParser.all())
 
     //start

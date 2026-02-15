@@ -24,10 +24,7 @@ object JsonCodecs {
 
     // Aggregate child rows as JSON in a single query
     fun getOrderLines(customerId: Int): List<OrderLine> {
-        val json: Json = Fragment.of(
-            "SELECT json_group_array(json_array(product, qty, price)) "
-            + "FROM order_lines WHERE customer_id = ")
-            .value(DuckDbTypes.integer, customerId)
+        val json: Json = Sql { "SELECT json_group_array(json_array(product, qty, price)) FROM order_lines WHERE customer_id = ${DuckDbTypes.integer(customerId)}" }
             .query(RowParser.of(DuckDbTypes.json).exactlyOne())
             .transact(tx)
 

@@ -20,8 +20,7 @@ class QueryAnalysisBasic {
     //start
     fun analyzeQuery() {
         // Build your query as normal
-        val query: Operation.Query<List<User>> = Fragment.of("SELECT id, name, email FROM users WHERE id = ")
-            .value(PgTypes.int4, userId)
+        val query: Operation.Query<List<User>> = Sql { "SELECT id, name, email FROM users WHERE id = ${PgTypes.int4(userId)}" }
             .query(userRowParser.all())
 
         // Analyze it against the database

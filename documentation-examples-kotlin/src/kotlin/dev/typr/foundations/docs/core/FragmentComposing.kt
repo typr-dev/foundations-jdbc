@@ -20,10 +20,10 @@ class FragmentComposing {
     //start
     // Build small reusable filters
     fun byName(name: String): Fragment =
-        Fragment.of("name ILIKE ").value(PgTypes.text, name)
+        Sql { "name ILIKE ${PgTypes.text(name)}" }
 
     fun cheaperThan(max: BigDecimal): Fragment =
-        Fragment.of("price < ").value(PgTypes.numeric, max)
+        Sql { "price < ${PgTypes.numeric(max)}" }
 
     // Compose dynamically — only include the filters that are present
     fun query(): List<ProductRow> {
@@ -32,8 +32,7 @@ class FragmentComposing {
             maxPrice?.let(::cheaperThan)
         )
 
-        return Fragment.of("SELECT * FROM product ")
-            .append(Fragment.whereAnd(filters))
+        return Sql { "SELECT * FROM product ${Fragment.whereAnd(filters)}" }
             .query(rowParser.all())
             .transact(tx)
     }

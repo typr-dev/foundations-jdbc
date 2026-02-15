@@ -19,8 +19,7 @@ class QueryAnalysisNamed {
 
     //start
     fun analyzeNamedQuery() {
-        val query = Fragment.of("SELECT id, name, email FROM users WHERE id = ")
-            .value(PgTypes.int4, userId)
+        val query = Sql { "SELECT id, name, email FROM users WHERE id = ${PgTypes.int4(userId)}" }
             .query(userRowParser.all())
 
         // Give your query a name - it shows up in the error report
