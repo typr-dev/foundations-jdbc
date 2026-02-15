@@ -87,9 +87,9 @@ public record SqlServerType<A>(
         sqlServerOutParam.opt(), analysisOptions);
   }
 
-  public <B> SqlServerType<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  public <B> SqlServerType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     return new SqlServerType<>(
-        typename.as(), read.map(f), write.contramap(g), sqlServerJson.bimap(f, g),
+        typename.as(), read.map(f), write.contramap(g), sqlServerJson.transform(f, g),
         sqlServerOutParam.map(f), analysisOptions);
   }
 
@@ -98,7 +98,7 @@ public record SqlServerType<A>(
         typename.as(),
         read.map(bijection::underlying),
         write.contramap(bijection::from),
-        sqlServerJson.bimap(bijection::underlying, bijection::from),
+        sqlServerJson.transform(bijection::underlying, bijection::from),
         sqlServerOutParam.map(bijection::underlying),
         analysisOptions);
   }

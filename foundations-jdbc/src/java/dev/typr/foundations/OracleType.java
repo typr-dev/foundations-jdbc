@@ -97,14 +97,14 @@ public record OracleType<A>(
         typename.as(),
         read.map(bijection::underlying),
         write.contramap(bijection::from),
-        oracleJson.bimap(bijection::underlying, bijection::from),
+        oracleJson.transform(bijection::underlying, bijection::from),
         oracleOutParam.map(bijection::underlying),
         analysisOptions);
   }
 
-  public <B> OracleType<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  public <B> OracleType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     return new OracleType<>(
-        typename.as(), read.map(f), write.contramap(g), oracleJson.bimap(f, g),
+        typename.as(), read.map(f), write.contramap(g), oracleJson.transform(f, g),
         oracleOutParam.map(f), analysisOptions);
   }
 

@@ -4,10 +4,10 @@ import dev.typr.foundationskt.*
 
 // ─── Domain type mappings ───────────────────────────────────────────
 
-val eventIdType: DuckDbType<EventId> = DuckDbTypes.bigint.bimap(::EventId, EventId::value)
-val venueIdType: DuckDbType<VenueId> = DuckDbTypes.bigint.bimap(::VenueId, VenueId::value)
-val ticketIdType: DuckDbType<TicketId> = DuckDbTypes.uuid.bimap(::TicketId, TicketId::value)
-val moneyType: DuckDbType<Money> = DuckDbTypes.decimal(12, 2).bimap(::Money, Money::amount)
+val eventIdType: DuckDbType<EventId> = DuckDbTypes.bigint.transform(::EventId, EventId::value)
+val venueIdType: DuckDbType<VenueId> = DuckDbTypes.bigint.transform(::VenueId, VenueId::value)
+val ticketIdType: DuckDbType<TicketId> = DuckDbTypes.uuid.transform(::TicketId, TicketId::value)
+val moneyType: DuckDbType<Money> = DuckDbTypes.decimal(12, 2).transform(::Money, Money::amount)
 
 // ─── Enum types ─────────────────────────────────────────────────────
 

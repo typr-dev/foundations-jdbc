@@ -9,7 +9,7 @@ class StoredProcedure {
     //start
     companion object {
         // Define once, call many times — input and output types are baked in
-        val getUser: DbProcedure.Def1_2<Int, String, String> =
+        val getUser =
             DbProcedure.define("get_user_by_id")
                 .`in`(PgTypes.int4)
                 .out(PgTypes.text)

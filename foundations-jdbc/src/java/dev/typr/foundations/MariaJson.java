@@ -59,7 +59,7 @@ public interface MariaJson<A> extends DbJson<A> {
     };
   }
 
-  default <B> MariaJson<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  default <B> MariaJson<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     MariaJson<A> self = this;
     return new MariaJson<>() {
       @Override

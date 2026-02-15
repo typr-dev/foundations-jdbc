@@ -62,7 +62,7 @@ public interface OracleJson<A> extends DbJson<A> {
     };
   }
 
-  default <B> OracleJson<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  default <B> OracleJson<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     OracleJson<A> self = this;
     return new OracleJson<>() {
       @Override

@@ -7,8 +7,8 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
   override def to[B](bijection: dev.typr.foundations.Bijection[T, B]): DuckDbType[B] =
     DuckDbType(underlying.to(bijection))
 
-  def bimap[B](f: dev.typr.foundations.SqlFunction[T, B], g: java.util.function.Function[B, T]): DuckDbType[B] =
-    DuckDbType(underlying.bimap(f, g))
+  def transform[B](f: dev.typr.foundations.SqlFunction[T, B], g: java.util.function.Function[B, T]): DuckDbType[B] =
+    DuckDbType(underlying.transform(f, g))
 
   def mapTo[V](valueType: DuckDbType[V]): DuckDbType[java.util.Map[T, V]] =
     DuckDbType(underlying.mapTo(valueType.underlying))

@@ -15,17 +15,17 @@ public abstract class Db2Json<A> implements DbJson<A> {
 
   public abstract A fromJson(JsonValue jsonValue);
 
-  public <B> Db2Json<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  public <B> Db2Json<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     var self = this;
     return Db2Json.instance(a -> self.toJson(g.apply(a)), jv -> f.apply(self.fromJson(jv)));
   }
 
   public <B> Db2Json<B> map(SqlFunction<A, B> f) {
-    return bimap(f, null); // write not supported
+    return transform(f, null); // write not supported
   }
 
   public <B> Db2Json<B> contramap(Function<B, A> g) {
-    return bimap(null, g); // read not supported
+    return transform(null, g); // read not supported
   }
 
   public Db2Json<Optional<A>> opt() {

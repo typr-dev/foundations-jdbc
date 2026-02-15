@@ -8,8 +8,8 @@ class Db2Type<T>(override val underlying: dev.typr.foundations.Db2Type<T>) : DbT
     override fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): Db2Type<B> =
         Db2Type(underlying.to(bijection))
 
-    fun <B> bimap(f: dev.typr.foundations.SqlFunction<T, B>, g: (B) -> T): Db2Type<B> =
-        Db2Type(underlying.bimap(f, g))
+    fun <B> transform(f: dev.typr.foundations.SqlFunction<T, B>, g: (B) -> T): Db2Type<B> =
+        Db2Type(underlying.transform(f, g))
 
     fun unchecked(): Db2Type<T> = Db2Type(underlying.unchecked())
     fun nullableOk(): Db2Type<T> = Db2Type(underlying.nullableOk())

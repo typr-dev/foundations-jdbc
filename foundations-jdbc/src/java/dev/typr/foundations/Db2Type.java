@@ -87,9 +87,9 @@ public record Db2Type<A>(
         db2OutParam.opt(), analysisOptions);
   }
 
-  public <B> Db2Type<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  public <B> Db2Type<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     return new Db2Type<>(
-        typename.as(), read.map(f), write.contramap(g), db2Json.bimap(f, g),
+        typename.as(), read.map(f), write.contramap(g), db2Json.transform(f, g),
         db2OutParam.map(f), analysisOptions);
   }
 
@@ -98,7 +98,7 @@ public record Db2Type<A>(
         typename.as(),
         read.map(bijection::underlying),
         write.contramap(bijection::from),
-        db2Json.bimap(bijection::underlying, bijection::from),
+        db2Json.transform(bijection::underlying, bijection::from),
         db2OutParam.map(bijection::underlying),
         analysisOptions);
   }

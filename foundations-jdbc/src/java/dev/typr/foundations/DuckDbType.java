@@ -377,14 +377,14 @@ public record DuckDbType<A>(
         DuckDbMapSupport.cast(), analysisOptions);
   }
 
-  public <B> DuckDbType<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  public <B> DuckDbType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     return new DuckDbType<>(
         typename.as(),
         read.map(f),
         write.contramap(g),
         stringifier.contramap(g),
-        duckDbJson.bimap(f, g),
-        mapSupport.bimap(
+        duckDbJson.transform(f, g),
+        mapSupport.transform(
             a -> {
               try {
                 return f.apply(a);
@@ -403,8 +403,8 @@ public record DuckDbType<A>(
         read.map(bijection::underlying),
         write.contramap(bijection::from),
         stringifier.contramap(bijection::from),
-        duckDbJson.bimap(bijection::underlying, bijection::from),
-        mapSupport.bimap(bijection::underlying, bijection::from),
+        duckDbJson.transform(bijection::underlying, bijection::from),
+        mapSupport.transform(bijection::underlying, bijection::from),
         analysisOptions);
   }
 

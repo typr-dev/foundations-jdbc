@@ -62,8 +62,8 @@ public interface DuckDbMapSupport<A> {
     };
   }
 
-  /** Transform this support with a bijection (for bimap support). */
-  default <B> DuckDbMapSupport<B> bimap(Function<A, B> f, Function<B, A> g) {
+  /** Transform this support with a bijection (for transform support). */
+  default <B> DuckDbMapSupport<B> transform(Function<A, B> f, Function<B, A> g) {
     DuckDbMapSupport<A> self = this;
     return new DuckDbMapSupport<>() {
       @Override

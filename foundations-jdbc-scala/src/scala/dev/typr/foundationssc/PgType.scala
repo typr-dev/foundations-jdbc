@@ -7,8 +7,8 @@ class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends
   override def to[B](bijection: dev.typr.foundations.Bijection[T, B]): PgType[B] =
     PgType(underlying.to(bijection))
 
-  def bimap[B](f: dev.typr.foundations.SqlFunction[T, B], g: java.util.function.Function[B, T]): PgType[B] =
-    PgType(underlying.bimap(f, g))
+  def transform[B](f: dev.typr.foundations.SqlFunction[T, B], g: java.util.function.Function[B, T]): PgType[B] =
+    PgType(underlying.transform(f, g))
 
   def pgText(): dev.typr.foundations.PgText[T] = underlying.pgText()
 

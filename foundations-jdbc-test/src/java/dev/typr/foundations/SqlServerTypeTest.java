@@ -220,13 +220,13 @@ public class SqlServerTypeTest {
           // ==================== Alias Types (User-Defined Types) ====================
           // Test domain-like wrapper pattern (like CREATE TYPE EmailAddress FROM NVARCHAR(255))
           new SqlServerTypeAndExample<>(
-              SqlServerTypes.nvarchar(255).bimap(EmailAddress::new, EmailAddress::value),
+              SqlServerTypes.nvarchar(255).transform(EmailAddress::new, EmailAddress::value),
               new EmailAddress("test@example.com")),
 
           // ==================== CLR Types (Assembly Types) ====================
           // Test CLR type as domain wrapper around VARBINARY (like generated code)
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.varbinary(100).bimap(AssemblyData::new, AssemblyData::value),
+                  SqlServerTypes.varbinary(100).transform(AssemblyData::new, AssemblyData::value),
                   new AssemblyData(new byte[] {0x01, 0x02, 0x03, 0x04}))
               .noIdentity());
 

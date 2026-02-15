@@ -10,6 +10,6 @@ class DomainType {
     data class Email(val value: String)
 
     // Create PgType from text
-    val emailType: PgType<Email> = PgTypes.text.bimap(::Email, Email::value)
+    val emailType: PgType<Email> = PgTypes.text.transform(::Email, Email::value)
     //stop
 }

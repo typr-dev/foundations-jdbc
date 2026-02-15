@@ -9,7 +9,6 @@ import java.sql.SQLException;
 public class InoutProcedure {
     Transactor tx = null; // placeholder
 
-    //start
     // INOUT — the value goes in and comes back modified
     static final DbProcedure.Def2_1<String, BigDecimal, BigDecimal> applyDiscount =
         DbProcedure.define("apply_discount")
@@ -17,6 +16,7 @@ public class InoutProcedure {
             .inout(PgTypes.numeric)     // price INOUT — goes in, comes back modified
             .build();
 
+    //start
     BigDecimal applyDiscount(String code, BigDecimal price) throws SQLException {
         return applyDiscount.call(code, price).transact(tx);
     }

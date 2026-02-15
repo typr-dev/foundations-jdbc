@@ -367,5 +367,5 @@ public interface Db2Types {
               Db2Write.writeString,
               Db2Json.text,
               Db2OutParam.readString)
-          .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+          .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 }

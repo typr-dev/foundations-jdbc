@@ -37,7 +37,7 @@ public interface MariaTypes {
           "TINYINT",
           MariaRead.readByte,
           MariaWrite.writeByte,
-          MariaJson.int4.bimap(Integer::byteValue, Byte::intValue),
+          MariaJson.int4.transform(Integer::byteValue, Byte::intValue),
           MariaOutParam.readByte);
 
   MariaType<Short> smallint =
@@ -81,7 +81,7 @@ public interface MariaTypes {
           "TINYINT UNSIGNED",
           MariaRead.readShort.map(Uint1::new),
           MariaWrite.writeShort.contramap(Uint1::value),
-          MariaJson.int2.bimap(Uint1::new, Uint1::value),
+          MariaJson.int2.transform(Uint1::new, Uint1::value),
           MariaOutParam.readShort.map(Uint1::new));
 
   // SMALLINT UNSIGNED: 0-65535, wrapped in Uint2
@@ -90,7 +90,7 @@ public interface MariaTypes {
           "SMALLINT UNSIGNED",
           MariaRead.readInteger.map(Uint2::new),
           MariaWrite.writeInteger.contramap(Uint2::value),
-          MariaJson.int4.bimap(Uint2::new, Uint2::value),
+          MariaJson.int4.transform(Uint2::new, Uint2::value),
           MariaOutParam.readInteger.map(Uint2::new));
 
   // MEDIUMINT UNSIGNED: 0-16777215, wrapped in Uint4
@@ -99,7 +99,7 @@ public interface MariaTypes {
           "MEDIUMINT UNSIGNED",
           MariaRead.readLong.map(Uint4::new),
           MariaWrite.writeLong.contramap(Uint4::value),
-          MariaJson.int8.bimap(Uint4::new, Uint4::value),
+          MariaJson.int8.transform(Uint4::new, Uint4::value),
           MariaOutParam.readLong.map(Uint4::new));
 
   // INT UNSIGNED: 0-4294967295, wrapped in Uint4
@@ -108,7 +108,7 @@ public interface MariaTypes {
           "INT UNSIGNED",
           MariaRead.readLong.map(Uint4::new),
           MariaWrite.writeLong.contramap(Uint4::value),
-          MariaJson.int8.bimap(Uint4::new, Uint4::value),
+          MariaJson.int8.transform(Uint4::new, Uint4::value),
           MariaOutParam.readLong.map(Uint4::new))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("integer unsigned"));
 
@@ -118,7 +118,7 @@ public interface MariaTypes {
           "BIGINT UNSIGNED",
           MariaRead.readBigInteger.map(Uint8::new),
           MariaWrite.writeBigInteger.contramap(Uint8::value),
-          MariaJson.numeric.bimap(
+          MariaJson.numeric.transform(
               v -> new Uint8(v.toBigInteger()), v -> new BigDecimal(v.value())),
           MariaOutParam.readBigDecimal.map(v -> new Uint8(v.toBigInteger())));
 
@@ -367,7 +367,7 @@ public interface MariaTypes {
           "YEAR",
           MariaRead.readYear,
           MariaWrite.writeShort.contramap(y -> (short) y.getValue()),
-          MariaJson.int4.bimap(Year::of, Year::getValue),
+          MariaJson.int4.transform(Year::of, Year::getValue),
           MariaOutParam.readYear);
 
   static MariaType<LocalTime> time(int fsp) {
@@ -411,7 +411,7 @@ public interface MariaTypes {
         sqlType,
         MariaRead.readString.map(fromString::apply),
         MariaWrite.writeString.contramap(Enum::name),
-        MariaJson.text.bimap(fromString::apply, Enum::name),
+        MariaJson.text.transform(fromString::apply, Enum::name),
         MariaOutParam.readString.map(fromString::apply))
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
   }
@@ -424,7 +424,7 @@ public interface MariaTypes {
           "SET",
           MariaRead.readString.map(MariaSet::fromString),
           MariaWrite.writeString.contramap(MariaSet::toCommaSeparated),
-          MariaJson.text.bimap(MariaSet::fromString, MariaSet::toCommaSeparated),
+          MariaJson.text.transform(MariaSet::fromString, MariaSet::toCommaSeparated),
           MariaOutParam.readString.map(MariaSet::fromString))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
 
@@ -446,7 +446,7 @@ public interface MariaTypes {
           "INET4",
           MariaRead.readString.map(Inet4::parse),
           MariaWrite.writeString.contramap(Inet4::value),
-          MariaJson.text.bimap(Inet4::parse, Inet4::value),
+          MariaJson.text.transform(Inet4::parse, Inet4::value),
           MariaOutParam.readString.map(Inet4::parse))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
 
@@ -455,7 +455,7 @@ public interface MariaTypes {
           "INET6",
           MariaRead.readString.map(Inet6::parse),
           MariaWrite.writeString.contramap(Inet6::value),
-          MariaJson.text.bimap(Inet6::parse, Inet6::value),
+          MariaJson.text.transform(Inet6::parse, Inet6::value),
           MariaOutParam.readString.map(Inet6::parse))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
 
@@ -472,7 +472,7 @@ public interface MariaTypes {
           "GEOMETRY",
           MariaRead.readGeometry(Geometry.class),
           MariaWrite.passObjectToJdbc(),
-          MariaJson.text.bimap(
+          MariaJson.text.transform(
               s -> {
                 throw new UnsupportedOperationException("Geometry JSON not supported");
               },
@@ -484,7 +484,7 @@ public interface MariaTypes {
           "POINT",
           MariaRead.readGeometry(Point.class),
           MariaWrite.passObjectToJdbc(),
-          MariaJson.text.bimap(
+          MariaJson.text.transform(
               s -> {
                 throw new UnsupportedOperationException("Point JSON not supported");
               },
@@ -496,7 +496,7 @@ public interface MariaTypes {
           "LINESTRING",
           MariaRead.readGeometry(LineString.class),
           MariaWrite.passObjectToJdbc(),
-          MariaJson.text.bimap(
+          MariaJson.text.transform(
               s -> {
                 throw new UnsupportedOperationException("LineString JSON not supported");
               },
@@ -508,7 +508,7 @@ public interface MariaTypes {
           "POLYGON",
           MariaRead.readGeometry(Polygon.class),
           MariaWrite.passObjectToJdbc(),
-          MariaJson.text.bimap(
+          MariaJson.text.transform(
               s -> {
                 throw new UnsupportedOperationException("Polygon JSON not supported");
               },
@@ -520,7 +520,7 @@ public interface MariaTypes {
           "MULTIPOINT",
           MariaRead.readGeometry(MultiPoint.class),
           MariaWrite.passObjectToJdbc(),
-          MariaJson.text.bimap(
+          MariaJson.text.transform(
               s -> {
                 throw new UnsupportedOperationException("MultiPoint JSON not supported");
               },
@@ -532,7 +532,7 @@ public interface MariaTypes {
           "MULTILINESTRING",
           MariaRead.readGeometry(MultiLineString.class),
           MariaWrite.passObjectToJdbc(),
-          MariaJson.text.bimap(
+          MariaJson.text.transform(
               s -> {
                 throw new UnsupportedOperationException("MultiLineString JSON not supported");
               },
@@ -544,7 +544,7 @@ public interface MariaTypes {
           "MULTIPOLYGON",
           MariaRead.readGeometry(MultiPolygon.class),
           MariaWrite.passObjectToJdbc(),
-          MariaJson.text.bimap(
+          MariaJson.text.transform(
               s -> {
                 throw new UnsupportedOperationException("MultiPolygon JSON not supported");
               },
@@ -556,7 +556,7 @@ public interface MariaTypes {
           "GEOMETRYCOLLECTION",
           MariaRead.readGeometry(GeometryCollection.class),
           MariaWrite.passObjectToJdbc(),
-          MariaJson.text.bimap(
+          MariaJson.text.transform(
               s -> {
                 throw new UnsupportedOperationException("GeometryCollection JSON not supported");
               },
@@ -572,5 +572,5 @@ public interface MariaTypes {
               MariaWrite.writeString,
               MariaJson.text,
               MariaOutParam.readString)
-          .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+          .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 }

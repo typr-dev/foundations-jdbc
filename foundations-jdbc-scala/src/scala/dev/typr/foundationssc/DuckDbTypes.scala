@@ -9,49 +9,49 @@ import dev.typr.foundations.{DuckDbTypes => JavaDuckDbTypes}
   */
 class DuckDbTypes {
   // Primitives - convert Java boxed types to Scala native types
-  val tinyint: DuckDbType[Byte] = DuckDbType(JavaDuckDbTypes.tinyint.bimap(b => b, b => b))
-  val smallint: DuckDbType[Short] = DuckDbType(JavaDuckDbTypes.smallint.bimap(s => s, s => s))
-  val integer: DuckDbType[Int] = DuckDbType(JavaDuckDbTypes.integer.bimap(i => i, i => i))
-  val bigint: DuckDbType[Long] = DuckDbType(JavaDuckDbTypes.bigint.bimap(l => l, l => l))
-  val float_ : DuckDbType[Float] = DuckDbType(JavaDuckDbTypes.float_.bimap(f => f, f => f))
-  val double_ : DuckDbType[Double] = DuckDbType(JavaDuckDbTypes.double_.bimap(d => d, d => d))
-  val boolean_ : DuckDbType[Boolean] = DuckDbType(JavaDuckDbTypes.boolean_.bimap(b => b, b => b))
+  val tinyint: DuckDbType[Byte] = DuckDbType(JavaDuckDbTypes.tinyint.transform(b => b, b => b))
+  val smallint: DuckDbType[Short] = DuckDbType(JavaDuckDbTypes.smallint.transform(s => s, s => s))
+  val integer: DuckDbType[Int] = DuckDbType(JavaDuckDbTypes.integer.transform(i => i, i => i))
+  val bigint: DuckDbType[Long] = DuckDbType(JavaDuckDbTypes.bigint.transform(l => l, l => l))
+  val float_ : DuckDbType[Float] = DuckDbType(JavaDuckDbTypes.float_.transform(f => f, f => f))
+  val double_ : DuckDbType[Double] = DuckDbType(JavaDuckDbTypes.double_.transform(d => d, d => d))
+  val boolean_ : DuckDbType[Boolean] = DuckDbType(JavaDuckDbTypes.boolean_.transform(b => b, b => b))
 
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
-  val decimal: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.decimal.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
-  val numeric: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.numeric.bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val decimal: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.decimal.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  val numeric: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.numeric.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Array types - convert Java boxed arrays to Scala native arrays
-  val tinyintArray: DuckDbType[Array[Byte]] = DuckDbType(JavaDuckDbTypes.tinyintArray.bimap(
+  val tinyintArray: DuckDbType[Array[Byte]] = DuckDbType(JavaDuckDbTypes.tinyintArray.transform(
     arr => arr.map(_.byteValue()),
     arr => arr.map(java.lang.Byte.valueOf)
   ))
-  val smallintArray: DuckDbType[Array[Short]] = DuckDbType(JavaDuckDbTypes.smallintArray.bimap(
+  val smallintArray: DuckDbType[Array[Short]] = DuckDbType(JavaDuckDbTypes.smallintArray.transform(
     arr => arr.map(_.shortValue()),
     arr => arr.map(java.lang.Short.valueOf)
   ))
-  val integerArray: DuckDbType[Array[Int]] = DuckDbType(JavaDuckDbTypes.integerArray.bimap(
+  val integerArray: DuckDbType[Array[Int]] = DuckDbType(JavaDuckDbTypes.integerArray.transform(
     arr => arr.map(_.intValue()),
     arr => arr.map(java.lang.Integer.valueOf)
   ))
-  val bigintArray: DuckDbType[Array[Long]] = DuckDbType(JavaDuckDbTypes.bigintArray.bimap(
+  val bigintArray: DuckDbType[Array[Long]] = DuckDbType(JavaDuckDbTypes.bigintArray.transform(
     arr => arr.map(_.longValue()),
     arr => arr.map(java.lang.Long.valueOf)
   ))
-  val floatArray: DuckDbType[Array[Float]] = DuckDbType(JavaDuckDbTypes.floatArray.bimap(
+  val floatArray: DuckDbType[Array[Float]] = DuckDbType(JavaDuckDbTypes.floatArray.transform(
     arr => arr.map(_.floatValue()),
     arr => arr.map(java.lang.Float.valueOf)
   ))
-  val doubleArray: DuckDbType[Array[Double]] = DuckDbType(JavaDuckDbTypes.doubleArray.bimap(
+  val doubleArray: DuckDbType[Array[Double]] = DuckDbType(JavaDuckDbTypes.doubleArray.transform(
     arr => arr.map(_.doubleValue()),
     arr => arr.map(java.lang.Double.valueOf)
   ))
-  val booleanArray: DuckDbType[Array[Boolean]] = DuckDbType(JavaDuckDbTypes.booleanArray.bimap(
+  val booleanArray: DuckDbType[Array[Boolean]] = DuckDbType(JavaDuckDbTypes.booleanArray.transform(
     arr => arr.map(_.booleanValue()),
     arr => arr.map(java.lang.Boolean.valueOf)
   ))
-  val decimalArray: DuckDbType[Array[BigDecimal]] = DuckDbType(JavaDuckDbTypes.decimalArray.bimap(
+  val decimalArray: DuckDbType[Array[BigDecimal]] = DuckDbType(JavaDuckDbTypes.decimalArray.transform(
     arr => arr.map(BigDecimal(_)),
     arr => arr.map(_.bigDecimal)
   ))
@@ -123,7 +123,7 @@ class DuckDbTypes {
 
   // Forward static methods with Scala type conversion
   def decimal(precision: Int, scale: Int): DuckDbType[BigDecimal] =
-    DuckDbType(JavaDuckDbTypes.decimal(precision, scale).bimap(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+    DuckDbType(JavaDuckDbTypes.decimal(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def varchar(length: Int): DuckDbType[String] =
     DuckDbType(JavaDuckDbTypes.varchar(length))

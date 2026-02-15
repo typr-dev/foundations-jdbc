@@ -10,6 +10,6 @@ public class DomainType {
     public record ProductId(Long value) {}
 
     // Create DuckDbType from bigint
-    DuckDbType<ProductId> productIdType = DuckDbTypes.bigint.bimap(ProductId::new, ProductId::value);
+    DuckDbType<ProductId> productIdType = DuckDbTypes.bigint.transform(ProductId::new, ProductId::value);
     //stop
 }

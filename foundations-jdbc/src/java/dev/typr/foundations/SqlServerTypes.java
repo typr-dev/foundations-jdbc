@@ -24,7 +24,7 @@ public interface SqlServerTypes {
           "TINYINT",
           SqlServerRead.readUint1,
           SqlServerWrite.writeUint1,
-          SqlServerJson.int2.bimap(dev.typr.foundations.data.Uint1::new, u -> (short) u.value()),
+          SqlServerJson.int2.transform(dev.typr.foundations.data.Uint1::new, u -> (short) u.value()),
           SqlServerOutParam.readShort.map(dev.typr.foundations.data.Uint1::new));
 
   SqlServerType<Short> smallint =
@@ -349,7 +349,7 @@ public interface SqlServerTypes {
           "XML",
           SqlServerRead.readXml,
           SqlServerWrite.writeXml,
-          SqlServerJson.text.bimap(
+          SqlServerJson.text.transform(
               dev.typr.foundations.data.Xml::new, dev.typr.foundations.data.Xml::value),
           SqlServerOutParam.readXmlAsString.map(dev.typr.foundations.data.Xml::new));
 
@@ -390,7 +390,7 @@ public interface SqlServerTypes {
           "HIERARCHYID",
           SqlServerRead.readHierarchyId,
           SqlServerWrite.writeHierarchyId,
-          SqlServerJson.text.bimap(
+          SqlServerJson.text.transform(
               dev.typr.foundations.data.HierarchyId::parse,
               dev.typr.foundations.data.HierarchyId::toString),
           SqlServerOutParam.notSupported("HIERARCHYID"));
@@ -432,5 +432,5 @@ public interface SqlServerTypes {
               SqlServerWrite.writeString,
               SqlServerJson.text,
               SqlServerOutParam.readString)
-          .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+          .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 }

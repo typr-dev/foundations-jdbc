@@ -11,14 +11,14 @@ import dev.typr.foundations.Db2Types as JavaDb2Types
  */
 open class Db2Types {
     // Primitives - convert Java boxed types to Kotlin native types
-    open val smallint: Db2Type<Short> = Db2Type(JavaDb2Types.smallint.bimap(SqlFunction { it }, { it }))
-    open val integer: Db2Type<Int> = Db2Type(JavaDb2Types.integer.bimap(SqlFunction { it }, { it }))
-    open val int_: Db2Type<Int> = Db2Type(JavaDb2Types.int_.bimap(SqlFunction { it }, { it }))
-    open val bigint: Db2Type<Long> = Db2Type(JavaDb2Types.bigint.bimap(SqlFunction { it }, { it }))
-    open val real: Db2Type<Float> = Db2Type(JavaDb2Types.real.bimap(SqlFunction { it }, { it }))
-    open val double_: Db2Type<Double> = Db2Type(JavaDb2Types.double_.bimap(SqlFunction { it }, { it }))
-    open val float_: Db2Type<Double> = Db2Type(JavaDb2Types.float_.bimap(SqlFunction { it }, { it }))
-    open val boolean_: Db2Type<Boolean> = Db2Type(JavaDb2Types.boolean_.bimap(SqlFunction { it }, { it }))
+    open val smallint: Db2Type<Short> = Db2Type(JavaDb2Types.smallint.transform(SqlFunction { it }, { it }))
+    open val integer: Db2Type<Int> = Db2Type(JavaDb2Types.integer.transform(SqlFunction { it }, { it }))
+    open val int_: Db2Type<Int> = Db2Type(JavaDb2Types.int_.transform(SqlFunction { it }, { it }))
+    open val bigint: Db2Type<Long> = Db2Type(JavaDb2Types.bigint.transform(SqlFunction { it }, { it }))
+    open val real: Db2Type<Float> = Db2Type(JavaDb2Types.real.transform(SqlFunction { it }, { it }))
+    open val double_: Db2Type<Double> = Db2Type(JavaDb2Types.double_.transform(SqlFunction { it }, { it }))
+    open val float_: Db2Type<Double> = Db2Type(JavaDb2Types.float_.transform(SqlFunction { it }, { it }))
+    open val boolean_: Db2Type<Boolean> = Db2Type(JavaDb2Types.boolean_.transform(SqlFunction { it }, { it }))
 
     // Forward all other types directly from Java
     open val decimal = Db2Type(JavaDb2Types.decimal)
