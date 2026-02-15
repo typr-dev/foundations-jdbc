@@ -64,7 +64,7 @@ const config = {
             items: [
               { label: 'Getting Started', to: '/docs/' },
               { label: 'Transactors', to: '/docs/transactors' },
-              { label: 'Result Parsers', to: '/docs/result-parsers' },
+              { label: 'Fragments', to: '/docs/fragments' },
               { label: 'Named Row Parsers', to: '/docs/named-row-parsers' },
               { label: 'SQL Templates', to: '/docs/sql-templates' },
             ],

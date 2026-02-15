@@ -4,8 +4,7 @@ import dev.typr.foundationskt.*
 import java.sql.Connection
 
 object EventRepo {
-    private val selectAll = Fragment.of("SELECT ")
-        .append(eventParser.columnList).append(" FROM event ORDER BY date")
+    private val selectAll = Sql { "SELECT ${eventParser.columnList} FROM event ORDER BY date" }
         .query(eventParser.all())
 
     private val selectByIdTemplate = Fragment.of("SELECT ")
@@ -69,17 +68,11 @@ object EventRepo {
 
     fun analyzeQueries(conn: Connection): List<QueryAnalysis> = listOf(
         QueryAnalyzer.analyze("EventRepo.selectAll", selectAll, conn),
-        QueryAnalyzer.analyze("EventRepo.selectById",
-            selectByIdTemplate.fragment().query(eventParser.maxOne()), conn),
-        QueryAnalyzer.analyze("EventRepo.selectByStatus",
-            selectByStatusTemplate.fragment().query(eventParser.all()), conn),
-        QueryAnalyzer.analyze("EventRepo.selectByVenue",
-            selectByVenueTemplate.fragment().query(eventParser.all()), conn),
-        QueryAnalyzer.analyze("EventRepo.insertReturning",
-            insertTemplate.fragment().query(eventParser.exactlyOne()), conn),
-        QueryAnalyzer.analyze("EventRepo.updateStatus",
-            updateStatusTemplate.fragment().update(), conn),
-        QueryAnalyzer.analyze("EventRepo.addRating",
-            addRatingTemplate.fragment().update(), conn),
+        QueryAnalyzer.analyze("EventRepo.selectById", selectByIdTemplate, conn),
+        QueryAnalyzer.analyze("EventRepo.selectByStatus", selectByStatusTemplate, conn),
+        QueryAnalyzer.analyze("EventRepo.selectByVenue", selectByVenueTemplate, conn),
+        QueryAnalyzer.analyze("EventRepo.insertReturning", insertTemplate, conn),
+        QueryAnalyzer.analyze("EventRepo.updateStatus", updateStatusTemplate, conn),
+        QueryAnalyzer.analyze("EventRepo.addRating", addRatingTemplate, conn),
     ).flatten()
 }

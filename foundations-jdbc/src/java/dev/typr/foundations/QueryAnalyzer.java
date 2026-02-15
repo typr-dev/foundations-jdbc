@@ -14,6 +14,36 @@ public final class QueryAnalyzer {
     return analyze(null, op, conn);
   }
 
+  public static List<QueryAnalysis> analyze(SqlTemplate<?, ?> template, Connection conn)
+      throws SQLException {
+    return analyze(null, template, conn);
+  }
+
+  public static List<QueryAnalysis> analyze(String name, SqlTemplate<?, ?> template, Connection conn)
+      throws SQLException {
+    ResultSetParser<?> parser = extractResultSetParser(template);
+    if (parser != null) {
+      return List.of(analyzeFragmentAndParser(name, template.fragment(), parser, conn));
+    } else {
+      return List.of(analyzeUpdate(name, new Operation.Update(template.fragment()), conn));
+    }
+  }
+
+  public static List<QueryAnalysis> analyze(RowSqlTemplate<?, ?> template, Connection conn)
+      throws SQLException {
+    return analyze(null, template, conn);
+  }
+
+  public static List<QueryAnalysis> analyze(String name, RowSqlTemplate<?, ?> template, Connection conn)
+      throws SQLException {
+    return switch (template) {
+      case RowSqlTemplate.Query<?, ?> q ->
+          List.of(analyzeFragmentAndParser(name, q.fragment(), q.resultParser(), conn));
+      case RowSqlTemplate.Update<?> u ->
+          List.of(analyzeUpdate(name, new Operation.Update(u.fragment()), conn));
+    };
+  }
+
   public static List<QueryAnalysis> analyze(String name, Operation<?> op, Connection conn)
       throws SQLException {
     return switch (op) {

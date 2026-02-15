@@ -6,6 +6,8 @@ import Snippet from '@site/src/components/Snippet';
 
 # SQL Templates
 
+In Kotlin and Scala, the recommended way to define templates is the **hybrid approach**: use `Sql { }` / `sql""` for the SQL text and chain `.param(type)` for the typed parameter holes. See [Fragments](./fragments) for details on the two fragment-building styles.
+
 SQL Templates let you define the SQL structure once and supply values later. Use `.param(type)` (without a value) to create a typed parameter hole. This produces a `SqlTemplate` — a reusable operation factory:
 
 <Snippet file="core/SqlTemplateBasic" />

@@ -10,6 +10,54 @@ public interface QueryChecker {
     check(null, op);
   }
 
+  default void check(SqlTemplate<?, ?> template) {
+    check(null, template);
+  }
+
+  default void check(String name, SqlTemplate<?, ?> template) {
+    List<QueryAnalysis> analyses;
+    try {
+      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(name, template, conn));
+    } catch (SQLException e) {
+      throw new RuntimeException("Failed to analyze template", e);
+    }
+    StringBuilder errors = new StringBuilder();
+    int errorCount = 0;
+    for (QueryAnalysis analysis : analyses) {
+      if (!analysis.succeeded()) {
+        errorCount++;
+        errors.append("\n\n").append(analysis.report());
+      }
+    }
+    if (errorCount > 0) {
+      throw new AssertionError("Query type check failed:" + errors);
+    }
+  }
+
+  default void check(RowSqlTemplate<?, ?> template) {
+    check(null, template);
+  }
+
+  default void check(String name, RowSqlTemplate<?, ?> template) {
+    List<QueryAnalysis> analyses;
+    try {
+      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(name, template, conn));
+    } catch (SQLException e) {
+      throw new RuntimeException("Failed to analyze template", e);
+    }
+    StringBuilder errors = new StringBuilder();
+    int errorCount = 0;
+    for (QueryAnalysis analysis : analyses) {
+      if (!analysis.succeeded()) {
+        errorCount++;
+        errors.append("\n\n").append(analysis.report());
+      }
+    }
+    if (errorCount > 0) {
+      throw new AssertionError("Query type check failed:" + errors);
+    }
+  }
+
   default void check(String name, Operation<?> op) {
     List<QueryAnalysis> analyses;
     try {

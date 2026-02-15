@@ -32,14 +32,13 @@ object TicketRepo {
         .param(eventIdType)
         .query(RowParser.of(moneyType).exactlyOne())
 
-    private val summaryByEvent = Fragment.of(
-        """SELECT e.id, e.title, v.name, count(t.id), coalesce(sum(t.price), 0)
+    private val summaryByEvent = Sql { """SELECT e.id, e.title, v.name, count(t.id), coalesce(sum(t.price), 0)
            FROM event e
            JOIN venue v ON e.venue_id = v.id
            LEFT JOIN ticket t ON t.event_id = e.id
            GROUP BY e.id, e.title, v.name
-           ORDER BY e.title"""
-    ).query(eventSummaryParser.all())
+           ORDER BY e.title""" }
+        .query(eventSummaryParser.all())
 
     fun findByEventOp(eventId: EventId): Operation.Query<List<Ticket>> =
         selectByEventTemplate.on(eventId)
@@ -79,16 +78,11 @@ object TicketRepo {
         summaryByEvent.run(conn)
 
     fun analyzeQueries(conn: Connection): List<QueryAnalysis> = listOf(
-        QueryAnalyzer.analyze("TicketRepo.selectByEvent",
-            selectByEventTemplate.fragment().query(ticketParser.all()), conn),
-        QueryAnalyzer.analyze("TicketRepo.selectById",
-            selectByIdTemplate.fragment().query(ticketParser.maxOne()), conn),
-        QueryAnalyzer.analyze("TicketRepo.insertReturning",
-            insertTemplate.fragment().query(ticketParser.exactlyOne()), conn),
-        QueryAnalyzer.analyze("TicketRepo.countByEvent",
-            countByEventTemplate.fragment().query(RowParser.of(DuckDbTypes.bigint).exactlyOne()), conn),
-        QueryAnalyzer.analyze("TicketRepo.revenueByEvent",
-            revenueByEventTemplate.fragment().query(RowParser.of(moneyType).exactlyOne()), conn),
+        QueryAnalyzer.analyze("TicketRepo.selectByEvent", selectByEventTemplate, conn),
+        QueryAnalyzer.analyze("TicketRepo.selectById", selectByIdTemplate, conn),
+        QueryAnalyzer.analyze("TicketRepo.insertReturning", insertTemplate, conn),
+        QueryAnalyzer.analyze("TicketRepo.countByEvent", countByEventTemplate, conn),
+        QueryAnalyzer.analyze("TicketRepo.revenueByEvent", revenueByEventTemplate, conn),
         QueryAnalyzer.analyze("TicketRepo.summaryByEvent", summaryByEvent, conn),
     ).flatten()
 }

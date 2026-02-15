@@ -118,31 +118,15 @@ See the [Database Types](./database-types) pages for the complete type catalog f
 
 ## Fragments
 
-Fragments let you build SQL queries safely with type-checked parameters. Parameters are always bound via prepared statements — never interpolated into the SQL string.
-
-### Building Fragments
+Fragments let you build SQL queries safely with type-checked parameters. Parameters are always bound via prepared statements — never interpolated into the SQL string:
 
 <Snippet file="core/FragmentBuilding" />
 
-### Composing Fragments
-
-Fragments can be combined to build dynamic queries:
+Fragments compose naturally for dynamic queries:
 
 <Snippet file="core/FragmentComposing" />
 
-### Chaining API
-
-Fragments are self-composing — every combinator returns a new `Fragment`:
-
-| Method | Description |
-|--------|-------------|
-| `.append(string)` | Append a literal SQL string |
-| `.value(type, value)` | Append a bound parameter |
-| `.append(fragment)` | Append another fragment (e.g. `columnList()`, `whereAnd()`) |
-| `.appendAll(fragments, separator)` | Append multiple fragments joined by a separator |
-| `.row(parser, value)` | Append all columns of a named row parser as bound parameters |
-| `.paramRow(parser)` | Append all columns of a named row parser as parameter holes |
-| `.param(type)` | Create a single parameter hole for [SQL templates](./sql-templates) |
+See [Fragments](./fragments) for the full chaining API, string interpolation, and builder pattern details.
 
 ## Row Parsers
 
@@ -179,7 +163,7 @@ A fragment becomes an operation once you specify how to read the results:
 
 | Method | Returns |
 |--------|---------|
-| `.query(parser)` | `Operation<T>` — a SELECT that reads rows using the given [result parser](./result-parsers) |
+| `.query(parser)` | `Operation<T>` — a SELECT that reads rows using the given result set parser |
 | `.update()` | `Operation<Int>` — an INSERT/UPDATE/DELETE returning the affected row count |
 
 ### Result Set Parsers
@@ -188,7 +172,13 @@ A `ResultSetParser<T>` reads a complete ResultSet and produces a value of type `
 
 <Snippet file="core/ResultSetParserUsage" />
 
-See [Result Parsers](./result-parsers) for more details including `.map()` transformations.
+From any `RowParser<T>` you can create:
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `.all()` | `List<T>` | All rows as a list |
+| `.maxOne()` | `Optional<T>` / `T?` / `Option[T]` | Zero or one row (throws if more than one) |
+| `.exactlyOne()` | `T` | Exactly one row (throws otherwise) |
 
 ### Running Operations
 
