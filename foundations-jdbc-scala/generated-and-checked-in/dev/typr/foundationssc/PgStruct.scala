@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 class PgStruct[A](val underlying: dev.typr.foundations.PgStruct[A]):
   def asType(): PgType[A] = PgType(underlying.asType())
@@ -7,7 +7,7 @@ object PgStruct:
   def builder[A](typeName: String): Builder0[A] =
     Builder0(dev.typr.foundations.PgStructBuilders.builder(typeName))
 
-  class Builder0[A] private[scalafoundations] (
+  class Builder0[A] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder0[A]
   ):
     def field[F](name: String, tpe: PgType[F], getter: A => F): Builder1[A, F] =
@@ -15,7 +15,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder1[A, F] =
       Builder1(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder1[A, T0] private[scalafoundations] (
+  class Builder1[A, T0] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder1[A, T0]
   ):
     def build(decode: (T0) => A): PgStruct[A] =
@@ -26,7 +26,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder2[A, T0, F] =
       Builder2(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder2[A, T0, T1] private[scalafoundations] (
+  class Builder2[A, T0, T1] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder2[A, T0, T1]
   ):
     def build(decode: (T0, T1) => A): PgStruct[A] =
@@ -37,7 +37,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder3[A, T0, T1, F] =
       Builder3(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder3[A, T0, T1, T2] private[scalafoundations] (
+  class Builder3[A, T0, T1, T2] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder3[A, T0, T1, T2]
   ):
     def build(decode: (T0, T1, T2) => A): PgStruct[A] =
@@ -48,7 +48,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder4[A, T0, T1, T2, F] =
       Builder4(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder4[A, T0, T1, T2, T3] private[scalafoundations] (
+  class Builder4[A, T0, T1, T2, T3] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder4[A, T0, T1, T2, T3]
   ):
     def build(decode: (T0, T1, T2, T3) => A): PgStruct[A] =
@@ -59,7 +59,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder5[A, T0, T1, T2, T3, F] =
       Builder5(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder5[A, T0, T1, T2, T3, T4] private[scalafoundations] (
+  class Builder5[A, T0, T1, T2, T3, T4] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder5[A, T0, T1, T2, T3, T4]
   ):
     def build(decode: (T0, T1, T2, T3, T4) => A): PgStruct[A] =
@@ -70,7 +70,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder6[A, T0, T1, T2, T3, T4, F] =
       Builder6(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder6[A, T0, T1, T2, T3, T4, T5] private[scalafoundations] (
+  class Builder6[A, T0, T1, T2, T3, T4, T5] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder6[A, T0, T1, T2, T3, T4, T5]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5) => A): PgStruct[A] =
@@ -81,7 +81,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder7[A, T0, T1, T2, T3, T4, T5, F] =
       Builder7(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder7[A, T0, T1, T2, T3, T4, T5, T6] private[scalafoundations] (
+  class Builder7[A, T0, T1, T2, T3, T4, T5, T6] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder7[A, T0, T1, T2, T3, T4, T5, T6]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6) => A): PgStruct[A] =
@@ -92,7 +92,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder8[A, T0, T1, T2, T3, T4, T5, T6, F] =
       Builder8(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder8[A, T0, T1, T2, T3, T4, T5, T6, T7] private[scalafoundations] (
+  class Builder8[A, T0, T1, T2, T3, T4, T5, T6, T7] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder8[A, T0, T1, T2, T3, T4, T5, T6, T7]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7) => A): PgStruct[A] =
@@ -103,7 +103,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder9[A, T0, T1, T2, T3, T4, T5, T6, T7, F] =
       Builder9(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder9[A, T0, T1, T2, T3, T4, T5, T6, T7, T8] private[scalafoundations] (
+  class Builder9[A, T0, T1, T2, T3, T4, T5, T6, T7, T8] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder9[A, T0, T1, T2, T3, T4, T5, T6, T7, T8]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8) => A): PgStruct[A] =
@@ -114,7 +114,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder10[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, F] =
       Builder10(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder10[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9] private[scalafoundations] (
+  class Builder10[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder10[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) => A): PgStruct[A] =
@@ -125,7 +125,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder11[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, F] =
       Builder11(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder11[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10] private[scalafoundations] (
+  class Builder11[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder11[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => A): PgStruct[A] =
@@ -136,7 +136,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder12[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, F] =
       Builder12(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder12[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11] private[scalafoundations] (
+  class Builder12[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder12[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => A): PgStruct[A] =
@@ -147,7 +147,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder13[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, F] =
       Builder13(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder13[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12] private[scalafoundations] (
+  class Builder13[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder13[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => A): PgStruct[A] =
@@ -158,7 +158,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder14[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, F] =
       Builder14(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder14[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] private[scalafoundations] (
+  class Builder14[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder14[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => A): PgStruct[A] =
@@ -169,7 +169,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder15[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, F] =
       Builder15(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder15[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14] private[scalafoundations] (
+  class Builder15[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder15[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => A): PgStruct[A] =
@@ -180,7 +180,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder16[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, F] =
       Builder16(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder16[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15] private[scalafoundations] (
+  class Builder16[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder16[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => A): PgStruct[A] =
@@ -191,7 +191,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder17[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, F] =
       Builder17(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder17[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16] private[scalafoundations] (
+  class Builder17[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder17[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => A): PgStruct[A] =
@@ -202,7 +202,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder18[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, F] =
       Builder18(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder18[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17] private[scalafoundations] (
+  class Builder18[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder18[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => A): PgStruct[A] =
@@ -213,7 +213,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder19[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, F] =
       Builder19(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder19[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] private[scalafoundations] (
+  class Builder19[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder19[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => A): PgStruct[A] =
@@ -224,7 +224,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder20[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, F] =
       Builder20(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder20[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19] private[scalafoundations] (
+  class Builder20[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder20[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => A): PgStruct[A] =
@@ -235,7 +235,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder21[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, F] =
       Builder21(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder21[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20] private[scalafoundations] (
+  class Builder21[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder21[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => A): PgStruct[A] =
@@ -246,7 +246,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder22[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, F] =
       Builder22(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder22[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21] private[scalafoundations] (
+  class Builder22[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder22[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => A): PgStruct[A] =
@@ -257,7 +257,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder23[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, F] =
       Builder23(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder23[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22] private[scalafoundations] (
+  class Builder23[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder23[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => A): PgStruct[A] =
@@ -268,7 +268,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder24[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, F] =
       Builder24(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder24[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23] private[scalafoundations] (
+  class Builder24[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder24[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23) => A): PgStruct[A] =
@@ -279,7 +279,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder25[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, F] =
       Builder25(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder25[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24] private[scalafoundations] (
+  class Builder25[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder25[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24) => A): PgStruct[A] =
@@ -290,7 +290,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder26[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, F] =
       Builder26(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder26[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25] private[scalafoundations] (
+  class Builder26[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder26[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25) => A): PgStruct[A] =
@@ -301,7 +301,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder27[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, F] =
       Builder27(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder27[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26] private[scalafoundations] (
+  class Builder27[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder27[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26) => A): PgStruct[A] =
@@ -312,7 +312,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder28[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, F] =
       Builder28(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder28[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27] private[scalafoundations] (
+  class Builder28[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder28[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27) => A): PgStruct[A] =
@@ -323,7 +323,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder29[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, F] =
       Builder29(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder29[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28] private[scalafoundations] (
+  class Builder29[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder29[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28) => A): PgStruct[A] =
@@ -334,7 +334,7 @@ object PgStruct:
     def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder30[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, F] =
       Builder30(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))
 
-  class Builder30[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29] private[scalafoundations] (
+  class Builder30[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29] private[foundationssc] (
     private val underlying: dev.typr.foundations.PgStructBuilders.Builder30[A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29]
   ):
     def build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29) => A): PgStruct[A] =

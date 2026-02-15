@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.oracle
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 

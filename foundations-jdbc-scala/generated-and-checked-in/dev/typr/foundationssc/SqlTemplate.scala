@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 sealed trait SqlTemplate[In, Out]:
   def underlying: dev.typr.foundations.SqlTemplate[?, ?]

@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.dbtypes
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import org.postgresql.geometric.PGpoint
 import java.time.LocalDate
 

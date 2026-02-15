@@ -86,17 +86,17 @@ import dev.typr.foundations.data.*;       // Data types: Json, Range, Uint4, etc
 <TabItem value="kotlin" label="Kotlin">
 
 ```kotlin
-import dev.typr.kotlinfoundations.*         // Core: Fragment, RowParser, Operation, Transactor, *Types
-import dev.typr.kotlinfoundations.connect.* // Connection: SimpleDataSource, *Config
-import dev.typr.kotlinfoundations.data.*    // Data types: Json, Range, Uint4, etc.
+import dev.typr.foundationskt.*         // Core: Fragment, RowParser, Operation, Transactor, *Types
+import dev.typr.foundationskt.connect.* // Connection: SimpleDataSource, *Config
+import dev.typr.foundationskt.data.*    // Data types: Json, Range, Uint4, etc.
 ```
 
 </TabItem>
 <TabItem value="scala" label="Scala">
 
 ```scala
-import dev.typr.scalafoundations.*       // Core + connection: Fragment, RowParser, *Types, *Config
-import dev.typr.scalafoundations.data.*  // Data types: Json, Range, Uint4, etc.
+import dev.typr.foundationssc.*       // Core + connection: Fragment, RowParser, *Types, *Config
+import dev.typr.foundationssc.data.*  // Data types: Json, Range, Uint4, etc.
 ```
 
 </TabItem>
@@ -104,7 +104,7 @@ import dev.typr.scalafoundations.data.*  // Data types: Json, Range, Uint4, etc.
 
 ## Setting Up a Connection
 
-The quickest way to get started is with DuckDB in-memory using `SingleConnectionDataSource`:
+The quickest way to get started is with DuckDB in-memory using `SingleConnectionDataSource`. DuckDB is an embedded database that requires no Docker, no server, and no setup — just add the dependency and go:
 
 <Snippet file="core/GettingStarted" />
 

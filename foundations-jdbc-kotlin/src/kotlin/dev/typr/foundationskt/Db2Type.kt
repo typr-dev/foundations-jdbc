@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 class Db2Type<T>(override val underlying: dev.typr.foundations.Db2Type<T>) : DbType<T>(underlying) {
     override fun opt(): Db2Type<T?> =

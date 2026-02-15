@@ -1,4 +1,4 @@
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 /**
  * Type-safe builders for Kotlin RowParser.

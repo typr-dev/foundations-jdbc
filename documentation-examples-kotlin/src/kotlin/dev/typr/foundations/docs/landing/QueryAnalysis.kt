@@ -1,8 +1,8 @@
 package dev.typr.foundations.docs.landing
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
-import dev.typr.kotlinfoundations.QueryAnalysis as AnalysisResult
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
+import dev.typr.foundationskt.QueryAnalysis as AnalysisResult
 import java.sql.Connection
 
 @Suppress("unused")

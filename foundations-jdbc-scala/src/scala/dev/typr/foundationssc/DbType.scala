@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 open class DbType[T](val underlying: dev.typr.foundations.DbType[T]):
   def opt: DbType[Option[T]] =

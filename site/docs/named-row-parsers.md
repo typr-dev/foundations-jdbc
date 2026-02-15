@@ -35,6 +35,8 @@ With an unnamed parser, `jsonArray` produces positional JSON arrays (`[value1, v
 
 ## Composing Parsers
 
-Row parsers compose for joins. The result type uses `And<A, B>` — a simple pair record with `.left()` and `.right()` accessors. Left join wraps the right side in `Optional` (or nullable in Kotlin, `Option` in Scala):
+Row parsers compose for joins. The result type is `And<A, B>` in Java (with `.left()` and `.right()` accessors), `Pair<A, B>` in Kotlin, and a tuple `(A, B)` in Scala. Left join wraps the right side in `Optional` (or nullable in Kotlin, `Option` in Scala).
+
+Composition is safe regardless of column naming — all row parsers use index-based column reading, so column name clashes between joined tables don't cause conflicts:
 
 <Snippet file="core/ComposingParsers" />

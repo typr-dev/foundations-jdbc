@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.landing
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -29,7 +29,7 @@ class ProductRowParser {
         .build(::Product)
 
     // Compose parsers for joins
-    val joined: RowParser<And<Product, Category?>> =
+    val joined: RowParser<Pair<Product, Category?>> =
         rowParser.leftJoined(categoryRowParser)
     //stop
 }

@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations.connect
+package dev.typr.foundationskt.connect
 
 // Core connection types
 typealias DatabaseConfig = dev.typr.foundations.connect.DatabaseConfig

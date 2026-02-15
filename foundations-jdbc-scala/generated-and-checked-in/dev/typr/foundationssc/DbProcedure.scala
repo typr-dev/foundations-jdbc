@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 /** Type-safe stored procedure definitions with fully typed inputs and outputs.
   *
@@ -633,7 +633,7 @@ object DbProcedure {
   // Procedure builders (121 total: 11×11 matrix)
   // ─────────────────────────────────────────────────────────────────────────────
 
-  class Builder_0_0 private[scalafoundations] (
+  class Builder_0_0 private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_0_0
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1_0[I0] =
@@ -652,7 +652,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_0_1[O0] private[scalafoundations] (
+  class Builder_0_1[O0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_0_1[O0]
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1_1[I0, O0] =
@@ -671,7 +671,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_0_2[O0, O1] private[scalafoundations] (
+  class Builder_0_2[O0, O1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_0_2[O0, O1]
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1_2[I0, O0, O1] =
@@ -690,7 +690,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_0_3[O0, O1, O2] private[scalafoundations] (
+  class Builder_0_3[O0, O1, O2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_0_3[O0, O1, O2]
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1_3[I0, O0, O1, O2] =
@@ -709,7 +709,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_0_4[O0, O1, O2, O3] private[scalafoundations] (
+  class Builder_0_4[O0, O1, O2, O3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_0_4[O0, O1, O2, O3]
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1_4[I0, O0, O1, O2, O3] =
@@ -728,7 +728,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_0_5[O0, O1, O2, O3, O4] private[scalafoundations] (
+  class Builder_0_5[O0, O1, O2, O3, O4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_0_5[O0, O1, O2, O3, O4]
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1_5[I0, O0, O1, O2, O3, O4] =
@@ -747,7 +747,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_0_6[O0, O1, O2, O3, O4, O5] private[scalafoundations] (
+  class Builder_0_6[O0, O1, O2, O3, O4, O5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_0_6[O0, O1, O2, O3, O4, O5]
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1_6[I0, O0, O1, O2, O3, O4, O5] =
@@ -766,7 +766,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_0_7[O0, O1, O2, O3, O4, O5, O6] private[scalafoundations] (
+  class Builder_0_7[O0, O1, O2, O3, O4, O5, O6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_0_7[O0, O1, O2, O3, O4, O5, O6]
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1_7[I0, O0, O1, O2, O3, O4, O5, O6] =
@@ -785,7 +785,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_0_8[O0, O1, O2, O3, O4, O5, O6, O7] private[scalafoundations] (
+  class Builder_0_8[O0, O1, O2, O3, O4, O5, O6, O7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_0_8[O0, O1, O2, O3, O4, O5, O6, O7]
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1_8[I0, O0, O1, O2, O3, O4, O5, O6, O7] =
@@ -804,7 +804,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_0_9[O0, O1, O2, O3, O4, O5, O6, O7, O8] private[scalafoundations] (
+  class Builder_0_9[O0, O1, O2, O3, O4, O5, O6, O7, O8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_0_9[O0, O1, O2, O3, O4, O5, O6, O7, O8]
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1_9[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8] =
@@ -823,7 +823,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_0_10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[scalafoundations] (
+  class Builder_0_10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_0_10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]
   ) {
     def in[I0](tpe: DbType[I0]): Builder_1_10[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] =
@@ -838,7 +838,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_1_0[I0] private[scalafoundations] (
+  class Builder_1_0[I0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_1_0[I0]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2_0[I0, I1] =
@@ -857,7 +857,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_1_1[I0, O0] private[scalafoundations] (
+  class Builder_1_1[I0, O0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_1_1[I0, O0]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2_1[I0, I1, O0] =
@@ -876,7 +876,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_1_2[I0, O0, O1] private[scalafoundations] (
+  class Builder_1_2[I0, O0, O1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_1_2[I0, O0, O1]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2_2[I0, I1, O0, O1] =
@@ -895,7 +895,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_1_3[I0, O0, O1, O2] private[scalafoundations] (
+  class Builder_1_3[I0, O0, O1, O2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_1_3[I0, O0, O1, O2]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2_3[I0, I1, O0, O1, O2] =
@@ -914,7 +914,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_1_4[I0, O0, O1, O2, O3] private[scalafoundations] (
+  class Builder_1_4[I0, O0, O1, O2, O3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_1_4[I0, O0, O1, O2, O3]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2_4[I0, I1, O0, O1, O2, O3] =
@@ -933,7 +933,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_1_5[I0, O0, O1, O2, O3, O4] private[scalafoundations] (
+  class Builder_1_5[I0, O0, O1, O2, O3, O4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_1_5[I0, O0, O1, O2, O3, O4]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2_5[I0, I1, O0, O1, O2, O3, O4] =
@@ -952,7 +952,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_1_6[I0, O0, O1, O2, O3, O4, O5] private[scalafoundations] (
+  class Builder_1_6[I0, O0, O1, O2, O3, O4, O5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_1_6[I0, O0, O1, O2, O3, O4, O5]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2_6[I0, I1, O0, O1, O2, O3, O4, O5] =
@@ -971,7 +971,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_1_7[I0, O0, O1, O2, O3, O4, O5, O6] private[scalafoundations] (
+  class Builder_1_7[I0, O0, O1, O2, O3, O4, O5, O6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_1_7[I0, O0, O1, O2, O3, O4, O5, O6]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2_7[I0, I1, O0, O1, O2, O3, O4, O5, O6] =
@@ -990,7 +990,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_1_8[I0, O0, O1, O2, O3, O4, O5, O6, O7] private[scalafoundations] (
+  class Builder_1_8[I0, O0, O1, O2, O3, O4, O5, O6, O7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_1_8[I0, O0, O1, O2, O3, O4, O5, O6, O7]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2_8[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7] =
@@ -1009,7 +1009,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_1_9[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[scalafoundations] (
+  class Builder_1_9[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_1_9[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2_9[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8] =
@@ -1028,7 +1028,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_1_10[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[scalafoundations] (
+  class Builder_1_10[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_1_10[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]
   ) {
     def in[I1](tpe: DbType[I1]): Builder_2_10[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] =
@@ -1043,7 +1043,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_2_0[I0, I1] private[scalafoundations] (
+  class Builder_2_0[I0, I1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_2_0[I0, I1]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3_0[I0, I1, I2] =
@@ -1062,7 +1062,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_2_1[I0, I1, O0] private[scalafoundations] (
+  class Builder_2_1[I0, I1, O0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_2_1[I0, I1, O0]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3_1[I0, I1, I2, O0] =
@@ -1081,7 +1081,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_2_2[I0, I1, O0, O1] private[scalafoundations] (
+  class Builder_2_2[I0, I1, O0, O1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_2_2[I0, I1, O0, O1]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3_2[I0, I1, I2, O0, O1] =
@@ -1100,7 +1100,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_2_3[I0, I1, O0, O1, O2] private[scalafoundations] (
+  class Builder_2_3[I0, I1, O0, O1, O2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_2_3[I0, I1, O0, O1, O2]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3_3[I0, I1, I2, O0, O1, O2] =
@@ -1119,7 +1119,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_2_4[I0, I1, O0, O1, O2, O3] private[scalafoundations] (
+  class Builder_2_4[I0, I1, O0, O1, O2, O3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_2_4[I0, I1, O0, O1, O2, O3]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3_4[I0, I1, I2, O0, O1, O2, O3] =
@@ -1138,7 +1138,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_2_5[I0, I1, O0, O1, O2, O3, O4] private[scalafoundations] (
+  class Builder_2_5[I0, I1, O0, O1, O2, O3, O4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_2_5[I0, I1, O0, O1, O2, O3, O4]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3_5[I0, I1, I2, O0, O1, O2, O3, O4] =
@@ -1157,7 +1157,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_2_6[I0, I1, O0, O1, O2, O3, O4, O5] private[scalafoundations] (
+  class Builder_2_6[I0, I1, O0, O1, O2, O3, O4, O5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_2_6[I0, I1, O0, O1, O2, O3, O4, O5]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3_6[I0, I1, I2, O0, O1, O2, O3, O4, O5] =
@@ -1176,7 +1176,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_2_7[I0, I1, O0, O1, O2, O3, O4, O5, O6] private[scalafoundations] (
+  class Builder_2_7[I0, I1, O0, O1, O2, O3, O4, O5, O6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_2_7[I0, I1, O0, O1, O2, O3, O4, O5, O6]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3_7[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6] =
@@ -1195,7 +1195,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_2_8[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7] private[scalafoundations] (
+  class Builder_2_8[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_2_8[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3_8[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7] =
@@ -1214,7 +1214,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_2_9[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[scalafoundations] (
+  class Builder_2_9[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_2_9[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3_9[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8] =
@@ -1233,7 +1233,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_2_10[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[scalafoundations] (
+  class Builder_2_10[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_2_10[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]
   ) {
     def in[I2](tpe: DbType[I2]): Builder_3_10[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] =
@@ -1248,7 +1248,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_3_0[I0, I1, I2] private[scalafoundations] (
+  class Builder_3_0[I0, I1, I2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_3_0[I0, I1, I2]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4_0[I0, I1, I2, I3] =
@@ -1267,7 +1267,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_3_1[I0, I1, I2, O0] private[scalafoundations] (
+  class Builder_3_1[I0, I1, I2, O0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_3_1[I0, I1, I2, O0]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4_1[I0, I1, I2, I3, O0] =
@@ -1286,7 +1286,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_3_2[I0, I1, I2, O0, O1] private[scalafoundations] (
+  class Builder_3_2[I0, I1, I2, O0, O1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_3_2[I0, I1, I2, O0, O1]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4_2[I0, I1, I2, I3, O0, O1] =
@@ -1305,7 +1305,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_3_3[I0, I1, I2, O0, O1, O2] private[scalafoundations] (
+  class Builder_3_3[I0, I1, I2, O0, O1, O2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_3_3[I0, I1, I2, O0, O1, O2]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4_3[I0, I1, I2, I3, O0, O1, O2] =
@@ -1324,7 +1324,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_3_4[I0, I1, I2, O0, O1, O2, O3] private[scalafoundations] (
+  class Builder_3_4[I0, I1, I2, O0, O1, O2, O3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_3_4[I0, I1, I2, O0, O1, O2, O3]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4_4[I0, I1, I2, I3, O0, O1, O2, O3] =
@@ -1343,7 +1343,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_3_5[I0, I1, I2, O0, O1, O2, O3, O4] private[scalafoundations] (
+  class Builder_3_5[I0, I1, I2, O0, O1, O2, O3, O4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_3_5[I0, I1, I2, O0, O1, O2, O3, O4]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4_5[I0, I1, I2, I3, O0, O1, O2, O3, O4] =
@@ -1362,7 +1362,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_3_6[I0, I1, I2, O0, O1, O2, O3, O4, O5] private[scalafoundations] (
+  class Builder_3_6[I0, I1, I2, O0, O1, O2, O3, O4, O5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_3_6[I0, I1, I2, O0, O1, O2, O3, O4, O5]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4_6[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5] =
@@ -1381,7 +1381,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_3_7[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6] private[scalafoundations] (
+  class Builder_3_7[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_3_7[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4_7[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6] =
@@ -1400,7 +1400,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_3_8[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7] private[scalafoundations] (
+  class Builder_3_8[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_3_8[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4_8[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7] =
@@ -1419,7 +1419,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_3_9[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[scalafoundations] (
+  class Builder_3_9[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_3_9[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4_9[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8] =
@@ -1438,7 +1438,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_3_10[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[scalafoundations] (
+  class Builder_3_10[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_3_10[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]
   ) {
     def in[I3](tpe: DbType[I3]): Builder_4_10[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] =
@@ -1453,7 +1453,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_4_0[I0, I1, I2, I3] private[scalafoundations] (
+  class Builder_4_0[I0, I1, I2, I3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_4_0[I0, I1, I2, I3]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5_0[I0, I1, I2, I3, I4] =
@@ -1472,7 +1472,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_4_1[I0, I1, I2, I3, O0] private[scalafoundations] (
+  class Builder_4_1[I0, I1, I2, I3, O0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_4_1[I0, I1, I2, I3, O0]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5_1[I0, I1, I2, I3, I4, O0] =
@@ -1491,7 +1491,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_4_2[I0, I1, I2, I3, O0, O1] private[scalafoundations] (
+  class Builder_4_2[I0, I1, I2, I3, O0, O1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_4_2[I0, I1, I2, I3, O0, O1]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5_2[I0, I1, I2, I3, I4, O0, O1] =
@@ -1510,7 +1510,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_4_3[I0, I1, I2, I3, O0, O1, O2] private[scalafoundations] (
+  class Builder_4_3[I0, I1, I2, I3, O0, O1, O2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_4_3[I0, I1, I2, I3, O0, O1, O2]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5_3[I0, I1, I2, I3, I4, O0, O1, O2] =
@@ -1529,7 +1529,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_4_4[I0, I1, I2, I3, O0, O1, O2, O3] private[scalafoundations] (
+  class Builder_4_4[I0, I1, I2, I3, O0, O1, O2, O3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_4_4[I0, I1, I2, I3, O0, O1, O2, O3]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5_4[I0, I1, I2, I3, I4, O0, O1, O2, O3] =
@@ -1548,7 +1548,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_4_5[I0, I1, I2, I3, O0, O1, O2, O3, O4] private[scalafoundations] (
+  class Builder_4_5[I0, I1, I2, I3, O0, O1, O2, O3, O4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_4_5[I0, I1, I2, I3, O0, O1, O2, O3, O4]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5_5[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4] =
@@ -1567,7 +1567,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_4_6[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5] private[scalafoundations] (
+  class Builder_4_6[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_4_6[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5_6[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5] =
@@ -1586,7 +1586,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_4_7[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6] private[scalafoundations] (
+  class Builder_4_7[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_4_7[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5_7[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6] =
@@ -1605,7 +1605,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_4_8[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7] private[scalafoundations] (
+  class Builder_4_8[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_4_8[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5_8[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7] =
@@ -1624,7 +1624,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_4_9[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[scalafoundations] (
+  class Builder_4_9[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_4_9[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5_9[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8] =
@@ -1643,7 +1643,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_4_10[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[scalafoundations] (
+  class Builder_4_10[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_4_10[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]
   ) {
     def in[I4](tpe: DbType[I4]): Builder_5_10[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] =
@@ -1658,7 +1658,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_5_0[I0, I1, I2, I3, I4] private[scalafoundations] (
+  class Builder_5_0[I0, I1, I2, I3, I4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_5_0[I0, I1, I2, I3, I4]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6_0[I0, I1, I2, I3, I4, I5] =
@@ -1677,7 +1677,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_5_1[I0, I1, I2, I3, I4, O0] private[scalafoundations] (
+  class Builder_5_1[I0, I1, I2, I3, I4, O0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_5_1[I0, I1, I2, I3, I4, O0]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6_1[I0, I1, I2, I3, I4, I5, O0] =
@@ -1696,7 +1696,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_5_2[I0, I1, I2, I3, I4, O0, O1] private[scalafoundations] (
+  class Builder_5_2[I0, I1, I2, I3, I4, O0, O1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_5_2[I0, I1, I2, I3, I4, O0, O1]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6_2[I0, I1, I2, I3, I4, I5, O0, O1] =
@@ -1715,7 +1715,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_5_3[I0, I1, I2, I3, I4, O0, O1, O2] private[scalafoundations] (
+  class Builder_5_3[I0, I1, I2, I3, I4, O0, O1, O2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_5_3[I0, I1, I2, I3, I4, O0, O1, O2]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6_3[I0, I1, I2, I3, I4, I5, O0, O1, O2] =
@@ -1734,7 +1734,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_5_4[I0, I1, I2, I3, I4, O0, O1, O2, O3] private[scalafoundations] (
+  class Builder_5_4[I0, I1, I2, I3, I4, O0, O1, O2, O3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_5_4[I0, I1, I2, I3, I4, O0, O1, O2, O3]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6_4[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3] =
@@ -1753,7 +1753,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_5_5[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4] private[scalafoundations] (
+  class Builder_5_5[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_5_5[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6_5[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4] =
@@ -1772,7 +1772,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_5_6[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5] private[scalafoundations] (
+  class Builder_5_6[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_5_6[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6_6[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5] =
@@ -1791,7 +1791,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_5_7[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6] private[scalafoundations] (
+  class Builder_5_7[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_5_7[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6_7[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6] =
@@ -1810,7 +1810,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_5_8[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7] private[scalafoundations] (
+  class Builder_5_8[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_5_8[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6_8[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7] =
@@ -1829,7 +1829,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_5_9[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[scalafoundations] (
+  class Builder_5_9[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_5_9[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6_9[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8] =
@@ -1848,7 +1848,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_5_10[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[scalafoundations] (
+  class Builder_5_10[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_5_10[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]
   ) {
     def in[I5](tpe: DbType[I5]): Builder_6_10[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] =
@@ -1863,7 +1863,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_6_0[I0, I1, I2, I3, I4, I5] private[scalafoundations] (
+  class Builder_6_0[I0, I1, I2, I3, I4, I5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_6_0[I0, I1, I2, I3, I4, I5]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7_0[I0, I1, I2, I3, I4, I5, I6] =
@@ -1882,7 +1882,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_6_1[I0, I1, I2, I3, I4, I5, O0] private[scalafoundations] (
+  class Builder_6_1[I0, I1, I2, I3, I4, I5, O0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_6_1[I0, I1, I2, I3, I4, I5, O0]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7_1[I0, I1, I2, I3, I4, I5, I6, O0] =
@@ -1901,7 +1901,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_6_2[I0, I1, I2, I3, I4, I5, O0, O1] private[scalafoundations] (
+  class Builder_6_2[I0, I1, I2, I3, I4, I5, O0, O1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_6_2[I0, I1, I2, I3, I4, I5, O0, O1]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7_2[I0, I1, I2, I3, I4, I5, I6, O0, O1] =
@@ -1920,7 +1920,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_6_3[I0, I1, I2, I3, I4, I5, O0, O1, O2] private[scalafoundations] (
+  class Builder_6_3[I0, I1, I2, I3, I4, I5, O0, O1, O2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_6_3[I0, I1, I2, I3, I4, I5, O0, O1, O2]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7_3[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2] =
@@ -1939,7 +1939,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_6_4[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3] private[scalafoundations] (
+  class Builder_6_4[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_6_4[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7_4[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3] =
@@ -1958,7 +1958,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_6_5[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4] private[scalafoundations] (
+  class Builder_6_5[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_6_5[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7_5[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4] =
@@ -1977,7 +1977,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_6_6[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5] private[scalafoundations] (
+  class Builder_6_6[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_6_6[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7_6[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5] =
@@ -1996,7 +1996,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_6_7[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6] private[scalafoundations] (
+  class Builder_6_7[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_6_7[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7_7[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6] =
@@ -2015,7 +2015,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_6_8[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7] private[scalafoundations] (
+  class Builder_6_8[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_6_8[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7_8[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7] =
@@ -2034,7 +2034,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_6_9[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[scalafoundations] (
+  class Builder_6_9[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_6_9[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7_9[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8] =
@@ -2053,7 +2053,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_6_10[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[scalafoundations] (
+  class Builder_6_10[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_6_10[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]
   ) {
     def in[I6](tpe: DbType[I6]): Builder_7_10[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] =
@@ -2068,7 +2068,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_7_0[I0, I1, I2, I3, I4, I5, I6] private[scalafoundations] (
+  class Builder_7_0[I0, I1, I2, I3, I4, I5, I6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_7_0[I0, I1, I2, I3, I4, I5, I6]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8_0[I0, I1, I2, I3, I4, I5, I6, I7] =
@@ -2087,7 +2087,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_7_1[I0, I1, I2, I3, I4, I5, I6, O0] private[scalafoundations] (
+  class Builder_7_1[I0, I1, I2, I3, I4, I5, I6, O0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_7_1[I0, I1, I2, I3, I4, I5, I6, O0]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8_1[I0, I1, I2, I3, I4, I5, I6, I7, O0] =
@@ -2106,7 +2106,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_7_2[I0, I1, I2, I3, I4, I5, I6, O0, O1] private[scalafoundations] (
+  class Builder_7_2[I0, I1, I2, I3, I4, I5, I6, O0, O1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_7_2[I0, I1, I2, I3, I4, I5, I6, O0, O1]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8_2[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1] =
@@ -2125,7 +2125,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_7_3[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2] private[scalafoundations] (
+  class Builder_7_3[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_7_3[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8_3[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2] =
@@ -2144,7 +2144,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_7_4[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3] private[scalafoundations] (
+  class Builder_7_4[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_7_4[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8_4[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3] =
@@ -2163,7 +2163,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_7_5[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4] private[scalafoundations] (
+  class Builder_7_5[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_7_5[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8_5[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4] =
@@ -2182,7 +2182,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_7_6[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5] private[scalafoundations] (
+  class Builder_7_6[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_7_6[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8_6[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5] =
@@ -2201,7 +2201,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_7_7[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6] private[scalafoundations] (
+  class Builder_7_7[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_7_7[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8_7[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6] =
@@ -2220,7 +2220,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_7_8[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7] private[scalafoundations] (
+  class Builder_7_8[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_7_8[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8_8[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7] =
@@ -2239,7 +2239,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_7_9[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[scalafoundations] (
+  class Builder_7_9[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_7_9[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8_9[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8] =
@@ -2258,7 +2258,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_7_10[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[scalafoundations] (
+  class Builder_7_10[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_7_10[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]
   ) {
     def in[I7](tpe: DbType[I7]): Builder_8_10[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] =
@@ -2273,7 +2273,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_8_0[I0, I1, I2, I3, I4, I5, I6, I7] private[scalafoundations] (
+  class Builder_8_0[I0, I1, I2, I3, I4, I5, I6, I7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_8_0[I0, I1, I2, I3, I4, I5, I6, I7]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9_0[I0, I1, I2, I3, I4, I5, I6, I7, I8] =
@@ -2292,7 +2292,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_8_1[I0, I1, I2, I3, I4, I5, I6, I7, O0] private[scalafoundations] (
+  class Builder_8_1[I0, I1, I2, I3, I4, I5, I6, I7, O0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_8_1[I0, I1, I2, I3, I4, I5, I6, I7, O0]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9_1[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0] =
@@ -2311,7 +2311,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_8_2[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1] private[scalafoundations] (
+  class Builder_8_2[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_8_2[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1] =
@@ -2330,7 +2330,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_8_3[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2] private[scalafoundations] (
+  class Builder_8_3[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_8_3[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2] =
@@ -2349,7 +2349,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_8_4[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3] private[scalafoundations] (
+  class Builder_8_4[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_8_4[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3] =
@@ -2368,7 +2368,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_8_5[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4] private[scalafoundations] (
+  class Builder_8_5[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_8_5[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4] =
@@ -2387,7 +2387,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_8_6[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5] private[scalafoundations] (
+  class Builder_8_6[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_8_6[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5] =
@@ -2406,7 +2406,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_8_7[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6] private[scalafoundations] (
+  class Builder_8_7[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_8_7[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6] =
@@ -2425,7 +2425,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_8_8[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7] private[scalafoundations] (
+  class Builder_8_8[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_8_8[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7] =
@@ -2444,7 +2444,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_8_9[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[scalafoundations] (
+  class Builder_8_9[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_8_9[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8] =
@@ -2463,7 +2463,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_8_10[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[scalafoundations] (
+  class Builder_8_10[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_8_10[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]
   ) {
     def in[I8](tpe: DbType[I8]): Builder_9_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] =
@@ -2478,7 +2478,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_9_0[I0, I1, I2, I3, I4, I5, I6, I7, I8] private[scalafoundations] (
+  class Builder_9_0[I0, I1, I2, I3, I4, I5, I6, I7, I8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_9_0[I0, I1, I2, I3, I4, I5, I6, I7, I8]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10_0[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9] =
@@ -2497,7 +2497,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_9_1[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0] private[scalafoundations] (
+  class Builder_9_1[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_9_1[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10_1[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0] =
@@ -2516,7 +2516,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_9_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1] private[scalafoundations] (
+  class Builder_9_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_9_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1] =
@@ -2535,7 +2535,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_9_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2] private[scalafoundations] (
+  class Builder_9_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_9_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2] =
@@ -2554,7 +2554,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_9_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3] private[scalafoundations] (
+  class Builder_9_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_9_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3] =
@@ -2573,7 +2573,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_9_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4] private[scalafoundations] (
+  class Builder_9_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_9_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4] =
@@ -2592,7 +2592,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_9_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5] private[scalafoundations] (
+  class Builder_9_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_9_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5] =
@@ -2611,7 +2611,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_9_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6] private[scalafoundations] (
+  class Builder_9_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_9_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6] =
@@ -2630,7 +2630,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_9_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7] private[scalafoundations] (
+  class Builder_9_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_9_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7] =
@@ -2649,7 +2649,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_9_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[scalafoundations] (
+  class Builder_9_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_9_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8] =
@@ -2668,7 +2668,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_9_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[scalafoundations] (
+  class Builder_9_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_9_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]
   ) {
     def in[I9](tpe: DbType[I9]): Builder_10_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] =
@@ -2683,7 +2683,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_10_0[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9] private[scalafoundations] (
+  class Builder_10_0[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_10_0[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9]
   ) {
     def out[O0](tpe: DbType[O0]): Builder_10_1[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0] =
@@ -2698,7 +2698,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_10_1[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0] private[scalafoundations] (
+  class Builder_10_1[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_10_1[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0]
   ) {
     def out[O1](tpe: DbType[O1]): Builder_10_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1] =
@@ -2713,7 +2713,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_10_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1] private[scalafoundations] (
+  class Builder_10_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_10_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1]
   ) {
     def out[O2](tpe: DbType[O2]): Builder_10_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2] =
@@ -2728,7 +2728,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_10_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2] private[scalafoundations] (
+  class Builder_10_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_10_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2]
   ) {
     def out[O3](tpe: DbType[O3]): Builder_10_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3] =
@@ -2743,7 +2743,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_10_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3] private[scalafoundations] (
+  class Builder_10_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_10_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3]
   ) {
     def out[O4](tpe: DbType[O4]): Builder_10_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4] =
@@ -2758,7 +2758,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_10_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4] private[scalafoundations] (
+  class Builder_10_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_10_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4]
   ) {
     def out[O5](tpe: DbType[O5]): Builder_10_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5] =
@@ -2773,7 +2773,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_10_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5] private[scalafoundations] (
+  class Builder_10_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_10_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5]
   ) {
     def out[O6](tpe: DbType[O6]): Builder_10_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6] =
@@ -2788,7 +2788,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_10_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6] private[scalafoundations] (
+  class Builder_10_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_10_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6]
   ) {
     def out[O7](tpe: DbType[O7]): Builder_10_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7] =
@@ -2803,7 +2803,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_10_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7] private[scalafoundations] (
+  class Builder_10_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_10_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7]
   ) {
     def out[O8](tpe: DbType[O8]): Builder_10_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8] =
@@ -2818,7 +2818,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_10_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[scalafoundations] (
+  class Builder_10_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_10_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8]
   ) {
     def out[O9](tpe: DbType[O9]): Builder_10_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] =
@@ -2833,7 +2833,7 @@ object DbProcedure {
     }
   }
 
-  class Builder_10_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[scalafoundations] (
+  class Builder_10_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbProcedure.Builder_10_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]
   ) {
 

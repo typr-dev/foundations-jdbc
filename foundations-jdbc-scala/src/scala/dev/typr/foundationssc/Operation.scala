@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 import java.sql.{Connection, SQLException}
 import _root_.scala.jdk.CollectionConverters.*

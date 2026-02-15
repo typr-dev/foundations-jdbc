@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.duckdb
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 import java.math.BigInteger

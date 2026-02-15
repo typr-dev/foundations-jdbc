@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 class Db2Type[T](override val underlying: dev.typr.foundations.Db2Type[T]) extends DbType[T](underlying):
   override def opt: Db2Type[Option[T]] =

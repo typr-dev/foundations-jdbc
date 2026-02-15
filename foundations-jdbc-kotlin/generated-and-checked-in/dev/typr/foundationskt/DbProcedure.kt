@@ -1,4 +1,4 @@
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 /**
  * Type-safe stored procedure definitions with fully typed inputs and outputs.

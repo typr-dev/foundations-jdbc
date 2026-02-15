@@ -1,6 +1,6 @@
 package dev.typr.foundations.example
 
-import dev.typr.kotlinfoundations.*
+import dev.typr.foundationskt.*
 import java.sql.Connection
 
 object VenueRepo {

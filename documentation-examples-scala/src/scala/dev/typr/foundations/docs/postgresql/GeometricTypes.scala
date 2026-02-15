@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.postgresql
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 import org.postgresql.geometric.{PGcircle, PGpoint, PGpolygon}

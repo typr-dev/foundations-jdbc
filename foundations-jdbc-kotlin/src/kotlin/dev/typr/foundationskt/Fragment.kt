@@ -1,11 +1,19 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 import java.util.Optional
 
 class Fragment(val underlying: dev.typr.foundations.Fragment) {
 
     fun render(): String = underlying.render()
+
+    override fun toString(): String {
+        val ctx = Sql.currentContext()
+        if (ctx != null) {
+            return ctx.register(this)
+        }
+        return render()
+    }
 
     fun append(other: Fragment): Fragment = Fragment(underlying.append(other.underlying))
 

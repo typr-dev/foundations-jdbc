@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 object streamingInsert:
   import _root_.scala.jdk.CollectionConverters.*

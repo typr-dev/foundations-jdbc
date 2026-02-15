@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 class OracleType[T](override val underlying: dev.typr.foundations.OracleType[T]) extends DbType[T](underlying):
   override def opt: OracleType[Option[T]] =

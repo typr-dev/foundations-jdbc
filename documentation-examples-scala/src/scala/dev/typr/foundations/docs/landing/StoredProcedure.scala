@@ -1,5 +1,5 @@
 package dev.typr.foundations.docs.landing
-import dev.typr.scalafoundations.*
+import dev.typr.foundationssc.*
 
 import java.sql.SQLException
 

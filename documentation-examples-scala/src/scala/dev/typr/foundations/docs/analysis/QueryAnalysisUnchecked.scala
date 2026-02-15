@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.analysis
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object QueryAnalysisUnchecked:

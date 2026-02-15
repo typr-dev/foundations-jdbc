@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 import dev.typr.foundations.{Db2Types => JavaDb2Types}
 

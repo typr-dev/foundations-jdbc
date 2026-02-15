@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.landing
 
-import dev.typr.kotlinfoundations.*
+import dev.typr.foundationskt.*
 
 @Suppress("unused")
 class StoredProcedure {

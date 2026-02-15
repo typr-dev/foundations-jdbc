@@ -1,4 +1,4 @@
-package dev.typr.scalafoundations
+package dev.typr.foundationssc
 
 class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends DbType[T](underlying):
   override def opt: PgType[Option[T]] =

@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package dev.typr.kotlinfoundations
+package dev.typr.foundationskt
 
 class DuckDbStruct<T>(val underlying: dev.typr.foundations.DuckDbStruct<T>) {
     fun asType(): DuckDbType<T> = DuckDbType(underlying.asType())

@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.analysis
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.Fragment.sql
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.data.*
 
 import java.sql.Connection
 

@@ -1,5 +1,5 @@
 package dev.typr.foundations.docs.analysis
-import dev.typr.scalafoundations.*
+import dev.typr.foundationssc.*
 
 @SuppressWarnings(Array("unused"))
 object QueryAnalysisRoutine:

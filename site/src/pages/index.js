@@ -109,8 +109,8 @@ CREATE TABLE product (
 );`;
 
 
-const quickstartKotlin = `import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.connect.*
+const quickstartKotlin = `import dev.typr.foundationskt.*
+import dev.typr.foundationskt.connect.*
 
 fun main() {
     val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
