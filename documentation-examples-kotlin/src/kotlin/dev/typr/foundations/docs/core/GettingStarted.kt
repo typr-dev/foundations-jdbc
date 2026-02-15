@@ -20,12 +20,12 @@ class GettingStarted {
 
         // Create the table and insert data
         tx.transact { conn ->
-            Fragment.of("CREATE TABLE city (name VARCHAR, population INTEGER)").update().runChecked(conn)
-            Fragment.of("INSERT INTO city VALUES ('Oslo', 709037), ('Bergen', 291189)").update().runChecked(conn)
+            Sql { "CREATE TABLE city (name VARCHAR, population INTEGER)" }.update().runChecked(conn)
+            Sql { "INSERT INTO city VALUES ('Oslo', 709037), ('Bergen', 291189)" }.update().runChecked(conn)
         }
 
         // Query with type-safe parameters
-        val cities: List<City> = Fragment.of("SELECT name, population FROM city ORDER BY population DESC")
+        val cities: List<City> = Sql { "SELECT name, population FROM city ORDER BY population DESC" }
             .query(cityParser.all())
             .transact(tx)
 

@@ -18,10 +18,10 @@ class ManualTransaction {
 
     //start
     val countUsers: Operation<Long> =
-        Fragment.of("SELECT count(*) FROM users")
+        Sql { "SELECT count(*) FROM users" }
             .query(RowParser.of(PgTypes.int8).exactlyOne())
     val recentOrders: Operation<List<Order>> =
-        Fragment.of("SELECT * FROM orders ORDER BY id DESC LIMIT 10")
+        Sql { "SELECT * FROM orders ORDER BY id DESC LIMIT 10" }
             .query(orderParser.all())
 
     // Run both in one transaction using the connection directly

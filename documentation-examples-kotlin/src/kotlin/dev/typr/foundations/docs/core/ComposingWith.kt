@@ -21,10 +21,10 @@ class ComposingWith {
     //start
     // Combine two independent queries — both run in one transaction
     val countUsers: Operation<Long> =
-        Fragment.of("SELECT count(*) FROM users")
+        Sql { "SELECT count(*) FROM users" }
             .query(RowParser.of(PgTypes.int8).exactlyOne())
     val recentOrders: Operation<List<Order>> =
-        Fragment.of("SELECT * FROM orders ORDER BY id DESC LIMIT 10")
+        Sql { "SELECT * FROM orders ORDER BY id DESC LIMIT 10" }
             .query(orderParser.all())
 
     fun dashboard(): Dashboard =
@@ -32,10 +32,10 @@ class ComposingWith {
 
     // Three-way: all run in one transaction, results combined
     val countOrders: Operation<Long> =
-        Fragment.of("SELECT count(*) FROM orders")
+        Sql { "SELECT count(*) FROM orders" }
             .query(RowParser.of(PgTypes.int8).exactlyOne())
     val totalRevenue: Operation<Long> =
-        Fragment.of("SELECT coalesce(sum(amount), 0) FROM orders")
+        Sql { "SELECT coalesce(sum(amount), 0) FROM orders" }
             .query(RowParser.of(PgTypes.int8).exactlyOne())
 
     fun stats(): Stats =

@@ -21,7 +21,7 @@ class QueryAnalysisAll {
             .append(") RETURNING id")
             .query(RowParser.of(PgTypes.int4).exactlyOne())
 
-    val allUsers: Operation<List<User>> = Fragment.of("SELECT id, name FROM users")
+    val allUsers: Operation<List<User>> = Sql { "SELECT id, name FROM users" }
         .query(userParser.all())
 
     //start

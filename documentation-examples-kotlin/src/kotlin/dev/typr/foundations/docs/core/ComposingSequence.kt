@@ -13,9 +13,7 @@ class ComposingSequence {
 
     fun insertAll(): List<Int> {
         val inserts: List<Operation<Int>> = names.map { name ->
-            Fragment.of("INSERT INTO users(name) VALUES(")
-                .value(PgTypes.text, name)
-                .append(") RETURNING id")
+            Sql { "INSERT INTO users(name) VALUES(${PgTypes.text(name)}) RETURNING id" }
                 .query(RowParser.of(PgTypes.int4).exactlyOne())
         }
 

@@ -15,12 +15,10 @@ class SqlServerQuery {
     //start
     // Build small reusable filters - SQL Server example
     fun byName(name: String): Fragment =
-        Fragment.of("name LIKE ")
-            .value(SqlServerTypes.nvarchar, name)
+        Sql { "name LIKE ${SqlServerTypes.nvarchar(name)}" }
 
     fun cheaperThan(max: BigDecimal): Fragment =
-        Fragment.of("price < ")
-            .value(SqlServerTypes.decimal, max)
+        Sql { "price < ${SqlServerTypes.decimal(max)}" }
 
     // Compose dynamically - only include the filters that are present
     val filters: List<Fragment> = listOfNotNull(
@@ -28,8 +26,7 @@ class SqlServerQuery {
         maxPrice?.let { cheaperThan(it) }
     )
 
-    val orders: List<OrderRow> = Fragment.of("SELECT * FROM orders ")
-        .append(Fragment.whereAnd(filters))
+    val orders: List<OrderRow> = Sql { "SELECT * FROM orders ${Fragment.whereAnd(filters)}" }
         .query(orderRowParser!!.all())
         .run(conn)
     //stop

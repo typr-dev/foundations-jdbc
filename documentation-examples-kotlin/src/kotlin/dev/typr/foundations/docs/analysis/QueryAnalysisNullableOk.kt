@@ -21,11 +21,11 @@ class QueryAnalysisNullableOk {
         .build(::OrderRow)
 
     fun analyzeLeftJoin() {
-        val query = Fragment.of("""
+        val query = Sql { """
             SELECT u.id, u.name, o.total
             FROM users u
             LEFT JOIN orders o ON u.id = o.user_id
-        """.trimIndent()).query(orderParser.all())
+        """.trimIndent() }.query(orderParser.all())
 
         val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection).single()
         if (!analysis.succeeded()) {

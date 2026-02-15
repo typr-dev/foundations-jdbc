@@ -27,10 +27,10 @@ class QueryAnalysisTestSuite {
         testDataSource.connection.use { conn ->
             // Collect all queries to check
             val queries: List<Operation.Query<*>> = listOf(
-                Fragment.of("SELECT id, name, email FROM users WHERE id = ")
-                    .value(PgTypes.int4, 1).query(userParser.all()),
-                Fragment.of("SELECT id, name FROM products WHERE name LIKE ")
-                    .value(PgTypes.text, "%widget%").query(productParser.all())
+                Sql { "SELECT id, name, email FROM users WHERE id = ${PgTypes.int4(1)}" }
+                    .query(userParser.all()),
+                Sql { "SELECT id, name FROM products WHERE name LIKE ${PgTypes.text("%widget%")}" }
+                    .query(productParser.all())
             )
 
             // Analyze each one
