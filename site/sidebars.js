@@ -4,8 +4,8 @@
 const sidebars = {
   jdbcSidebar: [
     {type: "doc", id: "readme", label: "Getting Started"},
+    {type: "doc", id: "fragments", label: "Fragments"},
     {type: "doc", id: "transactors", label: "Transactors"},
-    {type: "doc", id: "result-parsers", label: "Result Parsers"},
     {type: "doc", id: "named-row-parsers", label: "Named Row Parsers"},
     {type: "doc", id: "query-analysis", label: "Query Analysis"},
     {type: "doc", id: "stored-procedures", label: "Stored Procedures"},

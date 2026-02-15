@@ -8,3 +8,19 @@ object QueryAnalyzer:
   def analyze(name: String, op: Operation[?], conn: java.sql.Connection): List[QueryAnalysis] =
     import scala.jdk.CollectionConverters.*
     dev.typr.foundations.QueryAnalyzer.analyze(name, op.underlying, conn).asScala.toList
+
+  def analyze(template: SqlTemplate[?, ?], conn: java.sql.Connection): List[QueryAnalysis] =
+    import scala.jdk.CollectionConverters.*
+    dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn).asScala.toList
+
+  def analyze(name: String, template: SqlTemplate[?, ?], conn: java.sql.Connection): List[QueryAnalysis] =
+    import scala.jdk.CollectionConverters.*
+    dev.typr.foundations.QueryAnalyzer.analyze(name, template.underlying, conn).asScala.toList
+
+  def analyze(template: RowSqlTemplate[?, ?], conn: java.sql.Connection): List[QueryAnalysis] =
+    import scala.jdk.CollectionConverters.*
+    dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn).asScala.toList
+
+  def analyze(name: String, template: RowSqlTemplate[?, ?], conn: java.sql.Connection): List[QueryAnalysis] =
+    import scala.jdk.CollectionConverters.*
+    dev.typr.foundations.QueryAnalyzer.analyze(name, template.underlying, conn).asScala.toList

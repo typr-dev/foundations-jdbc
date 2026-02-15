@@ -128,4 +128,37 @@ class SqlBuilderTest {
         val frag = Sql { "${DuckDbTypes.integer(1)}${DuckDbTypes.integer(2)}" }
         assertEquals("?::INTEGER?::INTEGER", frag.render())
     }
+
+    @Test
+    fun columnListEmbedding() {
+        data class Row(val id: Int, val name: String)
+
+        val parser: RowParserNamed<Row> = RowParser.namedBuilder<Row>()
+            .field("id", DuckDbTypes.integer, Row::id)
+            .field("name", DuckDbTypes.varchar, Row::name)
+            .build(::Row)
+
+        val frag = Sql { "SELECT ${parser.columnList} FROM users WHERE id = ${DuckDbTypes.integer(1)}" }
+        assertEquals("SELECT id, name FROM users WHERE id = ?::INTEGER", frag.render())
+    }
+
+    @Test
+    fun columnListEmbeddingRuntime() {
+        data class Row(val id: Int, val name: String)
+
+        val parser: RowParserNamed<Row> = RowParser.namedBuilder<Row>()
+            .field("id", DuckDbTypes.integer, Row::id)
+            .field("name", DuckDbTypes.varchar, Row::name)
+            .build(::Row)
+
+        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
+            conn.createStatement().execute("CREATE TABLE test_users (id INTEGER, name VARCHAR)")
+            conn.createStatement().execute("INSERT INTO test_users VALUES (1, 'Alice'), (2, 'Bob')")
+
+            val frag = Sql { "SELECT ${parser.columnList} FROM test_users WHERE id = ${DuckDbTypes.integer(1)}" }
+            val result = frag.query(parser.exactlyOne()).runChecked(conn)
+            assertEquals(1, result.id)
+            assertEquals("Alice", result.name)
+        }
+    }
 }

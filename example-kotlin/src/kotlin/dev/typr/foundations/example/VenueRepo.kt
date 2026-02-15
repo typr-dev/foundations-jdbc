@@ -4,8 +4,7 @@ import dev.typr.foundationskt.*
 import java.sql.Connection
 
 object VenueRepo {
-    private val selectAll = Fragment.of("SELECT ")
-        .append(venueParser.columnList).append(" FROM venue ORDER BY name")
+    private val selectAll = Sql { "SELECT ${venueParser.columnList} FROM venue ORDER BY name" }
         .query(venueParser.all())
 
     private val selectByIdTemplate = Fragment.of("SELECT ")
@@ -33,9 +32,7 @@ object VenueRepo {
 
     fun analyzeQueries(conn: Connection): List<QueryAnalysis> = listOf(
         QueryAnalyzer.analyze("VenueRepo.selectAll", selectAll, conn),
-        QueryAnalyzer.analyze("VenueRepo.selectById",
-            selectByIdTemplate.fragment().query(venueParser.maxOne()), conn),
-        QueryAnalyzer.analyze("VenueRepo.insertReturning",
-            insertTemplate.fragment().query(venueParser.exactlyOne()), conn),
+        QueryAnalyzer.analyze("VenueRepo.selectById", selectByIdTemplate, conn),
+        QueryAnalyzer.analyze("VenueRepo.insertReturning", insertTemplate, conn),
     ).flatten()
 }
