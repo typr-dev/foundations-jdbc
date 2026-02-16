@@ -111,6 +111,24 @@ object Operation {
       new UpdateReturning(new dev.typr.foundations.Operation.UpdateReturning(query.underlying, parser.underlying))
   }
 
+  class UpdateMany[Row](val underlying: dev.typr.foundations.Operation.UpdateMany[Row]) extends Operation[Array[Int]] {
+    override def runChecked(conn: Connection): Array[Int] = underlying.runChecked(conn)
+  }
+
+  class UpdateManyReturning[Row](val underlying: dev.typr.foundations.Operation.UpdateManyReturning[Row]) extends Operation[List[Row]] {
+    import _root_.scala.jdk.CollectionConverters.*
+    override def runChecked(conn: Connection): List[Row] = underlying.runChecked(conn).asScala.toList
+  }
+
+  class UpdateReturningEach[Row](val underlying: dev.typr.foundations.Operation.UpdateReturningEach[Row]) extends Operation[List[Row]] {
+    import _root_.scala.jdk.CollectionConverters.*
+    override def runChecked(conn: Connection): List[Row] = underlying.runChecked(conn).asScala.toList
+  }
+
+  class UpdateManyTemplate[Row](val underlying: dev.typr.foundations.Operation.UpdateManyTemplate[Row]) extends Operation[Array[Int]] {
+    override def runChecked(conn: Connection): Array[Int] = underlying.runChecked(conn)
+  }
+
   class StreamingCopy(val underlying: dev.typr.foundations.Operation[java.lang.Long]) extends Operation[Long] {
     override def runChecked(conn: Connection): Long = underlying.runChecked(conn)
   }

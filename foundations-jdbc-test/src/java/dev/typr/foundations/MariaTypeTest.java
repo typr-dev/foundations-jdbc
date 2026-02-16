@@ -579,6 +579,20 @@ public class MariaTypeTest {
     }
   }
 
+  static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
+      throws SQLException {
+    RowParserNamed<A> parser =
+        RowParser.<A>namedBuilder()
+            .field("v", type, java.util.function.Function.identity())
+            .build(java.util.function.Function.identity());
+    Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+        .paramRow(parser)
+        .append(")")
+        .update()
+        .onMany(List.of(value).iterator())
+        .runChecked(conn);
+  }
+
   static <A> void testCase(Connection conn, MariaTypeAndExample<A> t) throws SQLException {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("test_table");
@@ -587,12 +601,8 @@ public class MariaTypeTest {
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
 
     try {
-      // Insert using PreparedStatement
-      var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
       A expected = t.example;
-      t.type.write().set(insert, 1, expected);
-      insert.execute();
-      insert.close();
+      batchInsert(conn, t.type, tableName, expected);
 
       // Select and verify
       final PreparedStatement select;

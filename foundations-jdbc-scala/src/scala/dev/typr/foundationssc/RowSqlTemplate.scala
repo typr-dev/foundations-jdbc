@@ -16,3 +16,8 @@ object RowSqlTemplate:
   class Update[Row](val underlying: dev.typr.foundations.RowSqlTemplate.Update[Row])
       extends RowSqlTemplate[Row, Int]:
     override def on(row: Row): Operation.Update = new Operation.Update(underlying.on(row))
+
+    def onMany(rows: Iterator[Row]): Operation.UpdateManyTemplate[Row] = {
+      import _root_.scala.jdk.CollectionConverters.*
+      new Operation.UpdateManyTemplate(underlying.onMany(rows.asJava))
+    }

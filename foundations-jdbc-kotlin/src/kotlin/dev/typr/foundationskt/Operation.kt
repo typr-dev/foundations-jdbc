@@ -80,6 +80,26 @@ sealed class Operation<Out> {
         override fun runChecked(conn: Connection): Out = underlying.runChecked(conn)
     }
 
+    class UpdateMany<Row>(override val underlying: dev.typr.foundations.Operation.UpdateMany<Row>) : Operation<IntArray>() {
+        @Throws(SQLException::class)
+        override fun runChecked(conn: Connection): IntArray = underlying.runChecked(conn)
+    }
+
+    class UpdateManyReturning<Row>(override val underlying: dev.typr.foundations.Operation.UpdateManyReturning<Row>) : Operation<List<Row>>() {
+        @Throws(SQLException::class)
+        override fun runChecked(conn: Connection): List<Row> = underlying.runChecked(conn)
+    }
+
+    class UpdateReturningEach<Row>(override val underlying: dev.typr.foundations.Operation.UpdateReturningEach<Row>) : Operation<List<Row>>() {
+        @Throws(SQLException::class)
+        override fun runChecked(conn: Connection): List<Row> = underlying.runChecked(conn)
+    }
+
+    class UpdateManyTemplate<Row>(override val underlying: dev.typr.foundations.Operation.UpdateManyTemplate<Row>) : Operation<IntArray>() {
+        @Throws(SQLException::class)
+        override fun runChecked(conn: Connection): IntArray = underlying.runChecked(conn)
+    }
+
     class StreamingCopy(override val underlying: dev.typr.foundations.Operation<Long>) : Operation<Long>() {
         @Throws(SQLException::class)
         override fun runChecked(conn: Connection): Long = underlying.runChecked(conn)

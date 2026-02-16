@@ -384,6 +384,24 @@ public interface OracleJson<A> extends DbJson<A> {
         }
       };
 
+  OracleJson<Instant> timestampWithLocalTimeZone =
+      new OracleJson<>() {
+        @Override
+        public JsonValue toJson(Instant value) {
+          return new JsonValue.JString(value.toString());
+        }
+
+        @Override
+        public Instant fromJson(JsonValue json) {
+          if (json instanceof JsonValue.JString s) {
+            return Instant.parse(s.value());
+          }
+          throw new IllegalArgumentException(
+              "Expected string for timestamp with local time zone, got: "
+                  + json.getClass().getSimpleName());
+        }
+      };
+
   // INTERVAL YEAR TO MONTH - Oracle JSON returns ISO-8601 format (P2Y5M)
   OracleJson<OracleIntervalYM> intervalYearToMonth =
       new OracleJson<>() {

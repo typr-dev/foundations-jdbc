@@ -9,12 +9,6 @@ import java.util.Optional;
 public sealed interface MariaTypename<A> extends DbTypename<A> {
   String sqlType();
 
-  /** MariaDB doesn't use PostgreSQL-style type casts in SQL. */
-  @Override
-  default boolean renderTypeCast() {
-    return false;
-  }
-
   String sqlTypeNoPrecision();
 
   MariaTypename<A> renamed(String value);
