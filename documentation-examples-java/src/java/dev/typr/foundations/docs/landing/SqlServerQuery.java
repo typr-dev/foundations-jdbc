@@ -29,16 +29,18 @@ public class SqlServerQuery {
     }
 
     // Compose dynamically - only include the filters that are present
-    List<Fragment> filters = Stream.of(
-            Optional.of(byName("%widget%")),
-            maxPrice.map(this::cheaperThan)
-        )
-        .flatMap(Optional::stream)
-        .toList();
+    List<Fragment> filters =
+        Stream.of(
+                Optional.of(byName("%widget%")),
+                maxPrice.map(this::cheaperThan)
+            )
+            .flatMap(Optional::stream)
+            .toList();
 
-    List<OrderRow> orders = Fragment.of("SELECT * FROM orders ")
-        .append(Fragment.whereAnd(filters))
-        .query(orderRowParser.all())
-        .run(conn);
+    List<OrderRow> orders =
+        Fragment.of("SELECT * FROM orders ")
+            .append(Fragment.whereAnd(filters))
+            .query(orderRowParser.all())
+            .run(conn);
     //stop
 }

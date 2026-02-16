@@ -14,8 +14,11 @@ public class QueryAnalysisRoutine {
     //start
     // Verify a stored function matches the database definition
     void checkStoredFunction() {
-        var addUser = Procedure.buildFunction("add_user",
-            List.of(ParamDef.in(PgTypes.text), ParamDef.in(PgTypes.text)),
+        var addUser = Procedure.buildFunction(
+            "add_user",
+            List.of(
+                ParamDef.input(PgTypes.text),
+                ParamDef.input(PgTypes.text)),
             PgTypes.int4);
 
         QueryChecker checker = () -> transactor;

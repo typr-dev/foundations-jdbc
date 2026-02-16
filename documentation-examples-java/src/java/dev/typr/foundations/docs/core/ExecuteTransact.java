@@ -13,15 +13,18 @@ import java.util.List;
 public class ExecuteTransact {
     record City(String name, int population) {}
 
-    static RowParser<City> cityParser = RowParser.<City>builder()
-        .field(PgTypes.text, City::name)
-        .field(PgTypes.int4, City::population)
-        .build(City::new);
+    static RowParser<City> cityParser =
+        RowParser.<City>builder()
+            .field(PgTypes.text, City::name)
+            .field(PgTypes.int4, City::population)
+            .build(City::new);
 
     Transactor tx = null; // placeholder
 
     Operation<List<City>> findCities =
-        Fragment.of("SELECT name, population FROM city ORDER BY population DESC")
+        Fragment.of("""
+                SELECT name, population FROM city
+                ORDER BY population DESC""")
             .query(cityParser.all());
 
     //start

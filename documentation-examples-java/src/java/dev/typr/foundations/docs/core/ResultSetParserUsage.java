@@ -14,20 +14,23 @@ import java.util.Optional;
 public class ResultSetParserUsage {
     record Person(Integer id, String name, Instant createdAt) {}
 
-    RowParser<Person> personParser = RowParser.<Person>builder()
-        .field(PgTypes.int4, Person::id)
-        .field(PgTypes.text, Person::name)
-        .field(PgTypes.timestamptz, Person::createdAt)
-        .build(Person::new);
+    RowParser<Person> personParser =
+        RowParser.<Person>builder()
+            .field(PgTypes.int4, Person::id)
+            .field(PgTypes.text, Person::name)
+            .field(PgTypes.timestamptz, Person::createdAt)
+            .build(Person::new);
 
     ResultSet resultSet = null; // placeholder
 
     //start
     // Parse a single optional result
-    ResultSetParser<Optional<Person>> singleParser = personParser.maxOne();
+    ResultSetParser<Optional<Person>> singleParser =
+        personParser.maxOne();
 
     // Parse all results as a list
-    ResultSetParser<List<Person>> listParser = personParser.all();
+    ResultSetParser<List<Person>> listParser =
+        personParser.all();
 
     // Execute with ResultSet
     Optional<Person> parse() throws SQLException {

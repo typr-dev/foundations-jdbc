@@ -9,21 +9,26 @@ import java.time.Instant
 class FragmentBuilding {
     data class User(val id: Int, val name: String, val status: String, val createdAt: Instant)
 
-    val userParser: RowParser<User> = RowParser.builder<User>()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .field(PgTypes.text, User::status)
-        .field(PgTypes.timestamptz, User::createdAt)
-        .build(::User)
+    val userParser: RowParser<User> =
+        RowParser.builder<User>()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .field(PgTypes.text, User::status)
+            .field(PgTypes.timestamptz, User::createdAt)
+            .build(::User)
 
     lateinit var connection: Connection
     val userId: Int = 1
     val cutoffDate: Instant = Instant.now()
 
     //start
-    val query: Fragment = Sql {
-        "SELECT * FROM users WHERE id = ${PgTypes.int4(userId)} AND status = ${PgTypes.text("active")} AND created_at > ${PgTypes.timestamptz(cutoffDate)}"
-    }
+    val query: Fragment =
+        Sql { """
+            SELECT * FROM users
+            WHERE id = ${PgTypes.int4(userId)}
+                AND status = ${PgTypes.text("active")}
+                AND created_at > ${PgTypes.timestamptz(cutoffDate)}
+        """.trimIndent() }
 
     // Execute safely — parameters are bound, not interpolated
     val users: List<User> =

@@ -11,7 +11,7 @@ object OutProcedure:
   // OUT parameters — the builder tracks output types statically
   val getUser =
     DbProcedure.define("get_user_by_id")
-      .in(PgTypes.int4)       // user_id IN
+      .input(PgTypes.int4)       // user_id IN
       .out(PgTypes.text)      // name OUT
       .out(PgTypes.text)      // email OUT
       .build()

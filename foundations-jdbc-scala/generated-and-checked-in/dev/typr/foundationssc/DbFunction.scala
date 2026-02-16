@@ -5,8 +5,8 @@ package dev.typr.foundationssc
   * Usage:
   * {{{
   * val calcTax: DbFunction.Def2[BigDecimal, String, BigDecimal] = DbFunction.define("calculate_tax", PgTypes.numeric)
-  *   .in(PgTypes.numeric)
-  *   .in(PgTypes.text)
+  *   .input(PgTypes.numeric)
+  *   .input(PgTypes.text)
   *   .build()
   * val tax = calcTax.call(amount, "US").transact(tx)  // Types enforced!
   * }}}
@@ -85,8 +85,8 @@ object DbFunction {
   class Builder_0[R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_0[R]
   ) {
-    def in[I0](tpe: DbType[I0]): Builder_1[I0, R] =
-      new Builder_1(underlying.in(tpe.underlying))
+    def input[I0](tpe: DbType[I0]): Builder_1[I0, R] =
+      new Builder_1(underlying.input(tpe.underlying))
 
     def build(): Def0[R] = {
       val javaFn = underlying.build()
@@ -100,8 +100,8 @@ object DbFunction {
   class Builder_1[I0, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_1[I0, R]
   ) {
-    def in[I1](tpe: DbType[I1]): Builder_2[I0, I1, R] =
-      new Builder_2(underlying.in(tpe.underlying))
+    def input[I1](tpe: DbType[I1]): Builder_2[I0, I1, R] =
+      new Builder_2(underlying.input(tpe.underlying))
 
     def build(): Def1[I0, R] = {
       val javaFn = underlying.build()
@@ -115,8 +115,8 @@ object DbFunction {
   class Builder_2[I0, I1, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_2[I0, I1, R]
   ) {
-    def in[I2](tpe: DbType[I2]): Builder_3[I0, I1, I2, R] =
-      new Builder_3(underlying.in(tpe.underlying))
+    def input[I2](tpe: DbType[I2]): Builder_3[I0, I1, I2, R] =
+      new Builder_3(underlying.input(tpe.underlying))
 
     def build(): Def2[I0, I1, R] = {
       val javaFn = underlying.build()
@@ -130,8 +130,8 @@ object DbFunction {
   class Builder_3[I0, I1, I2, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_3[I0, I1, I2, R]
   ) {
-    def in[I3](tpe: DbType[I3]): Builder_4[I0, I1, I2, I3, R] =
-      new Builder_4(underlying.in(tpe.underlying))
+    def input[I3](tpe: DbType[I3]): Builder_4[I0, I1, I2, I3, R] =
+      new Builder_4(underlying.input(tpe.underlying))
 
     def build(): Def3[I0, I1, I2, R] = {
       val javaFn = underlying.build()
@@ -145,8 +145,8 @@ object DbFunction {
   class Builder_4[I0, I1, I2, I3, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_4[I0, I1, I2, I3, R]
   ) {
-    def in[I4](tpe: DbType[I4]): Builder_5[I0, I1, I2, I3, I4, R] =
-      new Builder_5(underlying.in(tpe.underlying))
+    def input[I4](tpe: DbType[I4]): Builder_5[I0, I1, I2, I3, I4, R] =
+      new Builder_5(underlying.input(tpe.underlying))
 
     def build(): Def4[I0, I1, I2, I3, R] = {
       val javaFn = underlying.build()
@@ -160,8 +160,8 @@ object DbFunction {
   class Builder_5[I0, I1, I2, I3, I4, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_5[I0, I1, I2, I3, I4, R]
   ) {
-    def in[I5](tpe: DbType[I5]): Builder_6[I0, I1, I2, I3, I4, I5, R] =
-      new Builder_6(underlying.in(tpe.underlying))
+    def input[I5](tpe: DbType[I5]): Builder_6[I0, I1, I2, I3, I4, I5, R] =
+      new Builder_6(underlying.input(tpe.underlying))
 
     def build(): Def5[I0, I1, I2, I3, I4, R] = {
       val javaFn = underlying.build()
@@ -175,8 +175,8 @@ object DbFunction {
   class Builder_6[I0, I1, I2, I3, I4, I5, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_6[I0, I1, I2, I3, I4, I5, R]
   ) {
-    def in[I6](tpe: DbType[I6]): Builder_7[I0, I1, I2, I3, I4, I5, I6, R] =
-      new Builder_7(underlying.in(tpe.underlying))
+    def input[I6](tpe: DbType[I6]): Builder_7[I0, I1, I2, I3, I4, I5, I6, R] =
+      new Builder_7(underlying.input(tpe.underlying))
 
     def build(): Def6[I0, I1, I2, I3, I4, I5, R] = {
       val javaFn = underlying.build()
@@ -190,8 +190,8 @@ object DbFunction {
   class Builder_7[I0, I1, I2, I3, I4, I5, I6, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_7[I0, I1, I2, I3, I4, I5, I6, R]
   ) {
-    def in[I7](tpe: DbType[I7]): Builder_8[I0, I1, I2, I3, I4, I5, I6, I7, R] =
-      new Builder_8(underlying.in(tpe.underlying))
+    def input[I7](tpe: DbType[I7]): Builder_8[I0, I1, I2, I3, I4, I5, I6, I7, R] =
+      new Builder_8(underlying.input(tpe.underlying))
 
     def build(): Def7[I0, I1, I2, I3, I4, I5, I6, R] = {
       val javaFn = underlying.build()
@@ -205,8 +205,8 @@ object DbFunction {
   class Builder_8[I0, I1, I2, I3, I4, I5, I6, I7, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_8[I0, I1, I2, I3, I4, I5, I6, I7, R]
   ) {
-    def in[I8](tpe: DbType[I8]): Builder_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, R] =
-      new Builder_9(underlying.in(tpe.underlying))
+    def input[I8](tpe: DbType[I8]): Builder_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, R] =
+      new Builder_9(underlying.input(tpe.underlying))
 
     def build(): Def8[I0, I1, I2, I3, I4, I5, I6, I7, R] = {
       val javaFn = underlying.build()
@@ -220,8 +220,8 @@ object DbFunction {
   class Builder_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, R] private[foundationssc] (
     private val underlying: dev.typr.foundations.DbFunction.Builder_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, R]
   ) {
-    def in[I9](tpe: DbType[I9]): Builder_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, R] =
-      new Builder_10(underlying.in(tpe.underlying))
+    def input[I9](tpe: DbType[I9]): Builder_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, R] =
+      new Builder_10(underlying.input(tpe.underlying))
 
     def build(): Def9[I0, I1, I2, I3, I4, I5, I6, I7, I8, R] = {
       val javaFn = underlying.build()

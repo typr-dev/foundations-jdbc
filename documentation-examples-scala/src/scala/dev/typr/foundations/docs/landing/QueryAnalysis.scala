@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.landing
 import dev.typr.foundationssc.*
-import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
 import java.sql.Connection
@@ -20,14 +20,16 @@ object QueryAnalysis:
 
   //start
   // Your query looks fine at compile time...
-  val active = Fragment.encode(PgTypes.bool, true)
   val query: Operation.Query[List[User]] =
-    sql"SELECT id, name, created_at, email FROM users WHERE active = $active"
+    sql"""SELECT id, name, created_at, email
+          FROM users
+          WHERE active = ${PgTypes.bool(true)}"""
       .query(User.rowParser.all())
 
   // But Query Analysis catches the bugs in your tests
   def check(): Unit =
-    val result: QueryAnalysis = QueryAnalyzer.analyze(query, connection).head
+    val result: QueryAnalysis =
+      QueryAnalyzer.analyze(query, connection).head
     if !result.succeeded() then
       throw new AssertionError(result.report())
   //stop

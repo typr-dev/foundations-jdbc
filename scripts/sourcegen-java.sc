@@ -776,8 +776,8 @@ def generateDbProcedure(): String = {
     val inMethod = if (i < maxArity) {
       val newI = s"I$i"
       val nextTp = allTypeParams(i + 1, o)
-      s"""        public <$newI> Builder_${i + 1}_${o}${typeParamDecl(nextTp)} in(DbType<$newI> type) {
-         |            params.add(ParamDef.in(type));
+      s"""        public <$newI> Builder_${i + 1}_${o}${typeParamDecl(nextTp)} input(DbType<$newI> type) {
+         |            params.add(ParamDef.input(type));
          |            return new Builder_${i + 1}_${o}<>(name, params);
          |        }""".stripMargin
     } else ""
@@ -844,14 +844,14 @@ def generateDbProcedure(): String = {
       |/**
       | * Type-safe stored procedure definitions with fully typed inputs and outputs.
       | * <p>
-      | * The builder tracks both input types (via {@code .in()}) and output types (via {@code .out()}/{@code .inout()}).
+      | * The builder tracks both input types (via {@code .input()}) and output types (via {@code .out()}/{@code .inout()}).
       | * The resulting interface has a {@code call()} method with typed parameters instead of varargs.
       | * <p>
       | * Usage:
       | * <pre>{@code
       | * // Procedure with typed inputs — compile-time checking!
       | * DbProcedure.Def1_2<Integer, String, String> getUser = DbProcedure.define("get_user_by_id")
-      | *     .in(PgTypes.int4)
+      | *     .input(PgTypes.int4)
       | *     .out(PgTypes.text)
       | *     .out(PgTypes.text)
       | *     .build();
@@ -860,12 +860,12 @@ def generateDbProcedure(): String = {
       | *
       | * // Void procedure (no outputs)
       | * DbProcedure.Def1_0<String> auditLog = DbProcedure.define("audit_log")
-      | *     .in(PgTypes.text)
+      | *     .input(PgTypes.text)
       | *     .build();
       | *
       | * // INOUT — value goes in and comes back modified
       | * DbProcedure.Def2_1<String, BigDecimal, BigDecimal> applyDiscount = DbProcedure.define("apply_discount")
-      | *     .in(PgTypes.text)
+      | *     .input(PgTypes.text)
       | *     .inout(PgTypes.numeric)
       | *     .build();
       | * BigDecimal finalPrice = applyDiscount.call("SAVE20", price).transact(tx);
@@ -922,8 +922,8 @@ def generateDbFunction(): String = {
     val inMethod = if (i < maxArity) {
       val newI = s"I$i"
       val nextTp = iParams(i + 1) ::: List("R")
-      s"""        public <$newI> Builder_${i + 1}${typeParamDecl(nextTp)} in(DbType<$newI> type) {
-         |            inParams.add(ParamDef.in(type));
+      s"""        public <$newI> Builder_${i + 1}${typeParamDecl(nextTp)} input(DbType<$newI> type) {
+         |            inParams.add(ParamDef.input(type));
          |            return new Builder_${i + 1}<>(name, inParams, returnType);
          |        }
          |""".stripMargin
@@ -955,15 +955,15 @@ def generateDbFunction(): String = {
       |/**
       | * Type-safe stored function definitions with fully typed inputs.
       | * <p>
-      | * The builder tracks input types (via {@code .in()}). The resulting interface has a
+      | * The builder tracks input types (via {@code .input()}). The resulting interface has a
       | * {@code call()} method with typed parameters instead of varargs.
       | * <p>
       | * Usage:
       | * <pre>{@code
       | * // Function with typed inputs — compile-time checking!
       | * DbFunction.Def2<BigDecimal, String, BigDecimal> calcTax = DbFunction.define("calculate_tax", PgTypes.numeric)
-      | *     .in(PgTypes.numeric)
-      | *     .in(PgTypes.text)
+      | *     .input(PgTypes.numeric)
+      | *     .input(PgTypes.text)
       | *     .build();
       | * BigDecimal tax = calcTax.call(amount, "US").transact(tx);  // Types enforced!
       | * // calcTax.call("wrong", 42);  // COMPILE ERROR

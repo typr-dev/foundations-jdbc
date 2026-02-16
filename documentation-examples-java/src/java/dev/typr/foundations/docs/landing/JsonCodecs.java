@@ -16,11 +16,12 @@ public class JsonCodecs {
     record OrderLine(String product, int qty, BigDecimal price) {}
 
     // Define once — reads from ResultSet AND JSON
-    static final RowParser<OrderLine> lineParser = RowParser.<OrderLine>builder()
-        .field(DuckDbTypes.varchar, OrderLine::product)
-        .field(DuckDbTypes.integer, OrderLine::qty)
-        .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
-        .build(OrderLine::new);
+    static final RowParser<OrderLine> lineParser =
+        RowParser.<OrderLine>builder()
+            .field(DuckDbTypes.varchar, OrderLine::product)
+            .field(DuckDbTypes.integer, OrderLine::qty)
+            .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
+            .build(OrderLine::new);
 
     // Same RowParser, now as a JSON codec — zero extra code
     static final DbJson<List<OrderLine>> linesCodec =
@@ -28,12 +29,16 @@ public class JsonCodecs {
 
     // Aggregate child rows as JSON in a single query
     List<OrderLine> getOrderLines(int customerId) throws SQLException {
-        Json json = Fragment.of(
-            "SELECT json_group_array(json_array(product, qty, price)) "
-            + "FROM order_lines WHERE customer_id = ")
-            .value(DuckDbTypes.integer, customerId)
-            .query(RowParser.of(DuckDbTypes.json).exactlyOne())
-            .transact(tx);
+        Json json =
+            Fragment.of("""
+                    SELECT json_group_array(\
+                    json_array(product, qty, price))
+                    FROM order_lines
+                    WHERE customer_id =
+                    """)
+                .value(DuckDbTypes.integer, customerId)
+                .query(RowParser.of(DuckDbTypes.json).exactlyOne())
+                .transact(tx);
 
         return linesCodec.fromJson(JsonValue.parse(json.value()));
     }

@@ -9,11 +9,12 @@ class NamedJsonObject {
     //start
     data class OrderLine(val product: String, val qty: Int, val price: BigDecimal)
 
-    val lineParser: RowParserNamed<OrderLine> = RowParser.namedBuilder<OrderLine>()
-        .field("product", DuckDbTypes.varchar, OrderLine::product)
-        .field("qty", DuckDbTypes.integer, OrderLine::qty)
-        .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
-        .build(::OrderLine)
+    val lineParser: RowParserNamed<OrderLine> =
+        RowParser.namedBuilder<OrderLine>()
+            .field("product", DuckDbTypes.varchar, OrderLine::product)
+            .field("qty", DuckDbTypes.integer, OrderLine::qty)
+            .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
+            .build(::OrderLine)
 
     // JSON array codec — positional: [["Widget", 3, 9.99], ...]
     val arrayCodec: DbJson<List<OrderLine>> =

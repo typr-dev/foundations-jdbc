@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
-import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
 import java.sql.SQLException
@@ -19,14 +19,13 @@ object TransactorSetup:
   val minPrice: BigDecimal = BigDecimal("10")
 
   //start
-  // The Transactor manages connections and transactions
-  // You choose the strategy - it handles the lifecycle
+  // Transactor manages connections and transactions
   @throws[SQLException]
   def query(): List[ProductRow] =
-    val tx = connectionSource.transactor(Transactor.defaultStrategy())
+    val tx =
+      connectionSource.transactor(Transactor.defaultStrategy())
 
-    // Everything inside runs in one transaction: begin, commit, close
-    sql"SELECT * FROM product WHERE price > ${Fragment.encode(PgTypes.numeric, minPrice)}"
+    sql"SELECT * FROM product WHERE price > ${PgTypes.numeric(minPrice)}"
       .query(rowParser.all())
       .transact(tx)
   //stop

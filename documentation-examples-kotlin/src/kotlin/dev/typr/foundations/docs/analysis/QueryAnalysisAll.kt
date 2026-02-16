@@ -8,10 +8,11 @@ import java.sql.Connection
 class QueryAnalysisAll {
     data class User(val id: Int, val name: String)
 
-    val userParser: RowParser<User> = RowParser.builder<User>()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .build(::User)
+    val userParser: RowParser<User> =
+        RowParser.builder<User>()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .build(::User)
 
     lateinit var conn: Connection
 
@@ -21,17 +22,20 @@ class QueryAnalysisAll {
             .append(") RETURNING id")
             .query(RowParser.of(PgTypes.int4).exactlyOne())
 
-    val allUsers: Operation<List<User>> = Sql { "SELECT id, name FROM users" }
-        .query(userParser.all())
+    val allUsers: Operation<List<User>> =
+        Sql { "SELECT id, name FROM users" }
+            .query(userParser.all())
 
     //start
     fun analyzeComposedOperation() {
         // Build a composed operation
-        val transaction: Operation<*> = insertUser.on("Alice")
-            .thenIgnore(allUsers)
+        val transaction: Operation<*> =
+            insertUser.on("Alice")
+                .thenIgnore(allUsers)
 
         // Analyze every SQL statement in the tree — one call
-        val results: List<QueryAnalysis> = QueryAnalyzer.analyze(transaction, conn)
+        val results: List<QueryAnalysis> =
+            QueryAnalyzer.analyze(transaction, conn)
 
         for (analysis in results) {
             if (!analysis.succeeded()) {

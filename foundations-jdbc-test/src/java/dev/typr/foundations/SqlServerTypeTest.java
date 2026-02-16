@@ -583,7 +583,7 @@ public class SqlServerTypeTest {
 
     try {
       DbProcedure.Def1_1<A, A> proc =
-          DbProcedure.define(procName).in(t.type).out(t.type).build();
+          DbProcedure.define(procName).input(t.type).out(t.type).build();
 
       A result = proc.call(t.example).runChecked(conn);
 

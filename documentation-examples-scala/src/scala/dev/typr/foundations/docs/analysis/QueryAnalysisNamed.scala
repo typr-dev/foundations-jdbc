@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.analysis
 import dev.typr.foundationssc.*
-import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
 import java.sql.Connection
@@ -20,11 +20,17 @@ object QueryAnalysisNamed:
 
   //start
   def analyzeNamedQuery(): Unit =
-    val query = sql"SELECT id, name, email FROM users WHERE id = ${Fragment.encode(PgTypes.int4, userId)}"
-      .query(userRowParser.all())
+    val query =
+      sql"""SELECT id, name, email
+            FROM users
+            WHERE id = ${PgTypes.int4(userId)}"""
+        .query(userRowParser.all())
 
-    // Give your query a name - it shows up in the error report
-    val analysis = QueryAnalyzer.analyze("findUserById", query, connection).head
+    // Give your query a name for the error report
+    val analysis =
+      QueryAnalyzer.analyze(
+        "findUserById", query, connection
+      ).head
 
     if !analysis.succeeded() then
       throw AssertionError(analysis.report())

@@ -12,15 +12,19 @@ import java.sql.SQLException;
 public class OracleTransactor {
     //start
     // Oracle - typed config, no JDBC URL to remember
-    Transactor tx = OracleConfig.builder("localhost", 1521, "xe", "app", "secret")
-        .serviceName("XEPDB1")
-        .build()
-        .transactor();
+    Transactor tx =
+        OracleConfig.builder(
+                "localhost", 1521, "xe", "app", "secret")
+            .serviceName("XEPDB1")
+            .build()
+            .transactor();
 
     // Everything inside runs in one transaction
     String getGreeting() throws SQLException {
-        return Fragment.of("SELECT 'Hello from Oracle' FROM dual")
-            .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
+        return Fragment
+            .of("SELECT 'Hello from Oracle' FROM dual")
+            .query(RowParser.of(OracleTypes.varchar2)
+                .exactlyOne())
             .transact(tx);
     }
 

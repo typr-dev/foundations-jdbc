@@ -25,6 +25,15 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
   def query[T](parser: ResultSetParser[T]): Operation.Query[T] =
     Operation.Query(this, parser)
 
+  def queryOne[T](tpe: DbType[T]): Operation.Query[T] =
+    query(RowParser.of(tpe).exactlyOne())
+
+  def queryList[T](tpe: DbType[T]): Operation.Query[List[T]] =
+    query(RowParser.of(tpe).all())
+
+  def queryMaybe[T](tpe: DbType[T]): Operation.Query[Option[T]] =
+    query(RowParser.of(tpe).maxOne())
+
   def update(): Operation.Update =
     Operation.Update(this)
 
@@ -86,6 +95,12 @@ object Fragment {
 
   def encode[A](dbType: DbType[A], value: A): Fragment =
     new Fragment(dev.typr.foundations.Fragment.encode(dbType.underlying, value))
+
+  /** Extension to allow `dbType(value)` syntax for creating Fragment values.
+    * Example: `PgTypes.bool(true)` instead of `Fragment.encode(PgTypes.bool, true)`.
+    */
+  extension [A](dbType: DbType[A])
+    def apply(value: A): Fragment = Fragment.encode(dbType, value)
 
   def and(fragments: Fragment*): Fragment =
     new Fragment(dev.typr.foundations.Fragment.and(fragments.map(_.underlying)*))

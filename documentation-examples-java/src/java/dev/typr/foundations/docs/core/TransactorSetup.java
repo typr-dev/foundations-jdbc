@@ -14,11 +14,12 @@ import java.util.List;
 public class TransactorSetup {
     record ProductRow(Integer id, String name, BigDecimal price) {}
 
-    static RowParser<ProductRow> rowParser = RowParser.<ProductRow>builder()
-        .field(PgTypes.int4, ProductRow::id)
-        .field(PgTypes.text, ProductRow::name)
-        .field(PgTypes.numeric, ProductRow::price)
-        .build(ProductRow::new);
+    static RowParser<ProductRow> rowParser =
+        RowParser.<ProductRow>builder()
+            .field(PgTypes.int4, ProductRow::id)
+            .field(PgTypes.text, ProductRow::name)
+            .field(PgTypes.numeric, ProductRow::price)
+            .build(ProductRow::new);
 
     ConnectionSource connectionSource = null; // placeholder
     BigDecimal minPrice = new BigDecimal("10");
@@ -27,10 +28,12 @@ public class TransactorSetup {
     // The Transactor manages connections and transactions
     // You choose the strategy — it handles the lifecycle
     List<ProductRow> query() throws SQLException {
-        Transactor tx = connectionSource.transactor(Transactor.defaultStrategy());
+        Transactor tx =
+            connectionSource.transactor(
+                Transactor.defaultStrategy());
 
-        // Everything inside runs in one transaction: begin, commit, close
-        return Fragment.of("SELECT * FROM product WHERE price > ")
+        return Fragment
+            .of("SELECT * FROM product WHERE price > ")
             .value(PgTypes.numeric, minPrice)
             .query(rowParser.all())
             .transact(tx);

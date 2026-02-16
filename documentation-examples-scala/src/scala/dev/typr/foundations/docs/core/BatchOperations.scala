@@ -20,20 +20,24 @@ object BatchOperations:
 
   //start
   // Batch insert — all columns as parameters
-  val insertAll: RowSqlTemplate.Update[Product] = Fragment.of("INSERT INTO product (")
-    .append(productParser.columnList).append(") VALUES (")
-    .paramRow(productParser)
-    .append(")")
-    .update()
+  val insertAll: RowSqlTemplate.Update[Product] =
+    Fragment.of("INSERT INTO product (")
+      .append(productParser.columnList)
+      .append(") VALUES (")
+      .paramRow(productParser)
+      .append(")")
+      .update()
 
   def insertProducts(products: List[Product]): Array[Int] =
     insertAll.onMany(products.iterator).run(conn)
 
   // Batch insert — skip auto-generated ID column
-  val insertAutoId: RowSqlTemplate.Update[Product] = Fragment.of("INSERT INTO product (name, price, created_at) VALUES (")
-    .paramRow(productParser, "id")
-    .append(")")
-    .update()
+  val insertAutoId: RowSqlTemplate.Update[Product] =
+    Fragment.of(
+      "INSERT INTO product (name, price, created_at) VALUES ("
+    ).paramRow(productParser, "id")
+      .append(")")
+      .update()
 
   def insertProductsAutoId(products: List[Product]): Array[Int] =
     insertAutoId.onMany(products.iterator).run(conn)

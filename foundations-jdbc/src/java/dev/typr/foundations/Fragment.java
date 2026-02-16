@@ -93,6 +93,21 @@ public sealed interface Fragment {
     return new Operation.Query<>(this, parser);
   }
 
+  /** Convenience for {@code query(RowParser.of(type).exactlyOne())}. */
+  default <T> Operation.Query<T> queryOne(DbType<T> type) {
+    return query(RowParser.of(type).exactlyOne());
+  }
+
+  /** Convenience for {@code query(RowParser.of(type).all())}. */
+  default <T> Operation.Query<List<T>> queryList(DbType<T> type) {
+    return query(RowParser.of(type).all());
+  }
+
+  /** Convenience for {@code query(RowParser.of(type).maxOne())}. */
+  default <T> Operation.Query<java.util.Optional<T>> queryMaybe(DbType<T> type) {
+    return query(RowParser.of(type).maxOne());
+  }
+
   default Operation.Update update() {
     return new Operation.Update(this);
   }

@@ -3,15 +3,15 @@ package dev.typr.foundations;
 /**
  * Type-safe stored function definitions with fully typed inputs.
  * <p>
- * The builder tracks input types (via {@code .in()}). The resulting interface has a
+ * The builder tracks input types (via {@code .input()}). The resulting interface has a
  * {@code call()} method with typed parameters instead of varargs.
  * <p>
  * Usage:
  * <pre>{@code
  * // Function with typed inputs — compile-time checking!
  * DbFunction.Def2<BigDecimal, String, BigDecimal> calcTax = DbFunction.define("calculate_tax", PgTypes.numeric)
- *     .in(PgTypes.numeric)
- *     .in(PgTypes.text)
+ *     .input(PgTypes.numeric)
+ *     .input(PgTypes.text)
  *     .build();
  * BigDecimal tax = calcTax.call(amount, "US").transact(tx);  // Types enforced!
  * // calcTax.call("wrong", 42);  // COMPILE ERROR
@@ -116,8 +116,8 @@ public final class DbFunction {
             this.inParams = inParams;
             this.returnType = returnType;
         }
-        public <I0> Builder_1<I0, R> in(DbType<I0> type) {
-            inParams.add(ParamDef.in(type));
+        public <I0> Builder_1<I0, R> input(DbType<I0> type) {
+            inParams.add(ParamDef.input(type));
             return new Builder_1<>(name, inParams, returnType);
         }
 
@@ -137,8 +137,8 @@ public final class DbFunction {
             this.inParams = inParams;
             this.returnType = returnType;
         }
-        public <I1> Builder_2<I0, I1, R> in(DbType<I1> type) {
-            inParams.add(ParamDef.in(type));
+        public <I1> Builder_2<I0, I1, R> input(DbType<I1> type) {
+            inParams.add(ParamDef.input(type));
             return new Builder_2<>(name, inParams, returnType);
         }
 
@@ -158,8 +158,8 @@ public final class DbFunction {
             this.inParams = inParams;
             this.returnType = returnType;
         }
-        public <I2> Builder_3<I0, I1, I2, R> in(DbType<I2> type) {
-            inParams.add(ParamDef.in(type));
+        public <I2> Builder_3<I0, I1, I2, R> input(DbType<I2> type) {
+            inParams.add(ParamDef.input(type));
             return new Builder_3<>(name, inParams, returnType);
         }
 
@@ -179,8 +179,8 @@ public final class DbFunction {
             this.inParams = inParams;
             this.returnType = returnType;
         }
-        public <I3> Builder_4<I0, I1, I2, I3, R> in(DbType<I3> type) {
-            inParams.add(ParamDef.in(type));
+        public <I3> Builder_4<I0, I1, I2, I3, R> input(DbType<I3> type) {
+            inParams.add(ParamDef.input(type));
             return new Builder_4<>(name, inParams, returnType);
         }
 
@@ -200,8 +200,8 @@ public final class DbFunction {
             this.inParams = inParams;
             this.returnType = returnType;
         }
-        public <I4> Builder_5<I0, I1, I2, I3, I4, R> in(DbType<I4> type) {
-            inParams.add(ParamDef.in(type));
+        public <I4> Builder_5<I0, I1, I2, I3, I4, R> input(DbType<I4> type) {
+            inParams.add(ParamDef.input(type));
             return new Builder_5<>(name, inParams, returnType);
         }
 
@@ -221,8 +221,8 @@ public final class DbFunction {
             this.inParams = inParams;
             this.returnType = returnType;
         }
-        public <I5> Builder_6<I0, I1, I2, I3, I4, I5, R> in(DbType<I5> type) {
-            inParams.add(ParamDef.in(type));
+        public <I5> Builder_6<I0, I1, I2, I3, I4, I5, R> input(DbType<I5> type) {
+            inParams.add(ParamDef.input(type));
             return new Builder_6<>(name, inParams, returnType);
         }
 
@@ -242,8 +242,8 @@ public final class DbFunction {
             this.inParams = inParams;
             this.returnType = returnType;
         }
-        public <I6> Builder_7<I0, I1, I2, I3, I4, I5, I6, R> in(DbType<I6> type) {
-            inParams.add(ParamDef.in(type));
+        public <I6> Builder_7<I0, I1, I2, I3, I4, I5, I6, R> input(DbType<I6> type) {
+            inParams.add(ParamDef.input(type));
             return new Builder_7<>(name, inParams, returnType);
         }
 
@@ -263,8 +263,8 @@ public final class DbFunction {
             this.inParams = inParams;
             this.returnType = returnType;
         }
-        public <I7> Builder_8<I0, I1, I2, I3, I4, I5, I6, I7, R> in(DbType<I7> type) {
-            inParams.add(ParamDef.in(type));
+        public <I7> Builder_8<I0, I1, I2, I3, I4, I5, I6, I7, R> input(DbType<I7> type) {
+            inParams.add(ParamDef.input(type));
             return new Builder_8<>(name, inParams, returnType);
         }
 
@@ -284,8 +284,8 @@ public final class DbFunction {
             this.inParams = inParams;
             this.returnType = returnType;
         }
-        public <I8> Builder_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, R> in(DbType<I8> type) {
-            inParams.add(ParamDef.in(type));
+        public <I8> Builder_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, R> input(DbType<I8> type) {
+            inParams.add(ParamDef.input(type));
             return new Builder_9<>(name, inParams, returnType);
         }
 
@@ -305,8 +305,8 @@ public final class DbFunction {
             this.inParams = inParams;
             this.returnType = returnType;
         }
-        public <I9> Builder_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, R> in(DbType<I9> type) {
-            inParams.add(ParamDef.in(type));
+        public <I9> Builder_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, R> input(DbType<I9> type) {
+            inParams.add(ParamDef.input(type));
             return new Builder_10<>(name, inParams, returnType);
         }
 

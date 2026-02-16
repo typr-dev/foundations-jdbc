@@ -643,7 +643,7 @@ public class MariaTypeTest {
 
     var proc =
         DbProcedure.define(procName)
-            .in(t.type)
+            .input(t.type)
             .out(t.type)
             .build();
 

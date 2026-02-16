@@ -13,11 +13,12 @@ import java.util.List;
 public class SqlTemplateThen {
     record Order(int id, int userId, String product) {}
 
-    static RowParser<Order> orderParser = RowParser.<Order>builder()
-        .field(PgTypes.int4, Order::id)
-        .field(PgTypes.int4, Order::userId)
-        .field(PgTypes.text, Order::product)
-        .build(Order::new);
+    static RowParser<Order> orderParser =
+        RowParser.<Order>builder()
+            .field(PgTypes.int4, Order::id)
+            .field(PgTypes.int4, Order::userId)
+            .field(PgTypes.text, Order::product)
+            .build(Order::new);
 
     Transactor tx = null; // placeholder
 
@@ -30,7 +31,10 @@ public class SqlTemplateThen {
             .query(RowParser.of(PgTypes.int4).exactlyOne());
 
     SqlTemplate<Integer, List<Order>> ordersByUser =
-        Fragment.of("SELECT id, user_id, product FROM orders WHERE user_id = ")
+        Fragment.of("""
+                SELECT id, user_id, product
+                FROM orders WHERE user_id =
+                """)
             .param(PgTypes.int4)
             .query(orderParser.all());
 

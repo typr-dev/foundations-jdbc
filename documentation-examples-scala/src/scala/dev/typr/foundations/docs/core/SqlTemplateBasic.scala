@@ -17,19 +17,22 @@ object SqlTemplateBasic:
   var tx: Transactor = null // placeholder
 
   //start
-  // Define a reusable template - SQL structure is fixed, values come later.
-  // The sql"..." interpolator cannot be used here because unbound parameters
-  // require the builder API for type-safe SqlTemplate construction.
+  // Reusable template - SQL is fixed, values come later.
+  // sql"..." cannot be used with unbound parameters;
+  // the builder API provides type-safe SqlTemplate construction.
   val findByEmail: SqlTemplate[String, Option[User]] =
-    Fragment.of("SELECT id, name, email FROM users WHERE email = ")
-      .param(PgTypes.text)
+    Fragment.of(
+      "SELECT id, name, email FROM users WHERE email = "
+    ).param(PgTypes.text)
       .query(userParser.maxOne())
 
-  // Fill the template with a value to get a concrete operation
+  // Fill the template to get a concrete operation
   @throws[SQLException]
-  def findAlice(): Option[User] = findByEmail.on("alice@example.com").transact(tx)
+  def findAlice(): Option[User] =
+    findByEmail.on("alice@example.com").transact(tx)
 
-  // Reuse the same template with different values
+  // Reuse with different values
   @throws[SQLException]
-  def findBob(): Option[User] = findByEmail.on("bob@example.com").transact(tx)
+  def findBob(): Option[User] =
+    findByEmail.on("bob@example.com").transact(tx)
   //stop

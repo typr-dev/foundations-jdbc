@@ -9,8 +9,9 @@ class DuckDbArray {
 
     //start
     // DuckDB arrays are first-class typed values
-    fun getTagSets(): List<Array<String>> = Sql { "SELECT tags FROM posts WHERE published = true" }
-        .query(RowParser.of(DuckDbTypes.varcharArray).all())
-        .transact(tx!!)
+    fun getTagSets(): List<Array<String>> =
+        Sql { "SELECT tags FROM posts WHERE published = true" }
+            .query(RowParser.of(DuckDbTypes.varcharArray).all())
+            .transact(tx!!)
     //stop
 }

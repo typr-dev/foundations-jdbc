@@ -26,11 +26,12 @@ object ManualTransaction:
     sql"SELECT * FROM orders ORDER BY id DESC LIMIT 10"
       .query(orderParser.all())
 
-  // Run both in one transaction using the connection directly
+  // Run both using the connection directly
   @throws[SQLException]
-  def dashboard(): Dashboard = tx.transact { conn =>
-    val count = countUsers.runChecked(conn)
-    val orders = recentOrders.runChecked(conn)
-    Dashboard(count, orders)
-  }
+  def dashboard(): Dashboard =
+    tx.transact { conn =>
+      val count = countUsers.runChecked(conn)
+      val orders = recentOrders.runChecked(conn)
+      Dashboard(count, orders)
+    }
   //stop

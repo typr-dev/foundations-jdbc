@@ -11,7 +11,7 @@ object StoredProcedure:
   // Define once, call many times — input and output types are baked in
   val getUser =
     DbProcedure.define("get_user_by_id")
-      .in(PgTypes.int4)
+      .input(PgTypes.int4)
       .out(PgTypes.text)
       .out(PgTypes.text)
       .build()
