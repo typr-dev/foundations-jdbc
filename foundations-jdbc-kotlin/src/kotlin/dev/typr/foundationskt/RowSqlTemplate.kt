@@ -16,5 +16,8 @@ sealed class RowSqlTemplate<Row : Any, Out> {
     class Update<Row : Any>(override val underlying: dev.typr.foundations.RowSqlTemplate.Update<Row>)
         : RowSqlTemplate<Row, Int>() {
         override fun on(row: Row): Operation.Update = Operation.Update(underlying.on(row))
+
+        fun onMany(rows: Iterator<Row>): Operation.UpdateManyTemplate<Row> =
+            Operation.UpdateManyTemplate(underlying.onMany(rows))
     }
 }

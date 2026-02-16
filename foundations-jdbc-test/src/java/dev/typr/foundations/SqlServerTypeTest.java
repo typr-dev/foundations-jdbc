@@ -441,6 +441,20 @@ public class SqlServerTypeTest {
     }
   }
 
+  static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
+      throws SQLException {
+    RowParserNamed<A> parser =
+        RowParser.<A>namedBuilder()
+            .field("v", type, java.util.function.Function.identity())
+            .build(java.util.function.Function.identity());
+    Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+        .paramRow(parser)
+        .append(")")
+        .update()
+        .onMany(List.of(value).iterator())
+        .runChecked(conn);
+  }
+
   static <A> void testJdbcRoundtrip(Connection conn, SqlServerTypeAndExample<A> t)
       throws SQLException {
     String sqlType = t.type.typename().sqlType();
@@ -451,11 +465,7 @@ public class SqlServerTypeTest {
     conn.createStatement().execute(createSql);
 
     try {
-      // Insert value
-      var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
-      t.type.write().set(insert, 1, t.example);
-      insert.execute();
-      insert.close();
+      batchInsert(conn, t.type, tableName, t.example);
 
       // Select back
       PreparedStatement select;

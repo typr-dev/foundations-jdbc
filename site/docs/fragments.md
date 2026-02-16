@@ -8,6 +8,12 @@ import Snippet from '@site/src/components/Snippet';
 
 A Fragment is a composable SQL building block — it holds a SQL string together with its bound parameters. There are two ways to build fragments: **string interpolation** (Kotlin and Scala) and the **builder pattern** (all languages).
 
+:::tip Which style should I use?
+- **Kotlin** — Use `Sql { }` for queries where all values are known. Use the builder pattern (or the [hybrid approach](#hybrid-approach)) when you need parameter holes for [SQL Templates](./sql-templates).
+- **Scala** — Same guidance, using `sql""` instead of `Sql { }`.
+- **Java** — Use the builder pattern for everything (no string interpolation available).
+:::
+
 ## String Interpolation
 
 Kotlin uses `Sql { }` and Scala uses `sql""` to build fragments from string templates. Database values are embedded as typed, bound parameters — never concatenated into the SQL string.

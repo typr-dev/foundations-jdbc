@@ -11,7 +11,7 @@ import Snippet from '@site/src/components/Snippet';
 
 A step-by-step introduction to Foundations JDBC — from setup to executing queries.
 
-## Getting Started
+## Dependencies
 
 Pick the one dependency for your language:
 

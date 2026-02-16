@@ -30,6 +30,15 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun <T> updateReturning(parser: ResultSetParser<T>): Operation.UpdateReturning<T> =
         Operation.UpdateReturning(dev.typr.foundations.Operation.UpdateReturning(underlying, parser.underlying))
 
+    fun <Row : Any> updateMany(parser: RowParser<Row>, rows: Iterator<Row>): Operation.UpdateMany<Row> =
+        Operation.UpdateMany(underlying.updateMany(parser.underlying, rows))
+
+    fun <Row : Any> updateManyReturning(parser: RowParser<Row>, rows: Iterator<Row>): Operation.UpdateManyReturning<Row> =
+        Operation.UpdateManyReturning(underlying.updateManyReturning(parser.underlying, rows))
+
+    fun <Row : Any> updateReturningEach(parser: RowParser<Row>, rows: Iterator<Row>): Operation.UpdateReturningEach<Row> =
+        Operation.UpdateReturningEach(underlying.updateReturningEach(parser.underlying, rows))
+
     fun append(s: String): Fragment = Fragment(underlying.append(s))
 
     fun <T> value(dbType: DbType<T>, value: T): Fragment = Fragment(underlying.value(dbType.underlying, value))

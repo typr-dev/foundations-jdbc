@@ -976,15 +976,26 @@ public class PgTypeTest {
     }
   }
 
+  static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
+      throws SQLException {
+    RowParserNamed<A> parser =
+        RowParser.<A>namedBuilder()
+            .field("v", type, java.util.function.Function.identity())
+            .build(java.util.function.Function.identity());
+    Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+        .paramRow(parser)
+        .append(")")
+        .update()
+        .onMany(List.of(value).iterator())
+        .runChecked(conn);
+  }
+
   static <A> void testCase(Connection conn, PgTypeAndExample<A> t) throws SQLException {
     String tableName = uniqueTableName("test");
     conn.createStatement()
         .execute("create temp table " + tableName + " (v " + t.type.typename().sqlType() + ")");
-    var insert = conn.prepareStatement("insert into " + tableName + " (v) values (?)");
     A expected = t.example;
-    t.type.write().set(insert, 1, expected);
-    insert.execute();
-    insert.close();
+    batchInsert(conn, t.type, tableName, expected);
     if (t.streamingWorks) {
       streamingInsert.insert(
           "COPY " + tableName + "(v) FROM STDIN",

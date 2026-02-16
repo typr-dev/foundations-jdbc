@@ -19,6 +19,7 @@ public sealed interface Operation<Out>
         Operation.UpdateManyReturning,
         Operation.UpdateMany,
         Operation.UpdateReturningEach,
+        Operation.UpdateManyTemplate,
         Operation.StreamingCopy,
         Operation.Mapped,
         Operation.Pure,
@@ -371,6 +372,42 @@ public sealed interface Operation<Out>
         }
       }
       return results;
+    }
+  }
+
+  /**
+   * Batch executes a row-parameterized template. Unlike UpdateMany (which writes all parser fields),
+   * this only writes the fields specified by includedIndices, matching the Param holes in the fragment.
+   * Created by RowSqlTemplate.Update.onMany().
+   *
+   * <p>Parameter positions and types are computed once from the fragment tree before the loop.
+   * Each row is then written directly to the PreparedStatement without rebuilding the fragment.
+   */
+  record UpdateManyTemplate<Row>(
+      Fragment fragment,
+      RowParserNamed<Row> parser,
+      int[] includedIndices,
+      Iterator<Row> rows)
+      implements Operation<int[]> {
+    @SuppressWarnings("unchecked")
+    @Override
+    public int[] runChecked(Connection conn) throws SQLException {
+      String sql = fragment.render();
+      int[] paramPositions = fragment.paramPositions();
+      List<DbType<?>> allCols = parser.columns();
+      try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        while (rows.hasNext()) {
+          Row row = rows.next();
+          fragment.set(stmt);
+          Object[] encoded = parser.encode().apply(row);
+          for (int i = 0; i < includedIndices.length; i++) {
+            DbType<Object> type = (DbType<Object>) allCols.get(includedIndices[i]);
+            type.write().set(stmt, paramPositions[i], encoded[includedIndices[i]]);
+          }
+          stmt.addBatch();
+        }
+        return stmt.executeBatch();
+      }
     }
   }
 

@@ -2,6 +2,8 @@
 title: Production Patterns
 ---
 
+import Snippet from '@site/src/components/Snippet';
+
 # Production Patterns
 
 Guidance for using Foundations JDBC in production applications.
@@ -105,17 +107,57 @@ tx.execute(conn -> {
 });
 ```
 
-## Bulk Operations
+## Structuring Repositories
 
-For PostgreSQL, use [streaming inserts](./streaming-inserts) with the COPY protocol for maximum throughput.
+A common pattern is to define queries as private fields on a repository object, with public methods that bind parameters and execute them. This separates query definition (validated once at startup) from query execution:
 
-For other databases, use `Operation.sequence()` within a transaction:
+```kotlin
+object UserRepo {
+    // Fixed query — use Sql { } (Kotlin) or Fragment.of() (Java)
+    private val selectAll = Sql { "SELECT ${userParser.columnList} FROM users ORDER BY name" }
+        .query(userParser.all())
 
-```java
-var inserts = items.stream()
-    .map(item -> insertItem(item).update())
-    .toList();
-Operation.sequence(inserts).transact(tx);
+    // Parameterized query — use the builder to create a SqlTemplate
+    private val selectByIdTemplate = Fragment.of("SELECT ")
+        .append(userParser.columnList).append(" FROM users WHERE id = ")
+        .param(PgTypes.int4)
+        .query(userParser.maxOne())
+
+    // Public methods bind parameters and return Operations or results
+    fun findAll(conn: Connection): List<User> = selectAll.run(conn)
+    fun findById(id: Int, conn: Connection): User? = selectByIdTemplate.on(id).run(conn)
+
+    // Expose Operations for composition with .with(), .then(), etc.
+    fun findAllOp(): Operation.Query<List<User>> = selectAll
+    fun findByIdOp(id: Int): Operation.Query<User?> = selectByIdTemplate.on(id)
+
+    // Collect all queries for batch analysis in tests
+    fun analyzeQueries(conn: Connection): List<QueryAnalysis> = listOf(
+        QueryAnalyzer.analyze("UserRepo.selectAll", selectAll, conn),
+        QueryAnalyzer.analyze("UserRepo.selectById", selectByIdTemplate, conn),
+    ).flatten()
+}
 ```
 
-All inserts run in a single transaction. For very large batches, consider chunking to avoid holding the transaction open too long.
+The `analyzeQueries` method lets you verify all queries against the database schema in a single test:
+
+```kotlin
+tx.transact { conn ->
+    val analyses = UserRepo.analyzeQueries(conn) + OrderRepo.analyzeQueries(conn)
+    for (a in analyses) {
+        check(a.succeeded()) { a.reportColored() }
+    }
+}
+```
+
+For methods that callers use inside a `transact` block, accept a `Connection` parameter. For standalone operations, return an `Operation` that the caller runs with `.transact(tx)` or composes further. Offering both gives callers the most flexibility.
+
+## Bulk Operations
+
+Use `RowSqlTemplate.Update` with `.onMany()` to batch-insert or batch-update rows. The template defines the SQL once, and `.onMany()` executes it for each row using JDBC batch mode (`addBatch()` / `executeBatch()`):
+
+<Snippet file="core/BatchOperations" />
+
+Driver-level optimizations like `reWriteBatchedInserts` (PostgreSQL), `useBulkStmts` (MariaDB), and `useBulkCopyForBatchInsert` (SQL Server) are applied automatically when enabled in the connection URL.
+
+For PostgreSQL high-throughput inserts, use [streaming inserts](./streaming-inserts) with the COPY protocol instead.

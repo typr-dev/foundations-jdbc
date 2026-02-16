@@ -33,6 +33,21 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
   def updateReturning[T](parser: ResultSetParser[T]): Operation.UpdateReturning[T] =
     Operation.UpdateReturning(this, parser)
 
+  def updateMany[Row](parser: RowParser[Row], rows: Iterator[Row]): Operation.UpdateMany[Row] = {
+    import _root_.scala.jdk.CollectionConverters.*
+    new Operation.UpdateMany(underlying.updateMany(parser.underlying, rows.asJava))
+  }
+
+  def updateManyReturning[Row](parser: RowParser[Row], rows: Iterator[Row]): Operation.UpdateManyReturning[Row] = {
+    import _root_.scala.jdk.CollectionConverters.*
+    new Operation.UpdateManyReturning(underlying.updateManyReturning(parser.underlying, rows.asJava))
+  }
+
+  def updateReturningEach[Row](parser: RowParser[Row], rows: Iterator[Row]): Operation.UpdateReturningEach[Row] = {
+    import _root_.scala.jdk.CollectionConverters.*
+    new Operation.UpdateReturningEach(underlying.updateReturningEach(parser.underlying, rows.asJava))
+  }
+
   def append(s: String): Fragment = new Fragment(underlying.append(s))
 
   def value[T](dbType: DbType[T], value: T): Fragment = new Fragment(underlying.value(dbType.underlying, value))

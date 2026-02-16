@@ -1,6 +1,7 @@
 package dev.typr.foundations;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 public sealed interface RowSqlTemplate<Row, Out> {
   Fragment fragment();
@@ -33,6 +34,10 @@ public sealed interface RowSqlTemplate<Row, Out> {
       for (int i = 0; i < includedIndices.length; i++)
         params[i] = encoded[includedIndices[i]];
       return new Operation.Update(fragment.fill(Arrays.asList(params).iterator()));
+    }
+
+    public Operation.UpdateManyTemplate<Row> onMany(Iterator<Row> rows) {
+      return new Operation.UpdateManyTemplate<>(fragment, parser, includedIndices, rows);
     }
   }
 }

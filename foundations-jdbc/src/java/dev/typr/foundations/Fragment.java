@@ -57,6 +57,34 @@ public sealed interface Fragment {
     };
   }
 
+  /**
+   * Collect the JDBC parameter positions (1-based) of all {@link Param} nodes in this fragment.
+   * Used by batch operations to set parameters directly on the PreparedStatement without
+   * rebuilding the fragment tree for each row.
+   *
+   * @return array of 1-based JDBC parameter positions for Param nodes
+   */
+  default int[] paramPositions() {
+    List<Integer> positions = new ArrayList<>();
+    collectParamPositions(new AtomicInteger(1), positions);
+    return positions.stream().mapToInt(Integer::intValue).toArray();
+  }
+
+  default void collectParamPositions(AtomicInteger idx, List<Integer> positions) {
+    switch (this) {
+      case Value<?> v -> idx.getAndIncrement();
+      case Param<?> p -> positions.add(idx.getAndIncrement());
+      case Append a -> {
+        a.a().collectParamPositions(idx, positions);
+        a.b().collectParamPositions(idx, positions);
+      }
+      case Concat c -> {
+        for (Fragment f : c.frags()) f.collectParamPositions(idx, positions);
+      }
+      default -> {}
+    }
+  }
+
   default Fragment append(Fragment other) {
     return new Append(this, other);
   }
@@ -151,17 +179,7 @@ public sealed interface Fragment {
   record Value<A>(A value, DbType<A> type) implements Fragment {
     @Override
     public void render(StringBuilder sb) {
-      sb.append('?');
-      // Add type cast if the database type supports it (PostgreSQL yes, MariaDB no)
-      // Skip text type - PostgreSQL handles implicit string conversion well,
-      // and casting to text can conflict with bpchar comparison semantics
-      if (type.typename().renderTypeCast()) {
-        String sqlType = type.typename().sqlType();
-        if (sqlType != null && !sqlType.isEmpty() && !sqlType.equals("text")) {
-          sb.append("::");
-          sb.append(sqlType);
-        }
-      }
+      sb.append(type.typename().renderPlaceholder());
     }
 
     @Override
@@ -187,14 +205,7 @@ public sealed interface Fragment {
   record Param<A>(DbType<A> type) implements Fragment {
     @Override
     public void render(StringBuilder sb) {
-      sb.append('?');
-      if (type.typename().renderTypeCast()) {
-        String sqlType = type.typename().sqlType();
-        if (sqlType != null && !sqlType.isEmpty() && !sqlType.equals("text")) {
-          sb.append("::");
-          sb.append(sqlType);
-        }
-      }
+      sb.append(type.typename().renderPlaceholder());
     }
 
     @Override

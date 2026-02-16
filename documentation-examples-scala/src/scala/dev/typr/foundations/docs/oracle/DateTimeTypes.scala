@@ -3,7 +3,7 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
 
-import java.time.{LocalDateTime, OffsetDateTime}
+import java.time.{Instant, LocalDateTime, OffsetDateTime}
 
 @SuppressWarnings(Array("unused"))
 object DateTimeTypes:
@@ -12,5 +12,5 @@ object DateTimeTypes:
   val tsType: OracleType[LocalDateTime] = OracleTypes.timestamp
   val ts3: OracleType[LocalDateTime] = OracleTypes.timestamp(3)  // TIMESTAMP(3)
   val tstz: OracleType[OffsetDateTime] = OracleTypes.timestampWithTimeZone
-  val tsltz: OracleType[OffsetDateTime] = OracleTypes.timestampWithLocalTimeZone
+  val tsltz: OracleType[Instant] = OracleTypes.timestampWithLocalTimeZone
   //stop

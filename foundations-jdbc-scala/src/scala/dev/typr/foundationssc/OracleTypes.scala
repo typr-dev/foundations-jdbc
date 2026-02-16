@@ -102,7 +102,7 @@ class OracleTypes {
   def timestampWithTimeZone(fractionalSecondsPrecision: Int): OracleType[java.time.OffsetDateTime] =
     OracleType(JavaOracleTypes.timestampWithTimeZone(fractionalSecondsPrecision))
 
-  def timestampWithLocalTimeZone(fractionalSecondsPrecision: Int): OracleType[java.time.OffsetDateTime] =
+  def timestampWithLocalTimeZone(fractionalSecondsPrecision: Int): OracleType[java.time.Instant] =
     OracleType(JavaOracleTypes.timestampWithLocalTimeZone(fractionalSecondsPrecision))
 
   def intervalYearToMonth(yearPrecision: Int): OracleType[dev.typr.foundations.data.OracleIntervalYM] =

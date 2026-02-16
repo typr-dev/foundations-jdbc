@@ -9,15 +9,6 @@ import java.util.Optional;
 public sealed interface Db2Typename<A> extends DbTypename<A> {
   String sqlType();
 
-  /**
-   * DB2 uses CAST() syntax, not PostgreSQL's :: operator. Don't render :: casts in prepared
-   * statements.
-   */
-  @Override
-  default boolean renderTypeCast() {
-    return false;
-  }
-
   String sqlTypeNoPrecision();
 
   Db2Typename<A> renamed(String value);
