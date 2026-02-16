@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.AnalysisOptions;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -92,9 +91,9 @@ public record MariaType<A>(
         mariaOutParam.opt(), analysisOptions);
   }
 
-  public <B> MariaType<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  public <B> MariaType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     return new MariaType<>(
-        typename.as(), read.map(f), write.contramap(g), mariaJson.bimap(f, g),
+        typename.as(), read.map(f), write.contramap(g), mariaJson.transform(f, g),
         mariaOutParam.map(f), analysisOptions);
   }
 
@@ -103,7 +102,7 @@ public record MariaType<A>(
         typename.as(),
         read.map(bijection::underlying),
         write.contramap(bijection::from),
-        mariaJson.bimap(bijection::underlying, bijection::from),
+        mariaJson.transform(bijection::underlying, bijection::from),
         mariaOutParam.map(bijection::underlying),
         analysisOptions);
   }

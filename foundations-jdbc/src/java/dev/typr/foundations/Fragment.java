@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public sealed interface Fragment {
-  Fragment EMPTY = lit("");
+  Fragment EMPTY = of("");
 
   default String render() {
     StringBuilder sb = new StringBuilder();
@@ -46,6 +47,44 @@ public sealed interface Fragment {
    */
   void collectParameterTypes(List<DbType<?>> types);
 
+  @SuppressWarnings("unchecked")
+  default Fragment fill(Iterator<Object> values) {
+    return switch (this) {
+      case Param<?> p -> new Value<>(values.next(), (DbType<Object>) p.type());
+      case Append a -> new Append(a.a().fill(values), a.b().fill(values));
+      case Concat c -> new Concat(c.frags().stream().map(f -> f.fill(values)).toList());
+      default -> this;
+    };
+  }
+
+  /**
+   * Collect the JDBC parameter positions (1-based) of all {@link Param} nodes in this fragment.
+   * Used by batch operations to set parameters directly on the PreparedStatement without
+   * rebuilding the fragment tree for each row.
+   *
+   * @return array of 1-based JDBC parameter positions for Param nodes
+   */
+  default int[] paramPositions() {
+    List<Integer> positions = new ArrayList<>();
+    collectParamPositions(new AtomicInteger(1), positions);
+    return positions.stream().mapToInt(Integer::intValue).toArray();
+  }
+
+  default void collectParamPositions(AtomicInteger idx, List<Integer> positions) {
+    switch (this) {
+      case Value<?> v -> idx.getAndIncrement();
+      case Param<?> p -> positions.add(idx.getAndIncrement());
+      case Append a -> {
+        a.a().collectParamPositions(idx, positions);
+        a.b().collectParamPositions(idx, positions);
+      }
+      case Concat c -> {
+        for (Fragment f : c.frags()) f.collectParamPositions(idx, positions);
+      }
+      default -> {}
+    }
+  }
+
   default Fragment append(Fragment other) {
     return new Append(this, other);
   }
@@ -56,6 +95,11 @@ public sealed interface Fragment {
 
   default Operation.Update update() {
     return new Operation.Update(this);
+  }
+
+  /** Same as {@link #update()}, but ignores the number of rows changed. */
+  default Operation<Void> execute() {
+    return update().voided();
   }
 
   default <T> Operation.UpdateReturning<T> updateReturning(ResultSetParser<T> parser) {
@@ -96,7 +140,7 @@ public sealed interface Fragment {
     }
   }
 
-  static Literal lit(String value) {
+  static Literal of(String value) {
     return new Literal(value);
   }
 
@@ -135,17 +179,7 @@ public sealed interface Fragment {
   record Value<A>(A value, DbType<A> type) implements Fragment {
     @Override
     public void render(StringBuilder sb) {
-      sb.append('?');
-      // Add type cast if the database type supports it (PostgreSQL yes, MariaDB no)
-      // Skip text type - PostgreSQL handles implicit string conversion well,
-      // and casting to text can conflict with bpchar comparison semantics
-      if (type.typename().renderTypeCast()) {
-        String sqlType = type.typename().sqlType();
-        if (sqlType != null && !sqlType.isEmpty() && !sqlType.equals("text")) {
-          sb.append("::");
-          sb.append(sqlType);
-        }
-      }
+      sb.append(type.typename().renderPlaceholder());
     }
 
     @Override
@@ -166,6 +200,23 @@ public sealed interface Fragment {
   /** Encode a value into a SQL fragment using the provided database type. */
   static <A> Fragment encode(DbType<A> type, A value) {
     return new Value<>(value, type);
+  }
+
+  record Param<A>(DbType<A> type) implements Fragment {
+    @Override
+    public void render(StringBuilder sb) {
+      sb.append(type.typename().renderPlaceholder());
+    }
+
+    @Override
+    public void set(PreparedStatement stmt, AtomicInteger idx) throws SQLException {
+      idx.getAndIncrement();
+    }
+
+    @Override
+    public void collectParameterTypes(List<DbType<?>> types) {
+      types.add(type);
+    }
   }
 
   record Concat(List<? extends Fragment> frags) implements Fragment {
@@ -199,7 +250,7 @@ public sealed interface Fragment {
   /** Returns `(f1 AND f2 AND ... fn)` for a non-empty collection. */
   static Fragment and(List<? extends Fragment> fs) {
     if (fs.isEmpty()) return EMPTY;
-    else return join(fs, lit(" AND "));
+    else return join(fs, of(" AND "));
   }
 
   /** Returns `(f1 OR f2 OR ... fn)`. */
@@ -210,7 +261,7 @@ public sealed interface Fragment {
   /** Returns `(f1 OR f2 OR ... fn)` */
   static Fragment or(List<? extends Fragment> fs) {
     if (fs.isEmpty()) return EMPTY;
-    else return join(fs, lit(" OR "));
+    else return join(fs, of(" OR "));
   }
 
   /** Returns `WHERE f1 AND f2 AND ... fn` */
@@ -223,7 +274,7 @@ public sealed interface Fragment {
     if (fs.isEmpty()) {
       return EMPTY;
     } else {
-      return lit("WHERE ").append(and(fs));
+      return of("WHERE ").append(and(fs));
     }
   }
 
@@ -237,7 +288,7 @@ public sealed interface Fragment {
     if (fs.isEmpty()) {
       return EMPTY;
     } else {
-      return lit("WHERE ").append(or(fs));
+      return of("WHERE ").append(or(fs));
     }
   }
 
@@ -251,13 +302,13 @@ public sealed interface Fragment {
     if (fs.isEmpty()) {
       return EMPTY;
     } else {
-      return lit("SET ").append(comma(fs));
+      return of("SET ").append(comma(fs));
     }
   }
 
   /** Returns `(f)`. */
   static Fragment parentheses(Fragment f) {
-    return lit("(").append(f).append(lit(")"));
+    return of("(").append(f).append(of(")"));
   }
 
   /** Returns `f1, f2, ... fn`. */
@@ -267,7 +318,7 @@ public sealed interface Fragment {
 
   /** Returns `f1, f2, ... fn`. */
   static Fragment comma(List<? extends Fragment> fs) {
-    return join(fs, lit(", "));
+    return join(fs, of(", "));
   }
 
   /** Returns `ORDER BY f1, f2, ... fn` or the empty fragment if `fs` is empty. */
@@ -280,7 +331,7 @@ public sealed interface Fragment {
     if (fs.isEmpty()) {
       return EMPTY;
     } else {
-      return lit("ORDER BY ").append(comma(fs));
+      return of("ORDER BY ").append(comma(fs));
     }
   }
 
@@ -301,50 +352,52 @@ public sealed interface Fragment {
     return new Concat(Arrays.asList(fs));
   }
 
-  /** Builder for creating Fragments with a fluent API */
-  class Builder {
-    private final List<Fragment> fragments = new ArrayList<>();
-
-    public Builder() {}
-
-    /** Add a string fragment */
-    public Builder sql(String s) {
-      fragments.add(lit(s));
-      return this;
-    }
-
-    /** Add a parameter with its type and value */
-    public <T> Builder param(DbType<T> type, T value) {
-      fragments.add(Fragment.value(value, type));
-      return this;
-    }
-
-    /** Add a Fragment directly */
-    public Builder param(Fragment fragment) {
-      fragments.add(fragment);
-      return this;
-    }
-
-    /** Build the final Fragment */
-    public Fragment done() {
-      return new Concat(fragments);
-    }
+  default Fragment append(String s) {
+    return append(new Literal(s));
   }
 
-  /**
-   * Start building a Fragment with a fluent API. Example: Fragment.interpolate("SELECT * FROM users
-   * WHERE name = ") .param(PgTypes.text, "Alice") .sql(" AND age > ") .param(PgTypes.int4, 25)
-   * .done()
-   */
-  static Builder interpolate(String initial) {
-    return new Builder().sql(initial);
+  default <T> Fragment value(DbType<T> type, T value) {
+    return append(new Value<>(value, type));
   }
 
-  /**
-   * Create a Fragment directly from varargs fragments. Example: Fragment.interpolate(lit("SELECT *
-   * FROM users WHERE name = "), nameParam, lit(" AND age > "), ageParam)
-   */
-  static Fragment interpolate(Fragment... fragments) {
+  default Fragment appendAll(List<? extends Fragment> fragments, Fragment separator) {
+    return append(join(fragments, separator));
+  }
+
+  default <P0> ParamBuilders.ParamBuilder1<P0> param(DbType<P0> type) {
+    return new ParamBuilders.ParamBuilder1<>(append(new Param<>(type)), type);
+  }
+
+  default <Row> RowParamBuilder<Row> paramRow(RowParserNamed<Row> parser, String... except) {
+    List<DbType<?>> types = parser.columns();
+    List<String> names = parser.columnNames();
+    Set<String> exceptSet = except.length > 0 ? Set.of(except) : Set.of();
+    List<Fragment> fragments = new ArrayList<>();
+    List<Integer> indices = new ArrayList<>();
+    for (int i = 0; i < types.size(); i++) {
+      if (exceptSet.contains(names.get(i))) continue;
+      fragments.add(new Param<>(types.get(i)));
+      indices.add(i);
+    }
+    int[] includedIndices = indices.stream().mapToInt(Integer::intValue).toArray();
+    return new RowParamBuilder<>(append(Fragment.comma(fragments)), parser, includedIndices);
+  }
+
+  @SuppressWarnings("unchecked")
+  default <Row> Fragment row(RowParserNamed<Row> parser, Row row, String... except) {
+    Object[] values = parser.encode().apply(row);
+    List<DbType<?>> types = parser.columns();
+    List<String> names = parser.columnNames();
+    Set<String> exceptSet = except.length > 0 ? Set.of(except) : Set.of();
+    List<Fragment> fragments = new ArrayList<>();
+    for (int i = 0; i < types.size(); i++) {
+      if (exceptSet.contains(names.get(i))) continue;
+      fragments.add(Fragment.value(values[i], (DbType<Object>) types.get(i)));
+    }
+    return append(Fragment.comma(fragments));
+  }
+
+  static Fragment of(Fragment... fragments) {
     return new Concat(Arrays.asList(fragments));
   }
 }

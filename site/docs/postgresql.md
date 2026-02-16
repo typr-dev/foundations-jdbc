@@ -188,7 +188,7 @@ PostgreSQL enums are mapped to Java enums:
 
 ## Custom Domain Types
 
-Wrap base types with custom Java types using `bimap`:
+Wrap base types with custom Java types using `transform`:
 
 <Snippet file="postgresql/DomainType" />
 

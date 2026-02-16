@@ -1,14 +1,13 @@
 package dev.typr.foundations.docs.analysis
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import java.math.BigDecimal
 import java.sql.Connection
-import java.sql.SQLException
 
 @Suppress("unused")
 class QueryAnalysisNullableOk {
-    private val connection: Connection? = null // placeholder
+    private lateinit var connection: Connection
 
     //start
     data class OrderRow(val userId: Int, val userName: String, val orderTotal: BigDecimal)
@@ -21,15 +20,14 @@ class QueryAnalysisNullableOk {
         .field(PgTypes.numeric.nullableOk(), OrderRow::orderTotal)
         .build(::OrderRow)
 
-    @Throws(SQLException::class)
     fun analyzeLeftJoin() {
-        val query = Fragment.lit("""
+        val query = Sql { """
             SELECT u.id, u.name, o.total
             FROM users u
             LEFT JOIN orders o ON u.id = o.user_id
-        """.trimIndent()).query(orderParser.all())
+        """.trimIndent() }.query(orderParser.all())
 
-        val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection)
+        val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection).single()
         if (!analysis.succeeded()) {
             throw AssertionError(analysis.report())
         }

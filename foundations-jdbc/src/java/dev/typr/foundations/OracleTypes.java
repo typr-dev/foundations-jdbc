@@ -1,10 +1,13 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.Json;
+import dev.typr.foundations.data.NonEmptyBlob;
+import dev.typr.foundations.data.NonEmptyString;
 import dev.typr.foundations.data.OracleIntervalDS;
 import dev.typr.foundations.data.OracleIntervalYM;
+import dev.typr.foundations.data.PaddedString;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.function.Function;
@@ -469,24 +472,25 @@ public interface OracleTypes {
   }
 
   /**
-   * TIMESTAMP WITH LOCAL TIME ZONE - Timestamp with timezone information. Oracle normalizes to
-   * session timezone, but we preserve OffsetDateTime to avoid data loss.
+   * TIMESTAMP WITH LOCAL TIME ZONE - An absolute point in time (like PG timestamptz). Oracle stores
+   * in database timezone and converts to session timezone on read. Mapped to {@link Instant} to
+   * avoid timezone-dependent comparisons.
    */
-  OracleType<OffsetDateTime> timestampWithLocalTimeZone =
+  OracleType<Instant> timestampWithLocalTimeZone =
       OracleType.of(
           "TIMESTAMP WITH LOCAL TIME ZONE",
           OracleRead.readLocalTimezoneTimestamp,
           OracleWrite.writeTimestampWithLocalTimeZone(),
-          OracleJson.timestampWithTimeZone,
-          OracleOutParam.readOffsetDateTime);
+          OracleJson.timestampWithLocalTimeZone,
+          OracleOutParam.readInstant);
 
-  static OracleType<OffsetDateTime> timestampWithLocalTimeZone(int fractionalSecondsPrecision) {
+  static OracleType<Instant> timestampWithLocalTimeZone(int fractionalSecondsPrecision) {
     return OracleType.of(
         OracleTypename.of("TIMESTAMP(" + fractionalSecondsPrecision + ") WITH LOCAL TIME ZONE"),
         OracleRead.readLocalTimezoneTimestamp,
         OracleWrite.writeTimestampWithLocalTimeZone(),
-        OracleJson.timestampWithTimeZone,
-        OracleOutParam.readOffsetDateTime);
+        OracleJson.timestampWithLocalTimeZone,
+        OracleOutParam.readInstant);
   }
 
   /**
@@ -643,7 +647,7 @@ public interface OracleTypes {
         sqlType,
         OracleRead.readString.map(fromString::apply),
         OracleWrite.writeString.contramap(Enum::name),
-        OracleJson.text.bimap(fromString::apply, Enum::name),
+        OracleJson.text.transform(fromString::apply, Enum::name),
         OracleOutParam.readString.map(fromString::apply));
   }
 
@@ -694,5 +698,5 @@ public interface OracleTypes {
               OracleWrite.writeString,
               OracleJson.text,
               OracleOutParam.readString)
-          .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+          .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 }

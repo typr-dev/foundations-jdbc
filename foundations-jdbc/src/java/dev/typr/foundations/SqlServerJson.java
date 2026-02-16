@@ -16,7 +16,7 @@ public abstract class SqlServerJson<A> implements DbJson<A> {
 
   public abstract A fromJson(JsonValue jsonValue);
 
-  public <B> SqlServerJson<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  public <B> SqlServerJson<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     var self = this;
     return SqlServerJson.instance(a -> self.toJson(g.apply(a)), jv -> f.apply(self.fromJson(jv)));
   }

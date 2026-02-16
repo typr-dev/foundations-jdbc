@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.core
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import java.sql.Connection
 import java.time.Instant
 
@@ -16,20 +16,17 @@ class FragmentBuilding {
         .field(PgTypes.timestamptz, User::createdAt)
         .build(::User)
 
-    val connection: Connection? = null // placeholder
+    lateinit var connection: Connection
     val userId: Int = 1
     val cutoffDate: Instant = Instant.now()
 
     //start
-    val query: Fragment = Fragment.interpolate("SELECT * FROM users WHERE id = ")
-        .param(PgTypes.int4, userId)
-        .sql(" AND status = ")
-        .param(PgTypes.text, "active")
-        .sql(" AND created_at > ")
-        .param(PgTypes.timestamptz, cutoffDate)
-        .done()
+    val query: Fragment = Sql {
+        "SELECT * FROM users WHERE id = ${PgTypes.int4(userId)} AND status = ${PgTypes.text("active")} AND created_at > ${PgTypes.timestamptz(cutoffDate)}"
+    }
 
     // Execute safely — parameters are bound, not interpolated
-    val users: List<User> = query.query(userParser.all()).runUnchecked(connection)
+    val users: List<User> =
+        query.query(userParser.all()).run(connection)
     //stop
 }

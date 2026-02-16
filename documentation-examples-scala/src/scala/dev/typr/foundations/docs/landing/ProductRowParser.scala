@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.landing
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 import java.time.Instant
@@ -13,7 +13,7 @@ object ProductRowParser:
   case class Dim(width: Double, height: Double, depth: Double, unit: String)
   case class Category(id: Int, name: String)
 
-  val productIdType: PgType[ProductId] = PgTypes.int4.bimap(ProductId.apply, _.value)
+  val productIdType: PgType[ProductId] = PgTypes.int4.transform(ProductId.apply, _.value)
   val dimensionsType: PgType[Dim] = null // placeholder
   val categoryRowParser: RowParser[Category] = null // placeholder
 
@@ -22,13 +22,13 @@ object ProductRowParser:
     .field(productIdType)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.numeric)(_.price)
-    .field(PgTypes.textArray.nullable)(_.tags)
-    .field(dimensionsType.nullable)(_.dimensions)
-    .field(PgTypes.jsonb.nullable)(_.metadata)
-    .field(PgTypes.timestamptz.nullable)(_.createdAt)
+    .field(PgTypes.textArray.opt)(_.tags)
+    .field(dimensionsType.opt)(_.dimensions)
+    .field(PgTypes.jsonb.opt)(_.metadata)
+    .field(PgTypes.timestamptz.opt)(_.createdAt)
     .build(Product.apply)
 
   // Compose parsers for joins
-  val joined: RowParser[And[Product, Option[Category]]] =
+  val joined: RowParser[(Product, Option[Category])] =
     rowParser.leftJoined(categoryRowParser)
   //stop

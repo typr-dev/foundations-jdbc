@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.duckdb
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 
@@ -11,5 +11,5 @@ object DomainType:
   case class ProductId(value: Long)
 
   // Create DuckDbType from bigint
-  val productIdType: DuckDbType[ProductId] = DuckDbTypes.bigint.bimap(ProductId.apply, _.value)
+  val productIdType: DuckDbType[ProductId] = DuckDbTypes.bigint.transform(ProductId.apply, _.value)
   //stop

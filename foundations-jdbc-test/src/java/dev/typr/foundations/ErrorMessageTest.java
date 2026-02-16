@@ -2,7 +2,7 @@ package dev.typr.foundations;
 
 import static org.junit.Assert.*;
 
-import dev.typr.foundations.connect.duckdb.DuckDbConfig;
+import dev.typr.foundations.connect.DuckDbConfig;
 import org.junit.Test;
 
 /**
@@ -40,21 +40,21 @@ public class ErrorMessageTest {
 
     try {
       tx.execute(conn -> {
-        Fragment.lit("CREATE TABLE test_err (id INTEGER, name VARCHAR)")
+        Fragment.of("CREATE TABLE test_err (id INTEGER, name VARCHAR)")
             .update()
-            .run(conn);
-        Fragment.lit("INSERT INTO test_err VALUES (1, 'hello')")
+            .runChecked(conn);
+        Fragment.of("INSERT INTO test_err VALUES (1, 'hello')")
             .update()
-            .run(conn);
+            .runChecked(conn);
 
         // Try to read the VARCHAR column as INTEGER - should fail
-        return Fragment.lit("SELECT id, name FROM test_err")
+        return Fragment.of("SELECT id, name FROM test_err")
             .query(RowParser.<Integer>builder()
                 .field(DuckDbTypes.integer, x -> x)
                 .field(DuckDbTypes.integer, x -> x)  // Wrong type for 'name'!
                 .build((id, name) -> id)
                 .all())
-            .run(conn);
+            .runChecked(conn);
       });
       fail("Expected SQLException for type mismatch");
     } catch (Exception e) {
@@ -92,13 +92,13 @@ public class ErrorMessageTest {
 
     try {
       tx.execute(conn -> {
-        Fragment.lit("CREATE TABLE empty_table (id INTEGER)")
+        Fragment.of("CREATE TABLE empty_table (id INTEGER)")
             .update()
-            .run(conn);
+            .runChecked(conn);
 
-        return Fragment.lit("SELECT id FROM empty_table")
+        return Fragment.of("SELECT id FROM empty_table")
             .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
-            .run(conn);
+            .runChecked(conn);
       });
       fail("Expected SQLException for no rows");
     } catch (Exception e) {
@@ -119,16 +119,16 @@ public class ErrorMessageTest {
 
     try {
       tx.execute(conn -> {
-        Fragment.lit("CREATE TABLE multi_table (id INTEGER)")
+        Fragment.of("CREATE TABLE multi_table (id INTEGER)")
             .update()
-            .run(conn);
-        Fragment.lit("INSERT INTO multi_table VALUES (1), (2)")
+            .runChecked(conn);
+        Fragment.of("INSERT INTO multi_table VALUES (1), (2)")
             .update()
-            .run(conn);
+            .runChecked(conn);
 
-        return Fragment.lit("SELECT id FROM multi_table")
+        return Fragment.of("SELECT id FROM multi_table")
             .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
-            .run(conn);
+            .runChecked(conn);
       });
       fail("Expected SQLException for too many rows");
     } catch (Exception e) {
@@ -149,16 +149,16 @@ public class ErrorMessageTest {
 
     try {
       tx.execute(conn -> {
-        Fragment.lit("CREATE TABLE multi_table2 (id INTEGER)")
+        Fragment.of("CREATE TABLE multi_table2 (id INTEGER)")
             .update()
-            .run(conn);
-        Fragment.lit("INSERT INTO multi_table2 VALUES (1), (2)")
+            .runChecked(conn);
+        Fragment.of("INSERT INTO multi_table2 VALUES (1), (2)")
             .update()
-            .run(conn);
+            .runChecked(conn);
 
-        return Fragment.lit("SELECT id FROM multi_table2")
+        return Fragment.of("SELECT id FROM multi_table2")
             .query(RowParser.of(DuckDbTypes.integer).maxOne())
-            .run(conn);
+            .runChecked(conn);
       });
       fail("Expected SQLException for too many rows");
     } catch (Exception e) {
@@ -285,23 +285,23 @@ public class ErrorMessageTest {
     try {
       tx.execute(conn -> {
         // Create table - simulate the landing page scenario
-        Fragment.lit("CREATE TABLE users (id INTEGER, name VARCHAR, created_at VARCHAR)")
+        Fragment.of("CREATE TABLE users (id INTEGER, name VARCHAR, created_at VARCHAR)")
             .update()
-            .run(conn);
-        Fragment.lit("INSERT INTO users VALUES (1, 'Alice', '2024-01-15 10:30:00')")
+            .runChecked(conn);
+        Fragment.of("INSERT INTO users VALUES (1, 'Alice', '2024-01-15 10:30:00')")
             .update()
-            .run(conn);
+            .runChecked(conn);
 
         // Try to read VARCHAR 'created_at' as timestamptz - this will fail
         record UserRow(Integer id, String name, java.time.OffsetDateTime createdAt) {}
-        return Fragment.lit("SELECT id, name, created_at FROM users")
+        return Fragment.of("SELECT id, name, created_at FROM users")
             .query(RowParser.<UserRow>builder()
                 .field(DuckDbTypes.integer, UserRow::id)
                 .field(DuckDbTypes.varchar, UserRow::name)
                 .field(DuckDbTypes.timestamptz, UserRow::createdAt)  // Wrong! created_at is VARCHAR
                 .build(UserRow::new)
                 .all())
-            .run(conn);
+            .runChecked(conn);
       });
       fail("Expected SqlResultParseException");
     } catch (RowParser.SqlResultParseException e) {

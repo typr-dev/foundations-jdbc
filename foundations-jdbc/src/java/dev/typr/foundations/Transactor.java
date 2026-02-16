@@ -52,7 +52,7 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @throws SQLException if a database error occurs
    */
   public <T> T execute(Operation<T> op) throws SQLException {
-    return execute(op::run);
+    return execute(op::runChecked);
   }
 
   /**

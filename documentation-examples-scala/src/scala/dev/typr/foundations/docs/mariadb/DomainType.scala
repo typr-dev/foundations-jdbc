@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.mariadb
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 
@@ -11,5 +11,5 @@ object DomainType:
   case class UserId(value: Long)
 
   // Create MariaType from bigint
-  val userIdType: MariaType[UserId] = MariaTypes.bigint.bimap(UserId.apply, _.value)
+  val userIdType: MariaType[UserId] = MariaTypes.bigint.transform(UserId.apply, _.value)
   //stop

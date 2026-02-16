@@ -1,7 +1,10 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.data.NonEmptyBlob;
+import dev.typr.foundations.data.NonEmptyString;
 import dev.typr.foundations.data.OracleIntervalDS;
 import dev.typr.foundations.data.OracleIntervalYM;
+import dev.typr.foundations.data.PaddedString;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -354,16 +357,15 @@ public sealed interface OracleRead<A> extends DbRead<A>
                 "Unexpected type for TIMESTAMP WITH TIME ZONE: " + obj.getClass().getName());
           });
 
-  // TIMESTAMP WITH LOCAL TIME ZONE -> OffsetDateTime
-  // Oracle stores this with timezone information, so we use OffsetDateTime to preserve it
-  OracleRead<OffsetDateTime> readLocalTimezoneTimestamp =
+  // TIMESTAMP WITH LOCAL TIME ZONE -> Instant
+  // Like PG timestamptz, this is an absolute point in time (stored in DB timezone, displayed in
+  // session timezone). Mapping to Instant avoids timezone-dependent comparisons.
+  OracleRead<Instant> readLocalTimezoneTimestamp =
       of(
-          (rs, col) -> rs.getObject(col, OffsetDateTime.class),
+          (rs, col) -> (Object) rs.getObject(col, OffsetDateTime.class),
           obj -> {
             if (obj == null) return null;
-            if (obj instanceof OffsetDateTime odt) return odt;
-            // For STRUCT attributes, oracle.sql.TIMESTAMPLTZ may need conversion
-            // Since we can't easily convert without connection, this is a limitation
+            if (obj instanceof OffsetDateTime odt) return odt.toInstant();
             throw new SQLException(
                 "Unexpected type for TIMESTAMP WITH LOCAL TIME ZONE: " + obj.getClass().getName());
           });

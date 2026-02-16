@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.analysis
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.Fragment.sql
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.data.*
 
 import java.sql.Connection
 
@@ -26,7 +26,7 @@ object QueryAnalysisNullableOk:
       LEFT JOIN orders o ON u.id = o.user_id"""
       .query(orderParser.all())
 
-    val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection)
+    val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection).head
     if !analysis.succeeded() then
       throw AssertionError(analysis.report())
   //stop

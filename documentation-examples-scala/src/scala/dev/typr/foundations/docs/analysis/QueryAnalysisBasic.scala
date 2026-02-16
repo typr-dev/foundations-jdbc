@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.analysis
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.Fragment.sql
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.data.*
 
 
 import java.sql.Connection
@@ -26,7 +26,7 @@ object QueryAnalysisBasic:
       .query(userRowParser.all())
 
     // Analyze it against the database
-    val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection)
+    val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection).head
 
     // Check the results
     if !analysis.succeeded() then

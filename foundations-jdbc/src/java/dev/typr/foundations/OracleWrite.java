@@ -1,14 +1,19 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.data.NonEmptyBlob;
+import dev.typr.foundations.data.NonEmptyString;
 import dev.typr.foundations.data.OracleIntervalDS;
 import dev.typr.foundations.data.OracleIntervalYM;
+import dev.typr.foundations.data.PaddedString;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.function.Function;
 import oracle.sql.BLOB;
@@ -167,18 +172,14 @@ public sealed interface OracleWrite<A> extends DbWrite<A>
   }
 
   /**
-   * Writer for TIMESTAMP WITH LOCAL TIME ZONE. Converts OffsetDateTime to oracle.sql.TIMESTAMPLTZ
-   * for STRUCT context. Note: Oracle normalizes this to database timezone and returns in session
-   * timezone. We use the instant (UTC) representation and let Oracle handle timezone conversion.
+   * Writer for TIMESTAMP WITH LOCAL TIME ZONE. Converts Instant to oracle.sql.TIMESTAMPLTZ for
+   * STRUCT context. Like PG timestamptz, this represents an absolute point in time.
    */
-  static OracleWrite<OffsetDateTime> writeTimestampWithLocalTimeZone() {
+  static OracleWrite<Instant> writeTimestampWithLocalTimeZone() {
     return structured(
-        (offsetDateTime, conn) -> {
-          if (offsetDateTime == null) return null;
-          // Convert OffsetDateTime to java.sql.Timestamp (UTC instant)
-          // Oracle TIMESTAMPLTZ will store the instant and return in session timezone
-          Timestamp timestamp = Timestamp.from(offsetDateTime.toInstant());
-          return new oracle.sql.TIMESTAMPLTZ(conn, timestamp);
+        (instant, conn) -> {
+          if (instant == null) return null;
+          return OffsetDateTime.ofInstant(instant, ZoneOffset.UTC);
         },
         "TIMESTAMP WITH LOCAL TIME ZONE",
         java.sql.Types.TIMESTAMP_WITH_TIMEZONE);

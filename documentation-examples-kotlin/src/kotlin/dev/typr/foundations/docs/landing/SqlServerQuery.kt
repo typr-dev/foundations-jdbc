@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.landing
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import java.math.BigDecimal
 import java.sql.Connection
 
@@ -10,17 +10,15 @@ class SqlServerQuery {
     data class OrderRow(val id: Int, val name: String, val price: BigDecimal)
     val orderRowParser: RowParser<OrderRow>? = null // placeholder
     val maxPrice: BigDecimal? = null
-    val conn: Connection? = null // placeholder
+    lateinit var conn: Connection
 
     //start
     // Build small reusable filters - SQL Server example
     fun byName(name: String): Fragment =
-        Fragment.interpolate("name LIKE ")
-            .param(SqlServerTypes.nvarchar, name).done()
+        Sql { "name LIKE ${SqlServerTypes.nvarchar(name)}" }
 
     fun cheaperThan(max: BigDecimal): Fragment =
-        Fragment.interpolate("price < ")
-            .param(SqlServerTypes.decimal, max).done()
+        Sql { "price < ${SqlServerTypes.decimal(max)}" }
 
     // Compose dynamically - only include the filters that are present
     val filters: List<Fragment> = listOfNotNull(
@@ -28,9 +26,8 @@ class SqlServerQuery {
         maxPrice?.let { cheaperThan(it) }
     )
 
-    val orders: List<OrderRow> = Fragment.interpolate("SELECT * FROM orders ")
-        .param(Fragment.whereAnd(filters)).done()
+    val orders: List<OrderRow> = Sql { "SELECT * FROM orders ${Fragment.whereAnd(filters)}" }
         .query(orderRowParser!!.all())
-        .runUnchecked(conn)
+        .run(conn)
     //stop
 }

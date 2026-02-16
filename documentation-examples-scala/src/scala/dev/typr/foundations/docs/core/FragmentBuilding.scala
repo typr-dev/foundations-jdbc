@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.core
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.Fragment.sql
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.data.*
 
 
 import java.sql.Connection
@@ -31,5 +31,5 @@ object FragmentBuilding:
     sql"SELECT * FROM users WHERE id = $id AND status = $status AND created_at > $cutoff"
 
   // Execute safely - parameters are bound, not interpolated
-  val users: List[User] = query.query(userParser.all()).runUnchecked(connection)
+  val users: List[User] = query.query(userParser.all()).run(connection)
   //stop

@@ -10,6 +10,6 @@ public class DomainType {
     public record UserId(Long value) {}
 
     // Create MariaType from bigint
-    MariaType<UserId> userIdType = MariaTypes.bigint.bimap(UserId::new, UserId::value);
+    MariaType<UserId> userIdType = MariaTypes.bigint.transform(UserId::new, UserId::value);
     //stop
 }

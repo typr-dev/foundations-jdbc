@@ -1,22 +1,22 @@
 package dev.typr.foundations.docs.routines
-import dev.typr.scalafoundations.*
+import dev.typr.foundationssc.*
 
 import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object FunctionExample:
-  private val tx: dev.typr.foundations.Transactor = null // placeholder
+  private val tx: Transactor = null // placeholder
 
   //start
   // Functions use SELECT instead of CALL — every DbType reads correctly
-  val calcTax: DbFunction.Def2[BigDecimal, String, BigDecimal] =
+  val calcTax =
     DbFunction.define("calculate_tax", PgTypes.numeric)
       .in(PgTypes.numeric)    // amount
       .in(PgTypes.text)       // region
       .build()
 
   // Zero-argument function
-  val nextId: DbFunction.Def0[Int] =
+  val nextId =
     DbFunction.define("next_id", PgTypes.int4)
       .build()
 

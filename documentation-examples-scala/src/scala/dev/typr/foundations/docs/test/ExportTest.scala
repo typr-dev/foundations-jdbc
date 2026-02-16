@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.test
 
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 object ExportTest:

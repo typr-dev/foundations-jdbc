@@ -1,10 +1,10 @@
-import dev.typr.foundations.*
-import dev.typr.foundations.connect.duckdb.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.connect.*
 
 fun main() {
-    val tx = DuckDbConfig.builder(":memory:").build().transactor()
-    val answer: Int = tx.execute { conn ->
-        Fragment.lit("SELECT 42")
+    val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
+    val answer: Int = tx.transact { conn ->
+        Sql { "SELECT 42" }
             .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
             .run(conn)
     }

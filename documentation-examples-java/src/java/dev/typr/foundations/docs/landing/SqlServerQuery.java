@@ -20,12 +20,12 @@ public class SqlServerQuery {
     //start
     // Build small reusable filters - SQL Server example
     Fragment byName(String name) {
-        return Fragment.interpolate("name LIKE ")
-            .param(SqlServerTypes.nvarchar, name).done();
+        return Fragment.of("name LIKE ")
+            .value(SqlServerTypes.nvarchar, name);
     }
     Fragment cheaperThan(BigDecimal max) {
-        return Fragment.interpolate("price < ")
-            .param(SqlServerTypes.decimal, max).done();
+        return Fragment.of("price < ")
+            .value(SqlServerTypes.decimal, max);
     }
 
     // Compose dynamically - only include the filters that are present
@@ -36,9 +36,9 @@ public class SqlServerQuery {
         .flatMap(Optional::stream)
         .toList();
 
-    List<OrderRow> orders = Fragment.interpolate("SELECT * FROM orders ")
-        .param(Fragment.whereAnd(filters)).done()
+    List<OrderRow> orders = Fragment.of("SELECT * FROM orders ")
+        .append(Fragment.whereAnd(filters))
         .query(orderRowParser.all())
-        .runUnchecked(conn);
+        .run(conn);
     //stop
 }

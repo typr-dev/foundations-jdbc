@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.duckdb
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
 class DomainType {
@@ -10,6 +10,6 @@ class DomainType {
     data class ProductId(val value: Long)
 
     // Create DuckDbType from bigint
-    val productIdType: DuckDbType<ProductId> = DuckDbTypes.bigint.bimap(::ProductId, ProductId::value)
+    val productIdType: DuckDbType<ProductId> = DuckDbTypes.bigint.transform(::ProductId, ProductId::value)
     //stop
 }

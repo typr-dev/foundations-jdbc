@@ -55,9 +55,9 @@ public interface OracleOutParam<A> extends DbOutParam<A> {
     return ts == null ? null : ts.toLocalDateTime();
   });
 
-  OracleOutParam<Instant> readInstant = of(Types.TIMESTAMP, (stmt, i) -> {
-    var ts = stmt.getTimestamp(i);
-    return ts == null ? null : ts.toInstant();
+  OracleOutParam<Instant> readInstant = of(-102, (stmt, i) -> {
+    OffsetDateTime odt = stmt.getObject(i, OffsetDateTime.class);
+    return odt == null ? null : odt.toInstant();
   });
 
   OracleOutParam<OffsetDateTime> readOffsetDateTime = of(2014, (stmt, i) ->

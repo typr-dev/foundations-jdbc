@@ -20,8 +20,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
 import org.junit.Test;
 
 /** Tests for MariaDB type codecs. Tests all types defined in MariaTypes. */
@@ -460,8 +458,8 @@ public class MariaTypeTest {
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
     try {
       RowParser<A> parser = RowParser.of(t.type);
-      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException(
             "Query analysis failed for " + sqlType + ":\n" + analysis.report());
@@ -480,10 +478,9 @@ public class MariaTypeTest {
     try {
       RowParser<A> parser = RowParser.of(t.type);
       Fragment fragment =
-          Fragment.interpolate("SELECT v FROM " + tableName + " WHERE v = ")
-              .param(t.type, t.example)
-              .done();
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+          Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
+              .value(t.type, t.example);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException(
             "Param analysis failed for " + sqlType + ":\n" + analysis.report());
@@ -582,6 +579,20 @@ public class MariaTypeTest {
     }
   }
 
+  static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
+      throws SQLException {
+    RowParserNamed<A> parser =
+        RowParser.<A>namedBuilder()
+            .field("v", type, java.util.function.Function.identity())
+            .build(java.util.function.Function.identity());
+    Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+        .paramRow(parser)
+        .append(")")
+        .update()
+        .onMany(List.of(value).iterator())
+        .runChecked(conn);
+  }
+
   static <A> void testCase(Connection conn, MariaTypeAndExample<A> t) throws SQLException {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("test_table");
@@ -590,12 +601,8 @@ public class MariaTypeTest {
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
 
     try {
-      // Insert using PreparedStatement
-      var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
       A expected = t.example;
-      t.type.write().set(insert, 1, expected);
-      insert.execute();
-      insert.close();
+      batchInsert(conn, t.type, tableName, expected);
 
       // Select and verify
       final PreparedStatement select;
@@ -651,7 +658,7 @@ public class MariaTypeTest {
                 + ") BEGIN SET p_out = p_in; END");
 
     try {
-      A result = proc.call(t.example).run(conn);
+      A result = proc.call(t.example).runChecked(conn);
 
       System.out.println(
           "Callable roundtrip "

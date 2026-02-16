@@ -62,7 +62,7 @@ public interface OracleJson<A> extends DbJson<A> {
     };
   }
 
-  default <B> OracleJson<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  default <B> OracleJson<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     OracleJson<A> self = this;
     return new OracleJson<>() {
       @Override
@@ -380,6 +380,24 @@ public interface OracleJson<A> extends DbJson<A> {
           }
           throw new IllegalArgumentException(
               "Expected string for timestamp with time zone, got: "
+                  + json.getClass().getSimpleName());
+        }
+      };
+
+  OracleJson<Instant> timestampWithLocalTimeZone =
+      new OracleJson<>() {
+        @Override
+        public JsonValue toJson(Instant value) {
+          return new JsonValue.JString(value.toString());
+        }
+
+        @Override
+        public Instant fromJson(JsonValue json) {
+          if (json instanceof JsonValue.JString s) {
+            return Instant.parse(s.value());
+          }
+          throw new IllegalArgumentException(
+              "Expected string for timestamp with local time zone, got: "
                   + json.getClass().getSimpleName());
         }
       };

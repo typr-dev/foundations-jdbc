@@ -1,10 +1,10 @@
 package dev.typr.foundations.docs.analysis
 
-import dev.typr.kotlinfoundations.*
+import dev.typr.foundationskt.*
 
 @Suppress("unused")
 class QueryAnalysisRoutine {
-    private val transactor: Transactor? = null // placeholder
+    private lateinit var transactor: Transactor
 
     //start
     // Verify a stored function matches the database definition
@@ -13,8 +13,8 @@ class QueryAnalysisRoutine {
             listOf(ParamDef.`in`(PgTypes.text), ParamDef.`in`(PgTypes.text)),
             PgTypes.int4)
 
-        val checker = QueryChecker { transactor!! }
-        checker.checkRoutine(addUser)
+        val checker = QueryChecker.create(transactor)
+        QueryChecker.checkRoutine(checker, addUser)
     }
     //stop
 }

@@ -1,9 +1,9 @@
 package dev.typr.foundations.docs.core
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.connect.*
+import dev.typr.foundationskt.data.*
 import java.math.BigDecimal
-import java.sql.SQLException
 
 @Suppress("unused")
 class TransactorSetup {
@@ -15,20 +15,17 @@ class TransactorSetup {
         .field(PgTypes.numeric, ProductRow::price)
         .build(::ProductRow)
 
-    val connectionSource: ConnectionSource? = null // placeholder
+    lateinit var connectionSource: ConnectionSource
     val minPrice: BigDecimal = BigDecimal("10")
 
     //start
     // The Transactor manages connections and transactions
     // You choose the strategy — it handles the lifecycle
-    @Throws(SQLException::class)
     fun query(): List<ProductRow> {
-        val tx = connectionSource!!.transactor(Transactor.defaultStrategy())
+        val tx = connectionSource.transactor(Transactor.defaultStrategy())
 
         // Everything inside runs in one transaction: begin, commit, close
-        return Fragment.interpolate("SELECT * FROM product WHERE price > ")
-            .param(PgTypes.numeric, minPrice)
-            .done()
+        return Sql { "SELECT * FROM product WHERE price > ${PgTypes.numeric(minPrice)}" }
             .query(rowParser.all())
             .transact(tx)
     }

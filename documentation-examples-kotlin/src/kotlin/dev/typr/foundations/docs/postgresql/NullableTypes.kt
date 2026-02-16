@@ -1,12 +1,12 @@
 package dev.typr.foundations.docs.postgresql
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
 class NullableTypes {
     //start
     val notNull: PgType<Int> = PgTypes.int4
-    val nullable: DbType<Int?> = PgTypes.int4.nullable  // null values allowed
+    val nullable: PgType<Int?> = PgTypes.int4.opt()
     //stop
 }

@@ -13,6 +13,15 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
 
   PgTypename<A> renamedDropPrecision(String value);
 
+  @Override
+  default String renderPlaceholder() {
+    String sqlType = sqlType();
+    if (sqlType != null && !sqlType.isEmpty()) {
+      return "?::" + sqlType;
+    }
+    return "?";
+  }
+
   default PgTypename<Optional<A>> opt() {
     return new Opt<>(this);
   }

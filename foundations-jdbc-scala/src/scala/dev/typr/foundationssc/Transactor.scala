@@ -1,0 +1,23 @@
+package dev.typr.foundationssc
+
+import java.sql.Connection
+
+class Transactor(val underlying: dev.typr.foundations.Transactor):
+  def execute[T](operation: Operation[T]): T =
+    val f: dev.typr.foundations.SqlFunction[Connection, T] = (conn: Connection) => operation.runChecked(conn)
+    underlying.execute(f)
+
+  def transact[T](f: Connection => T): T =
+    val sf: dev.typr.foundations.SqlFunction[Connection, T] = (conn: Connection) => f(conn)
+    underlying.execute(sf)
+
+  def executeVoid(f: Connection => Unit): Unit =
+    underlying.executeVoid((conn: Connection) => f(conn))
+
+object Transactor:
+  def apply(underlying: dev.typr.foundations.Transactor): Transactor = new Transactor(underlying)
+  type Strategy = dev.typr.foundations.Transactor.Strategy
+  def defaultStrategy(): Strategy = dev.typr.foundations.Transactor.defaultStrategy()
+  def autoCommitStrategy(): Strategy = dev.typr.foundations.Transactor.autoCommitStrategy()
+  def rollbackOnErrorStrategy(): Strategy = dev.typr.foundations.Transactor.rollbackOnErrorStrategy()
+  def testStrategy(): Strategy = dev.typr.foundations.Transactor.testStrategy()

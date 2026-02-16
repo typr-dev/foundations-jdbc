@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.sqlserver
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
 class DomainType {
@@ -11,6 +11,6 @@ class DomainType {
 
     // Create SqlServerType from INT
     val orderIdType: SqlServerType<OrderId> =
-        SqlServerTypes.int_.bimap(::OrderId, OrderId::value)
+        SqlServerTypes.int_.transform(::OrderId, OrderId::value)
     //stop
 }

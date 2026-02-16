@@ -8,7 +8,6 @@ import java.sql.SQLException;
 public class VoidProcedure {
     Transactor tx = null; // placeholder
 
-    //start
     // A void procedure — no OUT parameters, just side effects
     static final DbProcedure.Def2_0<String, String> auditLog =
         DbProcedure.define("audit_log")
@@ -16,6 +15,7 @@ public class VoidProcedure {
             .in(PgTypes.text)       // details
             .build();
 
+    //start
     void logAction(String action, String details) throws SQLException {
         auditLog.call(action, details).transact(tx);
     }

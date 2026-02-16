@@ -75,7 +75,7 @@ public abstract class PgCompositeText<A> {
   }
 
   /** Transform this codec to work with a different type. */
-  public <B> PgCompositeText<B> bimap(Function<A, B> f, Function<B, A> g) {
+  public <B> PgCompositeText<B> transform(Function<A, B> f, Function<B, A> g) {
     var self = this;
     return new PgCompositeText<>() {
       @Override

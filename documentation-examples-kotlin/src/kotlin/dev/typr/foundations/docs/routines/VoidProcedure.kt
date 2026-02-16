@@ -1,7 +1,6 @@
 package dev.typr.foundations.docs.routines
 
-import dev.typr.kotlinfoundations.*
-import java.sql.SQLException
+import dev.typr.foundationskt.*
 
 @Suppress("unused")
 class VoidProcedure {
@@ -10,14 +9,13 @@ class VoidProcedure {
     //start
     companion object {
         // A void procedure — no OUT parameters, just side effects
-        val auditLog: DbProcedure.Def2_0<String, String> =
+        val auditLog =
             DbProcedure.define("audit_log")
                 .`in`(PgTypes.text)       // action
                 .`in`(PgTypes.text)       // details
                 .build()
     }
 
-    @Throws(SQLException::class)
     fun logAction(action: String, details: String) {
         auditLog.call(action, details).transact(tx!!)
     }

@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.postgresql
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
 class DomainType {
@@ -10,6 +10,6 @@ class DomainType {
     data class Email(val value: String)
 
     // Create PgType from text
-    val emailType: PgType<Email> = PgTypes.text.bimap(::Email, Email::value)
+    val emailType: PgType<Email> = PgTypes.text.transform(::Email, Email::value)
     //stop
 }

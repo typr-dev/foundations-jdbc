@@ -1,7 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.RoutineAnalysis;
-import dev.typr.foundations.analysis.RoutineAnalyzer;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;

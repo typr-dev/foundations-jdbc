@@ -1,9 +1,9 @@
 package dev.typr.foundations.docs.core
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import java.sql.ResultSet
-import java.sql.SQLException
+
 import java.time.Instant
 
 @Suppress("unused")
@@ -26,7 +26,6 @@ class ResultSetParserUsage {
     val listParser: ResultSetParser<List<Person>> = personParser.all()
 
     // Execute with ResultSet
-    @Throws(SQLException::class)
     fun parse(): Person? = singleParser.apply(resultSet!!)
     //stop
 }

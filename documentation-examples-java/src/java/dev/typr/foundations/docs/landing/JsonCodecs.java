@@ -28,11 +28,10 @@ public class JsonCodecs {
 
     // Aggregate child rows as JSON in a single query
     List<OrderLine> getOrderLines(int customerId) throws SQLException {
-        Json json = Fragment.interpolate(
+        Json json = Fragment.of(
             "SELECT json_group_array(json_array(product, qty, price)) "
             + "FROM order_lines WHERE customer_id = ")
-            .param(DuckDbTypes.integer, customerId)
-            .done()
+            .value(DuckDbTypes.integer, customerId)
             .query(RowParser.of(DuckDbTypes.json).exactlyOne())
             .transact(tx);
 

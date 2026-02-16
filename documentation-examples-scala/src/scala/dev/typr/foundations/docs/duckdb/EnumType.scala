@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.duckdb
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 
@@ -11,8 +11,8 @@ object EnumType:
   enum Status:
     case PENDING, ACTIVE, COMPLETED
 
-  // Create a DuckDbType using bimap (Scala 3 enums don't extend java.lang.Enum)
-  val statusType: DuckDbType[Status] = DuckDbTypes.varchar.bimap(
+  // Create a DuckDbType using transform (Scala 3 enums don't extend java.lang.Enum)
+  val statusType: DuckDbType[Status] = DuckDbTypes.varchar.transform(
     Status.valueOf,
     _.toString
   )

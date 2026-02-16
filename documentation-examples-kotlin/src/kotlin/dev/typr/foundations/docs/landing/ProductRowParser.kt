@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.landing
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -13,7 +13,7 @@ class ProductRowParser {
     data class Dim(val width: Double, val height: Double, val depth: Double, val unit: String)
     data class Category(val id: Int, val name: String)
 
-    val productIdType: PgType<ProductId> = PgTypes.int4.bimap(::ProductId, ProductId::value)
+    val productIdType: PgType<ProductId> = PgTypes.int4.transform(::ProductId, ProductId::value)
     val dimensionsType: PgType<Dim>? = null // placeholder
     val categoryRowParser: RowParser<Category>? = null // placeholder
 
@@ -22,14 +22,14 @@ class ProductRowParser {
         .field(productIdType, Product::id)
         .field(PgTypes.text, Product::name)
         .field(PgTypes.numeric, Product::price)
-        .field(PgTypes.textArray.nullable, Product::tags)
-        .field(dimensionsType!!.nullable, Product::dimensions)
-        .field(PgTypes.jsonb.nullable, Product::metadata)
-        .field(PgTypes.timestamptz.nullable, Product::createdAt)
+        .field(PgTypes.textArray.opt(), Product::tags)
+        .field(dimensionsType!!.opt(), Product::dimensions)
+        .field(PgTypes.jsonb.opt(), Product::metadata)
+        .field(PgTypes.timestamptz.opt(), Product::createdAt)
         .build(::Product)
 
     // Compose parsers for joins
-    val joined: RowParser<And<Product, Category?>> =
+    val joined: RowParser<Pair<Product, Category?>> =
         rowParser.leftJoined(categoryRowParser)
     //stop
 }

@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.Uint1;
@@ -74,7 +73,7 @@ public interface DuckDbTypes {
           DuckDbRead.readShort.map(Uint1::new),
           DuckDbWrite.writeShort.contramap(Uint1::value),
           DuckDbStringifier.smallint.contramap(Uint1::value),
-          DuckDbJson.int2.bimap(Uint1::new, Uint1::value));
+          DuckDbJson.int2.transform(Uint1::new, Uint1::value));
 
   // USMALLINT: 0-65535, wrapped in Uint2
   DuckDbType<Uint2> usmallint =
@@ -83,7 +82,7 @@ public interface DuckDbTypes {
           DuckDbRead.readInteger.map(Uint2::new),
           DuckDbWrite.writeInteger.contramap(Uint2::value),
           DuckDbStringifier.integer.contramap(Uint2::value),
-          DuckDbJson.int4.bimap(Uint2::new, Uint2::value));
+          DuckDbJson.int4.transform(Uint2::new, Uint2::value));
 
   // UINTEGER: 0-4294967295, wrapped in Uint4
   DuckDbType<Uint4> uinteger =
@@ -92,7 +91,7 @@ public interface DuckDbTypes {
           DuckDbRead.readLong.map(Uint4::new),
           DuckDbWrite.writeLong.contramap(Uint4::value),
           DuckDbStringifier.bigint.contramap(Uint4::value),
-          DuckDbJson.int8.bimap(Uint4::new, Uint4::value));
+          DuckDbJson.int8.transform(Uint4::new, Uint4::value));
 
   // UBIGINT: 0-18446744073709551615, wrapped in Uint8
   DuckDbType<Uint8> ubigint =
@@ -101,7 +100,7 @@ public interface DuckDbTypes {
           DuckDbRead.readBigInteger.map(Uint8::of),
           DuckDbWrite.writeBigInteger.contramap(Uint8::value),
           DuckDbStringifier.hugeint.contramap(Uint8::value),
-          DuckDbJson.hugeint.bimap(Uint8::of, Uint8::value));
+          DuckDbJson.hugeint.transform(Uint8::of, Uint8::value));
 
   // UHUGEINT: 128-bit unsigned integer, needs BigInteger
   DuckDbType<BigInteger> uhugeint =
@@ -165,8 +164,6 @@ public interface DuckDbTypes {
           DuckDbWrite.writeBoolean,
           DuckDbStringifier.bool,
           DuckDbJson.bool);
-
-  DuckDbType<Boolean> bool = boolean_.renamed("BOOL");
 
   // ==================== String Types ====================
 
@@ -337,7 +334,7 @@ public interface DuckDbTypes {
         DuckDbRead.readString.map(fromString::apply),
         DuckDbWrite.writeString.contramap(Enum::name),
         DuckDbStringifier.string.contramap(Enum::name),
-        DuckDbJson.text.bimap(fromString::apply, Enum::name))
+        DuckDbJson.text.transform(fromString::apply, Enum::name))
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("enum"));
   }
 
@@ -493,7 +490,7 @@ public interface DuckDbTypes {
               DuckDbWrite.writeString,
               DuckDbStringifier.string,
               DuckDbJson.text)
-          .bimap(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+          .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 
   /**
    * JSON codec for MAP types with typed keys and values. Uses JSON object format for compatibility
