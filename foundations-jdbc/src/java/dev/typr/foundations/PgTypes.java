@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.*;
 import dev.typr.foundations.data.Record;
 import java.math.BigDecimal;
@@ -21,7 +20,7 @@ public interface PgTypes {
           "anyarray",
           AnyArray::new,
           AnyArray::value,
-          PgJson.text.bimap(AnyArray::new, AnyArray::value));
+          PgJson.text.transform(AnyArray::new, AnyArray::value));
   PgType<AnyArray[]> anyarrayArray =
       anyarray.array(PgRead.pgObjectArray(AnyArray::new, AnyArray.class), AnyArray[]::new);
   PgType<BigDecimal> numeric =
@@ -65,7 +64,7 @@ public interface PgTypes {
         PgRead.bitString.map(Bit::new),
         PgWrite.pgObject("bit").contramap(Bit::value),
         PgText.textString.contramap(Bit::value),
-        PgCompositeText.text.bimap(Bit::new, Bit::value),
+        PgCompositeText.text.transform(Bit::new, Bit::value),
         PgJson.bit,
         PgOutParam.bitString(Bit::new));
   }
@@ -80,7 +79,7 @@ public interface PgTypes {
         PgRead.bitString.map(Bit::new),
         PgWrite.pgObject("bit").contramap(Bit::value),
         PgText.textString.contramap(Bit::value),
-        PgCompositeText.text.bimap(Bit::new, Bit::value),
+        PgCompositeText.text.transform(Bit::new, Bit::value),
         PgJson.bit,
         PgOutParam.bitString(Bit::new));
   }
@@ -248,8 +247,8 @@ public interface PgTypes {
           PgRead.readLong.map(Oid::new),
           PgWrite.writeLong.contramap(Oid::value),
           PgText.instance((o, sb) -> sb.append(o.value())),
-          PgCompositeText.int8.bimap(Oid::new, Oid::value),
-          PgJson.int8.bimap(Oid::new, Oid::value),
+          PgCompositeText.int8.transform(Oid::new, Oid::value),
+          PgJson.int8.transform(Oid::new, Oid::value),
           PgOutParam.readLong.map(Oid::new));
   PgType<Oid[]> oidArray =
       oid.array(
@@ -395,7 +394,7 @@ public interface PgTypes {
           "pg_node_tree",
           PgNodeTree::new,
           PgNodeTree::value,
-          PgJson.text.bimap(PgNodeTree::new, PgNodeTree::value));
+          PgJson.text.transform(PgNodeTree::new, PgNodeTree::value));
   PgType<PgNodeTree[]> pgNodeTreeArray =
       pgNodeTree.array(PgRead.pgObjectArray(PgNodeTree::new, PgNodeTree.class), PgNodeTree[]::new);
   PgType<Regclass> regclass =
@@ -507,7 +506,7 @@ public interface PgTypes {
               PgCompositeText.text,
               PgJson.text,
               PgOutParam.readString)
-          .bimap(Xml::new, Xml::value);
+          .transform(Xml::new, Xml::value);
   PgType<Xml[]> xmlArray = xml.array(PgRead.pgObjectArray(Xml::new, Xml.class), Xml[]::new);
   PgType<Vector> vector =
       PgType.of(
@@ -518,7 +517,7 @@ public interface PgTypes {
               PgCompositeText.text,
               PgJson.text,
               PgOutParam.readString)
-          .bimap(Vector::new, Vector::value);
+          .transform(Vector::new, Vector::value);
   PgType<Vector[]> vectorArray =
       vector.array(PgRead.pgObjectArray(Vector::new, Vector.class), Vector[]::new);
   PgType<Unknown> unknown =
@@ -530,7 +529,7 @@ public interface PgTypes {
               PgCompositeText.text,
               PgJson.text,
               PgOutParam.readString)
-          .bimap(Unknown::new, Unknown::value);
+          .transform(Unknown::new, Unknown::value);
   PgType<Unknown[]> unknownArray =
       unknown.array(PgRead.pgObjectArray(Unknown::new, Unknown.class), Unknown[]::new);
   PgType<byte[]> bytea =
@@ -579,8 +578,8 @@ public interface PgTypes {
         PgRead.readString.map(fromString::apply),
         PgWrite.writeString.contramap(Enum::name),
         PgText.textString.contramap(Enum::name),
-        PgCompositeText.text.bimap(fromString::apply, Enum::name),
-        PgJson.text.bimap(fromString::apply, Enum::name),
+        PgCompositeText.text.transform(fromString::apply, Enum::name),
+        PgJson.text.transform(fromString::apply, Enum::name),
         PgOutParam.readString.map(fromString::apply));
   }
 
@@ -594,7 +593,7 @@ public interface PgTypes {
         PgRead.pgObject(sqlType).map(constructor),
         PgWrite.pgObject(sqlType).contramap(extractor),
         PgText.textString.contramap(extractor),
-        PgCompositeText.text.bimap(
+        PgCompositeText.text.transform(
             s -> {
               try {
                 return constructor.apply(s);

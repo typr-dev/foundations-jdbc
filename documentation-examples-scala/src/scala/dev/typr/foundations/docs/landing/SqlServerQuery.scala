@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.landing
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.Fragment.sql
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.data.*
 
 import java.sql.Connection
 
@@ -29,5 +29,5 @@ object SqlServerQuery:
   val orders: List[OrderRow] =
     sql"SELECT * FROM orders ${Fragment.whereAnd(filters)}"
       .query(orderRowParser.all())
-      .runUnchecked(conn)
+      .run(conn)
   //stop

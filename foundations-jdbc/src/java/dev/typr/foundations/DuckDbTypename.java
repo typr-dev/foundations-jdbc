@@ -11,6 +11,15 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
   @Override
   String sqlType();
 
+  @Override
+  default String renderPlaceholder() {
+    String sqlType = sqlType();
+    if (sqlType != null && !sqlType.isEmpty()) {
+      return "?::" + sqlType;
+    }
+    return "?";
+  }
+
   /**
    * Create a LIST type from this element type. For example, VARCHAR becomes VARCHAR[] (or
    * LIST(VARCHAR)).

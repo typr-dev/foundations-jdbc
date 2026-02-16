@@ -9,7 +9,6 @@ import java.sql.SQLException;
 public class FunctionExample {
     Transactor tx = null; // placeholder
 
-    //start
     // Functions use SELECT instead of CALL — every DbType reads correctly
     static final DbFunction.Def2<BigDecimal, String, BigDecimal> calcTax =
         DbFunction.define("calculate_tax", PgTypes.numeric)
@@ -22,6 +21,7 @@ public class FunctionExample {
         DbFunction.define("next_id", PgTypes.int4)
             .build();
 
+    //start
     BigDecimal calculateTax(BigDecimal amount, String region) throws SQLException {
         return calcTax.call(amount, region).transact(tx);
     }

@@ -1,5 +1,5 @@
 package dev.typr.foundations.docs.landing
-import dev.typr.scalafoundations.*
+import dev.typr.foundationssc.*
 
 import java.sql.SQLException
 
@@ -9,7 +9,7 @@ object StoredProcedure:
 
   //start
   // Define once, call many times — input and output types are baked in
-  val getUser: DbProcedure.Def1_2[Int, String, String] =
+  val getUser =
     DbProcedure.define("get_user_by_id")
       .in(PgTypes.int4)
       .out(PgTypes.text)

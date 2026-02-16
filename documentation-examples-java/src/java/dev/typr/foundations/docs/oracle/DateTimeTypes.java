@@ -3,6 +3,7 @@ package dev.typr.foundations.docs.oracle;
 import dev.typr.foundations.OracleType;
 import dev.typr.foundations.OracleTypes;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
@@ -13,6 +14,6 @@ public class DateTimeTypes {
     OracleType<LocalDateTime> tsType = OracleTypes.timestamp;
     OracleType<LocalDateTime> ts3 = OracleTypes.timestamp(3);  // TIMESTAMP(3)
     OracleType<OffsetDateTime> tstz = OracleTypes.timestampWithTimeZone;
-    OracleType<OffsetDateTime> tsltz = OracleTypes.timestampWithLocalTimeZone;
+    OracleType<Instant> tsltz = OracleTypes.timestampWithLocalTimeZone;
     //stop
 }

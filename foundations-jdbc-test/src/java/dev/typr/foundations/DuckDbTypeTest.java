@@ -1,7 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.Uint1;
@@ -35,7 +33,7 @@ public class DuckDbTypeTest {
     return prefix + "_" + tableCounter.incrementAndGet();
   }
 
-  // ==================== Wrapper Type Examples for bimap testing ====================
+  // ==================== Wrapper Type Examples for transform testing ====================
   record UserId(int value) {}
 
   record ProductCode(String value) {}
@@ -44,14 +42,14 @@ public class DuckDbTypeTest {
   record Config(java.util.Map<String, Integer> settings) {}
 
   // Bimapped types for testing MAP with wrapper keys/values
-  static DuckDbType<UserId> userIdType = DuckDbTypes.integer.bimap(UserId::new, UserId::value);
+  static DuckDbType<UserId> userIdType = DuckDbTypes.integer.transform(UserId::new, UserId::value);
 
   static DuckDbType<ProductCode> productCodeType =
-      DuckDbTypes.varchar.bimap(ProductCode::new, ProductCode::value);
+      DuckDbTypes.varchar.transform(ProductCode::new, ProductCode::value);
 
-  // A type that wraps a map - bimapped from MAP(VARCHAR, INTEGER)
+  // A type that wraps a map - transformped from MAP(VARCHAR, INTEGER)
   static DuckDbType<Config> configType =
-      DuckDbTypes.varchar.mapTo(DuckDbTypes.integer).bimap(Config::new, Config::settings);
+      DuckDbTypes.varchar.mapTo(DuckDbTypes.integer).transform(Config::new, Config::settings);
 
   // ==================== STRUCT Example ====================
   record Person(String name, int age) {}
@@ -328,17 +326,17 @@ public class DuckDbTypeTest {
                       "user1", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
                       "user2", UUID.fromString("123e4567-e89b-12d3-a456-426614174000")))
               .noIdentity(),
-          // MAP with bimapped key type (UserId wrapping Integer)
+          // MAP with transformped key type (UserId wrapping Integer)
           new DuckDbTypeAndExample<>(
                   userIdType.mapTo(DuckDbTypes.varchar),
                   java.util.Map.of(new UserId(1), "admin", new UserId(2), "user"))
               .noIdentity(),
-          // MAP with bimapped value type (ProductCode wrapping String)
+          // MAP with transformped value type (ProductCode wrapping String)
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.integer.mapTo(productCodeType),
                   java.util.Map.of(1, new ProductCode("PROD-001"), 2, new ProductCode("PROD-002")))
               .noIdentity(),
-          // MAP with bimapped key AND value types
+          // MAP with transformped key AND value types
           new DuckDbTypeAndExample<>(
                   userIdType.mapTo(productCodeType),
                   java.util.Map.of(
@@ -355,8 +353,8 @@ public class DuckDbTypeTest {
                   DuckDbTypes.double_.mapTo(DuckDbTypes.varchar),
                   java.util.Map.of(3.14, "pi", 2.71, "e"))
               .noIdentity(),
-          // Config type directly (bimapped from MAP(VARCHAR, INTEGER))
-          // This tests that bimap works correctly with map types
+          // Config type directly (transformped from MAP(VARCHAR, INTEGER))
+          // This tests that transform works correctly with map types
           new DuckDbTypeAndExample<>(
                   configType, new Config(java.util.Map.of("max_conn", 100, "min_conn", 5)))
               .noIdentity(),
@@ -603,8 +601,8 @@ public class DuckDbTypeTest {
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
     try {
       RowParser<A> parser = RowParser.of(t.type);
-      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException("Query analysis failed for " + sqlType + ":\n" + analysis.report());
       }
@@ -619,15 +617,29 @@ public class DuckDbTypeTest {
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
     try {
       RowParser<A> parser = RowParser.of(t.type);
-      Fragment fragment = Fragment.interpolate("SELECT v FROM " + tableName + " WHERE v = ")
-          .param(t.type, t.example).done();
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
+          .value(t.type, t.example);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException("Param analysis failed for " + sqlType + ":\n" + analysis.report());
       }
     } finally {
       conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
     }
+  }
+
+  static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
+      throws SQLException {
+    RowParserNamed<A> parser =
+        RowParser.<A>namedBuilder()
+            .field("v", type, java.util.function.Function.identity())
+            .build(java.util.function.Function.identity());
+    Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+        .paramRow(parser)
+        .append(")")
+        .update()
+        .onMany(List.of(value).iterator())
+        .runChecked(conn);
   }
 
   static <A> void testCase(Connection conn, DuckDbTypeAndExample<A> t) throws SQLException {
@@ -638,12 +650,8 @@ public class DuckDbTypeTest {
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
 
     try {
-      // Insert using PreparedStatement
-      var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
       A expected = t.example;
-      t.type.write().set(insert, 1, expected);
-      insert.execute();
-      insert.close();
+      batchInsert(conn, t.type, tableName, expected);
 
       // Select and verify
       final PreparedStatement select;

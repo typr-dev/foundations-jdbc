@@ -58,6 +58,16 @@ public final class DbJsonRow {
   }
 
   /**
+   * Create a DbJson codec that encodes rows as JSON objects, using column names from the parser.
+   *
+   * @param rowParser a named parser that carries column names
+   * @return a DbJson codec for the row type
+   */
+  public static <Row> DbJson<Row> jsonObject(RowParserNamed<Row> rowParser) {
+    return new ObjectCodec<>(rowParser, rowParser.columnNames());
+  }
+
+  /**
    * Create a DbJson codec that encodes rows as JSON objects with named fields.
    *
    * <p>Each row becomes a JSON object where keys are the column names provided.

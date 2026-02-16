@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.core
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 
@@ -21,6 +21,6 @@ object ComposingParsers:
     .build(CategoryRow.apply)
 
   // leftJoined() returns Option right side automatically
-  val joined: RowParser[And[ProductRow, Option[CategoryRow]]] =
+  val joined: RowParser[(ProductRow, Option[CategoryRow])] =
     productRowParser.leftJoined(categoryRowParser)
   //stop

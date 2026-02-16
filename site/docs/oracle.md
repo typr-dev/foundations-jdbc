@@ -156,6 +156,6 @@ Any type can be made nullable using `.opt()`:
 
 ## Custom Domain Types
 
-Wrap base types with custom Java types using `bimap`:
+Wrap base types with custom Java types using `transform`:
 
 <Snippet file="oracle/DomainType" />

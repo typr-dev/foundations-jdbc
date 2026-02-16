@@ -11,8 +11,44 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public record RowParser<Row>(
-    List<DbType<?>> columns, Function<Object[], Row> decode, Function<Row, Object[]> encode) {
+public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
+  private final List<DbType<?>> columns;
+  private final Function<Object[], Row> decode;
+  private final Function<Row, Object[]> encode;
+
+  RowParser(List<DbType<?>> columns, Function<Object[], Row> decode, Function<Row, Object[]> encode) {
+    this.columns = columns;
+    this.decode = decode;
+    this.encode = encode;
+  }
+
+  public List<DbType<?>> columns() {
+    return columns;
+  }
+
+  public Function<Object[], Row> decode() {
+    return decode;
+  }
+
+  public Function<Row, Object[]> encode() {
+    return encode;
+  }
+
+  /**
+   * Create a RowParser without column names. Used by generated builders and Kotlin/Scala wrappers.
+   */
+  public static <Row> RowParser<Row> create(
+      List<DbType<?>> columns, Function<Object[], Row> decode, Function<Row, Object[]> encode) {
+    return new RowParserUnnamed<>(columns, decode, encode);
+  }
+
+  /**
+   * Create a RowParser with column names. Used by generated named builders and Kotlin/Scala wrappers.
+   */
+  public static <Row> RowParserNamed<Row> createNamed(
+      List<String> columnNames, List<DbType<?>> columns, Function<Object[], Row> decode, Function<Row, Object[]> encode) {
+    return new RowParserNamed<>(columnNames, columns, decode, encode);
+  }
 
   /**
    * Create a type-safe row parser builder.
@@ -33,6 +69,24 @@ public record RowParser<Row>(
   }
 
   /**
+   * Create a type-safe named row parser builder.
+   *
+   * <p>Usage:
+   * <pre>{@code
+   * RowParserNamed<Product> parser = RowParser.<Product>namedBuilder()
+   *     .field("id", PgTypes.int4, Product::id)
+   *     .field("name", PgTypes.text, Product::name)
+   *     .build(Product::new);
+   * }</pre>
+   *
+   * @param <Row> the row type (typically a record)
+   * @return a type-safe named builder
+   */
+  public static <Row> RowParserNamedBuilders.Builder0<Row> namedBuilder() {
+    return RowParserNamedBuilders.builder();
+  }
+
+  /**
    * Create a single-column row parser.
    *
    * @param type the column type
@@ -40,7 +94,7 @@ public record RowParser<Row>(
    */
   @SuppressWarnings("unchecked")
   public static <T> RowParser<T> of(DbType<T> type) {
-    return new RowParser<>(
+    return new RowParserUnnamed<>(
         List.of(type),
         arr -> (T) arr[0],
         t -> new Object[] {t});
@@ -56,7 +110,7 @@ public record RowParser<Row>(
         throw new SqlResultParseException(rs, rowNum, colNum + 1, dbType, e);
       }
     }
-    return this.decode().apply(currentRow);
+    return this.decode.apply(currentRow);
   }
 
   // Convenience method for compatibility with SelectBuilderSql
@@ -78,7 +132,7 @@ public record RowParser<Row>(
 
   @SuppressWarnings("unchecked")
   public void writeRow(PreparedStatement stmt, Row row) throws SQLException {
-    Object[] values = this.encode().apply(row);
+    Object[] values = this.encode.apply(row);
     for (int colNum = 0; colNum < columns.size(); colNum++) {
       DbType<Object> dbType = (DbType<Object>) columns.get(colNum);
       dbType.write().set(stmt, colNum + 1, values[colNum]);
@@ -180,7 +234,7 @@ public record RowParser<Row>(
       optColumns.add(columns.get(i).opt());
     }
 
-    Function<Object[], Optional<Row>> decode =
+    Function<Object[], Optional<Row>> optDecode =
         values -> {
           var allNull = true;
           for (int i = 0; i < values.length && allNull; i++) {
@@ -205,7 +259,7 @@ public record RowParser<Row>(
           var row = this.decode.apply(unwrapped);
           return Optional.of(row);
         };
-    Function<Optional<Row>, Object[]> encode =
+    Function<Optional<Row>, Object[]> optEncode =
         row -> {
           if (row.isEmpty()) {
             var none = Optional.empty();
@@ -218,14 +272,14 @@ public record RowParser<Row>(
           return this.encode.apply(row.get());
         };
 
-    return new RowParser<>(optColumns, decode, encode);
+    return new RowParserUnnamed<>(optColumns, optDecode, optEncode);
   }
 
   public <Row2> RowParser<And<Row, Row2>> joined(RowParser<Row2> right) {
     var allColumns = new ArrayList<>(columns);
     allColumns.addAll(right.columns);
     var left = this;
-    Function<Object[], And<Row, Row2>> decode =
+    Function<Object[], And<Row, Row2>> joinDecode =
         allValues -> {
           Object[] leftValues = new Object[left.columns.size()];
           System.arraycopy(allValues, 0, leftValues, 0, leftValues.length);
@@ -233,7 +287,7 @@ public record RowParser<Row>(
           System.arraycopy(allValues, leftValues.length, rightValues, 0, right.columns.size());
           return new And<>(left.decode.apply(leftValues), right.decode.apply(rightValues));
         };
-    Function<And<Row, Row2>, Object[]> encode =
+    Function<And<Row, Row2>, Object[]> joinEncode =
         and -> {
           Object[] leftValues = left.encode.apply(and.left());
           Object[] rightValues = right.encode.apply(and.right());
@@ -242,7 +296,7 @@ public record RowParser<Row>(
           System.arraycopy(rightValues, 0, allValues, leftValues.length, rightValues.length);
           return allValues;
         };
-    return new RowParser<>(allColumns, decode, encode);
+    return new RowParserUnnamed<>(allColumns, joinDecode, joinEncode);
   }
 
   public <Row2> RowParser<And<Row, Optional<Row2>>> leftJoined(RowParser<Row2> other) {
@@ -264,7 +318,7 @@ public record RowParser<Row>(
   public <Row2> RowParser<Row2> to(Bijection<Row, Row2> bijection) {
     Function<Object[], Row2> newDecode = values -> bijection.underlying(this.decode.apply(values));
     Function<Row2, Object[]> newEncode = row2 -> this.encode.apply(bijection.from(row2));
-    return new RowParser<>(this.columns, newDecode, newEncode);
+    return new RowParserUnnamed<>(this.columns, newDecode, newEncode);
   }
 
   /**

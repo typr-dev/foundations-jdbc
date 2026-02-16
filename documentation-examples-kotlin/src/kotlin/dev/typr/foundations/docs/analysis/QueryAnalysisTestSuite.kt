@@ -1,16 +1,15 @@
 package dev.typr.foundations.docs.analysis
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import javax.sql.DataSource
-import java.sql.SQLException
 
 @Suppress("unused")
 class QueryAnalysisTestSuite {
     data class User(val id: Int, val name: String, val email: String)
     data class Product(val id: Int, val name: String)
 
-    private val testDataSource: DataSource? = null // placeholder
+    private lateinit var testDataSource: DataSource
 
     private val userParser: RowParser<User> = RowParser.builder<User>()
         .field(PgTypes.int4, User::id)
@@ -24,20 +23,19 @@ class QueryAnalysisTestSuite {
         .build(::Product)
 
     //start
-    @Throws(SQLException::class)
     fun allQueriesTypeCheck() {
-        testDataSource!!.connection.use { conn ->
+        testDataSource.connection.use { conn ->
             // Collect all queries to check
-            val queries: List<Query<*>> = listOf(
-                Fragment.interpolate("SELECT id, name, email FROM users WHERE id = ")
-                    .param(PgTypes.int4, 1).done().query(userParser.all()),
-                Fragment.interpolate("SELECT id, name FROM products WHERE name LIKE ")
-                    .param(PgTypes.text, "%widget%").done().query(productParser.all())
+            val queries: List<Operation.Query<*>> = listOf(
+                Sql { "SELECT id, name, email FROM users WHERE id = ${PgTypes.int4(1)}" }
+                    .query(userParser.all()),
+                Sql { "SELECT id, name FROM products WHERE name LIKE ${PgTypes.text("%widget%")}" }
+                    .query(productParser.all())
             )
 
             // Analyze each one
             val failures = queries.mapNotNull { query ->
-                val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, conn)
+                val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, conn).single()
                 if (!analysis.succeeded()) analysis.report() else null
             }
 

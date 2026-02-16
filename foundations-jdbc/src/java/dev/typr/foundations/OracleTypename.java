@@ -9,12 +9,6 @@ import java.util.Optional;
 public sealed interface OracleTypename<A> extends DbTypename<A> {
   String sqlType();
 
-  /** Oracle doesn't use PostgreSQL-style type casts in SQL. */
-  @Override
-  default boolean renderTypeCast() {
-    return false;
-  }
-
   String sqlTypeNoPrecision();
 
   OracleTypename<A> renamed(String value);

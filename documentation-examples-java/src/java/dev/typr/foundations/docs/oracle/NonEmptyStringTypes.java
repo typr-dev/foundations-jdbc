@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.oracle;
 
-import dev.typr.foundations.NonEmptyString;
+import dev.typr.foundations.data.NonEmptyString;
 import dev.typr.foundations.OracleType;
 import dev.typr.foundations.OracleTypes;
 

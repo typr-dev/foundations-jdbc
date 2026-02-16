@@ -28,8 +28,10 @@ This project uses **Gradle** as the build tool.
 ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.DuckDbTypeTest"
 ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.PgRecordParserTest"
 
-# Regenerate RowParsers.java and Tuple.java
-scala-cli scripts/sourcegen.sc
+# Regenerate generated files
+scala-cli scripts/sourcegen-java.sc
+scala-cli scripts/sourcegen-kotlin.sc
+scala-cli scripts/sourcegen-scala.sc
 ```
 
 ## Module Structure
@@ -37,13 +39,18 @@ scala-cli scripts/sourcegen.sc
 ```
 foundations-jdbc/              # Core JDBC wrapper (Java 21)
 ├── src/java/                  # Hand-written sources
-└── generated-and-checked-in/  # RowParsers.java, Tuple.java
+└── generated-and-checked-in/  # Generated Java files
 
 foundations-jdbc-hikari/        # HikariCP integration
 └── src/java/
 
+foundations-jdbc-kotlin/        # Kotlin wrapper
+├── src/kotlin/                # Hand-written Kotlin sources
+└── generated-and-checked-in/  # Generated Kotlin files
+
 foundations-jdbc-scala/         # Scala sources (shared)
-└── src/scala/
+├── src/scala/                 # Hand-written Scala sources
+└── generated-and-checked-in/  # Generated Scala files
 
 foundations-jdbc-scala_3/       # Scala 3 build (uses sources from foundations-jdbc-scala/)
 
@@ -51,18 +58,27 @@ foundations-jdbc-test/          # Integration tests
 └── src/java/
 
 scripts/
-└── sourcegen.sc            # scala-cli script for code generation
+├── sourcegen-java.sc       # Java code generation
+├── sourcegen-kotlin.sc     # Kotlin code generation
+└── sourcegen-scala.sc      # Scala code generation
 ```
 
 ## Source Generation
 
-`scripts/sourcegen.sc` is a standalone scala-cli script that generates:
-- `RowParsers.java` - Type-safe row parser factory methods (arities 1-99)
-- `Tuple.java` - Sealed tuple interfaces with records (arities 1-100)
+Three standalone scala-cli scripts generate repetitive code:
 
-Run with: `scala-cli scripts/sourcegen.sc`
+- `scripts/sourcegen-java.sc` — Java generated files (Functions, Tuple, RowParserBuilders, ParamBuilders, SqlTemplate, etc.)
+- `scripts/sourcegen-kotlin.sc` — Kotlin generated files (RowParserBuilders, RowParserNamedBuilders, DbProcedure, DbFunction, etc.)
+- `scripts/sourcegen-scala.sc` — Scala generated files (RowParserBuilders, RowParserNamedBuilders, DbProcedure, DbFunction, etc.)
 
-Output goes to `foundations-jdbc/generated-and-checked-in/`.
+Run with:
+```bash
+scala-cli scripts/sourcegen-java.sc
+scala-cli scripts/sourcegen-kotlin.sc
+scala-cli scripts/sourcegen-scala.sc
+```
+
+Output goes to `generated-and-checked-in/` directories in each module.
 
 ## Development Rules
 - Always run `./gradlew compileJava compileScala compileTestJava` before committing

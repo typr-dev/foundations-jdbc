@@ -11,6 +11,6 @@ public class DomainType {
 
     // Create OracleType from NUMBER
     OracleType<EmployeeId> empIdType =
-        OracleTypes.numberLong.bimap(EmployeeId::new, EmployeeId::value);
+        OracleTypes.numberLong.transform(EmployeeId::new, EmployeeId::value);
     //stop
 }

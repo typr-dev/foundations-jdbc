@@ -9,15 +9,6 @@ import java.util.Optional;
 public sealed interface SqlServerTypename<A> extends DbTypename<A> {
   String sqlType();
 
-  /**
-   * SQL Server uses CAST() syntax, not PostgreSQL's :: operator. Don't render :: casts in prepared
-   * statements.
-   */
-  @Override
-  default boolean renderTypeCast() {
-    return false;
-  }
-
   String sqlTypeNoPrecision();
 
   SqlServerTypename<A> renamed(String value);

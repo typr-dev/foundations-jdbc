@@ -170,29 +170,37 @@ The recommended pattern is to analyze all your queries in a dedicated test:
 
 <Snippet file="analysis/QueryAnalysisTestSuite" />
 
+## Analyzing Composed Operations
+
+When you compose operations with `.with()`, `.then()`, or `Operation.ifEmpty()`, you can verify every SQL statement in the tree with a single call:
+
+<Snippet file="analysis/QueryAnalysisAll" />
+
+This walks the entire operation tree and returns one `QueryAnalysis` per SQL statement found.
+
 ## What Gets Analyzed
 
 ### Query Operations
 
 ```java
 // Full query with parameters and result parser
-QueryAnalyzer.analyze(fragment.query(rowParser.all()), conn);
+QueryAnalyzer.analyze(fragment.query(rowParser.all()), conn).getFirst();
 
 // Named query
-QueryAnalyzer.analyze("findUsers", fragment.query(rowParser.all()), conn);
+QueryAnalyzer.analyze("findUsers", fragment.query(rowParser.all()), conn).getFirst();
 
 // Update-returning operations
-QueryAnalyzer.analyze(fragment.updateReturning(rowParser), conn);
+QueryAnalyzer.analyze(fragment.updateReturning(rowParser), conn).getFirst();
 ```
 
 ### Update Operations (Parameters Only)
 
 ```java
 // Updates have no result columns, only parameters
-QueryAnalyzer.analyze(fragment.update(), conn);
+QueryAnalyzer.analyze(fragment.update(), conn).getFirst();
 
 // Named update
-QueryAnalyzer.analyze("updateUser", fragment.update(), conn);
+QueryAnalyzer.analyze("updateUser", fragment.update(), conn).getFirst();
 ```
 
 ### Low-Level Analysis
@@ -256,7 +264,7 @@ Run query analysis as you develop, not just in CI. Catch errors early:
 // Add a quick check in your main during development
 public static void main(String[] args) throws SQLException {
     try (var conn = getConnection()) {
-        var analysis = QueryAnalyzer.analyze(myQuery, conn);
+        var analysis = QueryAnalyzer.analyze(myQuery, conn).getFirst();
         System.out.println(analysis.report());
     }
 }
@@ -272,18 +280,21 @@ Preparing a statement and reading metadata is fast — milliseconds per query. Y
 
 ```java
 // Analyze a query operation
-static <T> QueryAnalysis analyze(Operation.Query<T> query, Connection conn)
+static <T> List<QueryAnalysis> analyze(Operation.Query<T> query, Connection conn)
 
 // Analyze a named query operation
-static <T> QueryAnalysis analyze(String name, Operation.Query<T> query, Connection conn)
+static <T> List<QueryAnalysis> analyze(String name, Operation.Query<T> query, Connection conn)
 
 // Analyze an update-returning operation
-static <T> QueryAnalysis analyze(Operation.UpdateReturning<T> op, Connection conn)
-static <T> QueryAnalysis analyze(String name, Operation.UpdateReturning<T> op, Connection conn)
+static <T> List<QueryAnalysis> analyze(Operation.UpdateReturning<T> op, Connection conn)
+static <T> List<QueryAnalysis> analyze(String name, Operation.UpdateReturning<T> op, Connection conn)
 
 // Analyze an update operation (parameters only)
-static QueryAnalysis analyze(Operation.Update update, Connection conn)
-static QueryAnalysis analyze(String name, Operation.Update update, Connection conn)
+static List<QueryAnalysis> analyze(Operation.Update update, Connection conn)
+static List<QueryAnalysis> analyze(String name, Operation.Update update, Connection conn)
+
+// Analyze all SQL in a composed operation tree
+static List<QueryAnalysis> analyze(Operation<?> operation, Connection conn)
 
 // Low-level: analyze fragment + parser directly
 static QueryAnalysis analyzeFragmentAndParser(
@@ -318,24 +329,16 @@ List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment()
 interface QueryChecker {
     Transactor transactor();
 
-    // Check queries
-    void check(Operation.Query<?> query)
-    void check(String name, Operation.Query<?> query)
-
-    // Check updates
-    void check(Operation.Update update)
-    void check(String name, Operation.Update update)
-
-    // Check update-returning
-    void check(Operation.UpdateReturning<?> op)
-    void check(String name, Operation.UpdateReturning<?> op)
+    // Check any operation
+    void check(Operation<?> op)
+    void check(String name, Operation<?> op)
 
     // Check fragments with parsers
     void check(Fragment fragment, ResultSetParser<?> parser)
     void check(Fragment fragment, RowParser<?> parser)
 
     // Batch check
-    void checkAll(Operation.Query<?>... queries)
+    void checkAll(Operation<?>... operations)
 
     // Routine analysis
     void checkRoutine(Procedure<?> procedure)

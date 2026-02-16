@@ -1,7 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.*;
@@ -222,13 +220,13 @@ public class SqlServerTypeTest {
           // ==================== Alias Types (User-Defined Types) ====================
           // Test domain-like wrapper pattern (like CREATE TYPE EmailAddress FROM NVARCHAR(255))
           new SqlServerTypeAndExample<>(
-              SqlServerTypes.nvarchar(255).bimap(EmailAddress::new, EmailAddress::value),
+              SqlServerTypes.nvarchar(255).transform(EmailAddress::new, EmailAddress::value),
               new EmailAddress("test@example.com")),
 
           // ==================== CLR Types (Assembly Types) ====================
           // Test CLR type as domain wrapper around VARBINARY (like generated code)
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.varbinary(100).bimap(AssemblyData::new, AssemblyData::value),
+                  SqlServerTypes.varbinary(100).transform(AssemblyData::new, AssemblyData::value),
                   new AssemblyData(new byte[] {0x01, 0x02, 0x03, 0x04}))
               .noIdentity());
 
@@ -387,8 +385,8 @@ public class SqlServerTypeTest {
     conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
     try {
       RowParser<A> parser = RowParser.of(t.type);
-      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException(
             "Query analysis failed for " + sqlType + ":\n" + analysis.report());
@@ -407,10 +405,9 @@ public class SqlServerTypeTest {
     try {
       RowParser<A> parser = RowParser.of(t.type);
       Fragment fragment =
-          Fragment.interpolate("SELECT v FROM " + tableName + " WHERE v = ")
-              .param(t.type, t.example)
-              .done();
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+          Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
+              .value(t.type, t.example);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException(
             "Param analysis failed for " + sqlType + ":\n" + analysis.report());
@@ -444,6 +441,20 @@ public class SqlServerTypeTest {
     }
   }
 
+  static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
+      throws SQLException {
+    RowParserNamed<A> parser =
+        RowParser.<A>namedBuilder()
+            .field("v", type, java.util.function.Function.identity())
+            .build(java.util.function.Function.identity());
+    Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+        .paramRow(parser)
+        .append(")")
+        .update()
+        .onMany(List.of(value).iterator())
+        .runChecked(conn);
+  }
+
   static <A> void testJdbcRoundtrip(Connection conn, SqlServerTypeAndExample<A> t)
       throws SQLException {
     String sqlType = t.type.typename().sqlType();
@@ -454,11 +465,7 @@ public class SqlServerTypeTest {
     conn.createStatement().execute(createSql);
 
     try {
-      // Insert value
-      var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
-      t.type.write().set(insert, 1, t.example);
-      insert.execute();
-      insert.close();
+      batchInsert(conn, t.type, tableName, t.example);
 
       // Select back
       PreparedStatement select;
@@ -578,7 +585,7 @@ public class SqlServerTypeTest {
       DbProcedure.Def1_1<A, A> proc =
           DbProcedure.define(procName).in(t.type).out(t.type).build();
 
-      A result = proc.call(t.example).run(conn);
+      A result = proc.call(t.example).runChecked(conn);
 
       System.out.println(
           "Callable roundtrip "

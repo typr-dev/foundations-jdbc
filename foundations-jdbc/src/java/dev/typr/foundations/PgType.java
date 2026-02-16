@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.AnalysisOptions;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -147,13 +146,13 @@ public record PgType<A>(
         analysisOptions);
   }
 
-  public <B> PgType<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  public <B> PgType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     return new PgType<>(
         typename.as(),
         read.map(f),
         write.contramap(g),
         pgText.contramap(g),
-        pgCompositeText.bimap(
+        pgCompositeText.transform(
             a -> {
               try {
                 return f.apply(a);
@@ -162,7 +161,7 @@ public record PgType<A>(
               }
             },
             g),
-        pgJson.bimap(f, g),
+        pgJson.transform(f, g),
         pgOutParam.map(f),
         analysisOptions);
   }
@@ -173,8 +172,8 @@ public record PgType<A>(
         read.map(bijection::underlying),
         write.contramap(bijection::from),
         pgText.contramap(bijection::from),
-        pgCompositeText.bimap(bijection::underlying, bijection::from),
-        pgJson.bimap(bijection::underlying, bijection::from),
+        pgCompositeText.transform(bijection::underlying, bijection::from),
+        pgJson.transform(bijection::underlying, bijection::from),
         pgOutParam.map(bijection::underlying),
         analysisOptions);
   }

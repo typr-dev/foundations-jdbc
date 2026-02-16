@@ -2,13 +2,16 @@ package dev.typr.foundations;
 
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.JsonValue;
+import dev.typr.foundations.data.NonEmptyString;
 import dev.typr.foundations.data.OracleIntervalDS;
 import dev.typr.foundations.data.OracleIntervalYM;
+import dev.typr.foundations.data.PaddedString;
 import dev.typr.foundations.hikari.PooledDataSource;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -20,8 +23,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
 import org.junit.Test;
 
 /** Tests for Oracle type codecs. Tests all types defined in OracleTypes. */
@@ -92,7 +93,7 @@ public class OracleTypeTest {
       LocalDateTime dateField,
       LocalDateTime timestampField,
       OffsetDateTime timestampTzField,
-      OffsetDateTime timestampLtzField,
+      Instant timestampLtzField,
       OracleIntervalYM intervalYmField,
       OracleIntervalDS intervalDsField,
       Address nestedObjectField,
@@ -112,7 +113,7 @@ public class OracleTypeTest {
       Optional<LocalDateTime> dateField,
       Optional<LocalDateTime> timestampField,
       Optional<OffsetDateTime> timestampTzField,
-      Optional<OffsetDateTime> timestampLtzField,
+      Optional<Instant> timestampLtzField,
       Optional<OracleIntervalYM> intervalYmField,
       Optional<OracleIntervalDS> intervalDsField,
       Optional<Address> nestedObjectField,
@@ -135,7 +136,7 @@ public class OracleTypeTest {
       LocalDateTime dateField,
       LocalDateTime timestampField,
       OffsetDateTime timestampTzField,
-      OffsetDateTime timestampLtzField,
+      Instant timestampLtzField,
       OracleIntervalYM intervalYmField,
       OracleIntervalDS intervalDsField,
       Address nestedObjectField,
@@ -155,7 +156,7 @@ public class OracleTypeTest {
       Optional<LocalDateTime> dateField,
       Optional<LocalDateTime> timestampField,
       Optional<OffsetDateTime> timestampTzField,
-      Optional<OffsetDateTime> timestampLtzField,
+      Optional<Instant> timestampLtzField,
       Optional<OracleIntervalYM> intervalYmField,
       Optional<OracleIntervalDS> intervalDsField,
       Optional<Address> nestedObjectField,
@@ -417,7 +418,7 @@ public class OracleTypeTest {
           // TIMESTAMP WITH LOCAL TIME ZONE
           new OracleTypeAndExample<>(
               OracleTypes.timestampWithLocalTimeZone,
-              OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(3))),
+              Instant.parse("2024-06-15T11:30:45Z")),
 
           // INTERVAL YEAR TO MONTH - Now using OracleIntervalYM class (parses both Oracle and
           // ISO-8601 formats)
@@ -657,7 +658,7 @@ public class OracleTypeTest {
                       LocalDateTime.of(2024, 6, 15, 14, 30, 45),
                       LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000),
                       OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2)),
-                      OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(3)),
+                      Instant.parse("2024-06-15T11:30:45Z"),
                       new OracleIntervalYM(2, 5),
                       new OracleIntervalDS(3, 14, 30, 45, 123456000),
                       new Address("123 Main St", "San Francisco", coords("37.7749", "-122.4194")),
@@ -752,8 +753,7 @@ public class OracleTypeTest {
                       Optional.empty(), // Test null timestampField
                       Optional.of(
                           OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
-                      Optional.of(
-                          OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(3))),
+                      Optional.of(Instant.parse("2024-06-15T11:30:45Z")),
                       Optional.of(new OracleIntervalYM(2, 5)),
                       Optional.empty(), // Test null intervalDsField
                       Optional.of(
@@ -847,7 +847,7 @@ public class OracleTypeTest {
                       LocalDateTime.of(2024, 3, 15, 14, 30),
                       LocalDateTime.of(2024, 3, 15, 14, 30, 45, 123456789),
                       OffsetDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2)),
-                      OffsetDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(3)),
+                      Instant.parse("2024-03-15T11:30:45Z"),
                       new OracleIntervalYM(2, 6),
                       new OracleIntervalDS(5, 12, 30, 45, 123456000),
                       new Address("456 Oak Ave", "Portland", coords("45.5152", "-122.6784")),
@@ -940,8 +940,7 @@ public class OracleTypeTest {
                       Optional.empty(),
                       Optional.of(
                           OffsetDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
-                      Optional.of(
-                          OffsetDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(3))),
+                      Optional.of(Instant.parse("2024-03-15T11:30:45Z")),
                       Optional.of(new OracleIntervalYM(2, 6)),
                       Optional.empty(),
                       Optional.of(
@@ -1038,7 +1037,7 @@ public class OracleTypeTest {
                           LocalDateTime.of(2024, 1, 1, 10, 0),
                           LocalDateTime.of(2024, 1, 1, 10, 0, 0, 111000000),
                           OffsetDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC),
-                          OffsetDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.ofHours(3)),
+                          Instant.parse("2024-01-01T07:00:00Z"),
                           new OracleIntervalYM(1, 1),
                           new OracleIntervalDS(1, 1, 1, 1, 111000000),
                           new Address("111 First St", "City1", coords("40.7128", "-74.006")),
@@ -1056,7 +1055,7 @@ public class OracleTypeTest {
                           LocalDateTime.of(2024, 2, 2, 20, 0),
                           LocalDateTime.of(2024, 2, 2, 20, 0, 0, 222000000),
                           OffsetDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(-5)),
-                          OffsetDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(3)),
+                          Instant.parse("2024-02-02T17:00:00Z"),
                           new OracleIntervalYM(2, 2),
                           new OracleIntervalDS(2, 2, 2, 2, 222000000),
                           new Address("222 Second St", "City2", coords("34.0522", "-118.2437")),
@@ -1166,8 +1165,7 @@ public class OracleTypeTest {
                           Optional.of(LocalDateTime.of(2024, 1, 1, 10, 0)),
                           Optional.empty(),
                           Optional.of(OffsetDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC)),
-                          Optional.of(
-                              OffsetDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.ofHours(3))),
+                          Optional.of(Instant.parse("2024-01-01T07:00:00Z")),
                           Optional.of(new OracleIntervalYM(1, 1)),
                           Optional.empty(),
                           Optional.of(
@@ -1187,8 +1185,7 @@ public class OracleTypeTest {
                           Optional.of(LocalDateTime.of(2024, 2, 2, 20, 0, 0, 222000000)),
                           Optional.of(
                               OffsetDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(-5))),
-                          Optional.of(
-                              OffsetDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(3))),
+                          Optional.of(Instant.parse("2024-02-02T17:00:00Z")),
                           Optional.of(new OracleIntervalYM(2, 2)),
                           Optional.of(new OracleIntervalDS(2, 2, 2, 2, 222000000)),
                           Optional.of(
@@ -1501,8 +1498,8 @@ public class OracleTypeTest {
     conn.createStatement().execute(createTableDDL);
     try {
       RowParser<A> parser = RowParser.of(t.type);
-      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException(
             "Query analysis failed for " + sqlType + ":\n" + analysis.report());
@@ -1624,6 +1621,20 @@ public class OracleTypeTest {
     }
   }
 
+  static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
+      throws SQLException {
+    RowParserNamed<A> parser =
+        RowParser.<A>namedBuilder()
+            .field("v", type, java.util.function.Function.identity())
+            .build(java.util.function.Function.identity());
+    Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+        .paramRow(parser)
+        .append(")")
+        .update()
+        .onMany(List.of(value).iterator())
+        .runChecked(conn);
+  }
+
   static <A> void testCase(Connection conn, OracleTypeAndExample<A> t) throws SQLException {
     String sqlType = t.type.typename().sqlType();
 
@@ -1637,7 +1648,9 @@ public class OracleTypeTest {
             // Ignore common type creation errors:
             // ORA-00955: name is already used by an existing object
             // ORA-02303: cannot DROP or REPLACE a type with type or table dependents
-            if (!e.getMessage().contains("ORA-00955") && !e.getMessage().contains("ORA-02303")) {
+            if (!e.getMessage().contains("ORA-00955")
+                && !e.getMessage().contains("ORA-02303")
+                && !e.getMessage().contains("ORA-00054")) {
               throw e;
             }
           }
@@ -1658,13 +1671,9 @@ public class OracleTypeTest {
     }
 
     try {
-      // Insert using PreparedStatement
-      var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
       A original = t.example;
       A expected = t.expected(); // May differ from original due to Oracle quirks
-      t.type.write().set(insert, 1, original);
-      insert.execute();
-      insert.close();
+      batchInsert(conn, t.type, tableName, original);
 
       // Select and verify
       final PreparedStatement select;
@@ -1758,7 +1767,7 @@ public class OracleTypeTest {
       DbProcedure.Def1_1<A, A> proc =
           DbProcedure.define(procName).in(t.type).out(t.type).build();
 
-      A result = proc.call(input).run(conn);
+      A result = proc.call(input).runChecked(conn);
 
       // Oracle PL/SQL uses unconstrained param types, so we need relaxed comparison:
       // - CHAR/NCHAR: unconstrained CHAR pads to max PL/SQL size, so compare trimmed
@@ -1832,6 +1841,11 @@ public class OracleTypeTest {
     // For BigDecimal, use compareTo to handle different scales
     if (expected instanceof BigDecimal && actual instanceof BigDecimal) {
       return ((BigDecimal) actual).compareTo((BigDecimal) expected) == 0;
+    }
+
+    // For OffsetDateTime, compare by instant (TIMESTAMP WITH LOCAL TIME ZONE converts to session tz)
+    if (expected instanceof OffsetDateTime && actual instanceof OffsetDateTime) {
+      return ((OffsetDateTime) actual).toInstant().equals(((OffsetDateTime) expected).toInstant());
     }
 
     // For Json, parse and compare structures (Oracle normalizes JSON formatting)

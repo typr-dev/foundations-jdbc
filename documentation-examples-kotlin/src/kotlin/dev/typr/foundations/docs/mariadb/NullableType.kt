@@ -1,13 +1,12 @@
 package dev.typr.foundations.docs.mariadb
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
-import java.util.Optional
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
 class NullableType {
     //start
     val notNull: MariaType<Int> = MariaTypes.int_
-    val nullable: MariaType<Optional<Int>> = MariaTypes.int_.opt()
+    val nullable: MariaType<Int?> = MariaTypes.int_.opt()
     //stop
 }

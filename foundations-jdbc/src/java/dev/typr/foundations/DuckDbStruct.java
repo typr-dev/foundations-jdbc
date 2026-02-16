@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.AnalysisOptions;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;

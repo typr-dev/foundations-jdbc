@@ -63,10 +63,10 @@ const config = {
             title: 'Documentation',
             items: [
               { label: 'Getting Started', to: '/docs/' },
-              { label: 'Row Types & Parsers', to: '/docs/row-types' },
-              { label: 'Result Sets', to: '/docs/result-sets' },
-              { label: 'Fragments', to: '/docs/fragments' },
               { label: 'Transactors', to: '/docs/transactors' },
+              { label: 'Fragments', to: '/docs/fragments' },
+              { label: 'Named Row Parsers', to: '/docs/named-row-parsers' },
+              { label: 'SQL Templates', to: '/docs/sql-templates' },
             ],
           },
           {

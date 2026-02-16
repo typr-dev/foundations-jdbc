@@ -106,7 +106,7 @@ public interface DbJson<A> {
   }
 
   /** Transform this codec using bidirectional mapping. */
-  default <B> DbJson<B> bimap(SqlFunction<A, B> f, java.util.function.Function<B, A> g) {
+  default <B> DbJson<B> transform(SqlFunction<A, B> f, java.util.function.Function<B, A> g) {
     DbJson<A> self = this;
     return new DbJson<>() {
       @Override

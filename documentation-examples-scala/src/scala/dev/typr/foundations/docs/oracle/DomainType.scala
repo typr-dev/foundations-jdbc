@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.oracle
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 
@@ -12,5 +12,5 @@ object DomainType:
 
   // Create OracleType from NUMBER
   val empIdType: OracleType[EmployeeId] =
-    OracleTypes.numberLong.bimap(EmployeeId.apply, _.value)
+    OracleTypes.numberLong.transform(EmployeeId.apply, _.value)
   //stop

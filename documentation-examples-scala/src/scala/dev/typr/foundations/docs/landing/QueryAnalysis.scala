@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.landing
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.Fragment.sql
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.data.*
 
 import java.sql.Connection
 
@@ -27,7 +27,7 @@ object QueryAnalysis:
 
   // But Query Analysis catches the bugs in your tests
   def check(): Unit =
-    val result: QueryAnalysis = QueryAnalyzer.analyze(query, connection)
+    val result: QueryAnalysis = QueryAnalyzer.analyze(query, connection).head
     if !result.succeeded() then
       throw new AssertionError(result.report())
   //stop

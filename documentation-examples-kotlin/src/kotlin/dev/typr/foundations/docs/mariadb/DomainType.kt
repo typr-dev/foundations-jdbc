@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.mariadb
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
 class DomainType {
@@ -10,6 +10,6 @@ class DomainType {
     data class UserId(val value: Long)
 
     // Create MariaType from bigint
-    val userIdType: MariaType<UserId> = MariaTypes.bigint.bimap(::UserId, UserId::value)
+    val userIdType: MariaType<UserId> = MariaTypes.bigint.transform(::UserId, UserId::value)
     //stop
 }

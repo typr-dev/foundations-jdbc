@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.postgresql
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 
@@ -11,5 +11,5 @@ object DomainType:
   case class Email(value: String)
 
   // Create PgType from text
-  val emailType: PgType[Email] = PgTypes.text.bimap(Email.apply, _.value)
+  val emailType: PgType[Email] = PgTypes.text.transform(Email.apply, _.value)
   //stop

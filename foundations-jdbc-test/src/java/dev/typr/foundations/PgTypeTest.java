@@ -1,7 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.QueryAnalysis;
-import dev.typr.foundations.analysis.QueryAnalyzer;
 import dev.typr.foundations.data.*;
 import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.Vector;
@@ -968,8 +966,8 @@ public class PgTypeTest {
     conn.createStatement().execute("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")");
     try {
       RowParser<A> parser = RowParser.of(t.type);
-      Fragment fragment = Fragment.lit("SELECT v FROM " + tableName);
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn);
+      Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException("Query analysis failed for " + sqlType + ":\n" + analysis.report());
       }
@@ -978,15 +976,26 @@ public class PgTypeTest {
     }
   }
 
+  static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
+      throws SQLException {
+    RowParserNamed<A> parser =
+        RowParser.<A>namedBuilder()
+            .field("v", type, java.util.function.Function.identity())
+            .build(java.util.function.Function.identity());
+    Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+        .paramRow(parser)
+        .append(")")
+        .update()
+        .onMany(List.of(value).iterator())
+        .runChecked(conn);
+  }
+
   static <A> void testCase(Connection conn, PgTypeAndExample<A> t) throws SQLException {
     String tableName = uniqueTableName("test");
     conn.createStatement()
         .execute("create temp table " + tableName + " (v " + t.type.typename().sqlType() + ")");
-    var insert = conn.prepareStatement("insert into " + tableName + " (v) values (?)");
     A expected = t.example;
-    t.type.write().set(insert, 1, expected);
-    insert.execute();
-    insert.close();
+    batchInsert(conn, t.type, tableName, expected);
     if (t.streamingWorks) {
       streamingInsert.insert(
           "COPY " + tableName + "(v) FROM STDIN",
@@ -1054,7 +1063,7 @@ public class PgTypeTest {
       Procedure<A> proc = Procedure.buildFunction(funcName,
           java.util.List.of(ParamDef.in(t.type)), t.type);
 
-      A result = proc.call(t.example).run(conn);
+      A result = proc.call(t.example).runChecked(conn);
 
       if (!areEqual(result, t.example)) {
         throw new RuntimeException(

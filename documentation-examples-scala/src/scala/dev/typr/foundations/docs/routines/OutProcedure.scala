@@ -1,15 +1,15 @@
 package dev.typr.foundations.docs.routines
-import dev.typr.scalafoundations.*
+import dev.typr.foundationssc.*
 
 import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object OutProcedure:
-  private val tx: dev.typr.foundations.Transactor = null // placeholder
+  private val tx: Transactor = null // placeholder
 
   //start
   // OUT parameters — the builder tracks output types statically
-  val getUser: DbProcedure.Def1_2[Int, String, String] =
+  val getUser =
     DbProcedure.define("get_user_by_id")
       .in(PgTypes.int4)       // user_id IN
       .out(PgTypes.text)      // name OUT

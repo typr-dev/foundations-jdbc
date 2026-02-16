@@ -1,5 +1,6 @@
 plugins {
     java
+    kotlin("jvm") version "2.3.0"
 }
 
 java {
@@ -14,6 +15,9 @@ sourceSets {
     test {
         java {
             setSrcDirs(listOf("src/java"))
+        }
+        kotlin {
+            setSrcDirs(listOf("src/kotlin"))
         }
         resources {
             setSrcDirs(listOf("src/resources"))
@@ -54,6 +58,7 @@ dependencies {
     testImplementation("com.oracle.database.jdbc:ojdbc11:${property("oracleDriverVersion")}")
     testImplementation("com.microsoft.sqlserver:mssql-jdbc:${property("sqlserverDriverVersion")}")
     testImplementation("com.ibm.db2:jcc:${property("db2DriverVersion")}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
 
     // Testcontainers
     testImplementation("org.testcontainers:testcontainers:${property("testcontainersVersion")}")

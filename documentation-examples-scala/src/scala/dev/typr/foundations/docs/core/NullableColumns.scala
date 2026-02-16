@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.core
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 import java.time.Instant
@@ -13,6 +13,6 @@ object NullableColumns:
   val personParser: RowParser[Person] = RowParser.builder[Person]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
-    .field(PgTypes.timestamptz.nullable)(_.createdAt)
+    .field(PgTypes.timestamptz.opt)(_.createdAt)
     .build(Person.apply)
   //stop

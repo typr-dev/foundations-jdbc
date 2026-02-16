@@ -22,7 +22,7 @@ Add `.out()` to declare output parameters. The builder tracks their types:
 
 <Snippet file="routines/OutProcedure" />
 
-The type signature `Def1_2<Integer, String, String>` means: 1 input (`Integer`), 2 outputs (`String`, `String`). Multiple outputs are returned as a `Tuple`.
+The builder returns a typed definition that captures the input and output parameter types. You never need to reference these types explicitly — just use `var` (Java) or let type inference work (Kotlin/Scala).
 
 ### INOUT Parameters
 

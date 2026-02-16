@@ -10,11 +10,11 @@ public interface DbTypename<A> {
   String sqlType();
 
   /**
-   * Whether to render type casts in SQL (e.g., ?::typename for PostgreSQL). PostgreSQL uses type
-   * casts, MariaDB does not.
+   * Render the SQL placeholder for this type. PostgreSQL and DuckDB override to return
+   * {@code ?::typename}, others return plain {@code ?}.
    */
-  default boolean renderTypeCast() {
-    return true; // Default to PostgreSQL behavior
+  default String renderPlaceholder() {
+    return "?";
   }
 
   /**

@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.sqlserver
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
 
 
 
@@ -12,5 +12,5 @@ object DomainType:
 
   // Create SqlServerType from INT
   val orderIdType: SqlServerType[OrderId] =
-    SqlServerTypes.int_.bimap(OrderId.apply, _.value)
+    SqlServerTypes.int_.transform(OrderId.apply, _.value)
   //stop

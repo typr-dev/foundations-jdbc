@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.core
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
 class ComposingParsers {
@@ -20,7 +20,7 @@ class ComposingParsers {
         .build(::CategoryRow)
 
     // leftJoined() returns nullable right side automatically
-    val joined: RowParser<And<ProductRow, CategoryRow?>> =
+    val joined: RowParser<Pair<ProductRow, CategoryRow?>> =
         productRowParser.leftJoined(categoryRowParser)
     //stop
 }

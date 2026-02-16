@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.AnalysisOptions;
 import dev.typr.foundations.data.JsonValue;
 import java.sql.SQLException;
 import java.util.ArrayList;

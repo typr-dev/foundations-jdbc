@@ -10,6 +10,6 @@ public class DomainType {
     public record Email(String value) {}
 
     // Create PgType from text
-    PgType<Email> emailType = PgTypes.text.bimap(Email::new, Email::value);
+    PgType<Email> emailType = PgTypes.text.transform(Email::new, Email::value);
     //stop
 }

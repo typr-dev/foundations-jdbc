@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.core
-import dev.typr.scalafoundations.*
-import dev.typr.scalafoundations.Fragment.sql
-import dev.typr.scalafoundations.data.*
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.data.*
 
 import java.sql.SQLException
 
@@ -23,7 +23,7 @@ object TransactorSetup:
   // You choose the strategy - it handles the lifecycle
   @throws[SQLException]
   def query(): List[ProductRow] =
-    val tx: Transactor = connectionSource.transactor(Transactor.defaultStrategy())
+    val tx = connectionSource.transactor(Transactor.defaultStrategy())
 
     // Everything inside runs in one transaction: begin, commit, close
     sql"SELECT * FROM product WHERE price > ${Fragment.encode(PgTypes.numeric, minPrice)}"

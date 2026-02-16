@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.postgresql
 
-import dev.typr.kotlinfoundations.*
-import dev.typr.kotlinfoundations.data.*
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
 import org.postgresql.geometric.PGcircle
 import org.postgresql.geometric.PGpoint
 import org.postgresql.geometric.PGpolygon

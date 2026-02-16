@@ -11,6 +11,6 @@ public class DomainType {
 
     // Create SqlServerType from INT
     SqlServerType<OrderId> orderIdType =
-        SqlServerTypes.int_.bimap(OrderId::new, OrderId::value);
+        SqlServerTypes.int_.transform(OrderId::new, OrderId::value);
     //stop
 }

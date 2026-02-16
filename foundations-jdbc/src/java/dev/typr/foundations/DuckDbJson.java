@@ -87,7 +87,7 @@ public interface DuckDbJson<A> extends DbJson<A> {
     };
   }
 
-  default <B> DuckDbJson<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  default <B> DuckDbJson<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     DuckDbJson<A> self = this;
     return new DuckDbJson<>() {
       @Override

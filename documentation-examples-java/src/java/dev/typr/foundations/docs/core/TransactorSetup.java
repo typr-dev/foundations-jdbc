@@ -30,9 +30,8 @@ public class TransactorSetup {
         Transactor tx = connectionSource.transactor(Transactor.defaultStrategy());
 
         // Everything inside runs in one transaction: begin, commit, close
-        return Fragment.interpolate("SELECT * FROM product WHERE price > ")
-            .param(PgTypes.numeric, minPrice)
-            .done()
+        return Fragment.of("SELECT * FROM product WHERE price > ")
+            .value(PgTypes.numeric, minPrice)
             .query(rowParser.all())
             .transact(tx);
     }

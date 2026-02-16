@@ -18,7 +18,7 @@ public class ProductRowParser {
     record Dim(Double width, Double height, Double depth, String unit) {}
     record Category(Integer id, String name) {}
 
-    static final PgType<ProductId> productIdType = PgTypes.int4.bimap(ProductId::new, ProductId::value);
+    static final PgType<ProductId> productIdType = PgTypes.int4.transform(ProductId::new, ProductId::value);
     static final PgType<Dim> dimensionsType = null; // placeholder
     static final RowParser<Category> categoryRowParser = null; // placeholder
 

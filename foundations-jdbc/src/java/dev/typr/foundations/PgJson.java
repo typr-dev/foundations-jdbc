@@ -64,7 +64,7 @@ public interface PgJson<A> extends DbJson<A> {
     };
   }
 
-  default <B> PgJson<B> bimap(SqlFunction<A, B> f, Function<B, A> g) {
+  default <B> PgJson<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     PgJson<A> self = this;
     return new PgJson<>() {
       @Override
@@ -387,7 +387,7 @@ public interface PgJson<A> extends DbJson<A> {
       };
 
   // Special types - these use string representation
-  PgJson<PGInterval> interval = text.bimap(PGInterval::new, PGInterval::getValue);
+  PgJson<PGInterval> interval = text.transform(PGInterval::new, PGInterval::getValue);
 
   PgJson<PGpoint> point =
       new PgJson<>() {
@@ -537,10 +537,10 @@ public interface PgJson<A> extends DbJson<A> {
       };
 
   // Wrapper types that use string representation
-  PgJson<Inet> inet = text.bimap(Inet::new, Inet::value);
-  PgJson<Cidr> cidr = text.bimap(Cidr::new, Cidr::value);
-  PgJson<MacAddr> macaddr = text.bimap(MacAddr::new, MacAddr::value);
-  PgJson<MacAddr8> macaddr8 = text.bimap(MacAddr8::new, MacAddr8::value);
+  PgJson<Inet> inet = text.transform(Inet::new, Inet::value);
+  PgJson<Cidr> cidr = text.transform(Cidr::new, Cidr::value);
+  PgJson<MacAddr> macaddr = text.transform(MacAddr::new, MacAddr::value);
+  PgJson<MacAddr8> macaddr8 = text.transform(MacAddr8::new, MacAddr8::value);
   // Money is returned as string by PostgreSQL's to_json (e.g., "$42.22")
   PgJson<Money> money =
       new PgJson<>() {
@@ -558,11 +558,11 @@ public interface PgJson<A> extends DbJson<A> {
               "Expected number or string for money, got: " + json.getClass().getSimpleName());
         }
       };
-  PgJson<Bit> bit = text.bimap(Bit::new, Bit::value);
-  PgJson<Varbit> varbit = text.bimap(Varbit::new, Varbit::value);
-  PgJson<AclItem> aclitem = text.bimap(AclItem::new, AclItem::value);
-  PgJson<Xml> xml = text.bimap(Xml::new, Xml::value);
-  PgJson<Xid> xid = text.bimap(Xid::new, Xid::value);
+  PgJson<Bit> bit = text.transform(Bit::new, Bit::value);
+  PgJson<Varbit> varbit = text.transform(Varbit::new, Varbit::value);
+  PgJson<AclItem> aclitem = text.transform(AclItem::new, AclItem::value);
+  PgJson<Xml> xml = text.transform(Xml::new, Xml::value);
+  PgJson<Xid> xid = text.transform(Xid::new, Xid::value);
   // PostgreSQL returns composite types as JSON objects, but Record stores the raw string
   // representation.
   // We encode as string and decode from either object (convert to string) or string directly.
@@ -607,7 +607,7 @@ public interface PgJson<A> extends DbJson<A> {
               "Expected string or object for record, got: " + json.getClass().getSimpleName());
         }
       };
-  PgJson<Vector> vector = text.bimap(Vector::parse, Vector::value);
+  PgJson<Vector> vector = text.transform(Vector::parse, Vector::value);
   // PostgreSQL returns int2vector as JSON array, not string
   PgJson<Int2Vector> int2vector =
       new PgJson<>() {
@@ -675,16 +675,16 @@ public interface PgJson<A> extends DbJson<A> {
               "Expected array or string for oidvector, got: " + json.getClass().getSimpleName());
         }
       };
-  PgJson<Regclass> regclass = text.bimap(Regclass::new, Regclass::value);
-  PgJson<Regconfig> regconfig = text.bimap(Regconfig::new, Regconfig::value);
-  PgJson<Regdictionary> regdictionary = text.bimap(Regdictionary::new, Regdictionary::value);
-  PgJson<Regnamespace> regnamespace = text.bimap(Regnamespace::new, Regnamespace::value);
-  PgJson<Regoper> regoper = text.bimap(Regoper::new, Regoper::value);
-  PgJson<Regoperator> regoperator = text.bimap(Regoperator::new, Regoperator::value);
-  PgJson<Regproc> regproc = text.bimap(Regproc::new, Regproc::value);
-  PgJson<Regprocedure> regprocedure = text.bimap(Regprocedure::new, Regprocedure::value);
-  PgJson<Regrole> regrole = text.bimap(Regrole::new, Regrole::value);
-  PgJson<Regtype> regtype = text.bimap(Regtype::new, Regtype::value);
+  PgJson<Regclass> regclass = text.transform(Regclass::new, Regclass::value);
+  PgJson<Regconfig> regconfig = text.transform(Regconfig::new, Regconfig::value);
+  PgJson<Regdictionary> regdictionary = text.transform(Regdictionary::new, Regdictionary::value);
+  PgJson<Regnamespace> regnamespace = text.transform(Regnamespace::new, Regnamespace::value);
+  PgJson<Regoper> regoper = text.transform(Regoper::new, Regoper::value);
+  PgJson<Regoperator> regoperator = text.transform(Regoperator::new, Regoperator::value);
+  PgJson<Regproc> regproc = text.transform(Regproc::new, Regproc::value);
+  PgJson<Regprocedure> regprocedure = text.transform(Regprocedure::new, Regprocedure::value);
+  PgJson<Regrole> regrole = text.transform(Regrole::new, Regrole::value);
+  PgJson<Regtype> regtype = text.transform(Regtype::new, Regtype::value);
 
   // Range types - PostgreSQL returns ranges as strings in JSON
   static <T extends Comparable<? super T>> PgJson<Range<T>> range(

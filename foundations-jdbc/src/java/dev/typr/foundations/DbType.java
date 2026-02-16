@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.analysis.AnalysisOptions;
 import java.util.Optional;
 import java.util.Set;
 
