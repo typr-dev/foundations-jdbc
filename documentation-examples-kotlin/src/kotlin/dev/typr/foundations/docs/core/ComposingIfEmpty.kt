@@ -7,11 +7,12 @@ import dev.typr.foundationskt.data.*
 class ComposingIfEmpty {
     data class User(val id: Int, val name: String, val email: String)
 
-    val userParser: RowParser<User> = RowParser.builder<User>()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .field(PgTypes.text, User::email)
-        .build(::User)
+    val userParser: RowParser<User> =
+        RowParser.builder<User>()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .field(PgTypes.text, User::email)
+            .build(::User)
 
     lateinit var tx: Transactor
     val email: String = "alice@example.com"
@@ -26,14 +27,16 @@ class ComposingIfEmpty {
 
     val createUser: SqlTemplate.Query2<String, String, User> =
         Fragment.of("INSERT INTO users(name, email) VALUES(")
-            .param(PgTypes.text).append(", ")
+            .param(PgTypes.text)
+            .append(", ")
             .param(PgTypes.text)
             .append(") RETURNING *")
             .query(userParser.exactlyOne())
 
-    fun findOrCreate(): User = Operation.ifEmpty(
-        findUser.on(email),
-        createUser.on(name, email)
-    ).transact(tx)
+    fun findOrCreate(): User =
+        Operation.ifEmpty(
+            findUser.on(email),
+            createUser.on(name, email)
+        ).transact(tx)
     //stop
 }

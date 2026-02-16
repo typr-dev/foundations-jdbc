@@ -10,11 +10,12 @@ class ComposingWith {
     data class Dashboard(val userCount: Long, val recentOrders: List<Order>)
     data class Stats(val userCount: Long, val orderCount: Long, val revenue: Long)
 
-    val orderParser: RowParser<Order> = RowParser.builder<Order>()
-        .field(PgTypes.int4, Order::id)
-        .field(PgTypes.int4, Order::userId)
-        .field(PgTypes.text, Order::product)
-        .build(::Order)
+    val orderParser: RowParser<Order> =
+        RowParser.builder<Order>()
+            .field(PgTypes.int4, Order::id)
+            .field(PgTypes.int4, Order::userId)
+            .field(PgTypes.text, Order::product)
+            .build(::Order)
 
     lateinit var tx: Transactor
 
@@ -28,7 +29,9 @@ class ComposingWith {
             .query(orderParser.all())
 
     fun dashboard(): Dashboard =
-        countUsers.with(recentOrders, ::Dashboard).transact(tx)
+        countUsers
+            .with(recentOrders, ::Dashboard)
+            .transact(tx)
 
     // Three-way: all run in one transaction, results combined
     val countOrders: Operation<Long> =
@@ -39,6 +42,8 @@ class ComposingWith {
             .query(RowParser.of(PgTypes.int8).exactlyOne())
 
     fun stats(): Stats =
-        countUsers.with(countOrders, totalRevenue, ::Stats).transact(tx)
+        countUsers
+            .with(countOrders, totalRevenue, ::Stats)
+            .transact(tx)
     //stop
 }

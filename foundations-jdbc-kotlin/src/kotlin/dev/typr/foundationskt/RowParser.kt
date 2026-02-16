@@ -109,6 +109,12 @@ open class RowParser<Row : Any>(open val underlying: dev.typr.foundations.RowPar
     fun parse(rs: ResultSet): Row = underlying.parse(rs)
 
     /**
+     * Create a PgText encoder for streaming COPY operations.
+     */
+    fun pgText(): dev.typr.foundations.PgText<Row> =
+        dev.typr.foundations.PgText.from(underlying)
+
+    /**
      * Create a DbJson codec that encodes rows as JSON arrays.
      */
     fun jsonArray(): dev.typr.foundations.DbJson<Row> =

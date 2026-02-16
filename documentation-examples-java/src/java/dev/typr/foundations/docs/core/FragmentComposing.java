@@ -15,11 +15,12 @@ import java.util.stream.Stream;
 public class FragmentComposing {
     record ProductRow(Integer id, String name, BigDecimal price) {}
 
-    static RowParser<ProductRow> rowParser = RowParser.<ProductRow>builder()
-        .field(PgTypes.int4, ProductRow::id)
-        .field(PgTypes.text, ProductRow::name)
-        .field(PgTypes.numeric, ProductRow::price)
-        .build(ProductRow::new);
+    static RowParser<ProductRow> rowParser =
+        RowParser.<ProductRow>builder()
+            .field(PgTypes.int4, ProductRow::id)
+            .field(PgTypes.text, ProductRow::name)
+            .field(PgTypes.numeric, ProductRow::price)
+            .build(ProductRow::new);
 
     Transactor tx = null; // placeholder
     Optional<BigDecimal> maxPrice = Optional.of(new BigDecimal("100"));

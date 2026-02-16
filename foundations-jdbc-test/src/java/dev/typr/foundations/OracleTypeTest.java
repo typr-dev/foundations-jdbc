@@ -1724,7 +1724,7 @@ public class OracleTypeTest {
 
   // ==================== Stored Procedure Callable Roundtrip ====================
   // For each scalar type, create an Oracle identity procedure with IN and OUT params,
-  // call it via DbProcedure.define().in().out().build(), and verify the value roundtrips.
+  // call it via DbProcedure.define().input().out().build(), and verify the value roundtrips.
 
   static <A> void testCallableRoundtrip(Connection conn, OracleTypeAndExample<A> t)
       throws SQLException {
@@ -1765,7 +1765,7 @@ public class OracleTypeTest {
       A expected = t.expected();
 
       DbProcedure.Def1_1<A, A> proc =
-          DbProcedure.define(procName).in(t.type).out(t.type).build();
+          DbProcedure.define(procName).input(t.type).out(t.type).build();
 
       A result = proc.call(input).runChecked(conn);
 

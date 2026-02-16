@@ -51,11 +51,11 @@ export default function CodeTabs({
 
   const tabs = useMemo(() => {
     const result: TabConfig[] = [];
-    if (javaFile) {
-      result.push({ value: 'java', label: 'Java', language: 'java', file: javaFile });
-    }
     if (kotlinFile) {
       result.push({ value: 'kotlin', label: 'Kotlin', language: 'kotlin', file: kotlinFile });
+    }
+    if (javaFile) {
+      result.push({ value: 'java', label: 'Java', language: 'java', file: javaFile });
     }
     if (scalaFile) {
       result.push({ value: 'scala', label: 'Scala', language: 'scala', file: scalaFile });

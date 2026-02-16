@@ -28,5 +28,6 @@ object ExecuteComposed:
   //start
   @throws[SQLException]
   def dashboard(): Dashboard =
-    countUsers.`with`(recentOrders)(Dashboard.apply).transact(tx)
+    countUsers.`with`(recentOrders)(Dashboard.apply)
+      .transact(tx)
   //stop

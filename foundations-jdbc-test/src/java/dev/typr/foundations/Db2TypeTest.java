@@ -562,7 +562,7 @@ public class Db2TypeTest {
     String sqlType = t.type.typename().sqlType();
     String procName = uniqueTableName("CP");
 
-    DbProcedure.Def1_1<A, A> proc = DbProcedure.define(procName).in(t.type).out(t.type).build();
+    DbProcedure.Def1_1<A, A> proc = DbProcedure.define(procName).input(t.type).out(t.type).build();
 
     conn.createStatement()
         .execute(

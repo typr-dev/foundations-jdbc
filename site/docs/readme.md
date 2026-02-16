@@ -9,7 +9,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Getting Started
 
-A step-by-step introduction to Foundations JDBC — from setup to executing queries.
+A step-by-step introduction to Foundations JDBC — from setup to executing queries. Foundations JDBC is [MIT-licensed](https://github.com/typr-dev/foundations-jdbc/blob/main/LICENSE) and open source.
 
 ## Dependencies
 
@@ -188,25 +188,15 @@ Use `.transact(tx)` — it obtains a connection, runs the operation in a transac
 
 This is the only method you need for single operations.
 
-For multiple operations on one connection, use the transactor's callback and call `.runChecked(conn)` on each operation:
-
-<Snippet file="core/ExecuteRunChecked" />
+For multiple operations in a single transaction, pass a callback to the transactor and call `.run(conn)` on each operation:
 
 <Snippet file="core/ManualTransaction" />
 
-Or better — compose them as values with `.with()` and run the whole thing with `.transact(tx)`:
+Or compose them as values with `.with()` and run the whole thing with `.transact(tx)`:
 
 <Snippet file="core/ExecuteComposed" />
 
 See [Composing Operations](./composing-operations) for the full set of combinators.
-
-### Summary
-
-| Method | When to use |
-|--------|-------------|
-| `.transact(tx)` | Default. Runs a single operation in its own transaction. |
-| `.runChecked(conn)` | Inside a manual transaction block when you need multiple operations on one connection. Throws `SQLException`. |
-| `.run(conn)` | Same as `runChecked`, but wraps `SQLException` in `RuntimeException`. |
 
 ## Full Example
 

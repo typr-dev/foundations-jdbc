@@ -21,13 +21,15 @@ class SqlServerQuery {
         Sql { "price < ${SqlServerTypes.decimal(max)}" }
 
     // Compose dynamically - only include the filters that are present
-    val filters: List<Fragment> = listOfNotNull(
-        byName("%widget%"),
-        maxPrice?.let { cheaperThan(it) }
-    )
+    val filters: List<Fragment> =
+        listOfNotNull(
+            byName("%widget%"),
+            maxPrice?.let { cheaperThan(it) }
+        )
 
-    val orders: List<OrderRow> = Sql { "SELECT * FROM orders ${Fragment.whereAnd(filters)}" }
-        .query(orderRowParser!!.all())
-        .run(conn)
+    val orders: List<OrderRow> =
+        Sql { "SELECT * FROM orders ${Fragment.whereAnd(filters)}" }
+            .query(orderRowParser!!.all())
+            .run(conn)
     //stop
 }

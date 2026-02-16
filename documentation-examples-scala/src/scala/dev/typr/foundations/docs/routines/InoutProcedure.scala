@@ -11,8 +11,8 @@ object InoutProcedure:
   // INOUT — the value goes in and comes back modified
   val applyDiscount =
     DbProcedure.define("apply_discount")
-      .in(PgTypes.text)           // discount_code IN
-      .inout(PgTypes.numeric)     // price INOUT — goes in, comes back modified
+      .input(PgTypes.text)       // discount_code IN
+      .inout(PgTypes.numeric)   // price INOUT
       .build()
 
   @throws[SQLException]

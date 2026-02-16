@@ -11,19 +11,27 @@ class QueryAnalysisNamed {
     private lateinit var connection: Connection
     private val userId = 1
 
-    private val userRowParser: RowParser<User> = RowParser.builder<User>()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .field(PgTypes.text, User::email)
-        .build(::User)
+    private val userRowParser: RowParser<User> =
+        RowParser.builder<User>()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .field(PgTypes.text, User::email)
+            .build(::User)
 
     //start
     fun analyzeNamedQuery() {
-        val query = Sql { "SELECT id, name, email FROM users WHERE id = ${PgTypes.int4(userId)}" }
-            .query(userRowParser.all())
+        val query =
+            Sql { """
+                SELECT id, name, email
+                FROM users
+                WHERE id = ${PgTypes.int4(userId)}
+            """.trimIndent() }
+                .query(userRowParser.all())
 
         // Give your query a name - it shows up in the error report
-        val analysis = QueryAnalyzer.analyze("findUserById", query, connection).single()
+        val analysis =
+            QueryAnalyzer.analyze("findUserById", query, connection)
+                .single()
 
         if (!analysis.succeeded()) {
             throw AssertionError(analysis.report())

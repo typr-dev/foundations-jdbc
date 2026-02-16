@@ -11,20 +11,27 @@ class QueryAnalysisBasic {
     private lateinit var connection: Connection
     private val userId = 1
 
-    private val userRowParser: RowParser<User> = RowParser.builder<User>()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .field(PgTypes.text, User::email)
-        .build(::User)
+    private val userRowParser: RowParser<User> =
+        RowParser.builder<User>()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .field(PgTypes.text, User::email)
+            .build(::User)
 
     //start
     fun analyzeQuery() {
         // Build your query as normal
-        val query: Operation.Query<List<User>> = Sql { "SELECT id, name, email FROM users WHERE id = ${PgTypes.int4(userId)}" }
-            .query(userRowParser.all())
+        val query: Operation.Query<List<User>> =
+            Sql { """
+                SELECT id, name, email
+                FROM users
+                WHERE id = ${PgTypes.int4(userId)}
+            """.trimIndent() }
+                .query(userRowParser.all())
 
         // Analyze it against the database
-        val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection).single()
+        val analysis: QueryAnalysis =
+            QueryAnalyzer.analyze(query, connection).single()
 
         // Check the results
         if (!analysis.succeeded()) {

@@ -12,12 +12,14 @@ class InoutProcedure {
         // INOUT — the value goes in and comes back modified
         val applyDiscount =
             DbProcedure.define("apply_discount")
-                .`in`(PgTypes.text)           // discount_code IN
+                .input(PgTypes.text)           // discount_code IN
                 .inout(PgTypes.numeric)       // price INOUT — goes in, comes back modified
                 .build()
     }
 
     fun applyDiscount(code: String, price: BigDecimal): BigDecimal =
-        InoutProcedure.applyDiscount.call(code, price).transact(tx!!)
+        InoutProcedure.applyDiscount
+            .call(code, price)
+            .transact(tx!!)
     //stop
 }

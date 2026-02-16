@@ -15,18 +15,26 @@ object GettingStarted:
   //start
   def example(): Unit =
     // Connect to an in-memory DuckDB database
-    val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
+    val tx =
+      SimpleDataSource.create(
+        DuckDbConfig.inMemory().build()
+      ).transactor()
 
     // Create the table and insert data
     tx.transact { conn =>
-      sql"CREATE TABLE city (name VARCHAR, population INTEGER)".update().runChecked(conn)
-      sql"INSERT INTO city VALUES ('Oslo', 709037), ('Bergen', 291189)".update().runChecked(conn)
+      sql"CREATE TABLE city (name VARCHAR, population INTEGER)"
+        .update().run(conn)
+      sql"INSERT INTO city VALUES ('Oslo', 709037), ('Bergen', 291189)"
+        .update().run(conn)
     }
 
     // Query with type-safe parameters
-    val cities: List[City] = sql"SELECT name, population FROM city ORDER BY population DESC"
-      .query(cityParser.all())
-      .transact(tx)
+    val cities: List[City] =
+      sql"""SELECT name, population
+            FROM city
+            ORDER BY population DESC"""
+        .query(cityParser.all())
+        .transact(tx)
 
     cities.foreach(c => println(s"${c.name}: ${c.population}"))
   //stop

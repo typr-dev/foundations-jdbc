@@ -13,11 +13,12 @@ import java.util.List;
 public class SqlTemplateMixed {
     record User(int id, String name, String status) {}
 
-    static RowParser<User> userParser = RowParser.<User>builder()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .field(PgTypes.text, User::status)
-        .build(User::new);
+    static RowParser<User> userParser =
+        RowParser.<User>builder()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .field(PgTypes.text, User::status)
+            .build(User::new);
 
     Transactor tx = null; // placeholder
 
@@ -25,7 +26,10 @@ public class SqlTemplateMixed {
     // Mix bound and unbound parameters in the same template
     // The status is fixed at "active", but the limit varies per call
     SqlTemplate<Integer, List<User>> activeUsersWithLimit =
-        Fragment.of("SELECT id, name, status FROM users WHERE status = ")
+        Fragment.of("""
+                SELECT id, name, status
+                FROM users WHERE status =
+                """)
             .value(PgTypes.text, "active")
             .append(" ORDER BY name LIMIT ")
             .param(PgTypes.int4)

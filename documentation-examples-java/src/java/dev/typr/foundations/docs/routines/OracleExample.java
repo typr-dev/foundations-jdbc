@@ -12,14 +12,17 @@ public class OracleExample {
     //start
     // Works with any database — just use the right types
     void example() {
-        var applyDiscount = DbProcedure.define("apply_discount")
-            .in(OracleTypes.number)         // amount IN
-            .inout(OracleTypes.varchar2)    // status INOUT
-            .build();
+        var applyDiscount =
+            DbProcedure.define("apply_discount")
+                .input(OracleTypes.number)
+                .inout(OracleTypes.varchar2)
+                .build();
 
-        var getBalance = DbFunction.define("get_balance", OracleTypes.number)
-            .in(OracleTypes.varchar2)       // account_id
-            .build();
+        var getBalance =
+            DbFunction.define(
+                    "get_balance", OracleTypes.number)
+                .input(OracleTypes.varchar2)
+                .build();
     }
     //stop
 }

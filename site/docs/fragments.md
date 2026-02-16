@@ -9,7 +9,7 @@ import Snippet from '@site/src/components/Snippet';
 A Fragment is a composable SQL building block — it holds a SQL string together with its bound parameters. There are two ways to build fragments: **string interpolation** (Kotlin and Scala) and the **builder pattern** (all languages).
 
 :::tip Which style should I use?
-- **Kotlin** — Use `Sql { }` for queries where all values are known. Use the builder pattern (or the [hybrid approach](#hybrid-approach)) when you need parameter holes for [SQL Templates](./sql-templates).
+- **Kotlin** — Use `Sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [SQL Templates](./sql-templates).
 - **Scala** — Same guidance, using `sql""` instead of `Sql { }`.
 - **Java** — Use the builder pattern for everything (no string interpolation available).
 :::
@@ -34,21 +34,11 @@ This makes dynamic query composition concise:
 
 ## Builder Pattern
 
-The builder pattern works in all languages and is required when creating [SQL Templates](./sql-templates) with parameter holes:
+The builder pattern works in all languages and is useful for constructing fragments programmatically:
 
-<Snippet file="core/SqlTemplateBasic" />
+<Snippet file="core/FragmentBuilderBasic" />
 
-Use the builder when you need:
-
-- **Parameter holes** via `.param(type)` for SQL Templates
-- **Named row parser features** like `.row()` and `.paramRow()`
-- **Java code** (no string interpolation available)
-
-## Hybrid Approach
-
-For SQL Templates in Kotlin and Scala, combine both styles — use `Sql { }` / `sql""` for the static SQL and chain `.param()` for the typed parameter holes:
-
-<Snippet file="core/SqlTemplateMixed" />
+For parameterized templates with unfilled parameter holes, see [SQL Templates](./sql-templates).
 
 ## Chaining Reference
 
@@ -61,8 +51,8 @@ Fragments are self-composing — every combinator returns a new `Fragment`:
 | `.append(fragment)` | Append another fragment (e.g. `columnList`, `whereAnd()`) |
 | `.appendAll(fragments, separator)` | Append multiple fragments joined by a separator |
 | `.row(parser, value)` | Append all columns of a named row parser as bound parameters |
-| `.paramRow(parser)` | Append all columns of a named row parser as parameter holes |
-| `.param(type)` | Create a single parameter hole for [SQL Templates](./sql-templates) |
+| `.paramRow(parser)` | Append all columns of a named row parser as parameter holes — see [SQL Templates](./sql-templates) |
+| `.param(type)` | Create a single parameter hole — see [SQL Templates](./sql-templates) |
 
 ## Static Factories
 
@@ -78,5 +68,8 @@ Fragments are self-composing — every combinator returns a new `Fragment`:
 | Method | Returns |
 |--------|---------|
 | `.query(parser)` | `Operation<T>` — a SELECT that reads rows using the given result set parser |
+| `.queryOne(type)` | `Operation<T>` — convenience for `.query(RowParser.of(type).exactlyOne())` |
+| `.queryList(type)` | `Operation<List<T>>` — convenience for `.query(RowParser.of(type).all())` |
+| `.queryMaybe(type)` | `Operation<Optional<T>>` / `Operation<T?>` / `Operation<Option[T]]>` — convenience for `.query(RowParser.of(type).maxOne())` |
 | `.update()` | `Operation<Int>` — an INSERT/UPDATE/DELETE returning the affected row count |
 | `.execute()` | `Operation<Void>` — like `.update()` but discards the row count |

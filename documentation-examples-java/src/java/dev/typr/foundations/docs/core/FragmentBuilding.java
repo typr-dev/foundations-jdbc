@@ -12,12 +12,13 @@ import java.util.List;
 public class FragmentBuilding {
     record User(Integer id, String name, String status, Instant createdAt) {}
 
-    RowParser<User> userParser = RowParser.<User>builder()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .field(PgTypes.text, User::status)
-        .field(PgTypes.timestamptz, User::createdAt)
-        .build(User::new);
+    RowParser<User> userParser =
+        RowParser.<User>builder()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .field(PgTypes.text, User::status)
+            .field(PgTypes.timestamptz, User::createdAt)
+            .build(User::new);
 
     Connection connection = null; // placeholder
     Integer userId = 1;
@@ -25,7 +26,10 @@ public class FragmentBuilding {
 
     //start
     Fragment query =
-        Fragment.of("SELECT * FROM users WHERE id = ")
+        Fragment.of("""
+                SELECT * FROM users
+                WHERE id =
+                """)
             .value(PgTypes.int4, userId)
             .append(" AND status = ")
             .value(PgTypes.text, "active")
@@ -33,6 +37,7 @@ public class FragmentBuilding {
             .value(PgTypes.timestamptz, cutoffDate);
 
     // Execute safely — parameters are bound, not interpolated
-    List<User> users = query.query(userParser.all()).run(connection);
+    List<User> users =
+        query.query(userParser.all()).run(connection);
     //stop
 }

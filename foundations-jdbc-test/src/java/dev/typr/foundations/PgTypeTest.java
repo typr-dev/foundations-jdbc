@@ -1061,7 +1061,7 @@ public class PgTypeTest {
 
     try {
       Procedure<A> proc = Procedure.buildFunction(funcName,
-          java.util.List.of(ParamDef.in(t.type)), t.type);
+          java.util.List.of(ParamDef.input(t.type)), t.type);
 
       A result = proc.call(t.example).runChecked(conn);
 

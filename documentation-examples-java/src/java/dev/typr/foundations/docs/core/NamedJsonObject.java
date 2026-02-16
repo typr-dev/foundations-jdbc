@@ -12,11 +12,12 @@ public class NamedJsonObject {
     //start
     record OrderLine(String product, int qty, BigDecimal price) {}
 
-    static final RowParserNamed<OrderLine> lineParser = RowParser.<OrderLine>namedBuilder()
-        .field("product", DuckDbTypes.varchar, OrderLine::product)
-        .field("qty", DuckDbTypes.integer, OrderLine::qty)
-        .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
-        .build(OrderLine::new);
+    static final RowParserNamed<OrderLine> lineParser =
+        RowParser.<OrderLine>namedBuilder()
+            .field("product", DuckDbTypes.varchar, OrderLine::product)
+            .field("qty", DuckDbTypes.integer, OrderLine::qty)
+            .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
+            .build(OrderLine::new);
 
     // JSON array codec — positional: [["Widget", 3, 9.99], ...]
     static final DbJson<List<OrderLine>> arrayCodec =

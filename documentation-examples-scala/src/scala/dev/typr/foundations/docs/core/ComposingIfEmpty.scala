@@ -21,8 +21,9 @@ object ComposingIfEmpty:
   //start
   // Find-or-create pattern
   val findUser: SqlTemplate[String, Option[User]] =
-    Fragment.of("SELECT id, name, email FROM users WHERE email = ")
-      .param(PgTypes.text)
+    Fragment.of(
+      "SELECT id, name, email FROM users WHERE email = "
+    ).param(PgTypes.text)
       .query(userParser.maxOne())
 
   val createUser: SqlTemplate.Query2[String, String, User] =
@@ -33,8 +34,9 @@ object ComposingIfEmpty:
       .query(userParser.exactlyOne())
 
   @throws[SQLException]
-  def findOrCreate(): User = Operation.ifEmpty(
-    findUser.on(email),
-    createUser.on(name, email)
-  ).transact(tx)
+  def findOrCreate(): User =
+    Operation.ifEmpty(
+      findUser.on(email),
+      createUser.on(name, email)
+    ).transact(tx)
   //stop

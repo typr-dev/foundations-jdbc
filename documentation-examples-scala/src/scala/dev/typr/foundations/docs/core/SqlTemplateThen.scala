@@ -25,11 +25,12 @@ object SqlTemplateThen:
       .query(RowParser.of(PgTypes.int4).exactlyOne())
 
   val ordersByUser: SqlTemplate[Int, List[Order]] =
-    Fragment.of("SELECT id, user_id, product FROM orders WHERE user_id = ")
-      .param(PgTypes.int4)
+    Fragment.of(
+      "SELECT id, user_id, product FROM orders WHERE user_id = "
+    ).param(PgTypes.int4)
       .query(orderParser.all())
 
-  // Chain: insert user, then use returned id to fetch their orders
+  // Chain: insert user, then fetch their orders
   @throws[SQLException]
   def insertAndFetchOrders(): List[Order] =
     insertUser.on("Alice")

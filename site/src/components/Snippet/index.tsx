@@ -48,14 +48,14 @@ export default function Snippet({ file }: SnippetProps): JSX.Element {
     <div className={styles.snippetContainer}>
       <div className={styles.tabsWrapper}>
         <Tabs groupId="language">
-          <TabItem value="java" label="Java">
-            <CodeBlock language="java">
-              {getSnippetCode(javaPath, showFullFile)}
-            </CodeBlock>
-          </TabItem>
           <TabItem value="kotlin" label="Kotlin">
             <CodeBlock language="kotlin">
               {getSnippetCode(kotlinPath, showFullFile)}
+            </CodeBlock>
+          </TabItem>
+          <TabItem value="java" label="Java">
+            <CodeBlock language="java">
+              {getSnippetCode(javaPath, showFullFile)}
             </CodeBlock>
           </TabItem>
           <TabItem value="scala" label="Scala">

@@ -115,7 +115,7 @@ import dev.typr.foundationskt.connect.*
 fun main() {
     val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
     val answer: Int = Sql { "SELECT 42" }
-        .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
+        .queryOne(DuckDbTypes.integer)
         .transact(tx)
     println("Result: $answer")
 }`;
@@ -758,15 +758,15 @@ export default function Home() {
       <main>
         <QuickstartSection />
         <ProblemSection />
-        <Features />
+        <QueryAnalysisSection />
         <ErrorMessagesSection />
+        <Features />
         <SchemaAndParsers />
         <TypeBuildingBlocks />
         <QueryShowcase />
         <TransactorShowcase />
         <JsonSection />
         <StoredProcedureSection />
-        <QueryAnalysisSection />
         <TypeShowcase />
         <ComparisonSection />
         <CTA />

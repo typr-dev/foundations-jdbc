@@ -11,8 +11,8 @@ class VoidProcedure {
         // A void procedure — no OUT parameters, just side effects
         val auditLog =
             DbProcedure.define("audit_log")
-                .`in`(PgTypes.text)       // action
-                .`in`(PgTypes.text)       // details
+                .input(PgTypes.text)       // action
+                .input(PgTypes.text)       // details
                 .build()
     }
 
