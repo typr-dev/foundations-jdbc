@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object ComposingIfEmpty:
@@ -33,7 +32,6 @@ object ComposingIfEmpty:
       .append(") RETURNING *")
       .query(userParser.exactlyOne())
 
-  @throws[SQLException]
   def findOrCreate(): User =
     Operation.ifEmpty(
       findUser.on(email),

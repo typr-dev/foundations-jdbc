@@ -26,6 +26,20 @@ public class SqlServerTypeTest {
 
   record AssemblyData(byte[] value) {}
 
+  record Item(String name, int quantity) {}
+
+  static RowParser<Item> itemParser =
+      RowParser.<Item>builder()
+          .field(SqlServerTypes.varchar, Item::name)
+          .field(SqlServerTypes.int_, Item::quantity)
+          .build(Item::new);
+
+  static RowParserNamed<Item> namedItemParser =
+      RowParser.<Item>namedBuilder()
+          .field("name", SqlServerTypes.varchar, Item::name)
+          .field("quantity", SqlServerTypes.int_, Item::quantity)
+          .build(Item::new);
+
   record SqlServerTypeAndExample<A>(
       SqlServerType<A> type,
       A example,
@@ -228,6 +242,21 @@ public class SqlServerTypeTest {
           new SqlServerTypeAndExample<>(
                   SqlServerTypes.varbinary(100).transform(AssemblyData::new, AssemblyData::value),
                   new AssemblyData(new byte[] {0x01, 0x02, 0x03, 0x04}))
+              .noIdentity(),
+
+          // ==================== JSON-Encoded Row Types ====================
+          new SqlServerTypeAndExample<>(
+                  SqlServerTypes.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+              .noIdentity(),
+          new SqlServerTypeAndExample<>(
+                  SqlServerTypes.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+              .noIdentity(),
+          new SqlServerTypeAndExample<>(
+                  SqlServerTypes.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+              .noIdentity(),
+          new SqlServerTypeAndExample<>(
+                  SqlServerTypes.jsonObjectEncodedList(namedItemParser),
+                  List.of(new Item("Widget", 5)))
               .noIdentity());
 
   static void withConnection(SqlFunction<Connection, ?> f) {

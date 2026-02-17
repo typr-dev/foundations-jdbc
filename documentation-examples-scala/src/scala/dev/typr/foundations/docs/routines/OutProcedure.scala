@@ -1,7 +1,6 @@
 package dev.typr.foundations.docs.routines
 import dev.typr.foundationssc.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object OutProcedure:
@@ -17,7 +16,6 @@ object OutProcedure:
       .build()
 
   // call() is fully typed — wrong argument types won't compile
-  @throws[SQLException]
   def findUser(userId: Int): Tuple.Tuple2[String, String] =
     getUser.call(userId).transact(tx)
   //stop

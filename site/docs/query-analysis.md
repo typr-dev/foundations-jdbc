@@ -166,7 +166,9 @@ Routine analysis checks:
 
 ## Test Suite Integration
 
-The recommended pattern is to analyze all your queries in a dedicated test:
+The recommended pattern is to analyze all your queries in a dedicated test.
+
+[SQL Templates](./sql-templates) are ideal for this — since their parameters are unbound, you can analyze them without providing concrete values:
 
 <Snippet file="analysis/QueryAnalysisTestSuite" />
 

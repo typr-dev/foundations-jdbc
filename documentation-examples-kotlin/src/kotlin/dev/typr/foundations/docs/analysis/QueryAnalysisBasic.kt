@@ -26,7 +26,7 @@ class QueryAnalysisBasic {
                 SELECT id, name, email
                 FROM users
                 WHERE id = ${PgTypes.int4(userId)}
-            """.trimIndent() }
+            """ }
                 .query(userRowParser.all())
 
         // Analyze it against the database

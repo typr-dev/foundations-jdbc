@@ -1,7 +1,6 @@
 package dev.typr.foundations.docs.routines
 import dev.typr.foundationssc.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object VoidProcedure:
@@ -15,7 +14,6 @@ object VoidProcedure:
       .input(PgTypes.text)       // details
       .build()
 
-  @throws[SQLException]
   def logAction(action: String, details: String): Unit =
     auditLog.call(action, details).transact(tx)
   //stop

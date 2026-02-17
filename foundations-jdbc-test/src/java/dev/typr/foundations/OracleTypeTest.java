@@ -79,6 +79,20 @@ public class OracleTypeTest {
   /** OrderItem - corresponds to Oracle type order_item_t */
   record OrderItem(Long productId, Integer quantity) {}
 
+  record OracleItem(String name, int quantity) {}
+
+  static RowParser<OracleItem> oracleItemParser =
+      RowParser.<OracleItem>builder()
+          .field(OracleTypes.varchar2(100), OracleItem::name)
+          .field(OracleTypes.numberInt, OracleItem::quantity)
+          .build(OracleItem::new);
+
+  static RowParserNamed<OracleItem> namedOracleItemParser =
+      RowParser.<OracleItem>namedBuilder()
+          .field("name", OracleTypes.varchar2(100), OracleItem::name)
+          .field("quantity", OracleTypes.numberInt, OracleItem::quantity)
+          .build(OracleItem::new);
+
   /** AllTypesStruct - comprehensive struct containing all Oracle types (NOT NULL fields) */
   record AllTypesStruct(
       String varcharField,
@@ -470,6 +484,25 @@ public class OracleTypeTest {
               .noIdentity(), // Edge case: number
           new OracleTypeAndExample<>(OracleTypes.json, new Json("true"))
               .noIdentity(), // Edge case: boolean
+
+          // ═══════════════════════════════════════════════════════════════════════════
+          // JSON-Encoded Row Types
+          // ═══════════════════════════════════════════════════════════════════════════
+
+          new OracleTypeAndExample<>(
+                  OracleTypes.jsonArrayEncoded(oracleItemParser), new OracleItem("Widget", 5))
+              .noIdentity(),
+          new OracleTypeAndExample<>(
+                  OracleTypes.jsonArrayEncodedList(oracleItemParser),
+                  List.of(new OracleItem("Widget", 5)))
+              .noIdentity(),
+          new OracleTypeAndExample<>(
+                  OracleTypes.jsonObjectEncoded(namedOracleItemParser), new OracleItem("Widget", 5))
+              .noIdentity(),
+          new OracleTypeAndExample<>(
+                  OracleTypes.jsonObjectEncodedList(namedOracleItemParser),
+                  List.of(new OracleItem("Widget", 5)))
+              .noIdentity(),
 
           // ═══════════════════════════════════════════════════════════════════════════
           // Boolean Type (Oracle 23c+ native, or NUMBER(1) convention)

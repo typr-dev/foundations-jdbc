@@ -3,7 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object ExecuteTransact:
@@ -21,6 +20,5 @@ object ExecuteTransact:
       .query(cityParser.all())
 
   //start
-  @throws[SQLException]
   def cities(): List[City] = findCities.transact(tx)
   //stop

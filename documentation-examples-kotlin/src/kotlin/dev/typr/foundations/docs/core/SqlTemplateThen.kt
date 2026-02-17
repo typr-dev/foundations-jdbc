@@ -28,7 +28,7 @@ class SqlTemplateThen {
         Fragment.of("""
             SELECT id, user_id, product
             FROM orders
-            WHERE user_id = """.trimIndent())
+            WHERE user_id = """)
             .param(PgTypes.int4)
             .query(orderParser.all())
 

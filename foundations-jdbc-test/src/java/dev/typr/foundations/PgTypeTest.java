@@ -44,6 +44,21 @@ public class PgTypeTest {
 
   record TestPair<A>(A t0, Optional<A> t1) {}
 
+  // Simple record and parsers for JSON-encoded row type testing
+  record Item(String name, int quantity) {}
+
+  static RowParser<Item> itemParser =
+      RowParser.<Item>builder()
+          .field(PgTypes.text, Item::name)
+          .field(PgTypes.int4, Item::quantity)
+          .build(Item::new);
+
+  static RowParserNamed<Item> namedItemParser =
+      RowParser.<Item>namedBuilder()
+          .field("name", PgTypes.text, Item::name)
+          .field("quantity", PgTypes.int4, Item::quantity)
+          .build(Item::new);
+
   record PgTypeAndExample<A>(
       PgType<A> type,
       A example,
@@ -330,6 +345,34 @@ public class PgTypeTest {
           new PgTypeAndExample<>(PgTypes.jsonbArray, new Jsonb[] {new Jsonb("{\"A\": 42}")})
               .noIdentity()
               .noStreaming(),
+
+          // ==================== JSON-Encoded Row Types ====================
+          // json variants — store structured rows as json columns
+          new PgTypeAndExample<>(
+                  PgTypes.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+              .noIdentity(),
+          new PgTypeAndExample<>(
+                  PgTypes.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+              .noIdentity(),
+          new PgTypeAndExample<>(
+                  PgTypes.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+              .noIdentity(),
+          new PgTypeAndExample<>(
+                  PgTypes.jsonObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
+              .noIdentity(),
+          // jsonb variants — store structured rows as jsonb columns
+          new PgTypeAndExample<>(
+                  PgTypes.jsonbArrayEncoded(itemParser), new Item("Widget", 5))
+              .noIdentity(),
+          new PgTypeAndExample<>(
+                  PgTypes.jsonbArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+              .noIdentity(),
+          new PgTypeAndExample<>(
+                  PgTypes.jsonbObjectEncoded(namedItemParser), new Item("Widget", 5))
+              .noIdentity(),
+          new PgTypeAndExample<>(
+                  PgTypes.jsonbObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
+              .noIdentity(),
 
           // ==================== Record Types ====================
           // TODO: Record JSON roundtrip needs special handling - PostgreSQL returns composite types

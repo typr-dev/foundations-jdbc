@@ -14,32 +14,29 @@ class GettingStarted {
             .field(DuckDbTypes.integer, City::population)
             .build(::City)
 
-    //start
-    fun example() {
-        // Connect to an in-memory DuckDB database
-        val tx =
-            SimpleDataSource.create(DuckDbConfig.inMemory().build())
-                .transactor()
-
-        // Create the table and insert data
+    fun setup(tx: Transactor) {
         tx.transact { conn ->
             Sql { "CREATE TABLE city (name VARCHAR, population INTEGER)" }
                 .update().run(conn)
             Sql { "INSERT INTO city VALUES ('Oslo', 709037), ('Bergen', 291189)" }
                 .update().run(conn)
         }
+    }
 
-        // Query with type-safe parameters
+    //start
+    fun example() {
+        val tx =
+            SingleConnectionDataSource.create(DuckDbConfig.inMemory().build())
+                .transactor()
+
         val cities: List<City> =
             Sql { """
                 SELECT name, population
                 FROM city
                 ORDER BY population DESC
-            """.trimIndent() }
+            """ }
                 .query(cityParser.all())
                 .transact(tx)
-
-        cities.forEach { println("${it.name}: ${it.population}") }
     }
     //stop
 }

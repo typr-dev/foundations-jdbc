@@ -95,8 +95,9 @@ import dev.typr.foundationskt.data.*    // Data types: Json, Range, Uint4, etc.
 <TabItem value="scala" label="Scala">
 
 ```scala
-import dev.typr.foundationssc.*       // Core + connection: Fragment, RowParser, *Types, *Config
-import dev.typr.foundationssc.data.*  // Data types: Json, Range, Uint4, etc.
+import dev.typr.foundationssc.*         // Core: Fragment, RowParser, Operation, Transactor, *Types
+import dev.typr.foundationssc.connect.* // Connection: SimpleDataSource, *Config
+import dev.typr.foundationssc.data.*    // Data types: Json, Range, Uint4, etc.
 ```
 
 </TabItem>

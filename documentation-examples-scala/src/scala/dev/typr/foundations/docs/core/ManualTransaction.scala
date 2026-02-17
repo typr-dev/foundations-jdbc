@@ -3,7 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object ManualTransaction:
@@ -27,7 +26,6 @@ object ManualTransaction:
       .query(orderParser.all())
 
   // Run both using the connection directly
-  @throws[SQLException]
   def dashboard(): Dashboard =
     tx.transact { conn =>
       val count = countUsers.runChecked(conn)

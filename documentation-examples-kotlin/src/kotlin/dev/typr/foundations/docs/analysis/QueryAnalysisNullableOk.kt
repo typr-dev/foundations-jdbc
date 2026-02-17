@@ -27,7 +27,7 @@ class QueryAnalysisNullableOk {
                 SELECT u.id, u.name, o.total
                 FROM users u
                 LEFT JOIN orders o ON u.id = o.user_id
-            """.trimIndent() }
+            """ }
                 .query(orderParser.all())
 
         val analysis: QueryAnalysis =

@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.connect.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
@@ -12,15 +13,7 @@ object GettingStarted:
     .field(DuckDbTypes.integer)(_.population)
     .build(City.apply)
 
-  //start
-  def example(): Unit =
-    // Connect to an in-memory DuckDB database
-    val tx =
-      SimpleDataSource.create(
-        DuckDbConfig.inMemory().build()
-      ).transactor()
-
-    // Create the table and insert data
+  def setup(tx: Transactor): Unit =
     tx.transact { conn =>
       sql"CREATE TABLE city (name VARCHAR, population INTEGER)"
         .update().run(conn)
@@ -28,13 +21,17 @@ object GettingStarted:
         .update().run(conn)
     }
 
-    // Query with type-safe parameters
+  //start
+  def example(): Unit =
+    val tx =
+      SimpleDataSource.create(
+        DuckDbConfig.inMemory().build()
+      ).transactor()
+
     val cities: List[City] =
       sql"""SELECT name, population
             FROM city
             ORDER BY population DESC"""
         .query(cityParser.all())
         .transact(tx)
-
-    cities.foreach(c => println(s"${c.name}: ${c.population}"))
   //stop

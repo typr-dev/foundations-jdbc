@@ -28,7 +28,7 @@ class FragmentBuilding {
             WHERE id = ${PgTypes.int4(userId)}
                 AND status = ${PgTypes.text("active")}
                 AND created_at > ${PgTypes.timestamptz(cutoffDate)}
-        """.trimIndent() }
+        """ }
 
     // Execute safely — parameters are bound, not interpolated
     val users: List<User> =

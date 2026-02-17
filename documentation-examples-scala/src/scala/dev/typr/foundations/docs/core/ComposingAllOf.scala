@@ -3,7 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object ComposingAllOf:
@@ -21,7 +20,6 @@ object ComposingAllOf:
     sql"UPDATE stats SET user_count = user_count + 1"
       .update()
 
-  @throws[SQLException]
   def createUserWithAudit(): Unit =
     Operation.allOf(
       insertUser, insertAudit, updateStats

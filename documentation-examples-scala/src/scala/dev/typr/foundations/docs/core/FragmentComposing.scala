@@ -3,7 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object FragmentComposing:
@@ -27,7 +26,6 @@ object FragmentComposing:
     sql"price < ${PgTypes.numeric(max)}"
 
   // Compose dynamically
-  @throws[SQLException]
   def query(): List[ProductRow] =
     val filters: List[Fragment] =
       List(

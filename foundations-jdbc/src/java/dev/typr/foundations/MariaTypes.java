@@ -1,6 +1,7 @@
 package dev.typr.foundations;
 
 import dev.typr.foundations.data.Json;
+import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.Uint1;
 import dev.typr.foundations.data.Uint2;
 import dev.typr.foundations.data.Uint4;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Year;
+import java.util.List;
 import java.util.function.Function;
 import org.mariadb.jdbc.type.Geometry;
 import org.mariadb.jdbc.type.GeometryCollection;
@@ -573,4 +575,38 @@ public interface MariaTypes {
               MariaJson.text,
               MariaOutParam.readString)
           .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+
+  // ==================== JSON-Encoded Row Types ====================
+
+  /** A JSON column type that stores a single row as a positional JSON array. */
+  static <Row> MariaType<Row> jsonArrayEncoded(RowParser<Row> parser) {
+    DbJson<Row> codec = DbJsonRow.jsonArray(parser);
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        row -> new Json(codec.toJson(row).encode()));
+  }
+
+  /** A JSON column type that stores a list of rows, each as a positional JSON array. */
+  static <Row> MariaType<List<Row>> jsonArrayEncodedList(RowParser<Row> parser) {
+    DbJson<List<Row>> codec = DbJsonRow.jsonArray(parser).list();
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        list -> new Json(codec.toJson(list).encode()));
+  }
+
+  /** A JSON column type that stores a single row as a keyed JSON object. */
+  static <Row> MariaType<Row> jsonObjectEncoded(RowParserNamed<Row> parser) {
+    DbJson<Row> codec = DbJsonRow.jsonObject(parser);
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        row -> new Json(codec.toJson(row).encode()));
+  }
+
+  /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
+  static <Row> MariaType<List<Row>> jsonObjectEncodedList(RowParserNamed<Row> parser) {
+    DbJson<List<Row>> codec = DbJsonRow.jsonObject(parser).list();
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        list -> new Json(codec.toJson(list).encode()));
+  }
 }

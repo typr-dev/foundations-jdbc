@@ -1,7 +1,6 @@
 package dev.typr.foundations.docs.routines
 import dev.typr.foundationssc.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object FunctionExample:
@@ -20,7 +19,6 @@ object FunctionExample:
     DbFunction.define("next_id", PgTypes.int4)
       .build()
 
-  @throws[SQLException]
   def calculateTax(amount: BigDecimal, region: String): BigDecimal =
     calcTax.call(amount, region).transact(tx)
   //stop

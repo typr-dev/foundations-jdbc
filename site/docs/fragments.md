@@ -59,9 +59,21 @@ Fragments are self-composing — every combinator returns a new `Fragment`:
 | Method | Description |
 |--------|-------------|
 | `Fragment.of(sql)` | Create a fragment from a literal SQL string |
-| `Fragment.concat(fragments...)` | Concatenate multiple fragments |
-| `Fragment.whereAnd(filters)` | Build a `WHERE` clause with `AND`-joined filters |
-| `Fragment.whereOr(filters)` | Build a `WHERE` clause with `OR`-joined filters |
+| `Fragment.empty()` | An empty fragment (no SQL, no parameters) |
+| `Fragment.value(type, value)` | Create a single-parameter fragment |
+| `Fragment.encode(type, value)` | Alias for `value` — Kotlin: `type(value)`, Scala: `type(value)` |
+| `Fragment.concat(fragments...)` | Concatenate multiple fragments with no separator |
+| `Fragment.join(fragments, separator)` | Join fragments with a separator |
+| `Fragment.comma(fragments...)` | Join fragments with `, ` |
+| `Fragment.and(fragments...)` | Join fragments with ` AND ` |
+| `Fragment.or(fragments...)` | Join fragments with ` OR ` |
+| `Fragment.set(fragments...)` | `SET ` prefix with `, `-joined fragments |
+| `Fragment.orderBy(fragments...)` | `ORDER BY ` prefix with `, `-joined fragments |
+| `Fragment.whereAnd(fragments...)` | `WHERE ` prefix with ` AND `-joined fragments |
+| `Fragment.whereOr(fragments...)` | `WHERE ` prefix with ` OR `-joined fragments |
+| `Fragment.parentheses(fragment)` | Wrap a fragment in `(` `)` |
+| `Fragment.quotedDouble(name)` | Double-quote an identifier: `"name"` |
+| `Fragment.quotedSingle(value)` | Single-quote a literal: `'value'` |
 
 ## Terminals
 
