@@ -20,22 +20,29 @@ object FragmentRow:
   val conn: Connection = null // placeholder
 
   //start
-  // All columns as parameters — great for app-generated IDs
-  val insertTemplate: RowSqlTemplate.Query[Product, Product] = Fragment.of("INSERT INTO product (")
-    .append(productParser.columnList).append(") VALUES (")
-    .paramRow(productParser)
-    .append(") RETURNING ").append(productParser.columnList)
-    .query(productParser.exactlyOne())
+  // All columns as parameters
+  val insertTemplate: RowSqlTemplate.Query[Product, Product] =
+    Fragment.of("INSERT INTO product (")
+      .append(productParser.columnList)
+      .append(") VALUES (")
+      .paramRow(productParser)
+      .append(") RETURNING ")
+      .append(productParser.columnList)
+      .query(productParser.exactlyOne())
 
   def insert(product: Product): Product =
     insertTemplate.on(product).run(conn)
 
-  // Skip columns handled by the database — e.g. sequences or defaults
-  val insertWithSequenceTemplate: RowSqlTemplate.Query[Product, Product] = Fragment.of("INSERT INTO product (")
-    .append(productParser.columnList).append(") VALUES (nextval('product_id_seq'), ")
-    .paramRow(productParser, "id")
-    .append(") RETURNING ").append(productParser.columnList)
-    .query(productParser.exactlyOne())
+  // Skip columns handled by the database
+  val insertWithSequenceTemplate
+      : RowSqlTemplate.Query[Product, Product] =
+    Fragment.of("INSERT INTO product (")
+      .append(productParser.columnList)
+      .append(") VALUES (nextval('product_id_seq'), ")
+      .paramRow(productParser, "id")
+      .append(") RETURNING ")
+      .append(productParser.columnList)
+      .query(productParser.exactlyOne())
 
   def insertWithSequence(product: Product): Product =
     insertWithSequenceTemplate.on(product).run(conn)

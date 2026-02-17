@@ -776,8 +776,8 @@ def generateDbProcedure(): String = {
     val inMethod = if (i < maxArity) {
       val newI = s"I$i"
       val nextTp = allTypeParams(i + 1, o)
-      s"""        public <$newI> Builder_${i + 1}_${o}${typeParamDecl(nextTp)} in(DbType<$newI> type) {
-         |            params.add(ParamDef.in(type));
+      s"""        public <$newI> Builder_${i + 1}_${o}${typeParamDecl(nextTp)} input(DbType<$newI> type) {
+         |            params.add(ParamDef.input(type));
          |            return new Builder_${i + 1}_${o}<>(name, params);
          |        }""".stripMargin
     } else ""
@@ -844,14 +844,14 @@ def generateDbProcedure(): String = {
       |/**
       | * Type-safe stored procedure definitions with fully typed inputs and outputs.
       | * <p>
-      | * The builder tracks both input types (via {@code .in()}) and output types (via {@code .out()}/{@code .inout()}).
+      | * The builder tracks both input types (via {@code .input()}) and output types (via {@code .out()}/{@code .inout()}).
       | * The resulting interface has a {@code call()} method with typed parameters instead of varargs.
       | * <p>
       | * Usage:
       | * <pre>{@code
       | * // Procedure with typed inputs — compile-time checking!
       | * DbProcedure.Def1_2<Integer, String, String> getUser = DbProcedure.define("get_user_by_id")
-      | *     .in(PgTypes.int4)
+      | *     .input(PgTypes.int4)
       | *     .out(PgTypes.text)
       | *     .out(PgTypes.text)
       | *     .build();
@@ -860,12 +860,12 @@ def generateDbProcedure(): String = {
       | *
       | * // Void procedure (no outputs)
       | * DbProcedure.Def1_0<String> auditLog = DbProcedure.define("audit_log")
-      | *     .in(PgTypes.text)
+      | *     .input(PgTypes.text)
       | *     .build();
       | *
       | * // INOUT — value goes in and comes back modified
       | * DbProcedure.Def2_1<String, BigDecimal, BigDecimal> applyDiscount = DbProcedure.define("apply_discount")
-      | *     .in(PgTypes.text)
+      | *     .input(PgTypes.text)
       | *     .inout(PgTypes.numeric)
       | *     .build();
       | * BigDecimal finalPrice = applyDiscount.call("SAVE20", price).transact(tx);
@@ -922,8 +922,8 @@ def generateDbFunction(): String = {
     val inMethod = if (i < maxArity) {
       val newI = s"I$i"
       val nextTp = iParams(i + 1) ::: List("R")
-      s"""        public <$newI> Builder_${i + 1}${typeParamDecl(nextTp)} in(DbType<$newI> type) {
-         |            inParams.add(ParamDef.in(type));
+      s"""        public <$newI> Builder_${i + 1}${typeParamDecl(nextTp)} input(DbType<$newI> type) {
+         |            inParams.add(ParamDef.input(type));
          |            return new Builder_${i + 1}<>(name, inParams, returnType);
          |        }
          |""".stripMargin
@@ -955,15 +955,15 @@ def generateDbFunction(): String = {
       |/**
       | * Type-safe stored function definitions with fully typed inputs.
       | * <p>
-      | * The builder tracks input types (via {@code .in()}). The resulting interface has a
+      | * The builder tracks input types (via {@code .input()}). The resulting interface has a
       | * {@code call()} method with typed parameters instead of varargs.
       | * <p>
       | * Usage:
       | * <pre>{@code
       | * // Function with typed inputs — compile-time checking!
       | * DbFunction.Def2<BigDecimal, String, BigDecimal> calcTax = DbFunction.define("calculate_tax", PgTypes.numeric)
-      | *     .in(PgTypes.numeric)
-      | *     .in(PgTypes.text)
+      | *     .input(PgTypes.numeric)
+      | *     .input(PgTypes.text)
       | *     .build();
       | * BigDecimal tax = calcTax.call(amount, "US").transact(tx);  // Types enforced!
       | * // calcTax.call("wrong", 42);  // COMPILE ERROR
@@ -1201,6 +1201,206 @@ ${range.map(i => s"      DbType<P$i> p${i}Type${if (i < n - 1) "," else ")"}").m
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// InstrumentedConnection generator
+// ─────────────────────────────────────────────────────────────────────────────
+
+def generateInstrumentedConnection(): String = {
+  // Each entry: (returnType, methodName, params, throwsClause)
+  // params is a string like "int a, String b"
+  // throwsStr: "" for none, "SQLException" for standard, or custom like "SQLClientInfoException"
+  case class Method(ret: String, name: String, params: String, throwsStr: String) {
+    def paramNames: String = {
+      if (params.isEmpty) return ""
+      // Split on commas that are not inside angle brackets
+      val parts = new scala.collection.mutable.ArrayBuffer[String]()
+      var depth = 0
+      var start = 0
+      for (i <- params.indices) {
+        params.charAt(i) match {
+          case '<' => depth += 1
+          case '>' => depth -= 1
+          case ',' if depth == 0 =>
+            parts += params.substring(start, i).trim
+            start = i + 1
+          case _ =>
+        }
+      }
+      parts += params.substring(start).trim
+      parts.map(_.split("\\s+").last).mkString(", ")
+    }
+    def delegation: String = {
+      val call = s"delegate.$name(${paramNames})"
+      val body = if (ret == "void") s"$call;" else s"return $call;"
+      val throwsPart = if (throwsStr.isEmpty) "" else s" throws $throwsStr"
+      s"""    @Override
+         |    public $ret $name($params)$throwsPart {
+         |        $body
+         |    }""".stripMargin
+    }
+  }
+
+  val methods = List(
+    // Statement creation
+    Method("Statement", "createStatement", "", "SQLException"),
+    Method("PreparedStatement", "prepareStatement", "String sql", "SQLException"),
+    Method("CallableStatement", "prepareCall", "String sql", "SQLException"),
+    Method("String", "nativeSQL", "String sql", "SQLException"),
+    // Auto-commit / commit / rollback
+    Method("void", "setAutoCommit", "boolean autoCommit", "SQLException"),
+    Method("boolean", "getAutoCommit", "", "SQLException"),
+    Method("void", "commit", "", "SQLException"),
+    Method("void", "rollback", "", "SQLException"),
+    Method("void", "close", "", "SQLException"),
+    Method("boolean", "isClosed", "", "SQLException"),
+    // Metadata
+    Method("DatabaseMetaData", "getMetaData", "", "SQLException"),
+    Method("void", "setReadOnly", "boolean readOnly", "SQLException"),
+    Method("boolean", "isReadOnly", "", "SQLException"),
+    Method("void", "setCatalog", "String catalog", "SQLException"),
+    Method("String", "getCatalog", "", "SQLException"),
+    Method("void", "setTransactionIsolation", "int level", "SQLException"),
+    Method("int", "getTransactionIsolation", "", "SQLException"),
+    Method("SQLWarning", "getWarnings", "", "SQLException"),
+    Method("void", "clearWarnings", "", "SQLException"),
+    // Statement with result set type/concurrency
+    Method("Statement", "createStatement", "int resultSetType, int resultSetConcurrency", "SQLException"),
+    Method("PreparedStatement", "prepareStatement", "String sql, int resultSetType, int resultSetConcurrency", "SQLException"),
+    Method("CallableStatement", "prepareCall", "String sql, int resultSetType, int resultSetConcurrency", "SQLException"),
+    // Type map
+    Method("java.util.Map<String, Class<?>>", "getTypeMap", "", "SQLException"),
+    Method("void", "setTypeMap", "java.util.Map<String, Class<?>> map", "SQLException"),
+    // Holdability
+    Method("void", "setHoldability", "int holdability", "SQLException"),
+    Method("int", "getHoldability", "", "SQLException"),
+    // Savepoints
+    Method("Savepoint", "setSavepoint", "", "SQLException"),
+    Method("Savepoint", "setSavepoint", "String name", "SQLException"),
+    Method("void", "rollback", "Savepoint savepoint", "SQLException"),
+    Method("void", "releaseSavepoint", "Savepoint savepoint", "SQLException"),
+    // Statement with holdability
+    Method("Statement", "createStatement", "int resultSetType, int resultSetConcurrency, int resultSetHoldability", "SQLException"),
+    Method("PreparedStatement", "prepareStatement", "String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability", "SQLException"),
+    Method("CallableStatement", "prepareCall", "String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability", "SQLException"),
+    Method("PreparedStatement", "prepareStatement", "String sql, int autoGeneratedKeys", "SQLException"),
+    Method("PreparedStatement", "prepareStatement", "String sql, int[] columnIndexes", "SQLException"),
+    Method("PreparedStatement", "prepareStatement", "String sql, String[] columnNames", "SQLException"),
+    // LOB creation
+    Method("Clob", "createClob", "", "SQLException"),
+    Method("Blob", "createBlob", "", "SQLException"),
+    Method("NClob", "createNClob", "", "SQLException"),
+    Method("SQLXML", "createSQLXML", "", "SQLException"),
+    // Validity
+    Method("boolean", "isValid", "int timeout", "SQLException"),
+    // Client info
+    Method("void", "setClientInfo", "String name, String value", "SQLClientInfoException"),
+    Method("void", "setClientInfo", "java.util.Properties properties", "SQLClientInfoException"),
+    Method("String", "getClientInfo", "String name", "SQLException"),
+    Method("java.util.Properties", "getClientInfo", "", "SQLException"),
+    // Array/Struct creation
+    Method("Array", "createArrayOf", "String typeName, Object[] elements", "SQLException"),
+    Method("Struct", "createStruct", "String typeName, Object[] attributes", "SQLException"),
+    // Schema
+    Method("void", "setSchema", "String schema", "SQLException"),
+    Method("String", "getSchema", "", "SQLException"),
+    // Abort / timeout
+    Method("void", "abort", "java.util.concurrent.Executor executor", "SQLException"),
+    Method("void", "setNetworkTimeout", "java.util.concurrent.Executor executor, int milliseconds", "SQLException"),
+    Method("int", "getNetworkTimeout", "", "SQLException"),
+  )
+
+  val delegations = methods.map(_.delegation).mkString("\n\n")
+
+  s"""|package dev.typr.foundations;
+      |
+      |import java.sql.*;
+      |import java.time.Duration;
+      |import java.util.concurrent.atomic.AtomicInteger;
+      |import org.jetbrains.annotations.Nullable;
+      |
+      |/**
+      | * A Connection wrapper that carries query listener, name, and timeout metadata.
+      | * Used internally by the Transactor when a QueryListener is configured.
+      | * <p>
+      | * All Connection methods delegate to the underlying connection. The wrapper
+      | * adds no overhead beyond the extra field storage.
+      | */
+      |final class InstrumentedConnection implements Connection {
+      |    private final Connection delegate;
+      |    private final QueryListener listener;
+      |    private @Nullable String queryName;
+      |    private @Nullable Duration queryTimeout;
+      |    private final AtomicInteger queryCounter = new AtomicInteger(0);
+      |
+      |    InstrumentedConnection(
+      |            Connection delegate,
+      |            QueryListener listener,
+      |            @Nullable String queryName,
+      |            @Nullable Duration queryTimeout) {
+      |        this.delegate = delegate;
+      |        this.listener = listener;
+      |        this.queryName = queryName;
+      |        this.queryTimeout = queryTimeout;
+      |    }
+      |
+      |    Connection delegate() {
+      |        return delegate;
+      |    }
+      |
+      |    QueryListener queryListener() {
+      |        return listener;
+      |    }
+      |
+      |    @Nullable String queryName() {
+      |        return queryName;
+      |    }
+      |
+      |    void setQueryName(@Nullable String name) {
+      |        this.queryName = name;
+      |        this.queryCounter.set(0);
+      |    }
+      |
+      |    @Nullable Duration queryTimeout() {
+      |        return queryTimeout;
+      |    }
+      |
+      |    void setQueryTimeout(@Nullable Duration timeout) {
+      |        this.queryTimeout = timeout;
+      |    }
+      |
+      |    @Nullable String currentQueryName() {
+      |        return queryName;
+      |    }
+      |
+      |    @Nullable String nextQueryName() {
+      |        if (queryName == null) return null;
+      |        int n = queryCounter.incrementAndGet();
+      |        if (n == 1) return queryName;
+      |        return queryName + "#" + n;
+      |    }
+      |
+      |    void resetQueryCounter() {
+      |        queryCounter.set(0);
+      |    }
+      |
+      |    @Override
+      |    @SuppressWarnings("unchecked")
+      |    public <T> T unwrap(Class<T> iface) throws SQLException {
+      |        if (iface.isInstance(this)) return (T) this;
+      |        return delegate.unwrap(iface);
+      |    }
+      |
+      |    @Override
+      |    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+      |        if (iface.isInstance(this)) return true;
+      |        return delegate.isWrapperFor(iface);
+      |    }
+      |
+      |$delegations
+      |}
+      |""".stripMargin
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Write files
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1271,3 +1471,9 @@ val sqlTemplateContent = generateSqlTemplate()
 val sqlTemplatePath = outputDir.resolve("SqlTemplate.java")
 Files.writeString(sqlTemplatePath, sqlTemplateContent)
 println(s"Wrote ${sqlTemplatePath}")
+
+// Generate InstrumentedConnection.java
+val instrumentedConnectionContent = generateInstrumentedConnection()
+val instrumentedConnectionPath = outputDir.resolve("InstrumentedConnection.java")
+Files.writeString(instrumentedConnectionPath, instrumentedConnectionContent)
+println(s"Wrote ${instrumentedConnectionPath}")

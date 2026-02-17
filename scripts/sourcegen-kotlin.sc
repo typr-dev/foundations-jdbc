@@ -201,8 +201,8 @@ def generateKotlinDbProcedure(): String = {
     // in method
     val inMethod = if (i < maxArity) {
       val nextTp = allTypeParams(i + 1, o)
-      s"""        fun <I$i> `in`(type: DbType<I$i>): Builder_${i + 1}_${o}${typeParamDecl(nextTp)} =
-         |            Builder_${i + 1}_${o}(underlying.`in`(type.underlying))""".stripMargin
+      s"""        fun <I$i> input(type: DbType<I$i>): Builder_${i + 1}_${o}${typeParamDecl(nextTp)} =
+         |            Builder_${i + 1}_${o}(underlying.input(type.underlying))""".stripMargin
     } else ""
 
     // out method
@@ -258,7 +258,7 @@ def generateKotlinDbProcedure(): String = {
       | * Usage:
       | * ```kotlin
       | * val getUser: DbProcedure.Def1_2<Int, String, String> = DbProcedure.define("get_user_by_id")
-      | *     .`in`(PgTypes.int4)
+      | *     .input(PgTypes.int4)
       | *     .out(PgTypes.text)
       | *     .out(PgTypes.text)
       | *     .build()
@@ -312,8 +312,8 @@ def generateKotlinDbFunction(): String = {
 
     val inMethod = if (i < maxArity) {
       val nextTp = iParams(i + 1) ::: List("R")
-      s"""        fun <I$i> `in`(type: DbType<I$i>): Builder_${i + 1}${typeParamDecl(nextTp)} =
-         |            Builder_${i + 1}(underlying.`in`(type.underlying))
+      s"""        fun <I$i> input(type: DbType<I$i>): Builder_${i + 1}${typeParamDecl(nextTp)} =
+         |            Builder_${i + 1}(underlying.input(type.underlying))
          |""".stripMargin
     } else ""
 
@@ -343,8 +343,8 @@ def generateKotlinDbFunction(): String = {
       | * Usage:
       | * ```kotlin
       | * val calcTax: DbFunction.Def2<BigDecimal, String, BigDecimal> = DbFunction.define("calculate_tax", PgTypes.numeric)
-      | *     .`in`(PgTypes.numeric)
-      | *     .`in`(PgTypes.text)
+      | *     .input(PgTypes.numeric)
+      | *     .input(PgTypes.text)
       | *     .build()
       | * val tax = calcTax.call(amount, "US").transact(tx)  // Types enforced!
       | * ```

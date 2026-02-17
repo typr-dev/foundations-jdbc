@@ -77,5 +77,23 @@ open class SqlServerTypes {
 
     open fun datetimeoffset(scale: Int) = SqlServerType(JavaSqlServerTypes.datetimeoffset(scale))
 
+    // JSON-encoded row types
+
+    /** A JSON column type that stores a single row as a positional JSON array: [val1, val2, val3]. */
+    open fun <Row : Any> jsonArrayEncoded(parser: RowParser<Row>) =
+        SqlServerType<Row>(JavaSqlServerTypes.jsonArrayEncoded(parser.underlying))
+
+    /** A JSON column type that stores a list of rows, each as a positional JSON array. */
+    open fun <Row : Any> jsonArrayEncodedList(parser: RowParser<Row>) =
+        SqlServerType<List<Row>>(JavaSqlServerTypes.jsonArrayEncodedList(parser.underlying))
+
+    /** A JSON column type that stores a single row as a keyed JSON object: {"col": val, ...}. */
+    open fun <Row : Any> jsonObjectEncoded(parser: RowParserNamed<Row>) =
+        SqlServerType<Row>(JavaSqlServerTypes.jsonObjectEncoded(parser.underlying))
+
+    /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
+    open fun <Row : Any> jsonObjectEncodedList(parser: RowParserNamed<Row>) =
+        SqlServerType<List<Row>>(JavaSqlServerTypes.jsonObjectEncodedList(parser.underlying))
+
     companion object : SqlServerTypes()
 }

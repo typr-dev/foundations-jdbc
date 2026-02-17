@@ -2,7 +2,6 @@ package dev.typr.foundations;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.function.Consumer;
 
 /**
  * A thin wrapper around a source of database connections and a strategy for managing transactions.
@@ -29,14 +28,18 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @throws SQLException if a database error occurs
    */
   public <T> T execute(SqlFunction<Connection, T> operation) throws SQLException {
-    Connection conn = connect.get();
+    Connection raw = connect.get();
+    Connection conn =
+        strategy.listener() != QueryListener.NOOP
+            ? new InstrumentedConnection(raw, strategy.listener(), null, null)
+            : raw;
     try {
       strategy.before().apply(conn);
       T result = operation.apply(conn);
       strategy.after().apply(conn);
       return result;
     } catch (SQLException | RuntimeException e) {
-      strategy.oops().accept(e);
+      strategy.oops().apply(conn, e);
       throw e;
     } finally {
       strategy.always().apply(conn);
@@ -70,6 +73,30 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
   }
 
   /**
+   * Returns a new Transactor with the given strategy merged on top of this one.
+   *
+   * @param override the strategy to merge
+   * @return a new Transactor with the merged strategy
+   */
+  public Transactor withStrategy(Strategy override) {
+    return new Transactor(connect, strategy.merge(override));
+  }
+
+  /**
+   * Execute an operation with a one-shot strategy override merged on top of the base strategy.
+   *
+   * @param <T> the result type
+   * @param override the strategy to merge for this execution
+   * @param operation the operation to execute
+   * @return the operation result
+   * @throws SQLException if a database error occurs
+   */
+  public <T> T execute(Strategy override, SqlFunction<Connection, T> operation)
+      throws SQLException {
+    return withStrategy(override).execute(operation);
+  }
+
+  /**
    * Default strategy: manual transactions with commit on success, close always.
    *
    * <p>Behavior:
@@ -85,7 +112,11 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    */
   public static Strategy defaultStrategy() {
     return new Strategy(
-        conn -> conn.setAutoCommit(false), Connection::commit, t -> {}, Connection::close);
+        conn -> conn.setAutoCommit(false),
+        Connection::commit,
+        (conn, t) -> {},
+        Connection::close,
+        QueryListener.NOOP);
   }
 
   /**
@@ -103,7 +134,8 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @return a strategy for auto-commit mode
    */
   public static Strategy autoCommitStrategy() {
-    return new Strategy(conn -> {}, conn -> {}, t -> {}, Connection::close);
+    return new Strategy(
+        conn -> {}, conn -> {}, (conn, t) -> {}, Connection::close, QueryListener.NOOP);
   }
 
   /**
@@ -124,16 +156,16 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
     return new Strategy(
         conn -> conn.setAutoCommit(false),
         Connection::commit,
-        t -> {},
-        conn -> {
+        (conn, t) -> {
           try {
             if (!conn.getAutoCommit() && !conn.isClosed()) {
               conn.rollback();
             }
           } catch (SQLException ignored) {
           }
-          conn.close();
-        });
+        },
+        Connection::close,
+        QueryListener.NOOP);
   }
 
   /**
@@ -152,7 +184,11 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    */
   public static Strategy testStrategy() {
     return new Strategy(
-        conn -> conn.setAutoCommit(false), Connection::rollback, t -> {}, Connection::close);
+        conn -> conn.setAutoCommit(false),
+        Connection::rollback,
+        (conn, t) -> {},
+        Connection::close,
+        QueryListener.NOOP);
   }
 
   /**
@@ -161,12 +197,40 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    *
    * @param before a program to prepare the connection for use
    * @param after a program to run on success
-   * @param oops a program to run on failure (catch)
+   * @param oops a program to run on failure (catch), receives the connection and the throwable
    * @param always a program to run in all cases (finally)
+   * @param listener a query listener for observability (use QueryListener.NOOP for none)
    */
   public record Strategy(
       SqlConsumer<Connection> before,
       SqlConsumer<Connection> after,
-      Consumer<Throwable> oops,
-      SqlConsumer<Connection> always) {}
+      SqlBiConsumer<Connection, Throwable> oops,
+      SqlConsumer<Connection> always,
+      QueryListener listener) {
+
+    public Strategy withListener(QueryListener listener) {
+      return new Strategy(before, after, oops, always, listener);
+    }
+
+    public Strategy merge(Strategy other) {
+      return new Strategy(
+          conn -> {
+            before.apply(conn);
+            other.before.apply(conn);
+          },
+          conn -> {
+            after.apply(conn);
+            other.after.apply(conn);
+          },
+          (conn, t) -> {
+            oops.apply(conn, t);
+            other.oops.apply(conn, t);
+          },
+          conn -> {
+            always.apply(conn);
+            other.always.apply(conn);
+          },
+          QueryListener.compose(listener, other.listener));
+    }
+  }
 }

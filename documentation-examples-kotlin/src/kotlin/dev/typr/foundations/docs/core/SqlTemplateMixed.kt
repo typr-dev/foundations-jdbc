@@ -7,11 +7,12 @@ import dev.typr.foundationskt.data.*
 class SqlTemplateMixed {
     data class User(val id: Int, val name: String, val status: String)
 
-    val userParser: RowParser<User> = RowParser.builder<User>()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .field(PgTypes.text, User::status)
-        .build(::User)
+    val userParser: RowParser<User> =
+        RowParser.builder<User>()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .field(PgTypes.text, User::status)
+            .build(::User)
 
     lateinit var tx: Transactor
 
@@ -25,8 +26,10 @@ class SqlTemplateMixed {
             .param(PgTypes.int4)
             .query(userParser.all())
 
-    fun topTen(): List<User> = activeUsersWithLimit.on(10).transact(tx)
+    fun topTen(): List<User> =
+        activeUsersWithLimit.on(10).transact(tx)
 
-    fun topFifty(): List<User> = activeUsersWithLimit.on(50).transact(tx)
+    fun topFifty(): List<User> =
+        activeUsersWithLimit.on(50).transact(tx)
     //stop
 }

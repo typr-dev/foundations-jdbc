@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.landing
 import dev.typr.foundationssc.*
-import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
 import java.sql.Connection
@@ -14,17 +14,21 @@ object SqlServerQuery:
 
   //start
   // Build small reusable filters - SQL Server example
+  val nvarchar = SqlServerTypes.nvarchar
+  val decimal = SqlServerTypes.decimal
+
   def byName(name: String): Fragment =
-    sql"name LIKE ${Fragment.encode(SqlServerTypes.nvarchar, name)}"
+    sql"name LIKE ${nvarchar(name)}"
 
   def cheaperThan(max: BigDecimal): Fragment =
-    sql"price < ${Fragment.encode(SqlServerTypes.decimal, max)}"
+    sql"price < ${decimal(max)}"
 
-  // Compose dynamically - only include the filters that are present
-  val filters: List[Fragment] = List(
-    Some(byName("%widget%")),
-    maxPrice.map(cheaperThan)
-  ).flatten
+  // Compose dynamically
+  val filters: List[Fragment] =
+    List(
+      Some(byName("%widget%")),
+      maxPrice.map(cheaperThan)
+    ).flatten
 
   val orders: List[OrderRow] =
     sql"SELECT * FROM orders ${Fragment.whereAnd(filters)}"

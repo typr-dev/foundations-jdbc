@@ -7,11 +7,12 @@ import dev.typr.foundationskt.data.*
 class SqlTemplateThen {
     data class Order(val id: Int, val userId: Int, val product: String)
 
-    val orderParser: RowParser<Order> = RowParser.builder<Order>()
-        .field(PgTypes.int4, Order::id)
-        .field(PgTypes.int4, Order::userId)
-        .field(PgTypes.text, Order::product)
-        .build(::Order)
+    val orderParser: RowParser<Order> =
+        RowParser.builder<Order>()
+            .field(PgTypes.int4, Order::id)
+            .field(PgTypes.int4, Order::userId)
+            .field(PgTypes.text, Order::product)
+            .build(::Order)
 
     lateinit var tx: Transactor
 
@@ -24,7 +25,10 @@ class SqlTemplateThen {
             .query(RowParser.of(PgTypes.int4).exactlyOne())
 
     val ordersByUser: SqlTemplate<Int, List<Order>> =
-        Fragment.of("SELECT id, user_id, product FROM orders WHERE user_id = ")
+        Fragment.of("""
+            SELECT id, user_id, product
+            FROM orders
+            WHERE user_id = """)
             .param(PgTypes.int4)
             .query(orderParser.all())
 

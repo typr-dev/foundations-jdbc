@@ -1,34 +1,33 @@
 package dev.typr.foundations.docs.landing
 
 import dev.typr.foundationskt.*
-import dev.typr.foundationskt.data.*
 import java.math.BigDecimal
 
 @Suppress("unused")
 object JsonCodecs {
     lateinit var tx: Transactor
 
-    //start
     data class OrderLine(val product: String, val qty: Int, val price: BigDecimal)
 
-    // Define once — reads from ResultSet AND JSON
-    val lineParser: RowParser<OrderLine> = RowParser.builder<OrderLine>()
-        .field(DuckDbTypes.varchar, OrderLine::product)
-        .field(DuckDbTypes.integer, OrderLine::qty)
-        .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
-        .build(::OrderLine)
+    val lineParser: RowParser<OrderLine> =
+        RowParser.builder<OrderLine>()
+            .field(DuckDbTypes.varchar, OrderLine::product)
+            .field(DuckDbTypes.integer, OrderLine::qty)
+            .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
+            .build(::OrderLine)
 
-    // Same RowParser, now as a JSON codec — zero extra code
-    val linesCodec: DbJson<List<OrderLine>> =
-        lineParser.jsonArray().list()
+    //start
+    // RowParser → JSON column type, zero extra code
+    val linesType: DuckDbType<List<OrderLine>> =
+        DuckDbTypes.jsonArrayEncodedList(lineParser)
 
-    // Aggregate child rows as JSON in a single query
-    fun getOrderLines(customerId: Int): List<OrderLine> {
-        val json: Json = Sql { "SELECT json_group_array(json_array(product, qty, price)) FROM order_lines WHERE customer_id = ${DuckDbTypes.integer(customerId)}" }
-            .query(RowParser.of(DuckDbTypes.json).exactlyOne())
+    fun getOrderLines(customerId: Int): List<OrderLine> =
+        Sql { """
+            SELECT json_group_array(json_array(product, qty, price))
+            FROM order_lines
+            WHERE customer_id = ${DuckDbTypes.integer(customerId)}
+        """ }
+            .query(RowParser.of(linesType).exactlyOne())
             .transact(tx)
-
-        return linesCodec.fromJson(JsonValue.parse(json.value()))
-    }
     //stop
 }

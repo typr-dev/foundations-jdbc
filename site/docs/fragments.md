@@ -9,7 +9,7 @@ import Snippet from '@site/src/components/Snippet';
 A Fragment is a composable SQL building block — it holds a SQL string together with its bound parameters. There are two ways to build fragments: **string interpolation** (Kotlin and Scala) and the **builder pattern** (all languages).
 
 :::tip Which style should I use?
-- **Kotlin** — Use `Sql { }` for queries where all values are known. Use the builder pattern (or the [hybrid approach](#hybrid-approach)) when you need parameter holes for [SQL Templates](./sql-templates).
+- **Kotlin** — Use `Sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [SQL Templates](./sql-templates).
 - **Scala** — Same guidance, using `sql""` instead of `Sql { }`.
 - **Java** — Use the builder pattern for everything (no string interpolation available).
 :::
@@ -34,21 +34,11 @@ This makes dynamic query composition concise:
 
 ## Builder Pattern
 
-The builder pattern works in all languages and is required when creating [SQL Templates](./sql-templates) with parameter holes:
+The builder pattern works in all languages and is useful for constructing fragments programmatically:
 
-<Snippet file="core/SqlTemplateBasic" />
+<Snippet file="core/FragmentBuilderBasic" />
 
-Use the builder when you need:
-
-- **Parameter holes** via `.param(type)` for SQL Templates
-- **Named row parser features** like `.row()` and `.paramRow()`
-- **Java code** (no string interpolation available)
-
-## Hybrid Approach
-
-For SQL Templates in Kotlin and Scala, combine both styles — use `Sql { }` / `sql""` for the static SQL and chain `.param()` for the typed parameter holes:
-
-<Snippet file="core/SqlTemplateMixed" />
+For parameterized templates with unfilled parameter holes, see [SQL Templates](./sql-templates).
 
 ## Chaining Reference
 
@@ -61,22 +51,37 @@ Fragments are self-composing — every combinator returns a new `Fragment`:
 | `.append(fragment)` | Append another fragment (e.g. `columnList`, `whereAnd()`) |
 | `.appendAll(fragments, separator)` | Append multiple fragments joined by a separator |
 | `.row(parser, value)` | Append all columns of a named row parser as bound parameters |
-| `.paramRow(parser)` | Append all columns of a named row parser as parameter holes |
-| `.param(type)` | Create a single parameter hole for [SQL Templates](./sql-templates) |
+| `.paramRow(parser)` | Append all columns of a named row parser as parameter holes — see [SQL Templates](./sql-templates) |
+| `.param(type)` | Create a single parameter hole — see [SQL Templates](./sql-templates) |
 
 ## Static Factories
 
 | Method | Description |
 |--------|-------------|
 | `Fragment.of(sql)` | Create a fragment from a literal SQL string |
-| `Fragment.concat(fragments...)` | Concatenate multiple fragments |
-| `Fragment.whereAnd(filters)` | Build a `WHERE` clause with `AND`-joined filters |
-| `Fragment.whereOr(filters)` | Build a `WHERE` clause with `OR`-joined filters |
+| `Fragment.empty()` | An empty fragment (no SQL, no parameters) |
+| `Fragment.value(type, value)` | Create a single-parameter fragment |
+| `Fragment.encode(type, value)` | Alias for `value` — Kotlin: `type(value)`, Scala: `type(value)` |
+| `Fragment.concat(fragments...)` | Concatenate multiple fragments with no separator |
+| `Fragment.join(fragments, separator)` | Join fragments with a separator |
+| `Fragment.comma(fragments...)` | Join fragments with `, ` |
+| `Fragment.and(fragments...)` | Join fragments with ` AND ` |
+| `Fragment.or(fragments...)` | Join fragments with ` OR ` |
+| `Fragment.set(fragments...)` | `SET ` prefix with `, `-joined fragments |
+| `Fragment.orderBy(fragments...)` | `ORDER BY ` prefix with `, `-joined fragments |
+| `Fragment.whereAnd(fragments...)` | `WHERE ` prefix with ` AND `-joined fragments |
+| `Fragment.whereOr(fragments...)` | `WHERE ` prefix with ` OR `-joined fragments |
+| `Fragment.parentheses(fragment)` | Wrap a fragment in `(` `)` |
+| `Fragment.quotedDouble(name)` | Double-quote an identifier: `"name"` |
+| `Fragment.quotedSingle(value)` | Single-quote a literal: `'value'` |
 
 ## Terminals
 
 | Method | Returns |
 |--------|---------|
 | `.query(parser)` | `Operation<T>` — a SELECT that reads rows using the given result set parser |
+| `.queryOne(type)` | `Operation<T>` — convenience for `.query(RowParser.of(type).exactlyOne())` |
+| `.queryList(type)` | `Operation<List<T>>` — convenience for `.query(RowParser.of(type).all())` |
+| `.queryMaybe(type)` | `Operation<Optional<T>>` / `Operation<T?>` / `Operation<Option[T]]>` — convenience for `.query(RowParser.of(type).maxOne())` |
 | `.update()` | `Operation<Int>` — an INSERT/UPDATE/DELETE returning the affected row count |
 | `.execute()` | `Operation<Void>` — like `.update()` but discards the row count |

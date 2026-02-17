@@ -6,7 +6,7 @@ package dev.typr.foundationskt
  * Usage:
  * ```kotlin
  * val getUser: DbProcedure.Def1_2<Int, String, String> = DbProcedure.define("get_user_by_id")
- *     .`in`(PgTypes.int4)
+ *     .input(PgTypes.int4)
  *     .out(PgTypes.text)
  *     .out(PgTypes.text)
  *     .build()
@@ -637,8 +637,8 @@ object DbProcedure {
     class Builder_0_0 internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_0_0
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1_0<I0> =
-            Builder_1_0(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1_0<I0> =
+            Builder_1_0(underlying.input(type.underlying))
         fun <O0> out(type: DbType<O0>): Builder_0_1<O0> =
             Builder_0_1(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_1_1<X, X> =
@@ -656,8 +656,8 @@ object DbProcedure {
     class Builder_0_1<O0> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_0_1<O0>
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1_1<I0, O0> =
-            Builder_1_1(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1_1<I0, O0> =
+            Builder_1_1(underlying.input(type.underlying))
         fun <O1> out(type: DbType<O1>): Builder_0_2<O0, O1> =
             Builder_0_2(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_1_2<X, O0, X> =
@@ -675,8 +675,8 @@ object DbProcedure {
     class Builder_0_2<O0, O1> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_0_2<O0, O1>
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1_2<I0, O0, O1> =
-            Builder_1_2(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1_2<I0, O0, O1> =
+            Builder_1_2(underlying.input(type.underlying))
         fun <O2> out(type: DbType<O2>): Builder_0_3<O0, O1, O2> =
             Builder_0_3(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_1_3<X, O0, O1, X> =
@@ -694,8 +694,8 @@ object DbProcedure {
     class Builder_0_3<O0, O1, O2> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_0_3<O0, O1, O2>
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1_3<I0, O0, O1, O2> =
-            Builder_1_3(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1_3<I0, O0, O1, O2> =
+            Builder_1_3(underlying.input(type.underlying))
         fun <O3> out(type: DbType<O3>): Builder_0_4<O0, O1, O2, O3> =
             Builder_0_4(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_1_4<X, O0, O1, O2, X> =
@@ -713,8 +713,8 @@ object DbProcedure {
     class Builder_0_4<O0, O1, O2, O3> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_0_4<O0, O1, O2, O3>
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1_4<I0, O0, O1, O2, O3> =
-            Builder_1_4(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1_4<I0, O0, O1, O2, O3> =
+            Builder_1_4(underlying.input(type.underlying))
         fun <O4> out(type: DbType<O4>): Builder_0_5<O0, O1, O2, O3, O4> =
             Builder_0_5(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_1_5<X, O0, O1, O2, O3, X> =
@@ -732,8 +732,8 @@ object DbProcedure {
     class Builder_0_5<O0, O1, O2, O3, O4> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_0_5<O0, O1, O2, O3, O4>
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1_5<I0, O0, O1, O2, O3, O4> =
-            Builder_1_5(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1_5<I0, O0, O1, O2, O3, O4> =
+            Builder_1_5(underlying.input(type.underlying))
         fun <O5> out(type: DbType<O5>): Builder_0_6<O0, O1, O2, O3, O4, O5> =
             Builder_0_6(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_1_6<X, O0, O1, O2, O3, O4, X> =
@@ -751,8 +751,8 @@ object DbProcedure {
     class Builder_0_6<O0, O1, O2, O3, O4, O5> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_0_6<O0, O1, O2, O3, O4, O5>
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1_6<I0, O0, O1, O2, O3, O4, O5> =
-            Builder_1_6(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1_6<I0, O0, O1, O2, O3, O4, O5> =
+            Builder_1_6(underlying.input(type.underlying))
         fun <O6> out(type: DbType<O6>): Builder_0_7<O0, O1, O2, O3, O4, O5, O6> =
             Builder_0_7(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_1_7<X, O0, O1, O2, O3, O4, O5, X> =
@@ -770,8 +770,8 @@ object DbProcedure {
     class Builder_0_7<O0, O1, O2, O3, O4, O5, O6> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_0_7<O0, O1, O2, O3, O4, O5, O6>
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1_7<I0, O0, O1, O2, O3, O4, O5, O6> =
-            Builder_1_7(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1_7<I0, O0, O1, O2, O3, O4, O5, O6> =
+            Builder_1_7(underlying.input(type.underlying))
         fun <O7> out(type: DbType<O7>): Builder_0_8<O0, O1, O2, O3, O4, O5, O6, O7> =
             Builder_0_8(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_1_8<X, O0, O1, O2, O3, O4, O5, O6, X> =
@@ -789,8 +789,8 @@ object DbProcedure {
     class Builder_0_8<O0, O1, O2, O3, O4, O5, O6, O7> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_0_8<O0, O1, O2, O3, O4, O5, O6, O7>
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1_8<I0, O0, O1, O2, O3, O4, O5, O6, O7> =
-            Builder_1_8(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1_8<I0, O0, O1, O2, O3, O4, O5, O6, O7> =
+            Builder_1_8(underlying.input(type.underlying))
         fun <O8> out(type: DbType<O8>): Builder_0_9<O0, O1, O2, O3, O4, O5, O6, O7, O8> =
             Builder_0_9(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_1_9<X, O0, O1, O2, O3, O4, O5, O6, O7, X> =
@@ -808,8 +808,8 @@ object DbProcedure {
     class Builder_0_9<O0, O1, O2, O3, O4, O5, O6, O7, O8> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_0_9<O0, O1, O2, O3, O4, O5, O6, O7, O8>
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1_9<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
-            Builder_1_9(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1_9<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
+            Builder_1_9(underlying.input(type.underlying))
         fun <O9> out(type: DbType<O9>): Builder_0_10<O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
             Builder_0_10(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_1_10<X, O0, O1, O2, O3, O4, O5, O6, O7, O8, X> =
@@ -827,8 +827,8 @@ object DbProcedure {
     class Builder_0_10<O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_0_10<O0, O1, O2, O3, O4, O5, O6, O7, O8, O9>
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1_10<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
-            Builder_1_10(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1_10<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
+            Builder_1_10(underlying.input(type.underlying))
 
         fun build(): Def0_10<O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> {
             val javaProc = underlying.build()
@@ -842,8 +842,8 @@ object DbProcedure {
     class Builder_1_0<I0> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_1_0<I0>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2_0<I0, I1> =
-            Builder_2_0(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2_0<I0, I1> =
+            Builder_2_0(underlying.input(type.underlying))
         fun <O0> out(type: DbType<O0>): Builder_1_1<I0, O0> =
             Builder_1_1(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_2_1<I0, X, X> =
@@ -861,8 +861,8 @@ object DbProcedure {
     class Builder_1_1<I0, O0> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_1_1<I0, O0>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2_1<I0, I1, O0> =
-            Builder_2_1(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2_1<I0, I1, O0> =
+            Builder_2_1(underlying.input(type.underlying))
         fun <O1> out(type: DbType<O1>): Builder_1_2<I0, O0, O1> =
             Builder_1_2(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_2_2<I0, X, O0, X> =
@@ -880,8 +880,8 @@ object DbProcedure {
     class Builder_1_2<I0, O0, O1> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_1_2<I0, O0, O1>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2_2<I0, I1, O0, O1> =
-            Builder_2_2(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2_2<I0, I1, O0, O1> =
+            Builder_2_2(underlying.input(type.underlying))
         fun <O2> out(type: DbType<O2>): Builder_1_3<I0, O0, O1, O2> =
             Builder_1_3(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_2_3<I0, X, O0, O1, X> =
@@ -899,8 +899,8 @@ object DbProcedure {
     class Builder_1_3<I0, O0, O1, O2> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_1_3<I0, O0, O1, O2>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2_3<I0, I1, O0, O1, O2> =
-            Builder_2_3(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2_3<I0, I1, O0, O1, O2> =
+            Builder_2_3(underlying.input(type.underlying))
         fun <O3> out(type: DbType<O3>): Builder_1_4<I0, O0, O1, O2, O3> =
             Builder_1_4(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_2_4<I0, X, O0, O1, O2, X> =
@@ -918,8 +918,8 @@ object DbProcedure {
     class Builder_1_4<I0, O0, O1, O2, O3> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_1_4<I0, O0, O1, O2, O3>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2_4<I0, I1, O0, O1, O2, O3> =
-            Builder_2_4(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2_4<I0, I1, O0, O1, O2, O3> =
+            Builder_2_4(underlying.input(type.underlying))
         fun <O4> out(type: DbType<O4>): Builder_1_5<I0, O0, O1, O2, O3, O4> =
             Builder_1_5(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_2_5<I0, X, O0, O1, O2, O3, X> =
@@ -937,8 +937,8 @@ object DbProcedure {
     class Builder_1_5<I0, O0, O1, O2, O3, O4> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_1_5<I0, O0, O1, O2, O3, O4>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2_5<I0, I1, O0, O1, O2, O3, O4> =
-            Builder_2_5(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2_5<I0, I1, O0, O1, O2, O3, O4> =
+            Builder_2_5(underlying.input(type.underlying))
         fun <O5> out(type: DbType<O5>): Builder_1_6<I0, O0, O1, O2, O3, O4, O5> =
             Builder_1_6(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_2_6<I0, X, O0, O1, O2, O3, O4, X> =
@@ -956,8 +956,8 @@ object DbProcedure {
     class Builder_1_6<I0, O0, O1, O2, O3, O4, O5> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_1_6<I0, O0, O1, O2, O3, O4, O5>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2_6<I0, I1, O0, O1, O2, O3, O4, O5> =
-            Builder_2_6(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2_6<I0, I1, O0, O1, O2, O3, O4, O5> =
+            Builder_2_6(underlying.input(type.underlying))
         fun <O6> out(type: DbType<O6>): Builder_1_7<I0, O0, O1, O2, O3, O4, O5, O6> =
             Builder_1_7(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_2_7<I0, X, O0, O1, O2, O3, O4, O5, X> =
@@ -975,8 +975,8 @@ object DbProcedure {
     class Builder_1_7<I0, O0, O1, O2, O3, O4, O5, O6> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_1_7<I0, O0, O1, O2, O3, O4, O5, O6>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2_7<I0, I1, O0, O1, O2, O3, O4, O5, O6> =
-            Builder_2_7(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2_7<I0, I1, O0, O1, O2, O3, O4, O5, O6> =
+            Builder_2_7(underlying.input(type.underlying))
         fun <O7> out(type: DbType<O7>): Builder_1_8<I0, O0, O1, O2, O3, O4, O5, O6, O7> =
             Builder_1_8(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_2_8<I0, X, O0, O1, O2, O3, O4, O5, O6, X> =
@@ -994,8 +994,8 @@ object DbProcedure {
     class Builder_1_8<I0, O0, O1, O2, O3, O4, O5, O6, O7> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_1_8<I0, O0, O1, O2, O3, O4, O5, O6, O7>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2_8<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7> =
-            Builder_2_8(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2_8<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7> =
+            Builder_2_8(underlying.input(type.underlying))
         fun <O8> out(type: DbType<O8>): Builder_1_9<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
             Builder_1_9(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_2_9<I0, X, O0, O1, O2, O3, O4, O5, O6, O7, X> =
@@ -1013,8 +1013,8 @@ object DbProcedure {
     class Builder_1_9<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_1_9<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2_9<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
-            Builder_2_9(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2_9<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
+            Builder_2_9(underlying.input(type.underlying))
         fun <O9> out(type: DbType<O9>): Builder_1_10<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
             Builder_1_10(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_2_10<I0, X, O0, O1, O2, O3, O4, O5, O6, O7, O8, X> =
@@ -1032,8 +1032,8 @@ object DbProcedure {
     class Builder_1_10<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_1_10<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2_10<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
-            Builder_2_10(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2_10<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
+            Builder_2_10(underlying.input(type.underlying))
 
         fun build(): Def1_10<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> {
             val javaProc = underlying.build()
@@ -1047,8 +1047,8 @@ object DbProcedure {
     class Builder_2_0<I0, I1> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_2_0<I0, I1>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3_0<I0, I1, I2> =
-            Builder_3_0(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3_0<I0, I1, I2> =
+            Builder_3_0(underlying.input(type.underlying))
         fun <O0> out(type: DbType<O0>): Builder_2_1<I0, I1, O0> =
             Builder_2_1(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_3_1<I0, I1, X, X> =
@@ -1066,8 +1066,8 @@ object DbProcedure {
     class Builder_2_1<I0, I1, O0> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_2_1<I0, I1, O0>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3_1<I0, I1, I2, O0> =
-            Builder_3_1(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3_1<I0, I1, I2, O0> =
+            Builder_3_1(underlying.input(type.underlying))
         fun <O1> out(type: DbType<O1>): Builder_2_2<I0, I1, O0, O1> =
             Builder_2_2(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_3_2<I0, I1, X, O0, X> =
@@ -1085,8 +1085,8 @@ object DbProcedure {
     class Builder_2_2<I0, I1, O0, O1> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_2_2<I0, I1, O0, O1>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3_2<I0, I1, I2, O0, O1> =
-            Builder_3_2(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3_2<I0, I1, I2, O0, O1> =
+            Builder_3_2(underlying.input(type.underlying))
         fun <O2> out(type: DbType<O2>): Builder_2_3<I0, I1, O0, O1, O2> =
             Builder_2_3(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_3_3<I0, I1, X, O0, O1, X> =
@@ -1104,8 +1104,8 @@ object DbProcedure {
     class Builder_2_3<I0, I1, O0, O1, O2> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_2_3<I0, I1, O0, O1, O2>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3_3<I0, I1, I2, O0, O1, O2> =
-            Builder_3_3(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3_3<I0, I1, I2, O0, O1, O2> =
+            Builder_3_3(underlying.input(type.underlying))
         fun <O3> out(type: DbType<O3>): Builder_2_4<I0, I1, O0, O1, O2, O3> =
             Builder_2_4(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_3_4<I0, I1, X, O0, O1, O2, X> =
@@ -1123,8 +1123,8 @@ object DbProcedure {
     class Builder_2_4<I0, I1, O0, O1, O2, O3> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_2_4<I0, I1, O0, O1, O2, O3>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3_4<I0, I1, I2, O0, O1, O2, O3> =
-            Builder_3_4(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3_4<I0, I1, I2, O0, O1, O2, O3> =
+            Builder_3_4(underlying.input(type.underlying))
         fun <O4> out(type: DbType<O4>): Builder_2_5<I0, I1, O0, O1, O2, O3, O4> =
             Builder_2_5(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_3_5<I0, I1, X, O0, O1, O2, O3, X> =
@@ -1142,8 +1142,8 @@ object DbProcedure {
     class Builder_2_5<I0, I1, O0, O1, O2, O3, O4> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_2_5<I0, I1, O0, O1, O2, O3, O4>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3_5<I0, I1, I2, O0, O1, O2, O3, O4> =
-            Builder_3_5(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3_5<I0, I1, I2, O0, O1, O2, O3, O4> =
+            Builder_3_5(underlying.input(type.underlying))
         fun <O5> out(type: DbType<O5>): Builder_2_6<I0, I1, O0, O1, O2, O3, O4, O5> =
             Builder_2_6(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_3_6<I0, I1, X, O0, O1, O2, O3, O4, X> =
@@ -1161,8 +1161,8 @@ object DbProcedure {
     class Builder_2_6<I0, I1, O0, O1, O2, O3, O4, O5> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_2_6<I0, I1, O0, O1, O2, O3, O4, O5>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3_6<I0, I1, I2, O0, O1, O2, O3, O4, O5> =
-            Builder_3_6(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3_6<I0, I1, I2, O0, O1, O2, O3, O4, O5> =
+            Builder_3_6(underlying.input(type.underlying))
         fun <O6> out(type: DbType<O6>): Builder_2_7<I0, I1, O0, O1, O2, O3, O4, O5, O6> =
             Builder_2_7(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_3_7<I0, I1, X, O0, O1, O2, O3, O4, O5, X> =
@@ -1180,8 +1180,8 @@ object DbProcedure {
     class Builder_2_7<I0, I1, O0, O1, O2, O3, O4, O5, O6> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_2_7<I0, I1, O0, O1, O2, O3, O4, O5, O6>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3_7<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6> =
-            Builder_3_7(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3_7<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6> =
+            Builder_3_7(underlying.input(type.underlying))
         fun <O7> out(type: DbType<O7>): Builder_2_8<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7> =
             Builder_2_8(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_3_8<I0, I1, X, O0, O1, O2, O3, O4, O5, O6, X> =
@@ -1199,8 +1199,8 @@ object DbProcedure {
     class Builder_2_8<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_2_8<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3_8<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7> =
-            Builder_3_8(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3_8<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7> =
+            Builder_3_8(underlying.input(type.underlying))
         fun <O8> out(type: DbType<O8>): Builder_2_9<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
             Builder_2_9(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_3_9<I0, I1, X, O0, O1, O2, O3, O4, O5, O6, O7, X> =
@@ -1218,8 +1218,8 @@ object DbProcedure {
     class Builder_2_9<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_2_9<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3_9<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
-            Builder_3_9(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3_9<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
+            Builder_3_9(underlying.input(type.underlying))
         fun <O9> out(type: DbType<O9>): Builder_2_10<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
             Builder_2_10(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_3_10<I0, I1, X, O0, O1, O2, O3, O4, O5, O6, O7, O8, X> =
@@ -1237,8 +1237,8 @@ object DbProcedure {
     class Builder_2_10<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_2_10<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3_10<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
-            Builder_3_10(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3_10<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
+            Builder_3_10(underlying.input(type.underlying))
 
         fun build(): Def2_10<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> {
             val javaProc = underlying.build()
@@ -1252,8 +1252,8 @@ object DbProcedure {
     class Builder_3_0<I0, I1, I2> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_3_0<I0, I1, I2>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4_0<I0, I1, I2, I3> =
-            Builder_4_0(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4_0<I0, I1, I2, I3> =
+            Builder_4_0(underlying.input(type.underlying))
         fun <O0> out(type: DbType<O0>): Builder_3_1<I0, I1, I2, O0> =
             Builder_3_1(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_4_1<I0, I1, I2, X, X> =
@@ -1271,8 +1271,8 @@ object DbProcedure {
     class Builder_3_1<I0, I1, I2, O0> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_3_1<I0, I1, I2, O0>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4_1<I0, I1, I2, I3, O0> =
-            Builder_4_1(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4_1<I0, I1, I2, I3, O0> =
+            Builder_4_1(underlying.input(type.underlying))
         fun <O1> out(type: DbType<O1>): Builder_3_2<I0, I1, I2, O0, O1> =
             Builder_3_2(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_4_2<I0, I1, I2, X, O0, X> =
@@ -1290,8 +1290,8 @@ object DbProcedure {
     class Builder_3_2<I0, I1, I2, O0, O1> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_3_2<I0, I1, I2, O0, O1>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4_2<I0, I1, I2, I3, O0, O1> =
-            Builder_4_2(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4_2<I0, I1, I2, I3, O0, O1> =
+            Builder_4_2(underlying.input(type.underlying))
         fun <O2> out(type: DbType<O2>): Builder_3_3<I0, I1, I2, O0, O1, O2> =
             Builder_3_3(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_4_3<I0, I1, I2, X, O0, O1, X> =
@@ -1309,8 +1309,8 @@ object DbProcedure {
     class Builder_3_3<I0, I1, I2, O0, O1, O2> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_3_3<I0, I1, I2, O0, O1, O2>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4_3<I0, I1, I2, I3, O0, O1, O2> =
-            Builder_4_3(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4_3<I0, I1, I2, I3, O0, O1, O2> =
+            Builder_4_3(underlying.input(type.underlying))
         fun <O3> out(type: DbType<O3>): Builder_3_4<I0, I1, I2, O0, O1, O2, O3> =
             Builder_3_4(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_4_4<I0, I1, I2, X, O0, O1, O2, X> =
@@ -1328,8 +1328,8 @@ object DbProcedure {
     class Builder_3_4<I0, I1, I2, O0, O1, O2, O3> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_3_4<I0, I1, I2, O0, O1, O2, O3>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4_4<I0, I1, I2, I3, O0, O1, O2, O3> =
-            Builder_4_4(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4_4<I0, I1, I2, I3, O0, O1, O2, O3> =
+            Builder_4_4(underlying.input(type.underlying))
         fun <O4> out(type: DbType<O4>): Builder_3_5<I0, I1, I2, O0, O1, O2, O3, O4> =
             Builder_3_5(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_4_5<I0, I1, I2, X, O0, O1, O2, O3, X> =
@@ -1347,8 +1347,8 @@ object DbProcedure {
     class Builder_3_5<I0, I1, I2, O0, O1, O2, O3, O4> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_3_5<I0, I1, I2, O0, O1, O2, O3, O4>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4_5<I0, I1, I2, I3, O0, O1, O2, O3, O4> =
-            Builder_4_5(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4_5<I0, I1, I2, I3, O0, O1, O2, O3, O4> =
+            Builder_4_5(underlying.input(type.underlying))
         fun <O5> out(type: DbType<O5>): Builder_3_6<I0, I1, I2, O0, O1, O2, O3, O4, O5> =
             Builder_3_6(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_4_6<I0, I1, I2, X, O0, O1, O2, O3, O4, X> =
@@ -1366,8 +1366,8 @@ object DbProcedure {
     class Builder_3_6<I0, I1, I2, O0, O1, O2, O3, O4, O5> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_3_6<I0, I1, I2, O0, O1, O2, O3, O4, O5>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4_6<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5> =
-            Builder_4_6(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4_6<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5> =
+            Builder_4_6(underlying.input(type.underlying))
         fun <O6> out(type: DbType<O6>): Builder_3_7<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6> =
             Builder_3_7(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_4_7<I0, I1, I2, X, O0, O1, O2, O3, O4, O5, X> =
@@ -1385,8 +1385,8 @@ object DbProcedure {
     class Builder_3_7<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_3_7<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4_7<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6> =
-            Builder_4_7(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4_7<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6> =
+            Builder_4_7(underlying.input(type.underlying))
         fun <O7> out(type: DbType<O7>): Builder_3_8<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7> =
             Builder_3_8(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_4_8<I0, I1, I2, X, O0, O1, O2, O3, O4, O5, O6, X> =
@@ -1404,8 +1404,8 @@ object DbProcedure {
     class Builder_3_8<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_3_8<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4_8<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7> =
-            Builder_4_8(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4_8<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7> =
+            Builder_4_8(underlying.input(type.underlying))
         fun <O8> out(type: DbType<O8>): Builder_3_9<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
             Builder_3_9(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_4_9<I0, I1, I2, X, O0, O1, O2, O3, O4, O5, O6, O7, X> =
@@ -1423,8 +1423,8 @@ object DbProcedure {
     class Builder_3_9<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_3_9<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4_9<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
-            Builder_4_9(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4_9<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
+            Builder_4_9(underlying.input(type.underlying))
         fun <O9> out(type: DbType<O9>): Builder_3_10<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
             Builder_3_10(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_4_10<I0, I1, I2, X, O0, O1, O2, O3, O4, O5, O6, O7, O8, X> =
@@ -1442,8 +1442,8 @@ object DbProcedure {
     class Builder_3_10<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_3_10<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4_10<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
-            Builder_4_10(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4_10<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
+            Builder_4_10(underlying.input(type.underlying))
 
         fun build(): Def3_10<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> {
             val javaProc = underlying.build()
@@ -1457,8 +1457,8 @@ object DbProcedure {
     class Builder_4_0<I0, I1, I2, I3> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_4_0<I0, I1, I2, I3>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5_0<I0, I1, I2, I3, I4> =
-            Builder_5_0(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5_0<I0, I1, I2, I3, I4> =
+            Builder_5_0(underlying.input(type.underlying))
         fun <O0> out(type: DbType<O0>): Builder_4_1<I0, I1, I2, I3, O0> =
             Builder_4_1(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_5_1<I0, I1, I2, I3, X, X> =
@@ -1476,8 +1476,8 @@ object DbProcedure {
     class Builder_4_1<I0, I1, I2, I3, O0> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_4_1<I0, I1, I2, I3, O0>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5_1<I0, I1, I2, I3, I4, O0> =
-            Builder_5_1(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5_1<I0, I1, I2, I3, I4, O0> =
+            Builder_5_1(underlying.input(type.underlying))
         fun <O1> out(type: DbType<O1>): Builder_4_2<I0, I1, I2, I3, O0, O1> =
             Builder_4_2(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_5_2<I0, I1, I2, I3, X, O0, X> =
@@ -1495,8 +1495,8 @@ object DbProcedure {
     class Builder_4_2<I0, I1, I2, I3, O0, O1> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_4_2<I0, I1, I2, I3, O0, O1>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5_2<I0, I1, I2, I3, I4, O0, O1> =
-            Builder_5_2(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5_2<I0, I1, I2, I3, I4, O0, O1> =
+            Builder_5_2(underlying.input(type.underlying))
         fun <O2> out(type: DbType<O2>): Builder_4_3<I0, I1, I2, I3, O0, O1, O2> =
             Builder_4_3(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_5_3<I0, I1, I2, I3, X, O0, O1, X> =
@@ -1514,8 +1514,8 @@ object DbProcedure {
     class Builder_4_3<I0, I1, I2, I3, O0, O1, O2> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_4_3<I0, I1, I2, I3, O0, O1, O2>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5_3<I0, I1, I2, I3, I4, O0, O1, O2> =
-            Builder_5_3(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5_3<I0, I1, I2, I3, I4, O0, O1, O2> =
+            Builder_5_3(underlying.input(type.underlying))
         fun <O3> out(type: DbType<O3>): Builder_4_4<I0, I1, I2, I3, O0, O1, O2, O3> =
             Builder_4_4(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_5_4<I0, I1, I2, I3, X, O0, O1, O2, X> =
@@ -1533,8 +1533,8 @@ object DbProcedure {
     class Builder_4_4<I0, I1, I2, I3, O0, O1, O2, O3> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_4_4<I0, I1, I2, I3, O0, O1, O2, O3>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5_4<I0, I1, I2, I3, I4, O0, O1, O2, O3> =
-            Builder_5_4(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5_4<I0, I1, I2, I3, I4, O0, O1, O2, O3> =
+            Builder_5_4(underlying.input(type.underlying))
         fun <O4> out(type: DbType<O4>): Builder_4_5<I0, I1, I2, I3, O0, O1, O2, O3, O4> =
             Builder_4_5(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_5_5<I0, I1, I2, I3, X, O0, O1, O2, O3, X> =
@@ -1552,8 +1552,8 @@ object DbProcedure {
     class Builder_4_5<I0, I1, I2, I3, O0, O1, O2, O3, O4> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_4_5<I0, I1, I2, I3, O0, O1, O2, O3, O4>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5_5<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4> =
-            Builder_5_5(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5_5<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4> =
+            Builder_5_5(underlying.input(type.underlying))
         fun <O5> out(type: DbType<O5>): Builder_4_6<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5> =
             Builder_4_6(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_5_6<I0, I1, I2, I3, X, O0, O1, O2, O3, O4, X> =
@@ -1571,8 +1571,8 @@ object DbProcedure {
     class Builder_4_6<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_4_6<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5_6<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5> =
-            Builder_5_6(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5_6<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5> =
+            Builder_5_6(underlying.input(type.underlying))
         fun <O6> out(type: DbType<O6>): Builder_4_7<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6> =
             Builder_4_7(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_5_7<I0, I1, I2, I3, X, O0, O1, O2, O3, O4, O5, X> =
@@ -1590,8 +1590,8 @@ object DbProcedure {
     class Builder_4_7<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_4_7<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5_7<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6> =
-            Builder_5_7(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5_7<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6> =
+            Builder_5_7(underlying.input(type.underlying))
         fun <O7> out(type: DbType<O7>): Builder_4_8<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7> =
             Builder_4_8(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_5_8<I0, I1, I2, I3, X, O0, O1, O2, O3, O4, O5, O6, X> =
@@ -1609,8 +1609,8 @@ object DbProcedure {
     class Builder_4_8<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_4_8<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5_8<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7> =
-            Builder_5_8(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5_8<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7> =
+            Builder_5_8(underlying.input(type.underlying))
         fun <O8> out(type: DbType<O8>): Builder_4_9<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
             Builder_4_9(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_5_9<I0, I1, I2, I3, X, O0, O1, O2, O3, O4, O5, O6, O7, X> =
@@ -1628,8 +1628,8 @@ object DbProcedure {
     class Builder_4_9<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_4_9<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5_9<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
-            Builder_5_9(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5_9<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
+            Builder_5_9(underlying.input(type.underlying))
         fun <O9> out(type: DbType<O9>): Builder_4_10<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
             Builder_4_10(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_5_10<I0, I1, I2, I3, X, O0, O1, O2, O3, O4, O5, O6, O7, O8, X> =
@@ -1647,8 +1647,8 @@ object DbProcedure {
     class Builder_4_10<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_4_10<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5_10<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
-            Builder_5_10(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5_10<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
+            Builder_5_10(underlying.input(type.underlying))
 
         fun build(): Def4_10<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> {
             val javaProc = underlying.build()
@@ -1662,8 +1662,8 @@ object DbProcedure {
     class Builder_5_0<I0, I1, I2, I3, I4> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_5_0<I0, I1, I2, I3, I4>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6_0<I0, I1, I2, I3, I4, I5> =
-            Builder_6_0(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6_0<I0, I1, I2, I3, I4, I5> =
+            Builder_6_0(underlying.input(type.underlying))
         fun <O0> out(type: DbType<O0>): Builder_5_1<I0, I1, I2, I3, I4, O0> =
             Builder_5_1(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_6_1<I0, I1, I2, I3, I4, X, X> =
@@ -1681,8 +1681,8 @@ object DbProcedure {
     class Builder_5_1<I0, I1, I2, I3, I4, O0> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_5_1<I0, I1, I2, I3, I4, O0>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6_1<I0, I1, I2, I3, I4, I5, O0> =
-            Builder_6_1(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6_1<I0, I1, I2, I3, I4, I5, O0> =
+            Builder_6_1(underlying.input(type.underlying))
         fun <O1> out(type: DbType<O1>): Builder_5_2<I0, I1, I2, I3, I4, O0, O1> =
             Builder_5_2(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_6_2<I0, I1, I2, I3, I4, X, O0, X> =
@@ -1700,8 +1700,8 @@ object DbProcedure {
     class Builder_5_2<I0, I1, I2, I3, I4, O0, O1> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_5_2<I0, I1, I2, I3, I4, O0, O1>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6_2<I0, I1, I2, I3, I4, I5, O0, O1> =
-            Builder_6_2(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6_2<I0, I1, I2, I3, I4, I5, O0, O1> =
+            Builder_6_2(underlying.input(type.underlying))
         fun <O2> out(type: DbType<O2>): Builder_5_3<I0, I1, I2, I3, I4, O0, O1, O2> =
             Builder_5_3(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_6_3<I0, I1, I2, I3, I4, X, O0, O1, X> =
@@ -1719,8 +1719,8 @@ object DbProcedure {
     class Builder_5_3<I0, I1, I2, I3, I4, O0, O1, O2> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_5_3<I0, I1, I2, I3, I4, O0, O1, O2>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6_3<I0, I1, I2, I3, I4, I5, O0, O1, O2> =
-            Builder_6_3(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6_3<I0, I1, I2, I3, I4, I5, O0, O1, O2> =
+            Builder_6_3(underlying.input(type.underlying))
         fun <O3> out(type: DbType<O3>): Builder_5_4<I0, I1, I2, I3, I4, O0, O1, O2, O3> =
             Builder_5_4(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_6_4<I0, I1, I2, I3, I4, X, O0, O1, O2, X> =
@@ -1738,8 +1738,8 @@ object DbProcedure {
     class Builder_5_4<I0, I1, I2, I3, I4, O0, O1, O2, O3> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_5_4<I0, I1, I2, I3, I4, O0, O1, O2, O3>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6_4<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3> =
-            Builder_6_4(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6_4<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3> =
+            Builder_6_4(underlying.input(type.underlying))
         fun <O4> out(type: DbType<O4>): Builder_5_5<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4> =
             Builder_5_5(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_6_5<I0, I1, I2, I3, I4, X, O0, O1, O2, O3, X> =
@@ -1757,8 +1757,8 @@ object DbProcedure {
     class Builder_5_5<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_5_5<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6_5<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4> =
-            Builder_6_5(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6_5<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4> =
+            Builder_6_5(underlying.input(type.underlying))
         fun <O5> out(type: DbType<O5>): Builder_5_6<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5> =
             Builder_5_6(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_6_6<I0, I1, I2, I3, I4, X, O0, O1, O2, O3, O4, X> =
@@ -1776,8 +1776,8 @@ object DbProcedure {
     class Builder_5_6<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_5_6<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6_6<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5> =
-            Builder_6_6(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6_6<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5> =
+            Builder_6_6(underlying.input(type.underlying))
         fun <O6> out(type: DbType<O6>): Builder_5_7<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6> =
             Builder_5_7(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_6_7<I0, I1, I2, I3, I4, X, O0, O1, O2, O3, O4, O5, X> =
@@ -1795,8 +1795,8 @@ object DbProcedure {
     class Builder_5_7<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_5_7<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6_7<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6> =
-            Builder_6_7(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6_7<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6> =
+            Builder_6_7(underlying.input(type.underlying))
         fun <O7> out(type: DbType<O7>): Builder_5_8<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7> =
             Builder_5_8(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_6_8<I0, I1, I2, I3, I4, X, O0, O1, O2, O3, O4, O5, O6, X> =
@@ -1814,8 +1814,8 @@ object DbProcedure {
     class Builder_5_8<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_5_8<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6_8<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7> =
-            Builder_6_8(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6_8<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7> =
+            Builder_6_8(underlying.input(type.underlying))
         fun <O8> out(type: DbType<O8>): Builder_5_9<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
             Builder_5_9(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_6_9<I0, I1, I2, I3, I4, X, O0, O1, O2, O3, O4, O5, O6, O7, X> =
@@ -1833,8 +1833,8 @@ object DbProcedure {
     class Builder_5_9<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_5_9<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6_9<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
-            Builder_6_9(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6_9<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
+            Builder_6_9(underlying.input(type.underlying))
         fun <O9> out(type: DbType<O9>): Builder_5_10<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
             Builder_5_10(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_6_10<I0, I1, I2, I3, I4, X, O0, O1, O2, O3, O4, O5, O6, O7, O8, X> =
@@ -1852,8 +1852,8 @@ object DbProcedure {
     class Builder_5_10<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_5_10<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6_10<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
-            Builder_6_10(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6_10<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
+            Builder_6_10(underlying.input(type.underlying))
 
         fun build(): Def5_10<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> {
             val javaProc = underlying.build()
@@ -1867,8 +1867,8 @@ object DbProcedure {
     class Builder_6_0<I0, I1, I2, I3, I4, I5> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_6_0<I0, I1, I2, I3, I4, I5>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7_0<I0, I1, I2, I3, I4, I5, I6> =
-            Builder_7_0(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7_0<I0, I1, I2, I3, I4, I5, I6> =
+            Builder_7_0(underlying.input(type.underlying))
         fun <O0> out(type: DbType<O0>): Builder_6_1<I0, I1, I2, I3, I4, I5, O0> =
             Builder_6_1(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_7_1<I0, I1, I2, I3, I4, I5, X, X> =
@@ -1886,8 +1886,8 @@ object DbProcedure {
     class Builder_6_1<I0, I1, I2, I3, I4, I5, O0> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_6_1<I0, I1, I2, I3, I4, I5, O0>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7_1<I0, I1, I2, I3, I4, I5, I6, O0> =
-            Builder_7_1(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7_1<I0, I1, I2, I3, I4, I5, I6, O0> =
+            Builder_7_1(underlying.input(type.underlying))
         fun <O1> out(type: DbType<O1>): Builder_6_2<I0, I1, I2, I3, I4, I5, O0, O1> =
             Builder_6_2(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_7_2<I0, I1, I2, I3, I4, I5, X, O0, X> =
@@ -1905,8 +1905,8 @@ object DbProcedure {
     class Builder_6_2<I0, I1, I2, I3, I4, I5, O0, O1> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_6_2<I0, I1, I2, I3, I4, I5, O0, O1>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7_2<I0, I1, I2, I3, I4, I5, I6, O0, O1> =
-            Builder_7_2(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7_2<I0, I1, I2, I3, I4, I5, I6, O0, O1> =
+            Builder_7_2(underlying.input(type.underlying))
         fun <O2> out(type: DbType<O2>): Builder_6_3<I0, I1, I2, I3, I4, I5, O0, O1, O2> =
             Builder_6_3(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_7_3<I0, I1, I2, I3, I4, I5, X, O0, O1, X> =
@@ -1924,8 +1924,8 @@ object DbProcedure {
     class Builder_6_3<I0, I1, I2, I3, I4, I5, O0, O1, O2> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_6_3<I0, I1, I2, I3, I4, I5, O0, O1, O2>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7_3<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2> =
-            Builder_7_3(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7_3<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2> =
+            Builder_7_3(underlying.input(type.underlying))
         fun <O3> out(type: DbType<O3>): Builder_6_4<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3> =
             Builder_6_4(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_7_4<I0, I1, I2, I3, I4, I5, X, O0, O1, O2, X> =
@@ -1943,8 +1943,8 @@ object DbProcedure {
     class Builder_6_4<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_6_4<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7_4<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3> =
-            Builder_7_4(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7_4<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3> =
+            Builder_7_4(underlying.input(type.underlying))
         fun <O4> out(type: DbType<O4>): Builder_6_5<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4> =
             Builder_6_5(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_7_5<I0, I1, I2, I3, I4, I5, X, O0, O1, O2, O3, X> =
@@ -1962,8 +1962,8 @@ object DbProcedure {
     class Builder_6_5<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_6_5<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7_5<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4> =
-            Builder_7_5(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7_5<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4> =
+            Builder_7_5(underlying.input(type.underlying))
         fun <O5> out(type: DbType<O5>): Builder_6_6<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5> =
             Builder_6_6(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_7_6<I0, I1, I2, I3, I4, I5, X, O0, O1, O2, O3, O4, X> =
@@ -1981,8 +1981,8 @@ object DbProcedure {
     class Builder_6_6<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_6_6<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7_6<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5> =
-            Builder_7_6(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7_6<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5> =
+            Builder_7_6(underlying.input(type.underlying))
         fun <O6> out(type: DbType<O6>): Builder_6_7<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6> =
             Builder_6_7(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_7_7<I0, I1, I2, I3, I4, I5, X, O0, O1, O2, O3, O4, O5, X> =
@@ -2000,8 +2000,8 @@ object DbProcedure {
     class Builder_6_7<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_6_7<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7_7<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6> =
-            Builder_7_7(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7_7<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6> =
+            Builder_7_7(underlying.input(type.underlying))
         fun <O7> out(type: DbType<O7>): Builder_6_8<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7> =
             Builder_6_8(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_7_8<I0, I1, I2, I3, I4, I5, X, O0, O1, O2, O3, O4, O5, O6, X> =
@@ -2019,8 +2019,8 @@ object DbProcedure {
     class Builder_6_8<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_6_8<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7_8<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7> =
-            Builder_7_8(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7_8<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7> =
+            Builder_7_8(underlying.input(type.underlying))
         fun <O8> out(type: DbType<O8>): Builder_6_9<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
             Builder_6_9(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_7_9<I0, I1, I2, I3, I4, I5, X, O0, O1, O2, O3, O4, O5, O6, O7, X> =
@@ -2038,8 +2038,8 @@ object DbProcedure {
     class Builder_6_9<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_6_9<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7_9<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
-            Builder_7_9(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7_9<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
+            Builder_7_9(underlying.input(type.underlying))
         fun <O9> out(type: DbType<O9>): Builder_6_10<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
             Builder_6_10(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_7_10<I0, I1, I2, I3, I4, I5, X, O0, O1, O2, O3, O4, O5, O6, O7, O8, X> =
@@ -2057,8 +2057,8 @@ object DbProcedure {
     class Builder_6_10<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_6_10<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7_10<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
-            Builder_7_10(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7_10<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
+            Builder_7_10(underlying.input(type.underlying))
 
         fun build(): Def6_10<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> {
             val javaProc = underlying.build()
@@ -2072,8 +2072,8 @@ object DbProcedure {
     class Builder_7_0<I0, I1, I2, I3, I4, I5, I6> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_7_0<I0, I1, I2, I3, I4, I5, I6>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8_0<I0, I1, I2, I3, I4, I5, I6, I7> =
-            Builder_8_0(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8_0<I0, I1, I2, I3, I4, I5, I6, I7> =
+            Builder_8_0(underlying.input(type.underlying))
         fun <O0> out(type: DbType<O0>): Builder_7_1<I0, I1, I2, I3, I4, I5, I6, O0> =
             Builder_7_1(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_8_1<I0, I1, I2, I3, I4, I5, I6, X, X> =
@@ -2091,8 +2091,8 @@ object DbProcedure {
     class Builder_7_1<I0, I1, I2, I3, I4, I5, I6, O0> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_7_1<I0, I1, I2, I3, I4, I5, I6, O0>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8_1<I0, I1, I2, I3, I4, I5, I6, I7, O0> =
-            Builder_8_1(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8_1<I0, I1, I2, I3, I4, I5, I6, I7, O0> =
+            Builder_8_1(underlying.input(type.underlying))
         fun <O1> out(type: DbType<O1>): Builder_7_2<I0, I1, I2, I3, I4, I5, I6, O0, O1> =
             Builder_7_2(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_8_2<I0, I1, I2, I3, I4, I5, I6, X, O0, X> =
@@ -2110,8 +2110,8 @@ object DbProcedure {
     class Builder_7_2<I0, I1, I2, I3, I4, I5, I6, O0, O1> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_7_2<I0, I1, I2, I3, I4, I5, I6, O0, O1>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8_2<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1> =
-            Builder_8_2(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8_2<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1> =
+            Builder_8_2(underlying.input(type.underlying))
         fun <O2> out(type: DbType<O2>): Builder_7_3<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2> =
             Builder_7_3(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_8_3<I0, I1, I2, I3, I4, I5, I6, X, O0, O1, X> =
@@ -2129,8 +2129,8 @@ object DbProcedure {
     class Builder_7_3<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_7_3<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8_3<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2> =
-            Builder_8_3(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8_3<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2> =
+            Builder_8_3(underlying.input(type.underlying))
         fun <O3> out(type: DbType<O3>): Builder_7_4<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3> =
             Builder_7_4(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_8_4<I0, I1, I2, I3, I4, I5, I6, X, O0, O1, O2, X> =
@@ -2148,8 +2148,8 @@ object DbProcedure {
     class Builder_7_4<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_7_4<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8_4<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3> =
-            Builder_8_4(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8_4<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3> =
+            Builder_8_4(underlying.input(type.underlying))
         fun <O4> out(type: DbType<O4>): Builder_7_5<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4> =
             Builder_7_5(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_8_5<I0, I1, I2, I3, I4, I5, I6, X, O0, O1, O2, O3, X> =
@@ -2167,8 +2167,8 @@ object DbProcedure {
     class Builder_7_5<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_7_5<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8_5<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4> =
-            Builder_8_5(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8_5<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4> =
+            Builder_8_5(underlying.input(type.underlying))
         fun <O5> out(type: DbType<O5>): Builder_7_6<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5> =
             Builder_7_6(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_8_6<I0, I1, I2, I3, I4, I5, I6, X, O0, O1, O2, O3, O4, X> =
@@ -2186,8 +2186,8 @@ object DbProcedure {
     class Builder_7_6<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_7_6<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8_6<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5> =
-            Builder_8_6(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8_6<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5> =
+            Builder_8_6(underlying.input(type.underlying))
         fun <O6> out(type: DbType<O6>): Builder_7_7<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6> =
             Builder_7_7(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_8_7<I0, I1, I2, I3, I4, I5, I6, X, O0, O1, O2, O3, O4, O5, X> =
@@ -2205,8 +2205,8 @@ object DbProcedure {
     class Builder_7_7<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_7_7<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8_7<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6> =
-            Builder_8_7(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8_7<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6> =
+            Builder_8_7(underlying.input(type.underlying))
         fun <O7> out(type: DbType<O7>): Builder_7_8<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7> =
             Builder_7_8(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_8_8<I0, I1, I2, I3, I4, I5, I6, X, O0, O1, O2, O3, O4, O5, O6, X> =
@@ -2224,8 +2224,8 @@ object DbProcedure {
     class Builder_7_8<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_7_8<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8_8<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7> =
-            Builder_8_8(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8_8<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7> =
+            Builder_8_8(underlying.input(type.underlying))
         fun <O8> out(type: DbType<O8>): Builder_7_9<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
             Builder_7_9(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_8_9<I0, I1, I2, I3, I4, I5, I6, X, O0, O1, O2, O3, O4, O5, O6, O7, X> =
@@ -2243,8 +2243,8 @@ object DbProcedure {
     class Builder_7_9<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_7_9<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8_9<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
-            Builder_8_9(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8_9<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
+            Builder_8_9(underlying.input(type.underlying))
         fun <O9> out(type: DbType<O9>): Builder_7_10<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
             Builder_7_10(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_8_10<I0, I1, I2, I3, I4, I5, I6, X, O0, O1, O2, O3, O4, O5, O6, O7, O8, X> =
@@ -2262,8 +2262,8 @@ object DbProcedure {
     class Builder_7_10<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_7_10<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8_10<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
-            Builder_8_10(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8_10<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
+            Builder_8_10(underlying.input(type.underlying))
 
         fun build(): Def7_10<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> {
             val javaProc = underlying.build()
@@ -2277,8 +2277,8 @@ object DbProcedure {
     class Builder_8_0<I0, I1, I2, I3, I4, I5, I6, I7> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_8_0<I0, I1, I2, I3, I4, I5, I6, I7>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9_0<I0, I1, I2, I3, I4, I5, I6, I7, I8> =
-            Builder_9_0(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9_0<I0, I1, I2, I3, I4, I5, I6, I7, I8> =
+            Builder_9_0(underlying.input(type.underlying))
         fun <O0> out(type: DbType<O0>): Builder_8_1<I0, I1, I2, I3, I4, I5, I6, I7, O0> =
             Builder_8_1(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_9_1<I0, I1, I2, I3, I4, I5, I6, I7, X, X> =
@@ -2296,8 +2296,8 @@ object DbProcedure {
     class Builder_8_1<I0, I1, I2, I3, I4, I5, I6, I7, O0> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_8_1<I0, I1, I2, I3, I4, I5, I6, I7, O0>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0> =
-            Builder_9_1(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0> =
+            Builder_9_1(underlying.input(type.underlying))
         fun <O1> out(type: DbType<O1>): Builder_8_2<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1> =
             Builder_8_2(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_9_2<I0, I1, I2, I3, I4, I5, I6, I7, X, O0, X> =
@@ -2315,8 +2315,8 @@ object DbProcedure {
     class Builder_8_2<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_8_2<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1> =
-            Builder_9_2(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1> =
+            Builder_9_2(underlying.input(type.underlying))
         fun <O2> out(type: DbType<O2>): Builder_8_3<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2> =
             Builder_8_3(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_9_3<I0, I1, I2, I3, I4, I5, I6, I7, X, O0, O1, X> =
@@ -2334,8 +2334,8 @@ object DbProcedure {
     class Builder_8_3<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_8_3<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2> =
-            Builder_9_3(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2> =
+            Builder_9_3(underlying.input(type.underlying))
         fun <O3> out(type: DbType<O3>): Builder_8_4<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3> =
             Builder_8_4(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_9_4<I0, I1, I2, I3, I4, I5, I6, I7, X, O0, O1, O2, X> =
@@ -2353,8 +2353,8 @@ object DbProcedure {
     class Builder_8_4<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_8_4<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3> =
-            Builder_9_4(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3> =
+            Builder_9_4(underlying.input(type.underlying))
         fun <O4> out(type: DbType<O4>): Builder_8_5<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4> =
             Builder_8_5(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_9_5<I0, I1, I2, I3, I4, I5, I6, I7, X, O0, O1, O2, O3, X> =
@@ -2372,8 +2372,8 @@ object DbProcedure {
     class Builder_8_5<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_8_5<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4> =
-            Builder_9_5(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4> =
+            Builder_9_5(underlying.input(type.underlying))
         fun <O5> out(type: DbType<O5>): Builder_8_6<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5> =
             Builder_8_6(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_9_6<I0, I1, I2, I3, I4, I5, I6, I7, X, O0, O1, O2, O3, O4, X> =
@@ -2391,8 +2391,8 @@ object DbProcedure {
     class Builder_8_6<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_8_6<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5> =
-            Builder_9_6(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5> =
+            Builder_9_6(underlying.input(type.underlying))
         fun <O6> out(type: DbType<O6>): Builder_8_7<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6> =
             Builder_8_7(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_9_7<I0, I1, I2, I3, I4, I5, I6, I7, X, O0, O1, O2, O3, O4, O5, X> =
@@ -2410,8 +2410,8 @@ object DbProcedure {
     class Builder_8_7<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_8_7<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6> =
-            Builder_9_7(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6> =
+            Builder_9_7(underlying.input(type.underlying))
         fun <O7> out(type: DbType<O7>): Builder_8_8<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7> =
             Builder_8_8(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_9_8<I0, I1, I2, I3, I4, I5, I6, I7, X, O0, O1, O2, O3, O4, O5, O6, X> =
@@ -2429,8 +2429,8 @@ object DbProcedure {
     class Builder_8_8<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_8_8<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7> =
-            Builder_9_8(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7> =
+            Builder_9_8(underlying.input(type.underlying))
         fun <O8> out(type: DbType<O8>): Builder_8_9<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
             Builder_8_9(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_9_9<I0, I1, I2, I3, I4, I5, I6, I7, X, O0, O1, O2, O3, O4, O5, O6, O7, X> =
@@ -2448,8 +2448,8 @@ object DbProcedure {
     class Builder_8_9<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_8_9<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
-            Builder_9_9(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
+            Builder_9_9(underlying.input(type.underlying))
         fun <O9> out(type: DbType<O9>): Builder_8_10<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
             Builder_8_10(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_9_10<I0, I1, I2, I3, I4, I5, I6, I7, X, O0, O1, O2, O3, O4, O5, O6, O7, O8, X> =
@@ -2467,8 +2467,8 @@ object DbProcedure {
     class Builder_8_10<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_8_10<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
-            Builder_9_10(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
+            Builder_9_10(underlying.input(type.underlying))
 
         fun build(): Def8_10<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> {
             val javaProc = underlying.build()
@@ -2482,8 +2482,8 @@ object DbProcedure {
     class Builder_9_0<I0, I1, I2, I3, I4, I5, I6, I7, I8> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_9_0<I0, I1, I2, I3, I4, I5, I6, I7, I8>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10_0<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9> =
-            Builder_10_0(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10_0<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9> =
+            Builder_10_0(underlying.input(type.underlying))
         fun <O0> out(type: DbType<O0>): Builder_9_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0> =
             Builder_9_1(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_10_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, X, X> =
@@ -2501,8 +2501,8 @@ object DbProcedure {
     class Builder_9_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_9_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0> =
-            Builder_10_1(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0> =
+            Builder_10_1(underlying.input(type.underlying))
         fun <O1> out(type: DbType<O1>): Builder_9_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1> =
             Builder_9_2(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_10_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, X, O0, X> =
@@ -2520,8 +2520,8 @@ object DbProcedure {
     class Builder_9_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_9_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1> =
-            Builder_10_2(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1> =
+            Builder_10_2(underlying.input(type.underlying))
         fun <O2> out(type: DbType<O2>): Builder_9_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2> =
             Builder_9_3(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_10_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, X, O0, O1, X> =
@@ -2539,8 +2539,8 @@ object DbProcedure {
     class Builder_9_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_9_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2> =
-            Builder_10_3(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2> =
+            Builder_10_3(underlying.input(type.underlying))
         fun <O3> out(type: DbType<O3>): Builder_9_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3> =
             Builder_9_4(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_10_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, X, O0, O1, O2, X> =
@@ -2558,8 +2558,8 @@ object DbProcedure {
     class Builder_9_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_9_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3> =
-            Builder_10_4(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3> =
+            Builder_10_4(underlying.input(type.underlying))
         fun <O4> out(type: DbType<O4>): Builder_9_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4> =
             Builder_9_5(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_10_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, X, O0, O1, O2, O3, X> =
@@ -2577,8 +2577,8 @@ object DbProcedure {
     class Builder_9_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_9_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4> =
-            Builder_10_5(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4> =
+            Builder_10_5(underlying.input(type.underlying))
         fun <O5> out(type: DbType<O5>): Builder_9_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5> =
             Builder_9_6(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_10_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, X, O0, O1, O2, O3, O4, X> =
@@ -2596,8 +2596,8 @@ object DbProcedure {
     class Builder_9_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_9_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5> =
-            Builder_10_6(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5> =
+            Builder_10_6(underlying.input(type.underlying))
         fun <O6> out(type: DbType<O6>): Builder_9_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6> =
             Builder_9_7(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_10_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, X, O0, O1, O2, O3, O4, O5, X> =
@@ -2615,8 +2615,8 @@ object DbProcedure {
     class Builder_9_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_9_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6> =
-            Builder_10_7(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6> =
+            Builder_10_7(underlying.input(type.underlying))
         fun <O7> out(type: DbType<O7>): Builder_9_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7> =
             Builder_9_8(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_10_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, X, O0, O1, O2, O3, O4, O5, O6, X> =
@@ -2634,8 +2634,8 @@ object DbProcedure {
     class Builder_9_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_9_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7> =
-            Builder_10_8(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7> =
+            Builder_10_8(underlying.input(type.underlying))
         fun <O8> out(type: DbType<O8>): Builder_9_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
             Builder_9_9(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_10_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, X, O0, O1, O2, O3, O4, O5, O6, O7, X> =
@@ -2653,8 +2653,8 @@ object DbProcedure {
     class Builder_9_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_9_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
-            Builder_10_9(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8> =
+            Builder_10_9(underlying.input(type.underlying))
         fun <O9> out(type: DbType<O9>): Builder_9_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
             Builder_9_10(underlying.out(type.underlying))
         fun <X> inout(type: DbType<X>): Builder_10_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, X, O0, O1, O2, O3, O4, O5, O6, O7, O8, X> =
@@ -2672,8 +2672,8 @@ object DbProcedure {
     class Builder_9_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> internal constructor(
         private val underlying: dev.typr.foundations.DbProcedure.Builder_9_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
-            Builder_10_10(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> =
+            Builder_10_10(underlying.input(type.underlying))
 
         fun build(): Def9_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> {
             val javaProc = underlying.build()

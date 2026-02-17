@@ -31,7 +31,7 @@ public class RoutineAnalysisTest {
           """);
 
       var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction("ra_add",
-          List.of(ParamDef.in(PgTypes.int4), ParamDef.in(PgTypes.int4)), PgTypes.int4);
+          List.of(ParamDef.input(PgTypes.int4), ParamDef.input(PgTypes.int4)), PgTypes.int4);
 
       RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
@@ -55,7 +55,7 @@ public class RoutineAnalysisTest {
           """);
 
       var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction("ra_concat",
-          List.of(ParamDef.in(PgTypes.text), ParamDef.in(PgTypes.text)), PgTypes.int4);
+          List.of(ParamDef.input(PgTypes.text), ParamDef.input(PgTypes.text)), PgTypes.int4);
 
       RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
@@ -96,7 +96,7 @@ public class RoutineAnalysisTest {
   public void testFunctionAnalysis_notFound() {
     withConnection(conn -> {
       var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction(
-          "ra_nonexistent_func_xyz", List.of(ParamDef.in(PgTypes.int4)), PgTypes.int4);
+          "ra_nonexistent_func_xyz", List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
 
       RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
@@ -123,7 +123,7 @@ public class RoutineAnalysisTest {
           """);
 
       var proc = Procedure.buildVoid("ra_void_proc",
-          List.of(ParamDef.in(PgTypes.int4), ParamDef.in(PgTypes.text)));
+          List.of(ParamDef.input(PgTypes.int4), ParamDef.input(PgTypes.text)));
 
       RoutineAnalysis analysis = RoutineAnalyzer.analyzeProcedure(proc, conn);
 
@@ -141,7 +141,7 @@ public class RoutineAnalysisTest {
   public void testProcedureAnalysis_notFound() {
     withConnection(conn -> {
       var proc = Procedure.buildVoid("ra_nonexistent_proc_xyz",
-          List.of(ParamDef.in(PgTypes.int4)));
+          List.of(ParamDef.input(PgTypes.int4)));
 
       RoutineAnalysis analysis = RoutineAnalyzer.analyzeProcedure(proc, conn);
 
@@ -168,7 +168,7 @@ public class RoutineAnalysisTest {
           """);
 
       var func = Procedure.buildFunction("ra_double",
-          List.of(ParamDef.in(PgTypes.int4)), PgTypes.int4);
+          List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
 
       RoutineAnalysis analysis = RoutineAnalyzer.analyzeProcedure(func, conn);
 
@@ -195,7 +195,7 @@ public class RoutineAnalysisTest {
           """);
 
       var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction("ra_square",
-          List.of(ParamDef.in(PgTypes.int4)), PgTypes.int4);
+          List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
 
       RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
@@ -209,7 +209,7 @@ public class RoutineAnalysisTest {
   public void testQueryChecker_checkRoutine_failsOnMissing() {
     withConnection(conn -> {
       var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction(
-          "ra_does_not_exist_xyz", List.of(ParamDef.in(PgTypes.int4)), PgTypes.int4);
+          "ra_does_not_exist_xyz", List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
 
       RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
@@ -234,7 +234,7 @@ public class RoutineAnalysisTest {
           """);
 
       var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction("ra_fmt",
-          List.of(ParamDef.in(PgTypes.int4)), PgTypes.int4);
+          List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
 
       RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 

@@ -18,12 +18,18 @@ public class ComposingSequence {
     List<String> names = List.of("Alice", "Bob", "Charlie");
 
     List<Integer> insertAll() throws SQLException {
-        List<Operation<Integer>> inserts = names.stream()
-            .<Operation<Integer>>map(name -> Fragment.of("INSERT INTO users(name) VALUES(")
-                .value(PgTypes.text, name)
-                .append(") RETURNING id")
-                .query(RowParser.of(PgTypes.int4).exactlyOne()))
-            .toList();
+        List<Operation<Integer>> inserts =
+            names.stream()
+                .<Operation<Integer>>map(name ->
+                    Fragment.of("""
+                            INSERT INTO users(name)
+                            VALUES(\
+                            """)
+                        .value(PgTypes.text, name)
+                        .append(") RETURNING id")
+                        .query(RowParser.of(PgTypes.int4)
+                            .exactlyOne()))
+                .toList();
 
         return Operation.sequence(inserts).transact(tx);
     }

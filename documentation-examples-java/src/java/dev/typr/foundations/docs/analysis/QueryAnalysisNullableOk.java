@@ -18,11 +18,13 @@ public class QueryAnalysisNullableOk {
 
     // The LEFT JOIN makes o.total nullable in the result set,
     // but .nullableOk() tells analysis we'll handle it
-    RowParser<OrderRow> orderParser = RowParser.<OrderRow>builder()
-        .field(PgTypes.int4, OrderRow::userId)
-        .field(PgTypes.text, OrderRow::userName)
-        .field(PgTypes.numeric.nullableOk(), OrderRow::orderTotal)
-        .build(OrderRow::new);
+    RowParser<OrderRow> orderParser =
+        RowParser.<OrderRow>builder()
+            .field(PgTypes.int4, OrderRow::userId)
+            .field(PgTypes.text, OrderRow::userName)
+            .field(PgTypes.numeric.nullableOk(),
+                OrderRow::orderTotal)
+            .build(OrderRow::new);
 
     void analyzeLeftJoin() throws SQLException {
         var query = Fragment.of("""
@@ -31,7 +33,9 @@ public class QueryAnalysisNullableOk {
             LEFT JOIN orders o ON u.id = o.user_id
             """).query(orderParser.all());
 
-        QueryAnalysis analysis = QueryAnalyzer.analyze(query, connection).getFirst();
+        QueryAnalysis analysis =
+            QueryAnalyzer.analyze(query, connection)
+                .getFirst();
         if (!analysis.succeeded()) {
             throw new AssertionError(analysis.report());
         }

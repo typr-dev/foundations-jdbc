@@ -15,20 +15,28 @@ public class QueryAnalysisNamed {
     private final Connection connection = null; // placeholder
     private final int userId = 1;
 
-    private final RowParser<User> userRowParser = RowParser.<User>builder()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .field(PgTypes.text, User::email)
-        .build(User::new);
+    private final RowParser<User> userRowParser =
+        RowParser.<User>builder()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .field(PgTypes.text, User::email)
+            .build(User::new);
 
     //start
     void analyzeNamedQuery() throws SQLException {
-        var query = Fragment.of("SELECT id, name, email FROM users WHERE id = ")
-            .value(PgTypes.int4, userId)
-            .query(userRowParser.all());
+        var query =
+            Fragment.of("""
+                    SELECT id, name, email
+                    FROM users WHERE id =
+                    """)
+                .value(PgTypes.int4, userId)
+                .query(userRowParser.all());
 
-        // Give your query a name — it shows up in the error report
-        QueryAnalysis analysis = QueryAnalyzer.analyze("findUserById", query, connection).getFirst();
+        // Give your query a name for the error report
+        QueryAnalysis analysis =
+            QueryAnalyzer.analyze(
+                "findUserById", query, connection
+            ).getFirst();
 
         if (!analysis.succeeded()) {
             throw new AssertionError(analysis.report());

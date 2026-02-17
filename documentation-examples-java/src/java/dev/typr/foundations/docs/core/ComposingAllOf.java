@@ -15,16 +15,27 @@ public class ComposingAllOf {
     // Run multiple writes in one transaction, discard individual results
     Operation<Integer> insertUser =
         Fragment.of("INSERT INTO users(name) VALUES(")
-            .value(PgTypes.text, "Alice").append(")").update();
+            .value(PgTypes.text, "Alice")
+            .append(")")
+            .update();
     Operation<Integer> insertAudit =
-        Fragment.of("INSERT INTO audit_log(action) VALUES(")
-            .value(PgTypes.text, "user_created").append(")").update();
+        Fragment.of("""
+                INSERT INTO audit_log(action)
+                VALUES(\
+                """)
+            .value(PgTypes.text, "user_created")
+            .append(")")
+            .update();
     Operation<Integer> updateStats =
-        Fragment.of("UPDATE stats SET user_count = user_count + 1")
+        Fragment.of("""
+                UPDATE stats
+                SET user_count = user_count + 1""")
             .update();
 
     void createUserWithAudit() throws SQLException {
-        Operation.allOf(insertUser, insertAudit, updateStats).transact(tx);
+        Operation.allOf(
+            insertUser, insertAudit, updateStats
+        ).transact(tx);
     }
     //stop
 }

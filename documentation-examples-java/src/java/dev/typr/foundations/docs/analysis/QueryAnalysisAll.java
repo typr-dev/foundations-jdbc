@@ -16,10 +16,11 @@ import java.util.List;
 public class QueryAnalysisAll {
     record User(int id, String name) {}
 
-    static RowParser<User> userParser = RowParser.<User>builder()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .build(User::new);
+    static RowParser<User> userParser =
+        RowParser.<User>builder()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .build(User::new);
 
     Connection conn = null; // placeholder
 
@@ -29,17 +30,19 @@ public class QueryAnalysisAll {
             .append(") RETURNING id")
             .query(RowParser.of(PgTypes.int4).exactlyOne());
 
-    Operation<List<User>> allUsers = Fragment.of("SELECT id, name FROM users")
-        .query(userParser.all());
+    Operation<List<User>> allUsers =
+        Fragment.of("SELECT id, name FROM users")
+            .query(userParser.all());
 
     //start
     void analyzeComposedOperation() throws SQLException {
         // Build a composed operation
-        Operation<?> transaction = insertUser.on("Alice")
-            .thenIgnore(allUsers);
+        Operation<?> transaction =
+            insertUser.on("Alice").thenIgnore(allUsers);
 
-        // Analyze every SQL statement in the tree — one call
-        List<QueryAnalysis> results = QueryAnalyzer.analyze(transaction, conn);
+        // Analyze every SQL statement in the tree
+        List<QueryAnalysis> results =
+            QueryAnalyzer.analyze(transaction, conn);
 
         for (var analysis : results) {
             if (!analysis.succeeded()) {

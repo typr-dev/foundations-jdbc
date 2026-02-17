@@ -15,21 +15,28 @@ public class QueryAnalysisBasic {
     private final Connection connection = null; // placeholder
     private final int userId = 1;
 
-    private final RowParser<User> userRowParser = RowParser.<User>builder()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .field(PgTypes.text, User::email)
-        .build(User::new);
+    private final RowParser<User> userRowParser =
+        RowParser.<User>builder()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .field(PgTypes.text, User::email)
+            .build(User::new);
 
     //start
     void analyzeQuery() throws SQLException {
         // Build your query as normal
-        var query = Fragment.of("SELECT id, name, email FROM users WHERE id = ")
-            .value(PgTypes.int4, userId)
-            .query(userRowParser.all());
+        var query =
+            Fragment.of("""
+                    SELECT id, name, email
+                    FROM users WHERE id =
+                    """)
+                .value(PgTypes.int4, userId)
+                .query(userRowParser.all());
 
         // Analyze it against the database
-        QueryAnalysis analysis = QueryAnalyzer.analyze(query, connection).getFirst();
+        QueryAnalysis analysis =
+            QueryAnalyzer.analyze(query, connection)
+                .getFirst();
 
         // Check the results
         if (!analysis.succeeded()) {

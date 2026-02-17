@@ -50,6 +50,7 @@ public final class QueryAnalyzer {
       case Operation.Query<?> q -> List.of(analyzeFragmentAndParser(name, q.query(), q.parser(), conn));
       case Operation.UpdateReturning<?> ur -> List.of(analyzeFragmentAndParser(name, ur.query(), ur.parser(), conn));
       case Operation.Update u -> List.of(analyzeUpdate(name, u, conn));
+      case Operation.Configured<?> c -> analyze(name != null ? name : c.name(), c.inner(), conn);
       case Operation.Mapped<?, ?> m -> analyze(name, m.source(), conn);
       case Operation.With<?, ?> w -> {
         var r = new ArrayList<>(analyze(w.first(), conn));

@@ -28,6 +28,20 @@ public class Db2TypeTest {
 
   record TestPair<A>(A t0, Optional<A> t1) {}
 
+  record Item(String name, int quantity) {}
+
+  static RowParser<Item> itemParser =
+      RowParser.<Item>builder()
+          .field(Db2Types.varchar(100), Item::name)
+          .field(Db2Types.integer, Item::quantity)
+          .build(Item::new);
+
+  static RowParserNamed<Item> namedItemParser =
+      RowParser.<Item>namedBuilder()
+          .field("name", Db2Types.varchar(100), Item::name)
+          .field("quantity", Db2Types.integer, Item::quantity)
+          .build(Item::new);
+
   record Db2TypeAndExample<A>(
       Db2Type<A> type, A example, boolean hasIdentity, boolean jsonDbWorks) {
     public Db2TypeAndExample(Db2Type<A> type, A example) {
@@ -143,6 +157,32 @@ public class Db2TypeTest {
                   new dev.typr.foundations.data.Xml("<root><element>value</element></root>"))
               .noIdentity(),
           new Db2TypeAndExample<>(Db2Types.xml, new dev.typr.foundations.data.Xml("<simple/>"))
+              .noIdentity(),
+
+          // ==================== JSON Type ====================
+          new Db2TypeAndExample<>(
+                  Db2Types.json,
+                  new dev.typr.foundations.data.Json("{\"name\": \"DB2\", \"version\": 11}"))
+              .noIdentity(),
+          new Db2TypeAndExample<>(
+                  Db2Types.json, new dev.typr.foundations.data.Json("[1, 2, 3]"))
+              .noIdentity(),
+          new Db2TypeAndExample<>(
+                  Db2Types.json, new dev.typr.foundations.data.Json("{}"))
+              .noIdentity(),
+
+          // ==================== JSON-Encoded Row Types ====================
+          new Db2TypeAndExample<>(
+                  Db2Types.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+              .noIdentity(),
+          new Db2TypeAndExample<>(
+                  Db2Types.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+              .noIdentity(),
+          new Db2TypeAndExample<>(
+                  Db2Types.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+              .noIdentity(),
+          new Db2TypeAndExample<>(
+                  Db2Types.jsonObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
               .noIdentity());
 
   // Note: DB2 does not support arrays as a column type like PostgreSQL
@@ -562,7 +602,7 @@ public class Db2TypeTest {
     String sqlType = t.type.typename().sqlType();
     String procName = uniqueTableName("CP");
 
-    DbProcedure.Def1_1<A, A> proc = DbProcedure.define(procName).in(t.type).out(t.type).build();
+    DbProcedure.Def1_1<A, A> proc = DbProcedure.define(procName).input(t.type).out(t.type).build();
 
     conn.createStatement()
         .execute(

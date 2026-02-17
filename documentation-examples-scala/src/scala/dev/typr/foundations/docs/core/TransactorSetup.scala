@@ -1,32 +1,50 @@
 package dev.typr.foundations.docs.core
-import dev.typr.foundationssc.*
-import dev.typr.foundationssc.Fragment.sql
-import dev.typr.foundationssc.data.*
-
-import java.sql.SQLException
+import dev.typr.foundationssc.connect.*
 
 @SuppressWarnings(Array("unused"))
 object TransactorSetup:
-  case class ProductRow(id: Int, name: String, price: BigDecimal)
-
-  val rowParser: RowParser[ProductRow] = RowParser.builder[ProductRow]()
-    .field(PgTypes.int4)(_.id)
-    .field(PgTypes.text)(_.name)
-    .field(PgTypes.numeric)(_.price)
-    .build(ProductRow.apply)
-
-  var connectionSource: ConnectionSource = null // placeholder
-  val minPrice: BigDecimal = BigDecimal("10")
-
   //start
-  // The Transactor manages connections and transactions
-  // You choose the strategy - it handles the lifecycle
-  @throws[SQLException]
-  def query(): List[ProductRow] =
-    val tx = connectionSource.transactor(Transactor.defaultStrategy())
+  // PostgreSQL
+  val pgTx =
+    PostgresConfig.builder(
+        "localhost", 5432, "mydb", "user", "pass")
+      .sslmode(PgSslMode.REQUIRE)
+      .transactor()
 
-    // Everything inside runs in one transaction: begin, commit, close
-    sql"SELECT * FROM product WHERE price > ${Fragment.encode(PgTypes.numeric, minPrice)}"
-      .query(rowParser.all())
-      .transact(tx)
+  // DuckDB (in-memory)
+  val duckTx =
+    DuckDbConfig.inMemory().transactor()
+
+  // DuckDB (file-based)
+  val duckFileTx =
+    DuckDbConfig.builder("/tmp/analytics.db")
+      .threads(4)
+      .memoryLimit("2GB")
+      .transactor()
+
+  // MariaDB / MySQL
+  val mariaTx =
+    MariaDbConfig.builder(
+        "localhost", 3306, "mydb", "user", "pass")
+      .transactor()
+
+  // Oracle
+  val oracleTx =
+    OracleConfig.builder(
+        "localhost", 1521, "xe", "user", "pass")
+      .serviceName("XEPDB1")
+      .transactor()
+
+  // SQL Server
+  val mssqlTx =
+    SqlServerConfig.builder(
+        "localhost", 1433, "mydb", "user", "pass")
+      .encrypt(SqlServerEncrypt.TRUE)
+      .transactor()
+
+  // DB2
+  val db2Tx =
+    Db2Config.builder(
+        "localhost", 50000, "mydb", "user", "pass")
+      .transactor()
   //stop

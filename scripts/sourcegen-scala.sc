@@ -197,8 +197,8 @@ def generateScalaDbProcedure(): String = {
     // in method
     val inMethod = if (i < maxArity) {
       val nextTp = allTypeParams(i + 1, o)
-      s"""    def in[I$i](tpe: DbType[I$i]): Builder_${i + 1}_${o}${typeParamDecl(nextTp)} =
-         |      new Builder_${i + 1}_${o}(underlying.in(tpe.underlying))""".stripMargin
+      s"""    def input[I$i](tpe: DbType[I$i]): Builder_${i + 1}_${o}${typeParamDecl(nextTp)} =
+         |      new Builder_${i + 1}_${o}(underlying.input(tpe.underlying))""".stripMargin
     } else ""
 
     // out method
@@ -253,7 +253,7 @@ def generateScalaDbProcedure(): String = {
       |  * Usage:
       |  * {{{
       |  * val getUser: DbProcedure.Def1_2[Int, String, String] = DbProcedure.define("get_user_by_id")
-      |  *   .in(PgTypes.int4)
+      |  *   .input(PgTypes.int4)
       |  *   .out(PgTypes.text)
       |  *   .out(PgTypes.text)
       |  *   .build()
@@ -308,8 +308,8 @@ def generateScalaDbFunction(): String = {
 
     val inMethod = if (i < maxArity) {
       val nextTp = iParams(i + 1) ::: List("R")
-      s"""    def in[I$i](tpe: DbType[I$i]): Builder_${i + 1}${typeParamDecl(nextTp)} =
-         |      new Builder_${i + 1}(underlying.in(tpe.underlying))
+      s"""    def input[I$i](tpe: DbType[I$i]): Builder_${i + 1}${typeParamDecl(nextTp)} =
+         |      new Builder_${i + 1}(underlying.input(tpe.underlying))
          |""".stripMargin
     } else ""
 
@@ -337,8 +337,8 @@ def generateScalaDbFunction(): String = {
       |  * Usage:
       |  * {{{
       |  * val calcTax: DbFunction.Def2[BigDecimal, String, BigDecimal] = DbFunction.define("calculate_tax", PgTypes.numeric)
-      |  *   .in(PgTypes.numeric)
-      |  *   .in(PgTypes.text)
+      |  *   .input(PgTypes.numeric)
+      |  *   .input(PgTypes.text)
       |  *   .build()
       |  * val tax = calcTax.call(amount, "US").transact(tx)  // Types enforced!
       |  * }}}

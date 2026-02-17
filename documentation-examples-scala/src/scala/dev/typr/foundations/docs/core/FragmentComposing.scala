@@ -1,9 +1,8 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
-import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object FragmentComposing:
@@ -21,20 +20,22 @@ object FragmentComposing:
   //start
   // Build small reusable filters
   def byName(name: String): Fragment =
-    sql"name ILIKE ${Fragment.encode(PgTypes.text, name)}"
+    sql"name ILIKE ${PgTypes.text(name)}"
 
   def cheaperThan(max: BigDecimal): Fragment =
-    sql"price < ${Fragment.encode(PgTypes.numeric, max)}"
+    sql"price < ${PgTypes.numeric(max)}"
 
-  // Compose dynamically - only include the filters that are present
-  @throws[SQLException]
+  // Compose dynamically
   def query(): List[ProductRow] =
-    val filters: List[Fragment] = List(
-      Some(byName("%widget%")),
-      maxPrice.map(cheaperThan)
-    ).flatten
+    val filters: List[Fragment] =
+      List(
+        Some(byName("%widget%")),
+        maxPrice.map(cheaperThan)
+      ).flatten
 
-    sql"SELECT * FROM product ${Fragment.whereAnd(filters)}"
-      .query(rowParser.all())
-      .transact(tx)
+    tx.transact { conn =>
+      sql"SELECT * FROM product ${Fragment.whereAnd(filters)}"
+        .query(rowParser.all())
+        .run(conn)
+    }
   //stop

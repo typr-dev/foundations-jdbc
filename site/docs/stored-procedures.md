@@ -22,7 +22,7 @@ Add `.out()` to declare output parameters. The builder tracks their types:
 
 <Snippet file="routines/OutProcedure" />
 
-The builder returns a typed definition that captures the input and output parameter types. You never need to reference these types explicitly — just use `var` (Java) or let type inference work (Kotlin/Scala).
+The builder returns a typed definition that captures the input and output parameter types. The numbers in the type name encode the arity: `Def1_2` means 1 input and 2 outputs. For functions, `Def2` means 2 inputs (functions always have exactly one output — the return value). You never need to write these types explicitly — just use `var` (Java) or let type inference work (Kotlin/Scala).
 
 ### INOUT Parameters
 
@@ -48,7 +48,7 @@ The procedure and function builders work with any database's types. Just use the
 |---------|---------------------------|-------------------------|
 | SQL | `{call proc_name(?, ...)}` | `SELECT func_name(?, ...)` |
 | Statement | `CallableStatement` | `PreparedStatement` |
-| Inputs | `.in()` | `.in()` |
+| Inputs | `.input()` | `.input()` |
 | Outputs | `.out()`, `.inout()` | Return type (single value) |
 | Max arity | 10 inputs, 10 outputs | 10 inputs |
 | Result | `Void`, single value, or `Tuple` | Single value |

@@ -3,7 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object ComposingWith:
@@ -21,7 +20,7 @@ object ComposingWith:
   var tx: Transactor = null // placeholder
 
   //start
-  // Combine two independent queries - both run in one transaction
+  // Combine two independent queries in one transaction
   val countUsers: Operation[Long] =
     sql"SELECT count(*) FROM users"
       .query(RowParser.of(PgTypes.int8).exactlyOne())
@@ -29,11 +28,11 @@ object ComposingWith:
     sql"SELECT * FROM orders ORDER BY id DESC LIMIT 10"
       .query(orderParser.all())
 
-  @throws[SQLException]
   def dashboard(): Dashboard =
-    countUsers.`with`(recentOrders)(Dashboard.apply).transact(tx)
+    countUsers.`with`(recentOrders)(Dashboard.apply)
+      .transact(tx)
 
-  // Three-way: all run in one transaction, results combined
+  // Three-way: all run in one transaction
   val countOrders: Operation[Long] =
     sql"SELECT count(*) FROM orders"
       .query(RowParser.of(PgTypes.int8).exactlyOne())
@@ -41,7 +40,8 @@ object ComposingWith:
     sql"SELECT coalesce(sum(amount), 0) FROM orders"
       .query(RowParser.of(PgTypes.int8).exactlyOne())
 
-  @throws[SQLException]
   def stats(): Stats =
-    countUsers.`with`(countOrders, totalRevenue)(Stats.apply).transact(tx)
+    countUsers
+      .`with`(countOrders, totalRevenue)(Stats.apply)
+      .transact(tx)
   //stop

@@ -70,5 +70,25 @@ open class Db2Types {
 
     open fun timestamp(scale: Int) = Db2Type(JavaDb2Types.timestamp(scale))
 
+    open val json = Db2Type(JavaDb2Types.json)
+
+    // JSON-encoded row types
+
+    /** A JSON column type that stores a single row as a positional JSON array: [val1, val2, val3]. */
+    open fun <Row : Any> jsonArrayEncoded(parser: RowParser<Row>) =
+        Db2Type<Row>(JavaDb2Types.jsonArrayEncoded(parser.underlying))
+
+    /** A JSON column type that stores a list of rows, each as a positional JSON array. */
+    open fun <Row : Any> jsonArrayEncodedList(parser: RowParser<Row>) =
+        Db2Type<List<Row>>(JavaDb2Types.jsonArrayEncodedList(parser.underlying))
+
+    /** A JSON column type that stores a single row as a keyed JSON object: {"col": val, ...}. */
+    open fun <Row : Any> jsonObjectEncoded(parser: RowParserNamed<Row>) =
+        Db2Type<Row>(JavaDb2Types.jsonObjectEncoded(parser.underlying))
+
+    /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
+    open fun <Row : Any> jsonObjectEncodedList(parser: RowParserNamed<Row>) =
+        Db2Type<List<Row>>(JavaDb2Types.jsonObjectEncodedList(parser.underlying))
+
     companion object : Db2Types()
 }

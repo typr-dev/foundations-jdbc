@@ -6,8 +6,8 @@ package dev.typr.foundationskt
  * Usage:
  * ```kotlin
  * val calcTax: DbFunction.Def2<BigDecimal, String, BigDecimal> = DbFunction.define("calculate_tax", PgTypes.numeric)
- *     .`in`(PgTypes.numeric)
- *     .`in`(PgTypes.text)
+ *     .input(PgTypes.numeric)
+ *     .input(PgTypes.text)
  *     .build()
  * val tax = calcTax.call(amount, "US").transact(tx)  // Types enforced!
  * ```
@@ -86,8 +86,8 @@ object DbFunction {
     class Builder_0<R> internal constructor(
         private val underlying: dev.typr.foundations.DbFunction.Builder_0<R>
     ) {
-        fun <I0> `in`(type: DbType<I0>): Builder_1<I0, R> =
-            Builder_1(underlying.`in`(type.underlying))
+        fun <I0> input(type: DbType<I0>): Builder_1<I0, R> =
+            Builder_1(underlying.input(type.underlying))
 
         fun build(): Def0<R> {
             val javaFn = underlying.build()
@@ -101,8 +101,8 @@ object DbFunction {
     class Builder_1<I0, R> internal constructor(
         private val underlying: dev.typr.foundations.DbFunction.Builder_1<I0, R>
     ) {
-        fun <I1> `in`(type: DbType<I1>): Builder_2<I0, I1, R> =
-            Builder_2(underlying.`in`(type.underlying))
+        fun <I1> input(type: DbType<I1>): Builder_2<I0, I1, R> =
+            Builder_2(underlying.input(type.underlying))
 
         fun build(): Def1<I0, R> {
             val javaFn = underlying.build()
@@ -116,8 +116,8 @@ object DbFunction {
     class Builder_2<I0, I1, R> internal constructor(
         private val underlying: dev.typr.foundations.DbFunction.Builder_2<I0, I1, R>
     ) {
-        fun <I2> `in`(type: DbType<I2>): Builder_3<I0, I1, I2, R> =
-            Builder_3(underlying.`in`(type.underlying))
+        fun <I2> input(type: DbType<I2>): Builder_3<I0, I1, I2, R> =
+            Builder_3(underlying.input(type.underlying))
 
         fun build(): Def2<I0, I1, R> {
             val javaFn = underlying.build()
@@ -131,8 +131,8 @@ object DbFunction {
     class Builder_3<I0, I1, I2, R> internal constructor(
         private val underlying: dev.typr.foundations.DbFunction.Builder_3<I0, I1, I2, R>
     ) {
-        fun <I3> `in`(type: DbType<I3>): Builder_4<I0, I1, I2, I3, R> =
-            Builder_4(underlying.`in`(type.underlying))
+        fun <I3> input(type: DbType<I3>): Builder_4<I0, I1, I2, I3, R> =
+            Builder_4(underlying.input(type.underlying))
 
         fun build(): Def3<I0, I1, I2, R> {
             val javaFn = underlying.build()
@@ -146,8 +146,8 @@ object DbFunction {
     class Builder_4<I0, I1, I2, I3, R> internal constructor(
         private val underlying: dev.typr.foundations.DbFunction.Builder_4<I0, I1, I2, I3, R>
     ) {
-        fun <I4> `in`(type: DbType<I4>): Builder_5<I0, I1, I2, I3, I4, R> =
-            Builder_5(underlying.`in`(type.underlying))
+        fun <I4> input(type: DbType<I4>): Builder_5<I0, I1, I2, I3, I4, R> =
+            Builder_5(underlying.input(type.underlying))
 
         fun build(): Def4<I0, I1, I2, I3, R> {
             val javaFn = underlying.build()
@@ -161,8 +161,8 @@ object DbFunction {
     class Builder_5<I0, I1, I2, I3, I4, R> internal constructor(
         private val underlying: dev.typr.foundations.DbFunction.Builder_5<I0, I1, I2, I3, I4, R>
     ) {
-        fun <I5> `in`(type: DbType<I5>): Builder_6<I0, I1, I2, I3, I4, I5, R> =
-            Builder_6(underlying.`in`(type.underlying))
+        fun <I5> input(type: DbType<I5>): Builder_6<I0, I1, I2, I3, I4, I5, R> =
+            Builder_6(underlying.input(type.underlying))
 
         fun build(): Def5<I0, I1, I2, I3, I4, R> {
             val javaFn = underlying.build()
@@ -176,8 +176,8 @@ object DbFunction {
     class Builder_6<I0, I1, I2, I3, I4, I5, R> internal constructor(
         private val underlying: dev.typr.foundations.DbFunction.Builder_6<I0, I1, I2, I3, I4, I5, R>
     ) {
-        fun <I6> `in`(type: DbType<I6>): Builder_7<I0, I1, I2, I3, I4, I5, I6, R> =
-            Builder_7(underlying.`in`(type.underlying))
+        fun <I6> input(type: DbType<I6>): Builder_7<I0, I1, I2, I3, I4, I5, I6, R> =
+            Builder_7(underlying.input(type.underlying))
 
         fun build(): Def6<I0, I1, I2, I3, I4, I5, R> {
             val javaFn = underlying.build()
@@ -191,8 +191,8 @@ object DbFunction {
     class Builder_7<I0, I1, I2, I3, I4, I5, I6, R> internal constructor(
         private val underlying: dev.typr.foundations.DbFunction.Builder_7<I0, I1, I2, I3, I4, I5, I6, R>
     ) {
-        fun <I7> `in`(type: DbType<I7>): Builder_8<I0, I1, I2, I3, I4, I5, I6, I7, R> =
-            Builder_8(underlying.`in`(type.underlying))
+        fun <I7> input(type: DbType<I7>): Builder_8<I0, I1, I2, I3, I4, I5, I6, I7, R> =
+            Builder_8(underlying.input(type.underlying))
 
         fun build(): Def7<I0, I1, I2, I3, I4, I5, I6, R> {
             val javaFn = underlying.build()
@@ -206,8 +206,8 @@ object DbFunction {
     class Builder_8<I0, I1, I2, I3, I4, I5, I6, I7, R> internal constructor(
         private val underlying: dev.typr.foundations.DbFunction.Builder_8<I0, I1, I2, I3, I4, I5, I6, I7, R>
     ) {
-        fun <I8> `in`(type: DbType<I8>): Builder_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, R> =
-            Builder_9(underlying.`in`(type.underlying))
+        fun <I8> input(type: DbType<I8>): Builder_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, R> =
+            Builder_9(underlying.input(type.underlying))
 
         fun build(): Def8<I0, I1, I2, I3, I4, I5, I6, I7, R> {
             val javaFn = underlying.build()
@@ -221,8 +221,8 @@ object DbFunction {
     class Builder_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, R> internal constructor(
         private val underlying: dev.typr.foundations.DbFunction.Builder_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, R>
     ) {
-        fun <I9> `in`(type: DbType<I9>): Builder_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, R> =
-            Builder_10(underlying.`in`(type.underlying))
+        fun <I9> input(type: DbType<I9>): Builder_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, R> =
+            Builder_10(underlying.input(type.underlying))
 
         fun build(): Def9<I0, I1, I2, I3, I4, I5, I6, I7, I8, R> {
             val javaFn = underlying.build()

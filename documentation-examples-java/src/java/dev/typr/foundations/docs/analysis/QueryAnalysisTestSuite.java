@@ -19,32 +19,45 @@ public class QueryAnalysisTestSuite {
 
     private final DataSource testDataSource = null; // placeholder
 
-    private final RowParser<User> userParser = RowParser.<User>builder()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .field(PgTypes.text, User::email)
-        .build(User::new);
+    private final RowParser<User> userParser =
+        RowParser.<User>builder()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .field(PgTypes.text, User::email)
+            .build(User::new);
 
-    private final RowParser<Product> productParser = RowParser.<Product>builder()
-        .field(PgTypes.int4, Product::id)
-        .field(PgTypes.text, Product::name)
-        .build(Product::new);
+    private final RowParser<Product> productParser =
+        RowParser.<Product>builder()
+            .field(PgTypes.int4, Product::id)
+            .field(PgTypes.text, Product::name)
+            .build(Product::new);
 
     //start
     void allQueriesTypeCheck() throws SQLException {
         try (var conn = testDataSource.getConnection()) {
             // Collect all queries to check
             List<Operation.Query<?>> queries = List.of(
-                Fragment.of("SELECT id, name, email FROM users WHERE id = ")
-                    .value(PgTypes.int4, 1).query(userParser.all()),
-                Fragment.of("SELECT id, name FROM products WHERE name LIKE ")
-                    .value(PgTypes.text, "%widget%").query(productParser.all())
+                Fragment.of("""
+                        SELECT id, name, email
+                        FROM users WHERE id =
+                        """)
+                    .value(PgTypes.int4, 1)
+                    .query(userParser.all()),
+                Fragment.of("""
+                        SELECT id, name
+                        FROM products
+                        WHERE name LIKE
+                        """)
+                    .value(PgTypes.text, "%widget%")
+                    .query(productParser.all())
             );
 
             // Analyze each one
             List<String> failures = new ArrayList<>();
             for (var query : queries) {
-                QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
+                QueryAnalysis analysis =
+                    QueryAnalyzer.analyze(query, conn)
+                        .getFirst();
                 if (!analysis.succeeded()) {
                     failures.add(analysis.report());
                 }
@@ -52,7 +65,9 @@ public class QueryAnalysisTestSuite {
 
             // Report all failures at once
             if (!failures.isEmpty()) {
-                throw new AssertionError("Query type check failed:\n\n" + String.join("\n\n", failures));
+                throw new AssertionError(
+                    "Query type check failed:\n\n"
+                        + String.join("\n\n", failures));
             }
         }
     }

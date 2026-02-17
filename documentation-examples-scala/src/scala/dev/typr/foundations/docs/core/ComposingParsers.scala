@@ -10,17 +10,19 @@ object ComposingParsers:
   case class ProductRow(id: Int, name: String)
   case class CategoryRow(id: Int, categoryName: String)
 
-  val productRowParser: RowParser[ProductRow] = RowParser.builder[ProductRow]()
-    .field(PgTypes.int4)(_.id)
-    .field(PgTypes.text)(_.name)
-    .build(ProductRow.apply)
+  val productRowParser: RowParser[ProductRow] =
+    RowParser.builder[ProductRow]()
+      .field(PgTypes.int4)(_.id)
+      .field(PgTypes.text)(_.name)
+      .build(ProductRow.apply)
 
-  val categoryRowParser: RowParser[CategoryRow] = RowParser.builder[CategoryRow]()
-    .field(PgTypes.int4)(_.id)
-    .field(PgTypes.text)(_.categoryName)
-    .build(CategoryRow.apply)
+  val categoryRowParser: RowParser[CategoryRow] =
+    RowParser.builder[CategoryRow]()
+      .field(PgTypes.int4)(_.id)
+      .field(PgTypes.text)(_.categoryName)
+      .build(CategoryRow.apply)
 
-  // leftJoined() returns Option right side automatically
+  // leftJoined() returns Option right side
   val joined: RowParser[(ProductRow, Option[CategoryRow])] =
     productRowParser.leftJoined(categoryRowParser)
   //stop

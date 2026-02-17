@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.connect.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
@@ -12,21 +13,26 @@ object GettingStarted:
     .field(DuckDbTypes.integer)(_.population)
     .build(City.apply)
 
-  //start
-  def example(): Unit =
-    // Connect to an in-memory DuckDB database
-    val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
-
-    // Create the table and insert data
+  def setup(tx: Transactor): Unit =
     tx.transact { conn =>
-      sql"CREATE TABLE city (name VARCHAR, population INTEGER)".update().runChecked(conn)
-      sql"INSERT INTO city VALUES ('Oslo', 709037), ('Bergen', 291189)".update().runChecked(conn)
+      sql"CREATE TABLE city (name VARCHAR, population INTEGER)"
+        .update().run(conn)
+      sql"INSERT INTO city VALUES ('Oslo', 709037), ('Bergen', 291189)"
+        .update().run(conn)
     }
 
-    // Query with type-safe parameters
-    val cities: List[City] = sql"SELECT name, population FROM city ORDER BY population DESC"
-      .query(cityParser.all())
-      .transact(tx)
+  //start
+  def example(): Unit =
+    val tx =
+      SimpleDataSource.create(
+        DuckDbConfig.inMemory().build()
+      ).transactor()
 
-    cities.foreach(c => println(s"${c.name}: ${c.population}"))
+    val cities: List[City] = tx.transact { conn =>
+      sql"""SELECT name, population
+            FROM city
+            ORDER BY population DESC"""
+        .query(cityParser.all())
+        .run(conn)
+    }
   //stop

@@ -11,34 +11,8 @@ package object foundationssc:
 
   // Analysis types
   type QueryAnalysis = dev.typr.foundations.QueryAnalysis
-
-  // Connection types
-  type OracleConfig = dev.typr.foundations.connect.OracleConfig
-  object OracleConfig:
-    def builder(host: String, port: Int, database: String, username: String, password: String): dev.typr.foundations.connect.OracleConfig.Builder =
-      dev.typr.foundations.connect.OracleConfig.builder(host, port, database, username, password)
-  type PostgresConfig = dev.typr.foundations.connect.PostgresConfig
-  object PostgresConfig:
-    def builder(host: String, port: Int, database: String, username: String, password: String): dev.typr.foundations.connect.PostgresConfig.Builder =
-      dev.typr.foundations.connect.PostgresConfig.builder(host, port, database, username, password)
-  type MariaDbConfig = dev.typr.foundations.connect.MariaDbConfig
-  object MariaDbConfig:
-    def builder(host: String, port: Int, database: String, username: String, password: String): dev.typr.foundations.connect.MariaDbConfig.Builder =
-      dev.typr.foundations.connect.MariaDbConfig.builder(host, port, database, username, password)
-  type DuckDbConfig = dev.typr.foundations.connect.DuckDbConfig
-  object DuckDbConfig:
-    def builder(path: String): dev.typr.foundations.connect.DuckDbConfig.Builder =
-      dev.typr.foundations.connect.DuckDbConfig.builder(path)
-    def inMemory(): dev.typr.foundations.connect.DuckDbConfig.Builder =
-      dev.typr.foundations.connect.DuckDbConfig.inMemory()
-  type SqlServerConfig = dev.typr.foundations.connect.SqlServerConfig
-  object SqlServerConfig:
-    def builder(host: String, port: Int, database: String, username: String, password: String): dev.typr.foundations.connect.SqlServerConfig.Builder =
-      dev.typr.foundations.connect.SqlServerConfig.builder(host, port, database, username, password)
-  type Db2Config = dev.typr.foundations.connect.Db2Config
-  object Db2Config:
-    def builder(host: String, port: Int, database: String, username: String, password: String): dev.typr.foundations.connect.Db2Config.Builder =
-      dev.typr.foundations.connect.Db2Config.builder(host, port, database, username, password)
+  type QueryListener = dev.typr.foundations.QueryListener
+  type QueryEvent = dev.typr.foundations.QueryEvent
 
   // Extension methods for Scala-friendly DbJson combinators
   extension [A](codec: dev.typr.foundations.DbJson[A])

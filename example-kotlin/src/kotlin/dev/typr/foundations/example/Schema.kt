@@ -6,9 +6,10 @@ object Schema {
     private val DDL = listOf(
         "CREATE TYPE event_status AS ENUM ('DRAFT', 'PUBLISHED', 'CANCELLED', 'SOLD_OUT', 'COMPLETED')",
         "CREATE TYPE ticket_tier AS ENUM ('GENERAL', 'VIP', 'BACKSTAGE')",
+        "CREATE SEQUENCE venue_id_seq START 1",
         """
         CREATE TABLE venue (
-            id              BIGINT,
+            id              BIGINT DEFAULT nextval('venue_id_seq'),
             name            VARCHAR NOT NULL,
             address         STRUCT(street VARCHAR, city VARCHAR, state VARCHAR, zip VARCHAR, country VARCHAR) NOT NULL,
             capacity        INTEGER NOT NULL,
@@ -16,10 +17,10 @@ object Schema {
             metadata        MAP(VARCHAR, VARCHAR) NOT NULL
         )
         """,
-        "CREATE SEQUENCE venue_id_seq START 1",
+        "CREATE SEQUENCE event_id_seq START 1",
         """
         CREATE TABLE event (
-            id              BIGINT,
+            id              BIGINT DEFAULT nextval('event_id_seq'),
             venue_id        BIGINT NOT NULL,
             title           VARCHAR NOT NULL,
             description     VARCHAR,
@@ -31,7 +32,6 @@ object Schema {
             ratings         DOUBLE[] NOT NULL DEFAULT []
         )
         """,
-        "CREATE SEQUENCE event_id_seq START 1",
         """
         CREATE TABLE ticket (
             id              UUID,

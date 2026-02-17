@@ -115,7 +115,7 @@ import dev.typr.foundationskt.connect.*
 fun main() {
     val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
     val answer: Int = Sql { "SELECT 42" }
-        .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
+        .queryOne(DuckDbTypes.integer)
         .transact(tx)
     println("Result: $answer")
 }`;
@@ -439,9 +439,10 @@ function JsonSection() {
       <div className={styles.container}>
         <h2 className={styles.sectionTitle}>Built-in JSON codecs</h2>
         <p className={styles.sectionSubtitle}>
-          Every type has a JSON codec. Your <code>RowParser</code> works for both <code>ResultSet</code> and JSON —
-          define once, use everywhere. Aggregate child rows with <code>json_agg()</code>, <code>JSON_ARRAYAGG</code>,
-          or <code>FOR JSON</code> and parse them with the same parser that reads your regular queries.
+          All databases can transfer data as JSON — and now you can use it uniformly.
+          Your <code>RowParser</code> doubles as a JSON codec with zero extra code.
+          Aggregate child rows with <code>json_agg()</code>, <code>JSON_ARRAYAGG</code>,
+          or <code>FOR JSON</code> and parse them with the same types. <a href="/foundations-jdbc/json">Learn more →</a>
         </p>
         <div className={styles.centeredCode}>
           <Snippet file="landing/JsonCodecs" />
@@ -758,15 +759,15 @@ export default function Home() {
       <main>
         <QuickstartSection />
         <ProblemSection />
-        <Features />
+        <QueryAnalysisSection />
         <ErrorMessagesSection />
+        <Features />
         <SchemaAndParsers />
         <TypeBuildingBlocks />
         <QueryShowcase />
         <TransactorShowcase />
         <JsonSection />
         <StoredProcedureSection />
-        <QueryAnalysisSection />
         <TypeShowcase />
         <ComparisonSection />
         <CTA />

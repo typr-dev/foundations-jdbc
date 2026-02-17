@@ -26,7 +26,6 @@ object ResultSetParserUsage:
   val listParser: ResultSetParser[List[Person]] = personParser.all()
 
   // Execute with ResultSet
-  @throws[SQLException]
   def parse(): Option[Person] =
     singleParser.apply(resultSet)
   //stop
