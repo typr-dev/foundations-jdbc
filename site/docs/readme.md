@@ -183,17 +183,15 @@ From any `RowParser<T>` you can create:
 
 ### Running Operations
 
-Use `.transact(tx)` — it obtains a connection, runs the operation in a transaction, and returns the result:
+The transactor manages connections and transactions. Call `.transact` to obtain a connection, run your code, and commit:
 
 <Snippet file="core/ExecuteTransact" />
 
-This is the only method you need for single operations.
-
-For multiple operations in a single transaction, pass a callback to the transactor and call `.run(conn)` on each operation:
+For multiple operations in a single transaction, call `.run(conn)` on each one inside the same block:
 
 <Snippet file="core/ManualTransaction" />
 
-Or compose them as values with `.with()` and run the whole thing with `.transact(tx)`:
+Or compose operations as values with `.with()` and run the combined result:
 
 <Snippet file="core/ExecuteComposed" />
 

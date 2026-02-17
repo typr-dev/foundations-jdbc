@@ -29,14 +29,15 @@ class GettingStarted {
             SingleConnectionDataSource.create(DuckDbConfig.inMemory().build())
                 .transactor()
 
-        val cities: List<City> =
+        val cities: List<City> = tx.transact { conn ->
             Sql { """
                 SELECT name, population
                 FROM city
                 ORDER BY population DESC
             """ }
                 .query(cityParser.all())
-                .transact(tx)
+                .run(conn)
+        }
     }
     //stop
 }

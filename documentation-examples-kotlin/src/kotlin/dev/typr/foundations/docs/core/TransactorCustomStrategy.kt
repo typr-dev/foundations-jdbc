@@ -10,8 +10,9 @@ class TransactorCustomStrategy {
     val customStrategy: Strategy = Strategy(
         { conn -> conn.autoCommit = false },  // before
         Connection::commit,                    // after (success)
-        { _ -> /* handle error */ },           // oops
-        Connection::close                      // always (finally)
+        { _, _ -> /* handle error */ },        // oops
+        Connection::close,                     // always (finally)
+        QueryListener.NOOP                     // listener
     )
     //stop
 }

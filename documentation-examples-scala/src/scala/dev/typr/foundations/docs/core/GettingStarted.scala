@@ -28,10 +28,11 @@ object GettingStarted:
         DuckDbConfig.inMemory().build()
       ).transactor()
 
-    val cities: List[City] =
+    val cities: List[City] = tx.transact { conn =>
       sql"""SELECT name, population
             FROM city
             ORDER BY population DESC"""
         .query(cityParser.all())
-        .transact(tx)
+        .run(conn)
+    }
   //stop

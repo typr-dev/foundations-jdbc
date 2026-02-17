@@ -20,6 +20,16 @@ public sealed interface Fragment {
 
   void render(StringBuilder sb);
 
+  default String renderInterpolated() {
+    StringBuilder sb = new StringBuilder();
+    renderInterpolated(sb);
+    return sb.toString();
+  }
+
+  default void renderInterpolated(StringBuilder sb) {
+    render(sb);
+  }
+
   default void set(PreparedStatement stmt) throws SQLException {
     set(stmt, new AtomicInteger(1));
   }
@@ -179,6 +189,12 @@ public sealed interface Fragment {
     }
 
     @Override
+    public void renderInterpolated(StringBuilder sb) {
+      a.renderInterpolated(sb);
+      b.renderInterpolated(sb);
+    }
+
+    @Override
     public void set(PreparedStatement stmt, AtomicInteger idx) throws SQLException {
       a.set(stmt, idx);
       b.set(stmt, idx);
@@ -195,6 +211,50 @@ public sealed interface Fragment {
     @Override
     public void render(StringBuilder sb) {
       sb.append(type.typename().renderPlaceholder());
+    }
+
+    @Override
+    public void renderInterpolated(StringBuilder sb) {
+      if (value == null) {
+        sb.append("NULL");
+        return;
+      }
+      if (value instanceof java.util.Optional<?> opt) {
+        if (opt.isEmpty()) {
+          sb.append("NULL");
+          return;
+        }
+        renderInterpolatedValue(sb, opt.get());
+        return;
+      }
+      renderInterpolatedValue(sb, value);
+    }
+
+    private void renderInterpolatedValue(StringBuilder sb, Object val) {
+      String sqlType = type.typename().sqlType().toLowerCase();
+      if (isQuotedType(sqlType)) {
+        sb.append('\'');
+        sb.append(val.toString().replace("'", "''"));
+        sb.append('\'');
+      } else {
+        sb.append(val);
+      }
+    }
+
+    private static boolean isQuotedType(String sqlType) {
+      return sqlType.contains("char")
+          || sqlType.contains("text")
+          || sqlType.contains("varchar")
+          || sqlType.contains("uuid")
+          || sqlType.contains("date")
+          || sqlType.contains("time")
+          || sqlType.contains("json")
+          || sqlType.contains("xml")
+          || sqlType.contains("bytea")
+          || sqlType.contains("blob")
+          || sqlType.contains("clob")
+          || sqlType.contains("enum")
+          || sqlType.contains("interval");
     }
 
     @Override
@@ -239,6 +299,13 @@ public sealed interface Fragment {
     public void render(StringBuilder sb) {
       for (Fragment frag : frags) {
         frag.render(sb);
+      }
+    }
+
+    @Override
+    public void renderInterpolated(StringBuilder sb) {
+      for (Fragment frag : frags) {
+        frag.renderInterpolated(sb);
       }
     }
 

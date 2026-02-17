@@ -20,6 +20,8 @@ class ExecuteTransact {
             .query(cityParser.all())
 
     //start
-    fun cities(): List<City> = findCities.transact(tx)
+    fun cities(): List<City> = tx.transact { conn ->
+        findCities.run(conn)
+    }
     //stop
 }

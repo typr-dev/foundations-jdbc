@@ -20,5 +20,7 @@ object ExecuteTransact:
       .query(cityParser.all())
 
   //start
-  def cities(): List[City] = findCities.transact(tx)
+  def cities(): List[City] = tx.transact { conn =>
+    findCities.run(conn)
+  }
   //stop

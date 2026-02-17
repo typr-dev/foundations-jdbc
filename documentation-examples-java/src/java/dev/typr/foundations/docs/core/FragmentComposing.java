@@ -43,10 +43,11 @@ public class FragmentComposing {
             .flatMap(Optional::stream)
             .toList();
 
-        return Fragment.of("SELECT * FROM product ")
-            .append(Fragment.whereAnd(filters))
-            .query(rowParser.all())
-            .transact(tx);
+        return tx.execute(conn ->
+            Fragment.of("SELECT * FROM product ")
+                .append(Fragment.whereAnd(filters))
+                .query(rowParser.all())
+                .run(conn));
     }
     //stop
 }

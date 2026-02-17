@@ -36,8 +36,8 @@ public class ManualTransaction {
     // Run both in one transaction using the connection directly
     Dashboard dashboard() throws SQLException {
         return tx.execute(conn -> {
-            long count = countUsers.runChecked(conn);
-            List<Order> orders = recentOrders.runChecked(conn);
+            long count = countUsers.run(conn);
+            List<Order> orders = recentOrders.run(conn);
             return new Dashboard(count, orders);
         });
     }

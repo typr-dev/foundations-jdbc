@@ -16,6 +16,7 @@ const sidebars = {
     {type: "doc", id: "production-patterns", label: "Production Patterns"},
     {type: "doc", id: "kotlin-interpolation", label: "Kotlin String Interpolation"},
     {type: "doc", id: "transactor-strategies", label: "Transactor Strategies"},
+    {type: "doc", id: "observability", label: "Observability"},
     {
       type: "category",
       label: "Database Types",

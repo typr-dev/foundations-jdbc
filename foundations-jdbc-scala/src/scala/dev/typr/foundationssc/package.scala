@@ -11,6 +11,8 @@ package object foundationssc:
 
   // Analysis types
   type QueryAnalysis = dev.typr.foundations.QueryAnalysis
+  type QueryListener = dev.typr.foundations.QueryListener
+  type QueryEvent = dev.typr.foundations.QueryEvent
 
   // Extension methods for Scala-friendly DbJson combinators
   extension [A](codec: dev.typr.foundations.DbJson[A])

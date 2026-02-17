@@ -29,7 +29,7 @@ public class ExecuteTransact {
 
     //start
     List<City> cities() throws SQLException {
-        return findCities.transact(tx);
+        return tx.execute(conn -> findCities.run(conn));
     }
     //stop
 }

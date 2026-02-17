@@ -37,13 +37,13 @@ public class GettingStarted {
                     DuckDbConfig.inMemory().build())
                 .transactor();
 
-        List<City> cities =
+        List<City> cities = tx.execute(conn ->
             Fragment.of("""
                     SELECT name, population
                     FROM city
                     ORDER BY population DESC""")
                 .query(cityParser.all())
-                .transact(tx);
+                .run(conn));
     }
     //stop
 }
