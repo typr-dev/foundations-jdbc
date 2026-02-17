@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object SqlTemplateMixed:
@@ -27,11 +26,9 @@ object SqlTemplateMixed:
       .param(PgTypes.int4)
       .query(userParser.all())
 
-  @throws[SQLException]
   def topTen(): List[User] =
     activeUsersWithLimit.on(10).transact(tx)
 
-  @throws[SQLException]
   def topFifty(): List[User] =
     activeUsersWithLimit.on(50).transact(tx)
   //stop

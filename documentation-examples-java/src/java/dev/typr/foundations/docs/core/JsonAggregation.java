@@ -1,4 +1,4 @@
-package dev.typr.foundations.docs.landing;
+package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.*;
 
@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class JsonCodecs {
+public class JsonAggregation {
     Transactor tx = null;
 
     record OrderLine(String product, int qty, BigDecimal price) {}
@@ -19,11 +19,12 @@ public class JsonCodecs {
             .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
             .build(OrderLine::new);
 
-    //start
-    // RowParser → JSON column type, zero extra code
-    DuckDbType<List<OrderLine>> linesType =
+    // A column type that stores rows as positional JSON arrays
+    static final DuckDbType<List<OrderLine>> linesType =
         DuckDbTypes.jsonArrayEncodedList(lineParser);
 
+    //start
+    // Aggregate child rows as JSON in a single query
     List<OrderLine> getOrderLines(int customerId) throws SQLException {
         return Fragment.of("""
                     SELECT json_group_array(\

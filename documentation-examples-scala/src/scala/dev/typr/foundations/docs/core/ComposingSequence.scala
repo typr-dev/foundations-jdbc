@@ -3,7 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object ComposingSequence:
@@ -13,7 +12,6 @@ object ComposingSequence:
   val names: List[String] =
     List("Alice", "Bob", "Charlie")
 
-  @throws[SQLException]
   def insertAll(): List[Int] =
     val inserts: List[Operation[Int]] =
       names.map { name =>

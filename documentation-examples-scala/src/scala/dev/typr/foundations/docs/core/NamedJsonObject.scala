@@ -1,6 +1,5 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
-import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object NamedJsonObject:
@@ -16,11 +15,11 @@ object NamedJsonObject:
       .field("price", DuckDbTypes.decimal(10, 2))(_.price)
       .build(OrderLine.apply)
 
-  // JSON array codec — positional
-  val arrayCodec: DbJson[List[OrderLine]] =
-    lineParser.jsonArray().asList
+  // Stores rows as positional JSON arrays
+  val arrayType: DuckDbType[List[OrderLine]] =
+    DuckDbTypes.jsonArrayEncodedList(lineParser)
 
-  // JSON object codec — named keys from the parser
-  val objectCodec: DbJson[List[OrderLine]] =
-    lineParser.jsonObject().asList
+  // Stores rows as named JSON objects — keys from the parser
+  val objectType: DuckDbType[List[OrderLine]] =
+    DuckDbTypes.jsonObjectEncodedList(lineParser)
   //stop

@@ -1,10 +1,10 @@
-package dev.typr.foundations.docs.landing
+package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 
 
 @SuppressWarnings(Array("unused"))
-object JsonCodecs:
+object JsonAggregation:
   var tx: Transactor = null
 
   case class OrderLine(product: String, qty: Int, price: BigDecimal)
@@ -16,11 +16,12 @@ object JsonCodecs:
       .field(DuckDbTypes.decimal(10, 2))(_.price)
       .build(OrderLine.apply)
 
-  //start
-  // RowParser → JSON column type, zero extra code
+  // A column type that stores rows as positional JSON arrays
   val linesType: DuckDbType[List[OrderLine]] =
     DuckDbTypes.jsonArrayEncodedList(lineParser)
 
+  //start
+  // Aggregate child rows as JSON in a single query
   def getOrderLines(customerId: Int): List[OrderLine] =
     sql"""SELECT json_group_array(
               json_array(product, qty, price))

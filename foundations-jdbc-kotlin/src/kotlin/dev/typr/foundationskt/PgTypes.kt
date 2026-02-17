@@ -158,5 +158,33 @@ open class PgTypes {
     open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: (String) -> E) =
         PgType(JavaPgTypes.ofEnum(enumTypeName) { fromString(it) })
 
+    // JSON-encoded row types (json)
+
+    open fun <Row : Any> jsonArrayEncoded(parser: RowParser<Row>) =
+        PgType<Row>(JavaPgTypes.jsonArrayEncoded(parser.underlying))
+
+    open fun <Row : Any> jsonArrayEncodedList(parser: RowParser<Row>) =
+        PgType<List<Row>>(JavaPgTypes.jsonArrayEncodedList(parser.underlying))
+
+    open fun <Row : Any> jsonObjectEncoded(parser: RowParserNamed<Row>) =
+        PgType<Row>(JavaPgTypes.jsonObjectEncoded(parser.underlying))
+
+    open fun <Row : Any> jsonObjectEncodedList(parser: RowParserNamed<Row>) =
+        PgType<List<Row>>(JavaPgTypes.jsonObjectEncodedList(parser.underlying))
+
+    // JSON-encoded row types (jsonb)
+
+    open fun <Row : Any> jsonbArrayEncoded(parser: RowParser<Row>) =
+        PgType<Row>(JavaPgTypes.jsonbArrayEncoded(parser.underlying))
+
+    open fun <Row : Any> jsonbArrayEncodedList(parser: RowParser<Row>) =
+        PgType<List<Row>>(JavaPgTypes.jsonbArrayEncodedList(parser.underlying))
+
+    open fun <Row : Any> jsonbObjectEncoded(parser: RowParserNamed<Row>) =
+        PgType<Row>(JavaPgTypes.jsonbObjectEncoded(parser.underlying))
+
+    open fun <Row : Any> jsonbObjectEncodedList(parser: RowParserNamed<Row>) =
+        PgType<List<Row>>(JavaPgTypes.jsonbObjectEncodedList(parser.underlying))
+
     companion object : PgTypes()
 }

@@ -87,6 +87,26 @@ class SqlServerTypes {
 
   def datetimeoffset(scale: Int): SqlServerType[java.time.OffsetDateTime] =
     SqlServerType(JavaSqlServerTypes.datetimeoffset(scale))
+
+  // JSON-encoded row types
+
+  def jsonArrayEncoded[Row](parser: RowParser[Row]): SqlServerType[Row] =
+    SqlServerType(JavaSqlServerTypes.jsonArrayEncoded(parser.underlying))
+
+  def jsonArrayEncodedList[Row](parser: RowParser[Row]): SqlServerType[List[Row]] =
+    SqlServerType(JavaSqlServerTypes.jsonArrayEncodedList(parser.underlying).transform(
+      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+    ))
+
+  def jsonObjectEncoded[Row](parser: RowParserNamed[Row]): SqlServerType[Row] =
+    SqlServerType(JavaSqlServerTypes.jsonObjectEncoded(parser.underlying))
+
+  def jsonObjectEncodedList[Row](parser: RowParserNamed[Row]): SqlServerType[List[Row]] =
+    SqlServerType(JavaSqlServerTypes.jsonObjectEncodedList(parser.underlying).transform(
+      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+    ))
 }
 
 object SqlServerTypes extends SqlServerTypes

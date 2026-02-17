@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object SqlTemplateBasic:
@@ -27,12 +26,10 @@ object SqlTemplateBasic:
       .query(userParser.maxOne())
 
   // Fill the template to get a concrete operation
-  @throws[SQLException]
   def findAlice(): Option[User] =
     findByEmail.on("alice@example.com").transact(tx)
 
   // Reuse with different values
-  @throws[SQLException]
   def findBob(): Option[User] =
     findByEmail.on("bob@example.com").transact(tx)
   //stop

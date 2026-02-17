@@ -33,6 +33,20 @@ public class MariaTypeTest {
 
   record TestPair<A>(A t0, Optional<A> t1) {}
 
+  record Item(String name, int quantity) {}
+
+  static RowParser<Item> itemParser =
+      RowParser.<Item>builder()
+          .field(MariaTypes.varchar, Item::name)
+          .field(MariaTypes.int_, Item::quantity)
+          .build(Item::new);
+
+  static RowParserNamed<Item> namedItemParser =
+      RowParser.<Item>namedBuilder()
+          .field("name", MariaTypes.varchar, Item::name)
+          .field("quantity", MariaTypes.int_, Item::quantity)
+          .build(Item::new);
+
   record MariaTypeAndExample<A>(
       MariaType<A> type,
       A example,
@@ -282,6 +296,20 @@ public class MariaTypeTest {
               .noIdentity(), // Edge case: number value
           new MariaTypeAndExample<>(MariaTypes.json, new Json("true"))
               .noIdentity(), // Edge case: boolean value
+
+          // ==================== JSON-Encoded Row Types ====================
+          new MariaTypeAndExample<>(
+                  MariaTypes.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+              .noIdentity(),
+          new MariaTypeAndExample<>(
+                  MariaTypes.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+              .noIdentity(),
+          new MariaTypeAndExample<>(
+                  MariaTypes.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+              .noIdentity(),
+          new MariaTypeAndExample<>(
+                  MariaTypes.jsonObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
+              .noIdentity(),
 
           // ==================== Network Types (MariaDB 10.10+) ====================
           new MariaTypeAndExample<>(MariaTypes.inet4, Inet4.parse("192.168.1.100")),

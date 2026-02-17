@@ -24,7 +24,7 @@ class QueryAnalysis {
             SELECT id, name, created_at, email
             FROM users
             WHERE active = ${PgTypes.bool(true)}
-        """.trimIndent() }
+        """ }
             .query(userParser.all())
 
     fun check() {

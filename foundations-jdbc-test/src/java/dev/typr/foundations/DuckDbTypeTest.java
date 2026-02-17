@@ -63,6 +63,19 @@ public class DuckDbTypeTest {
 
   DuckDbType<Person> personType = personStruct.asType();
 
+  // Parsers for JSON-encoded row type testing
+  static RowParser<Person> personParser =
+      RowParser.<Person>builder()
+          .field(DuckDbTypes.varchar, Person::name)
+          .field(DuckDbTypes.integer, Person::age)
+          .build(Person::new);
+
+  static RowParserNamed<Person> namedPersonParser =
+      RowParser.<Person>namedBuilder()
+          .field("name", DuckDbTypes.varchar, Person::name)
+          .field("age", DuckDbTypes.integer, Person::age)
+          .build(Person::new);
+
   // ==================== UNION Example ====================
   sealed interface IntOrString {
     record Num(int value) implements IntOrString {}
@@ -232,6 +245,23 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(DuckDbTypes.json, new Json("[1, 2, 3, \"four\"]"))
               .noIdentity(),
           new DuckDbTypeAndExample<>(DuckDbTypes.json, new Json("{}")).noIdentity(),
+
+          // ==================== JSON-Encoded Row Types ====================
+          // These types store structured rows as JSON — the codec is derived from the RowParser
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.jsonArrayEncoded(personParser), new Person("Alice", 30))
+              .noIdentity(),
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.jsonArrayEncodedList(personParser),
+                  List.of(new Person("Alice", 30), new Person("Bob", 25)))
+              .noIdentity(),
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.jsonObjectEncoded(namedPersonParser), new Person("Alice", 30))
+              .noIdentity(),
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.jsonObjectEncodedList(namedPersonParser),
+                  List.of(new Person("Alice", 30), new Person("Bob", 25)))
+              .noIdentity(),
 
           // ==================== ENUM Type ====================
           new DuckDbTypeAndExample<>(DuckDbTypes.ofEnum("color_enum", Color::valueOf), Color.GREEN),

@@ -33,13 +33,13 @@ class QueryAnalysisTestSuite {
                     SELECT id, name, email
                     FROM users
                     WHERE id = ${PgTypes.int4(1)}
-                """.trimIndent() }
+                """ }
                     .query(userParser.all()),
                 Sql { """
                     SELECT id, name
                     FROM products
                     WHERE name LIKE ${PgTypes.text("%widget%")}
-                """.trimIndent() }
+                """ }
                     .query(productParser.all())
             )
 

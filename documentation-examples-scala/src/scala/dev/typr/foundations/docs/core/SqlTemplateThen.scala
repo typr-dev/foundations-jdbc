@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object SqlTemplateThen:
@@ -31,7 +30,6 @@ object SqlTemplateThen:
       .query(orderParser.all())
 
   // Chain: insert user, then fetch their orders
-  @throws[SQLException]
   def insertAndFetchOrders(): List[Order] =
     insertUser.on("Alice")
       .andThen(ordersByUser)

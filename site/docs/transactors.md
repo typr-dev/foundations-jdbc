@@ -6,31 +6,55 @@ import Snippet from '@site/src/components/Snippet';
 
 # Transactors
 
-A `Transactor` manages database connections and transactions. It provides a clean API for executing database operations with automatic connection and transaction lifecycle management.
+A `Transactor` is how you run database operations. It obtains a connection, runs your code inside a transaction, and handles commit, rollback, and cleanup automatically.
 
-## Setting Up a Transactor
+The default [strategy](./transactor-strategies) wraps each call in a transaction: auto-commit off, commit on success, rollback on error, close always. You can customize this behavior by passing a different [strategy](./transactor-strategies) to `.transactor(strategy)`.
+
+## Setting Up
+
+Each supported database has a typed config builder — your IDE will autocomplete all available options. Call `.transactor()` at the end of the chain:
 
 <Snippet file="core/TransactorSetup" />
 
-## Built-in Strategies
+## Connection Settings
 
-| Strategy | Description |
-|----------|-------------|
-| `Transactor.defaultStrategy()` | begin, commit, close |
-| `Transactor.autoCommitStrategy()` | no transaction, just close |
-| `Transactor.rollbackOnErrorStrategy()` | begin, commit on success, rollback on error, close |
-| `Transactor.testStrategy()` | begin, rollback, close (for tests) |
+Override connection-level defaults by passing `ConnectionSettings`:
 
-## Multi-Operation Transactions
+```java
+var settings = ConnectionSettings.builder()
+    .transactionIsolation(TransactionIsolation.READ_COMMITTED)
+    .readOnly(true)
+    .schema("app")
+    .connectionInitSql("SET search_path TO app")
+    .build();
 
-Compose multiple operations with `.with()` to run them in a single transaction:
+var tx = config.transactor(settings);
+// or: config.transactor(settings, strategy)
+```
 
-<Snippet file="core/ComposingWith" />
+| Setting | Description |
+|---------|-------------|
+| `transactionIsolation` | `READ_UNCOMMITTED`, `READ_COMMITTED`, `REPEATABLE_READ`, `SERIALIZABLE` |
+| `autoCommit` | Override the driver's default auto-commit mode |
+| `readOnly` | Hint to the driver that connections are read-only |
+| `catalog` | Set the default catalog |
+| `schema` | Set the default schema |
+| `connectionInitSql` | SQL executed once when each connection is created |
 
-See [Composing Operations](./composing-operations) for the full set of combinators.
+## Connection Pooling
 
-## Custom Strategies
+For production, use `PooledDataSource` from the `foundations-jdbc-hikari` module:
 
-Define your own with explicit hooks:
+```java
+var pool = PooledDataSource.create(config);
+var tx = pool.transactor();
+```
 
-<Snippet file="core/TransactorCustomStrategy" />
+## Single Connection Mode
+
+`SingleConnectionDataSource` reuses one connection across all calls — needed for DuckDB in-memory, where each new connection creates a separate database:
+
+```java
+var ds = SingleConnectionDataSource.create(config);
+var tx = ds.transactor();
+```

@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.landing
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.connect.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 

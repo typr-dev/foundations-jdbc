@@ -3,7 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object ExecuteComposed:
@@ -26,7 +25,6 @@ object ExecuteComposed:
       .query(orderParser.all())
 
   //start
-  @throws[SQLException]
   def dashboard(): Dashboard =
     countUsers.`with`(recentOrders)(Dashboard.apply)
       .transact(tx)

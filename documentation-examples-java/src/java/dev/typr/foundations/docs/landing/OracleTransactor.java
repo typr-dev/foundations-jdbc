@@ -16,7 +16,6 @@ public class OracleTransactor {
         OracleConfig.builder(
                 "localhost", 1521, "xe", "app", "secret")
             .serviceName("XEPDB1")
-            .build()
             .transactor();
 
     // Everything inside runs in one transaction

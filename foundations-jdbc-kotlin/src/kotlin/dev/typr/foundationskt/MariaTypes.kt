@@ -81,5 +81,23 @@ open class MariaTypes {
     open fun <E : Enum<E>> ofEnum(sqlType: String, fromString: java.util.function.Function<String, E>) =
         MariaType(JavaMariaTypes.ofEnum(sqlType, fromString))
 
+    // JSON-encoded row types
+
+    /** A JSON column type that stores a single row as a positional JSON array: [val1, val2, val3]. */
+    open fun <Row : Any> jsonArrayEncoded(parser: RowParser<Row>) =
+        MariaType<Row>(JavaMariaTypes.jsonArrayEncoded(parser.underlying))
+
+    /** A JSON column type that stores a list of rows, each as a positional JSON array. */
+    open fun <Row : Any> jsonArrayEncodedList(parser: RowParser<Row>) =
+        MariaType<List<Row>>(JavaMariaTypes.jsonArrayEncodedList(parser.underlying))
+
+    /** A JSON column type that stores a single row as a keyed JSON object: {"col": val, ...}. */
+    open fun <Row : Any> jsonObjectEncoded(parser: RowParserNamed<Row>) =
+        MariaType<Row>(JavaMariaTypes.jsonObjectEncoded(parser.underlying))
+
+    /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
+    open fun <Row : Any> jsonObjectEncodedList(parser: RowParserNamed<Row>) =
+        MariaType<List<Row>>(JavaMariaTypes.jsonObjectEncodedList(parser.underlying))
+
     companion object : MariaTypes()
 }

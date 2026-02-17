@@ -1,42 +1,53 @@
 package dev.typr.foundations.docs.core;
 
-import dev.typr.foundations.Fragment;
-import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
 import dev.typr.foundations.Transactor;
-import dev.typr.foundations.connect.ConnectionSource;
-
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.List;
+import dev.typr.foundations.connect.*;
 
 @SuppressWarnings("unused")
 public class TransactorSetup {
-    record ProductRow(Integer id, String name, BigDecimal price) {}
-
-    static RowParser<ProductRow> rowParser =
-        RowParser.<ProductRow>builder()
-            .field(PgTypes.int4, ProductRow::id)
-            .field(PgTypes.text, ProductRow::name)
-            .field(PgTypes.numeric, ProductRow::price)
-            .build(ProductRow::new);
-
-    ConnectionSource connectionSource = null; // placeholder
-    BigDecimal minPrice = new BigDecimal("10");
-
     //start
-    // The Transactor manages connections and transactions
-    // You choose the strategy — it handles the lifecycle
-    List<ProductRow> query() throws SQLException {
-        Transactor tx =
-            connectionSource.transactor(
-                Transactor.defaultStrategy());
+    // PostgreSQL
+    Transactor pgTx =
+        PostgresConfig.builder(
+                "localhost", 5432, "mydb", "user", "pass")
+            .sslmode(PgSslMode.REQUIRE)
+            .transactor();
 
-        return Fragment
-            .of("SELECT * FROM product WHERE price > ")
-            .value(PgTypes.numeric, minPrice)
-            .query(rowParser.all())
-            .transact(tx);
-    }
+    // DuckDB (in-memory)
+    Transactor duckTx =
+        DuckDbConfig.inMemory().transactor();
+
+    // DuckDB (file-based)
+    Transactor duckFileTx =
+        DuckDbConfig.builder("/tmp/analytics.db")
+            .threads(4)
+            .memoryLimit("2GB")
+            .transactor();
+
+    // MariaDB / MySQL
+    Transactor mariaTx =
+        MariaDbConfig.builder(
+                "localhost", 3306, "mydb", "user", "pass")
+            .transactor();
+
+    // Oracle
+    Transactor oracleTx =
+        OracleConfig.builder(
+                "localhost", 1521, "xe", "user", "pass")
+            .serviceName("XEPDB1")
+            .transactor();
+
+    // SQL Server
+    Transactor mssqlTx =
+        SqlServerConfig.builder(
+                "localhost", 1433, "mydb", "user", "pass")
+            .encrypt(SqlServerEncrypt.TRUE)
+            .transactor();
+
+    // DB2
+    Transactor db2Tx =
+        Db2Config.builder(
+                "localhost", 50000, "mydb", "user", "pass")
+            .transactor();
     //stop
 }

@@ -25,7 +25,7 @@ class QueryAnalysisNamed {
                 SELECT id, name, email
                 FROM users
                 WHERE id = ${PgTypes.int4(userId)}
-            """.trimIndent() }
+            """ }
                 .query(userRowParser.all())
 
         // Give your query a name - it shows up in the error report
