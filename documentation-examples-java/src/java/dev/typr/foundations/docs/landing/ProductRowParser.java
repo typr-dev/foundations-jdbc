@@ -23,15 +23,16 @@ public class ProductRowParser {
     static final RowParser<Category> categoryRowParser = null; // placeholder
 
     //start
-    static RowParser<Product> rowParser = RowParser.<Product>builder()
-        .field(productIdType, Product::id)
-        .field(PgTypes.text, Product::name)
-        .field(PgTypes.numeric, Product::price)
-        .field(PgTypes.textArray.opt(), Product::tags)
-        .field(dimensionsType.opt(), Product::dimensions)
-        .field(PgTypes.jsonb.opt(), Product::metadata)
-        .field(PgTypes.timestamptz.opt(), Product::createdAt)
-        .build(Product::new);
+    static RowParser<Product> rowParser =
+        RowParser.<Product>builder()
+            .field(productIdType, Product::id)
+            .field(PgTypes.text, Product::name)
+            .field(PgTypes.numeric, Product::price)
+            .field(PgTypes.textArray.opt(), Product::tags)
+            .field(dimensionsType.opt(), Product::dimensions)
+            .field(PgTypes.jsonb.opt(), Product::metadata)
+            .field(PgTypes.timestamptz.opt(), Product::createdAt)
+            .build(Product::new);
 
     // Compose parsers for joins
     static RowParser<And<Product, Optional<Category>>> joined =

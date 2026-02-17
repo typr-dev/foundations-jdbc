@@ -1,8 +1,6 @@
 package dev.typr.foundations.docs.landing;
 
 import dev.typr.foundations.*;
-import dev.typr.foundations.data.Json;
-import dev.typr.foundations.data.JsonValue;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -10,32 +8,31 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class JsonCodecs {
-    Transactor tx = null; // placeholder
+    Transactor tx = null;
 
-    //start
     record OrderLine(String product, int qty, BigDecimal price) {}
 
-    // Define once — reads from ResultSet AND JSON
-    static final RowParser<OrderLine> lineParser = RowParser.<OrderLine>builder()
-        .field(DuckDbTypes.varchar, OrderLine::product)
-        .field(DuckDbTypes.integer, OrderLine::qty)
-        .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
-        .build(OrderLine::new);
+    static final RowParser<OrderLine> lineParser =
+        RowParser.<OrderLine>builder()
+            .field(DuckDbTypes.varchar, OrderLine::product)
+            .field(DuckDbTypes.integer, OrderLine::qty)
+            .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
+            .build(OrderLine::new);
 
-    // Same RowParser, now as a JSON codec — zero extra code
-    static final DbJson<List<OrderLine>> linesCodec =
-        DbJsonRow.jsonArray(lineParser).list();
+    //start
+    // RowParser → JSON column type, zero extra code
+    DuckDbType<List<OrderLine>> linesType =
+        DuckDbTypes.jsonArrayEncodedList(lineParser);
 
-    // Aggregate child rows as JSON in a single query
     List<OrderLine> getOrderLines(int customerId) throws SQLException {
-        Json json = Fragment.of(
-            "SELECT json_group_array(json_array(product, qty, price)) "
-            + "FROM order_lines WHERE customer_id = ")
-            .value(DuckDbTypes.integer, customerId)
-            .query(RowParser.of(DuckDbTypes.json).exactlyOne())
-            .transact(tx);
-
-        return linesCodec.fromJson(JsonValue.parse(json.value()));
+        return Fragment.of("""
+                    SELECT json_group_array(\
+                    json_array(product, qty, price))
+                    FROM order_lines
+                    WHERE customer_id = """)
+                .value(DuckDbTypes.integer, customerId)
+                .query(RowParser.of(linesType).exactlyOne())
+                .transact(tx);
     }
     //stop
 }

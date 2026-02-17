@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object ComposingIfEmpty:
@@ -21,8 +20,9 @@ object ComposingIfEmpty:
   //start
   // Find-or-create pattern
   val findUser: SqlTemplate[String, Option[User]] =
-    Fragment.of("SELECT id, name, email FROM users WHERE email = ")
-      .param(PgTypes.text)
+    Fragment.of(
+      "SELECT id, name, email FROM users WHERE email = "
+    ).param(PgTypes.text)
       .query(userParser.maxOne())
 
   val createUser: SqlTemplate.Query2[String, String, User] =
@@ -32,9 +32,9 @@ object ComposingIfEmpty:
       .append(") RETURNING *")
       .query(userParser.exactlyOne())
 
-  @throws[SQLException]
-  def findOrCreate(): User = Operation.ifEmpty(
-    findUser.on(email),
-    createUser.on(name, email)
-  ).transact(tx)
+  def findOrCreate(): User =
+    Operation.ifEmpty(
+      findUser.on(email),
+      createUser.on(name, email)
+    ).transact(tx)
   //stop

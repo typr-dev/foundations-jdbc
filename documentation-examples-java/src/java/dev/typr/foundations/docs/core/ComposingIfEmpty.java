@@ -14,11 +14,12 @@ import java.util.Optional;
 public class ComposingIfEmpty {
     record User(int id, String name, String email) {}
 
-    static RowParser<User> userParser = RowParser.<User>builder()
-        .field(PgTypes.int4, User::id)
-        .field(PgTypes.text, User::name)
-        .field(PgTypes.text, User::email)
-        .build(User::new);
+    static RowParser<User> userParser =
+        RowParser.<User>builder()
+            .field(PgTypes.int4, User::id)
+            .field(PgTypes.text, User::name)
+            .field(PgTypes.text, User::email)
+            .build(User::new);
 
     Transactor tx = null; // placeholder
     String email = "alice@example.com";
@@ -27,12 +28,18 @@ public class ComposingIfEmpty {
     //start
     // Find-or-create pattern
     SqlTemplate<String, Optional<User>> findUser =
-        Fragment.of("SELECT id, name, email FROM users WHERE email = ")
+        Fragment.of("""
+                SELECT id, name, email
+                FROM users WHERE email =
+                """)
             .param(PgTypes.text)
             .query(userParser.maxOne());
 
     SqlTemplate.Query2<String, String, User> createUser =
-        Fragment.of("INSERT INTO users(name, email) VALUES(")
+        Fragment.of("""
+                INSERT INTO users(name, email)
+                VALUES(\
+                """)
             .param(PgTypes.text).append(", ")
             .param(PgTypes.text)
             .append(") RETURNING *")

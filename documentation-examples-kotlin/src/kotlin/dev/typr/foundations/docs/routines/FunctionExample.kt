@@ -12,8 +12,8 @@ class FunctionExample {
         // Functions use SELECT instead of CALL — every DbType reads correctly
         val calcTax =
             DbFunction.define("calculate_tax", PgTypes.numeric)
-                .`in`(PgTypes.numeric)    // amount
-                .`in`(PgTypes.text)       // region
+                .input(PgTypes.numeric)    // amount
+                .input(PgTypes.text)       // region
                 .build()
 
         // Zero-argument function
@@ -23,6 +23,7 @@ class FunctionExample {
     }
 
     fun calculateTax(amount: BigDecimal, region: String): BigDecimal =
-        calcTax.call(amount, region).transact(tx!!)
+        calcTax.call(amount, region)
+            .transact(tx!!)
     //stop
 }

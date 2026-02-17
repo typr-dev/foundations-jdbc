@@ -9,7 +9,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Getting Started
 
-A step-by-step introduction to Foundations JDBC — from setup to executing queries.
+A step-by-step introduction to Foundations JDBC — from setup to executing queries. Foundations JDBC is [MIT-licensed](https://github.com/typr-dev/foundations-jdbc/blob/main/LICENSE) and open source.
 
 ## Dependencies
 
@@ -95,8 +95,9 @@ import dev.typr.foundationskt.data.*    // Data types: Json, Range, Uint4, etc.
 <TabItem value="scala" label="Scala">
 
 ```scala
-import dev.typr.foundationssc.*       // Core + connection: Fragment, RowParser, *Types, *Config
-import dev.typr.foundationssc.data.*  // Data types: Json, Range, Uint4, etc.
+import dev.typr.foundationssc.*         // Core: Fragment, RowParser, Operation, Transactor, *Types
+import dev.typr.foundationssc.connect.* // Connection: SimpleDataSource, *Config
+import dev.typr.foundationssc.data.*    // Data types: Json, Range, Uint4, etc.
 ```
 
 </TabItem>
@@ -182,31 +183,19 @@ From any `RowParser<T>` you can create:
 
 ### Running Operations
 
-Use `.transact(tx)` — it obtains a connection, runs the operation in a transaction, and returns the result:
+The transactor manages connections and transactions. Call `.transact` to obtain a connection, run your code, and commit:
 
 <Snippet file="core/ExecuteTransact" />
 
-This is the only method you need for single operations.
-
-For multiple operations on one connection, use the transactor's callback and call `.runChecked(conn)` on each operation:
-
-<Snippet file="core/ExecuteRunChecked" />
+For multiple operations in a single transaction, call `.run(conn)` on each one inside the same block:
 
 <Snippet file="core/ManualTransaction" />
 
-Or better — compose them as values with `.with()` and run the whole thing with `.transact(tx)`:
+Or compose operations as values with `.with()` and run the combined result:
 
 <Snippet file="core/ExecuteComposed" />
 
 See [Composing Operations](./composing-operations) for the full set of combinators.
-
-### Summary
-
-| Method | When to use |
-|--------|-------------|
-| `.transact(tx)` | Default. Runs a single operation in its own transaction. |
-| `.runChecked(conn)` | Inside a manual transaction block when you need multiple operations on one connection. Throws `SQLException`. |
-| `.run(conn)` | Same as `runChecked`, but wraps `SQLException` in `RuntimeException`. |
 
 ## Full Example
 

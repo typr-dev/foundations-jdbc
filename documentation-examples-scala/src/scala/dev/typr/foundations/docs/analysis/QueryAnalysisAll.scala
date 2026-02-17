@@ -23,16 +23,16 @@ object QueryAnalysisAll:
       .query(RowParser.of(PgTypes.int4).exactlyOne())
 
   val allUsers: Operation[List[User]] =
-    sql"SELECT id, name FROM users".query(userParser.all())
+    sql"SELECT id, name FROM users"
+      .query(userParser.all())
 
   //start
   def analyzeComposedOperation(): Unit =
     // Build a composed operation
     val transaction: Operation[?] =
-      insertUser.on("Alice")
-        .thenIgnore(allUsers)
+      insertUser.on("Alice").thenIgnore(allUsers)
 
-    // Analyze every SQL statement in the tree - one call
+    // Analyze every statement in the tree
     val results: List[QueryAnalysis] =
       QueryAnalyzer.analyze(transaction, conn)
 

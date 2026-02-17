@@ -107,5 +107,23 @@ open class DuckDbTypes {
     open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: java.util.function.Function<String, E>) =
         DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, fromString))
 
+    // JSON-encoded row types
+
+    /** A JSON column type that stores a single row as a positional JSON array: [val1, val2, val3]. */
+    open fun <Row : Any> jsonArrayEncoded(parser: RowParser<Row>) =
+        DuckDbType<Row>(JavaDuckDbTypes.jsonArrayEncoded(parser.underlying))
+
+    /** A JSON column type that stores a list of rows, each as a positional JSON array. */
+    open fun <Row : Any> jsonArrayEncodedList(parser: RowParser<Row>) =
+        DuckDbType<List<Row>>(JavaDuckDbTypes.jsonArrayEncodedList(parser.underlying))
+
+    /** A JSON column type that stores a single row as a keyed JSON object: {"col": val, ...}. */
+    open fun <Row : Any> jsonObjectEncoded(parser: RowParserNamed<Row>) =
+        DuckDbType<Row>(JavaDuckDbTypes.jsonObjectEncoded(parser.underlying))
+
+    /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
+    open fun <Row : Any> jsonObjectEncodedList(parser: RowParserNamed<Row>) =
+        DuckDbType<List<Row>>(JavaDuckDbTypes.jsonObjectEncodedList(parser.underlying))
+
     companion object : DuckDbTypes()
 }

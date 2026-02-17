@@ -24,7 +24,7 @@ public record ParamDef(DbType<?> type, Mode mode, DbOutParam<?> outParam) {
   }
 
   /** Create a ParamDef for an IN parameter (no outParam needed). */
-  public static ParamDef in(DbType<?> type) {
+  public static ParamDef input(DbType<?> type) {
     return new ParamDef(type, Mode.IN, null);
   }
 

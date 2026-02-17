@@ -4,12 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import org.jetbrains.annotations.Nullable;
 
 public sealed interface Operation<Out>
     permits Operation.Query,
@@ -26,6 +28,7 @@ public sealed interface Operation<Out>
         Operation.With,
         Operation.IfEmpty,
         Operation.Then,
+        Operation.Configured,
         Procedure.ProcedureCall,
         Procedure.FunctionCall {
   Out runChecked(Connection conn) throws SQLException;
@@ -229,6 +232,27 @@ public sealed interface Operation<Out>
     return map(ignored -> null);
   }
 
+  default Operation<Out> named(String name) {
+    if (this instanceof Configured<Out> c) {
+      return new Configured<>(c.inner(), name, c.timeout(), c.listener());
+    }
+    return new Configured<>(this, name, null, null);
+  }
+
+  default Operation<Out> timeout(Duration timeout) {
+    if (this instanceof Configured<Out> c) {
+      return new Configured<>(c.inner(), c.name(), timeout, c.listener());
+    }
+    return new Configured<>(this, null, timeout, null);
+  }
+
+  default Operation<Out> withListener(QueryListener listener) {
+    if (this instanceof Configured<Out> c) {
+      return new Configured<>(c.inner(), c.name(), c.timeout(), listener);
+    }
+    return new Configured<>(this, null, null, listener);
+  }
+
   static <T> Operation<T> pure(T value) {
     return new Pure<>(value);
   }
@@ -268,22 +292,30 @@ public sealed interface Operation<Out>
   record Query<Out>(Fragment query, ResultSetParser<Out> parser) implements Operation<Out> {
     @Override
     public Out runChecked(Connection conn) throws SQLException {
-      try (PreparedStatement stmt = conn.prepareStatement(query.render())) {
-        query.set(stmt);
-        try (ResultSet rs = stmt.executeQuery()) {
-          return parser.apply(rs);
+      String sql = Instrumentation.applyName(query.render(), conn);
+      return Instrumentation.instrumented(conn, query, sql, () -> {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+          Instrumentation.applyTimeout(stmt, conn);
+          query.set(stmt);
+          try (ResultSet rs = stmt.executeQuery()) {
+            return parser.apply(rs);
+          }
         }
-      }
+      });
     }
   }
 
   record Update(Fragment query) implements Operation<Integer> {
     @Override
     public Integer runChecked(Connection conn) throws SQLException {
-      try (PreparedStatement stmt = conn.prepareStatement(query.render())) {
-        query.set(stmt);
-        return stmt.executeUpdate();
-      }
+      String sql = Instrumentation.applyName(query.render(), conn);
+      return Instrumentation.instrumented(conn, query, sql, () -> {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+          Instrumentation.applyTimeout(stmt, conn);
+          query.set(stmt);
+          return stmt.executeUpdate();
+        }
+      });
     }
   }
 
@@ -291,12 +323,16 @@ public sealed interface Operation<Out>
       implements Operation<Out> {
     @Override
     public Out runChecked(Connection conn) throws SQLException {
-      try (PreparedStatement stmt = conn.prepareStatement(query.render())) {
-        query.set(stmt);
-        try (ResultSet rs = stmt.executeQuery()) {
-          return parser.apply(rs);
+      String sql = Instrumentation.applyName(query.render(), conn);
+      return Instrumentation.instrumented(conn, query, sql, () -> {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+          Instrumentation.applyTimeout(stmt, conn);
+          query.set(stmt);
+          try (ResultSet rs = stmt.executeQuery()) {
+            return parser.apply(rs);
+          }
         }
-      }
+      });
     }
   }
 
@@ -304,13 +340,17 @@ public sealed interface Operation<Out>
       Fragment query, String[] columnNames, ResultSetParser<Out> parser) implements Operation<Out> {
     @Override
     public Out runChecked(Connection conn) throws SQLException {
-      try (PreparedStatement stmt = conn.prepareStatement(query.render(), columnNames)) {
-        query.set(stmt);
-        stmt.executeUpdate();
-        try (ResultSet rs = stmt.getGeneratedKeys()) {
-          return parser.apply(rs);
+      String sql = Instrumentation.applyName(query.render(), conn);
+      return Instrumentation.instrumented(conn, query, sql, () -> {
+        try (PreparedStatement stmt = conn.prepareStatement(sql, columnNames)) {
+          Instrumentation.applyTimeout(stmt, conn);
+          query.set(stmt);
+          stmt.executeUpdate();
+          try (ResultSet rs = stmt.getGeneratedKeys()) {
+            return parser.apply(rs);
+          }
         }
-      }
+      });
     }
   }
 
@@ -318,15 +358,19 @@ public sealed interface Operation<Out>
       implements Operation<int[]> {
     @Override
     public int[] runChecked(Connection conn) throws SQLException {
-      try (PreparedStatement stmt = conn.prepareStatement(query.render())) {
-        query.set(stmt);
-        while (rows.hasNext()) {
-          Row row = rows.next();
-          parser.writeRow(stmt, row);
-          stmt.addBatch();
+      String sql = Instrumentation.applyName(query.render(), conn);
+      return Instrumentation.instrumented(conn, query, sql, () -> {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+          Instrumentation.applyTimeout(stmt, conn);
+          query.set(stmt);
+          while (rows.hasNext()) {
+            Row row = rows.next();
+            parser.writeRow(stmt, row);
+            stmt.addBatch();
+          }
+          return stmt.executeBatch();
         }
-        return stmt.executeBatch();
-      }
+      });
     }
   }
 
@@ -334,19 +378,23 @@ public sealed interface Operation<Out>
       implements Operation<List<Row>> {
     @Override
     public List<Row> runChecked(Connection conn) throws SQLException {
-      try (PreparedStatement stmt =
-          conn.prepareStatement(query.render(), java.sql.Statement.RETURN_GENERATED_KEYS)) {
-        query.set(stmt);
-        while (rows.hasNext()) {
-          Row row = rows.next();
-          parser.writeRow(stmt, row);
-          stmt.addBatch();
+      String sql = Instrumentation.applyName(query.render(), conn);
+      return Instrumentation.instrumented(conn, query, sql, () -> {
+        try (PreparedStatement stmt =
+            conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+          Instrumentation.applyTimeout(stmt, conn);
+          query.set(stmt);
+          while (rows.hasNext()) {
+            Row row = rows.next();
+            parser.writeRow(stmt, row);
+            stmt.addBatch();
+          }
+          stmt.executeBatch();
+          try (ResultSet rs = stmt.getGeneratedKeys()) {
+            return parser.all().apply(rs);
+          }
         }
-        stmt.executeBatch();
-        try (ResultSet rs = stmt.getGeneratedKeys()) {
-          return parser.all().apply(rs);
-        }
-      }
+      });
     }
   }
 
@@ -359,19 +407,22 @@ public sealed interface Operation<Out>
       implements Operation<List<Row>> {
     @Override
     public List<Row> runChecked(Connection conn) throws SQLException {
-      java.util.ArrayList<Row> results = new java.util.ArrayList<>();
-      String sql = query.render();
-      while (rows.hasNext()) {
-        Row row = rows.next();
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-          query.set(stmt);
-          parser.writeRow(stmt, row);
-          try (ResultSet rs = stmt.executeQuery()) {
-            results.addAll(parser.all().apply(rs));
+      String sql = Instrumentation.applyName(query.render(), conn);
+      return Instrumentation.instrumented(conn, query, sql, () -> {
+        java.util.ArrayList<Row> results = new java.util.ArrayList<>();
+        while (rows.hasNext()) {
+          Row row = rows.next();
+          try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            Instrumentation.applyTimeout(stmt, conn);
+            query.set(stmt);
+            parser.writeRow(stmt, row);
+            try (ResultSet rs = stmt.executeQuery()) {
+              results.addAll(parser.all().apply(rs));
+            }
           }
         }
-      }
-      return results;
+        return results;
+      });
     }
   }
 
@@ -392,22 +443,25 @@ public sealed interface Operation<Out>
     @SuppressWarnings("unchecked")
     @Override
     public int[] runChecked(Connection conn) throws SQLException {
-      String sql = fragment.render();
-      int[] paramPositions = fragment.paramPositions();
-      List<DbType<?>> allCols = parser.columns();
-      try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-        while (rows.hasNext()) {
-          Row row = rows.next();
-          fragment.set(stmt);
-          Object[] encoded = parser.encode().apply(row);
-          for (int i = 0; i < includedIndices.length; i++) {
-            DbType<Object> type = (DbType<Object>) allCols.get(includedIndices[i]);
-            type.write().set(stmt, paramPositions[i], encoded[includedIndices[i]]);
+      String sql = Instrumentation.applyName(fragment.render(), conn);
+      return Instrumentation.instrumented(conn, fragment, sql, () -> {
+        int[] paramPositions = fragment.paramPositions();
+        List<DbType<?>> allCols = parser.columns();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+          Instrumentation.applyTimeout(stmt, conn);
+          while (rows.hasNext()) {
+            Row row = rows.next();
+            fragment.set(stmt);
+            Object[] encoded = parser.encode().apply(row);
+            for (int i = 0; i < includedIndices.length; i++) {
+              DbType<Object> type = (DbType<Object>) allCols.get(includedIndices[i]);
+              type.write().set(stmt, paramPositions[i], encoded[includedIndices[i]]);
+            }
+            stmt.addBatch();
           }
-          stmt.addBatch();
+          return stmt.executeBatch();
         }
-        return stmt.executeBatch();
-      }
+      });
     }
   }
 
@@ -416,7 +470,10 @@ public sealed interface Operation<Out>
       implements Operation<Long> {
     @Override
     public Long runChecked(Connection conn) throws SQLException {
-      return streamingInsert.insert(copyCommand, batchSize, rows, conn, text);
+      String sql = Instrumentation.applyName(copyCommand, conn);
+      Fragment syntheticFragment = Fragment.of(copyCommand);
+      return Instrumentation.instrumented(conn, syntheticFragment, sql, () ->
+          streamingInsert.insert(copyCommand, batchSize, rows, conn, text));
     }
   }
 
@@ -460,6 +517,36 @@ public sealed interface Operation<Out>
       A a = source.runChecked(conn);
       In in = extract.apply(a);
       return continuation.on(in).runChecked(conn);
+    }
+  }
+
+  record Configured<Out>(
+      Operation<Out> inner,
+      @Nullable String name,
+      @Nullable Duration timeout,
+      @Nullable QueryListener listener)
+      implements Operation<Out> {
+    @Override
+    public Out runChecked(Connection conn) throws SQLException {
+      Connection enriched = enrich(conn);
+      return inner.runChecked(enriched);
+    }
+
+    private Connection enrich(Connection conn) {
+      if (name == null && timeout == null && listener == null) {
+        return conn;
+      }
+      if (conn instanceof InstrumentedConnection ic) {
+        InstrumentedConnection merged = new InstrumentedConnection(
+            ic.delegate(),
+            listener != null ? QueryListener.compose(ic.queryListener(), listener) : ic.queryListener(),
+            name != null ? name : ic.queryName(),
+            timeout != null ? timeout : ic.queryTimeout());
+        return merged;
+      }
+      QueryListener effectiveListener =
+          listener != null ? listener : QueryListener.NOOP;
+      return new InstrumentedConnection(conn, effectiveListener, name, timeout);
     }
   }
 }

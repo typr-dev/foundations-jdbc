@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object SqlTemplateThen:
@@ -25,12 +24,12 @@ object SqlTemplateThen:
       .query(RowParser.of(PgTypes.int4).exactlyOne())
 
   val ordersByUser: SqlTemplate[Int, List[Order]] =
-    Fragment.of("SELECT id, user_id, product FROM orders WHERE user_id = ")
-      .param(PgTypes.int4)
+    Fragment.of(
+      "SELECT id, user_id, product FROM orders WHERE user_id = "
+    ).param(PgTypes.int4)
       .query(orderParser.all())
 
-  // Chain: insert user, then use returned id to fetch their orders
-  @throws[SQLException]
+  // Chain: insert user, then fetch their orders
   def insertAndFetchOrders(): List[Order] =
     insertUser.on("Alice")
       .andThen(ordersByUser)

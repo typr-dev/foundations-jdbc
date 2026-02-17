@@ -82,6 +82,28 @@ class Db2Types {
 
   def timestamp(scale: Int): Db2Type[java.time.LocalDateTime] =
     Db2Type(JavaDb2Types.timestamp(scale))
+
+  val json = Db2Type(JavaDb2Types.json)
+
+  // JSON-encoded row types
+
+  def jsonArrayEncoded[Row](parser: RowParser[Row]): Db2Type[Row] =
+    Db2Type(JavaDb2Types.jsonArrayEncoded(parser.underlying))
+
+  def jsonArrayEncodedList[Row](parser: RowParser[Row]): Db2Type[List[Row]] =
+    Db2Type(JavaDb2Types.jsonArrayEncodedList(parser.underlying).transform(
+      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+    ))
+
+  def jsonObjectEncoded[Row](parser: RowParserNamed[Row]): Db2Type[Row] =
+    Db2Type(JavaDb2Types.jsonObjectEncoded(parser.underlying))
+
+  def jsonObjectEncodedList[Row](parser: RowParserNamed[Row]): Db2Type[List[Row]] =
+    Db2Type(JavaDb2Types.jsonObjectEncodedList(parser.underlying).transform(
+      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+    ))
 }
 
 object Db2Types extends Db2Types

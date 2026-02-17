@@ -9,10 +9,11 @@ class RowParserBasic {
     //start
     data class Person(val id: Int, val name: String, val createdAt: Instant)
 
-    val personParser: RowParser<Person> = RowParser.builder<Person>()
-        .field(PgTypes.int4, Person::id)
-        .field(PgTypes.text, Person::name)
-        .field(PgTypes.timestamptz, Person::createdAt)
-        .build(::Person)
+    val personParser: RowParser<Person> =
+        RowParser.builder<Person>()
+            .field(PgTypes.int4, Person::id)
+            .field(PgTypes.text, Person::name)
+            .field(PgTypes.timestamptz, Person::createdAt)
+            .build(::Person)
     //stop
 }

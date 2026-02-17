@@ -1,5 +1,6 @@
 package dev.typr.foundations.spring;
 
+import dev.typr.foundations.QueryListener;
 import dev.typr.foundations.SqlConsumer;
 import dev.typr.foundations.Transactor;
 import dev.typr.foundations.Transactor.Strategy;
@@ -67,7 +68,7 @@ public final class SpringTransactor {
   }
 
   private static Strategy strategy(DataSource dataSource) {
-    return new Strategy(before(), after(), oops(), always(dataSource));
+    return new Strategy(before(), after(), oops(), always(dataSource), QueryListener.NOOP);
   }
 
   private static SqlConsumer<Connection> before() {
@@ -86,8 +87,8 @@ public final class SpringTransactor {
     };
   }
 
-  private static java.util.function.Consumer<Throwable> oops() {
-    return err -> {};
+  private static dev.typr.foundations.SqlBiConsumer<Connection, Throwable> oops() {
+    return (conn, err) -> {};
   }
 
   private static SqlConsumer<Connection> always(DataSource dataSource) {

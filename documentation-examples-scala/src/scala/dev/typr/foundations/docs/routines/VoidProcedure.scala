@@ -1,7 +1,6 @@
 package dev.typr.foundations.docs.routines
 import dev.typr.foundationssc.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object VoidProcedure:
@@ -11,11 +10,10 @@ object VoidProcedure:
   // A void procedure — no OUT parameters, just side effects
   val auditLog =
     DbProcedure.define("audit_log")
-      .in(PgTypes.text)       // action
-      .in(PgTypes.text)       // details
+      .input(PgTypes.text)       // action
+      .input(PgTypes.text)       // details
       .build()
 
-  @throws[SQLException]
   def logAction(action: String, details: String): Unit =
     auditLog.call(action, details).transact(tx)
   //stop

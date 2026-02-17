@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
-import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
 
@@ -23,13 +23,13 @@ object FragmentBuilding:
   val cutoffDate: Instant = Instant.now()
 
   //start
-  val id = Fragment.encode(PgTypes.int4, userId)
-  val status = Fragment.encode(PgTypes.text, "active")
-  val cutoff = Fragment.encode(PgTypes.timestamptz, cutoffDate)
-
   val query: Fragment =
-    sql"SELECT * FROM users WHERE id = $id AND status = $status AND created_at > $cutoff"
+    sql"""SELECT * FROM users
+          WHERE id = ${PgTypes.int4(userId)}
+          AND status = ${PgTypes.text("active")}
+          AND created_at > ${PgTypes.timestamptz(cutoffDate)}"""
 
-  // Execute safely - parameters are bound, not interpolated
-  val users: List[User] = query.query(userParser.all()).run(connection)
+  // Parameters are bound, not interpolated
+  val users: List[User] =
+    query.query(userParser.all()).run(connection)
   //stop

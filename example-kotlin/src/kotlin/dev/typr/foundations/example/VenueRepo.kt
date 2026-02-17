@@ -3,36 +3,23 @@ package dev.typr.foundations.example
 import dev.typr.foundationskt.*
 import java.sql.Connection
 
-object VenueRepo {
-    private val selectAll = Sql { "SELECT ${venueParser.columnList} FROM venue ORDER BY name" }
+val allVenues: Operation.Query<List<Venue>> =
+    Sql { "SELECT ${venueParser.columnList} FROM venue ORDER BY name" }
         .query(venueParser.all())
 
-    private val selectByIdTemplate = Fragment.of("SELECT ")
-        .append(venueParser.columnList).append(" FROM venue WHERE id = ")
-        .param(venueIdType)
+fun venueById(id: VenueId): Operation.Query<Venue?> =
+    Sql { "SELECT ${venueParser.columnList} FROM venue WHERE id = ${venueIdType(id)}" }
         .query(venueParser.maxOne())
 
-    private val insertTemplate = Fragment.of("INSERT INTO venue (")
-        .append(venueParser.columnList).append(") VALUES (nextval('venue_id_seq'), ")
-        .paramRow(venueParser, "id")
-        .append(")")
-        .append(" RETURNING ").append(venueParser.columnList)
+fun createVenue(venue: Venue): Operation.Query<Venue> {
+    val cols = venueParser.columnNames.filter { it != "id" }.joinToString(", ")
+    val values = Fragment.of("").row(venueParser, venue, "id")
+    return Sql { "INSERT INTO venue ($cols) VALUES ($values) RETURNING ${venueParser.columnList}" }
         .query(venueParser.exactlyOne())
-
-    fun findAllOp(): Operation.Query<List<Venue>> = selectAll
-
-    fun findAll(conn: Connection): List<Venue> =
-        selectAll.run(conn)
-
-    fun findById(id: VenueId, conn: Connection): Venue? =
-        selectByIdTemplate.on(id).run(conn)
-
-    fun create(venue: Venue, conn: Connection): Venue =
-        insertTemplate.on(venue).run(conn)
-
-    fun analyzeQueries(conn: Connection): List<QueryAnalysis> = listOf(
-        QueryAnalyzer.analyze("VenueRepo.selectAll", selectAll, conn),
-        QueryAnalyzer.analyze("VenueRepo.selectById", selectByIdTemplate, conn),
-        QueryAnalyzer.analyze("VenueRepo.insertReturning", insertTemplate, conn),
-    ).flatten()
 }
+
+fun analyzeVenueQueries(conn: Connection): List<QueryAnalysis> = listOf(
+    QueryAnalyzer.analyze("allVenues", allVenues, conn),
+    QueryAnalyzer.analyze("venueById", venueById(VenueId(0)), conn),
+    QueryAnalyzer.analyze("createVenue", createVenue(Venue(VenueId(0), "", Address("", "", "", "", ""), 0, emptyList(), emptyMap())), conn),
+).flatten()

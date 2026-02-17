@@ -189,6 +189,46 @@ class PgTypes {
 
   def bpcharArray(n: Int): PgType[Array[String]] =
     PgType(JavaPgTypes.bpcharArray(n))
+
+  // JSON-encoded row types (json)
+
+  def jsonArrayEncoded[Row](parser: RowParser[Row]): PgType[Row] =
+    PgType(JavaPgTypes.jsonArrayEncoded(parser.underlying))
+
+  def jsonArrayEncodedList[Row](parser: RowParser[Row]): PgType[List[Row]] =
+    PgType(JavaPgTypes.jsonArrayEncodedList(parser.underlying).transform(
+      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+    ))
+
+  def jsonObjectEncoded[Row](parser: RowParserNamed[Row]): PgType[Row] =
+    PgType(JavaPgTypes.jsonObjectEncoded(parser.underlying))
+
+  def jsonObjectEncodedList[Row](parser: RowParserNamed[Row]): PgType[List[Row]] =
+    PgType(JavaPgTypes.jsonObjectEncodedList(parser.underlying).transform(
+      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+    ))
+
+  // JSON-encoded row types (jsonb)
+
+  def jsonbArrayEncoded[Row](parser: RowParser[Row]): PgType[Row] =
+    PgType(JavaPgTypes.jsonbArrayEncoded(parser.underlying))
+
+  def jsonbArrayEncodedList[Row](parser: RowParser[Row]): PgType[List[Row]] =
+    PgType(JavaPgTypes.jsonbArrayEncodedList(parser.underlying).transform(
+      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+    ))
+
+  def jsonbObjectEncoded[Row](parser: RowParserNamed[Row]): PgType[Row] =
+    PgType(JavaPgTypes.jsonbObjectEncoded(parser.underlying))
+
+  def jsonbObjectEncodedList[Row](parser: RowParserNamed[Row]): PgType[List[Row]] =
+    PgType(JavaPgTypes.jsonbObjectEncodedList(parser.underlying).transform(
+      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+    ))
 }
 
 object PgTypes extends PgTypes

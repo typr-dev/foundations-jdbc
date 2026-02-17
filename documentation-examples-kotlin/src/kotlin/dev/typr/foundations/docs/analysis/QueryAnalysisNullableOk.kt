@@ -14,20 +14,24 @@ class QueryAnalysisNullableOk {
 
     // The LEFT JOIN makes o.total nullable in the result set,
     // but .nullableOk() tells analysis we'll handle it
-    val orderParser: RowParser<OrderRow> = RowParser.builder<OrderRow>()
-        .field(PgTypes.int4, OrderRow::userId)
-        .field(PgTypes.text, OrderRow::userName)
-        .field(PgTypes.numeric.nullableOk(), OrderRow::orderTotal)
-        .build(::OrderRow)
+    val orderParser: RowParser<OrderRow> =
+        RowParser.builder<OrderRow>()
+            .field(PgTypes.int4, OrderRow::userId)
+            .field(PgTypes.text, OrderRow::userName)
+            .field(PgTypes.numeric.nullableOk(), OrderRow::orderTotal)
+            .build(::OrderRow)
 
     fun analyzeLeftJoin() {
-        val query = Sql { """
-            SELECT u.id, u.name, o.total
-            FROM users u
-            LEFT JOIN orders o ON u.id = o.user_id
-        """.trimIndent() }.query(orderParser.all())
+        val query =
+            Sql { """
+                SELECT u.id, u.name, o.total
+                FROM users u
+                LEFT JOIN orders o ON u.id = o.user_id
+            """ }
+                .query(orderParser.all())
 
-        val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, connection).single()
+        val analysis: QueryAnalysis =
+            QueryAnalyzer.analyze(query, connection).single()
         if (!analysis.succeeded()) {
             throw AssertionError(analysis.report())
         }

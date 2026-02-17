@@ -1,7 +1,10 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.data.Json;
+import dev.typr.foundations.data.JsonValue;
 import java.math.BigDecimal;
 import java.time.*;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -359,7 +362,7 @@ public interface SqlServerTypes {
           "NVARCHAR(MAX)", // JSON is stored as NVARCHAR(MAX)
           SqlServerRead.readJson,
           SqlServerWrite.writeJson,
-          SqlServerJson.text.contramap(dev.typr.foundations.data.Json::value),
+          SqlServerJson.text.transform(dev.typr.foundations.data.Json::new, dev.typr.foundations.data.Json::value),
           SqlServerOutParam.readString.map(dev.typr.foundations.data.Json::new));
 
   // VECTOR - SQL Server 2025 (stored as binary for now)
@@ -433,4 +436,38 @@ public interface SqlServerTypes {
               SqlServerJson.text,
               SqlServerOutParam.readString)
           .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+
+  // ==================== JSON-Encoded Row Types ====================
+
+  /** A JSON column type that stores a single row as a positional JSON array. */
+  static <Row> SqlServerType<Row> jsonArrayEncoded(RowParser<Row> parser) {
+    DbJson<Row> codec = DbJsonRow.jsonArray(parser);
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        row -> new Json(codec.toJson(row).encode()));
+  }
+
+  /** A JSON column type that stores a list of rows, each as a positional JSON array. */
+  static <Row> SqlServerType<List<Row>> jsonArrayEncodedList(RowParser<Row> parser) {
+    DbJson<List<Row>> codec = DbJsonRow.jsonArray(parser).list();
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        list -> new Json(codec.toJson(list).encode()));
+  }
+
+  /** A JSON column type that stores a single row as a keyed JSON object. */
+  static <Row> SqlServerType<Row> jsonObjectEncoded(RowParserNamed<Row> parser) {
+    DbJson<Row> codec = DbJsonRow.jsonObject(parser);
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        row -> new Json(codec.toJson(row).encode()));
+  }
+
+  /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
+  static <Row> SqlServerType<List<Row>> jsonObjectEncodedList(RowParserNamed<Row> parser) {
+    DbJson<List<Row>> codec = DbJsonRow.jsonObject(parser).list();
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        list -> new Json(codec.toJson(list).encode()));
+  }
 }

@@ -4,6 +4,7 @@ import dev.typr.foundations.data.*;
 import dev.typr.foundations.data.Record;
 import java.math.BigDecimal;
 import java.time.*;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -690,5 +691,82 @@ public interface PgTypes {
   static <T extends Comparable<? super T>>
       java.util.function.IntFunction<Range<T>[]> rangeArrayFactory() {
     return n -> (Range<T>[]) java.lang.reflect.Array.newInstance(Range.class, n);
+  }
+
+  // ==================== JSON-Encoded Row Types ====================
+  //
+  // These methods create JSON column types from a RowParser. The row's fields are serialized
+  // into JSON when writing and deserialized back when reading — the JSON column stores the
+  // complete row structure.
+  //
+  // "Array encoded" means each row becomes a positional JSON array: [val1, val2, val3]
+  // "Object encoded" means each row becomes a keyed JSON object: {"col1": val1, "col2": val2}
+
+  // ── json ──
+
+  /** A {@code json} column type that stores a single row as a positional JSON array. */
+  static <Row> PgType<Row> jsonArrayEncoded(RowParser<Row> parser) {
+    DbJson<Row> codec = DbJsonRow.jsonArray(parser);
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        row -> new Json(codec.toJson(row).encode()));
+  }
+
+  /** A {@code json} column type that stores a list of rows, each as a positional JSON array. */
+  static <Row> PgType<List<Row>> jsonArrayEncodedList(RowParser<Row> parser) {
+    DbJson<List<Row>> codec = DbJsonRow.jsonArray(parser).list();
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        list -> new Json(codec.toJson(list).encode()));
+  }
+
+  /** A {@code json} column type that stores a single row as a keyed JSON object. */
+  static <Row> PgType<Row> jsonObjectEncoded(RowParserNamed<Row> parser) {
+    DbJson<Row> codec = DbJsonRow.jsonObject(parser);
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        row -> new Json(codec.toJson(row).encode()));
+  }
+
+  /** A {@code json} column type that stores a list of rows, each as a keyed JSON object. */
+  static <Row> PgType<List<Row>> jsonObjectEncodedList(RowParserNamed<Row> parser) {
+    DbJson<List<Row>> codec = DbJsonRow.jsonObject(parser).list();
+    return json.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        list -> new Json(codec.toJson(list).encode()));
+  }
+
+  // ── jsonb ──
+
+  /** A {@code jsonb} column type that stores a single row as a positional JSON array. */
+  static <Row> PgType<Row> jsonbArrayEncoded(RowParser<Row> parser) {
+    DbJson<Row> codec = DbJsonRow.jsonArray(parser);
+    return jsonb.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        row -> new Jsonb(codec.toJson(row).encode()));
+  }
+
+  /** A {@code jsonb} column type that stores a list of rows, each as a positional JSON array. */
+  static <Row> PgType<List<Row>> jsonbArrayEncodedList(RowParser<Row> parser) {
+    DbJson<List<Row>> codec = DbJsonRow.jsonArray(parser).list();
+    return jsonb.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        list -> new Jsonb(codec.toJson(list).encode()));
+  }
+
+  /** A {@code jsonb} column type that stores a single row as a keyed JSON object. */
+  static <Row> PgType<Row> jsonbObjectEncoded(RowParserNamed<Row> parser) {
+    DbJson<Row> codec = DbJsonRow.jsonObject(parser);
+    return jsonb.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        row -> new Jsonb(codec.toJson(row).encode()));
+  }
+
+  /** A {@code jsonb} column type that stores a list of rows, each as a keyed JSON object. */
+  static <Row> PgType<List<Row>> jsonbObjectEncodedList(RowParserNamed<Row> parser) {
+    DbJson<List<Row>> codec = DbJsonRow.jsonObject(parser).list();
+    return jsonb.transform(
+        j -> codec.fromJson(JsonValue.parse(j.value())),
+        list -> new Jsonb(codec.toJson(list).encode()));
   }
 }

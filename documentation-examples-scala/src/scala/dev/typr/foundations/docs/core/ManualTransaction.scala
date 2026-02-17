@@ -3,7 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-import java.sql.SQLException
 
 @SuppressWarnings(Array("unused"))
 object ManualTransaction:
@@ -26,11 +25,11 @@ object ManualTransaction:
     sql"SELECT * FROM orders ORDER BY id DESC LIMIT 10"
       .query(orderParser.all())
 
-  // Run both in one transaction using the connection directly
-  @throws[SQLException]
-  def dashboard(): Dashboard = tx.transact { conn =>
-    val count = countUsers.runChecked(conn)
-    val orders = recentOrders.runChecked(conn)
-    Dashboard(count, orders)
-  }
+  // Run both using the connection directly
+  def dashboard(): Dashboard =
+    tx.transact { conn =>
+      val count = countUsers.run(conn)
+      val orders = recentOrders.run(conn)
+      Dashboard(count, orders)
+    }
   //stop

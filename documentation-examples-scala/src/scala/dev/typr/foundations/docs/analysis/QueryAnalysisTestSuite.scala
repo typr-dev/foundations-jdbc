@@ -1,6 +1,6 @@
 package dev.typr.foundations.docs.analysis
 import dev.typr.foundationssc.*
-import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
 
@@ -29,22 +29,28 @@ object QueryAnalysisTestSuite:
   //start
   def allQueriesTypeCheck(): Unit =
     Using.resource(testDataSource.getConnection) { conn =>
-      // Collect all queries to check
       val queries: List[Operation.Query[?]] = List(
-        sql"SELECT id, name, email FROM users WHERE id = ${Fragment.encode(PgTypes.int4, 1)}"
+        sql"""SELECT id, name, email
+              FROM users
+              WHERE id = ${PgTypes.int4(1)}"""
           .query(userParser.all()),
-        sql"SELECT id, name FROM products WHERE name LIKE ${Fragment.encode(PgTypes.text, "%widget%")}"
+        sql"""SELECT id, name
+              FROM products
+              WHERE name LIKE ${PgTypes.text("%widget%")}"""
           .query(productParser.all())
       )
 
-      // Analyze each one
       val failures = queries.flatMap { query =>
-        val analysis: QueryAnalysis = QueryAnalyzer.analyze(query, conn).head
-        if !analysis.succeeded() then Some(analysis.report()) else None
+        val analysis: QueryAnalysis =
+          QueryAnalyzer.analyze(query, conn).head
+        if !analysis.succeeded() then
+          Some(analysis.report())
+        else None
       }
 
-      // Report all failures at once
       if failures.nonEmpty then
-        throw AssertionError(s"Query type check failed:\n\n${failures.mkString("\n\n")}")
+        throw AssertionError(
+          s"Query type check failed:\n\n${failures.mkString("\n\n")}"
+        )
     }
   //stop

@@ -116,6 +116,26 @@ class OracleTypes {
 
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): OracleType[E] =
     OracleType(JavaOracleTypes.ofEnum(sqlType, fromString))
+
+  // JSON-encoded row types
+
+  def jsonArrayEncoded[Row](parser: RowParser[Row]): OracleType[Row] =
+    OracleType(JavaOracleTypes.jsonArrayEncoded(parser.underlying))
+
+  def jsonArrayEncodedList[Row](parser: RowParser[Row]): OracleType[List[Row]] =
+    OracleType(JavaOracleTypes.jsonArrayEncodedList(parser.underlying).transform(
+      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+    ))
+
+  def jsonObjectEncoded[Row](parser: RowParserNamed[Row]): OracleType[Row] =
+    OracleType(JavaOracleTypes.jsonObjectEncoded(parser.underlying))
+
+  def jsonObjectEncodedList[Row](parser: RowParserNamed[Row]): OracleType[List[Row]] =
+    OracleType(JavaOracleTypes.jsonObjectEncodedList(parser.underlying).transform(
+      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+    ))
 }
 
 object OracleTypes extends OracleTypes

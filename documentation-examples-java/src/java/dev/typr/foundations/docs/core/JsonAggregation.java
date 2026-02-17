@@ -1,0 +1,39 @@
+package dev.typr.foundations.docs.core;
+
+import dev.typr.foundations.*;
+
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.List;
+
+@SuppressWarnings("unused")
+public class JsonAggregation {
+    Transactor tx = null;
+
+    record OrderLine(String product, int qty, BigDecimal price) {}
+
+    static final RowParser<OrderLine> lineParser =
+        RowParser.<OrderLine>builder()
+            .field(DuckDbTypes.varchar, OrderLine::product)
+            .field(DuckDbTypes.integer, OrderLine::qty)
+            .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
+            .build(OrderLine::new);
+
+    // A column type that stores rows as positional JSON arrays
+    static final DuckDbType<List<OrderLine>> linesType =
+        DuckDbTypes.jsonArrayEncodedList(lineParser);
+
+    //start
+    // Aggregate child rows as JSON in a single query
+    List<OrderLine> getOrderLines(int customerId) throws SQLException {
+        return Fragment.of("""
+                    SELECT json_group_array(\
+                    json_array(product, qty, price))
+                    FROM order_lines
+                    WHERE customer_id = """)
+                .value(DuckDbTypes.integer, customerId)
+                .query(RowParser.of(linesType).exactlyOne())
+                .transact(tx);
+    }
+    //stop
+}

@@ -3,14 +3,14 @@ package dev.typr.foundations;
 /**
  * Type-safe stored procedure definitions with fully typed inputs and outputs.
  * <p>
- * The builder tracks both input types (via {@code .in()}) and output types (via {@code .out()}/{@code .inout()}).
+ * The builder tracks both input types (via {@code .input()}) and output types (via {@code .out()}/{@code .inout()}).
  * The resulting interface has a {@code call()} method with typed parameters instead of varargs.
  * <p>
  * Usage:
  * <pre>{@code
  * // Procedure with typed inputs — compile-time checking!
  * DbProcedure.Def1_2<Integer, String, String> getUser = DbProcedure.define("get_user_by_id")
- *     .in(PgTypes.int4)
+ *     .input(PgTypes.int4)
  *     .out(PgTypes.text)
  *     .out(PgTypes.text)
  *     .build();
@@ -19,12 +19,12 @@ package dev.typr.foundations;
  *
  * // Void procedure (no outputs)
  * DbProcedure.Def1_0<String> auditLog = DbProcedure.define("audit_log")
- *     .in(PgTypes.text)
+ *     .input(PgTypes.text)
  *     .build();
  *
  * // INOUT — value goes in and comes back modified
  * DbProcedure.Def2_1<String, BigDecimal, BigDecimal> applyDiscount = DbProcedure.define("apply_discount")
- *     .in(PgTypes.text)
+ *     .input(PgTypes.text)
  *     .inout(PgTypes.numeric)
  *     .build();
  * BigDecimal finalPrice = applyDiscount.call("SAVE20", price).transact(tx);
@@ -782,8 +782,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I0> Builder_1_0<I0> in(DbType<I0> type) {
-            params.add(ParamDef.in(type));
+        public <I0> Builder_1_0<I0> input(DbType<I0> type) {
+            params.add(ParamDef.input(type));
             return new Builder_1_0<>(name, params);
         }
         public <O0> Builder_0_1<O0> out(DbType<O0> type) {
@@ -810,8 +810,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I0> Builder_1_1<I0, O0> in(DbType<I0> type) {
-            params.add(ParamDef.in(type));
+        public <I0> Builder_1_1<I0, O0> input(DbType<I0> type) {
+            params.add(ParamDef.input(type));
             return new Builder_1_1<>(name, params);
         }
         public <O1> Builder_0_2<O0, O1> out(DbType<O1> type) {
@@ -838,8 +838,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I0> Builder_1_2<I0, O0, O1> in(DbType<I0> type) {
-            params.add(ParamDef.in(type));
+        public <I0> Builder_1_2<I0, O0, O1> input(DbType<I0> type) {
+            params.add(ParamDef.input(type));
             return new Builder_1_2<>(name, params);
         }
         public <O2> Builder_0_3<O0, O1, O2> out(DbType<O2> type) {
@@ -866,8 +866,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I0> Builder_1_3<I0, O0, O1, O2> in(DbType<I0> type) {
-            params.add(ParamDef.in(type));
+        public <I0> Builder_1_3<I0, O0, O1, O2> input(DbType<I0> type) {
+            params.add(ParamDef.input(type));
             return new Builder_1_3<>(name, params);
         }
         public <O3> Builder_0_4<O0, O1, O2, O3> out(DbType<O3> type) {
@@ -894,8 +894,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I0> Builder_1_4<I0, O0, O1, O2, O3> in(DbType<I0> type) {
-            params.add(ParamDef.in(type));
+        public <I0> Builder_1_4<I0, O0, O1, O2, O3> input(DbType<I0> type) {
+            params.add(ParamDef.input(type));
             return new Builder_1_4<>(name, params);
         }
         public <O4> Builder_0_5<O0, O1, O2, O3, O4> out(DbType<O4> type) {
@@ -922,8 +922,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I0> Builder_1_5<I0, O0, O1, O2, O3, O4> in(DbType<I0> type) {
-            params.add(ParamDef.in(type));
+        public <I0> Builder_1_5<I0, O0, O1, O2, O3, O4> input(DbType<I0> type) {
+            params.add(ParamDef.input(type));
             return new Builder_1_5<>(name, params);
         }
         public <O5> Builder_0_6<O0, O1, O2, O3, O4, O5> out(DbType<O5> type) {
@@ -950,8 +950,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I0> Builder_1_6<I0, O0, O1, O2, O3, O4, O5> in(DbType<I0> type) {
-            params.add(ParamDef.in(type));
+        public <I0> Builder_1_6<I0, O0, O1, O2, O3, O4, O5> input(DbType<I0> type) {
+            params.add(ParamDef.input(type));
             return new Builder_1_6<>(name, params);
         }
         public <O6> Builder_0_7<O0, O1, O2, O3, O4, O5, O6> out(DbType<O6> type) {
@@ -978,8 +978,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I0> Builder_1_7<I0, O0, O1, O2, O3, O4, O5, O6> in(DbType<I0> type) {
-            params.add(ParamDef.in(type));
+        public <I0> Builder_1_7<I0, O0, O1, O2, O3, O4, O5, O6> input(DbType<I0> type) {
+            params.add(ParamDef.input(type));
             return new Builder_1_7<>(name, params);
         }
         public <O7> Builder_0_8<O0, O1, O2, O3, O4, O5, O6, O7> out(DbType<O7> type) {
@@ -1006,8 +1006,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I0> Builder_1_8<I0, O0, O1, O2, O3, O4, O5, O6, O7> in(DbType<I0> type) {
-            params.add(ParamDef.in(type));
+        public <I0> Builder_1_8<I0, O0, O1, O2, O3, O4, O5, O6, O7> input(DbType<I0> type) {
+            params.add(ParamDef.input(type));
             return new Builder_1_8<>(name, params);
         }
         public <O8> Builder_0_9<O0, O1, O2, O3, O4, O5, O6, O7, O8> out(DbType<O8> type) {
@@ -1034,8 +1034,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I0> Builder_1_9<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8> in(DbType<I0> type) {
-            params.add(ParamDef.in(type));
+        public <I0> Builder_1_9<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8> input(DbType<I0> type) {
+            params.add(ParamDef.input(type));
             return new Builder_1_9<>(name, params);
         }
         public <O9> Builder_0_10<O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> out(DbType<O9> type) {
@@ -1062,8 +1062,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I0> Builder_1_10<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> in(DbType<I0> type) {
-            params.add(ParamDef.in(type));
+        public <I0> Builder_1_10<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> input(DbType<I0> type) {
+            params.add(ParamDef.input(type));
             return new Builder_1_10<>(name, params);
         }
 
@@ -1082,8 +1082,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I1> Builder_2_0<I0, I1> in(DbType<I1> type) {
-            params.add(ParamDef.in(type));
+        public <I1> Builder_2_0<I0, I1> input(DbType<I1> type) {
+            params.add(ParamDef.input(type));
             return new Builder_2_0<>(name, params);
         }
         public <O0> Builder_1_1<I0, O0> out(DbType<O0> type) {
@@ -1110,8 +1110,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I1> Builder_2_1<I0, I1, O0> in(DbType<I1> type) {
-            params.add(ParamDef.in(type));
+        public <I1> Builder_2_1<I0, I1, O0> input(DbType<I1> type) {
+            params.add(ParamDef.input(type));
             return new Builder_2_1<>(name, params);
         }
         public <O1> Builder_1_2<I0, O0, O1> out(DbType<O1> type) {
@@ -1138,8 +1138,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I1> Builder_2_2<I0, I1, O0, O1> in(DbType<I1> type) {
-            params.add(ParamDef.in(type));
+        public <I1> Builder_2_2<I0, I1, O0, O1> input(DbType<I1> type) {
+            params.add(ParamDef.input(type));
             return new Builder_2_2<>(name, params);
         }
         public <O2> Builder_1_3<I0, O0, O1, O2> out(DbType<O2> type) {
@@ -1166,8 +1166,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I1> Builder_2_3<I0, I1, O0, O1, O2> in(DbType<I1> type) {
-            params.add(ParamDef.in(type));
+        public <I1> Builder_2_3<I0, I1, O0, O1, O2> input(DbType<I1> type) {
+            params.add(ParamDef.input(type));
             return new Builder_2_3<>(name, params);
         }
         public <O3> Builder_1_4<I0, O0, O1, O2, O3> out(DbType<O3> type) {
@@ -1194,8 +1194,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I1> Builder_2_4<I0, I1, O0, O1, O2, O3> in(DbType<I1> type) {
-            params.add(ParamDef.in(type));
+        public <I1> Builder_2_4<I0, I1, O0, O1, O2, O3> input(DbType<I1> type) {
+            params.add(ParamDef.input(type));
             return new Builder_2_4<>(name, params);
         }
         public <O4> Builder_1_5<I0, O0, O1, O2, O3, O4> out(DbType<O4> type) {
@@ -1222,8 +1222,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I1> Builder_2_5<I0, I1, O0, O1, O2, O3, O4> in(DbType<I1> type) {
-            params.add(ParamDef.in(type));
+        public <I1> Builder_2_5<I0, I1, O0, O1, O2, O3, O4> input(DbType<I1> type) {
+            params.add(ParamDef.input(type));
             return new Builder_2_5<>(name, params);
         }
         public <O5> Builder_1_6<I0, O0, O1, O2, O3, O4, O5> out(DbType<O5> type) {
@@ -1250,8 +1250,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I1> Builder_2_6<I0, I1, O0, O1, O2, O3, O4, O5> in(DbType<I1> type) {
-            params.add(ParamDef.in(type));
+        public <I1> Builder_2_6<I0, I1, O0, O1, O2, O3, O4, O5> input(DbType<I1> type) {
+            params.add(ParamDef.input(type));
             return new Builder_2_6<>(name, params);
         }
         public <O6> Builder_1_7<I0, O0, O1, O2, O3, O4, O5, O6> out(DbType<O6> type) {
@@ -1278,8 +1278,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I1> Builder_2_7<I0, I1, O0, O1, O2, O3, O4, O5, O6> in(DbType<I1> type) {
-            params.add(ParamDef.in(type));
+        public <I1> Builder_2_7<I0, I1, O0, O1, O2, O3, O4, O5, O6> input(DbType<I1> type) {
+            params.add(ParamDef.input(type));
             return new Builder_2_7<>(name, params);
         }
         public <O7> Builder_1_8<I0, O0, O1, O2, O3, O4, O5, O6, O7> out(DbType<O7> type) {
@@ -1306,8 +1306,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I1> Builder_2_8<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7> in(DbType<I1> type) {
-            params.add(ParamDef.in(type));
+        public <I1> Builder_2_8<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7> input(DbType<I1> type) {
+            params.add(ParamDef.input(type));
             return new Builder_2_8<>(name, params);
         }
         public <O8> Builder_1_9<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8> out(DbType<O8> type) {
@@ -1334,8 +1334,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I1> Builder_2_9<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8> in(DbType<I1> type) {
-            params.add(ParamDef.in(type));
+        public <I1> Builder_2_9<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8> input(DbType<I1> type) {
+            params.add(ParamDef.input(type));
             return new Builder_2_9<>(name, params);
         }
         public <O9> Builder_1_10<I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> out(DbType<O9> type) {
@@ -1362,8 +1362,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I1> Builder_2_10<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> in(DbType<I1> type) {
-            params.add(ParamDef.in(type));
+        public <I1> Builder_2_10<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> input(DbType<I1> type) {
+            params.add(ParamDef.input(type));
             return new Builder_2_10<>(name, params);
         }
 
@@ -1382,8 +1382,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I2> Builder_3_0<I0, I1, I2> in(DbType<I2> type) {
-            params.add(ParamDef.in(type));
+        public <I2> Builder_3_0<I0, I1, I2> input(DbType<I2> type) {
+            params.add(ParamDef.input(type));
             return new Builder_3_0<>(name, params);
         }
         public <O0> Builder_2_1<I0, I1, O0> out(DbType<O0> type) {
@@ -1410,8 +1410,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I2> Builder_3_1<I0, I1, I2, O0> in(DbType<I2> type) {
-            params.add(ParamDef.in(type));
+        public <I2> Builder_3_1<I0, I1, I2, O0> input(DbType<I2> type) {
+            params.add(ParamDef.input(type));
             return new Builder_3_1<>(name, params);
         }
         public <O1> Builder_2_2<I0, I1, O0, O1> out(DbType<O1> type) {
@@ -1438,8 +1438,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I2> Builder_3_2<I0, I1, I2, O0, O1> in(DbType<I2> type) {
-            params.add(ParamDef.in(type));
+        public <I2> Builder_3_2<I0, I1, I2, O0, O1> input(DbType<I2> type) {
+            params.add(ParamDef.input(type));
             return new Builder_3_2<>(name, params);
         }
         public <O2> Builder_2_3<I0, I1, O0, O1, O2> out(DbType<O2> type) {
@@ -1466,8 +1466,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I2> Builder_3_3<I0, I1, I2, O0, O1, O2> in(DbType<I2> type) {
-            params.add(ParamDef.in(type));
+        public <I2> Builder_3_3<I0, I1, I2, O0, O1, O2> input(DbType<I2> type) {
+            params.add(ParamDef.input(type));
             return new Builder_3_3<>(name, params);
         }
         public <O3> Builder_2_4<I0, I1, O0, O1, O2, O3> out(DbType<O3> type) {
@@ -1494,8 +1494,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I2> Builder_3_4<I0, I1, I2, O0, O1, O2, O3> in(DbType<I2> type) {
-            params.add(ParamDef.in(type));
+        public <I2> Builder_3_4<I0, I1, I2, O0, O1, O2, O3> input(DbType<I2> type) {
+            params.add(ParamDef.input(type));
             return new Builder_3_4<>(name, params);
         }
         public <O4> Builder_2_5<I0, I1, O0, O1, O2, O3, O4> out(DbType<O4> type) {
@@ -1522,8 +1522,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I2> Builder_3_5<I0, I1, I2, O0, O1, O2, O3, O4> in(DbType<I2> type) {
-            params.add(ParamDef.in(type));
+        public <I2> Builder_3_5<I0, I1, I2, O0, O1, O2, O3, O4> input(DbType<I2> type) {
+            params.add(ParamDef.input(type));
             return new Builder_3_5<>(name, params);
         }
         public <O5> Builder_2_6<I0, I1, O0, O1, O2, O3, O4, O5> out(DbType<O5> type) {
@@ -1550,8 +1550,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I2> Builder_3_6<I0, I1, I2, O0, O1, O2, O3, O4, O5> in(DbType<I2> type) {
-            params.add(ParamDef.in(type));
+        public <I2> Builder_3_6<I0, I1, I2, O0, O1, O2, O3, O4, O5> input(DbType<I2> type) {
+            params.add(ParamDef.input(type));
             return new Builder_3_6<>(name, params);
         }
         public <O6> Builder_2_7<I0, I1, O0, O1, O2, O3, O4, O5, O6> out(DbType<O6> type) {
@@ -1578,8 +1578,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I2> Builder_3_7<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6> in(DbType<I2> type) {
-            params.add(ParamDef.in(type));
+        public <I2> Builder_3_7<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6> input(DbType<I2> type) {
+            params.add(ParamDef.input(type));
             return new Builder_3_7<>(name, params);
         }
         public <O7> Builder_2_8<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7> out(DbType<O7> type) {
@@ -1606,8 +1606,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I2> Builder_3_8<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7> in(DbType<I2> type) {
-            params.add(ParamDef.in(type));
+        public <I2> Builder_3_8<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7> input(DbType<I2> type) {
+            params.add(ParamDef.input(type));
             return new Builder_3_8<>(name, params);
         }
         public <O8> Builder_2_9<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8> out(DbType<O8> type) {
@@ -1634,8 +1634,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I2> Builder_3_9<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8> in(DbType<I2> type) {
-            params.add(ParamDef.in(type));
+        public <I2> Builder_3_9<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8> input(DbType<I2> type) {
+            params.add(ParamDef.input(type));
             return new Builder_3_9<>(name, params);
         }
         public <O9> Builder_2_10<I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> out(DbType<O9> type) {
@@ -1662,8 +1662,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I2> Builder_3_10<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> in(DbType<I2> type) {
-            params.add(ParamDef.in(type));
+        public <I2> Builder_3_10<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> input(DbType<I2> type) {
+            params.add(ParamDef.input(type));
             return new Builder_3_10<>(name, params);
         }
 
@@ -1682,8 +1682,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I3> Builder_4_0<I0, I1, I2, I3> in(DbType<I3> type) {
-            params.add(ParamDef.in(type));
+        public <I3> Builder_4_0<I0, I1, I2, I3> input(DbType<I3> type) {
+            params.add(ParamDef.input(type));
             return new Builder_4_0<>(name, params);
         }
         public <O0> Builder_3_1<I0, I1, I2, O0> out(DbType<O0> type) {
@@ -1710,8 +1710,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I3> Builder_4_1<I0, I1, I2, I3, O0> in(DbType<I3> type) {
-            params.add(ParamDef.in(type));
+        public <I3> Builder_4_1<I0, I1, I2, I3, O0> input(DbType<I3> type) {
+            params.add(ParamDef.input(type));
             return new Builder_4_1<>(name, params);
         }
         public <O1> Builder_3_2<I0, I1, I2, O0, O1> out(DbType<O1> type) {
@@ -1738,8 +1738,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I3> Builder_4_2<I0, I1, I2, I3, O0, O1> in(DbType<I3> type) {
-            params.add(ParamDef.in(type));
+        public <I3> Builder_4_2<I0, I1, I2, I3, O0, O1> input(DbType<I3> type) {
+            params.add(ParamDef.input(type));
             return new Builder_4_2<>(name, params);
         }
         public <O2> Builder_3_3<I0, I1, I2, O0, O1, O2> out(DbType<O2> type) {
@@ -1766,8 +1766,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I3> Builder_4_3<I0, I1, I2, I3, O0, O1, O2> in(DbType<I3> type) {
-            params.add(ParamDef.in(type));
+        public <I3> Builder_4_3<I0, I1, I2, I3, O0, O1, O2> input(DbType<I3> type) {
+            params.add(ParamDef.input(type));
             return new Builder_4_3<>(name, params);
         }
         public <O3> Builder_3_4<I0, I1, I2, O0, O1, O2, O3> out(DbType<O3> type) {
@@ -1794,8 +1794,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I3> Builder_4_4<I0, I1, I2, I3, O0, O1, O2, O3> in(DbType<I3> type) {
-            params.add(ParamDef.in(type));
+        public <I3> Builder_4_4<I0, I1, I2, I3, O0, O1, O2, O3> input(DbType<I3> type) {
+            params.add(ParamDef.input(type));
             return new Builder_4_4<>(name, params);
         }
         public <O4> Builder_3_5<I0, I1, I2, O0, O1, O2, O3, O4> out(DbType<O4> type) {
@@ -1822,8 +1822,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I3> Builder_4_5<I0, I1, I2, I3, O0, O1, O2, O3, O4> in(DbType<I3> type) {
-            params.add(ParamDef.in(type));
+        public <I3> Builder_4_5<I0, I1, I2, I3, O0, O1, O2, O3, O4> input(DbType<I3> type) {
+            params.add(ParamDef.input(type));
             return new Builder_4_5<>(name, params);
         }
         public <O5> Builder_3_6<I0, I1, I2, O0, O1, O2, O3, O4, O5> out(DbType<O5> type) {
@@ -1850,8 +1850,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I3> Builder_4_6<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5> in(DbType<I3> type) {
-            params.add(ParamDef.in(type));
+        public <I3> Builder_4_6<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5> input(DbType<I3> type) {
+            params.add(ParamDef.input(type));
             return new Builder_4_6<>(name, params);
         }
         public <O6> Builder_3_7<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6> out(DbType<O6> type) {
@@ -1878,8 +1878,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I3> Builder_4_7<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6> in(DbType<I3> type) {
-            params.add(ParamDef.in(type));
+        public <I3> Builder_4_7<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6> input(DbType<I3> type) {
+            params.add(ParamDef.input(type));
             return new Builder_4_7<>(name, params);
         }
         public <O7> Builder_3_8<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7> out(DbType<O7> type) {
@@ -1906,8 +1906,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I3> Builder_4_8<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7> in(DbType<I3> type) {
-            params.add(ParamDef.in(type));
+        public <I3> Builder_4_8<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7> input(DbType<I3> type) {
+            params.add(ParamDef.input(type));
             return new Builder_4_8<>(name, params);
         }
         public <O8> Builder_3_9<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8> out(DbType<O8> type) {
@@ -1934,8 +1934,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I3> Builder_4_9<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8> in(DbType<I3> type) {
-            params.add(ParamDef.in(type));
+        public <I3> Builder_4_9<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8> input(DbType<I3> type) {
+            params.add(ParamDef.input(type));
             return new Builder_4_9<>(name, params);
         }
         public <O9> Builder_3_10<I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> out(DbType<O9> type) {
@@ -1962,8 +1962,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I3> Builder_4_10<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> in(DbType<I3> type) {
-            params.add(ParamDef.in(type));
+        public <I3> Builder_4_10<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> input(DbType<I3> type) {
+            params.add(ParamDef.input(type));
             return new Builder_4_10<>(name, params);
         }
 
@@ -1982,8 +1982,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I4> Builder_5_0<I0, I1, I2, I3, I4> in(DbType<I4> type) {
-            params.add(ParamDef.in(type));
+        public <I4> Builder_5_0<I0, I1, I2, I3, I4> input(DbType<I4> type) {
+            params.add(ParamDef.input(type));
             return new Builder_5_0<>(name, params);
         }
         public <O0> Builder_4_1<I0, I1, I2, I3, O0> out(DbType<O0> type) {
@@ -2010,8 +2010,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I4> Builder_5_1<I0, I1, I2, I3, I4, O0> in(DbType<I4> type) {
-            params.add(ParamDef.in(type));
+        public <I4> Builder_5_1<I0, I1, I2, I3, I4, O0> input(DbType<I4> type) {
+            params.add(ParamDef.input(type));
             return new Builder_5_1<>(name, params);
         }
         public <O1> Builder_4_2<I0, I1, I2, I3, O0, O1> out(DbType<O1> type) {
@@ -2038,8 +2038,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I4> Builder_5_2<I0, I1, I2, I3, I4, O0, O1> in(DbType<I4> type) {
-            params.add(ParamDef.in(type));
+        public <I4> Builder_5_2<I0, I1, I2, I3, I4, O0, O1> input(DbType<I4> type) {
+            params.add(ParamDef.input(type));
             return new Builder_5_2<>(name, params);
         }
         public <O2> Builder_4_3<I0, I1, I2, I3, O0, O1, O2> out(DbType<O2> type) {
@@ -2066,8 +2066,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I4> Builder_5_3<I0, I1, I2, I3, I4, O0, O1, O2> in(DbType<I4> type) {
-            params.add(ParamDef.in(type));
+        public <I4> Builder_5_3<I0, I1, I2, I3, I4, O0, O1, O2> input(DbType<I4> type) {
+            params.add(ParamDef.input(type));
             return new Builder_5_3<>(name, params);
         }
         public <O3> Builder_4_4<I0, I1, I2, I3, O0, O1, O2, O3> out(DbType<O3> type) {
@@ -2094,8 +2094,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I4> Builder_5_4<I0, I1, I2, I3, I4, O0, O1, O2, O3> in(DbType<I4> type) {
-            params.add(ParamDef.in(type));
+        public <I4> Builder_5_4<I0, I1, I2, I3, I4, O0, O1, O2, O3> input(DbType<I4> type) {
+            params.add(ParamDef.input(type));
             return new Builder_5_4<>(name, params);
         }
         public <O4> Builder_4_5<I0, I1, I2, I3, O0, O1, O2, O3, O4> out(DbType<O4> type) {
@@ -2122,8 +2122,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I4> Builder_5_5<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4> in(DbType<I4> type) {
-            params.add(ParamDef.in(type));
+        public <I4> Builder_5_5<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4> input(DbType<I4> type) {
+            params.add(ParamDef.input(type));
             return new Builder_5_5<>(name, params);
         }
         public <O5> Builder_4_6<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5> out(DbType<O5> type) {
@@ -2150,8 +2150,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I4> Builder_5_6<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5> in(DbType<I4> type) {
-            params.add(ParamDef.in(type));
+        public <I4> Builder_5_6<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5> input(DbType<I4> type) {
+            params.add(ParamDef.input(type));
             return new Builder_5_6<>(name, params);
         }
         public <O6> Builder_4_7<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6> out(DbType<O6> type) {
@@ -2178,8 +2178,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I4> Builder_5_7<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6> in(DbType<I4> type) {
-            params.add(ParamDef.in(type));
+        public <I4> Builder_5_7<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6> input(DbType<I4> type) {
+            params.add(ParamDef.input(type));
             return new Builder_5_7<>(name, params);
         }
         public <O7> Builder_4_8<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7> out(DbType<O7> type) {
@@ -2206,8 +2206,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I4> Builder_5_8<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7> in(DbType<I4> type) {
-            params.add(ParamDef.in(type));
+        public <I4> Builder_5_8<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7> input(DbType<I4> type) {
+            params.add(ParamDef.input(type));
             return new Builder_5_8<>(name, params);
         }
         public <O8> Builder_4_9<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8> out(DbType<O8> type) {
@@ -2234,8 +2234,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I4> Builder_5_9<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8> in(DbType<I4> type) {
-            params.add(ParamDef.in(type));
+        public <I4> Builder_5_9<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8> input(DbType<I4> type) {
+            params.add(ParamDef.input(type));
             return new Builder_5_9<>(name, params);
         }
         public <O9> Builder_4_10<I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> out(DbType<O9> type) {
@@ -2262,8 +2262,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I4> Builder_5_10<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> in(DbType<I4> type) {
-            params.add(ParamDef.in(type));
+        public <I4> Builder_5_10<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> input(DbType<I4> type) {
+            params.add(ParamDef.input(type));
             return new Builder_5_10<>(name, params);
         }
 
@@ -2282,8 +2282,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I5> Builder_6_0<I0, I1, I2, I3, I4, I5> in(DbType<I5> type) {
-            params.add(ParamDef.in(type));
+        public <I5> Builder_6_0<I0, I1, I2, I3, I4, I5> input(DbType<I5> type) {
+            params.add(ParamDef.input(type));
             return new Builder_6_0<>(name, params);
         }
         public <O0> Builder_5_1<I0, I1, I2, I3, I4, O0> out(DbType<O0> type) {
@@ -2310,8 +2310,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I5> Builder_6_1<I0, I1, I2, I3, I4, I5, O0> in(DbType<I5> type) {
-            params.add(ParamDef.in(type));
+        public <I5> Builder_6_1<I0, I1, I2, I3, I4, I5, O0> input(DbType<I5> type) {
+            params.add(ParamDef.input(type));
             return new Builder_6_1<>(name, params);
         }
         public <O1> Builder_5_2<I0, I1, I2, I3, I4, O0, O1> out(DbType<O1> type) {
@@ -2338,8 +2338,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I5> Builder_6_2<I0, I1, I2, I3, I4, I5, O0, O1> in(DbType<I5> type) {
-            params.add(ParamDef.in(type));
+        public <I5> Builder_6_2<I0, I1, I2, I3, I4, I5, O0, O1> input(DbType<I5> type) {
+            params.add(ParamDef.input(type));
             return new Builder_6_2<>(name, params);
         }
         public <O2> Builder_5_3<I0, I1, I2, I3, I4, O0, O1, O2> out(DbType<O2> type) {
@@ -2366,8 +2366,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I5> Builder_6_3<I0, I1, I2, I3, I4, I5, O0, O1, O2> in(DbType<I5> type) {
-            params.add(ParamDef.in(type));
+        public <I5> Builder_6_3<I0, I1, I2, I3, I4, I5, O0, O1, O2> input(DbType<I5> type) {
+            params.add(ParamDef.input(type));
             return new Builder_6_3<>(name, params);
         }
         public <O3> Builder_5_4<I0, I1, I2, I3, I4, O0, O1, O2, O3> out(DbType<O3> type) {
@@ -2394,8 +2394,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I5> Builder_6_4<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3> in(DbType<I5> type) {
-            params.add(ParamDef.in(type));
+        public <I5> Builder_6_4<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3> input(DbType<I5> type) {
+            params.add(ParamDef.input(type));
             return new Builder_6_4<>(name, params);
         }
         public <O4> Builder_5_5<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4> out(DbType<O4> type) {
@@ -2422,8 +2422,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I5> Builder_6_5<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4> in(DbType<I5> type) {
-            params.add(ParamDef.in(type));
+        public <I5> Builder_6_5<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4> input(DbType<I5> type) {
+            params.add(ParamDef.input(type));
             return new Builder_6_5<>(name, params);
         }
         public <O5> Builder_5_6<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5> out(DbType<O5> type) {
@@ -2450,8 +2450,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I5> Builder_6_6<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5> in(DbType<I5> type) {
-            params.add(ParamDef.in(type));
+        public <I5> Builder_6_6<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5> input(DbType<I5> type) {
+            params.add(ParamDef.input(type));
             return new Builder_6_6<>(name, params);
         }
         public <O6> Builder_5_7<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6> out(DbType<O6> type) {
@@ -2478,8 +2478,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I5> Builder_6_7<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6> in(DbType<I5> type) {
-            params.add(ParamDef.in(type));
+        public <I5> Builder_6_7<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6> input(DbType<I5> type) {
+            params.add(ParamDef.input(type));
             return new Builder_6_7<>(name, params);
         }
         public <O7> Builder_5_8<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7> out(DbType<O7> type) {
@@ -2506,8 +2506,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I5> Builder_6_8<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7> in(DbType<I5> type) {
-            params.add(ParamDef.in(type));
+        public <I5> Builder_6_8<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7> input(DbType<I5> type) {
+            params.add(ParamDef.input(type));
             return new Builder_6_8<>(name, params);
         }
         public <O8> Builder_5_9<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8> out(DbType<O8> type) {
@@ -2534,8 +2534,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I5> Builder_6_9<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8> in(DbType<I5> type) {
-            params.add(ParamDef.in(type));
+        public <I5> Builder_6_9<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8> input(DbType<I5> type) {
+            params.add(ParamDef.input(type));
             return new Builder_6_9<>(name, params);
         }
         public <O9> Builder_5_10<I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> out(DbType<O9> type) {
@@ -2562,8 +2562,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I5> Builder_6_10<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> in(DbType<I5> type) {
-            params.add(ParamDef.in(type));
+        public <I5> Builder_6_10<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> input(DbType<I5> type) {
+            params.add(ParamDef.input(type));
             return new Builder_6_10<>(name, params);
         }
 
@@ -2582,8 +2582,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I6> Builder_7_0<I0, I1, I2, I3, I4, I5, I6> in(DbType<I6> type) {
-            params.add(ParamDef.in(type));
+        public <I6> Builder_7_0<I0, I1, I2, I3, I4, I5, I6> input(DbType<I6> type) {
+            params.add(ParamDef.input(type));
             return new Builder_7_0<>(name, params);
         }
         public <O0> Builder_6_1<I0, I1, I2, I3, I4, I5, O0> out(DbType<O0> type) {
@@ -2610,8 +2610,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I6> Builder_7_1<I0, I1, I2, I3, I4, I5, I6, O0> in(DbType<I6> type) {
-            params.add(ParamDef.in(type));
+        public <I6> Builder_7_1<I0, I1, I2, I3, I4, I5, I6, O0> input(DbType<I6> type) {
+            params.add(ParamDef.input(type));
             return new Builder_7_1<>(name, params);
         }
         public <O1> Builder_6_2<I0, I1, I2, I3, I4, I5, O0, O1> out(DbType<O1> type) {
@@ -2638,8 +2638,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I6> Builder_7_2<I0, I1, I2, I3, I4, I5, I6, O0, O1> in(DbType<I6> type) {
-            params.add(ParamDef.in(type));
+        public <I6> Builder_7_2<I0, I1, I2, I3, I4, I5, I6, O0, O1> input(DbType<I6> type) {
+            params.add(ParamDef.input(type));
             return new Builder_7_2<>(name, params);
         }
         public <O2> Builder_6_3<I0, I1, I2, I3, I4, I5, O0, O1, O2> out(DbType<O2> type) {
@@ -2666,8 +2666,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I6> Builder_7_3<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2> in(DbType<I6> type) {
-            params.add(ParamDef.in(type));
+        public <I6> Builder_7_3<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2> input(DbType<I6> type) {
+            params.add(ParamDef.input(type));
             return new Builder_7_3<>(name, params);
         }
         public <O3> Builder_6_4<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3> out(DbType<O3> type) {
@@ -2694,8 +2694,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I6> Builder_7_4<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3> in(DbType<I6> type) {
-            params.add(ParamDef.in(type));
+        public <I6> Builder_7_4<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3> input(DbType<I6> type) {
+            params.add(ParamDef.input(type));
             return new Builder_7_4<>(name, params);
         }
         public <O4> Builder_6_5<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4> out(DbType<O4> type) {
@@ -2722,8 +2722,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I6> Builder_7_5<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4> in(DbType<I6> type) {
-            params.add(ParamDef.in(type));
+        public <I6> Builder_7_5<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4> input(DbType<I6> type) {
+            params.add(ParamDef.input(type));
             return new Builder_7_5<>(name, params);
         }
         public <O5> Builder_6_6<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5> out(DbType<O5> type) {
@@ -2750,8 +2750,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I6> Builder_7_6<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5> in(DbType<I6> type) {
-            params.add(ParamDef.in(type));
+        public <I6> Builder_7_6<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5> input(DbType<I6> type) {
+            params.add(ParamDef.input(type));
             return new Builder_7_6<>(name, params);
         }
         public <O6> Builder_6_7<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6> out(DbType<O6> type) {
@@ -2778,8 +2778,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I6> Builder_7_7<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6> in(DbType<I6> type) {
-            params.add(ParamDef.in(type));
+        public <I6> Builder_7_7<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6> input(DbType<I6> type) {
+            params.add(ParamDef.input(type));
             return new Builder_7_7<>(name, params);
         }
         public <O7> Builder_6_8<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7> out(DbType<O7> type) {
@@ -2806,8 +2806,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I6> Builder_7_8<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7> in(DbType<I6> type) {
-            params.add(ParamDef.in(type));
+        public <I6> Builder_7_8<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7> input(DbType<I6> type) {
+            params.add(ParamDef.input(type));
             return new Builder_7_8<>(name, params);
         }
         public <O8> Builder_6_9<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8> out(DbType<O8> type) {
@@ -2834,8 +2834,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I6> Builder_7_9<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8> in(DbType<I6> type) {
-            params.add(ParamDef.in(type));
+        public <I6> Builder_7_9<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8> input(DbType<I6> type) {
+            params.add(ParamDef.input(type));
             return new Builder_7_9<>(name, params);
         }
         public <O9> Builder_6_10<I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> out(DbType<O9> type) {
@@ -2862,8 +2862,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I6> Builder_7_10<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> in(DbType<I6> type) {
-            params.add(ParamDef.in(type));
+        public <I6> Builder_7_10<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> input(DbType<I6> type) {
+            params.add(ParamDef.input(type));
             return new Builder_7_10<>(name, params);
         }
 
@@ -2882,8 +2882,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I7> Builder_8_0<I0, I1, I2, I3, I4, I5, I6, I7> in(DbType<I7> type) {
-            params.add(ParamDef.in(type));
+        public <I7> Builder_8_0<I0, I1, I2, I3, I4, I5, I6, I7> input(DbType<I7> type) {
+            params.add(ParamDef.input(type));
             return new Builder_8_0<>(name, params);
         }
         public <O0> Builder_7_1<I0, I1, I2, I3, I4, I5, I6, O0> out(DbType<O0> type) {
@@ -2910,8 +2910,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I7> Builder_8_1<I0, I1, I2, I3, I4, I5, I6, I7, O0> in(DbType<I7> type) {
-            params.add(ParamDef.in(type));
+        public <I7> Builder_8_1<I0, I1, I2, I3, I4, I5, I6, I7, O0> input(DbType<I7> type) {
+            params.add(ParamDef.input(type));
             return new Builder_8_1<>(name, params);
         }
         public <O1> Builder_7_2<I0, I1, I2, I3, I4, I5, I6, O0, O1> out(DbType<O1> type) {
@@ -2938,8 +2938,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I7> Builder_8_2<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1> in(DbType<I7> type) {
-            params.add(ParamDef.in(type));
+        public <I7> Builder_8_2<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1> input(DbType<I7> type) {
+            params.add(ParamDef.input(type));
             return new Builder_8_2<>(name, params);
         }
         public <O2> Builder_7_3<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2> out(DbType<O2> type) {
@@ -2966,8 +2966,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I7> Builder_8_3<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2> in(DbType<I7> type) {
-            params.add(ParamDef.in(type));
+        public <I7> Builder_8_3<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2> input(DbType<I7> type) {
+            params.add(ParamDef.input(type));
             return new Builder_8_3<>(name, params);
         }
         public <O3> Builder_7_4<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3> out(DbType<O3> type) {
@@ -2994,8 +2994,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I7> Builder_8_4<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3> in(DbType<I7> type) {
-            params.add(ParamDef.in(type));
+        public <I7> Builder_8_4<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3> input(DbType<I7> type) {
+            params.add(ParamDef.input(type));
             return new Builder_8_4<>(name, params);
         }
         public <O4> Builder_7_5<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4> out(DbType<O4> type) {
@@ -3022,8 +3022,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I7> Builder_8_5<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4> in(DbType<I7> type) {
-            params.add(ParamDef.in(type));
+        public <I7> Builder_8_5<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4> input(DbType<I7> type) {
+            params.add(ParamDef.input(type));
             return new Builder_8_5<>(name, params);
         }
         public <O5> Builder_7_6<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5> out(DbType<O5> type) {
@@ -3050,8 +3050,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I7> Builder_8_6<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5> in(DbType<I7> type) {
-            params.add(ParamDef.in(type));
+        public <I7> Builder_8_6<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5> input(DbType<I7> type) {
+            params.add(ParamDef.input(type));
             return new Builder_8_6<>(name, params);
         }
         public <O6> Builder_7_7<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6> out(DbType<O6> type) {
@@ -3078,8 +3078,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I7> Builder_8_7<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6> in(DbType<I7> type) {
-            params.add(ParamDef.in(type));
+        public <I7> Builder_8_7<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6> input(DbType<I7> type) {
+            params.add(ParamDef.input(type));
             return new Builder_8_7<>(name, params);
         }
         public <O7> Builder_7_8<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7> out(DbType<O7> type) {
@@ -3106,8 +3106,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I7> Builder_8_8<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7> in(DbType<I7> type) {
-            params.add(ParamDef.in(type));
+        public <I7> Builder_8_8<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7> input(DbType<I7> type) {
+            params.add(ParamDef.input(type));
             return new Builder_8_8<>(name, params);
         }
         public <O8> Builder_7_9<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8> out(DbType<O8> type) {
@@ -3134,8 +3134,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I7> Builder_8_9<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8> in(DbType<I7> type) {
-            params.add(ParamDef.in(type));
+        public <I7> Builder_8_9<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8> input(DbType<I7> type) {
+            params.add(ParamDef.input(type));
             return new Builder_8_9<>(name, params);
         }
         public <O9> Builder_7_10<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> out(DbType<O9> type) {
@@ -3162,8 +3162,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I7> Builder_8_10<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> in(DbType<I7> type) {
-            params.add(ParamDef.in(type));
+        public <I7> Builder_8_10<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> input(DbType<I7> type) {
+            params.add(ParamDef.input(type));
             return new Builder_8_10<>(name, params);
         }
 
@@ -3182,8 +3182,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I8> Builder_9_0<I0, I1, I2, I3, I4, I5, I6, I7, I8> in(DbType<I8> type) {
-            params.add(ParamDef.in(type));
+        public <I8> Builder_9_0<I0, I1, I2, I3, I4, I5, I6, I7, I8> input(DbType<I8> type) {
+            params.add(ParamDef.input(type));
             return new Builder_9_0<>(name, params);
         }
         public <O0> Builder_8_1<I0, I1, I2, I3, I4, I5, I6, I7, O0> out(DbType<O0> type) {
@@ -3210,8 +3210,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I8> Builder_9_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0> in(DbType<I8> type) {
-            params.add(ParamDef.in(type));
+        public <I8> Builder_9_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0> input(DbType<I8> type) {
+            params.add(ParamDef.input(type));
             return new Builder_9_1<>(name, params);
         }
         public <O1> Builder_8_2<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1> out(DbType<O1> type) {
@@ -3238,8 +3238,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I8> Builder_9_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1> in(DbType<I8> type) {
-            params.add(ParamDef.in(type));
+        public <I8> Builder_9_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1> input(DbType<I8> type) {
+            params.add(ParamDef.input(type));
             return new Builder_9_2<>(name, params);
         }
         public <O2> Builder_8_3<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2> out(DbType<O2> type) {
@@ -3266,8 +3266,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I8> Builder_9_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2> in(DbType<I8> type) {
-            params.add(ParamDef.in(type));
+        public <I8> Builder_9_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2> input(DbType<I8> type) {
+            params.add(ParamDef.input(type));
             return new Builder_9_3<>(name, params);
         }
         public <O3> Builder_8_4<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3> out(DbType<O3> type) {
@@ -3294,8 +3294,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I8> Builder_9_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3> in(DbType<I8> type) {
-            params.add(ParamDef.in(type));
+        public <I8> Builder_9_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3> input(DbType<I8> type) {
+            params.add(ParamDef.input(type));
             return new Builder_9_4<>(name, params);
         }
         public <O4> Builder_8_5<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4> out(DbType<O4> type) {
@@ -3322,8 +3322,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I8> Builder_9_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4> in(DbType<I8> type) {
-            params.add(ParamDef.in(type));
+        public <I8> Builder_9_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4> input(DbType<I8> type) {
+            params.add(ParamDef.input(type));
             return new Builder_9_5<>(name, params);
         }
         public <O5> Builder_8_6<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5> out(DbType<O5> type) {
@@ -3350,8 +3350,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I8> Builder_9_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5> in(DbType<I8> type) {
-            params.add(ParamDef.in(type));
+        public <I8> Builder_9_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5> input(DbType<I8> type) {
+            params.add(ParamDef.input(type));
             return new Builder_9_6<>(name, params);
         }
         public <O6> Builder_8_7<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6> out(DbType<O6> type) {
@@ -3378,8 +3378,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I8> Builder_9_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6> in(DbType<I8> type) {
-            params.add(ParamDef.in(type));
+        public <I8> Builder_9_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6> input(DbType<I8> type) {
+            params.add(ParamDef.input(type));
             return new Builder_9_7<>(name, params);
         }
         public <O7> Builder_8_8<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7> out(DbType<O7> type) {
@@ -3406,8 +3406,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I8> Builder_9_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7> in(DbType<I8> type) {
-            params.add(ParamDef.in(type));
+        public <I8> Builder_9_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7> input(DbType<I8> type) {
+            params.add(ParamDef.input(type));
             return new Builder_9_8<>(name, params);
         }
         public <O8> Builder_8_9<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8> out(DbType<O8> type) {
@@ -3434,8 +3434,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I8> Builder_9_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8> in(DbType<I8> type) {
-            params.add(ParamDef.in(type));
+        public <I8> Builder_9_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8> input(DbType<I8> type) {
+            params.add(ParamDef.input(type));
             return new Builder_9_9<>(name, params);
         }
         public <O9> Builder_8_10<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> out(DbType<O9> type) {
@@ -3462,8 +3462,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I8> Builder_9_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> in(DbType<I8> type) {
-            params.add(ParamDef.in(type));
+        public <I8> Builder_9_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> input(DbType<I8> type) {
+            params.add(ParamDef.input(type));
             return new Builder_9_10<>(name, params);
         }
 
@@ -3482,8 +3482,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I9> Builder_10_0<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9> in(DbType<I9> type) {
-            params.add(ParamDef.in(type));
+        public <I9> Builder_10_0<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9> input(DbType<I9> type) {
+            params.add(ParamDef.input(type));
             return new Builder_10_0<>(name, params);
         }
         public <O0> Builder_9_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0> out(DbType<O0> type) {
@@ -3510,8 +3510,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I9> Builder_10_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0> in(DbType<I9> type) {
-            params.add(ParamDef.in(type));
+        public <I9> Builder_10_1<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0> input(DbType<I9> type) {
+            params.add(ParamDef.input(type));
             return new Builder_10_1<>(name, params);
         }
         public <O1> Builder_9_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1> out(DbType<O1> type) {
@@ -3538,8 +3538,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I9> Builder_10_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1> in(DbType<I9> type) {
-            params.add(ParamDef.in(type));
+        public <I9> Builder_10_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1> input(DbType<I9> type) {
+            params.add(ParamDef.input(type));
             return new Builder_10_2<>(name, params);
         }
         public <O2> Builder_9_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2> out(DbType<O2> type) {
@@ -3566,8 +3566,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I9> Builder_10_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2> in(DbType<I9> type) {
-            params.add(ParamDef.in(type));
+        public <I9> Builder_10_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2> input(DbType<I9> type) {
+            params.add(ParamDef.input(type));
             return new Builder_10_3<>(name, params);
         }
         public <O3> Builder_9_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3> out(DbType<O3> type) {
@@ -3594,8 +3594,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I9> Builder_10_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3> in(DbType<I9> type) {
-            params.add(ParamDef.in(type));
+        public <I9> Builder_10_4<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3> input(DbType<I9> type) {
+            params.add(ParamDef.input(type));
             return new Builder_10_4<>(name, params);
         }
         public <O4> Builder_9_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4> out(DbType<O4> type) {
@@ -3622,8 +3622,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I9> Builder_10_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4> in(DbType<I9> type) {
-            params.add(ParamDef.in(type));
+        public <I9> Builder_10_5<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4> input(DbType<I9> type) {
+            params.add(ParamDef.input(type));
             return new Builder_10_5<>(name, params);
         }
         public <O5> Builder_9_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5> out(DbType<O5> type) {
@@ -3650,8 +3650,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I9> Builder_10_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5> in(DbType<I9> type) {
-            params.add(ParamDef.in(type));
+        public <I9> Builder_10_6<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5> input(DbType<I9> type) {
+            params.add(ParamDef.input(type));
             return new Builder_10_6<>(name, params);
         }
         public <O6> Builder_9_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6> out(DbType<O6> type) {
@@ -3678,8 +3678,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I9> Builder_10_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6> in(DbType<I9> type) {
-            params.add(ParamDef.in(type));
+        public <I9> Builder_10_7<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6> input(DbType<I9> type) {
+            params.add(ParamDef.input(type));
             return new Builder_10_7<>(name, params);
         }
         public <O7> Builder_9_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7> out(DbType<O7> type) {
@@ -3706,8 +3706,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I9> Builder_10_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7> in(DbType<I9> type) {
-            params.add(ParamDef.in(type));
+        public <I9> Builder_10_8<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7> input(DbType<I9> type) {
+            params.add(ParamDef.input(type));
             return new Builder_10_8<>(name, params);
         }
         public <O8> Builder_9_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8> out(DbType<O8> type) {
@@ -3734,8 +3734,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I9> Builder_10_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8> in(DbType<I9> type) {
-            params.add(ParamDef.in(type));
+        public <I9> Builder_10_9<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8> input(DbType<I9> type) {
+            params.add(ParamDef.input(type));
             return new Builder_10_9<>(name, params);
         }
         public <O9> Builder_9_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> out(DbType<O9> type) {
@@ -3762,8 +3762,8 @@ public final class DbProcedure {
             this.name = name;
             this.params = params;
         }
-        public <I9> Builder_10_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> in(DbType<I9> type) {
-            params.add(ParamDef.in(type));
+        public <I9> Builder_10_10<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9> input(DbType<I9> type) {
+            params.add(ParamDef.input(type));
             return new Builder_10_10<>(name, params);
         }
 

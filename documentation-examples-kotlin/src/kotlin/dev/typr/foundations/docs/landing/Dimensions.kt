@@ -12,12 +12,13 @@ class Dimensions {
     )
 
     // PgStruct handles PostgreSQL's composite wire format
-    val pgStruct: PgStruct<Dim> = PgStruct.builder<Dim>("dimensions")
-        .field("width", PgTypes.float8, Dim::width)
-        .field("height", PgTypes.float8, Dim::height)
-        .field("depth", PgTypes.float8, Dim::depth)
-        .field("unit", PgTypes.text, Dim::unit)
-        .build(::Dim)
+    val pgStruct: PgStruct<Dim> =
+        PgStruct.builder<Dim>("dimensions")
+            .field("width", PgTypes.float8, Dim::width)
+            .field("height", PgTypes.float8, Dim::height)
+            .field("depth", PgTypes.float8, Dim::depth)
+            .field("unit", PgTypes.text, Dim::unit)
+            .build(::Dim)
 
     val pgType: PgType<Dim> = pgStruct.asType()
     //stop

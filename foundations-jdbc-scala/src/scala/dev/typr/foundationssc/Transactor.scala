@@ -14,6 +14,12 @@ class Transactor(val underlying: dev.typr.foundations.Transactor):
   def executeVoid(f: Connection => Unit): Unit =
     underlying.executeVoid((conn: Connection) => f(conn))
 
+  def withStrategy(override_ : Transactor.Strategy): Transactor =
+    new Transactor(underlying.withStrategy(override_))
+
+  def transact[T](override_ : Transactor.Strategy)(f: Connection => T): T =
+    withStrategy(override_).transact(f)
+
 object Transactor:
   def apply(underlying: dev.typr.foundations.Transactor): Transactor = new Transactor(underlying)
   type Strategy = dev.typr.foundations.Transactor.Strategy
