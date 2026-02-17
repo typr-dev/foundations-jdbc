@@ -25,7 +25,8 @@ class ExecuteComposed {
             .query(orderParser.all())
 
     //start
-    fun dashboard(): Dashboard =
-        countUsers.with(recentOrders, ::Dashboard).transact(tx)
+    fun dashboard(): Dashboard = tx.transact { conn ->
+        countUsers.with(recentOrders, ::Dashboard).run(conn)
+    }
     //stop
 }

@@ -1,6 +1,7 @@
 package dev.typr.foundationssc
 
 import java.sql.{Connection, SQLException}
+import java.time.Duration
 import _root_.scala.jdk.CollectionConverters.*
 
 sealed trait Operation[Out] {
@@ -57,6 +58,15 @@ sealed trait Operation[Out] {
 
   def voided: Operation[Unit] =
     map(_ => ())
+
+  def named(name: String): Operation[Out] =
+    Operation.Configured(this, name, null, null)
+
+  def timeout(timeout: Duration): Operation[Out] =
+    Operation.Configured(this, null, timeout, null)
+
+  def withListener(listener: dev.typr.foundations.QueryListener): Operation[Out] =
+    Operation.Configured(this, null, null, listener)
 }
 
 object Operation {
@@ -161,6 +171,19 @@ object Operation {
         fallback.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]]
       )
     override def runChecked(conn: Connection): T = check.runChecked(conn).getOrElse(fallback.runChecked(conn))
+  }
+
+  class Configured[Out](val inner: Operation[Out], val name: String, val timeout: Duration, val listener: dev.typr.foundations.QueryListener) extends Operation[Out] {
+    @SuppressWarnings(Array("unchecked"))
+    val underlying: dev.typr.foundations.Operation[?] =
+      new dev.typr.foundations.Operation.Configured(
+        inner.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]],
+        name,
+        timeout,
+        listener
+      )
+    override def runChecked(conn: Connection): Out =
+      underlying.runChecked(conn).asInstanceOf[Out]
   }
 
   class Then[A, In, B](val source: Operation[A], val extract: A => In, val continuation: SqlTemplate[In, B]) extends Operation[B] {

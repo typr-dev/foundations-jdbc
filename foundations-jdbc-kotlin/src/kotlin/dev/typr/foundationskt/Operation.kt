@@ -3,6 +3,7 @@ package dev.typr.foundationskt
 
 import java.sql.Connection
 import java.sql.SQLException
+import java.time.Duration
 import java.util.Optional
 
 sealed class Operation<Out> {
@@ -64,6 +65,15 @@ sealed class Operation<Out> {
     }
 
     fun voided(): Operation<Unit> = map { }
+
+    fun named(name: String): Operation<Out> =
+        Configured(dev.typr.foundations.Operation.Configured(underlying, name, null, null), this, name, null, null)
+
+    fun timeout(timeout: Duration): Operation<Out> =
+        Configured(dev.typr.foundations.Operation.Configured(underlying, null, timeout, null), this, null, timeout, null)
+
+    fun withListener(listener: dev.typr.foundations.QueryListener): Operation<Out> =
+        Configured(dev.typr.foundations.Operation.Configured(underlying, null, null, listener), this, null, null, listener)
 
     class Query<Out>(override val underlying: dev.typr.foundations.Operation.Query<Out>) : Operation<Out>() {
         @Throws(SQLException::class)
@@ -150,6 +160,18 @@ sealed class Operation<Out> {
             val input = extract(a)
             return continuation.on(input).runChecked(conn)
         }
+    }
+
+    class Configured<Out>(
+        override val underlying: dev.typr.foundations.Operation<*>,
+        val inner: Operation<Out>,
+        val name: String?,
+        val timeout: Duration?,
+        val listener: dev.typr.foundations.QueryListener?
+    ) : Operation<Out>() {
+        @Suppress("UNCHECKED_CAST")
+        @Throws(SQLException::class)
+        override fun runChecked(conn: Connection): Out = underlying.runChecked(conn) as Out
     }
 
     companion object {

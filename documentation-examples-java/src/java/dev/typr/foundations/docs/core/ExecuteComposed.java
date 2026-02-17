@@ -34,9 +34,10 @@ public class ExecuteComposed {
 
     //start
     Dashboard dashboard() throws SQLException {
-        return countUsers
-            .with(recentOrders, Dashboard::new)
-            .transact(tx);
+        return tx.execute(conn ->
+            countUsers
+                .with(recentOrders, Dashboard::new)
+                .run(conn));
     }
     //stop
 }

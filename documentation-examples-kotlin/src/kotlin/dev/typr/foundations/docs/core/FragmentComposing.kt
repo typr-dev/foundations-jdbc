@@ -33,9 +33,11 @@ class FragmentComposing {
             maxPrice?.let(::cheaperThan)
         )
 
-        return Sql { "SELECT * FROM product ${Fragment.whereAnd(filters)}" }
-            .query(rowParser.all())
-            .transact(tx)
+        return tx.transact { conn ->
+            Sql { "SELECT * FROM product ${Fragment.whereAnd(filters)}" }
+                .query(rowParser.all())
+                .run(conn)
+        }
     }
     //stop
 }

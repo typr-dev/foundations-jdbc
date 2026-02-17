@@ -28,8 +28,8 @@ class ManualTransaction {
     // Run both in one transaction using the connection directly
     fun dashboard(): Dashboard =
         tx.transact { conn ->
-            val count = countUsers.runChecked(conn)
-            val orders = recentOrders.runChecked(conn)
+            val count = countUsers.run(conn)
+            val orders = recentOrders.run(conn)
             Dashboard(count, orders)
         }
     //stop

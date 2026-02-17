@@ -26,6 +26,13 @@ class Transactor(val underlying: dev.typr.foundations.Transactor) {
         underlying.executeVoid { conn -> f(conn) }
     }
 
+    fun withStrategy(override: Strategy): Transactor =
+        Transactor(underlying.withStrategy(override))
+
+    @Throws(SQLException::class)
+    fun <T> transact(override: Strategy, f: (Connection) -> T): T =
+        withStrategy(override).transact(f)
+
     companion object {
         @JvmStatic
         fun defaultStrategy(): Strategy = dev.typr.foundations.Transactor.defaultStrategy()

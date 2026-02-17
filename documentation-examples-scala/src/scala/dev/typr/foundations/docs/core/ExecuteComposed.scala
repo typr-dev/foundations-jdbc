@@ -25,7 +25,8 @@ object ExecuteComposed:
       .query(orderParser.all())
 
   //start
-  def dashboard(): Dashboard =
+  def dashboard(): Dashboard = tx.transact { conn =>
     countUsers.`with`(recentOrders)(Dashboard.apply)
-      .transact(tx)
+      .run(conn)
+  }
   //stop

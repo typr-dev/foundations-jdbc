@@ -33,7 +33,9 @@ object FragmentComposing:
         maxPrice.map(cheaperThan)
       ).flatten
 
-    sql"SELECT * FROM product ${Fragment.whereAnd(filters)}"
-      .query(rowParser.all())
-      .transact(tx)
+    tx.transact { conn =>
+      sql"SELECT * FROM product ${Fragment.whereAnd(filters)}"
+        .query(rowParser.all())
+        .run(conn)
+    }
   //stop
