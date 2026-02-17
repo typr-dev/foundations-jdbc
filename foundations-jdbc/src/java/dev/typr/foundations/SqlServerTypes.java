@@ -362,7 +362,7 @@ public interface SqlServerTypes {
           "NVARCHAR(MAX)", // JSON is stored as NVARCHAR(MAX)
           SqlServerRead.readJson,
           SqlServerWrite.writeJson,
-          SqlServerJson.text.contramap(dev.typr.foundations.data.Json::value),
+          SqlServerJson.text.transform(dev.typr.foundations.data.Json::new, dev.typr.foundations.data.Json::value),
           SqlServerOutParam.readString.map(dev.typr.foundations.data.Json::new));
 
   // VECTOR - SQL Server 2025 (stored as binary for now)
