@@ -192,8 +192,8 @@ When a template uses `.optionally()`, analysis automatically expands all 2^N str
 // Full query with parameters and result parser
 QueryAnalyzer.analyze(fragment.query(rowParser.all()), conn).getFirst();
 
-// Named query
-QueryAnalyzer.analyze("findUsers", fragment.query(rowParser.all()), conn).getFirst();
+// Named query — the name shows up in the error report
+QueryAnalyzer.analyze(fragment.query(rowParser.all()).named("findUsers"), conn).getFirst();
 
 // Update-returning operations
 QueryAnalyzer.analyze(fragment.updateReturning(rowParser), conn).getFirst();
@@ -206,7 +206,7 @@ QueryAnalyzer.analyze(fragment.updateReturning(rowParser), conn).getFirst();
 QueryAnalyzer.analyze(fragment.update(), conn).getFirst();
 
 // Named update
-QueryAnalyzer.analyze("updateUser", fragment.update(), conn).getFirst();
+QueryAnalyzer.analyze(fragment.update().named("updateUser"), conn).getFirst();
 ```
 
 ### Low-Level Analysis
@@ -230,20 +230,24 @@ QueryAnalyzer.analyzeFragmentAndParser(fragment, resultSetParser, conn);
 
 ## Database Support
 
-Query Analysis works with all supported databases, with some caveats:
+Query Analysis works with all supported databases, with varying levels of JDBC metadata support:
 
-| Database | Parameter Metadata | Column Metadata | Nullability |
-|----------|-------------------|-----------------|-------------|
-| PostgreSQL | Full | Full | Reliable |
-| DuckDB | Limited | Full | All nullable* |
-| Oracle | Full | Full | Reliable |
-| SQL Server | Full | Full | Reliable |
-| MariaDB/MySQL | Limited** | Full | Reliable |
-| DB2 | Full | Full | Reliable |
+| Database | Param Types | Param Nullability | Column Types | Column Nullability |
+|----------|-------------|-------------------|--------------|--------------------|
+| PostgreSQL | Yes | Unknown | Yes | Reliable |
+| DuckDB | None* | Unknown | Yes | All nullable** |
+| Oracle | Yes | Yes | Yes | Reliable |
+| SQL Server | Yes | Unknown | Yes | Reliable |
+| MariaDB/MySQL | None*** | None*** | Yes | Reliable |
+| DB2 | Yes | All nullable**** | Yes | Reliable |
 
-\* DuckDB reports all columns as nullable; nullability checks are skipped.
+\* DuckDB reports parameter count but not parameter type names; parameter type checks are skipped.
 
-\*\* MariaDB/MySQL parameter metadata is not always reliable; parameter type checks may be skipped.
+\*\* DuckDB reports all columns as nullable regardless of NOT NULL constraints; nullability checks are skipped.
+
+\*\*\* MariaDB/MySQL throws an exception on `getParameterMetaData()`; parameter checks are skipped entirely.
+
+\*\*\*\* DB2 reports all parameters as nullable regardless of column constraints; parameter nullability is ignored.
 
 ## Tips
 
@@ -285,22 +289,11 @@ Preparing a statement and reading metadata is fast — milliseconds per query. Y
 ### QueryAnalyzer
 
 ```java
-// Analyze a query operation
-static <T> List<QueryAnalysis> analyze(Operation.Query<T> query, Connection conn)
-
-// Analyze a named query operation
-static <T> List<QueryAnalysis> analyze(String name, Operation.Query<T> query, Connection conn)
-
-// Analyze an update-returning operation
-static <T> List<QueryAnalysis> analyze(Operation.UpdateReturning<T> op, Connection conn)
-static <T> List<QueryAnalysis> analyze(String name, Operation.UpdateReturning<T> op, Connection conn)
-
-// Analyze an update operation (parameters only)
-static List<QueryAnalysis> analyze(Operation.Update update, Connection conn)
-static List<QueryAnalysis> analyze(String name, Operation.Update update, Connection conn)
-
-// Analyze all SQL in a composed operation tree
+// Analyze any operation (query, update, composed tree)
 static List<QueryAnalysis> analyze(Operation<?> operation, Connection conn)
+
+// Analyze a SQL template
+static List<QueryAnalysis> analyze(SqlTemplate<?, ?> template, Connection conn)
 
 // Low-level: analyze fragment + parser directly
 static QueryAnalysis analyzeFragmentAndParser(
@@ -308,6 +301,8 @@ static QueryAnalysis analyzeFragmentAndParser(
     ResultSetParser<?> parser,
     Connection conn)
 ```
+
+Use `.named("queryName")` on operations to include the name in error reports.
 
 ### QueryAnalysis
 

@@ -25,12 +25,11 @@ object QueryAnalysisNamed:
             FROM users
             WHERE id = ${PgTypes.int4(userId)}"""
         .query(userRowParser.all())
+        .named("findUserById")
 
-    // Give your query a name for the error report
+    // The name shows up in the error report
     val analysis =
-      QueryAnalyzer.analyze(
-        "findUserById", query, connection
-      ).head
+      QueryAnalyzer.analyze(query, connection).head
 
     if !analysis.succeeded() then
       throw AssertionError(analysis.report())

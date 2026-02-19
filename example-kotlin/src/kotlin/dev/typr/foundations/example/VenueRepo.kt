@@ -19,7 +19,7 @@ fun createVenue(venue: Venue): Operation.Query<Venue> {
 }
 
 fun analyzeVenueQueries(conn: Connection): List<QueryAnalysis> = listOf(
-    QueryAnalyzer.analyze("allVenues", allVenues, conn),
-    QueryAnalyzer.analyze("venueById", venueById(VenueId(0)), conn),
-    QueryAnalyzer.analyze("createVenue", createVenue(Venue(VenueId(0), "", Address("", "", "", "", ""), 0, emptyList(), emptyMap())), conn),
+    QueryAnalyzer.analyze(allVenues.named("allVenues"), conn),
+    QueryAnalyzer.analyze(venueById(VenueId(0)).named("venueById"), conn),
+    QueryAnalyzer.analyze(createVenue(Venue(VenueId(0), "", Address("", "", "", "", ""), 0, emptyList(), emptyMap())).named("createVenue"), conn),
 ).flatten()
