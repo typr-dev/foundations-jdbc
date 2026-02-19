@@ -20,7 +20,8 @@ public sealed interface SqlTemplate<In, Out>
         SqlTemplate.Update7,
         SqlTemplate.Update8,
         SqlTemplate.Update9,
-        SqlTemplate.Update10 {
+        SqlTemplate.Update10,
+        SqlTemplate.From {
 
   Operation<Out> on(In in);
 
@@ -31,7 +32,11 @@ public sealed interface SqlTemplate<In, Out>
     @Override
     public Operation.Query<Out> on(P0 p0) {
       return new Operation.Query<>(
-          fragment.fill(java.util.List.of((Object) p0).iterator()), parser);
+          OptionallyResolver.resolve(fragment, java.util.List.of((Object) p0).iterator()), parser);
+    }
+
+    public <T> From<T, Out> from(java.util.function.Function<T, P0> f0) {
+      return new From<>(this, t -> on(f0.apply(t)));
     }
   }
 
@@ -40,18 +45,22 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P0> p0Type,
       DbType<P1> p1Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<And<P0, P1>, Out> {
+      implements SqlTemplate<Tuple.Tuple2<P0, P1>, Out> {
     @Override
-    public Operation.Query<Out> on(And<P0, P1> in) {
-      return on(in.left(),
-          in.right());
+    public Operation.Query<Out> on(Tuple.Tuple2<P0, P1> in) {
+      return on(in._1(),
+          in._2());
     }
 
     public Operation.Query<Out> on(P0 p0, P1 p1) {
       return new Operation.Query<>(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1).iterator()),
           parser);
+    }
+
+    public <T> From<T, Out> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t)));
     }
   }
 
@@ -61,19 +70,23 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P1> p1Type,
       DbType<P2> p2Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<And<And<P0, P1>, P2>, Out> {
+      implements SqlTemplate<Tuple.Tuple3<P0, P1, P2>, Out> {
     @Override
-    public Operation.Query<Out> on(And<And<P0, P1>, P2> in) {
-      return on(in.left().left(),
-          in.left().right(),
-          in.right());
+    public Operation.Query<Out> on(Tuple.Tuple3<P0, P1, P2> in) {
+      return on(in._1(),
+          in._2(),
+          in._3());
     }
 
     public Operation.Query<Out> on(P0 p0, P1 p1, P2 p2) {
       return new Operation.Query<>(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2).iterator()),
           parser);
+    }
+
+    public <T> From<T, Out> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t)));
     }
   }
 
@@ -84,20 +97,24 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P2> p2Type,
       DbType<P3> p3Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<And<And<And<P0, P1>, P2>, P3>, Out> {
+      implements SqlTemplate<Tuple.Tuple4<P0, P1, P2, P3>, Out> {
     @Override
-    public Operation.Query<Out> on(And<And<And<P0, P1>, P2>, P3> in) {
-      return on(in.left().left().left(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Query<Out> on(Tuple.Tuple4<P0, P1, P2, P3> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4());
     }
 
     public Operation.Query<Out> on(P0 p0, P1 p1, P2 p2, P3 p3) {
       return new Operation.Query<>(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3).iterator()),
           parser);
+    }
+
+    public <T> From<T, Out> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t)));
     }
   }
 
@@ -109,21 +126,25 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P3> p3Type,
       DbType<P4> p4Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<And<And<And<And<P0, P1>, P2>, P3>, P4>, Out> {
+      implements SqlTemplate<Tuple.Tuple5<P0, P1, P2, P3, P4>, Out> {
     @Override
-    public Operation.Query<Out> on(And<And<And<And<P0, P1>, P2>, P3>, P4> in) {
-      return on(in.left().left().left().left(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Query<Out> on(Tuple.Tuple5<P0, P1, P2, P3, P4> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5());
     }
 
     public Operation.Query<Out> on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4) {
       return new Operation.Query<>(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4).iterator()),
           parser);
+    }
+
+    public <T> From<T, Out> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t)));
     }
   }
 
@@ -136,22 +157,26 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P4> p4Type,
       DbType<P5> p5Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, Out> {
+      implements SqlTemplate<Tuple.Tuple6<P0, P1, P2, P3, P4, P5>, Out> {
     @Override
-    public Operation.Query<Out> on(And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5> in) {
-      return on(in.left().left().left().left().left(),
-          in.left().left().left().left().right(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Query<Out> on(Tuple.Tuple6<P0, P1, P2, P3, P4, P5> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5(),
+          in._6());
     }
 
     public Operation.Query<Out> on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5) {
       return new Operation.Query<>(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4, (Object) p5).iterator()),
           parser);
+    }
+
+    public <T> From<T, Out> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4, java.util.function.Function<T, P5> f5) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t), f5.apply(t)));
     }
   }
 
@@ -165,23 +190,27 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P5> p5Type,
       DbType<P6> p6Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, Out> {
+      implements SqlTemplate<Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6>, Out> {
     @Override
-    public Operation.Query<Out> on(And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6> in) {
-      return on(in.left().left().left().left().left().left(),
-          in.left().left().left().left().left().right(),
-          in.left().left().left().left().right(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Query<Out> on(Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5(),
+          in._6(),
+          in._7());
     }
 
     public Operation.Query<Out> on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6) {
       return new Operation.Query<>(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4, (Object) p5, (Object) p6).iterator()),
           parser);
+    }
+
+    public <T> From<T, Out> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4, java.util.function.Function<T, P5> f5, java.util.function.Function<T, P6> f6) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t), f5.apply(t), f6.apply(t)));
     }
   }
 
@@ -196,24 +225,28 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P6> p6Type,
       DbType<P7> p7Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, Out> {
+      implements SqlTemplate<Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7>, Out> {
     @Override
-    public Operation.Query<Out> on(And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7> in) {
-      return on(in.left().left().left().left().left().left().left(),
-          in.left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().right(),
-          in.left().left().left().left().right(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Query<Out> on(Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5(),
+          in._6(),
+          in._7(),
+          in._8());
     }
 
     public Operation.Query<Out> on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7) {
       return new Operation.Query<>(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4, (Object) p5, (Object) p6, (Object) p7).iterator()),
           parser);
+    }
+
+    public <T> From<T, Out> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4, java.util.function.Function<T, P5> f5, java.util.function.Function<T, P6> f6, java.util.function.Function<T, P7> f7) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t), f5.apply(t), f6.apply(t), f7.apply(t)));
     }
   }
 
@@ -229,25 +262,29 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P7> p7Type,
       DbType<P8> p8Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<And<And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, Out> {
+      implements SqlTemplate<Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8>, Out> {
     @Override
-    public Operation.Query<Out> on(And<And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8> in) {
-      return on(in.left().left().left().left().left().left().left().left(),
-          in.left().left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().right(),
-          in.left().left().left().left().right(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Query<Out> on(Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5(),
+          in._6(),
+          in._7(),
+          in._8(),
+          in._9());
     }
 
     public Operation.Query<Out> on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8) {
       return new Operation.Query<>(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4, (Object) p5, (Object) p6, (Object) p7, (Object) p8).iterator()),
           parser);
+    }
+
+    public <T> From<T, Out> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4, java.util.function.Function<T, P5> f5, java.util.function.Function<T, P6> f6, java.util.function.Function<T, P7> f7, java.util.function.Function<T, P8> f8) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t), f5.apply(t), f6.apply(t), f7.apply(t), f8.apply(t)));
     }
   }
 
@@ -264,26 +301,30 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P8> p8Type,
       DbType<P9> p9Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<And<And<And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, P9>, Out> {
+      implements SqlTemplate<Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>, Out> {
     @Override
-    public Operation.Query<Out> on(And<And<And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, P9> in) {
-      return on(in.left().left().left().left().left().left().left().left().left(),
-          in.left().left().left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().right(),
-          in.left().left().left().left().right(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Query<Out> on(Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5(),
+          in._6(),
+          in._7(),
+          in._8(),
+          in._9(),
+          in._10());
     }
 
     public Operation.Query<Out> on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8, P9 p9) {
       return new Operation.Query<>(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4, (Object) p5, (Object) p6, (Object) p7, (Object) p8, (Object) p9).iterator()),
           parser);
+    }
+
+    public <T> From<T, Out> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4, java.util.function.Function<T, P5> f5, java.util.function.Function<T, P6> f6, java.util.function.Function<T, P7> f7, java.util.function.Function<T, P8> f8, java.util.function.Function<T, P9> f9) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t), f5.apply(t), f6.apply(t), f7.apply(t), f8.apply(t), f9.apply(t)));
     }
   }
 
@@ -292,7 +333,11 @@ public sealed interface SqlTemplate<In, Out>
     @Override
     public Operation.Update on(P0 p0) {
       return new Operation.Update(
-          fragment.fill(java.util.List.of((Object) p0).iterator()));
+          OptionallyResolver.resolve(fragment, java.util.List.of((Object) p0).iterator()));
+    }
+
+    public <T> From<T, Integer> from(java.util.function.Function<T, P0> f0) {
+      return new From<>(this, t -> on(f0.apply(t)));
     }
   }
 
@@ -300,17 +345,21 @@ public sealed interface SqlTemplate<In, Out>
       Fragment fragment,
       DbType<P0> p0Type,
       DbType<P1> p1Type)
-      implements SqlTemplate<And<P0, P1>, Integer> {
+      implements SqlTemplate<Tuple.Tuple2<P0, P1>, Integer> {
     @Override
-    public Operation.Update on(And<P0, P1> in) {
-      return on(in.left(),
-          in.right());
+    public Operation.Update on(Tuple.Tuple2<P0, P1> in) {
+      return on(in._1(),
+          in._2());
     }
 
     public Operation.Update on(P0 p0, P1 p1) {
       return new Operation.Update(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1).iterator()));
+    }
+
+    public <T> From<T, Integer> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t)));
     }
   }
 
@@ -319,18 +368,22 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P0> p0Type,
       DbType<P1> p1Type,
       DbType<P2> p2Type)
-      implements SqlTemplate<And<And<P0, P1>, P2>, Integer> {
+      implements SqlTemplate<Tuple.Tuple3<P0, P1, P2>, Integer> {
     @Override
-    public Operation.Update on(And<And<P0, P1>, P2> in) {
-      return on(in.left().left(),
-          in.left().right(),
-          in.right());
+    public Operation.Update on(Tuple.Tuple3<P0, P1, P2> in) {
+      return on(in._1(),
+          in._2(),
+          in._3());
     }
 
     public Operation.Update on(P0 p0, P1 p1, P2 p2) {
       return new Operation.Update(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2).iterator()));
+    }
+
+    public <T> From<T, Integer> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t)));
     }
   }
 
@@ -340,19 +393,23 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P1> p1Type,
       DbType<P2> p2Type,
       DbType<P3> p3Type)
-      implements SqlTemplate<And<And<And<P0, P1>, P2>, P3>, Integer> {
+      implements SqlTemplate<Tuple.Tuple4<P0, P1, P2, P3>, Integer> {
     @Override
-    public Operation.Update on(And<And<And<P0, P1>, P2>, P3> in) {
-      return on(in.left().left().left(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Update on(Tuple.Tuple4<P0, P1, P2, P3> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4());
     }
 
     public Operation.Update on(P0 p0, P1 p1, P2 p2, P3 p3) {
       return new Operation.Update(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3).iterator()));
+    }
+
+    public <T> From<T, Integer> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t)));
     }
   }
 
@@ -363,20 +420,24 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P2> p2Type,
       DbType<P3> p3Type,
       DbType<P4> p4Type)
-      implements SqlTemplate<And<And<And<And<P0, P1>, P2>, P3>, P4>, Integer> {
+      implements SqlTemplate<Tuple.Tuple5<P0, P1, P2, P3, P4>, Integer> {
     @Override
-    public Operation.Update on(And<And<And<And<P0, P1>, P2>, P3>, P4> in) {
-      return on(in.left().left().left().left(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Update on(Tuple.Tuple5<P0, P1, P2, P3, P4> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5());
     }
 
     public Operation.Update on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4) {
       return new Operation.Update(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4).iterator()));
+    }
+
+    public <T> From<T, Integer> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t)));
     }
   }
 
@@ -388,21 +449,25 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P3> p3Type,
       DbType<P4> p4Type,
       DbType<P5> p5Type)
-      implements SqlTemplate<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, Integer> {
+      implements SqlTemplate<Tuple.Tuple6<P0, P1, P2, P3, P4, P5>, Integer> {
     @Override
-    public Operation.Update on(And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5> in) {
-      return on(in.left().left().left().left().left(),
-          in.left().left().left().left().right(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Update on(Tuple.Tuple6<P0, P1, P2, P3, P4, P5> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5(),
+          in._6());
     }
 
     public Operation.Update on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5) {
       return new Operation.Update(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4, (Object) p5).iterator()));
+    }
+
+    public <T> From<T, Integer> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4, java.util.function.Function<T, P5> f5) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t), f5.apply(t)));
     }
   }
 
@@ -415,22 +480,26 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P4> p4Type,
       DbType<P5> p5Type,
       DbType<P6> p6Type)
-      implements SqlTemplate<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, Integer> {
+      implements SqlTemplate<Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6>, Integer> {
     @Override
-    public Operation.Update on(And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6> in) {
-      return on(in.left().left().left().left().left().left(),
-          in.left().left().left().left().left().right(),
-          in.left().left().left().left().right(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Update on(Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5(),
+          in._6(),
+          in._7());
     }
 
     public Operation.Update on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6) {
       return new Operation.Update(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4, (Object) p5, (Object) p6).iterator()));
+    }
+
+    public <T> From<T, Integer> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4, java.util.function.Function<T, P5> f5, java.util.function.Function<T, P6> f6) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t), f5.apply(t), f6.apply(t)));
     }
   }
 
@@ -444,23 +513,27 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P5> p5Type,
       DbType<P6> p6Type,
       DbType<P7> p7Type)
-      implements SqlTemplate<And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, Integer> {
+      implements SqlTemplate<Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7>, Integer> {
     @Override
-    public Operation.Update on(And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7> in) {
-      return on(in.left().left().left().left().left().left().left(),
-          in.left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().right(),
-          in.left().left().left().left().right(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Update on(Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5(),
+          in._6(),
+          in._7(),
+          in._8());
     }
 
     public Operation.Update on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7) {
       return new Operation.Update(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4, (Object) p5, (Object) p6, (Object) p7).iterator()));
+    }
+
+    public <T> From<T, Integer> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4, java.util.function.Function<T, P5> f5, java.util.function.Function<T, P6> f6, java.util.function.Function<T, P7> f7) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t), f5.apply(t), f6.apply(t), f7.apply(t)));
     }
   }
 
@@ -475,24 +548,28 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P6> p6Type,
       DbType<P7> p7Type,
       DbType<P8> p8Type)
-      implements SqlTemplate<And<And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, Integer> {
+      implements SqlTemplate<Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8>, Integer> {
     @Override
-    public Operation.Update on(And<And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8> in) {
-      return on(in.left().left().left().left().left().left().left().left(),
-          in.left().left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().right(),
-          in.left().left().left().left().right(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Update on(Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5(),
+          in._6(),
+          in._7(),
+          in._8(),
+          in._9());
     }
 
     public Operation.Update on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8) {
       return new Operation.Update(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4, (Object) p5, (Object) p6, (Object) p7, (Object) p8).iterator()));
+    }
+
+    public <T> From<T, Integer> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4, java.util.function.Function<T, P5> f5, java.util.function.Function<T, P6> f6, java.util.function.Function<T, P7> f7, java.util.function.Function<T, P8> f8) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t), f5.apply(t), f6.apply(t), f7.apply(t), f8.apply(t)));
     }
   }
 
@@ -508,25 +585,44 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P7> p7Type,
       DbType<P8> p8Type,
       DbType<P9> p9Type)
-      implements SqlTemplate<And<And<And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, P9>, Integer> {
+      implements SqlTemplate<Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>, Integer> {
     @Override
-    public Operation.Update on(And<And<And<And<And<And<And<And<And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, P9> in) {
-      return on(in.left().left().left().left().left().left().left().left().left(),
-          in.left().left().left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().left().right(),
-          in.left().left().left().left().left().right(),
-          in.left().left().left().left().right(),
-          in.left().left().left().right(),
-          in.left().left().right(),
-          in.left().right(),
-          in.right());
+    public Operation.Update on(Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9> in) {
+      return on(in._1(),
+          in._2(),
+          in._3(),
+          in._4(),
+          in._5(),
+          in._6(),
+          in._7(),
+          in._8(),
+          in._9(),
+          in._10());
     }
 
     public Operation.Update on(P0 p0, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8, P9 p9) {
       return new Operation.Update(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of((Object) p0, (Object) p1, (Object) p2, (Object) p3, (Object) p4, (Object) p5, (Object) p6, (Object) p7, (Object) p8, (Object) p9).iterator()));
+    }
+
+    public <T> From<T, Integer> from(java.util.function.Function<T, P0> f0, java.util.function.Function<T, P1> f1, java.util.function.Function<T, P2> f2, java.util.function.Function<T, P3> f3, java.util.function.Function<T, P4> f4, java.util.function.Function<T, P5> f5, java.util.function.Function<T, P6> f6, java.util.function.Function<T, P7> f7, java.util.function.Function<T, P8> f8, java.util.function.Function<T, P9> f9) {
+      return new From<>(this, t -> on(f0.apply(t), f1.apply(t), f2.apply(t), f3.apply(t), f4.apply(t), f5.apply(t), f6.apply(t), f7.apply(t), f8.apply(t), f9.apply(t)));
+    }
+  }
+
+  record From<T, Out>(
+      SqlTemplate<?, Out> inner,
+      java.util.function.Function<T, ? extends Operation<Out>> resolver)
+      implements SqlTemplate<T, Out> {
+    @Override
+    public Operation<Out> on(T t) {
+      return resolver.apply(t);
+    }
+
+    @Override
+    public Fragment fragment() {
+      return inner.fragment();
     }
   }
 }

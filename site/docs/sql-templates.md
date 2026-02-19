@@ -27,3 +27,7 @@ Use `.then()` to feed one operation's result into the next operation's template.
 <Snippet file="core/SqlTemplateThen" />
 
 See [Composing Operations](./composing-operations) for the full set of combinators including `.with()`, `Operation.ifEmpty()`, and more.
+
+## Optional Predicates
+
+Use `.optionally()` to add dynamic filters that are included or skipped based on whether a value is provided. Query Analysis automatically verifies all 2^N structural combinations. See [Dynamic SQL](./optional-queries) for details.

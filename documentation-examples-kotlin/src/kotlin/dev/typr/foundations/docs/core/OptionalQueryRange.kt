@@ -1,0 +1,43 @@
+package dev.typr.foundations.docs.core
+
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
+import java.math.BigDecimal
+
+@Suppress("unused")
+class OptionalQueryRange {
+    data class Product(val id: Int, val name: String, val price: BigDecimal)
+
+    val productParser: RowParser<Product> =
+        RowParser.builder<Product>()
+            .field(PgTypes.int4, Product::id)
+            .field(PgTypes.text, Product::name)
+            .field(PgTypes.numeric, Product::price)
+            .build(::Product)
+
+    lateinit var tx: Transactor
+
+    //start
+    // When an optional clause needs multiple parameters,
+    // pass a multi-parameter builder.
+    // The grouped parameters are provided or omitted together.
+    val byPriceRange: SqlTemplate<Pair<BigDecimal, BigDecimal>?, List<Product>> =
+        Fragment.of("SELECT id, name, price FROM products WHERE 1=1")
+            .optionally(
+                Fragment.of(" AND price BETWEEN ")
+                    .param(PgTypes.numeric)
+                    .append(" AND ")
+                    .param(PgTypes.numeric))
+            .query(productParser.all())
+
+    // With range
+    fun inRange(): List<Product> =
+        byPriceRange
+            .on(BigDecimal("10") to BigDecimal("50"))
+            .transact(tx)
+
+    // Without range — returns all products
+    fun all(): List<Product> =
+        byPriceRange.on(null).transact(tx)
+    //stop
+}

@@ -1021,6 +1021,46 @@ def generateParamBuilders(): String = {
     }"""
     } else ""
 
+    // Generate optionally overloads (only if n+1 <= maxArity)
+    val optionallyMethods = if (n < maxArity) {
+      val nextN = n + 1
+
+      // 0-param optionally (boolean flag)
+      val boolOptionally = s"""
+    public ParamBuilder$nextN<$tparams, Boolean> optionally(Fragment inner) {
+      int paramCount = Fragment.countParams(inner);
+      if (paramCount != 0) throw new IllegalArgumentException(
+          "optionally(Fragment) requires 0 inner params, got " + paramCount + ". Use optionally(ParamBuilder) for parameterized fragments.");
+      return new ParamBuilder$nextN<>(fragment.append(new Fragment.Optionally(inner, 0)), $typeFieldArgs, null);
+    }"""
+
+      // 1-param optionally
+      val opt1 = s"""
+    @SuppressWarnings("unchecked")
+    public <A> ParamBuilder$nextN<$tparams, java.util.Optional<A>> optionally(ParamBuilder1<A> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder$nextN<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), $typeFieldArgs, null);
+    }"""
+
+      // 2-param optionally
+      val opt2 = s"""
+    @SuppressWarnings("unchecked")
+    public <A, B> ParamBuilder$nextN<$tparams, java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilder2<A, B> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder$nextN<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), $typeFieldArgs, null);
+    }"""
+
+      // 3-param optionally
+      val opt3 = s"""
+    @SuppressWarnings("unchecked")
+    public <A, B, C> ParamBuilder$nextN<$tparams, java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilder3<A, B, C> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder$nextN<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), $typeFieldArgs, null);
+    }"""
+
+      boolOptionally + opt1 + opt2 + opt3
+    } else ""
+
     val queryTypeFields = range.map(i => s"p${i}Type").mkString(", ")
     val updateTypeFields = range.map(i => s"p${i}Type").mkString(", ")
 
@@ -1046,7 +1086,7 @@ $ctorAssignments
     public ParamBuilder$n<$tparams> append(Fragment other) {
       return new ParamBuilder$n<>(fragment.append(other), $typeFieldArgs);
     }
-$paramTypeMethod
+$paramTypeMethod$optionallyMethods
 
     public <Out> SqlTemplate.Query$n<$tparams, Out> query(ResultSetParser<Out> parser) {
       return new SqlTemplate.Query$n<>(
@@ -1076,18 +1116,18 @@ $paramTypeMethod
 def generateSqlTemplate(): String = {
   val maxArity = PROC_N - 1 // 10
 
-  def andType(n: Int): String = {
+  def inputType(n: Int): String = {
     if (n == 1) "P0"
     else {
-      val inner = andType(n - 1)
-      s"And<$inner, P${n - 1}>"
+      val tparams = 0.until(n).map(i => s"P$i").mkString(", ")
+      s"Tuple.Tuple$n<$tparams>"
     }
   }
 
   val permits = {
     val queryPermits = 1.to(maxArity).map(n => s"SqlTemplate.Query$n")
     val updatePermits = 1.to(maxArity).map(n => s"SqlTemplate.Update$n")
-    (queryPermits ++ updatePermits).mkString(",\n        ")
+    (queryPermits ++ updatePermits :+ "SqlTemplate.From").mkString(",\n        ")
   }
 
   val queryRecords = 1.to(maxArity).map { n =>
@@ -1097,42 +1137,45 @@ def generateSqlTemplate(): String = {
     val fillArgs = range.map(i => s"(Object) p$i").mkString(", ")
     val onParams = range.map(i => s"P$i p$i").mkString(", ")
 
+    val fromFnParams = range.map(i => s"java.util.function.Function<T, P$i> f$i").mkString(", ")
+    val fromApplyArgs = range.map(i => s"f$i.apply(t)").mkString(", ")
+
     if (n == 1) {
       s"""  record Query1<P0, Out>(Fragment fragment, DbType<P0> p0Type, ResultSetParser<Out> parser)
       implements SqlTemplate<P0, Out> {
     @Override
     public Operation.Query<Out> on(P0 p0) {
       return new Operation.Query<>(
-          fragment.fill(java.util.List.of((Object) p0).iterator()), parser);
+          OptionallyResolver.resolve(fragment, java.util.List.of((Object) p0).iterator()), parser);
+    }
+
+    public <T> From<T, Out> from($fromFnParams) {
+      return new From<>(this, t -> on($fromApplyArgs));
     }
   }"""
     } else {
-      val andTypeStr = andType(n)
-      val extractArgs = range.map { idx =>
-        if (idx == n - 1) "in.right()"
-        else {
-          var expr = "in"
-          for (_ <- 0 until (n - 1 - idx - 1)) expr = s"$expr.left()"
-          if (idx == 0) s"$expr.left()"
-          else s"$expr.left().right()"
-        }
-      }.mkString(",\n          ")
+      val inType = inputType(n)
+      val extractArgs = range.map(i => s"in._${i + 1}()").mkString(",\n          ")
 
       s"""  record Query$n<$allTparams>(
       Fragment fragment,
 ${range.map(i => s"      DbType<P$i> p${i}Type,").mkString("\n")}
       ResultSetParser<Out> parser)
-      implements SqlTemplate<$andTypeStr, Out> {
+      implements SqlTemplate<$inType, Out> {
     @Override
-    public Operation.Query<Out> on($andTypeStr in) {
+    public Operation.Query<Out> on($inType in) {
       return on($extractArgs);
     }
 
     public Operation.Query<Out> on($onParams) {
       return new Operation.Query<>(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of($fillArgs).iterator()),
           parser);
+    }
+
+    public <T> From<T, Out> from($fromFnParams) {
+      return new From<>(this, t -> on($fromApplyArgs));
     }
   }"""
     }
@@ -1144,41 +1187,43 @@ ${range.map(i => s"      DbType<P$i> p${i}Type,").mkString("\n")}
     val fillArgs = range.map(i => s"(Object) p$i").mkString(", ")
     val onParams = range.map(i => s"P$i p$i").mkString(", ")
 
+    val fromFnParams = range.map(i => s"java.util.function.Function<T, P$i> f$i").mkString(", ")
+    val fromApplyArgs = range.map(i => s"f$i.apply(t)").mkString(", ")
+
     if (n == 1) {
       s"""  record Update1<P0>(Fragment fragment, DbType<P0> p0Type)
       implements SqlTemplate<P0, Integer> {
     @Override
     public Operation.Update on(P0 p0) {
       return new Operation.Update(
-          fragment.fill(java.util.List.of((Object) p0).iterator()));
+          OptionallyResolver.resolve(fragment, java.util.List.of((Object) p0).iterator()));
+    }
+
+    public <T> From<T, Integer> from($fromFnParams) {
+      return new From<>(this, t -> on($fromApplyArgs));
     }
   }"""
     } else {
-      val andTypeStr = andType(n)
-
-      val extractArgs = range.map { idx =>
-        if (idx == n - 1) "in.right()"
-        else {
-          var expr = "in"
-          for (_ <- 0 until (n - 1 - idx - 1)) expr = s"$expr.left()"
-          if (idx == 0) s"$expr.left()"
-          else s"$expr.left().right()"
-        }
-      }.mkString(",\n          ")
+      val inType = inputType(n)
+      val extractArgs = range.map(i => s"in._${i + 1}()").mkString(",\n          ")
 
       s"""  record Update$n<$tparams>(
       Fragment fragment,
 ${range.map(i => s"      DbType<P$i> p${i}Type${if (i < n - 1) "," else ")"}").mkString("\n")}
-      implements SqlTemplate<$andTypeStr, Integer> {
+      implements SqlTemplate<$inType, Integer> {
     @Override
-    public Operation.Update on($andTypeStr in) {
+    public Operation.Update on($inType in) {
       return on($extractArgs);
     }
 
     public Operation.Update on($onParams) {
       return new Operation.Update(
-          fragment.fill(
+          OptionallyResolver.resolve(fragment,
               java.util.List.of($fillArgs).iterator()));
+    }
+
+    public <T> From<T, Integer> from($fromFnParams) {
+      return new From<>(this, t -> on($fromApplyArgs));
     }
   }"""
     }
@@ -1196,6 +1241,21 @@ ${range.map(i => s"      DbType<P$i> p${i}Type${if (i < n - 1) "," else ")"}").m
       |${queryRecords.mkString("\n\n")}
       |
       |${updateRecords.mkString("\n\n")}
+      |
+      |  record From<T, Out>(
+      |      SqlTemplate<?, Out> inner,
+      |      java.util.function.Function<T, ? extends Operation<Out>> resolver)
+      |      implements SqlTemplate<T, Out> {
+      |    @Override
+      |    public Operation<Out> on(T t) {
+      |      return resolver.apply(t);
+      |    }
+      |
+      |    @Override
+      |    public Fragment fragment() {
+      |      return inner.fragment();
+      |    }
+      |  }
       |}
       |""".stripMargin
 }

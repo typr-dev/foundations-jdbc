@@ -63,7 +63,19 @@ public sealed interface Fragment {
       case Param<?> p -> new Value<>(values.next(), (DbType<Object>) p.type());
       case Append a -> new Append(a.a().fill(values), a.b().fill(values));
       case Concat c -> new Concat(c.frags().stream().map(f -> f.fill(values)).toList());
+      case Optionally ignored -> throw new UnsupportedOperationException(
+          "Optionally nodes must be resolved via OptionallyResolver.resolve(), not fill()");
       default -> this;
+    };
+  }
+
+  static int countParams(Fragment fragment) {
+    return switch (fragment) {
+      case Param<?> p -> 1;
+      case Append a -> countParams(a.a()) + countParams(a.b());
+      case Concat c -> c.frags().stream().mapToInt(Fragment::countParams).sum();
+      case Optionally o -> throw new IllegalArgumentException("Cannot count params of nested Optionally");
+      default -> 0;
     };
   }
 
@@ -294,6 +306,35 @@ public sealed interface Fragment {
     }
   }
 
+  record Optionally(Fragment inner, int innerParamCount) implements Fragment {
+    @Override
+    public void render(StringBuilder sb) {
+      inner.render(sb);
+    }
+
+    @Override
+    public void renderInterpolated(StringBuilder sb) {
+      inner.renderInterpolated(sb);
+    }
+
+    @Override
+    public void set(PreparedStatement stmt, AtomicInteger idx) throws SQLException {
+      throw new UnsupportedOperationException(
+          "Optionally nodes must be resolved via OptionallyResolver before execution");
+    }
+
+    @Override
+    public void collectParameterTypes(List<DbType<?>> types) {
+      // Optionally nodes do not collect inner params — managed by SqlTemplate layer
+    }
+
+    @Override
+    public void collectParamPositions(AtomicInteger idx, List<Integer> positions) {
+      throw new UnsupportedOperationException(
+          "Optionally nodes must be resolved via OptionallyResolver before execution");
+    }
+  }
+
   record Concat(List<? extends Fragment> frags) implements Fragment {
     @Override
     public void render(StringBuilder sb) {
@@ -448,6 +489,31 @@ public sealed interface Fragment {
 
   default <P0> ParamBuilders.ParamBuilder1<P0> param(DbType<P0> type) {
     return new ParamBuilders.ParamBuilder1<>(append(new Param<>(type)), type);
+  }
+
+  default ParamBuilders.ParamBuilder1<Boolean> optionally(Fragment inner) {
+    int n = countParams(inner);
+    if (n != 0) throw new IllegalArgumentException(
+        "optionally(Fragment) requires 0 inner params, got " + n + ". Use optionally(ParamBuilder) for parameterized fragments.");
+    return new ParamBuilders.ParamBuilder1<>(append(new Optionally(inner, 0)), null);
+  }
+
+  @SuppressWarnings("unchecked")
+  default <A> ParamBuilders.ParamBuilder1<java.util.Optional<A>> optionally(ParamBuilders.ParamBuilder1<A> builder) {
+    Fragment inner = builder.done();
+    return new ParamBuilders.ParamBuilder1<>(append(new Optionally(inner, countParams(inner))), null);
+  }
+
+  @SuppressWarnings("unchecked")
+  default <A, B> ParamBuilders.ParamBuilder1<java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilders.ParamBuilder2<A, B> builder) {
+    Fragment inner = builder.done();
+    return new ParamBuilders.ParamBuilder1<>(append(new Optionally(inner, countParams(inner))), null);
+  }
+
+  @SuppressWarnings("unchecked")
+  default <A, B, C> ParamBuilders.ParamBuilder1<java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilders.ParamBuilder3<A, B, C> builder) {
+    Fragment inner = builder.done();
+    return new ParamBuilders.ParamBuilder1<>(append(new Optionally(inner, countParams(inner))), null);
   }
 
   default <Row> RowParamBuilder<Row> paramRow(RowParserNamed<Row> parser, String... except) {
