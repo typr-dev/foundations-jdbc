@@ -535,46 +535,98 @@ def generateScalaSqlTemplate(): String = {
     val range = 0.until(n)
     val tparams = range.map(i => s"P$i").mkString(", ")
     val allTparams = s"$tparams, Out"
+    val wildcards = range.map(_ => "?").mkString(", ")
+    val onParams = range.map(i => s"p$i: P$i").mkString(", ")
+    val transformLines = range.map { i =>
+      s"      val v$i: AnyRef = _transforms($i).map(_(p$i.asInstanceOf[AnyRef])).getOrElse(p$i.asInstanceOf[AnyRef])"
+    }.mkString("\n")
+    val valuesList = range.map(i => s"v$i").mkString(", ")
+
+    val fromFnParams = range.map(i => s"f$i: T => P$i").mkString(", ")
+    val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
 
     if (n == 1) {
-      s"""|  class Query1[P0, Out](val underlying: dev.typr.foundations.SqlTemplate.Query1[P0, Out]) extends SqlTemplate[P0, Out]:
+      s"""|  class Query1[P0, Out](
+          |    private val _java: dev.typr.foundations.SqlTemplate.Query1[?, Out],
+          |    private val _transforms: List[Option[AnyRef => AnyRef]]
+          |  ) extends SqlTemplate[P0, Out]:
+          |    def this(j: dev.typr.foundations.SqlTemplate.Query1[?, Out]) = this(j, List(None))
+          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
           |    override def on(input: P0): Operation.Query[Out] =
-          |      new Operation.Query(underlying.on(input))""".stripMargin
+          |      val v0: AnyRef = _transforms(0).map(_(input.asInstanceOf[AnyRef])).getOrElse(input.asInstanceOf[AnyRef])
+          |      val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+          |        _java.fragment(), java.util.List.of(v0).iterator())
+          |      new Operation.Query(new dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+          |    def from[T]($fromFnParams): From[T, Out] =
+          |      new From(_java, (t: T) => on($fromApplyArgs))""".stripMargin
     } else {
       val tupleType = s"(${range.map(i => s"P$i").mkString(", ")})"
-      val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-      val onTupleArgs = range.map(i => s"input._${i + 1}").mkString(", ")
-      val onArgs = range.map(i => s"p$i").mkString(", ")
+      val tupleDecompose = range.map(i => s"input._${i + 1}").mkString(", ")
 
-      s"""|  class Query$n[$allTparams](val underlying: dev.typr.foundations.SqlTemplate.Query$n[$allTparams]) extends SqlTemplate[$tupleType, Out]:
+      s"""|  class Query$n[$allTparams](
+          |    private val _java: dev.typr.foundations.SqlTemplate.Query$n[$wildcards, Out],
+          |    private val _transforms: List[Option[AnyRef => AnyRef]]
+          |  ) extends SqlTemplate[$tupleType, Out]:
+          |    def this(j: dev.typr.foundations.SqlTemplate.Query$n[$wildcards, Out]) = this(j, List.fill($n)(None))
+          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
           |    override def on(input: $tupleType): Operation.Query[Out] =
-          |      new Operation.Query(underlying.on($onTupleArgs))
-          |
+          |      on($tupleDecompose)
           |    def on($onParams): Operation.Query[Out] =
-          |      new Operation.Query(underlying.on($onArgs))""".stripMargin
+          |$transformLines
+          |      val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+          |        _java.fragment(), java.util.List.of($valuesList).iterator())
+          |      new Operation.Query(new dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+          |    def from[T]($fromFnParams): From[T, Out] =
+          |      new From(_java, (t: T) => on($fromApplyArgs))""".stripMargin
     }
   }
 
   val updateClasses = 1.to(maxArity).map { n =>
     val range = 0.until(n)
     val tparams = range.map(i => s"P$i").mkString(", ")
+    val wildcards = range.map(_ => "?").mkString(", ")
+    val onParams = range.map(i => s"p$i: P$i").mkString(", ")
+    val transformLines = range.map { i =>
+      s"      val v$i: AnyRef = _transforms($i).map(_(p$i.asInstanceOf[AnyRef])).getOrElse(p$i.asInstanceOf[AnyRef])"
+    }.mkString("\n")
+    val valuesList = range.map(i => s"v$i").mkString(", ")
+
+    val fromFnParams = range.map(i => s"f$i: T => P$i").mkString(", ")
+    val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
 
     if (n == 1) {
-      s"""|  class Update1[P0](val underlying: dev.typr.foundations.SqlTemplate.Update1[P0]) extends SqlTemplate[P0, Int]:
+      s"""|  class Update1[P0](
+          |    private val _java: dev.typr.foundations.SqlTemplate.Update1[?],
+          |    private val _transforms: List[Option[AnyRef => AnyRef]]
+          |  ) extends SqlTemplate[P0, Int]:
+          |    def this(j: dev.typr.foundations.SqlTemplate.Update1[?]) = this(j, List(None))
+          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
           |    override def on(input: P0): Operation.Update =
-          |      new Operation.Update(underlying.on(input))""".stripMargin
+          |      val v0: AnyRef = _transforms(0).map(_(input.asInstanceOf[AnyRef])).getOrElse(input.asInstanceOf[AnyRef])
+          |      val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+          |        _java.fragment(), java.util.List.of(v0).iterator())
+          |      new Operation.Update(new dev.typr.foundations.Operation.Update(resolved))
+          |    def from[T]($fromFnParams): From[T, Int] =
+          |      new From(_java, (t: T) => on($fromApplyArgs))""".stripMargin
     } else {
       val tupleType = s"(${range.map(i => s"P$i").mkString(", ")})"
-      val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-      val onTupleArgs = range.map(i => s"input._${i + 1}").mkString(", ")
-      val onArgs = range.map(i => s"p$i").mkString(", ")
+      val tupleDecompose = range.map(i => s"input._${i + 1}").mkString(", ")
 
-      s"""|  class Update$n[$tparams](val underlying: dev.typr.foundations.SqlTemplate.Update$n[$tparams]) extends SqlTemplate[$tupleType, Int]:
+      s"""|  class Update$n[$tparams](
+          |    private val _java: dev.typr.foundations.SqlTemplate.Update$n[$wildcards],
+          |    private val _transforms: List[Option[AnyRef => AnyRef]]
+          |  ) extends SqlTemplate[$tupleType, Int]:
+          |    def this(j: dev.typr.foundations.SqlTemplate.Update$n[$wildcards]) = this(j, List.fill($n)(None))
+          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
           |    override def on(input: $tupleType): Operation.Update =
-          |      new Operation.Update(underlying.on($onTupleArgs))
-          |
+          |      on($tupleDecompose)
           |    def on($onParams): Operation.Update =
-          |      new Operation.Update(underlying.on($onArgs))""".stripMargin
+          |$transformLines
+          |      val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+          |        _java.fragment(), java.util.List.of($valuesList).iterator())
+          |      new Operation.Update(new dev.typr.foundations.Operation.Update(resolved))
+          |    def from[T]($fromFnParams): From[T, Int] =
+          |      new From(_java, (t: T) => on($fromApplyArgs))""".stripMargin
     }
   }
 
@@ -592,6 +644,13 @@ def generateScalaSqlTemplate(): String = {
       |${queryClasses.mkString("\n\n")}
       |
       |${updateClasses.mkString("\n\n")}
+      |
+      |  class From[T, Out](
+      |    private val _innerUnderlying: dev.typr.foundations.SqlTemplate[?, ?],
+      |    private val _resolver: T => Operation[Out]
+      |  ) extends SqlTemplate[T, Out]:
+      |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _innerUnderlying
+      |    override def on(input: T): Operation[Out] = _resolver(input)
       |""".stripMargin
 }
 
@@ -601,27 +660,52 @@ def generateScalaParamBuilders(): String = {
   val builders = 1.to(maxArity).map { n =>
     val range = 0.until(n)
     val tparams = range.map(i => s"P$i").mkString(", ")
+    val wildcards = range.map(_ => "?").mkString(", ")
 
     val nextParamMethod = if (n < maxArity) {
       s"""|
           |    def param[P$n](tpe: DbType[P$n]): ParamBuilder${n + 1}[$tparams, P$n] =
-          |      new ParamBuilder${n + 1}(underlying.param(tpe.underlying))""".stripMargin
+          |      new ParamBuilder${n + 1}(underlying.param(tpe.underlying), transforms :+ None)""".stripMargin
+    } else ""
+
+    val optionallyMethods = if (n < maxArity) {
+      s"""|
+          |    def optionally(inner: Fragment): ParamBuilder${n + 1}[$tparams, Boolean] =
+          |      new ParamBuilder${n + 1}(underlying.optionally(inner.underlying), transforms :+ None)
+          |
+          |    def optionally[A](builder: ParamBuilder1[A]): ParamBuilder${n + 1}[$tparams, Option[A]] =
+          |      new ParamBuilder${n + 1}(
+          |        underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder1[A]]),
+          |        transforms :+ Some(OptionallyTransforms.optionToOptional))
+          |
+          |    def optionally[A, B](builder: ParamBuilder2[A, B]): ParamBuilder${n + 1}[$tparams, Option[(A, B)]] =
+          |      new ParamBuilder${n + 1}(
+          |        underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder2[A, B]]),
+          |        transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple2))
+          |
+          |    def optionally[A, B, C](builder: ParamBuilder3[A, B, C]): ParamBuilder${n + 1}[$tparams, Option[(A, B, C)]] =
+          |      new ParamBuilder${n + 1}(
+          |        underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
+          |        transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple3))""".stripMargin
     } else ""
 
     s"""|  class ParamBuilder$n[$tparams] private[foundationssc] (
-        |    private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder$n[$tparams]
+        |    private[foundationssc] val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder$n[$wildcards],
+        |    private[foundationssc] val transforms: List[Option[AnyRef => AnyRef]]
         |  ):
-        |    def append(s: String): ParamBuilder$n[$tparams] = new ParamBuilder$n(underlying.append(s))
+        |    private[foundationssc] def this(u: dev.typr.foundations.ParamBuilders.ParamBuilder$n[$wildcards]) = this(u, List.fill($n)(None))
         |
-        |    def value[T](tpe: DbType[T], value: T): ParamBuilder$n[$tparams] = new ParamBuilder$n(underlying.value(tpe.underlying, value))
+        |    def append(s: String): ParamBuilder$n[$tparams] = new ParamBuilder$n(underlying.append(s), transforms)
         |
-        |    def append(fragment: Fragment): ParamBuilder$n[$tparams] = new ParamBuilder$n(underlying.append(fragment.underlying))
-        |$nextParamMethod
+        |    def value[T](tpe: DbType[T], value: T): ParamBuilder$n[$tparams] = new ParamBuilder$n(underlying.value(tpe.underlying, value), transforms)
+        |
+        |    def append(fragment: Fragment): ParamBuilder$n[$tparams] = new ParamBuilder$n(underlying.append(fragment.underlying), transforms)
+        |$nextParamMethod$optionallyMethods
         |    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query$n[$tparams, Out] =
-        |      new SqlTemplate.Query$n(underlying.query(parser.underlying))
+        |      new SqlTemplate.Query$n(underlying.query(parser.underlying), transforms)
         |
         |    def update(): SqlTemplate.Update$n[$tparams] =
-        |      new SqlTemplate.Update$n(underlying.update())
+        |      new SqlTemplate.Update$n(underlying.update(), transforms)
         |
         |    def done(): Fragment = new Fragment(underlying.done())""".stripMargin
   }

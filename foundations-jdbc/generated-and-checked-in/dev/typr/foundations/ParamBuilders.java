@@ -28,6 +28,27 @@ public class ParamBuilders {
     public <P1> ParamBuilder2<P0, P1> param(DbType<P1> type) {
       return new ParamBuilder2<>(fragment.append(new Fragment.Param<>(type)), p0Type, type);
     }
+    public ParamBuilder2<P0, Boolean> optionally(Fragment inner) {
+      int paramCount = Fragment.countParams(inner);
+      if (paramCount != 0) throw new IllegalArgumentException(
+          "optionally(Fragment) requires 0 inner params, got " + paramCount + ". Use optionally(ParamBuilder) for parameterized fragments.");
+      return new ParamBuilder2<>(fragment.append(new Fragment.Optionally(inner, 0)), p0Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A> ParamBuilder2<P0, java.util.Optional<A>> optionally(ParamBuilder1<A> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder2<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B> ParamBuilder2<P0, java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilder2<A, B> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder2<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B, C> ParamBuilder2<P0, java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilder3<A, B, C> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder2<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, null);
+    }
 
     public <Out> SqlTemplate.Query1<P0, Out> query(ResultSetParser<Out> parser) {
       return new SqlTemplate.Query1<>(
@@ -72,6 +93,27 @@ public class ParamBuilders {
 
     public <P2> ParamBuilder3<P0, P1, P2> param(DbType<P2> type) {
       return new ParamBuilder3<>(fragment.append(new Fragment.Param<>(type)), p0Type, p1Type, type);
+    }
+    public ParamBuilder3<P0, P1, Boolean> optionally(Fragment inner) {
+      int paramCount = Fragment.countParams(inner);
+      if (paramCount != 0) throw new IllegalArgumentException(
+          "optionally(Fragment) requires 0 inner params, got " + paramCount + ". Use optionally(ParamBuilder) for parameterized fragments.");
+      return new ParamBuilder3<>(fragment.append(new Fragment.Optionally(inner, 0)), p0Type, p1Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A> ParamBuilder3<P0, P1, java.util.Optional<A>> optionally(ParamBuilder1<A> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder3<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B> ParamBuilder3<P0, P1, java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilder2<A, B> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder3<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B, C> ParamBuilder3<P0, P1, java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilder3<A, B, C> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder3<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, null);
     }
 
     public <Out> SqlTemplate.Query2<P0, P1, Out> query(ResultSetParser<Out> parser) {
@@ -120,6 +162,27 @@ public class ParamBuilders {
 
     public <P3> ParamBuilder4<P0, P1, P2, P3> param(DbType<P3> type) {
       return new ParamBuilder4<>(fragment.append(new Fragment.Param<>(type)), p0Type, p1Type, p2Type, type);
+    }
+    public ParamBuilder4<P0, P1, P2, Boolean> optionally(Fragment inner) {
+      int paramCount = Fragment.countParams(inner);
+      if (paramCount != 0) throw new IllegalArgumentException(
+          "optionally(Fragment) requires 0 inner params, got " + paramCount + ". Use optionally(ParamBuilder) for parameterized fragments.");
+      return new ParamBuilder4<>(fragment.append(new Fragment.Optionally(inner, 0)), p0Type, p1Type, p2Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A> ParamBuilder4<P0, P1, P2, java.util.Optional<A>> optionally(ParamBuilder1<A> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder4<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B> ParamBuilder4<P0, P1, P2, java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilder2<A, B> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder4<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B, C> ParamBuilder4<P0, P1, P2, java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilder3<A, B, C> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder4<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, null);
     }
 
     public <Out> SqlTemplate.Query3<P0, P1, P2, Out> query(ResultSetParser<Out> parser) {
@@ -171,6 +234,27 @@ public class ParamBuilders {
 
     public <P4> ParamBuilder5<P0, P1, P2, P3, P4> param(DbType<P4> type) {
       return new ParamBuilder5<>(fragment.append(new Fragment.Param<>(type)), p0Type, p1Type, p2Type, p3Type, type);
+    }
+    public ParamBuilder5<P0, P1, P2, P3, Boolean> optionally(Fragment inner) {
+      int paramCount = Fragment.countParams(inner);
+      if (paramCount != 0) throw new IllegalArgumentException(
+          "optionally(Fragment) requires 0 inner params, got " + paramCount + ". Use optionally(ParamBuilder) for parameterized fragments.");
+      return new ParamBuilder5<>(fragment.append(new Fragment.Optionally(inner, 0)), p0Type, p1Type, p2Type, p3Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A> ParamBuilder5<P0, P1, P2, P3, java.util.Optional<A>> optionally(ParamBuilder1<A> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder5<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B> ParamBuilder5<P0, P1, P2, P3, java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilder2<A, B> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder5<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B, C> ParamBuilder5<P0, P1, P2, P3, java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilder3<A, B, C> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder5<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, null);
     }
 
     public <Out> SqlTemplate.Query4<P0, P1, P2, P3, Out> query(ResultSetParser<Out> parser) {
@@ -225,6 +309,27 @@ public class ParamBuilders {
 
     public <P5> ParamBuilder6<P0, P1, P2, P3, P4, P5> param(DbType<P5> type) {
       return new ParamBuilder6<>(fragment.append(new Fragment.Param<>(type)), p0Type, p1Type, p2Type, p3Type, p4Type, type);
+    }
+    public ParamBuilder6<P0, P1, P2, P3, P4, Boolean> optionally(Fragment inner) {
+      int paramCount = Fragment.countParams(inner);
+      if (paramCount != 0) throw new IllegalArgumentException(
+          "optionally(Fragment) requires 0 inner params, got " + paramCount + ". Use optionally(ParamBuilder) for parameterized fragments.");
+      return new ParamBuilder6<>(fragment.append(new Fragment.Optionally(inner, 0)), p0Type, p1Type, p2Type, p3Type, p4Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A> ParamBuilder6<P0, P1, P2, P3, P4, java.util.Optional<A>> optionally(ParamBuilder1<A> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder6<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B> ParamBuilder6<P0, P1, P2, P3, P4, java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilder2<A, B> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder6<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B, C> ParamBuilder6<P0, P1, P2, P3, P4, java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilder3<A, B, C> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder6<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, null);
     }
 
     public <Out> SqlTemplate.Query5<P0, P1, P2, P3, P4, Out> query(ResultSetParser<Out> parser) {
@@ -282,6 +387,27 @@ public class ParamBuilders {
 
     public <P6> ParamBuilder7<P0, P1, P2, P3, P4, P5, P6> param(DbType<P6> type) {
       return new ParamBuilder7<>(fragment.append(new Fragment.Param<>(type)), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, type);
+    }
+    public ParamBuilder7<P0, P1, P2, P3, P4, P5, Boolean> optionally(Fragment inner) {
+      int paramCount = Fragment.countParams(inner);
+      if (paramCount != 0) throw new IllegalArgumentException(
+          "optionally(Fragment) requires 0 inner params, got " + paramCount + ". Use optionally(ParamBuilder) for parameterized fragments.");
+      return new ParamBuilder7<>(fragment.append(new Fragment.Optionally(inner, 0)), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A> ParamBuilder7<P0, P1, P2, P3, P4, P5, java.util.Optional<A>> optionally(ParamBuilder1<A> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder7<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B> ParamBuilder7<P0, P1, P2, P3, P4, P5, java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilder2<A, B> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder7<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B, C> ParamBuilder7<P0, P1, P2, P3, P4, P5, java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilder3<A, B, C> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder7<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, null);
     }
 
     public <Out> SqlTemplate.Query6<P0, P1, P2, P3, P4, P5, Out> query(ResultSetParser<Out> parser) {
@@ -342,6 +468,27 @@ public class ParamBuilders {
 
     public <P7> ParamBuilder8<P0, P1, P2, P3, P4, P5, P6, P7> param(DbType<P7> type) {
       return new ParamBuilder8<>(fragment.append(new Fragment.Param<>(type)), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, type);
+    }
+    public ParamBuilder8<P0, P1, P2, P3, P4, P5, P6, Boolean> optionally(Fragment inner) {
+      int paramCount = Fragment.countParams(inner);
+      if (paramCount != 0) throw new IllegalArgumentException(
+          "optionally(Fragment) requires 0 inner params, got " + paramCount + ". Use optionally(ParamBuilder) for parameterized fragments.");
+      return new ParamBuilder8<>(fragment.append(new Fragment.Optionally(inner, 0)), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A> ParamBuilder8<P0, P1, P2, P3, P4, P5, P6, java.util.Optional<A>> optionally(ParamBuilder1<A> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder8<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B> ParamBuilder8<P0, P1, P2, P3, P4, P5, P6, java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilder2<A, B> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder8<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B, C> ParamBuilder8<P0, P1, P2, P3, P4, P5, P6, java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilder3<A, B, C> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder8<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, null);
     }
 
     public <Out> SqlTemplate.Query7<P0, P1, P2, P3, P4, P5, P6, Out> query(ResultSetParser<Out> parser) {
@@ -405,6 +552,27 @@ public class ParamBuilders {
 
     public <P8> ParamBuilder9<P0, P1, P2, P3, P4, P5, P6, P7, P8> param(DbType<P8> type) {
       return new ParamBuilder9<>(fragment.append(new Fragment.Param<>(type)), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, type);
+    }
+    public ParamBuilder9<P0, P1, P2, P3, P4, P5, P6, P7, Boolean> optionally(Fragment inner) {
+      int paramCount = Fragment.countParams(inner);
+      if (paramCount != 0) throw new IllegalArgumentException(
+          "optionally(Fragment) requires 0 inner params, got " + paramCount + ". Use optionally(ParamBuilder) for parameterized fragments.");
+      return new ParamBuilder9<>(fragment.append(new Fragment.Optionally(inner, 0)), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A> ParamBuilder9<P0, P1, P2, P3, P4, P5, P6, P7, java.util.Optional<A>> optionally(ParamBuilder1<A> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder9<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B> ParamBuilder9<P0, P1, P2, P3, P4, P5, P6, P7, java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilder2<A, B> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder9<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B, C> ParamBuilder9<P0, P1, P2, P3, P4, P5, P6, P7, java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilder3<A, B, C> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder9<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, null);
     }
 
     public <Out> SqlTemplate.Query8<P0, P1, P2, P3, P4, P5, P6, P7, Out> query(ResultSetParser<Out> parser) {
@@ -471,6 +639,27 @@ public class ParamBuilders {
 
     public <P9> ParamBuilder10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9> param(DbType<P9> type) {
       return new ParamBuilder10<>(fragment.append(new Fragment.Param<>(type)), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, p8Type, type);
+    }
+    public ParamBuilder10<P0, P1, P2, P3, P4, P5, P6, P7, P8, Boolean> optionally(Fragment inner) {
+      int paramCount = Fragment.countParams(inner);
+      if (paramCount != 0) throw new IllegalArgumentException(
+          "optionally(Fragment) requires 0 inner params, got " + paramCount + ". Use optionally(ParamBuilder) for parameterized fragments.");
+      return new ParamBuilder10<>(fragment.append(new Fragment.Optionally(inner, 0)), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, p8Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A> ParamBuilder10<P0, P1, P2, P3, P4, P5, P6, P7, P8, java.util.Optional<A>> optionally(ParamBuilder1<A> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder10<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, p8Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B> ParamBuilder10<P0, P1, P2, P3, P4, P5, P6, P7, P8, java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilder2<A, B> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder10<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, p8Type, null);
+    }
+    @SuppressWarnings("unchecked")
+    public <A, B, C> ParamBuilder10<P0, P1, P2, P3, P4, P5, P6, P7, P8, java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilder3<A, B, C> builder) {
+      Fragment inner = builder.done();
+      return new ParamBuilder10<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, p8Type, null);
     }
 
     public <Out> SqlTemplate.Query9<P0, P1, P2, P3, P4, P5, P6, P7, P8, Out> query(ResultSetParser<Out> parser) {
