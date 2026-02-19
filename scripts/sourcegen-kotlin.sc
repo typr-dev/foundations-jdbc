@@ -578,11 +578,11 @@ def generateKotlinTuple(): String = {
 def generateKotlinSqlTemplate(): String = {
   val maxArity = PROC_N - 1 // 10
 
-  def andType(n: Int): String = {
+  def inputType(n: Int): String = {
     if (n == 1) "P0"
     else {
-      val inner = andType(n - 1)
-      s"dev.typr.foundations.And<$inner, P${n - 1}>"
+      val tparams = 0.until(n).map(i => s"P$i").mkString(", ")
+      s"dev.typr.foundations.Tuple.Tuple$n<$tparams>"
     }
   }
 
@@ -590,23 +590,59 @@ def generateKotlinSqlTemplate(): String = {
     val range = 0.until(n)
     val tparams = range.map(i => s"P$i").mkString(", ")
     val allTparams = s"$tparams, Out"
+    val stars = range.map(_ => "*").mkString(", ")
+    val onParams = range.map(i => s"p$i: P$i").mkString(", ")
+    val transformLines = range.map { i =>
+      s"            val v$i: Any? = _transforms[$i]?.invoke(p$i) ?: p$i"
+    }.mkString("\n")
+    val valuesList = range.map(i => s"v$i").mkString(", ")
+
+    val fromFnParams = range.map(i => s"f$i: (T) -> P$i").mkString(", ")
+    val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
 
     if (n == 1) {
-      s"""|    class Query1<P0, Out>(override val underlying: dev.typr.foundations.SqlTemplate.Query1<P0, Out>) : SqlTemplate<P0, Out>() {
-          |        override fun on(input: P0): Operation.Query<Out> =
-          |            Operation.Query(underlying.on(input))
+      s"""|    class Query1<P0, Out>(
+          |        private val _java: dev.typr.foundations.SqlTemplate.Query1<*, Out>,
+          |        private val _transforms: List<((Any?) -> Any?)?>
+          |    ) : SqlTemplate<P0, Out>() {
+          |        constructor(j: dev.typr.foundations.SqlTemplate.Query1<*, Out>) : this(j, listOf(null))
+          |
+          |        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+          |
+          |        override fun on(input: P0): Operation.Query<Out> {
+          |            val v0: Any? = _transforms[0]?.invoke(input) ?: input
+          |            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+          |                _java.fragment(), listOf(v0).iterator())
+          |            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+          |        }
+          |
+          |        fun <T> from($fromFnParams): From<T, Out> =
+          |            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
           |    }""".stripMargin
     } else {
-      val andTypeStr = andType(n)
-      val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-      val onArgs = range.map(i => s"p$i").mkString(", ")
+      val inType = inputType(n)
+      val tupleDecompose = range.map(i => s"input._${i + 1}()").mkString(", ")
 
-      s"""|    class Query$n<$allTparams>(override val underlying: dev.typr.foundations.SqlTemplate.Query$n<$allTparams>) : SqlTemplate<$andTypeStr, Out>() {
-          |        override fun on(input: $andTypeStr): Operation.Query<Out> =
-          |            Operation.Query(underlying.on(input))
+      s"""|    class Query$n<$allTparams>(
+          |        private val _java: dev.typr.foundations.SqlTemplate.Query$n<$stars, Out>,
+          |        private val _transforms: List<((Any?) -> Any?)?>
+          |    ) : SqlTemplate<$inType, Out>() {
+          |        constructor(j: dev.typr.foundations.SqlTemplate.Query$n<$stars, Out>) : this(j, List($n) { null })
           |
-          |        fun on($onParams): Operation.Query<Out> =
-          |            Operation.Query(underlying.on($onArgs))
+          |        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+          |
+          |        override fun on(input: $inType): Operation.Query<Out> =
+          |            on($tupleDecompose)
+          |
+          |        fun on($onParams): Operation.Query<Out> {
+          |$transformLines
+          |            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+          |                _java.fragment(), listOf($valuesList).iterator())
+          |            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+          |        }
+          |
+          |        fun <T> from($fromFnParams): From<T, Out> =
+          |            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
           |    }""".stripMargin
     }
   }
@@ -614,23 +650,59 @@ def generateKotlinSqlTemplate(): String = {
   val updateClasses = 1.to(maxArity).map { n =>
     val range = 0.until(n)
     val tparams = range.map(i => s"P$i").mkString(", ")
+    val stars = range.map(_ => "*").mkString(", ")
+    val onParams = range.map(i => s"p$i: P$i").mkString(", ")
+    val transformLines = range.map { i =>
+      s"            val v$i: Any? = _transforms[$i]?.invoke(p$i) ?: p$i"
+    }.mkString("\n")
+    val valuesList = range.map(i => s"v$i").mkString(", ")
+
+    val fromFnParams = range.map(i => s"f$i: (T) -> P$i").mkString(", ")
+    val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
 
     if (n == 1) {
-      s"""|    class Update1<P0>(override val underlying: dev.typr.foundations.SqlTemplate.Update1<P0>) : SqlTemplate<P0, Int>() {
-          |        override fun on(input: P0): Operation.Update =
-          |            Operation.Update(underlying.on(input))
+      s"""|    class Update1<P0>(
+          |        private val _java: dev.typr.foundations.SqlTemplate.Update1<*>,
+          |        private val _transforms: List<((Any?) -> Any?)?>
+          |    ) : SqlTemplate<P0, Int>() {
+          |        constructor(j: dev.typr.foundations.SqlTemplate.Update1<*>) : this(j, listOf(null))
+          |
+          |        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+          |
+          |        override fun on(input: P0): Operation.Update {
+          |            val v0: Any? = _transforms[0]?.invoke(input) ?: input
+          |            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+          |                _java.fragment(), listOf(v0).iterator())
+          |            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+          |        }
+          |
+          |        fun <T> from($fromFnParams): From<T, Int> =
+          |            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
           |    }""".stripMargin
     } else {
-      val andTypeStr = andType(n)
-      val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-      val onArgs = range.map(i => s"p$i").mkString(", ")
+      val inType = inputType(n)
+      val tupleDecompose = range.map(i => s"input._${i + 1}()").mkString(", ")
 
-      s"""|    class Update$n<$tparams>(override val underlying: dev.typr.foundations.SqlTemplate.Update$n<$tparams>) : SqlTemplate<$andTypeStr, Int>() {
-          |        override fun on(input: $andTypeStr): Operation.Update =
-          |            Operation.Update(underlying.on(input))
+      s"""|    class Update$n<$tparams>(
+          |        private val _java: dev.typr.foundations.SqlTemplate.Update$n<$stars>,
+          |        private val _transforms: List<((Any?) -> Any?)?>
+          |    ) : SqlTemplate<$inType, Int>() {
+          |        constructor(j: dev.typr.foundations.SqlTemplate.Update$n<$stars>) : this(j, List($n) { null })
           |
-          |        fun on($onParams): Operation.Update =
-          |            Operation.Update(underlying.on($onArgs))
+          |        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+          |
+          |        override fun on(input: $inType): Operation.Update =
+          |            on($tupleDecompose)
+          |
+          |        fun on($onParams): Operation.Update {
+          |$transformLines
+          |            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+          |                _java.fragment(), listOf($valuesList).iterator())
+          |            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+          |        }
+          |
+          |        fun <T> from($fromFnParams): From<T, Int> =
+          |            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
           |    }""".stripMargin
     }
   }
@@ -648,6 +720,14 @@ def generateKotlinSqlTemplate(): String = {
       |${queryClasses.mkString("\n\n")}
       |
       |${updateClasses.mkString("\n\n")}
+      |
+      |    class From<T, Out>(
+      |        private val _java: dev.typr.foundations.SqlTemplate.From<T, *>,
+      |        private val _resolver: (T) -> Operation<Out>
+      |    ) : SqlTemplate<T, Out>() {
+      |        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+      |        override fun on(input: T): Operation<Out> = _resolver(input)
+      |    }
       |}
       |""".stripMargin
 }
@@ -658,27 +738,55 @@ def generateKotlinParamBuilders(): String = {
   val builders = 1.to(maxArity).map { n =>
     val range = 0.until(n)
     val tparams = range.map(i => s"P$i").mkString(", ")
+    val stars = range.map(_ => "*").mkString(", ")
 
     val nextParamMethod = if (n < maxArity) {
       s"""|
           |        fun <P$n> param(type: DbType<P$n>): ParamBuilder${n + 1}<$tparams, P$n> =
-          |            ParamBuilder${n + 1}(underlying.param(type.underlying))""".stripMargin
+          |            ParamBuilder${n + 1}(underlying.param(type.underlying), transforms + listOf(null))""".stripMargin
+    } else ""
+
+    val optionallyMethods = if (n < maxArity) {
+      s"""|
+          |        fun optionally(inner: Fragment): ParamBuilder${n + 1}<$tparams, Boolean> =
+          |            ParamBuilder${n + 1}(underlying.optionally(inner.underlying), transforms + listOf(null))
+          |
+          |        @Suppress("UNCHECKED_CAST")
+          |        fun <A : Any> optionally(builder: ParamBuilder1<A>): ParamBuilder${n + 1}<$tparams, A?> =
+          |            ParamBuilder${n + 1}(
+          |                underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder1<A>),
+          |                transforms + listOf(OptionallyTransforms.nullableToOptional))
+          |
+          |        @Suppress("UNCHECKED_CAST")
+          |        fun <A : Any, B : Any> optionally(builder: ParamBuilder2<A, B>): ParamBuilder${n + 1}<$tparams, Pair<A, B>?> =
+          |            ParamBuilder${n + 1}(
+          |                underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder2<A, B>),
+          |                transforms + listOf(OptionallyTransforms.pairToOptionalTuple2))
+          |
+          |        @Suppress("UNCHECKED_CAST")
+          |        fun <A : Any, B : Any, C : Any> optionally(builder: ParamBuilder3<A, B, C>): ParamBuilder${n + 1}<$tparams, Triple<A, B, C>?> =
+          |            ParamBuilder${n + 1}(
+          |                underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
+          |                transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))""".stripMargin
     } else ""
 
     s"""|    class ParamBuilder$n<$tparams>(
-        |        private val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder$n<$tparams>
+        |        internal val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder$n<$stars>,
+        |        internal val transforms: List<((Any?) -> Any?)?>
         |    ) {
-        |        fun append(s: String): ParamBuilder$n<$tparams> = ParamBuilder$n(underlying.append(s))
+        |        constructor(u: dev.typr.foundations.ParamBuilders.ParamBuilder$n<$stars>) : this(u, List($n) { null })
         |
-        |        fun <T> value(type: DbType<T>, value: T): ParamBuilder$n<$tparams> = ParamBuilder$n(underlying.value(type.underlying, value))
+        |        fun append(s: String): ParamBuilder$n<$tparams> = ParamBuilder$n(underlying.append(s), transforms)
         |
-        |        fun append(fragment: Fragment): ParamBuilder$n<$tparams> = ParamBuilder$n(underlying.append(fragment.underlying))
-        |$nextParamMethod
+        |        fun <T> value(type: DbType<T>, value: T): ParamBuilder$n<$tparams> = ParamBuilder$n(underlying.value(type.underlying, value), transforms)
+        |
+        |        fun append(fragment: Fragment): ParamBuilder$n<$tparams> = ParamBuilder$n(underlying.append(fragment.underlying), transforms)
+        |$nextParamMethod$optionallyMethods
         |        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query$n<$tparams, Out> =
-        |            SqlTemplate.Query$n(underlying.query(parser.underlying))
+        |            SqlTemplate.Query$n(underlying.query(parser.underlying), transforms)
         |
         |        fun update(): SqlTemplate.Update$n<$tparams> =
-        |            SqlTemplate.Update$n(underlying.update())
+        |            SqlTemplate.Update$n(underlying.update(), transforms)
         |
         |        fun done(): Fragment = Fragment(underlying.done())
         |    }""".stripMargin

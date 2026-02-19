@@ -180,6 +180,10 @@ When you compose operations with `.with()`, `.then()`, or `Operation.ifEmpty()`,
 
 This walks the entire operation tree and returns one `QueryAnalysis` per SQL statement found.
 
+## Dynamic SQL Analysis
+
+When a template uses `.optionally()`, analysis automatically expands all 2^N structural variants and verifies each one against the database. See [Dynamic SQL](./optional-queries) for details.
+
 ## What Gets Analyzed
 
 ### Query Operations

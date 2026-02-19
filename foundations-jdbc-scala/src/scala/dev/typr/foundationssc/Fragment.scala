@@ -77,6 +77,24 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
 
   def param[P0](dbType: DbType[P0]): ParamBuilders.ParamBuilder1[P0] =
     new ParamBuilders.ParamBuilder1(underlying.param(dbType.underlying))
+
+  def optionally(inner: Fragment): ParamBuilders.ParamBuilder1[Boolean] =
+    new ParamBuilders.ParamBuilder1(underlying.optionally(inner.underlying))
+
+  def optionally[A](builder: ParamBuilders.ParamBuilder1[A]): ParamBuilders.ParamBuilder1[Option[A]] =
+    new ParamBuilders.ParamBuilder1(
+      underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder1[A]]),
+      List(Some(OptionallyTransforms.optionToOptional)))
+
+  def optionally[A, B](builder: ParamBuilders.ParamBuilder2[A, B]): ParamBuilders.ParamBuilder1[Option[(A, B)]] =
+    new ParamBuilders.ParamBuilder1(
+      underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder2[A, B]]),
+      List(Some(OptionallyTransforms.optionTupleToOptionalTuple2)))
+
+  def optionally[A, B, C](builder: ParamBuilders.ParamBuilder3[A, B, C]): ParamBuilders.ParamBuilder1[Option[(A, B, C)]] =
+    new ParamBuilders.ParamBuilder1(
+      underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
+      List(Some(OptionallyTransforms.optionTupleToOptionalTuple3)))
 }
 
 object Fragment {
@@ -193,3 +211,23 @@ object Fragment {
   def of(fragments: Fragment*): Fragment =
     new Fragment(dev.typr.foundations.Fragment.of(fragments.map(_.underlying)*))
 }
+
+private[foundationssc] object OptionallyTransforms:
+  val optionToOptional: AnyRef => AnyRef = { v =>
+    import _root_.scala.jdk.OptionConverters.*
+    v.asInstanceOf[Option[?]].toJava
+  }
+
+  val optionTupleToOptionalTuple2: AnyRef => AnyRef = { v =>
+    import _root_.scala.jdk.OptionConverters.*
+    v.asInstanceOf[Option[(?, ?)]].map { case (a, b) =>
+      dev.typr.foundations.Tuple.of(a.asInstanceOf[AnyRef], b.asInstanceOf[AnyRef])
+    }.toJava
+  }
+
+  val optionTupleToOptionalTuple3: AnyRef => AnyRef = { v =>
+    import _root_.scala.jdk.OptionConverters.*
+    v.asInstanceOf[Option[(?, ?, ?)]].map { case (a, b, c) =>
+      dev.typr.foundations.Tuple.of(a.asInstanceOf[AnyRef], b.asInstanceOf[AnyRef], c.asInstanceOf[AnyRef])
+    }.toJava
+  }

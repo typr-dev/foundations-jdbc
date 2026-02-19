@@ -11,3 +11,8 @@ object QueryChecker {
         checker.checkRoutine(procedure.javaProcedure)
     }
 }
+
+fun dev.typr.foundations.QueryChecker.check(op: Operation<*>) = check(op.underlying)
+fun dev.typr.foundations.QueryChecker.check(name: String, op: Operation<*>) = check(name, op.underlying)
+fun dev.typr.foundations.QueryChecker.check(template: SqlTemplate<*, *>) = check(template.underlying)
+fun dev.typr.foundations.QueryChecker.check(name: String, template: SqlTemplate<*, *>) = check(name, template.underlying)
