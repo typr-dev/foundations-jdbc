@@ -8,7 +8,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ParameterMetaData;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.time.*;
 import java.util.List;
 import java.util.Optional;
@@ -914,7 +917,7 @@ public class QueryAnalysisTest {
           .build(IntStr::new);
 
       Fragment fragment = Fragment.of("SELECT id, name FROM nq_test");
-      QueryAnalysis analysis = QueryAnalyzer.analyze("findUsers", fragment.query(parser.all()), conn).getFirst();
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()).named("findUsers"), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -934,7 +937,7 @@ public class QueryAnalysisTest {
       RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer);
 
       Fragment fragment = Fragment.of("SELECT name FROM nqe_test");
-      QueryAnalysis analysis = QueryAnalyzer.analyze("getUserId", fragment.query(parser.all()), conn).getFirst();
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()).named("getUserId"), conn).getFirst();
 
       System.out.println(analysis.report());
 
@@ -972,5 +975,287 @@ public class QueryAnalysisTest {
 
       return null;
     });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Direct QueryAnalysis construction tests (no database connection needed)
+  // Verifies how the analyzer handles unknown, null, and missing metadata.
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  private static JdbcMeta.ParameterMeta paramMeta(int pos, String vendorTypeName) {
+    return new JdbcMeta.ParameterMeta(pos, Types.OTHER, vendorTypeName,
+        ParameterMetaData.parameterNullableUnknown);
+  }
+
+  private static JdbcMeta.ColumnMeta colMeta(int pos, String vendorTypeName, String name, int nullable) {
+    return new JdbcMeta.ColumnMeta(pos, Types.OTHER, vendorTypeName, nullable, name, name);
+  }
+
+  @Test
+  public void testParamNullVendorTypeName_NoError() {
+    var analysis = new QueryAnalysis(
+        "SELECT 1 WHERE ? IS NOT NULL",
+        List.of(new Alignment.Both<>(DuckDbTypes.integer, paramMeta(1, null))),
+        List.of(),
+        true
+    );
+    assertTrue("Null vendor type name should be skipped (no error)", analysis.succeeded());
+    assertEquals(0, analysis.parameterErrors().size());
+  }
+
+  @Test
+  public void testParamEmptyVendorTypeName_NoError() {
+    var analysis = new QueryAnalysis(
+        "SELECT 1 WHERE ? IS NOT NULL",
+        List.of(new Alignment.Both<>(DuckDbTypes.integer, paramMeta(1, ""))),
+        List.of(),
+        true
+    );
+    assertTrue("Empty vendor type name should be skipped (no error)", analysis.succeeded());
+    assertEquals(0, analysis.parameterErrors().size());
+  }
+
+  @Test
+  public void testParamUnknownVendorTypeName_NoError() {
+    var analysis = new QueryAnalysis(
+        "SELECT 1 WHERE ? IS NOT NULL",
+        List.of(new Alignment.Both<>(DuckDbTypes.integer, paramMeta(1, "unknown"))),
+        List.of(),
+        true
+    );
+    assertTrue("'unknown' vendor type name should be skipped (no error)", analysis.succeeded());
+    assertEquals(0, analysis.parameterErrors().size());
+  }
+
+  @Test
+  public void testParamMatchingType_NoError() {
+    var analysis = new QueryAnalysis(
+        "SELECT 1 WHERE id = ?",
+        List.of(new Alignment.Both<>(DuckDbTypes.integer, paramMeta(1, "INTEGER"))),
+        List.of(),
+        true
+    );
+    assertTrue("Matching type should produce no error", analysis.succeeded());
+    assertEquals(0, analysis.parameterErrors().size());
+  }
+
+  @Test
+  public void testParamMismatchingType_Error() {
+    var analysis = new QueryAnalysis(
+        "SELECT 1 WHERE id = ?",
+        List.of(new Alignment.Both<>(DuckDbTypes.integer, paramMeta(1, "varchar"))),
+        List.of(),
+        true
+    );
+    assertFalse("Mismatching type should produce an error", analysis.succeeded());
+    assertEquals(1, analysis.parameterErrors().size());
+    assertTrue("Should be ParameterTypeMismatch",
+        analysis.parameterErrors().getFirst() instanceof AlignmentError.ParameterTypeMismatch);
+  }
+
+  @Test
+  public void testParamUnchecked_NoErrorDespiteMismatch() {
+    var analysis = new QueryAnalysis(
+        "SELECT 1 WHERE id = ?",
+        List.of(new Alignment.Both<>(DuckDbTypes.integer.unchecked(), paramMeta(1, "varchar"))),
+        List.of(),
+        true
+    );
+    assertTrue("unchecked() should skip type checking even when types mismatch", analysis.succeeded());
+    assertEquals(0, analysis.parameterErrors().size());
+  }
+
+  @Test
+  public void testParamMetadataNotAvailable_AllErrorsSuppressed() {
+    var analysis = new QueryAnalysis(
+        "SELECT 1 WHERE id = ?",
+        List.of(new Alignment.Both<>(DuckDbTypes.integer, paramMeta(1, "varchar"))),
+        List.of(),
+        false
+    );
+    assertTrue("All param errors suppressed when metadata not available", analysis.succeeded());
+    assertEquals(0, analysis.parameterErrors().size());
+  }
+
+  @Test
+  public void testExtraParameter_Error() {
+    var analysis = new QueryAnalysis(
+        "SELECT 1",
+        List.of(new Alignment.LeftOnly<>(DuckDbTypes.integer)),
+        List.of(),
+        true
+    );
+    assertFalse("Extra parameter should produce an error", analysis.succeeded());
+    assertEquals(1, analysis.parameterErrors().size());
+    assertTrue("Should be ExtraParameter",
+        analysis.parameterErrors().getFirst() instanceof AlignmentError.ExtraParameter);
+  }
+
+  @Test
+  public void testMissingParameter_Error() {
+    var analysis = new QueryAnalysis(
+        "SELECT 1 WHERE id = ?",
+        List.of(new Alignment.RightOnly<>(paramMeta(1, "INTEGER"))),
+        List.of(),
+        true
+    );
+    assertFalse("Missing parameter should produce an error", analysis.succeeded());
+    assertEquals(1, analysis.parameterErrors().size());
+    assertTrue("Should be MissingParameter",
+        analysis.parameterErrors().getFirst() instanceof AlignmentError.MissingParameter);
+  }
+
+  @Test
+  public void testColumnNullVendorTypeName_NoError() {
+    var analysis = new QueryAnalysis(
+        "SELECT x",
+        List.of(),
+        List.of(new Alignment.Both<>(DuckDbTypes.integer,
+            colMeta(1, null, "x", ResultSetMetaData.columnNullableUnknown))),
+        true
+    );
+    assertTrue("Null column vendor type name should be skipped", analysis.succeeded());
+    assertEquals(0, analysis.columnErrors().size());
+  }
+
+  @Test
+  public void testColumnEmptyVendorTypeName_NoError() {
+    var analysis = new QueryAnalysis(
+        "SELECT x",
+        List.of(),
+        List.of(new Alignment.Both<>(DuckDbTypes.integer,
+            colMeta(1, "", "x", ResultSetMetaData.columnNullableUnknown))),
+        true
+    );
+    assertTrue("Empty column vendor type name should be skipped", analysis.succeeded());
+    assertEquals(0, analysis.columnErrors().size());
+  }
+
+  @Test
+  public void testColumnUnknownVendorTypeName_NoError() {
+    var analysis = new QueryAnalysis(
+        "SELECT x",
+        List.of(),
+        List.of(new Alignment.Both<>(DuckDbTypes.integer,
+            colMeta(1, "unknown", "x", ResultSetMetaData.columnNullableUnknown))),
+        true
+    );
+    assertTrue("'unknown' column vendor type name should be skipped", analysis.succeeded());
+    assertEquals(0, analysis.columnErrors().size());
+  }
+
+  @Test
+  public void testColumnMismatchingType_Error() {
+    var analysis = new QueryAnalysis(
+        "SELECT x",
+        List.of(),
+        List.of(new Alignment.Both<>(DuckDbTypes.integer,
+            colMeta(1, "varchar", "x", ResultSetMetaData.columnNullableUnknown))),
+        true
+    );
+    assertFalse("Mismatching column type should produce an error", analysis.succeeded());
+    assertEquals(1, analysis.columnErrors().size());
+    assertTrue("Should be ColumnTypeMismatch",
+        analysis.columnErrors().getFirst() instanceof AlignmentError.ColumnTypeMismatch);
+  }
+
+  @Test
+  public void testNullabilityMismatch_NullableColumnWithNonOptionalType() {
+    var analysis = new QueryAnalysis(
+        "SELECT x, y",
+        List.of(),
+        List.of(
+            new Alignment.Both<>(DuckDbTypes.integer,
+                colMeta(1, "INTEGER", "x", ResultSetMetaData.columnNoNulls)),
+            new Alignment.Both<>(DuckDbTypes.integer,
+                colMeta(2, "INTEGER", "y", ResultSetMetaData.columnNullable))
+        ),
+        true
+    );
+    assertFalse("Nullable column with non-optional type should error", analysis.succeeded());
+    var nullErrors = analysis.columnErrors().stream()
+        .filter(e -> e instanceof AlignmentError.NullabilityMismatch)
+        .toList();
+    assertEquals(1, nullErrors.size());
+    assertEquals(2, nullErrors.getFirst().position());
+  }
+
+  @Test
+  public void testNullabilityUnknown_NoError() {
+    var analysis = new QueryAnalysis(
+        "SELECT x",
+        List.of(),
+        List.of(new Alignment.Both<>(DuckDbTypes.integer,
+            colMeta(1, "INTEGER", "x", ResultSetMetaData.columnNullableUnknown))),
+        true
+    );
+    assertTrue("Unknown nullability should not produce an error", analysis.succeeded());
+  }
+
+  @Test
+  public void testAllColumnsNullable_NullabilitySkipped() {
+    var analysis = new QueryAnalysis(
+        "SELECT x, y",
+        List.of(),
+        List.of(
+            new Alignment.Both<>(DuckDbTypes.integer,
+                colMeta(1, "INTEGER", "x", ResultSetMetaData.columnNullable)),
+            new Alignment.Both<>(DuckDbTypes.varchar,
+                colMeta(2, "VARCHAR", "y", ResultSetMetaData.columnNullable))
+        ),
+        true
+    );
+    assertTrue("When ALL columns report nullable, nullability is unreliable and should be skipped",
+        analysis.succeeded());
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // normalizeVendorTypeName tests
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Test
+  public void testNormalizeVendorTypeName_null() {
+    assertEquals("", QueryAnalysis.normalizeVendorTypeName(null));
+  }
+
+  @Test
+  public void testNormalizeVendorTypeName_empty() {
+    assertEquals("", QueryAnalysis.normalizeVendorTypeName(""));
+  }
+
+  @Test
+  public void testNormalizeVendorTypeName_lowercase() {
+    assertEquals("varchar", QueryAnalysis.normalizeVendorTypeName("VARCHAR"));
+    assertEquals("int4", QueryAnalysis.normalizeVendorTypeName("INT4"));
+  }
+
+  @Test
+  public void testNormalizeVendorTypeName_stripPrecision() {
+    assertEquals("varchar", QueryAnalysis.normalizeVendorTypeName("VARCHAR(255)"));
+    assertEquals("decimal", QueryAnalysis.normalizeVendorTypeName("DECIMAL(10,2)"));
+    assertEquals("number", QueryAnalysis.normalizeVendorTypeName("NUMBER(10)"));
+  }
+
+  @Test
+  public void testNormalizeVendorTypeName_preserveArraySuffix() {
+    assertEquals("integer[]", QueryAnalysis.normalizeVendorTypeName("INTEGER[]"));
+    assertEquals("decimal[]", QueryAnalysis.normalizeVendorTypeName("DECIMAL(18,3)[]"));
+  }
+
+  @Test
+  public void testNormalizeVendorTypeName_pgArrayPrefix() {
+    assertEquals("int4[]", QueryAnalysis.normalizeVendorTypeName("_int4"));
+    assertEquals("varchar[]", QueryAnalysis.normalizeVendorTypeName("_varchar"));
+  }
+
+  @Test
+  public void testNormalizeVendorTypeName_stripSchemaPrefix() {
+    assertEquals("address_t", QueryAnalysis.normalizeVendorTypeName("typr.address_t"));
+    assertEquals("my_type", QueryAnalysis.normalizeVendorTypeName("schema.my_type"));
+  }
+
+  @Test
+  public void testNormalizeVendorTypeName_trimWhitespace() {
+    assertEquals("integer", QueryAnalysis.normalizeVendorTypeName("  INTEGER  "));
   }
 }

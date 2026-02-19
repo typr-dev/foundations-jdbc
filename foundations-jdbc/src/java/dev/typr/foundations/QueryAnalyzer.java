@@ -9,17 +9,7 @@ public final class QueryAnalyzer {
 
   private QueryAnalyzer() {}
 
-  public static List<QueryAnalysis> analyze(Operation<?> op, Connection conn)
-      throws SQLException {
-    return analyze(null, op, conn);
-  }
-
   public static List<QueryAnalysis> analyze(SqlTemplate<?, ?> template, Connection conn)
-      throws SQLException {
-    return analyze(null, template, conn);
-  }
-
-  public static List<QueryAnalysis> analyze(String name, SqlTemplate<?, ?> template, Connection conn)
       throws SQLException {
     Fragment fragment = template.fragment();
     List<Fragment> variants = OptionallyResolver.analysisVariants(fragment);
@@ -27,9 +17,9 @@ public final class QueryAnalyzer {
     List<QueryAnalysis> results = new ArrayList<>();
     for (Fragment variant : variants) {
       if (parser != null) {
-        results.add(analyzeFragmentAndParser(name, variant, parser, conn));
+        results.add(analyzeFragmentAndParser(variant, parser, conn));
       } else {
-        results.add(analyzeUpdate(name, new Operation.Update(variant), conn));
+        results.add(analyzeUpdate(new Operation.Update(variant), conn));
       }
     }
     return results;
@@ -37,27 +27,27 @@ public final class QueryAnalyzer {
 
   public static List<QueryAnalysis> analyze(RowSqlTemplate<?, ?> template, Connection conn)
       throws SQLException {
-    return analyze(null, template, conn);
-  }
-
-  public static List<QueryAnalysis> analyze(String name, RowSqlTemplate<?, ?> template, Connection conn)
-      throws SQLException {
     return switch (template) {
       case RowSqlTemplate.Query<?, ?> q ->
-          List.of(analyzeFragmentAndParser(name, q.fragment(), q.resultParser(), conn));
+          List.of(analyzeFragmentAndParser(q.fragment(), q.resultParser(), conn));
       case RowSqlTemplate.Update<?> u ->
-          List.of(analyzeUpdate(name, new Operation.Update(u.fragment()), conn));
+          List.of(analyzeUpdate(new Operation.Update(u.fragment()), conn));
     };
   }
 
-  public static List<QueryAnalysis> analyze(String name, Operation<?> op, Connection conn)
+  public static List<QueryAnalysis> analyze(Operation<?> op, Connection conn)
+      throws SQLException {
+    return analyzeNamed(null, op, conn);
+  }
+
+  private static List<QueryAnalysis> analyzeNamed(String name, Operation<?> op, Connection conn)
       throws SQLException {
     return switch (op) {
       case Operation.Query<?> q -> List.of(analyzeFragmentAndParser(name, q.query(), q.parser(), conn));
       case Operation.UpdateReturning<?> ur -> List.of(analyzeFragmentAndParser(name, ur.query(), ur.parser(), conn));
       case Operation.Update u -> List.of(analyzeUpdate(name, u, conn));
-      case Operation.Configured<?> c -> analyze(name != null ? name : c.name(), c.inner(), conn);
-      case Operation.Mapped<?, ?> m -> analyze(name, m.source(), conn);
+      case Operation.Configured<?> c -> analyzeNamed(name != null ? name : c.name(), c.inner(), conn);
+      case Operation.Mapped<?, ?> m -> analyzeNamed(name, m.source(), conn);
       case Operation.With<?, ?> w -> {
         var r = new ArrayList<>(analyze(w.first(), conn));
         r.addAll(analyze(w.second(), conn));
@@ -99,7 +89,7 @@ public final class QueryAnalyzer {
     return analyzeFragmentAndParser(null, fragment, parser, conn);
   }
 
-  public static QueryAnalysis analyzeFragmentAndParser(
+  private static QueryAnalysis analyzeFragmentAndParser(
       String name,
       Fragment fragment,
       ResultSetParser<?> parser,
@@ -122,6 +112,11 @@ public final class QueryAnalyzer {
 
       return new QueryAnalysis(sql, name, paramAlignment, colAlignment, paramMetaAvailable);
     }
+  }
+
+  private static QueryAnalysis analyzeUpdate(Operation.Update update, Connection conn)
+      throws SQLException {
+    return analyzeUpdate(null, update, conn);
   }
 
   private static QueryAnalysis analyzeUpdate(String name, Operation.Update update, Connection conn)

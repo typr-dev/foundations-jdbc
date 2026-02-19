@@ -64,7 +64,7 @@ public class TodoRepository {
 
     public void analyzeQueries() throws SQLException {
         tx.executeVoid(conn -> {
-            var result = QueryAnalyzer.analyze("findAll", FIND_ALL, conn).getFirst();
+            var result = QueryAnalyzer.analyze(FIND_ALL.named("findAll"), conn).getFirst();
             if (result.succeeded()) {
                 System.out.println("  All queries passed analysis.");
             } else {

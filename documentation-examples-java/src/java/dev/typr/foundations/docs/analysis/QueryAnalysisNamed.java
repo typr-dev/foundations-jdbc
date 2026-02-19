@@ -30,13 +30,12 @@ public class QueryAnalysisNamed {
                     FROM users WHERE id =
                     """)
                 .value(PgTypes.int4, userId)
-                .query(userRowParser.all());
+                .query(userRowParser.all())
+                .named("findUserById");
 
-        // Give your query a name for the error report
+        // The name shows up in the error report
         QueryAnalysis analysis =
-            QueryAnalyzer.analyze(
-                "findUserById", query, connection
-            ).getFirst();
+            QueryAnalyzer.analyze(query, connection).getFirst();
 
         if (!analysis.succeeded()) {
             throw new AssertionError(analysis.report());

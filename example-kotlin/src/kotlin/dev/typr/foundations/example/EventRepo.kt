@@ -45,12 +45,11 @@ fun addEventRating(id: EventId, rating: Double): Operation.Update =
     }.update()
 
 fun analyzeEventQueries(conn: Connection): List<QueryAnalysis> = listOf(
-    QueryAnalyzer.analyze("allEvents", allEvents, conn),
-    QueryAnalyzer.analyze("eventById", eventById(EventId(0)), conn),
-    QueryAnalyzer.analyze("eventsByStatus", eventsByStatus(EventStatus.DRAFT), conn),
-    QueryAnalyzer.analyze("eventsByVenue", eventsByVenue(VenueId(0)), conn),
+    QueryAnalyzer.analyze(allEvents.named("allEvents"), conn),
+    QueryAnalyzer.analyze(eventById(EventId(0)).named("eventById"), conn),
+    QueryAnalyzer.analyze(eventsByStatus(EventStatus.DRAFT).named("eventsByStatus"), conn),
+    QueryAnalyzer.analyze(eventsByVenue(VenueId(0)).named("eventsByVenue"), conn),
     QueryAnalyzer.analyze(
-        "createEvent",
         createEvent(
             Event(
                 EventId(0),
@@ -64,9 +63,9 @@ fun analyzeEventQueries(conn: Connection): List<QueryAnalysis> = listOf(
                 emptyList(),
                 emptyList()
             )
-        ),
+        ).named("createEvent"),
         conn
     ),
-    QueryAnalyzer.analyze("updateEventStatus", updateEventStatus(EventId(0), EventStatus.DRAFT), conn),
-    QueryAnalyzer.analyze("addEventRating", addEventRating(EventId(0), 0.0), conn),
+    QueryAnalyzer.analyze(updateEventStatus(EventId(0), EventStatus.DRAFT).named("updateEventStatus"), conn),
+    QueryAnalyzer.analyze(addEventRating(EventId(0), 0.0).named("addEventRating"), conn),
 ).flatten()

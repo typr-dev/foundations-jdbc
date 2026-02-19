@@ -26,6 +26,10 @@ Use `.then()` to feed one operation's result into the next operation's template.
 
 <Snippet file="core/SqlTemplateThen" />
 
+When the next template takes multiple parameters, use `.from()` to extract each parameter from the previous operation's result:
+
+<Snippet file="core/SqlTemplateThenFrom" />
+
 See [Composing Operations](./composing-operations) for the full set of combinators including `.with()`, `Operation.ifEmpty()`, and more.
 
 ## Optional Predicates
