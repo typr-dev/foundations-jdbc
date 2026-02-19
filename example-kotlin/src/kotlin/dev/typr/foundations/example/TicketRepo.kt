@@ -55,10 +55,10 @@ fun purchaseTicket(
 }
 
 fun analyzeTicketQueries(conn: Connection): List<QueryAnalysis> = listOf(
-    QueryAnalyzer.analyze("ticketsByEvent", ticketsByEvent(EventId(0)), conn),
-    QueryAnalyzer.analyze("ticketById", ticketById(TicketId(UUID.randomUUID())), conn),
-    QueryAnalyzer.analyze("insertTicket", insertTicket(Ticket(TicketId(UUID.randomUUID()), EventId(0), TicketTier.GENERAL, "", null, Money(BigDecimal.ZERO), OffsetDateTime.now(), emptyList())), conn),
-    QueryAnalyzer.analyze("countTicketsByEvent", countTicketsByEvent(EventId(0)), conn),
-    QueryAnalyzer.analyze("revenueByEvent", revenueByEvent(EventId(0)), conn),
-    QueryAnalyzer.analyze("eventSummaries", eventSummaries, conn),
+    QueryAnalyzer.analyze(ticketsByEvent(EventId(0)).named("ticketsByEvent"), conn),
+    QueryAnalyzer.analyze(ticketById(TicketId(UUID.randomUUID())).named("ticketById"), conn),
+    QueryAnalyzer.analyze(insertTicket(Ticket(TicketId(UUID.randomUUID()), EventId(0), TicketTier.GENERAL, "", null, Money(BigDecimal.ZERO), OffsetDateTime.now(), emptyList())).named("insertTicket"), conn),
+    QueryAnalyzer.analyze(countTicketsByEvent(EventId(0)).named("countTicketsByEvent"), conn),
+    QueryAnalyzer.analyze(revenueByEvent(EventId(0)).named("revenueByEvent"), conn),
+    QueryAnalyzer.analyze(eventSummaries.named("eventSummaries"), conn),
 ).flatten()

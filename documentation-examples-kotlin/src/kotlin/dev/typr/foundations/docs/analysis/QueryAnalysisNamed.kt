@@ -27,10 +27,11 @@ class QueryAnalysisNamed {
                 WHERE id = ${PgTypes.int4(userId)}
             """ }
                 .query(userRowParser.all())
+                .named("findUserById")
 
-        // Give your query a name - it shows up in the error report
+        // The name shows up in the error report
         val analysis =
-            QueryAnalyzer.analyze("findUserById", query, connection)
+            QueryAnalyzer.analyze(query, connection)
                 .single()
 
         if (!analysis.succeeded()) {

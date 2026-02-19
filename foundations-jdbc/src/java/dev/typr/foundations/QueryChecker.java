@@ -7,17 +7,29 @@ public interface QueryChecker {
   Transactor transactor();
 
   default void check(Operation<?> op) {
-    check(null, op);
+    List<QueryAnalysis> analyses;
+    try {
+      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(op, conn));
+    } catch (SQLException e) {
+      throw new RuntimeException("Failed to analyze operation", e);
+    }
+    StringBuilder errors = new StringBuilder();
+    int errorCount = 0;
+    for (QueryAnalysis analysis : analyses) {
+      if (!analysis.succeeded()) {
+        errorCount++;
+        errors.append("\n\n").append(analysis.report());
+      }
+    }
+    if (errorCount > 0) {
+      throw new AssertionError("Query type check failed:" + errors);
+    }
   }
 
   default void check(SqlTemplate<?, ?> template) {
-    check(null, template);
-  }
-
-  default void check(String name, SqlTemplate<?, ?> template) {
     List<QueryAnalysis> analyses;
     try {
-      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(name, template, conn));
+      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(template, conn));
     } catch (SQLException e) {
       throw new RuntimeException("Failed to analyze template", e);
     }
@@ -35,35 +47,11 @@ public interface QueryChecker {
   }
 
   default void check(RowSqlTemplate<?, ?> template) {
-    check(null, template);
-  }
-
-  default void check(String name, RowSqlTemplate<?, ?> template) {
     List<QueryAnalysis> analyses;
     try {
-      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(name, template, conn));
+      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(template, conn));
     } catch (SQLException e) {
       throw new RuntimeException("Failed to analyze template", e);
-    }
-    StringBuilder errors = new StringBuilder();
-    int errorCount = 0;
-    for (QueryAnalysis analysis : analyses) {
-      if (!analysis.succeeded()) {
-        errorCount++;
-        errors.append("\n\n").append(analysis.report());
-      }
-    }
-    if (errorCount > 0) {
-      throw new AssertionError("Query type check failed:" + errors);
-    }
-  }
-
-  default void check(String name, Operation<?> op) {
-    List<QueryAnalysis> analyses;
-    try {
-      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(name, op, conn));
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to analyze operation", e);
     }
     StringBuilder errors = new StringBuilder();
     int errorCount = 0;
