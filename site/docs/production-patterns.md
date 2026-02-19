@@ -133,8 +133,8 @@ object UserRepo {
 
     // Collect all queries for batch analysis in tests
     fun analyzeQueries(conn: Connection): List<QueryAnalysis> = listOf(
-        QueryAnalyzer.analyze("UserRepo.selectAll", selectAll, conn),
-        QueryAnalyzer.analyze("UserRepo.selectById", selectByIdTemplate, conn),
+        QueryAnalyzer.analyze(selectAll.named("UserRepo.selectAll"), conn),
+        QueryAnalyzer.analyze(selectByIdTemplate, conn),
     ).flatten()
 }
 ```
