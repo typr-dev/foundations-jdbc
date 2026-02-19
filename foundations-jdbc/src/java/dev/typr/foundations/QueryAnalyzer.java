@@ -21,12 +21,18 @@ public final class QueryAnalyzer {
 
   public static List<QueryAnalysis> analyze(String name, SqlTemplate<?, ?> template, Connection conn)
       throws SQLException {
+    Fragment fragment = template.fragment();
+    List<Fragment> variants = OptionallyResolver.analysisVariants(fragment);
     ResultSetParser<?> parser = extractResultSetParser(template);
-    if (parser != null) {
-      return List.of(analyzeFragmentAndParser(name, template.fragment(), parser, conn));
-    } else {
-      return List.of(analyzeUpdate(name, new Operation.Update(template.fragment()), conn));
+    List<QueryAnalysis> results = new ArrayList<>();
+    for (Fragment variant : variants) {
+      if (parser != null) {
+        results.add(analyzeFragmentAndParser(name, variant, parser, conn));
+      } else {
+        results.add(analyzeUpdate(name, new Operation.Update(variant), conn));
+      }
     }
+    return results;
   }
 
   public static List<QueryAnalysis> analyze(RowSqlTemplate<?, ?> template, Connection conn)
@@ -148,6 +154,7 @@ public final class QueryAnalyzer {
       case SqlTemplate.Query8 q -> q.parser();
       case SqlTemplate.Query9 q -> q.parser();
       case SqlTemplate.Query10 q -> q.parser();
+      case SqlTemplate.From f -> extractResultSetParser(f.inner());
       default -> null;
     };
   }

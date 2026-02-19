@@ -67,6 +67,27 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun <P0> param(dbType: DbType<P0>): ParamBuilders.ParamBuilder1<P0> =
         ParamBuilders.ParamBuilder1(underlying.param(dbType.underlying))
 
+    fun optionally(inner: Fragment): ParamBuilders.ParamBuilder1<Boolean> =
+        ParamBuilders.ParamBuilder1(underlying.optionally(inner.underlying))
+
+    @Suppress("UNCHECKED_CAST")
+    fun <A : Any> optionally(builder: ParamBuilders.ParamBuilder1<A>): ParamBuilders.ParamBuilder1<A?> =
+        ParamBuilders.ParamBuilder1(
+            underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder1<A>),
+            listOf(OptionallyTransforms.nullableToOptional))
+
+    @Suppress("UNCHECKED_CAST")
+    fun <A : Any, B : Any> optionally(builder: ParamBuilders.ParamBuilder2<A, B>): ParamBuilders.ParamBuilder1<Pair<A, B>?> =
+        ParamBuilders.ParamBuilder1(
+            underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder2<A, B>),
+            listOf(OptionallyTransforms.pairToOptionalTuple2))
+
+    @Suppress("UNCHECKED_CAST")
+    fun <A : Any, B : Any, C : Any> optionally(builder: ParamBuilders.ParamBuilder3<A, B, C>): ParamBuilders.ParamBuilder1<Triple<A, B, C>?> =
+        ParamBuilders.ParamBuilder1(
+            underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
+            listOf(OptionallyTransforms.tripleToOptionalTuple3))
+
     companion object {
         @JvmField
         val EMPTY: Fragment = Fragment(dev.typr.foundations.Fragment.EMPTY)
@@ -162,5 +183,28 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
         @JvmStatic
         fun of(vararg fragments: Fragment): Fragment =
             Fragment(dev.typr.foundations.Fragment.of(*fragments.map { it.underlying }.toTypedArray()))
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+internal object OptionallyTransforms {
+    val nullableToOptional: (Any?) -> Any? = { java.util.Optional.ofNullable(it) }
+
+    val pairToOptionalTuple2: (Any?) -> Any? = { value ->
+        if (value != null) {
+            val p = value as Pair<Any?, Any?>
+            java.util.Optional.of(dev.typr.foundations.Tuple.of(p.first, p.second))
+        } else {
+            java.util.Optional.empty<Any>()
+        }
+    }
+
+    val tripleToOptionalTuple3: (Any?) -> Any? = { value ->
+        if (value != null) {
+            val t = value as Triple<Any?, Any?, Any?>
+            java.util.Optional.of(dev.typr.foundations.Tuple.of(t.first, t.second, t.third))
+        } else {
+            java.util.Optional.empty<Any>()
+        }
     }
 }

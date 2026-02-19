@@ -8,157 +8,535 @@ sealed class SqlTemplate<In, Out> {
 
     fun fragment(): Fragment = Fragment(underlying.fragment())
 
-    class Query1<P0, Out>(override val underlying: dev.typr.foundations.SqlTemplate.Query1<P0, Out>) : SqlTemplate<P0, Out>() {
-        override fun on(input: P0): Operation.Query<Out> =
-            Operation.Query(underlying.on(input))
+    class Query1<P0, Out>(
+        private val _java: dev.typr.foundations.SqlTemplate.Query1<*, Out>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<P0, Out>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Query1<*, Out>) : this(j, listOf(null))
+
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: P0): Operation.Query<Out> {
+            val v0: Any? = _transforms[0]?.invoke(input) ?: input
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0).iterator())
+            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+        }
+
+        fun <T> from(f0: (T) -> P0): From<T, Out> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t)).underlying }) { t -> on(f0(t)) }
     }
 
-    class Query2<P0, P1, Out>(override val underlying: dev.typr.foundations.SqlTemplate.Query2<P0, P1, Out>) : SqlTemplate<dev.typr.foundations.And<P0, P1>, Out>() {
-        override fun on(input: dev.typr.foundations.And<P0, P1>): Operation.Query<Out> =
-            Operation.Query(underlying.on(input))
+    class Query2<P0, P1, Out>(
+        private val _java: dev.typr.foundations.SqlTemplate.Query2<*, *, Out>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple2<P0, P1>, Out>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Query2<*, *, Out>) : this(j, List(2) { null })
 
-        fun on(p0: P0, p1: P1): Operation.Query<Out> =
-            Operation.Query(underlying.on(p0, p1))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple2<P0, P1>): Operation.Query<Out> =
+            on(input._1(), input._2())
+
+        fun on(p0: P0, p1: P1): Operation.Query<Out> {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1).iterator())
+            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1): From<T, Out> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t)).underlying }) { t -> on(f0(t), f1(t)) }
     }
 
-    class Query3<P0, P1, P2, Out>(override val underlying: dev.typr.foundations.SqlTemplate.Query3<P0, P1, P2, Out>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, Out>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>): Operation.Query<Out> =
-            Operation.Query(underlying.on(input))
+    class Query3<P0, P1, P2, Out>(
+        private val _java: dev.typr.foundations.SqlTemplate.Query3<*, *, *, Out>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple3<P0, P1, P2>, Out>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Query3<*, *, *, Out>) : this(j, List(3) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2): Operation.Query<Out> =
-            Operation.Query(underlying.on(p0, p1, p2))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple3<P0, P1, P2>): Operation.Query<Out> =
+            on(input._1(), input._2(), input._3())
+
+        fun on(p0: P0, p1: P1, p2: P2): Operation.Query<Out> {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2).iterator())
+            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2): From<T, Out> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t)).underlying }) { t -> on(f0(t), f1(t), f2(t)) }
     }
 
-    class Query4<P0, P1, P2, P3, Out>(override val underlying: dev.typr.foundations.SqlTemplate.Query4<P0, P1, P2, P3, Out>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, Out>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>): Operation.Query<Out> =
-            Operation.Query(underlying.on(input))
+    class Query4<P0, P1, P2, P3, Out>(
+        private val _java: dev.typr.foundations.SqlTemplate.Query4<*, *, *, *, Out>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple4<P0, P1, P2, P3>, Out>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Query4<*, *, *, *, Out>) : this(j, List(4) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3): Operation.Query<Out> =
-            Operation.Query(underlying.on(p0, p1, p2, p3))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple4<P0, P1, P2, P3>): Operation.Query<Out> =
+            on(input._1(), input._2(), input._3(), input._4())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3): Operation.Query<Out> {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3).iterator())
+            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3): From<T, Out> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t)) }
     }
 
-    class Query5<P0, P1, P2, P3, P4, Out>(override val underlying: dev.typr.foundations.SqlTemplate.Query5<P0, P1, P2, P3, P4, Out>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, Out>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>): Operation.Query<Out> =
-            Operation.Query(underlying.on(input))
+    class Query5<P0, P1, P2, P3, P4, Out>(
+        private val _java: dev.typr.foundations.SqlTemplate.Query5<*, *, *, *, *, Out>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple5<P0, P1, P2, P3, P4>, Out>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Query5<*, *, *, *, *, Out>) : this(j, List(5) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4): Operation.Query<Out> =
-            Operation.Query(underlying.on(p0, p1, p2, p3, p4))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple5<P0, P1, P2, P3, P4>): Operation.Query<Out> =
+            on(input._1(), input._2(), input._3(), input._4(), input._5())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4): Operation.Query<Out> {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4).iterator())
+            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4): From<T, Out> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t)) }
     }
 
-    class Query6<P0, P1, P2, P3, P4, P5, Out>(override val underlying: dev.typr.foundations.SqlTemplate.Query6<P0, P1, P2, P3, P4, P5, Out>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, Out>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>): Operation.Query<Out> =
-            Operation.Query(underlying.on(input))
+    class Query6<P0, P1, P2, P3, P4, P5, Out>(
+        private val _java: dev.typr.foundations.SqlTemplate.Query6<*, *, *, *, *, *, Out>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple6<P0, P1, P2, P3, P4, P5>, Out>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Query6<*, *, *, *, *, *, Out>) : this(j, List(6) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5): Operation.Query<Out> =
-            Operation.Query(underlying.on(p0, p1, p2, p3, p4, p5))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple6<P0, P1, P2, P3, P4, P5>): Operation.Query<Out> =
+            on(input._1(), input._2(), input._3(), input._4(), input._5(), input._6())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5): Operation.Query<Out> {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val v5: Any? = _transforms[5]?.invoke(p5) ?: p5
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4, v5).iterator())
+            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4, f5: (T) -> P5): From<T, Out> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t)) }
     }
 
-    class Query7<P0, P1, P2, P3, P4, P5, P6, Out>(override val underlying: dev.typr.foundations.SqlTemplate.Query7<P0, P1, P2, P3, P4, P5, P6, Out>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, Out>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>): Operation.Query<Out> =
-            Operation.Query(underlying.on(input))
+    class Query7<P0, P1, P2, P3, P4, P5, P6, Out>(
+        private val _java: dev.typr.foundations.SqlTemplate.Query7<*, *, *, *, *, *, *, Out>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6>, Out>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Query7<*, *, *, *, *, *, *, Out>) : this(j, List(7) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6): Operation.Query<Out> =
-            Operation.Query(underlying.on(p0, p1, p2, p3, p4, p5, p6))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6>): Operation.Query<Out> =
+            on(input._1(), input._2(), input._3(), input._4(), input._5(), input._6(), input._7())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6): Operation.Query<Out> {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val v5: Any? = _transforms[5]?.invoke(p5) ?: p5
+            val v6: Any? = _transforms[6]?.invoke(p6) ?: p6
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4, v5, v6).iterator())
+            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4, f5: (T) -> P5, f6: (T) -> P6): From<T, Out> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t)) }
     }
 
-    class Query8<P0, P1, P2, P3, P4, P5, P6, P7, Out>(override val underlying: dev.typr.foundations.SqlTemplate.Query8<P0, P1, P2, P3, P4, P5, P6, P7, Out>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, Out>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>): Operation.Query<Out> =
-            Operation.Query(underlying.on(input))
+    class Query8<P0, P1, P2, P3, P4, P5, P6, P7, Out>(
+        private val _java: dev.typr.foundations.SqlTemplate.Query8<*, *, *, *, *, *, *, *, Out>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7>, Out>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Query8<*, *, *, *, *, *, *, *, Out>) : this(j, List(8) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7): Operation.Query<Out> =
-            Operation.Query(underlying.on(p0, p1, p2, p3, p4, p5, p6, p7))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7>): Operation.Query<Out> =
+            on(input._1(), input._2(), input._3(), input._4(), input._5(), input._6(), input._7(), input._8())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7): Operation.Query<Out> {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val v5: Any? = _transforms[5]?.invoke(p5) ?: p5
+            val v6: Any? = _transforms[6]?.invoke(p6) ?: p6
+            val v7: Any? = _transforms[7]?.invoke(p7) ?: p7
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4, v5, v6, v7).iterator())
+            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4, f5: (T) -> P5, f6: (T) -> P6, f7: (T) -> P7): From<T, Out> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t)) }
     }
 
-    class Query9<P0, P1, P2, P3, P4, P5, P6, P7, P8, Out>(override val underlying: dev.typr.foundations.SqlTemplate.Query9<P0, P1, P2, P3, P4, P5, P6, P7, P8, Out>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, Out>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>): Operation.Query<Out> =
-            Operation.Query(underlying.on(input))
+    class Query9<P0, P1, P2, P3, P4, P5, P6, P7, P8, Out>(
+        private val _java: dev.typr.foundations.SqlTemplate.Query9<*, *, *, *, *, *, *, *, *, Out>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8>, Out>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Query9<*, *, *, *, *, *, *, *, *, Out>) : this(j, List(9) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8): Operation.Query<Out> =
-            Operation.Query(underlying.on(p0, p1, p2, p3, p4, p5, p6, p7, p8))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8>): Operation.Query<Out> =
+            on(input._1(), input._2(), input._3(), input._4(), input._5(), input._6(), input._7(), input._8(), input._9())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8): Operation.Query<Out> {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val v5: Any? = _transforms[5]?.invoke(p5) ?: p5
+            val v6: Any? = _transforms[6]?.invoke(p6) ?: p6
+            val v7: Any? = _transforms[7]?.invoke(p7) ?: p7
+            val v8: Any? = _transforms[8]?.invoke(p8) ?: p8
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4, v5, v6, v7, v8).iterator())
+            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4, f5: (T) -> P5, f6: (T) -> P6, f7: (T) -> P7, f8: (T) -> P8): From<T, Out> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t), f8(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t), f8(t)) }
     }
 
-    class Query10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, Out>(override val underlying: dev.typr.foundations.SqlTemplate.Query10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, Out>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, P9>, Out>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, P9>): Operation.Query<Out> =
-            Operation.Query(underlying.on(input))
+    class Query10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, Out>(
+        private val _java: dev.typr.foundations.SqlTemplate.Query10<*, *, *, *, *, *, *, *, *, *, Out>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>, Out>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Query10<*, *, *, *, *, *, *, *, *, *, Out>) : this(j, List(10) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8, p9: P9): Operation.Query<Out> =
-            Operation.Query(underlying.on(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>): Operation.Query<Out> =
+            on(input._1(), input._2(), input._3(), input._4(), input._5(), input._6(), input._7(), input._8(), input._9(), input._10())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8, p9: P9): Operation.Query<Out> {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val v5: Any? = _transforms[5]?.invoke(p5) ?: p5
+            val v6: Any? = _transforms[6]?.invoke(p6) ?: p6
+            val v7: Any? = _transforms[7]?.invoke(p7) ?: p7
+            val v8: Any? = _transforms[8]?.invoke(p8) ?: p8
+            val v9: Any? = _transforms[9]?.invoke(p9) ?: p9
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9).iterator())
+            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4, f5: (T) -> P5, f6: (T) -> P6, f7: (T) -> P7, f8: (T) -> P8, f9: (T) -> P9): From<T, Out> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t), f8(t), f9(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t), f8(t), f9(t)) }
     }
 
-    class Update1<P0>(override val underlying: dev.typr.foundations.SqlTemplate.Update1<P0>) : SqlTemplate<P0, Int>() {
-        override fun on(input: P0): Operation.Update =
-            Operation.Update(underlying.on(input))
+    class Update1<P0>(
+        private val _java: dev.typr.foundations.SqlTemplate.Update1<*>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<P0, Int>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Update1<*>) : this(j, listOf(null))
+
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: P0): Operation.Update {
+            val v0: Any? = _transforms[0]?.invoke(input) ?: input
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0).iterator())
+            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+        }
+
+        fun <T> from(f0: (T) -> P0): From<T, Int> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t)).underlying }) { t -> on(f0(t)) }
     }
 
-    class Update2<P0, P1>(override val underlying: dev.typr.foundations.SqlTemplate.Update2<P0, P1>) : SqlTemplate<dev.typr.foundations.And<P0, P1>, Int>() {
-        override fun on(input: dev.typr.foundations.And<P0, P1>): Operation.Update =
-            Operation.Update(underlying.on(input))
+    class Update2<P0, P1>(
+        private val _java: dev.typr.foundations.SqlTemplate.Update2<*, *>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple2<P0, P1>, Int>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Update2<*, *>) : this(j, List(2) { null })
 
-        fun on(p0: P0, p1: P1): Operation.Update =
-            Operation.Update(underlying.on(p0, p1))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple2<P0, P1>): Operation.Update =
+            on(input._1(), input._2())
+
+        fun on(p0: P0, p1: P1): Operation.Update {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1).iterator())
+            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1): From<T, Int> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t)).underlying }) { t -> on(f0(t), f1(t)) }
     }
 
-    class Update3<P0, P1, P2>(override val underlying: dev.typr.foundations.SqlTemplate.Update3<P0, P1, P2>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, Int>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>): Operation.Update =
-            Operation.Update(underlying.on(input))
+    class Update3<P0, P1, P2>(
+        private val _java: dev.typr.foundations.SqlTemplate.Update3<*, *, *>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple3<P0, P1, P2>, Int>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Update3<*, *, *>) : this(j, List(3) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2): Operation.Update =
-            Operation.Update(underlying.on(p0, p1, p2))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple3<P0, P1, P2>): Operation.Update =
+            on(input._1(), input._2(), input._3())
+
+        fun on(p0: P0, p1: P1, p2: P2): Operation.Update {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2).iterator())
+            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2): From<T, Int> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t)).underlying }) { t -> on(f0(t), f1(t), f2(t)) }
     }
 
-    class Update4<P0, P1, P2, P3>(override val underlying: dev.typr.foundations.SqlTemplate.Update4<P0, P1, P2, P3>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, Int>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>): Operation.Update =
-            Operation.Update(underlying.on(input))
+    class Update4<P0, P1, P2, P3>(
+        private val _java: dev.typr.foundations.SqlTemplate.Update4<*, *, *, *>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple4<P0, P1, P2, P3>, Int>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Update4<*, *, *, *>) : this(j, List(4) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3): Operation.Update =
-            Operation.Update(underlying.on(p0, p1, p2, p3))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple4<P0, P1, P2, P3>): Operation.Update =
+            on(input._1(), input._2(), input._3(), input._4())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3): Operation.Update {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3).iterator())
+            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3): From<T, Int> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t)) }
     }
 
-    class Update5<P0, P1, P2, P3, P4>(override val underlying: dev.typr.foundations.SqlTemplate.Update5<P0, P1, P2, P3, P4>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, Int>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>): Operation.Update =
-            Operation.Update(underlying.on(input))
+    class Update5<P0, P1, P2, P3, P4>(
+        private val _java: dev.typr.foundations.SqlTemplate.Update5<*, *, *, *, *>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple5<P0, P1, P2, P3, P4>, Int>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Update5<*, *, *, *, *>) : this(j, List(5) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4): Operation.Update =
-            Operation.Update(underlying.on(p0, p1, p2, p3, p4))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple5<P0, P1, P2, P3, P4>): Operation.Update =
+            on(input._1(), input._2(), input._3(), input._4(), input._5())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4): Operation.Update {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4).iterator())
+            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4): From<T, Int> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t)) }
     }
 
-    class Update6<P0, P1, P2, P3, P4, P5>(override val underlying: dev.typr.foundations.SqlTemplate.Update6<P0, P1, P2, P3, P4, P5>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, Int>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>): Operation.Update =
-            Operation.Update(underlying.on(input))
+    class Update6<P0, P1, P2, P3, P4, P5>(
+        private val _java: dev.typr.foundations.SqlTemplate.Update6<*, *, *, *, *, *>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple6<P0, P1, P2, P3, P4, P5>, Int>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Update6<*, *, *, *, *, *>) : this(j, List(6) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5): Operation.Update =
-            Operation.Update(underlying.on(p0, p1, p2, p3, p4, p5))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple6<P0, P1, P2, P3, P4, P5>): Operation.Update =
+            on(input._1(), input._2(), input._3(), input._4(), input._5(), input._6())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5): Operation.Update {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val v5: Any? = _transforms[5]?.invoke(p5) ?: p5
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4, v5).iterator())
+            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4, f5: (T) -> P5): From<T, Int> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t)) }
     }
 
-    class Update7<P0, P1, P2, P3, P4, P5, P6>(override val underlying: dev.typr.foundations.SqlTemplate.Update7<P0, P1, P2, P3, P4, P5, P6>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, Int>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>): Operation.Update =
-            Operation.Update(underlying.on(input))
+    class Update7<P0, P1, P2, P3, P4, P5, P6>(
+        private val _java: dev.typr.foundations.SqlTemplate.Update7<*, *, *, *, *, *, *>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6>, Int>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Update7<*, *, *, *, *, *, *>) : this(j, List(7) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6): Operation.Update =
-            Operation.Update(underlying.on(p0, p1, p2, p3, p4, p5, p6))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6>): Operation.Update =
+            on(input._1(), input._2(), input._3(), input._4(), input._5(), input._6(), input._7())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6): Operation.Update {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val v5: Any? = _transforms[5]?.invoke(p5) ?: p5
+            val v6: Any? = _transforms[6]?.invoke(p6) ?: p6
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4, v5, v6).iterator())
+            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4, f5: (T) -> P5, f6: (T) -> P6): From<T, Int> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t)) }
     }
 
-    class Update8<P0, P1, P2, P3, P4, P5, P6, P7>(override val underlying: dev.typr.foundations.SqlTemplate.Update8<P0, P1, P2, P3, P4, P5, P6, P7>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, Int>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>): Operation.Update =
-            Operation.Update(underlying.on(input))
+    class Update8<P0, P1, P2, P3, P4, P5, P6, P7>(
+        private val _java: dev.typr.foundations.SqlTemplate.Update8<*, *, *, *, *, *, *, *>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7>, Int>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Update8<*, *, *, *, *, *, *, *>) : this(j, List(8) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7): Operation.Update =
-            Operation.Update(underlying.on(p0, p1, p2, p3, p4, p5, p6, p7))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7>): Operation.Update =
+            on(input._1(), input._2(), input._3(), input._4(), input._5(), input._6(), input._7(), input._8())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7): Operation.Update {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val v5: Any? = _transforms[5]?.invoke(p5) ?: p5
+            val v6: Any? = _transforms[6]?.invoke(p6) ?: p6
+            val v7: Any? = _transforms[7]?.invoke(p7) ?: p7
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4, v5, v6, v7).iterator())
+            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4, f5: (T) -> P5, f6: (T) -> P6, f7: (T) -> P7): From<T, Int> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t)) }
     }
 
-    class Update9<P0, P1, P2, P3, P4, P5, P6, P7, P8>(override val underlying: dev.typr.foundations.SqlTemplate.Update9<P0, P1, P2, P3, P4, P5, P6, P7, P8>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, Int>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>): Operation.Update =
-            Operation.Update(underlying.on(input))
+    class Update9<P0, P1, P2, P3, P4, P5, P6, P7, P8>(
+        private val _java: dev.typr.foundations.SqlTemplate.Update9<*, *, *, *, *, *, *, *, *>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8>, Int>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Update9<*, *, *, *, *, *, *, *, *>) : this(j, List(9) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8): Operation.Update =
-            Operation.Update(underlying.on(p0, p1, p2, p3, p4, p5, p6, p7, p8))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8>): Operation.Update =
+            on(input._1(), input._2(), input._3(), input._4(), input._5(), input._6(), input._7(), input._8(), input._9())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8): Operation.Update {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val v5: Any? = _transforms[5]?.invoke(p5) ?: p5
+            val v6: Any? = _transforms[6]?.invoke(p6) ?: p6
+            val v7: Any? = _transforms[7]?.invoke(p7) ?: p7
+            val v8: Any? = _transforms[8]?.invoke(p8) ?: p8
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4, v5, v6, v7, v8).iterator())
+            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4, f5: (T) -> P5, f6: (T) -> P6, f7: (T) -> P7, f8: (T) -> P8): From<T, Int> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t), f8(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t), f8(t)) }
     }
 
-    class Update10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>(override val underlying: dev.typr.foundations.SqlTemplate.Update10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>) : SqlTemplate<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, P9>, Int>() {
-        override fun on(input: dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<dev.typr.foundations.And<P0, P1>, P2>, P3>, P4>, P5>, P6>, P7>, P8>, P9>): Operation.Update =
-            Operation.Update(underlying.on(input))
+    class Update10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>(
+        private val _java: dev.typr.foundations.SqlTemplate.Update10<*, *, *, *, *, *, *, *, *, *>,
+        private val _transforms: List<((Any?) -> Any?)?>
+    ) : SqlTemplate<dev.typr.foundations.Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>, Int>() {
+        constructor(j: dev.typr.foundations.SqlTemplate.Update10<*, *, *, *, *, *, *, *, *, *>) : this(j, List(10) { null })
 
-        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8, p9: P9): Operation.Update =
-            Operation.Update(underlying.on(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9))
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+
+        override fun on(input: dev.typr.foundations.Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>): Operation.Update =
+            on(input._1(), input._2(), input._3(), input._4(), input._5(), input._6(), input._7(), input._8(), input._9(), input._10())
+
+        fun on(p0: P0, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8, p9: P9): Operation.Update {
+            val v0: Any? = _transforms[0]?.invoke(p0) ?: p0
+            val v1: Any? = _transforms[1]?.invoke(p1) ?: p1
+            val v2: Any? = _transforms[2]?.invoke(p2) ?: p2
+            val v3: Any? = _transforms[3]?.invoke(p3) ?: p3
+            val v4: Any? = _transforms[4]?.invoke(p4) ?: p4
+            val v5: Any? = _transforms[5]?.invoke(p5) ?: p5
+            val v6: Any? = _transforms[6]?.invoke(p6) ?: p6
+            val v7: Any? = _transforms[7]?.invoke(p7) ?: p7
+            val v8: Any? = _transforms[8]?.invoke(p8) ?: p8
+            val v9: Any? = _transforms[9]?.invoke(p9) ?: p9
+            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
+                _java.fragment(), listOf(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9).iterator())
+            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
+        }
+
+        fun <T> from(f0: (T) -> P0, f1: (T) -> P1, f2: (T) -> P2, f3: (T) -> P3, f4: (T) -> P4, f5: (T) -> P5, f6: (T) -> P6, f7: (T) -> P7, f8: (T) -> P8, f9: (T) -> P9): From<T, Int> =
+            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t), f8(t), f9(t)).underlying }) { t -> on(f0(t), f1(t), f2(t), f3(t), f4(t), f5(t), f6(t), f7(t), f8(t), f9(t)) }
+    }
+
+    class From<T, Out>(
+        private val _java: dev.typr.foundations.SqlTemplate.From<T, *>,
+        private val _resolver: (T) -> Operation<Out>
+    ) : SqlTemplate<T, Out>() {
+        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+        override fun on(input: T): Operation<Out> = _resolver(input)
     }
 }

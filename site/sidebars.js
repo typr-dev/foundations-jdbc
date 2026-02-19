@@ -12,6 +12,7 @@ const sidebars = {
     {type: "doc", id: "stored-procedures", label: "Stored Procedures"},
     {type: "doc", id: "streaming-inserts", label: "Streaming Inserts"},
     {type: "doc", id: "sql-templates", label: "SQL Templates"},
+    {type: "doc", id: "optional-queries", label: "Dynamic SQL"},
     {type: "doc", id: "composing-operations", label: "Composing Operations"},
     {type: "doc", id: "production-patterns", label: "Production Patterns"},
     {type: "doc", id: "kotlin-interpolation", label: "Kotlin String Interpolation"},
