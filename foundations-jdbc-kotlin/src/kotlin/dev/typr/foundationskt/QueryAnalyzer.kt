@@ -3,6 +3,10 @@ package dev.typr.foundationskt
 
 object QueryAnalyzer {
     @JvmStatic
+    fun analyze(analyzable: Analyzable, conn: java.sql.Connection): List<dev.typr.foundations.QueryAnalysis> =
+        dev.typr.foundations.QueryAnalyzer.analyze(analyzable.analyzable, conn)
+
+    @JvmStatic
     fun analyze(op: Operation<*>, conn: java.sql.Connection): List<dev.typr.foundations.QueryAnalysis> =
         dev.typr.foundations.QueryAnalyzer.analyze(op.underlying, conn)
 

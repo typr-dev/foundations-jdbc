@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 
@@ -19,10 +20,9 @@ object OptionalQueryBasic:
   // A search with an optional name filter.
   // When present, the filter is applied; when absent, it's skipped.
   val searchUsers: Template[Option[String], List[User]] =
-    Fragment.of(
-      "SELECT id, name, email FROM users WHERE 1=1"
-    ).optionally(
-        Fragment.of(" AND name ILIKE ").param(PgTypes.text))
+    sql"SELECT id, name, email FROM users WHERE 1=1"
+      .optionally(
+        sql" AND name ILIKE ".param(PgTypes.text))
       .query(userCodec.all())
 
   // Apply filter

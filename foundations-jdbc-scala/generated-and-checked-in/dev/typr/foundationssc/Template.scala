@@ -1,7 +1,9 @@
 package dev.typr.foundationssc
 
-sealed trait Template[In, Out]:
+sealed trait Template[In, Out] extends Analyzable:
   def underlying: dev.typr.foundations.Template[?, ?]
+
+  override def analyzable: dev.typr.foundations.Analyzable = underlying
 
   def on(input: In): Operation[Out]
 

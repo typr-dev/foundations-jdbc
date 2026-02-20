@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 
@@ -18,15 +19,14 @@ object TemplateThen:
   //start
   // Define templates
   val insertUser: Template[String, Int] =
-    Fragment.of("INSERT INTO users(name) VALUES(")
+    sql"INSERT INTO users(name) VALUES("
       .param(PgTypes.text)
       .append(") RETURNING id")
       .query(RowCodec.of(PgTypes.int4).exactlyOne())
 
   val ordersByUser: Template[Int, List[Order]] =
-    Fragment.of(
-      "SELECT id, user_id, product FROM orders WHERE user_id = "
-    ).param(PgTypes.int4)
+    sql"SELECT id, user_id, product FROM orders WHERE user_id = "
+      .param(PgTypes.int4)
       .query(orderCodec.all())
 
   // Chain: insert user, then fetch their orders

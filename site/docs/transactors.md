@@ -88,14 +88,16 @@ var tx = config.transactor(Transactor.testStrategy());
 
 ### Custom Strategies
 
+Build a strategy from scratch using `replaceX` methods — each one sets a single hook:
+
 <Snippet file="core/TransactorCustomStrategy" />
 
 ### Strategy Merging
 
-Strategies can be merged — all hooks compose (both run in order), and listeners are combined:
+Use `mergeX` methods to compose hooks — both the existing and new hook run in order. `mergeListener` composes listeners:
 
 <Snippet file="core/StrategyMerge" />
 
-Use `withStrategy()` on a Transactor to create a derived transactor with merged strategy:
+The `mergeListener` convenience on `Transactor` creates a derived transactor with the listener merged into its strategy:
 
 <Snippet file="core/StrategyOverride" />

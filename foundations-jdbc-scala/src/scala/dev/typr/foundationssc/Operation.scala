@@ -4,8 +4,10 @@ import java.sql.{Connection, SQLException}
 import java.time.Duration
 import _root_.scala.jdk.CollectionConverters.*
 
-sealed trait Operation[Out] {
+sealed trait Operation[Out] extends Analyzable {
   def underlying: dev.typr.foundations.Operation[?]
+
+  override def analyzable: dev.typr.foundations.Analyzable = underlying
 
   def runChecked(conn: Connection): Out
 

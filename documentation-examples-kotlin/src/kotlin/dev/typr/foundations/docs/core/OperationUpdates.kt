@@ -4,8 +4,8 @@ import dev.typr.foundationskt.*
 
 @Suppress("unused")
 class OperationUpdates {
-    val fragment: Fragment = Fragment.of(
-        "DELETE FROM users WHERE last_login < now() - interval '1 year'")
+    val fragment: Fragment = sql {
+        "DELETE FROM users WHERE last_login < now() - interval '1 year'" }
 
     //start
     // Get the affected row count

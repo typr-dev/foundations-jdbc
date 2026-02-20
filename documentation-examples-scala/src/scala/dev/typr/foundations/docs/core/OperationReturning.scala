@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
 
 @SuppressWarnings(Array("unused"))
 object OperationReturning:
@@ -13,10 +14,10 @@ object OperationReturning:
   //start
   // INSERT ... RETURNING id, name
   val insertedUsers: Operation[List[User]] =
-    Fragment.of("INSERT INTO users (name) VALUES ('alice') RETURNING id, name")
+    sql"INSERT INTO users (name) VALUES ('alice') RETURNING id, name"
       .updateReturning(userCodec.all())
 
   val insertedUser: Operation[User] =
-    Fragment.of("INSERT INTO users (name) VALUES ('alice') RETURNING id, name")
+    sql"INSERT INTO users (name) VALUES ('alice') RETURNING id, name"
       .updateReturning(userCodec.exactlyOne())
   //stop

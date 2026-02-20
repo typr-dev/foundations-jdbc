@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 
@@ -25,14 +26,13 @@ object OptionalQueryFacade:
 
   // .from() maps getters to template params
   private val searchTemplate: Template.From[UserSearch, List[User]] =
-    Fragment.of(
-      "SELECT id, name, email FROM users WHERE 1=1"
-    ).optionally(
-        Fragment.of(" AND name ILIKE ").param(PgTypes.text))
+    sql"SELECT id, name, email FROM users WHERE 1=1"
       .optionally(
-        Fragment.of(" AND email ILIKE ").param(PgTypes.text))
+        sql" AND name ILIKE ".param(PgTypes.text))
       .optionally(
-        Fragment.of(" AND active = TRUE"))
+        sql" AND email ILIKE ".param(PgTypes.text))
+      .optionally(
+        sql" AND active = TRUE")
       .append(" ORDER BY name")
       .query(userCodec.all())
       .from(_.name, _.email, _.activeOnly)

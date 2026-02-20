@@ -15,18 +15,18 @@ class OptionalQueryMulti {
             .build(::User)
 
     lateinit var tx: Transactor
-    lateinit var checker: dev.typr.foundations.QueryChecker
+    lateinit var checker: QueryChecker
 
     //start
     // Multiple optional filters — each independently present or absent
     val search: Template.Query3<String?, String?, Boolean, List<User>> =
-        Fragment.of("SELECT id, name, email FROM users WHERE 1=1")
+        sql { "SELECT id, name, email FROM users WHERE 1=1" }
             .optionally(
-                Fragment.of(" AND name ILIKE ").param(PgTypes.text))
+                sql { " AND name ILIKE " }.param(PgTypes.text))
             .optionally(
-                Fragment.of(" AND email ILIKE ").param(PgTypes.text))
+                sql { " AND email ILIKE " }.param(PgTypes.text))
             .optionally(
-                Fragment.of(" AND active = TRUE"))
+                sql { " AND active = TRUE" })
             .append(" ORDER BY name")
             .query(userCodec.all())
 

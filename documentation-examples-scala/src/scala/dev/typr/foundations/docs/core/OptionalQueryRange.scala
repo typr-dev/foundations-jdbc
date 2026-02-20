@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 
@@ -20,10 +21,9 @@ object OptionalQueryRange:
   // pass a multi-parameter builder.
   // The grouped parameters are provided or omitted together.
   val byPriceRange: Template[Option[(BigDecimal, BigDecimal)], List[Product]] =
-    Fragment.of(
-      "SELECT id, name, price FROM products WHERE 1=1"
-    ).optionally(
-        Fragment.of(" AND price BETWEEN ")
+    sql"SELECT id, name, price FROM products WHERE 1=1"
+      .optionally(
+        sql" AND price BETWEEN "
           .param(PgTypes.numeric)
           .append(" AND ")
           .param(PgTypes.numeric))

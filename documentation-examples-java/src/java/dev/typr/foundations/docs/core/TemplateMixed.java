@@ -23,24 +23,22 @@ public class TemplateMixed {
     Transactor tx = null; // placeholder
 
     //start
-    // Mix bound and unbound parameters in the same template
-    // The status is fixed at "active", but the limit varies per call
-    Template<Integer, List<User>> activeUsersWithLimit =
+    // Mix bound and unbound parameters in the same template.
+    // Status is fixed at "active"; name filter and limit vary per call.
+    Template.Query2<String, Integer, List<User>> activeUsersByName =
         Fragment.of("""
                 SELECT id, name, status
                 FROM users WHERE status =
                 """)
             .value(PgTypes.text, "active")
+            .append(" AND name ILIKE ")
+            .param(PgTypes.text)
             .append(" ORDER BY name LIMIT ")
             .param(PgTypes.int4)
             .query(userCodec.all());
 
-    List<User> topTen() throws SQLException {
-        return activeUsersWithLimit.on(10).transact(tx);
-    }
-
-    List<User> topFifty() throws SQLException {
-        return activeUsersWithLimit.on(50).transact(tx);
+    List<User> example() throws SQLException {
+        return activeUsersByName.on("%alice%", 10).transact(tx);
     }
     //stop
 }

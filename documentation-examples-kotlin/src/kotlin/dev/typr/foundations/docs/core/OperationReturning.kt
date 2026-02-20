@@ -14,11 +14,11 @@ class OperationReturning {
     //start
     // INSERT ... RETURNING id, name
     val insertedUsers: Operation<List<User>> =
-        Fragment.of("INSERT INTO users (name) VALUES ('alice') RETURNING id, name")
+        sql { "INSERT INTO users (name) VALUES ('alice') RETURNING id, name" }
             .updateReturning(userCodec.all())
 
     val insertedUser: Operation<User> =
-        Fragment.of("INSERT INTO users (name) VALUES ('alice') RETURNING id, name")
+        sql { "INSERT INTO users (name) VALUES ('alice') RETURNING id, name" }
             .updateReturning(userCodec.exactlyOne())
     //stop
 }

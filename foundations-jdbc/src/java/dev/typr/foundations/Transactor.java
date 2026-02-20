@@ -83,6 +83,16 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
   }
 
   /**
+   * Returns a new Transactor with the given listener merged into the existing strategy.
+   *
+   * @param listener the listener to merge
+   * @return a new Transactor with the merged listener
+   */
+  public Transactor mergeListener(QueryListener listener) {
+    return new Transactor(connect, strategy.mergeListener(listener));
+  }
+
+  /**
    * Execute an operation with a one-shot strategy override merged on top of the base strategy.
    *
    * @param <T> the result type
@@ -112,9 +122,9 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    */
   public static Strategy defaultStrategy() {
     return Strategy.empty()
-        .withBefore(conn -> conn.setAutoCommit(false))
-        .withAfter(Connection::commit)
-        .withAlways(Connection::close);
+        .replaceBefore(conn -> conn.setAutoCommit(false))
+        .replaceAfter(Connection::commit)
+        .replaceAlways(Connection::close);
   }
 
   /**
@@ -132,7 +142,7 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @return a strategy for auto-commit mode
    */
   public static Strategy autoCommitStrategy() {
-    return Strategy.empty().withAlways(Connection::close);
+    return Strategy.empty().replaceAlways(Connection::close);
   }
 
   /**
@@ -151,9 +161,9 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    */
   public static Strategy rollbackOnErrorStrategy() {
     return Strategy.empty()
-        .withBefore(conn -> conn.setAutoCommit(false))
-        .withAfter(Connection::commit)
-        .withOops(
+        .replaceBefore(conn -> conn.setAutoCommit(false))
+        .replaceAfter(Connection::commit)
+        .replaceOops(
             (conn, t) -> {
               try {
                 if (!conn.getAutoCommit() && !conn.isClosed()) {
@@ -162,7 +172,7 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
               } catch (SQLException ignored) {
               }
             })
-        .withAlways(Connection::close);
+        .replaceAlways(Connection::close);
   }
 
   /**
@@ -181,9 +191,9 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    */
   public static Strategy testStrategy() {
     return Strategy.empty()
-        .withBefore(conn -> conn.setAutoCommit(false))
-        .withAfter(Connection::rollback)
-        .withAlways(Connection::close);
+        .replaceBefore(conn -> conn.setAutoCommit(false))
+        .replaceAfter(Connection::rollback)
+        .replaceAlways(Connection::close);
   }
 
   /**
@@ -207,24 +217,80 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
       return new Strategy(conn -> {}, conn -> {}, (conn, t) -> {}, conn -> {}, QueryListener.NOOP);
     }
 
-    public Strategy withBefore(SqlConsumer<Connection> before) {
+    public Strategy replaceBefore(SqlConsumer<Connection> before) {
       return new Strategy(before, after, oops, always, listener);
     }
 
-    public Strategy withAfter(SqlConsumer<Connection> after) {
+    public Strategy replaceAfter(SqlConsumer<Connection> after) {
       return new Strategy(before, after, oops, always, listener);
     }
 
-    public Strategy withOops(SqlBiConsumer<Connection, Throwable> oops) {
+    public Strategy replaceOops(SqlBiConsumer<Connection, Throwable> oops) {
       return new Strategy(before, after, oops, always, listener);
     }
 
-    public Strategy withAlways(SqlConsumer<Connection> always) {
+    public Strategy replaceAlways(SqlConsumer<Connection> always) {
       return new Strategy(before, after, oops, always, listener);
     }
 
-    public Strategy withListener(QueryListener listener) {
+    public Strategy replaceListener(QueryListener listener) {
       return new Strategy(before, after, oops, always, listener);
+    }
+
+    public Strategy mergeBefore(SqlConsumer<Connection> other) {
+      SqlConsumer<Connection> existing = this.before;
+      return new Strategy(
+          conn -> {
+            existing.apply(conn);
+            other.apply(conn);
+          },
+          after,
+          oops,
+          always,
+          listener);
+    }
+
+    public Strategy mergeAfter(SqlConsumer<Connection> other) {
+      SqlConsumer<Connection> existing = this.after;
+      return new Strategy(
+          before,
+          conn -> {
+            existing.apply(conn);
+            other.apply(conn);
+          },
+          oops,
+          always,
+          listener);
+    }
+
+    public Strategy mergeOops(SqlBiConsumer<Connection, Throwable> other) {
+      SqlBiConsumer<Connection, Throwable> existing = this.oops;
+      return new Strategy(
+          before,
+          after,
+          (conn, t) -> {
+            existing.apply(conn, t);
+            other.apply(conn, t);
+          },
+          always,
+          listener);
+    }
+
+    public Strategy mergeAlways(SqlConsumer<Connection> other) {
+      SqlConsumer<Connection> existing = this.always;
+      return new Strategy(
+          before,
+          after,
+          oops,
+          conn -> {
+            existing.apply(conn);
+            other.apply(conn);
+          },
+          listener);
+    }
+
+    public Strategy mergeListener(QueryListener other) {
+      return new Strategy(before, after, oops, always, listener.compose(other));
     }
 
     public Strategy merge(Strategy other) {

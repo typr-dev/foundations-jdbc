@@ -9,7 +9,6 @@ class StrategyOverride {
     val logger: QueryListener = QueryListener.NOOP
 
     //start
-    val txWithLogging: Transactor =
-        tx.withStrategy(Strategy.empty().withListener(logger))
+    val txWithLogging: Transactor = tx.mergeListener(logger)
     //stop
 }

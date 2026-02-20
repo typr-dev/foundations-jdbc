@@ -8,7 +8,6 @@ public class StrategyMerge {
     QueryListener logger = QueryListener.NOOP; // placeholder
     //start
     Transactor.Strategy base = Transactor.defaultStrategy();
-    Transactor.Strategy withLogging =
-        base.merge(Transactor.Strategy.empty().withListener(logger));
+    Transactor.Strategy withLogging = base.mergeListener(logger);
     //stop
 }

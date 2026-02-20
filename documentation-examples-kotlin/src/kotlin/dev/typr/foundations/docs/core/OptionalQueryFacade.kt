@@ -26,13 +26,13 @@ class OptionalQueryFacade {
 
     // .from() maps getters to template params
     private val searchTemplate: Template.From<UserSearch, List<User>> =
-        Fragment.of("SELECT id, name, email FROM users WHERE 1=1")
+        sql { "SELECT id, name, email FROM users WHERE 1=1" }
             .optionally(
-                Fragment.of(" AND name ILIKE ").param(PgTypes.text))
+                sql { " AND name ILIKE " }.param(PgTypes.text))
             .optionally(
-                Fragment.of(" AND email ILIKE ").param(PgTypes.text))
+                sql { " AND email ILIKE " }.param(PgTypes.text))
             .optionally(
-                Fragment.of(" AND active = TRUE"))
+                sql { " AND active = TRUE" })
             .append(" ORDER BY name")
             .query(userCodec.all())
             .from(UserSearch::name, UserSearch::email,

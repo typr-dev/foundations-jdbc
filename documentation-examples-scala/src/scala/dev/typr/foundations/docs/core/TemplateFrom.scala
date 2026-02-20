@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 
@@ -13,7 +14,7 @@ object TemplateFrom:
 
   // .from() maps case class fields to template params
   val insertUser: Template.From[InsertUser, Int] =
-    Fragment.of("INSERT INTO users(name, email) VALUES(")
+    sql"INSERT INTO users(name, email) VALUES("
       .param(PgTypes.text)
       .append(", ")
       .param(PgTypes.text)

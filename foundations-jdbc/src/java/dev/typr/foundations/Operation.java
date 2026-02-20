@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import org.jetbrains.annotations.Nullable;
 
-public sealed interface Operation<Out>
+public sealed interface Operation<Out> extends Analyzable
     permits Operation.Query,
         Operation.Update,
         Operation.UpdateReturning,

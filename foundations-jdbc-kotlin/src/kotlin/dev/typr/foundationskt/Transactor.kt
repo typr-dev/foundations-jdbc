@@ -29,6 +29,9 @@ class Transactor(val underlying: dev.typr.foundations.Transactor) {
     fun withStrategy(override: Strategy): Transactor =
         Transactor(underlying.withStrategy(override))
 
+    fun mergeListener(listener: QueryListener): Transactor =
+        Transactor(underlying.mergeListener(listener))
+
     @Throws(SQLException::class)
     fun <T> transact(override: Strategy, f: (Connection) -> T): T =
         withStrategy(override).transact(f)

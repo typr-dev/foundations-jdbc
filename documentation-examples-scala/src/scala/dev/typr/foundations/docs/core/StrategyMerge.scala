@@ -9,6 +9,5 @@ object StrategyMerge:
   val logger: QueryListener = QueryListener.NOOP
   //start
   val base: Transactor.Strategy = Transactor.defaultStrategy()
-  val withLogging: Transactor.Strategy =
-    base.merge(Strategy.empty().withListener(logger))
+  val withLogging: Transactor.Strategy = base.mergeListener(logger)
   //stop

@@ -20,7 +20,7 @@ val addressStruct: DuckDbStruct<Address> = DuckDbStruct.builder<Address>("addres
     .field("street", DuckDbTypes.varchar, Address::street)
     .field("city", DuckDbTypes.varchar, Address::city)
     .field("state", DuckDbTypes.varchar, Address::state)
-    .field("zip", DuckDbTypes.varchar, Address::zip)
+    .field("zip",   DuckDbTypes.varchar, Address::zip)
     .field("country", DuckDbTypes.varchar, Address::country)
     .build(::Address)
 

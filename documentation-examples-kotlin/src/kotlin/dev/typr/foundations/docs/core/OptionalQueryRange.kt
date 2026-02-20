@@ -22,9 +22,9 @@ class OptionalQueryRange {
     // pass a multi-parameter builder.
     // The grouped parameters are provided or omitted together.
     val byPriceRange: Template<Pair<BigDecimal, BigDecimal>?, List<Product>> =
-        Fragment.of("SELECT id, name, price FROM products WHERE 1=1")
+        sql { "SELECT id, name, price FROM products WHERE 1=1" }
             .optionally(
-                Fragment.of(" AND price BETWEEN ")
+                sql { " AND price BETWEEN " }
                     .param(PgTypes.numeric)
                     .append(" AND ")
                     .param(PgTypes.numeric))

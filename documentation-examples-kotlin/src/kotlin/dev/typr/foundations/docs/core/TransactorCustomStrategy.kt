@@ -9,9 +9,9 @@ class TransactorCustomStrategy {
     //start
     val customStrategy: Strategy =
         Strategy.empty()
-            .withBefore { conn -> conn.autoCommit = false }
-            .withAfter(Connection::commit)
-            .withOops { _, _ -> /* handle error */ }
-            .withAlways(Connection::close)
+            .replaceBefore { conn -> conn.autoCommit = false }
+            .replaceAfter(Connection::commit)
+            .replaceOops { _, _ -> /* handle error */ }
+            .replaceAlways(Connection::close)
     //stop
 }

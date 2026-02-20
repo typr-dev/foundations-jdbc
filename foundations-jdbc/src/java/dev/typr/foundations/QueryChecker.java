@@ -6,52 +6,12 @@ public interface QueryChecker {
 
   Transactor transactor();
 
-  default void check(Operation<?> op) {
+  default void check(Analyzable analyzable) {
     List<QueryAnalysis> analyses;
     try {
-      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(op, conn));
+      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(analyzable, conn));
     } catch (SQLException e) {
-      throw new RuntimeException("Failed to analyze operation", e);
-    }
-    StringBuilder errors = new StringBuilder();
-    int errorCount = 0;
-    for (QueryAnalysis analysis : analyses) {
-      if (!analysis.succeeded()) {
-        errorCount++;
-        errors.append("\n\n").append(analysis.report());
-      }
-    }
-    if (errorCount > 0) {
-      throw new AssertionError("Query type check failed:" + errors);
-    }
-  }
-
-  default void check(Template<?, ?> template) {
-    List<QueryAnalysis> analyses;
-    try {
-      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(template, conn));
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to analyze template", e);
-    }
-    StringBuilder errors = new StringBuilder();
-    int errorCount = 0;
-    for (QueryAnalysis analysis : analyses) {
-      if (!analysis.succeeded()) {
-        errorCount++;
-        errors.append("\n\n").append(analysis.report());
-      }
-    }
-    if (errorCount > 0) {
-      throw new AssertionError("Query type check failed:" + errors);
-    }
-  }
-
-  default void check(RowTemplate<?, ?> template) {
-    List<QueryAnalysis> analyses;
-    try {
-      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(template, conn));
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to analyze template", e);
+      throw new RuntimeException("Failed to analyze query", e);
     }
     StringBuilder errors = new StringBuilder();
     int errorCount = 0;
@@ -82,22 +42,22 @@ public interface QueryChecker {
     check(fragment, codec.all());
   }
 
-  default void checkAll(Operation<?>... operations) {
+  default void checkAll(List<? extends Analyzable> analyzables) {
     StringBuilder errors = new StringBuilder();
     int errorCount = 0;
 
-    for (int i = 0; i < operations.length; i++) {
-      Operation<?> op = operations[i];
+    for (int i = 0; i < analyzables.size(); i++) {
+      Analyzable a = analyzables.get(i);
       List<QueryAnalysis> analyses;
       try {
-        analyses = transactor().execute(conn -> QueryAnalyzer.analyze(op, conn));
+        analyses = transactor().execute(conn -> QueryAnalyzer.analyze(a, conn));
       } catch (SQLException e) {
-        throw new RuntimeException("Failed to analyze operation " + (i + 1), e);
+        throw new RuntimeException("Failed to analyze query " + (i + 1), e);
       }
       for (QueryAnalysis analysis : analyses) {
         if (!analysis.succeeded()) {
           errorCount++;
-          errors.append("\n\n--- Operation ").append(i + 1).append(" ---\n");
+          errors.append("\n\n--- Query ").append(i + 1).append(" ---\n");
           errors.append(analysis.report());
         }
       }
@@ -108,6 +68,10 @@ public interface QueryChecker {
           errorCount + " queries failed type checking:" + errors
       );
     }
+  }
+
+  default void checkAll(Analyzable... analyzables) {
+    checkAll(List.of(analyzables));
   }
 
   default void checkRoutine(Procedure<?> procedure) {

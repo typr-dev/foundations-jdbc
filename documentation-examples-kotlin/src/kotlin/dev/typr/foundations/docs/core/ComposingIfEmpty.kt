@@ -21,12 +21,12 @@ class ComposingIfEmpty {
     //start
     // Find-or-create pattern
     val findUser: Template<String, User?> =
-        Fragment.of("SELECT id, name, email FROM users WHERE email = ")
+        sql { "SELECT id, name, email FROM users WHERE email = " }
             .param(PgTypes.text)
             .query(userCodec.maxOne())
 
     val createUser: Template.Query2<String, String, User> =
-        Fragment.of("INSERT INTO users(name, email) VALUES(")
+        sql { "INSERT INTO users(name, email) VALUES(" }
             .param(PgTypes.text)
             .append(", ")
             .param(PgTypes.text)

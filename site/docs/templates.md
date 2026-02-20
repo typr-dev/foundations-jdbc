@@ -12,7 +12,13 @@ Templates let you define the SQL structure once and supply values later. Use `.p
 
 Fill the template with `.on(value)` to get a concrete operation.
 
-## Mixing Bound and Unbound Parameters
+:::tip When to use Templates vs bound values
+Use **bound values** (`.value(type, value)`, `sql { }`, `sql""`) when all values are known at definition time — they produce a `Fragment` directly.
+
+Use **Templates** (`.param(type)`) when values come later — the SQL structure is fixed but values are supplied per-call. Templates also enable [batch operations](#batch-operations) and [dynamic queries](#dynamic-templates) with compile-time analysis of all variants.
+:::
+
+## Multiple Parameters
 
 You can mix `.value(type, value)` (bound immediately) with `.param(type)` (filled later) in the same fragment. Only the unbound parameters become template parameters:
 
@@ -38,19 +44,9 @@ For PostgreSQL high-throughput inserts, use [streaming inserts](./streaming-inse
 
 ## Dynamic Templates
 
-Build templates with optional predicates — each combination of present/absent filters produces a different SQL structure, and [Query Analysis](./query-analysis#dynamic-sql-analysis) verifies all of them automatically.
+`.optionally()` wraps a fragment so it is included in the SQL when a value is present and omitted entirely when absent. Each combination of present/absent filters produces a structurally different query, and [Query Analysis](./query-analysis#dynamic-sql-analysis) verifies all of them automatically.
 
-### The Problem
-
-Search forms and filters often produce dynamic SQL. Each combination of present/absent predicates is a structurally different query. Without tooling, you either:
-
-- **Build SQL strings manually** and lose type safety
-- **Test only the combinations you think of**, missing edge cases
-- **Analyze each permutation individually**, which doesn't scale
-
-With N optional predicates, there are 2^N possible query structures. `.optionally()` lets you declare them inline, and [Query Analysis](./query-analysis) verifies all of them with a single `checker.check()` call.
-
-### Single Optional Parameter
+### Optional Filters
 
 Use `.optionally()` with a parameterized fragment to create a filter that is included when a value is provided and skipped when absent:
 
@@ -58,24 +54,37 @@ Use `.optionally()` with a parameterized fragment to create a filter that is inc
 
 The template parameter type reflects the optionality — `Optional<String>` in Java, `String?` in Kotlin, `Option[String]` in Scala.
 
+:::note About `WHERE 1=1`
+The `WHERE 1=1` pattern lets you unconditionally prefix every filter with `AND` — since `1=1` is always true, the query works correctly whether zero, one, or all filters are present. This avoids conditional logic to decide whether to emit `WHERE` or `AND`.
+
+For non-template scenarios, `Fragment.whereAnd(filters)` handles this automatically.
+:::
+
 ### Boolean Flags
 
 For SQL chunks without parameters (e.g., `AND active = TRUE`), pass a plain `Fragment` to `.optionally()`. The template parameter becomes a `Boolean` — `true` includes the chunk, `false` skips it:
 
-```java
-Template<Boolean, List<User>> activeUsers =
-    Fragment.of("SELECT * FROM users WHERE 1=1")
-        .optionally(Fragment.of(" AND active = TRUE"))
-        .query(userCodec.all());
-```
+<Snippet file="core/OptionalQueryBooleanFlags" />
 
-### Multiple Optional Parameters
+### Multiple Optional Filters
 
 Chain multiple `.optionally()` calls to build queries with many independent filters. Each adds a template parameter:
 
 <Snippet file="core/OptionalQueryMulti" />
 
-### Multi-Parameter Optionally
+With 3 optional filters, there are 2³ = 8 possible query structures. For example, calling the template above with two different inputs:
+
+```
+search.on("alice", null, true)
+→ SELECT id, name, email FROM users WHERE 1=1 AND name ILIKE ? AND active = TRUE ORDER BY name
+
+search.on(null, null, false)
+→ SELECT id, name, email FROM users WHERE 1=1 ORDER BY name
+```
+
+`checker.check(search)` expands and verifies all 8 combinations against the database — you don't test them individually.
+
+### Grouped Parameters
 
 When an optional clause needs multiple parameters (e.g., a `BETWEEN` range), pass a multi-parameter builder. The grouped parameters are provided or omitted together as a single unit:
 

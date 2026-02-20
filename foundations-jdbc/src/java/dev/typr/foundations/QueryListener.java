@@ -21,6 +21,10 @@ public interface QueryListener {
         public void failedQuery(QueryEvent event) {}
       };
 
+  default QueryListener compose(QueryListener other) {
+    return compose(this, other);
+  }
+
   static QueryListener compose(QueryListener first, QueryListener second) {
     if (first == NOOP) return second;
     if (second == NOOP) return first;

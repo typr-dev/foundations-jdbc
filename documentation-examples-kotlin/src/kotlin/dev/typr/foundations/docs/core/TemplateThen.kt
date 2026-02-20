@@ -19,16 +19,13 @@ class TemplateThen {
     //start
     // Define templates
     val insertUser: Template<String, Int> =
-        Fragment.of("INSERT INTO users(name) VALUES(")
+        sql { "INSERT INTO users(name) VALUES(" }
             .param(PgTypes.text)
             .append(") RETURNING id")
             .query(RowCodec.of(PgTypes.int4).exactlyOne())
 
     val ordersByUser: Template<Int, List<Order>> =
-        Fragment.of("""
-            SELECT id, user_id, product
-            FROM orders
-            WHERE user_id = """)
+        sql { "SELECT id, user_id, product FROM orders WHERE user_id = " }
             .param(PgTypes.int4)
             .query(orderCodec.all())
 

@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 import java.sql.Connection
@@ -21,7 +22,7 @@ object BatchOperations:
   //start
   // Batch insert — all columns as parameters
   val insertAll: RowTemplate.Update[Product] =
-    Fragment.of("INSERT INTO product (")
+    sql"INSERT INTO product ("
       .append(productCodec.columnList)
       .append(") VALUES (")
       .paramRow(productCodec)
@@ -33,9 +34,8 @@ object BatchOperations:
 
   // Batch insert — skip auto-generated ID column
   val insertAutoId: RowTemplate.Update[Product] =
-    Fragment.of(
-      "INSERT INTO product (name, price, created_at) VALUES ("
-    ).paramRow(productCodec, "id")
+    sql"INSERT INTO product (name, price, created_at) VALUES ("
+      .paramRow(productCodec, "id")
       .append(")")
       .update()
 

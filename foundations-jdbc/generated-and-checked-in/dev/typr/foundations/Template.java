@@ -1,6 +1,6 @@
 package dev.typr.foundations;
 
-public sealed interface Template<In, Out>
+public sealed interface Template<In, Out> extends Analyzable
     permits Template.Query1,
         Template.Query2,
         Template.Query3,

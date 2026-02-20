@@ -1231,7 +1231,7 @@ ${range.map(i => s"      DbType<P$i> p${i}Type${if (i < n - 1) "," else ")"}").m
 
   s"""|package dev.typr.foundations;
       |
-      |public sealed interface Template<In, Out>
+      |public sealed interface Template<In, Out> extends Analyzable
       |    permits $permits {
       |
       |  Operation<Out> on(In in);

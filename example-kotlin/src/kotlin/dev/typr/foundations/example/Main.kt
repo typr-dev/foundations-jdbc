@@ -17,10 +17,9 @@ fun main() {
 
     // ── Query analysis ──────────────────────────────────────────────
     println("=== Running query analysis ===")
+    val allAnalyzables = VenueRepo.analyzables + EventRepo.analyzables + TicketRepo.analyzables
     val analyses = tx.transact { conn ->
-        analyzeVenueQueries(conn) +
-            analyzeEventQueries(conn) +
-            analyzeTicketQueries(conn)
+        allAnalyzables.flatMap { QueryAnalyzer.analyze(it, conn) }
     }
 
     var allPassed = true
@@ -86,7 +85,7 @@ fun main() {
     service.rateEvent(event.id, 4.5)
     service.rateEvent(event.id, 5.0)
     service.rateEvent(event.id, 3.5)
-    val rated = eventById(event.id).transact(tx)!!
+    val rated = EventRepo.eventById.on(event.id).transact(tx)!!
     println("Ratings: ${rated.ratings}\n")
 
     // ── Purchase remaining to trigger SOLD_OUT ──────────────────────
@@ -96,7 +95,7 @@ fun main() {
         TicketPurchaseRequest(TicketTier.GENERAL, "Eve Adams", "eve@example.com", emptyList()),
     ))
     println("  ${remaining.size} more tickets purchased")
-    val soldOut = eventById(event.id).transact(tx)!!
+    val soldOut = EventRepo.eventById.on(event.id).transact(tx)!!
     println("  Event status now: ${soldOut.status}\n")
 
     // ── Try to buy when sold out ────────────────────────────────────
@@ -120,12 +119,12 @@ fun main() {
 
     // ── Read back all data ──────────────────────────────────────────
     println("=== All venues ===")
-    allVenues.transact(tx).forEach { v ->
+    VenueRepo.allVenues.transact(tx).forEach { v ->
         println("  ${v.name}: capacity=${v.capacity}, tags=${v.tags}")
     }
 
     println("\n=== All tickets for event ===")
-    ticketsByEvent(event.id).transact(tx).forEach { t ->
+    TicketRepo.ticketsByEvent.on(event.id).transact(tx).forEach { t ->
         println("  ${t.holderName} [${t.tier}] \$${t.price.amount}")
     }
 

@@ -17,7 +17,7 @@ object QueryAnalysisAll:
   var conn: Connection = null // placeholder
 
   val insertUser: Template[String, Int] =
-    Fragment.of("INSERT INTO users(name) VALUES(")
+    sql"INSERT INTO users(name) VALUES("
       .param(PgTypes.text)
       .append(") RETURNING id")
       .query(RowCodec.of(PgTypes.int4).exactlyOne())

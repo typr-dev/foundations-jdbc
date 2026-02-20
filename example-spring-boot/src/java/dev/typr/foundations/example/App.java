@@ -1,5 +1,6 @@
 package dev.typr.foundations.example;
 
+import dev.typr.foundations.QueryChecker;
 import dev.typr.foundations.Transactor;
 import dev.typr.foundations.connect.DuckDbConfig;
 import dev.typr.foundations.connect.SingleConnectionDataSource;
@@ -22,7 +23,7 @@ public class App {
     }
 
     @Bean
-    CommandLineRunner demo(TodoRepository todos) {
+    CommandLineRunner demo(TodoRepository todos, Transactor tx) {
         return args -> {
             todos.createSchema();
 
@@ -33,7 +34,7 @@ public class App {
             System.out.println("Created: " + write);
             System.out.println("Created: " + read);
 
-            todos.setDone(buy.id(), true);
+            todos.setDone(buy.id());
 
             System.out.println("\nAll todos:");
             for (var todo : todos.findAll()) {
@@ -42,7 +43,9 @@ public class App {
             }
 
             System.out.println("\nQuery analysis:");
-            todos.analyzeQueries();
+            QueryChecker checker = () -> tx;
+            checker.checkAll(TodoRepository.analyzables);
+            System.out.println("  All queries passed analysis.");
         };
     }
 }

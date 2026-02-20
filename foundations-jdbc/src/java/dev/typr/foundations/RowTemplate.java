@@ -3,7 +3,7 @@ package dev.typr.foundations;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public sealed interface RowTemplate<Row, Out> {
+public sealed interface RowTemplate<Row, Out> extends Analyzable {
   Fragment fragment();
 
   Operation<Out> on(Row row);

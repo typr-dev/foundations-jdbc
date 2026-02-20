@@ -20,9 +20,9 @@ class OptionalQueryBasic {
     // A search with an optional name filter.
     // When present, the filter is applied; when absent, it's skipped.
     val searchUsers: Template<String?, List<User>> =
-        Fragment.of("SELECT id, name, email FROM users WHERE 1=1")
+        sql { "SELECT id, name, email FROM users WHERE 1=1" }
             .optionally(
-                Fragment.of(" AND name ILIKE ").param(PgTypes.text))
+                sql { " AND name ILIKE " }.param(PgTypes.text))
             .query(userCodec.all())
 
     // Apply filter

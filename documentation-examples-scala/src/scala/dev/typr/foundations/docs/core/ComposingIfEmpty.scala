@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 
@@ -20,13 +21,12 @@ object ComposingIfEmpty:
   //start
   // Find-or-create pattern
   val findUser: Template[String, Option[User]] =
-    Fragment.of(
-      "SELECT id, name, email FROM users WHERE email = "
-    ).param(PgTypes.text)
+    sql"SELECT id, name, email FROM users WHERE email = "
+      .param(PgTypes.text)
       .query(userCodec.maxOne())
 
   val createUser: Template.Query2[String, String, User] =
-    Fragment.of("INSERT INTO users(name, email) VALUES(")
+    sql"INSERT INTO users(name, email) VALUES("
       .param(PgTypes.text).append(", ")
       .param(PgTypes.text)
       .append(") RETURNING *")

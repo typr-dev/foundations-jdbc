@@ -1,64 +1,72 @@
 package dev.typr.foundations.example
 
-import dev.typr.foundationskt.*
-import java.math.BigDecimal
-import java.sql.Connection
+import dev.typr.foundationskt.Analyzable
+import dev.typr.foundationskt.DuckDbTypes
+import dev.typr.foundationskt.Fragment
+import dev.typr.foundationskt.Operation
+import dev.typr.foundationskt.RowCodec
+import dev.typr.foundationskt.RowTemplate
+import dev.typr.foundationskt.Template
+import dev.typr.foundationskt.sql
 import java.time.OffsetDateTime
 import java.util.*
 
-fun ticketsByEvent(eventId: EventId): Operation.Query<List<Ticket>> =
-    sql { "SELECT ${ticketCodec.columnList} FROM ticket WHERE event_id = ${eventIdType(eventId)} ORDER BY purchased" }
-        .query(ticketCodec.all())
+object TicketRepo {
+    val ticketsByEvent: Template<EventId, List<Ticket>> =
+        sql { "SELECT ${ticketCodec.columnList} FROM ticket WHERE event_id = " }
+            .param(eventIdType)
+            .query(ticketCodec.all())
 
-fun ticketById(id: TicketId): Operation.Query<Ticket?> =
-    sql { "SELECT ${ticketCodec.columnList} FROM ticket WHERE id = ${ticketIdType(id)}" }
-        .query(ticketCodec.maxOne())
+    val ticketById: Template<TicketId, Ticket?> =
+        sql { "SELECT ${ticketCodec.columnList} FROM ticket WHERE id = " }
+            .param(ticketIdType)
+            .query(ticketCodec.maxOne())
 
-fun insertTicket(ticket: Ticket): Operation.Query<Ticket> {
-    val values = Fragment.row(ticketCodec, ticket)
-    return sql { "INSERT INTO ticket (${ticketCodec.columnList}) VALUES ($values) RETURNING ${ticketCodec.columnList}" }
-        .query(ticketCodec.exactlyOne())
-}
+    val countTicketsByEvent: Template<EventId, Long> =
+        sql { "SELECT count(*) FROM ticket WHERE event_id = " }
+            .param(eventIdType)
+            .query(RowCodec.of(DuckDbTypes.bigint).exactlyOne())
 
-fun countTicketsByEvent(eventId: EventId): Operation.Query<Long> =
-    sql { "SELECT count(*) FROM ticket WHERE event_id = ${eventIdType(eventId)}" }
-        .queryExactlyOne(DuckDbTypes.bigint)
+    val revenueByEvent: Template<EventId, Money> =
+        sql { "SELECT coalesce(sum(price), 0) FROM ticket WHERE event_id = " }
+            .param(eventIdType)
+            .query(RowCodec.of(moneyType).exactlyOne())
 
-fun revenueByEvent(eventId: EventId): Operation.Query<Money> =
-    sql { "SELECT coalesce(sum(price), 0) FROM ticket WHERE event_id = ${eventIdType(eventId)}" }
-        .queryExactlyOne(moneyType)
+    val eventSummaries: Operation<List<EventSummary>> =
+        sql {
+            """SELECT e.id, e.title, v.name, count(t.id), coalesce(sum(t.price), 0)
+               FROM event e
+               JOIN venue v ON e.venue_id = v.id
+               LEFT JOIN ticket t ON t.event_id = e.id
+               GROUP BY e.id, e.title, v.name
+               ORDER BY e.title"""
+        }
+            .query(eventSummaryCodec.all())
 
-val eventSummaries: Operation.Query<List<EventSummary>> =
-    sql { """SELECT e.id, e.title, v.name, count(t.id), coalesce(sum(t.price), 0)
-           FROM event e
-           JOIN venue v ON e.venue_id = v.id
-           LEFT JOIN ticket t ON t.event_id = e.id
-           GROUP BY e.id, e.title, v.name
-           ORDER BY e.title""" }
-        .query(eventSummaryCodec.all())
+    val insertTicket: RowTemplate.Query<Ticket, Ticket> =
+        Fragment.of("INSERT INTO ticket (${ticketCodec.columnNames.joinToString(", ")}) VALUES (")
+            .paramRow(ticketCodec)
+            .append(sql { ") RETURNING ${ticketCodec.columnList}" })
+            .query(ticketCodec.exactlyOne())
 
-fun purchaseTicket(
-    eventId: EventId, tier: TicketTier, holderName: String, holderEmail: String?,
-    price: Money, seatNumbers: List<Int>
-): Operation.Query<Ticket> {
-    val ticket = Ticket(
-        id = TicketId(UUID.randomUUID()),
-        eventId = eventId,
-        tier = tier,
-        holderName = holderName,
-        holderEmail = holderEmail,
-        price = price,
-        purchased = OffsetDateTime.now(),
-        seatNumbers = seatNumbers
+    fun purchaseTicket(
+        eventId: EventId, tier: TicketTier, holderName: String, holderEmail: String?,
+        price: Money, seatNumbers: List<Int>
+    ): Operation.Query<Ticket> = insertTicket.on(
+        Ticket(
+                id = TicketId(UUID.randomUUID()),
+                eventId = eventId,
+                tier = tier,
+                holderName = holderName,
+                holderEmail = holderEmail,
+                price = price,
+                purchased = OffsetDateTime.now(),
+                seatNumbers = seatNumbers
+            )
+        )
+
+    val analyzables: List<Analyzable> = listOf(
+        ticketsByEvent, ticketById, countTicketsByEvent, revenueByEvent,
+        eventSummaries, insertTicket
     )
-    return insertTicket(ticket)
 }
-
-fun analyzeTicketQueries(conn: Connection): List<QueryAnalysis> = listOf(
-    QueryAnalyzer.analyze(ticketsByEvent(EventId(0)).named("ticketsByEvent"), conn),
-    QueryAnalyzer.analyze(ticketById(TicketId(UUID.randomUUID())).named("ticketById"), conn),
-    QueryAnalyzer.analyze(insertTicket(Ticket(TicketId(UUID.randomUUID()), EventId(0), TicketTier.GENERAL, "", null, Money(BigDecimal.ZERO), OffsetDateTime.now(), emptyList())).named("insertTicket"), conn),
-    QueryAnalyzer.analyze(countTicketsByEvent(EventId(0)).named("countTicketsByEvent"), conn),
-    QueryAnalyzer.analyze(revenueByEvent(EventId(0)).named("revenueByEvent"), conn),
-    QueryAnalyzer.analyze(eventSummaries.named("eventSummaries"), conn),
-).flatten()

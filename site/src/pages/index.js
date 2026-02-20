@@ -715,7 +715,7 @@ function ComparisonSection() {
             </tbody>
           </table>
           <div style={{fontSize: '0.8rem', color: '#94a3b8', marginTop: '1rem', maxWidth: '800px', margin: '1rem auto 0', lineHeight: '1.6'}}>
-            <p style={{margin: '0.25rem 0'}}>* If you need to switch databases, regenerating code from your new schema may be more reliable than hoping the leaky abstraction holds.</p>
+            <p style={{margin: '0.25rem 0'}}>* Type references are explicit and searchable — find all <code>PgTypes.</code> and replace with <code>MariaTypes.</code> — then run Query Analysis to verify every query against the new database at test time. More manual than hoping an abstraction holds, but nothing slips through unchecked.</p>
             <p style={{margin: '0.25rem 0'}}><sup>1</sup> Hibernate 6.2+ has <code>@Struct</code> for composites and built-in basic array mapping. Ranges still need third-party libraries (Hypersistence Utils).</p>
             <p style={{margin: '0.25rem 0'}}><sup>2</sup> Exposed has built-in array support. Ranges and composite types require custom <code>ColumnType</code> implementations.</p>
             <p style={{margin: '0.25rem 0'}}><sup>3</sup> <code>@CheckHQL</code> (6.3+) validates HQL at compile time against the entity metamodel, not the database schema. Not enabled by default.</p>

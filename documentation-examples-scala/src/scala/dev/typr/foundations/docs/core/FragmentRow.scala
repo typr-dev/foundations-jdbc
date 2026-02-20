@@ -21,7 +21,7 @@ object FragmentRow:
 
   //start
   def insert(product: Product): Product =
-    Fragment.of("INSERT INTO product (")
+    sql"INSERT INTO product ("
       .append(productCodec.columnList)
       .append(") VALUES (")
       .row(productCodec, product)
@@ -32,7 +32,7 @@ object FragmentRow:
 
   // Skip columns with database defaults — pass column names to except
   def insertWithDefault(product: Product): Product =
-    Fragment.of("INSERT INTO product (")
+    sql"INSERT INTO product ("
       .append(productCodec.columnList)
       .append(") VALUES (DEFAULT, ")
       .row(productCodec, product, "id")

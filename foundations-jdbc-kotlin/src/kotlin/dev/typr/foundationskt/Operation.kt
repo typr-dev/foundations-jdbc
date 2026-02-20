@@ -6,8 +6,10 @@ import java.sql.SQLException
 import java.time.Duration
 import java.util.Optional
 
-sealed class Operation<Out> {
+sealed class Operation<Out> : Analyzable {
     abstract val underlying: dev.typr.foundations.Operation<*>
+
+    override val analyzable: dev.typr.foundations.Analyzable get() = underlying
 
     @Throws(SQLException::class)
     abstract fun runChecked(conn: Connection): Out

@@ -113,11 +113,11 @@ For production connection setup with PostgreSQL, MariaDB, and other databases, s
 
 ## Your First Query
 
-Here's a complete end-to-end example: define a named row codec, create a table, insert some data, query it back — and verify that all your types match the database schema:
+Define a record, a row codec that maps columns to fields, and a query that returns typed results:
 
 <Snippet file="core/FirstQuery" />
 
-The last block uses [Query Analysis](./query-analysis) to verify that the column types in your row codec match the actual database columns. This catches type mismatches, nullability errors, and column count problems at test time instead of production. It's one of the most powerful features in the library — see [Query Analysis](./query-analysis) for the full story.
+The `RowCodecNamed` maps database columns to record fields by name. Use `.all()` to collect all rows, `.exactlyOne()` for a single result, or `.maxOne()` for an optional result. See [Row Codecs](./row-codecs) for more.
 
 ## What's Next
 
@@ -127,4 +127,5 @@ The last block uses [Query Analysis](./query-analysis) to verify that the column
 
 ## Full Examples
 
-The [`example-kotlin`](https://github.com/typr-dev/foundations-jdbc/tree/main/example-kotlin) project is a complete working application using DuckDB with domain types, repositories, services, and query analysis. The [`example-spring-boot`](https://github.com/typr-dev/foundations-jdbc/tree/main/example-spring-boot) project shows the same patterns in a Java Spring Boot application with HikariCP connection pooling. Both demonstrate how all the pieces fit together in practice.
+- [`example-kotlin`](https://github.com/typr-dev/foundations-jdbc/tree/main/example-kotlin) — DuckDB with domain types, repositories, services, and query analysis
+- [`example-spring-boot`](https://github.com/typr-dev/foundations-jdbc/tree/main/example-spring-boot) — Java Spring Boot with HikariCP connection pooling

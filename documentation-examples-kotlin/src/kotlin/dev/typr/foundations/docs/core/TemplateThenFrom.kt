@@ -18,14 +18,14 @@ class TemplateThenFrom {
     //start
     // 1-param template: insert user, return id and name
     val insertUser: Template<String, NewUser> =
-        Fragment.of("INSERT INTO users(name) VALUES(")
+        sql { "INSERT INTO users(name) VALUES(" }
             .param(PgTypes.text)
             .append(") RETURNING id, name")
             .query(newUserCodec.exactlyOne())
 
     // 2-param template: log the creation with both fields
     val logCreation: Template.Update2<Int, String> =
-        Fragment.of("INSERT INTO audit_log(user_id, username) VALUES(")
+        sql { "INSERT INTO audit_log(user_id, username) VALUES(" }
             .param(PgTypes.int4)
             .append(", ")
             .param(PgTypes.text)

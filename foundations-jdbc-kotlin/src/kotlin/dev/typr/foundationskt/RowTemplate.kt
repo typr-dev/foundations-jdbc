@@ -1,8 +1,10 @@
 @file:Suppress("unused")
 package dev.typr.foundationskt
 
-sealed class RowTemplate<Row : Any, Out> {
+sealed class RowTemplate<Row : Any, Out> : Analyzable {
     abstract val underlying: dev.typr.foundations.RowTemplate<*, *>
+
+    override val analyzable: dev.typr.foundations.Analyzable get() = underlying
 
     abstract fun on(row: Row): Operation<Out>
 

@@ -22,7 +22,7 @@ class BatchOperations {
     //start
     // Batch insert — all columns as parameters
     val insertAll =
-        Fragment.of("INSERT INTO product (")
+        sql { "INSERT INTO product (" }
             .append(productCodec.columnList)
             .append(") VALUES (")
             .paramRow(productCodec)
@@ -34,7 +34,7 @@ class BatchOperations {
 
     // Batch insert — skip auto-generated ID column
     val insertAutoId =
-        Fragment.of("INSERT INTO product (name, price, created_at) VALUES (")
+        sql { "INSERT INTO product (name, price, created_at) VALUES (" }
             .paramRow(productCodec, "id")
             .append(")")
             .update()

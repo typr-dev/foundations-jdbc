@@ -17,19 +17,18 @@ class TemplateMixed {
     lateinit var tx: Transactor
 
     //start
-    // Mix bound and unbound parameters in the same template
-    // The status is fixed at "active", but the limit varies per call
-    val activeUsersWithLimit: Template<Int, List<User>> =
-        Fragment.of("SELECT id, name, status FROM users WHERE status = ")
+    // Mix bound and unbound parameters in the same template.
+    // Status is fixed at "active"; name filter and limit vary per call.
+    val activeUsersByName: Template.Query2<String, Int, List<User>> =
+        sql { "SELECT id, name, status FROM users WHERE status = " }
             .value(PgTypes.text, "active")
+            .append(" AND name ILIKE ")
+            .param(PgTypes.text)
             .append(" ORDER BY name LIMIT ")
             .param(PgTypes.int4)
             .query(userCodec.all())
 
-    fun topTen(): List<User> =
-        activeUsersWithLimit.on(10).transact(tx)
-
-    fun topFifty(): List<User> =
-        activeUsersWithLimit.on(50).transact(tx)
+    fun example(): List<User> =
+        activeUsersByName.on("%alice%", 10).transact(tx)
     //stop
 }

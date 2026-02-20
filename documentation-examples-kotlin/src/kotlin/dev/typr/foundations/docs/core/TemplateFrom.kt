@@ -13,7 +13,7 @@ class TemplateFrom {
 
     // .from() maps data class fields to template params
     val insertUser: Template.From<InsertUser, Int> =
-        Fragment.of("INSERT INTO users(name, email) VALUES(")
+        sql { "INSERT INTO users(name, email) VALUES(" }
             .param(PgTypes.text)
             .append(", ")
             .param(PgTypes.text)

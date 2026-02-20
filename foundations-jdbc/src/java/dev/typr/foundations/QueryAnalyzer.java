@@ -9,6 +9,15 @@ public final class QueryAnalyzer {
 
   private QueryAnalyzer() {}
 
+  public static List<QueryAnalysis> analyze(Analyzable analyzable, Connection conn)
+      throws SQLException {
+    return switch (analyzable) {
+      case Operation<?> op -> analyze(op, conn);
+      case Template<?, ?> t -> analyze(t, conn);
+      case RowTemplate<?, ?> rt -> analyze(rt, conn);
+    };
+  }
+
   public static List<QueryAnalysis> analyze(Template<?, ?> template, Connection conn)
       throws SQLException {
     Fragment fragment = template.fragment();

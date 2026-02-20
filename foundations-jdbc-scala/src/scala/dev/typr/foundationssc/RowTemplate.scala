@@ -1,7 +1,9 @@
 package dev.typr.foundationssc
 
-sealed trait RowTemplate[Row, Out]:
+sealed trait RowTemplate[Row, Out] extends Analyzable:
   def underlying: dev.typr.foundations.RowTemplate[?, ?]
+
+  override def analyzable: dev.typr.foundations.Analyzable = underlying
 
   def on(row: Row): Operation[Out]
 

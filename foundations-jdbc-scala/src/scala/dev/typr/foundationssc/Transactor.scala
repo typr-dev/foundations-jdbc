@@ -17,6 +17,9 @@ class Transactor(val underlying: dev.typr.foundations.Transactor):
   def withStrategy(override_ : Transactor.Strategy): Transactor =
     new Transactor(underlying.withStrategy(override_))
 
+  def mergeListener(listener: dev.typr.foundations.QueryListener): Transactor =
+    new Transactor(underlying.mergeListener(listener))
+
   def transact[T](override_ : Transactor.Strategy)(f: Connection => T): T =
     withStrategy(override_).transact(f)
 

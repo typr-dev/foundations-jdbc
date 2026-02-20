@@ -11,7 +11,7 @@ class OperationQueries {
         .field(PgTypes.text, User::name)
         .build(::User)
 
-    val fragment: Fragment = Fragment.of("SELECT id, name FROM users")
+    val fragment: Fragment = sql { "SELECT id, name FROM users" }
 
     //start
     // Multi-column: pass a RowCodec with a result mode
@@ -21,10 +21,10 @@ class OperationQueries {
 
     // Single-column: shorthand methods skip the codec
     val allIds: Operation<List<Int>> =
-        Fragment.of("SELECT id FROM users").queryAll(PgTypes.int4)
+        sql { "SELECT id FROM users" }.queryAll(PgTypes.int4)
     val maybeName: Operation<String?> =
-        Fragment.of("SELECT name FROM users LIMIT 1").queryMaxOne(PgTypes.text)
+        sql { "SELECT name FROM users LIMIT 1" }.queryMaxOne(PgTypes.text)
     val count: Operation<Int> =
-        Fragment.of("SELECT count(*) FROM users").queryExactlyOne(PgTypes.int4)
+        sql { "SELECT count(*) FROM users" }.queryExactlyOne(PgTypes.int4)
     //stop
 }

@@ -710,8 +710,10 @@ def generateKotlinTemplate(): String = {
   s"""|@file:Suppress("unused")
       |package dev.typr.foundationskt
       |
-      |sealed class Template<In, Out> {
+      |sealed class Template<In, Out> : Analyzable {
       |    abstract val underlying: dev.typr.foundations.Template<*, *>
+      |
+      |    override val analyzable: dev.typr.foundations.Analyzable get() = underlying
       |
       |    abstract fun on(input: In): Operation<Out>
       |
