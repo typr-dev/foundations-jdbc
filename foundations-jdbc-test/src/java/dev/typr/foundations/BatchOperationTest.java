@@ -25,12 +25,12 @@ public class BatchOperationTest {
   public void duckdb() throws Exception {
     try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
       var ip =
-          RowParser.<Item>namedBuilder()
+          RowCodec.<Item>namedBuilder()
               .field("name", DuckDbTypes.varchar, Item::name)
               .field("quantity", DuckDbTypes.integer, Item::quantity)
               .build(Item::new);
       var pp =
-          RowParser.<IdItem>namedBuilder()
+          RowCodec.<IdItem>namedBuilder()
               .field("id", DuckDbTypes.integer, IdItem::id)
               .field("name", DuckDbTypes.varchar, IdItem::name)
               .field("quantity", DuckDbTypes.integer, IdItem::quantity)
@@ -79,7 +79,7 @@ public class BatchOperationTest {
       int[] empty =
           Fragment.of("INSERT INTO " + t6 + " (name, quantity) VALUES (?, ?)")
               .updateMany(ip, Collections.<Item>emptyIterator())
-              .runChecked(conn);
+              .run(conn);
       assertEquals(0, empty.length);
     }
   }
@@ -92,12 +92,12 @@ public class BatchOperationTest {
         .execute(
             conn -> {
               var ip =
-                  RowParser.<Item>namedBuilder()
+                  RowCodec.<Item>namedBuilder()
                       .field("name", PgTypes.text, Item::name)
                       .field("quantity", PgTypes.int4, Item::quantity)
                       .build(Item::new);
               var pp =
-                  RowParser.<IdItem>namedBuilder()
+                  RowCodec.<IdItem>namedBuilder()
                       .field("id", PgTypes.int4, IdItem::id)
                       .field("name", PgTypes.text, IdItem::name)
                       .field("quantity", PgTypes.int4, IdItem::quantity)
@@ -143,12 +143,12 @@ public class BatchOperationTest {
         .execute(
             conn -> {
               var ip =
-                  RowParser.<Item>namedBuilder()
+                  RowCodec.<Item>namedBuilder()
                       .field("name", MariaTypes.varchar, Item::name)
                       .field("quantity", MariaTypes.int_, Item::quantity)
                       .build(Item::new);
               var pp =
-                  RowParser.<IdItem>namedBuilder()
+                  RowCodec.<IdItem>namedBuilder()
                       .field("id", MariaTypes.int_, IdItem::id)
                       .field("name", MariaTypes.varchar, IdItem::name)
                       .field("quantity", MariaTypes.int_, IdItem::quantity)
@@ -194,12 +194,12 @@ public class BatchOperationTest {
         .execute(
             conn -> {
               var ip =
-                  RowParser.<Item>namedBuilder()
+                  RowCodec.<Item>namedBuilder()
                       .field("name", SqlServerTypes.varchar, Item::name)
                       .field("quantity", SqlServerTypes.int_, Item::quantity)
                       .build(Item::new);
               var pp =
-                  RowParser.<IdItem>namedBuilder()
+                  RowCodec.<IdItem>namedBuilder()
                       .field("id", SqlServerTypes.int_, IdItem::id)
                       .field("name", SqlServerTypes.varchar, IdItem::name)
                       .field("quantity", SqlServerTypes.int_, IdItem::quantity)
@@ -240,12 +240,12 @@ public class BatchOperationTest {
         .execute(
             conn -> {
               var ip =
-                  RowParser.<Item>namedBuilder()
+                  RowCodec.<Item>namedBuilder()
                       .field("name", OracleTypes.varchar2, Item::name)
                       .field("quantity", OracleTypes.numberInt, Item::quantity)
                       .build(Item::new);
               var pp =
-                  RowParser.<IdItem>namedBuilder()
+                  RowCodec.<IdItem>namedBuilder()
                       .field("id", OracleTypes.numberInt, IdItem::id)
                       .field("name", OracleTypes.varchar2, IdItem::name)
                       .field("quantity", OracleTypes.numberInt, IdItem::quantity)
@@ -293,12 +293,12 @@ public class BatchOperationTest {
         .execute(
             conn -> {
               var ip =
-                  RowParser.<Item>namedBuilder()
+                  RowCodec.<Item>namedBuilder()
                       .field("name", Db2Types.varchar, Item::name)
                       .field("quantity", Db2Types.integer, Item::quantity)
                       .build(Item::new);
               var pp =
-                  RowParser.<IdItem>namedBuilder()
+                  RowCodec.<IdItem>namedBuilder()
                       .field("id", Db2Types.integer, IdItem::id)
                       .field("name", Db2Types.varchar, IdItem::name)
                       .field("quantity", Db2Types.integer, IdItem::quantity)
@@ -346,17 +346,17 @@ public class BatchOperationTest {
       List.of(new IdItem(1, "widget", 100), new IdItem(2, "gadget", 200), new IdItem(3, "doohickey", 300));
 
   static void assertBatchInsert(
-      Connection conn, RowParserNamed<Item> parser, String table, int expectedCount)
+      Connection conn, RowCodecNamed<Item> parser, String table, int expectedCount)
       throws SQLException {
     Fragment insert =
         Fragment.of("INSERT INTO " + table + " (name, quantity) VALUES (?, ?)");
-    int[] counts = insert.updateMany(parser, ITEMS.iterator()).runChecked(conn);
+    int[] counts = insert.updateMany(parser, ITEMS.iterator()).run(conn);
     assertEquals(expectedCount, counts.length);
 
     List<Item> result =
         Fragment.of("SELECT name, quantity FROM " + table + " ORDER BY name")
             .query(parser.all())
-            .runChecked(conn);
+            .run(conn);
     assertEquals(expectedCount, result.size());
     assertEquals("apple", result.get(0).name());
     assertEquals(10, result.get(0).quantity());
@@ -367,9 +367,9 @@ public class BatchOperationTest {
   }
 
   static void assertOnMany(
-      Connection conn, RowParserNamed<IdItem> parser, String table, int expectedCount)
+      Connection conn, RowCodecNamed<IdItem> parser, String table, int expectedCount)
       throws SQLException {
-    RowSqlTemplate.Update<IdItem> template =
+    RowTemplate.Update<IdItem> template =
         Fragment.of("INSERT INTO " + table + " (")
             .append(parser.columnList())
             .append(") VALUES (")
@@ -377,13 +377,13 @@ public class BatchOperationTest {
             .append(")")
             .update();
 
-    int[] counts = template.onMany(ID_ITEMS.iterator()).runChecked(conn);
+    int[] counts = template.onMany(ID_ITEMS.iterator()).run(conn);
     assertEquals(expectedCount, counts.length);
 
     List<IdItem> result =
         Fragment.of("SELECT id, name, quantity FROM " + table + " ORDER BY id")
             .query(parser.all())
-            .runChecked(conn);
+            .run(conn);
     assertEquals(expectedCount, result.size());
     assertEquals(1, result.get(0).id());
     assertEquals("widget", result.get(0).name());
@@ -395,8 +395,8 @@ public class BatchOperationTest {
   }
 
   static void assertOnManySkipId(
-      Connection conn, RowParserNamed<IdItem> parser, String table) throws SQLException {
-    RowSqlTemplate.Update<IdItem> template =
+      Connection conn, RowCodecNamed<IdItem> parser, String table) throws SQLException {
+    RowTemplate.Update<IdItem> template =
         Fragment.of("INSERT INTO " + table + " (name, quantity) VALUES (")
             .paramRow(parser, "id")
             .append(")")
@@ -407,13 +407,13 @@ public class BatchOperationTest {
             new IdItem(0, "widget", 100),
             new IdItem(0, "gadget", 200),
             new IdItem(0, "doohickey", 300));
-    int[] counts = template.onMany(items.iterator()).runChecked(conn);
+    int[] counts = template.onMany(items.iterator()).run(conn);
     assertEquals(3, counts.length);
 
     List<IdItem> result =
         Fragment.of("SELECT id, name, quantity FROM " + table + " ORDER BY id")
             .query(parser.all())
-            .runChecked(conn);
+            .run(conn);
     assertEquals(3, result.size());
     assertEquals(1, result.get(0).id());
     assertEquals("widget", result.get(0).name());
@@ -424,14 +424,14 @@ public class BatchOperationTest {
   }
 
   static void assertReturningEach(
-      Connection conn, RowParserNamed<Item> parser, String table) throws SQLException {
+      Connection conn, RowCodecNamed<Item> parser, String table) throws SQLException {
     Fragment insert =
         Fragment.of(
             "INSERT INTO "
                 + table
                 + " (name, quantity) VALUES (?, ?) RETURNING name, quantity");
     List<Item> returned =
-        insert.updateReturningEach(parser, ITEMS.iterator()).runChecked(conn);
+        insert.updateReturningEach(parser, ITEMS.iterator()).run(conn);
     assertEquals(3, returned.size());
     assertEquals("apple", returned.get(0).name());
     assertEquals(10, returned.get(0).quantity());
@@ -442,8 +442,8 @@ public class BatchOperationTest {
   }
 
   static void assertSingleThenBatch(
-      Connection conn, RowParserNamed<IdItem> parser, String table) throws SQLException {
-    RowSqlTemplate.Update<IdItem> template =
+      Connection conn, RowCodecNamed<IdItem> parser, String table) throws SQLException {
+    RowTemplate.Update<IdItem> template =
         Fragment.of("INSERT INTO " + table + " (")
             .append(parser.columnList())
             .append(") VALUES (")
@@ -451,15 +451,15 @@ public class BatchOperationTest {
             .append(")")
             .update();
 
-    template.on(new IdItem(1, "first", 10)).runChecked(conn);
+    template.on(new IdItem(1, "first", 10)).run(conn);
 
     var batch = List.of(new IdItem(2, "second", 20), new IdItem(3, "third", 30));
-    template.onMany(batch.iterator()).runChecked(conn);
+    template.onMany(batch.iterator()).run(conn);
 
     List<IdItem> result =
         Fragment.of("SELECT id, name, quantity FROM " + table + " ORDER BY id")
             .query(parser.all())
-            .runChecked(conn);
+            .run(conn);
     assertEquals(3, result.size());
     assertEquals("first", result.get(0).name());
     assertEquals("second", result.get(1).name());

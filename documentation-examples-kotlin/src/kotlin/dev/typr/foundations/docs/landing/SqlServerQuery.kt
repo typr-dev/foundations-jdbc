@@ -8,17 +8,22 @@ import java.sql.Connection
 @Suppress("unused")
 class SqlServerQuery {
     data class OrderRow(val id: Int, val name: String, val price: BigDecimal)
-    val orderRowParser: RowParser<OrderRow>? = null // placeholder
+    val orderRowCodec: RowCodec<OrderRow> =
+        RowCodec.builder<OrderRow>()
+            .field(SqlServerTypes.int_, OrderRow::id)
+            .field(SqlServerTypes.nvarchar, OrderRow::name)
+            .field(SqlServerTypes.decimal, OrderRow::price)
+            .build(::OrderRow)
     val maxPrice: BigDecimal? = null
     lateinit var conn: Connection
 
     //start
     // Build small reusable filters - SQL Server example
     fun byName(name: String): Fragment =
-        Sql { "name LIKE ${SqlServerTypes.nvarchar(name)}" }
+        sql { "name LIKE ${SqlServerTypes.nvarchar(name)}" }
 
     fun cheaperThan(max: BigDecimal): Fragment =
-        Sql { "price < ${SqlServerTypes.decimal(max)}" }
+        sql { "price < ${SqlServerTypes.decimal(max)}" }
 
     // Compose dynamically - only include the filters that are present
     val filters: List<Fragment> =
@@ -28,8 +33,8 @@ class SqlServerQuery {
         )
 
     val orders: List<OrderRow> =
-        Sql { "SELECT * FROM orders ${Fragment.whereAnd(filters)}" }
-            .query(orderRowParser!!.all())
+        sql { "SELECT * FROM orders ${Fragment.whereAnd(filters)}" }
+            .query(orderRowCodec.all())
             .run(conn)
     //stop
 }

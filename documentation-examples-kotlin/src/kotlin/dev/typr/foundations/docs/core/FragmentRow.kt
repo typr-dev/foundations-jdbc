@@ -10,8 +10,8 @@ import java.time.Instant
 class FragmentRow {
     data class Product(val id: Int, val name: String, val price: BigDecimal, val createdAt: Instant)
 
-    val productParser: RowParserNamed<Product> =
-        RowParser.namedBuilder<Product>()
+    val productCodec: RowCodecNamed<Product> =
+        RowCodec.namedBuilder<Product>()
             .field("id", PgTypes.int4, Product::id)
             .field("name", PgTypes.text, Product::name)
             .field("price", PgTypes.numeric, Product::price)
@@ -21,30 +21,25 @@ class FragmentRow {
     lateinit var conn: Connection
 
     //start
-    // All columns as parameters — great for app-generated IDs
-    val insertTemplate =
-        Fragment.of("INSERT INTO product (")
-            .append(productParser.columnList)
-            .append(") VALUES (")
-            .paramRow(productParser)
-            .append(") RETURNING ")
-            .append(productParser.columnList)
-            .query(productParser.exactlyOne())
-
     fun insert(product: Product): Product =
-        insertTemplate.on(product).run(conn)
-
-    // Skip columns handled by the database — e.g. sequences or defaults
-    val insertWithSequenceTemplate =
-        Fragment.of("INSERT INTO product (")
-            .append(productParser.columnList)
-            .append(") VALUES (nextval('product_id_seq'), ")
-            .paramRow(productParser, "id")
+        sql { "INSERT INTO product (" }
+            .append(productCodec.columnList)
+            .append(") VALUES (")
+            .row(productCodec, product)
             .append(") RETURNING ")
-            .append(productParser.columnList)
-            .query(productParser.exactlyOne())
+            .append(productCodec.columnList)
+            .query(productCodec.exactlyOne())
+            .run(conn)
 
-    fun insertWithSequence(product: Product): Product =
-        insertWithSequenceTemplate.on(product).run(conn)
+    // Skip columns with database defaults — pass column names to except
+    fun insertWithDefault(product: Product): Product =
+        sql { "INSERT INTO product (" }
+            .append(productCodec.columnList)
+            .append(") VALUES (DEFAULT, ")
+            .row(productCodec, product, "id")
+            .append(") RETURNING ")
+            .append(productCodec.columnList)
+            .query(productCodec.exactlyOne())
+            .run(conn)
     //stop
 }

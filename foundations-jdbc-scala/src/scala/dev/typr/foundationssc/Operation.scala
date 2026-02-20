@@ -1,21 +1,15 @@
 package dev.typr.foundationssc
 
-import java.sql.{Connection, SQLException}
+import java.sql.Connection
 import java.time.Duration
 import _root_.scala.jdk.CollectionConverters.*
 
-sealed trait Operation[Out] {
+sealed trait Operation[Out] extends Analyzable {
   def underlying: dev.typr.foundations.Operation[?]
 
-  def runChecked(conn: Connection): Out
+  override def analyzable: dev.typr.foundations.Analyzable = underlying
 
-  def run(conn: Connection): Out = {
-    try {
-      runChecked(conn)
-    } catch {
-      case e: SQLException => throw new RuntimeException(e)
-    }
-  }
+  def run(conn: Connection): Out
 
   def transact(transactor: Transactor): Out =
     transactor.execute(this)
@@ -53,7 +47,7 @@ sealed trait Operation[Out] {
   def thenIgnore[B](other: Operation[B]): Operation[Out] =
     `with`(other).map(_._1)
 
-  def andThen[B](template: SqlTemplate[Out, B]): Operation[B] =
+  def andThen[B](template: Template[Out, B]): Operation[B] =
     Operation.Then(this, identity[Out], template)
 
   def voided: Operation[Unit] =
@@ -95,7 +89,7 @@ object Operation {
     IfEmpty(check, fallback)
 
   class Query[Out](val underlying: dev.typr.foundations.Operation.Query[Out]) extends Operation[Out] {
-    override def runChecked(conn: Connection): Out = underlying.runChecked(conn)
+    override def run(conn: Connection): Out = underlying.run(conn)
   }
 
   object Query {
@@ -104,7 +98,7 @@ object Operation {
   }
 
   class Update(val underlying: dev.typr.foundations.Operation.Update) extends Operation[Int] {
-    override def runChecked(conn: Connection): Int = underlying.runChecked(conn)
+    override def run(conn: Connection): Int = underlying.run(conn)
   }
 
   object Update {
@@ -113,7 +107,7 @@ object Operation {
   }
 
   class UpdateReturning[Out](val underlying: dev.typr.foundations.Operation.UpdateReturning[Out]) extends Operation[Out] {
-    override def runChecked(conn: Connection): Out = underlying.runChecked(conn)
+    override def run(conn: Connection): Out = underlying.run(conn)
   }
 
   object UpdateReturning {
@@ -121,36 +115,40 @@ object Operation {
       new UpdateReturning(new dev.typr.foundations.Operation.UpdateReturning(query.underlying, parser.underlying))
   }
 
+  class UpdateReturningGeneratedKeys[Out](val underlying: dev.typr.foundations.Operation.UpdateReturningGeneratedKeys[Out]) extends Operation[Out] {
+    override def run(conn: Connection): Out = underlying.run(conn)
+  }
+
   class UpdateMany[Row](val underlying: dev.typr.foundations.Operation.UpdateMany[Row]) extends Operation[Array[Int]] {
-    override def runChecked(conn: Connection): Array[Int] = underlying.runChecked(conn)
+    override def run(conn: Connection): Array[Int] = underlying.run(conn)
   }
 
   class UpdateManyReturning[Row](val underlying: dev.typr.foundations.Operation.UpdateManyReturning[Row]) extends Operation[List[Row]] {
     import _root_.scala.jdk.CollectionConverters.*
-    override def runChecked(conn: Connection): List[Row] = underlying.runChecked(conn).asScala.toList
+    override def run(conn: Connection): List[Row] = underlying.run(conn).asScala.toList
   }
 
   class UpdateReturningEach[Row](val underlying: dev.typr.foundations.Operation.UpdateReturningEach[Row]) extends Operation[List[Row]] {
     import _root_.scala.jdk.CollectionConverters.*
-    override def runChecked(conn: Connection): List[Row] = underlying.runChecked(conn).asScala.toList
+    override def run(conn: Connection): List[Row] = underlying.run(conn).asScala.toList
   }
 
   class UpdateManyTemplate[Row](val underlying: dev.typr.foundations.Operation.UpdateManyTemplate[Row]) extends Operation[Array[Int]] {
-    override def runChecked(conn: Connection): Array[Int] = underlying.runChecked(conn)
+    override def run(conn: Connection): Array[Int] = underlying.run(conn)
   }
 
   class StreamingCopy(val underlying: dev.typr.foundations.Operation[java.lang.Long]) extends Operation[Long] {
-    override def runChecked(conn: Connection): Long = underlying.runChecked(conn)
+    override def run(conn: Connection): Long = underlying.run(conn)
   }
 
   class Mapped[A, B](val source: Operation[A], val f: A => B) extends Operation[B] {
     val underlying: dev.typr.foundations.Operation[?] = source.underlying
-    override def runChecked(conn: Connection): B = f(source.runChecked(conn))
+    override def run(conn: Connection): B = f(source.run(conn))
   }
 
   class Pure[T](val value: T) extends Operation[T] {
     val underlying: dev.typr.foundations.Operation[T] = new dev.typr.foundations.Operation.Pure(value)
-    override def runChecked(conn: Connection): T = value
+    override def run(conn: Connection): T = value
   }
 
   class With[A, B](val first: Operation[A], val second: Operation[B]) extends Operation[(A, B)] {
@@ -160,7 +158,7 @@ object Operation {
         first.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]],
         second.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]]
       )
-    override def runChecked(conn: Connection): (A, B) = (first.runChecked(conn), second.runChecked(conn))
+    override def run(conn: Connection): (A, B) = (first.run(conn), second.run(conn))
   }
 
   class IfEmpty[T](val check: Operation[Option[T]], val fallback: Operation[T]) extends Operation[T] {
@@ -170,7 +168,7 @@ object Operation {
         check.underlying.asInstanceOf[dev.typr.foundations.Operation[java.util.Optional[Object]]],
         fallback.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]]
       )
-    override def runChecked(conn: Connection): T = check.runChecked(conn).getOrElse(fallback.runChecked(conn))
+    override def run(conn: Connection): T = check.run(conn).getOrElse(fallback.run(conn))
   }
 
   class Configured[Out](val inner: Operation[Out], val name: String, val timeout: Duration, val listener: dev.typr.foundations.QueryListener) extends Operation[Out] {
@@ -182,22 +180,22 @@ object Operation {
         timeout,
         listener
       )
-    override def runChecked(conn: Connection): Out =
-      underlying.runChecked(conn).asInstanceOf[Out]
+    override def run(conn: Connection): Out =
+      underlying.run(conn).asInstanceOf[Out]
   }
 
-  class Then[A, In, B](val source: Operation[A], val extract: A => In, val continuation: SqlTemplate[In, B]) extends Operation[B] {
+  class Then[A, In, B](val source: Operation[A], val extract: A => In, val continuation: Template[In, B]) extends Operation[B] {
     @SuppressWarnings(Array("unchecked"))
     val underlying: dev.typr.foundations.Operation[?] =
       new dev.typr.foundations.Operation.Then(
         source.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]],
         java.util.function.Function.identity[Object](),
-        continuation.underlying.asInstanceOf[dev.typr.foundations.SqlTemplate[Object, Object]]
+        continuation.underlying.asInstanceOf[dev.typr.foundations.Template[Object, Object]]
       )
-    override def runChecked(conn: Connection): B = {
-      val a = source.runChecked(conn)
+    override def run(conn: Connection): B = {
+      val a = source.run(conn)
       val in_ = extract(a)
-      continuation.on(in_).runChecked(conn)
+      continuation.on(in_).run(conn)
     }
   }
 }

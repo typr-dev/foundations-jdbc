@@ -2,14 +2,21 @@ package dev.typr.foundations.connect;
 
 import dev.typr.foundations.Transactor;
 import dev.typr.foundations.Transactor.Strategy;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.logging.Logger;
+import javax.sql.DataSource;
 
 /**
  * A source of database connections with configured settings.
  *
  * <p>This interface abstracts over pooled and non-pooled connection sources, providing a unified
  * API for obtaining connections and transactors.
+ *
+ * <p>Extends {@link DataSource} so that any ConnectionSource can be used directly with frameworks
+ * that expect a standard DataSource (e.g. Spring's {@code DataSourceTransactionManager}).
  *
  * <p>Implementations:
  *
@@ -33,7 +40,7 @@ import java.sql.SQLException;
  * tx.execute(conn -> repo.selectAll(conn));
  * }</pre>
  */
-public interface ConnectionSource {
+public interface ConnectionSource extends DataSource {
 
   /**
    * Get a connection from this source.
@@ -41,7 +48,45 @@ public interface ConnectionSource {
    * @return a configured database connection
    * @throws SQLException if unable to get a connection
    */
+  @Override
   Connection getConnection() throws SQLException;
+
+  @Override
+  default Connection getConnection(String username, String password) throws SQLException {
+    throw new SQLFeatureNotSupportedException();
+  }
+
+  @Override
+  default PrintWriter getLogWriter() {
+    return null;
+  }
+
+  @Override
+  default void setLogWriter(PrintWriter out) {}
+
+  @Override
+  default int getLoginTimeout() {
+    return 0;
+  }
+
+  @Override
+  default void setLoginTimeout(int seconds) {}
+
+  @Override
+  default Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    throw new SQLFeatureNotSupportedException();
+  }
+
+  @Override
+  default <T> T unwrap(Class<T> iface) throws SQLException {
+    if (iface.isInstance(this)) return iface.cast(this);
+    throw new SQLException("Cannot unwrap to " + iface.getName());
+  }
+
+  @Override
+  default boolean isWrapperFor(Class<?> iface) {
+    return iface.isInstance(this);
+  }
 
   /**
    * Create a Transactor with the default strategy (manual transactions with commit on success).
@@ -66,7 +111,7 @@ public interface ConnectionSource {
     try {
       return getConnection();
     } catch (SQLException e) {
-      throw new RuntimeException("Failed to get connection", e);
+      throw new dev.typr.foundations.DatabaseException(e);
     }
   }
 }

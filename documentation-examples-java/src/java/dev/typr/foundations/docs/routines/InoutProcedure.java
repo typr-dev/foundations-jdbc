@@ -3,7 +3,6 @@ package dev.typr.foundations.docs.routines;
 import dev.typr.foundations.*;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class InoutProcedure {
@@ -19,7 +18,7 @@ public class InoutProcedure {
 
     BigDecimal applyDiscount(
         String code, BigDecimal price
-    ) throws SQLException {
+    ) {
         return applyDiscount
             .call(code, price)
             .transact(tx);

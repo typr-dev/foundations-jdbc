@@ -67,9 +67,9 @@ scripts/
 
 Three standalone scala-cli scripts generate repetitive code:
 
-- `scripts/sourcegen-java.sc` — Java generated files (Functions, Tuple, RowParserBuilders, ParamBuilders, SqlTemplate, etc.)
-- `scripts/sourcegen-kotlin.sc` — Kotlin generated files (RowParserBuilders, RowParserNamedBuilders, DbProcedure, DbFunction, etc.)
-- `scripts/sourcegen-scala.sc` — Scala generated files (RowParserBuilders, RowParserNamedBuilders, DbProcedure, DbFunction, etc.)
+- `scripts/sourcegen-java.sc` — Java generated files (Functions, Tuple, RowCodecBuilders, ParamBuilders, SqlTemplate, etc.)
+- `scripts/sourcegen-kotlin.sc` — Kotlin generated files (RowCodecBuilders, RowCodecNamedBuilders, DbProcedure, DbFunction, etc.)
+- `scripts/sourcegen-scala.sc` — Scala generated files (RowCodecBuilders, RowCodecNamedBuilders, DbProcedure, DbFunction, etc.)
 
 Run with:
 ```bash

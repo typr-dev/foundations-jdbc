@@ -5,8 +5,6 @@ import dev.typr.foundations.Operation;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
-
 @SuppressWarnings("unused")
 public class ComposingAllOf {
     Transactor tx = null; // placeholder
@@ -32,7 +30,7 @@ public class ComposingAllOf {
                 SET user_count = user_count + 1""")
             .update();
 
-    void createUserWithAudit() throws SQLException {
+    void createUserWithAudit() {
         Operation.allOf(
             insertUser, insertAudit, updateStats
         ).transact(tx);

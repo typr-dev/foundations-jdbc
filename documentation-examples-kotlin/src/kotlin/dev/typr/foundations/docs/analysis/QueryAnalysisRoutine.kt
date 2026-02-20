@@ -20,7 +20,7 @@ class QueryAnalysisRoutine {
             )
 
         val checker = QueryChecker.create(transactor)
-        QueryChecker.checkRoutine(checker, addUser)
+        checker.checkRoutine(addUser)
     }
     //stop
 }

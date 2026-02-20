@@ -8,8 +8,8 @@ import java.time.Duration
 class OperationNamed {
     //start
     val users: Operation<List<String>> =
-        Fragment.of("SELECT name FROM users")
-            .query(RowParser.of(PgTypes.text).all())
+        sql { "SELECT name FROM users" }
+            .query(RowCodec.of(PgTypes.text).all())
             .named("load-users")
             .timeout(Duration.ofSeconds(5))
     //stop

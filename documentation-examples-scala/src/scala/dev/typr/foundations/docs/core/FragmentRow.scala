@@ -10,7 +10,7 @@ import java.time.Instant
 object FragmentRow:
   case class Product(id: Int, name: String, price: BigDecimal, createdAt: Instant)
 
-  val productParser: RowParserNamed[Product] = RowParser.namedBuilder[Product]()
+  val productCodec: RowCodecNamed[Product] = RowCodec.namedBuilder[Product]()
     .field("id", PgTypes.int4)(_.id)
     .field("name", PgTypes.text)(_.name)
     .field("price", PgTypes.numeric)(_.price)
@@ -20,30 +20,24 @@ object FragmentRow:
   val conn: Connection = null // placeholder
 
   //start
-  // All columns as parameters
-  val insertTemplate: RowSqlTemplate.Query[Product, Product] =
-    Fragment.of("INSERT INTO product (")
-      .append(productParser.columnList)
-      .append(") VALUES (")
-      .paramRow(productParser)
-      .append(") RETURNING ")
-      .append(productParser.columnList)
-      .query(productParser.exactlyOne())
-
   def insert(product: Product): Product =
-    insertTemplate.on(product).run(conn)
-
-  // Skip columns handled by the database
-  val insertWithSequenceTemplate
-      : RowSqlTemplate.Query[Product, Product] =
-    Fragment.of("INSERT INTO product (")
-      .append(productParser.columnList)
-      .append(") VALUES (nextval('product_id_seq'), ")
-      .paramRow(productParser, "id")
+    sql"INSERT INTO product ("
+      .append(productCodec.columnList)
+      .append(") VALUES (")
+      .row(productCodec, product)
       .append(") RETURNING ")
-      .append(productParser.columnList)
-      .query(productParser.exactlyOne())
+      .append(productCodec.columnList)
+      .query(productCodec.exactlyOne())
+      .run(conn)
 
-  def insertWithSequence(product: Product): Product =
-    insertWithSequenceTemplate.on(product).run(conn)
+  // Skip columns with database defaults — pass column names to except
+  def insertWithDefault(product: Product): Product =
+    sql"INSERT INTO product ("
+      .append(productCodec.columnList)
+      .append(") VALUES (DEFAULT, ")
+      .row(productCodec, product, "id")
+      .append(") RETURNING ")
+      .append(productCodec.columnList)
+      .query(productCodec.exactlyOne())
+      .run(conn)
   //stop

@@ -9,25 +9,25 @@ object JsonCodecs {
 
     data class OrderLine(val product: String, val qty: Int, val price: BigDecimal)
 
-    val lineParser: RowParser<OrderLine> =
-        RowParser.builder<OrderLine>()
+    val lineCodec: RowCodec<OrderLine> =
+        RowCodec.builder<OrderLine>()
             .field(DuckDbTypes.varchar, OrderLine::product)
             .field(DuckDbTypes.integer, OrderLine::qty)
             .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
             .build(::OrderLine)
 
     //start
-    // RowParser → JSON column type, zero extra code
+    // RowCodec → JSON column type, zero extra code
     val linesType: DuckDbType<List<OrderLine>> =
-        DuckDbTypes.jsonArrayEncodedList(lineParser)
+        DuckDbTypes.jsonArrayEncodedList(lineCodec)
 
     fun getOrderLines(customerId: Int): List<OrderLine> =
-        Sql { """
+        sql { """
             SELECT json_group_array(json_array(product, qty, price))
             FROM order_lines
             WHERE customer_id = ${DuckDbTypes.integer(customerId)}
         """ }
-            .query(RowParser.of(linesType).exactlyOne())
+            .query(RowCodec.of(linesType).exactlyOne())
             .transact(tx)
     //stop
 }

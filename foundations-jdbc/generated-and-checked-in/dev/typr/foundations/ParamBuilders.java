@@ -50,13 +50,13 @@ public class ParamBuilders {
       return new ParamBuilder2<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, null);
     }
 
-    public <Out> SqlTemplate.Query1<P0, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query1<>(
+    public <Out> Template.Query1<P0, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query1<>(
           fragment, p0Type, parser);
     }
 
-    public SqlTemplate.Update1<P0> update() {
-      return new SqlTemplate.Update1<>(
+    public Template.Update1<P0> update() {
+      return new Template.Update1<>(
           fragment, p0Type);
     }
 
@@ -116,13 +116,13 @@ public class ParamBuilders {
       return new ParamBuilder3<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, null);
     }
 
-    public <Out> SqlTemplate.Query2<P0, P1, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query2<>(
+    public <Out> Template.Query2<P0, P1, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query2<>(
           fragment, p0Type, p1Type, parser);
     }
 
-    public SqlTemplate.Update2<P0, P1> update() {
-      return new SqlTemplate.Update2<>(
+    public Template.Update2<P0, P1> update() {
+      return new Template.Update2<>(
           fragment, p0Type, p1Type);
     }
 
@@ -185,13 +185,13 @@ public class ParamBuilders {
       return new ParamBuilder4<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, null);
     }
 
-    public <Out> SqlTemplate.Query3<P0, P1, P2, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query3<>(
+    public <Out> Template.Query3<P0, P1, P2, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query3<>(
           fragment, p0Type, p1Type, p2Type, parser);
     }
 
-    public SqlTemplate.Update3<P0, P1, P2> update() {
-      return new SqlTemplate.Update3<>(
+    public Template.Update3<P0, P1, P2> update() {
+      return new Template.Update3<>(
           fragment, p0Type, p1Type, p2Type);
     }
 
@@ -257,13 +257,13 @@ public class ParamBuilders {
       return new ParamBuilder5<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, null);
     }
 
-    public <Out> SqlTemplate.Query4<P0, P1, P2, P3, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query4<>(
+    public <Out> Template.Query4<P0, P1, P2, P3, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query4<>(
           fragment, p0Type, p1Type, p2Type, p3Type, parser);
     }
 
-    public SqlTemplate.Update4<P0, P1, P2, P3> update() {
-      return new SqlTemplate.Update4<>(
+    public Template.Update4<P0, P1, P2, P3> update() {
+      return new Template.Update4<>(
           fragment, p0Type, p1Type, p2Type, p3Type);
     }
 
@@ -332,13 +332,13 @@ public class ParamBuilders {
       return new ParamBuilder6<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, null);
     }
 
-    public <Out> SqlTemplate.Query5<P0, P1, P2, P3, P4, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query5<>(
+    public <Out> Template.Query5<P0, P1, P2, P3, P4, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query5<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type, parser);
     }
 
-    public SqlTemplate.Update5<P0, P1, P2, P3, P4> update() {
-      return new SqlTemplate.Update5<>(
+    public Template.Update5<P0, P1, P2, P3, P4> update() {
+      return new Template.Update5<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type);
     }
 
@@ -410,13 +410,13 @@ public class ParamBuilders {
       return new ParamBuilder7<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, null);
     }
 
-    public <Out> SqlTemplate.Query6<P0, P1, P2, P3, P4, P5, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query6<>(
+    public <Out> Template.Query6<P0, P1, P2, P3, P4, P5, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query6<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, parser);
     }
 
-    public SqlTemplate.Update6<P0, P1, P2, P3, P4, P5> update() {
-      return new SqlTemplate.Update6<>(
+    public Template.Update6<P0, P1, P2, P3, P4, P5> update() {
+      return new Template.Update6<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type, p5Type);
     }
 
@@ -491,13 +491,13 @@ public class ParamBuilders {
       return new ParamBuilder8<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, null);
     }
 
-    public <Out> SqlTemplate.Query7<P0, P1, P2, P3, P4, P5, P6, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query7<>(
+    public <Out> Template.Query7<P0, P1, P2, P3, P4, P5, P6, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query7<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, parser);
     }
 
-    public SqlTemplate.Update7<P0, P1, P2, P3, P4, P5, P6> update() {
-      return new SqlTemplate.Update7<>(
+    public Template.Update7<P0, P1, P2, P3, P4, P5, P6> update() {
+      return new Template.Update7<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type);
     }
 
@@ -575,13 +575,13 @@ public class ParamBuilders {
       return new ParamBuilder9<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, null);
     }
 
-    public <Out> SqlTemplate.Query8<P0, P1, P2, P3, P4, P5, P6, P7, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query8<>(
+    public <Out> Template.Query8<P0, P1, P2, P3, P4, P5, P6, P7, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query8<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, parser);
     }
 
-    public SqlTemplate.Update8<P0, P1, P2, P3, P4, P5, P6, P7> update() {
-      return new SqlTemplate.Update8<>(
+    public Template.Update8<P0, P1, P2, P3, P4, P5, P6, P7> update() {
+      return new Template.Update8<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type);
     }
 
@@ -662,13 +662,13 @@ public class ParamBuilders {
       return new ParamBuilder10<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, p8Type, null);
     }
 
-    public <Out> SqlTemplate.Query9<P0, P1, P2, P3, P4, P5, P6, P7, P8, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query9<>(
+    public <Out> Template.Query9<P0, P1, P2, P3, P4, P5, P6, P7, P8, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query9<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, p8Type, parser);
     }
 
-    public SqlTemplate.Update9<P0, P1, P2, P3, P4, P5, P6, P7, P8> update() {
-      return new SqlTemplate.Update9<>(
+    public Template.Update9<P0, P1, P2, P3, P4, P5, P6, P7, P8> update() {
+      return new Template.Update9<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, p8Type);
     }
 
@@ -728,13 +728,13 @@ public class ParamBuilders {
     }
 
 
-    public <Out> SqlTemplate.Query10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query10<>(
+    public <Out> Template.Query10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query10<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, p8Type, p9Type, parser);
     }
 
-    public SqlTemplate.Update10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9> update() {
-      return new SqlTemplate.Update10<>(
+    public Template.Update10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9> update() {
+      return new Template.Update10<>(
           fragment, p0Type, p1Type, p2Type, p3Type, p4Type, p5Type, p6Type, p7Type, p8Type, p9Type);
     }
 

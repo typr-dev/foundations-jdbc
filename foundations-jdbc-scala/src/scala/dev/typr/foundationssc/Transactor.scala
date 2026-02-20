@@ -4,7 +4,7 @@ import java.sql.Connection
 
 class Transactor(val underlying: dev.typr.foundations.Transactor):
   def execute[T](operation: Operation[T]): T =
-    val f: dev.typr.foundations.SqlFunction[Connection, T] = (conn: Connection) => operation.runChecked(conn)
+    val f: dev.typr.foundations.SqlFunction[Connection, T] = (conn: Connection) => operation.run(conn)
     underlying.execute(f)
 
   def transact[T](f: Connection => T): T =
@@ -16,6 +16,9 @@ class Transactor(val underlying: dev.typr.foundations.Transactor):
 
   def withStrategy(override_ : Transactor.Strategy): Transactor =
     new Transactor(underlying.withStrategy(override_))
+
+  def mergeListener(listener: dev.typr.foundations.QueryListener): Transactor =
+    new Transactor(underlying.mergeListener(listener))
 
   def transact[T](override_ : Transactor.Strategy)(f: Connection => T): T =
     withStrategy(override_).transact(f)

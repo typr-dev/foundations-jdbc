@@ -10,7 +10,7 @@ val STRUCT_N = 31
 val baseDir = Path.of(sys.props.getOrElse("user.dir", "."))
 val generatedOutputDir = baseDir.resolve("foundations-jdbc-kotlin/generated-and-checked-in/dev/typr/foundationskt")
 
-def generateKotlinRowParserBuilders(): String = {
+def generateKotlinRowCodecBuilders(): String = {
   val maxArity = N - 1
 
   val builder0 = s"""|    class Builder0<Row : Any> internal constructor() {
@@ -47,14 +47,14 @@ def generateKotlinRowParserBuilders(): String = {
         |        private val getters: MutableList<(Row) -> Any?>
         |    ) {
         |        @Suppress("UNCHECKED_CAST")
-        |        fun build(decode: ($decodeParams) -> Row): RowParser<Row> {
+        |        fun build(decode: ($decodeParams) -> Row): RowCodec<Row> {
         |            val capturedGetters = getters.toList()
-        |            val javaParser = dev.typr.foundations.RowParser.create<Row>(
+        |            val javaParser = dev.typr.foundations.RowCodec.create<Row>(
         |                types.toList(),
         |                { arr -> decode($decodeArgs) },
         |                { row -> capturedGetters.map { it(row) }.toTypedArray() }
         |            )
-        |            return RowParser(javaParser)
+        |            return RowCodec(javaParser)
         |        }$nextBuilder
         |    }""".stripMargin
   }
@@ -62,18 +62,18 @@ def generateKotlinRowParserBuilders(): String = {
   s"""|package dev.typr.foundationskt
       |
       |/**
-      | * Type-safe builders for Kotlin RowParser.
+      | * Type-safe builders for Kotlin RowCodec.
       | *
       | * Usage:
       | * ```kotlin
-      | * val parser: RowParser<Product> = RowParser.builder<Product>()
+      | * val parser: RowCodec<Product> = RowCodec.builder<Product>()
       | *     .field(PgTypes.int4, Product::id)
       | *     .field(PgTypes.text, Product::name)
       | *     .field(PgTypes.numeric, Product::price)
       | *     .build(::Product)
       | * ```
       | */
-      |object RowParserBuilders {
+      |object RowCodecBuilders {
       |    fun <Row : Any> builder(): Builder0<Row> = Builder0()
       |
       |$builder0
@@ -83,7 +83,7 @@ def generateKotlinRowParserBuilders(): String = {
       |""".stripMargin
 }
 
-def generateKotlinNamedRowParserBuilders(): String = {
+def generateKotlinNamedRowCodecBuilders(): String = {
   val maxArity = N - 1
 
   val builder0 = s"""|    class Builder0<Row : Any> internal constructor() {
@@ -124,15 +124,15 @@ def generateKotlinNamedRowParserBuilders(): String = {
         |        private val getters: MutableList<(Row) -> Any?>
         |    ) {
         |        @Suppress("UNCHECKED_CAST")
-        |        fun build(decode: ($decodeParams) -> Row): RowParserNamed<Row> {
+        |        fun build(decode: ($decodeParams) -> Row): RowCodecNamed<Row> {
         |            val capturedGetters = getters.toList()
-        |            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+        |            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
         |                names.toList(),
         |                types.toList(),
         |                { arr -> decode($decodeArgs) },
         |                { row -> capturedGetters.map { it(row) }.toTypedArray() }
         |            )
-        |            return RowParserNamed(javaParser)
+        |            return RowCodecNamed(javaParser)
         |        }$nextBuilder
         |    }""".stripMargin
   }
@@ -140,18 +140,18 @@ def generateKotlinNamedRowParserBuilders(): String = {
   s"""|package dev.typr.foundationskt
       |
       |/**
-      | * Type-safe named builders for Kotlin RowParser.
+      | * Type-safe named builders for Kotlin RowCodec.
       | *
       | * Usage:
       | * ```kotlin
-      | * val parser: RowParserNamed<Product> = RowParser.namedBuilder<Product>()
+      | * val parser: RowCodecNamed<Product> = RowCodec.namedBuilder<Product>()
       | *     .field("id", PgTypes.int4, Product::id)
       | *     .field("name", PgTypes.text, Product::name)
       | *     .field("price", PgTypes.numeric, Product::price)
       | *     .build(::Product)
       | * ```
       | */
-      |object RowParserNamedBuilders {
+      |object RowCodecNamedBuilders {
       |    fun <Row : Any> builder(): Builder0<Row> = Builder0()
       |
       |$builder0
@@ -575,7 +575,7 @@ def generateKotlinTuple(): String = {
       |""".stripMargin
 }
 
-def generateKotlinSqlTemplate(): String = {
+def generateKotlinTemplate(): String = {
   val maxArity = PROC_N - 1 // 10
 
   def inputType(n: Int): String = {
@@ -602,12 +602,12 @@ def generateKotlinSqlTemplate(): String = {
 
     if (n == 1) {
       s"""|    class Query1<P0, Out>(
-          |        private val _java: dev.typr.foundations.SqlTemplate.Query1<*, Out>,
+          |        private val _java: dev.typr.foundations.Template.Query1<*, Out>,
           |        private val _transforms: List<((Any?) -> Any?)?>
-          |    ) : SqlTemplate<P0, Out>() {
-          |        constructor(j: dev.typr.foundations.SqlTemplate.Query1<*, Out>) : this(j, listOf(null))
+          |    ) : Template<P0, Out>() {
+          |        constructor(j: dev.typr.foundations.Template.Query1<*, Out>) : this(j, listOf(null))
           |
-          |        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+          |        override val underlying: dev.typr.foundations.Template<*, *> get() = _java
           |
           |        override fun on(input: P0): Operation.Query<Out> {
           |            val v0: Any? = _transforms[0]?.invoke(input) ?: input
@@ -617,19 +617,19 @@ def generateKotlinSqlTemplate(): String = {
           |        }
           |
           |        fun <T> from($fromFnParams): From<T, Out> =
-          |            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
+          |            From(dev.typr.foundations.Template.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
           |    }""".stripMargin
     } else {
       val inType = inputType(n)
       val tupleDecompose = range.map(i => s"input._${i + 1}()").mkString(", ")
 
       s"""|    class Query$n<$allTparams>(
-          |        private val _java: dev.typr.foundations.SqlTemplate.Query$n<$stars, Out>,
+          |        private val _java: dev.typr.foundations.Template.Query$n<$stars, Out>,
           |        private val _transforms: List<((Any?) -> Any?)?>
-          |    ) : SqlTemplate<$inType, Out>() {
-          |        constructor(j: dev.typr.foundations.SqlTemplate.Query$n<$stars, Out>) : this(j, List($n) { null })
+          |    ) : Template<$inType, Out>() {
+          |        constructor(j: dev.typr.foundations.Template.Query$n<$stars, Out>) : this(j, List($n) { null })
           |
-          |        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+          |        override val underlying: dev.typr.foundations.Template<*, *> get() = _java
           |
           |        override fun on(input: $inType): Operation.Query<Out> =
           |            on($tupleDecompose)
@@ -642,7 +642,7 @@ def generateKotlinSqlTemplate(): String = {
           |        }
           |
           |        fun <T> from($fromFnParams): From<T, Out> =
-          |            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
+          |            From(dev.typr.foundations.Template.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
           |    }""".stripMargin
     }
   }
@@ -662,12 +662,12 @@ def generateKotlinSqlTemplate(): String = {
 
     if (n == 1) {
       s"""|    class Update1<P0>(
-          |        private val _java: dev.typr.foundations.SqlTemplate.Update1<*>,
+          |        private val _java: dev.typr.foundations.Template.Update1<*>,
           |        private val _transforms: List<((Any?) -> Any?)?>
-          |    ) : SqlTemplate<P0, Int>() {
-          |        constructor(j: dev.typr.foundations.SqlTemplate.Update1<*>) : this(j, listOf(null))
+          |    ) : Template<P0, Int>() {
+          |        constructor(j: dev.typr.foundations.Template.Update1<*>) : this(j, listOf(null))
           |
-          |        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+          |        override val underlying: dev.typr.foundations.Template<*, *> get() = _java
           |
           |        override fun on(input: P0): Operation.Update {
           |            val v0: Any? = _transforms[0]?.invoke(input) ?: input
@@ -677,19 +677,19 @@ def generateKotlinSqlTemplate(): String = {
           |        }
           |
           |        fun <T> from($fromFnParams): From<T, Int> =
-          |            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
+          |            From(dev.typr.foundations.Template.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
           |    }""".stripMargin
     } else {
       val inType = inputType(n)
       val tupleDecompose = range.map(i => s"input._${i + 1}()").mkString(", ")
 
       s"""|    class Update$n<$tparams>(
-          |        private val _java: dev.typr.foundations.SqlTemplate.Update$n<$stars>,
+          |        private val _java: dev.typr.foundations.Template.Update$n<$stars>,
           |        private val _transforms: List<((Any?) -> Any?)?>
-          |    ) : SqlTemplate<$inType, Int>() {
-          |        constructor(j: dev.typr.foundations.SqlTemplate.Update$n<$stars>) : this(j, List($n) { null })
+          |    ) : Template<$inType, Int>() {
+          |        constructor(j: dev.typr.foundations.Template.Update$n<$stars>) : this(j, List($n) { null })
           |
-          |        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+          |        override val underlying: dev.typr.foundations.Template<*, *> get() = _java
           |
           |        override fun on(input: $inType): Operation.Update =
           |            on($tupleDecompose)
@@ -702,7 +702,7 @@ def generateKotlinSqlTemplate(): String = {
           |        }
           |
           |        fun <T> from($fromFnParams): From<T, Int> =
-          |            From(dev.typr.foundations.SqlTemplate.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
+          |            From(dev.typr.foundations.Template.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
           |    }""".stripMargin
     }
   }
@@ -710,8 +710,10 @@ def generateKotlinSqlTemplate(): String = {
   s"""|@file:Suppress("unused")
       |package dev.typr.foundationskt
       |
-      |sealed class SqlTemplate<In, Out> {
-      |    abstract val underlying: dev.typr.foundations.SqlTemplate<*, *>
+      |sealed class Template<In, Out> : Analyzable {
+      |    abstract val underlying: dev.typr.foundations.Template<*, *>
+      |
+      |    override val analyzable: dev.typr.foundations.Analyzable get() = underlying
       |
       |    abstract fun on(input: In): Operation<Out>
       |
@@ -722,10 +724,10 @@ def generateKotlinSqlTemplate(): String = {
       |${updateClasses.mkString("\n\n")}
       |
       |    class From<T, Out>(
-      |        private val _java: dev.typr.foundations.SqlTemplate.From<T, *>,
+      |        private val _java: dev.typr.foundations.Template.From<T, *>,
       |        private val _resolver: (T) -> Operation<Out>
-      |    ) : SqlTemplate<T, Out>() {
-      |        override val underlying: dev.typr.foundations.SqlTemplate<*, *> get() = _java
+      |    ) : Template<T, Out>() {
+      |        override val underlying: dev.typr.foundations.Template<*, *> get() = _java
       |        override fun on(input: T): Operation<Out> = _resolver(input)
       |    }
       |}
@@ -782,11 +784,11 @@ def generateKotlinParamBuilders(): String = {
         |
         |        fun append(fragment: Fragment): ParamBuilder$n<$tparams> = ParamBuilder$n(underlying.append(fragment.underlying), transforms)
         |$nextParamMethod$optionallyMethods
-        |        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query$n<$tparams, Out> =
-        |            SqlTemplate.Query$n(underlying.query(parser.underlying), transforms)
+        |        fun <Out> query(parser: ResultSetParser<Out>): Template.Query$n<$tparams, Out> =
+        |            Template.Query$n(underlying.query(parser.underlying), transforms)
         |
-        |        fun update(): SqlTemplate.Update$n<$tparams> =
-        |            SqlTemplate.Update$n(underlying.update(), transforms)
+        |        fun update(): Template.Update$n<$tparams> =
+        |            Template.Update$n(underlying.update(), transforms)
         |
         |        fun done(): Fragment = Fragment(underlying.done())
         |    }""".stripMargin
@@ -807,17 +809,17 @@ def generateKotlinParamBuilders(): String = {
 
 Files.createDirectories(generatedOutputDir)
 
-// RowParserBuilders.kt -> generated-and-checked-in
-val kotlinRowParserBuildersContent = generateKotlinRowParserBuilders()
-val kotlinRowParserBuildersPath = generatedOutputDir.resolve("RowParserBuilders.kt")
-Files.writeString(kotlinRowParserBuildersPath, kotlinRowParserBuildersContent)
-println(s"Wrote ${kotlinRowParserBuildersPath}")
+// RowCodecBuilders.kt -> generated-and-checked-in
+val kotlinRowCodecBuildersContent = generateKotlinRowCodecBuilders()
+val kotlinRowCodecBuildersPath = generatedOutputDir.resolve("RowCodecBuilders.kt")
+Files.writeString(kotlinRowCodecBuildersPath, kotlinRowCodecBuildersContent)
+println(s"Wrote ${kotlinRowCodecBuildersPath}")
 
-// RowParserNamedBuilders.kt -> generated-and-checked-in
-val kotlinNamedRowParserBuildersContent = generateKotlinNamedRowParserBuilders()
-val kotlinNamedRowParserBuildersPath = generatedOutputDir.resolve("RowParserNamedBuilders.kt")
-Files.writeString(kotlinNamedRowParserBuildersPath, kotlinNamedRowParserBuildersContent)
-println(s"Wrote ${kotlinNamedRowParserBuildersPath}")
+// RowCodecNamedBuilders.kt -> generated-and-checked-in
+val kotlinNamedRowCodecBuildersContent = generateKotlinNamedRowCodecBuilders()
+val kotlinNamedRowCodecBuildersPath = generatedOutputDir.resolve("RowCodecNamedBuilders.kt")
+Files.writeString(kotlinNamedRowCodecBuildersPath, kotlinNamedRowCodecBuildersContent)
+println(s"Wrote ${kotlinNamedRowCodecBuildersPath}")
 
 // DbProcedure.kt -> generated-and-checked-in
 val kotlinDbProcedureContent = generateKotlinDbProcedure()
@@ -855,11 +857,11 @@ val kotlinTuplePath = generatedOutputDir.resolve("Tuple.kt")
 Files.writeString(kotlinTuplePath, kotlinTupleContent)
 println(s"Wrote ${kotlinTuplePath}")
 
-// SqlTemplate.kt -> generated-and-checked-in
-val kotlinSqlTemplateContent = generateKotlinSqlTemplate()
-val kotlinSqlTemplatePath = generatedOutputDir.resolve("SqlTemplate.kt")
-Files.writeString(kotlinSqlTemplatePath, kotlinSqlTemplateContent)
-println(s"Wrote ${kotlinSqlTemplatePath}")
+// Template.kt -> generated-and-checked-in
+val kotlinTemplateContent = generateKotlinTemplate()
+val kotlinTemplatePath = generatedOutputDir.resolve("Template.kt")
+Files.writeString(kotlinTemplatePath, kotlinTemplateContent)
+println(s"Wrote ${kotlinTemplatePath}")
 
 // ParamBuilders.kt -> generated-and-checked-in
 val kotlinParamBuildersContent = generateKotlinParamBuilders()

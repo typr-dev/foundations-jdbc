@@ -29,11 +29,11 @@ For simple cases, use the `PgText` encoder from the type directly:
 
 ## Multi-Column Rows
 
-For rows with multiple columns, derive a `PgText` encoder from a `RowParser`:
+For rows with multiple columns, derive a `PgText` encoder from a `RowCodec`:
 
 <Snippet file="postgresql/StreamingInsertMulti" />
 
-`PgText.from(rowParser)` uses each column's text encoder to produce tab-delimited COPY format. The same `RowParser` you use for reading rows can drive bulk loading.
+`PgText.from(rowCodec)` uses each column's text encoder to produce tab-delimited COPY format. The same `RowCodec` you use for reading rows can drive bulk loading.
 
 ## Supported Types
 

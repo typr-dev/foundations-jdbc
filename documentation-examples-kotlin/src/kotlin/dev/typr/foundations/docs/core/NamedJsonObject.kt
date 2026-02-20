@@ -8,8 +8,8 @@ class NamedJsonObject {
     //start
     data class OrderLine(val product: String, val qty: Int, val price: BigDecimal)
 
-    val lineParser: RowParserNamed<OrderLine> =
-        RowParser.namedBuilder<OrderLine>()
+    val lineCodec: RowCodecNamed<OrderLine> =
+        RowCodec.namedBuilder<OrderLine>()
             .field("product", DuckDbTypes.varchar, OrderLine::product)
             .field("qty", DuckDbTypes.integer, OrderLine::qty)
             .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
@@ -17,11 +17,11 @@ class NamedJsonObject {
 
     // Stores rows as positional JSON arrays: [["Widget", 3, 9.99], ...]
     val arrayType: DuckDbType<List<OrderLine>> =
-        DuckDbTypes.jsonArrayEncodedList(lineParser)
+        DuckDbTypes.jsonArrayEncodedList(lineCodec)
 
     // Stores rows as named JSON objects: [{"product": "Widget", "qty": 3, "price": 9.99}, ...]
-    // Column names come from the parser — no redundant list to maintain
+    // Column names come from the codec — no redundant list to maintain
     val objectType: DuckDbType<List<OrderLine>> =
-        DuckDbTypes.jsonObjectEncodedList(lineParser)
+        DuckDbTypes.jsonObjectEncodedList(lineCodec)
     //stop
 }

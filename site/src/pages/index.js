@@ -114,8 +114,8 @@ import dev.typr.foundationskt.connect.*
 
 fun main() {
     val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
-    val answer: Int = Sql { "SELECT 42" }
-        .queryOne(DuckDbTypes.integer)
+    val answer: Int = sql { "SELECT 42" }
+        .queryExactlyOne(DuckDbTypes.integer)
         .transact(tx)
     println("Result: $answer")
 }`;
@@ -250,11 +250,11 @@ function Features() {
     },
     {
       title: 'Queries are values',
-      description: 'Fragments and row parsers are immutable values you compose, pass around, and run when you\'re ready. Just functions and values.',
+      description: 'Fragments and row codecs are immutable values you compose, pass around, and run when you\'re ready. Just functions and values.',
     },
     {
       title: 'Composable',
-      description: 'Row parsers compose. Join two parsers for a joined query. Left join gives you Optional on the right side. Fragments compose with and(), or(), whereAnd(). It\'s just functions.',
+      description: 'Row codecs compose. Join two codecs for a joined query. Left join gives you Optional on the right side. Fragments compose with and(), or(), whereAnd(). It\'s just functions.',
     },
     {
       title: 'No reflection, no magic',
@@ -315,14 +315,14 @@ function ErrorMessagesSection() {
   );
 }
 
-function SchemaAndParsers() {
+function SchemaAndCodecs() {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
         <h2 className={styles.sectionTitle}>Start with your schema</h2>
         <p className={styles.sectionSubtitle}>
           Take a PostgreSQL table with a composite type, arrays, and jsonb.
-          The <code>RowParser</code> maps each column to a <code>DbType</code> that knows exactly how to read and write its value.
+          The <code>RowCodec</code> maps each column to a <code>DbType</code> that knows exactly how to read and write its value.
           No <code>getObject()</code> guessing, no <code>wasNull()</code> checking.
         </p>
         <div className={styles.twoCol}>
@@ -334,7 +334,7 @@ function SchemaAndParsers() {
           </div>
         </div>
         <div style={{marginTop: '2rem'}}>
-          <Snippet file="landing/ProductRowParser" />
+          <Snippet file="landing/ProductRowCodec" />
         </div>
       </div>
     </section>
@@ -362,7 +362,7 @@ function TypeBuildingBlocks() {
           </TabItem>
           <TabItem value="wrapper" label="Wrapper Types">
             <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
-              Call <code>transform</code> (two-way mapping) on a base type — you get a full codec that works in row parsers, arrays, and JSON.
+              Call <code>transform</code> (two-way mapping) on a base type — you get a full codec that works in row codecs, arrays, and JSON.
             </p>
             <CodeBlock language="sql" title="MariaDB DDL">
               {`CREATE TABLE products (\n    id   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\n    name VARCHAR(255) NOT NULL\n);`}
@@ -440,7 +440,7 @@ function JsonSection() {
         <h2 className={styles.sectionTitle}>Built-in JSON codecs</h2>
         <p className={styles.sectionSubtitle}>
           All databases can transfer data as JSON — and now you can use it uniformly.
-          Your <code>RowParser</code> doubles as a JSON codec with zero extra code.
+          Your <code>RowCodec</code> doubles as a JSON codec with zero extra code.
           Aggregate child rows with <code>json_agg()</code>, <code>JSON_ARRAYAGG</code>,
           or <code>FOR JSON</code> and parse them with the same types. <a href="/foundations-jdbc/json">Learn more →</a>
         </p>
@@ -715,7 +715,7 @@ function ComparisonSection() {
             </tbody>
           </table>
           <div style={{fontSize: '0.8rem', color: '#94a3b8', marginTop: '1rem', maxWidth: '800px', margin: '1rem auto 0', lineHeight: '1.6'}}>
-            <p style={{margin: '0.25rem 0'}}>* If you need to switch databases, regenerating code from your new schema may be more reliable than hoping the leaky abstraction holds.</p>
+            <p style={{margin: '0.25rem 0'}}>* Type references are explicit and searchable — find all <code>PgTypes.</code> and replace with <code>MariaTypes.</code> — then run Query Analysis to verify every query against the new database at test time. More manual than hoping an abstraction holds, but nothing slips through unchecked.</p>
             <p style={{margin: '0.25rem 0'}}><sup>1</sup> Hibernate 6.2+ has <code>@Struct</code> for composites and built-in basic array mapping. Ranges still need third-party libraries (Hypersistence Utils).</p>
             <p style={{margin: '0.25rem 0'}}><sup>2</sup> Exposed has built-in array support. Ranges and composite types require custom <code>ColumnType</code> implementations.</p>
             <p style={{margin: '0.25rem 0'}}><sup>3</sup> <code>@CheckHQL</code> (6.3+) validates HQL at compile time against the entity metamodel, not the database schema. Not enabled by default.</p>
@@ -762,7 +762,7 @@ export default function Home() {
         <QueryAnalysisSection />
         <ErrorMessagesSection />
         <Features />
-        <SchemaAndParsers />
+        <SchemaAndCodecs />
         <TypeBuildingBlocks />
         <QueryShowcase />
         <TransactorShowcase />

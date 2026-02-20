@@ -47,14 +47,14 @@ public class PgTypeTest {
   // Simple record and parsers for JSON-encoded row type testing
   record Item(String name, int quantity) {}
 
-  static RowParser<Item> itemParser =
-      RowParser.<Item>builder()
+  static RowCodec<Item> itemCodec =
+      RowCodec.<Item>builder()
           .field(PgTypes.text, Item::name)
           .field(PgTypes.int4, Item::quantity)
           .build(Item::new);
 
-  static RowParserNamed<Item> namedItemParser =
-      RowParser.<Item>namedBuilder()
+  static RowCodecNamed<Item> namedItemCodec =
+      RowCodec.<Item>namedBuilder()
           .field("name", PgTypes.text, Item::name)
           .field("quantity", PgTypes.int4, Item::quantity)
           .build(Item::new);
@@ -349,29 +349,29 @@ public class PgTypeTest {
           // ==================== JSON-Encoded Row Types ====================
           // json variants — store structured rows as json columns
           new PgTypeAndExample<>(
-                  PgTypes.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+                  PgTypes.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+                  PgTypes.jsonArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+                  PgTypes.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
+                  PgTypes.jsonObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           // jsonb variants — store structured rows as jsonb columns
           new PgTypeAndExample<>(
-                  PgTypes.jsonbArrayEncoded(itemParser), new Item("Widget", 5))
+                  PgTypes.jsonbArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonbArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+                  PgTypes.jsonbArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonbObjectEncoded(namedItemParser), new Item("Widget", 5))
+                  PgTypes.jsonbObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonbObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
+                  PgTypes.jsonbObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
 
           // ==================== Record Types ====================
@@ -533,11 +533,7 @@ public class PgTypeTest {
               }));
 
   static <T> void withConnection(SqlFunction<Connection, T> f) {
-    try {
-      Containers.postgresTransactor().execute(f);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+    Containers.postgresTransactor().execute(f);
   }
 
   @Test
@@ -1008,7 +1004,7 @@ public class PgTypeTest {
     String tableName = uniqueTableName("qa");
     conn.createStatement().execute("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
@@ -1021,8 +1017,8 @@ public class PgTypeTest {
 
   static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
       throws SQLException {
-    RowParserNamed<A> parser =
-        RowParser.<A>namedBuilder()
+    RowCodecNamed<A> parser =
+        RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
     Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
@@ -1030,7 +1026,7 @@ public class PgTypeTest {
         .append(")")
         .update()
         .onMany(List.of(value).iterator())
-        .runChecked(conn);
+        .run(conn);
   }
 
   static <A> void testCase(Connection conn, PgTypeAndExample<A> t) throws SQLException {
@@ -1059,7 +1055,7 @@ public class PgTypeTest {
     select.execute();
     var rs = select.getResultSet();
     List<TestPair<A>> rows =
-        RowParser.<TestPair<A>>builder()
+        RowCodec.<TestPair<A>>builder()
             .field(t.type, TestPair::t0)
             .field(t.type.opt(), TestPair::t1)
             .build(TestPair::new)
@@ -1106,7 +1102,7 @@ public class PgTypeTest {
       Procedure<A> proc = Procedure.buildFunction(funcName,
           java.util.List.of(ParamDef.input(t.type)), t.type);
 
-      A result = proc.call(t.example).runChecked(conn);
+      A result = proc.call(t.example).run(conn);
 
       if (!areEqual(result, t.example)) {
         throw new RuntimeException(

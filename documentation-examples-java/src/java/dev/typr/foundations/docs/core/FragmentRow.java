@@ -10,8 +10,8 @@ import java.time.Instant;
 public class FragmentRow {
     record Product(Integer id, String name, BigDecimal price, Instant createdAt) {}
 
-    RowParserNamed<Product> productParser =
-        RowParser.<Product>namedBuilder()
+    RowCodecNamed<Product> productCodec =
+        RowCodec.<Product>namedBuilder()
             .field("id", PgTypes.int4, Product::id)
             .field("name", PgTypes.text, Product::name)
             .field("price", PgTypes.numeric, Product::price)
@@ -21,32 +21,27 @@ public class FragmentRow {
     Connection conn = null; // placeholder
 
     //start
-    // All columns as parameters — great for app-generated IDs
-    RowSqlTemplate<Product, Product> insertTemplate =
-        Fragment.of("INSERT INTO product (")
-            .append(productParser.columnList())
-            .append(") VALUES (")
-            .paramRow(productParser)
-            .append(") RETURNING ")
-            .append(productParser.columnList())
-            .query(productParser.exactlyOne());
-
     Product insert(Product product) {
-        return insertTemplate.on(product).run(conn);
+        return Fragment.of("INSERT INTO product (")
+            .append(productCodec.columnList())
+            .append(") VALUES (")
+            .row(productCodec, product)
+            .append(") RETURNING ")
+            .append(productCodec.columnList())
+            .query(productCodec.exactlyOne())
+            .run(conn);
     }
 
-    // Skip columns handled by the database — e.g. sequences or defaults
-    RowSqlTemplate<Product, Product> insertWithSequenceTemplate =
-        Fragment.of("INSERT INTO product (")
-            .append(productParser.columnList())
-            .append(") VALUES (nextval('product_id_seq'), ")
-            .paramRow(productParser, "id")
+    // Skip columns with database defaults — pass column names to except
+    Product insertWithDefault(Product product) {
+        return Fragment.of("INSERT INTO product (")
+            .append(productCodec.columnList())
+            .append(") VALUES (DEFAULT, ")
+            .row(productCodec, product, "id")
             .append(") RETURNING ")
-            .append(productParser.columnList())
-            .query(productParser.exactlyOne());
-
-    Product insertWithSequence(Product product) {
-        return insertWithSequenceTemplate.on(product).run(conn);
+            .append(productCodec.columnList())
+            .query(productCodec.exactlyOne())
+            .run(conn);
     }
     //stop
 }

@@ -3,9 +3,10 @@ package dev.typr.foundations.docs.analysis;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.Operation;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
+import dev.typr.foundations.DatabaseException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -19,21 +20,21 @@ public class QueryAnalysisTestSuite {
 
     private final DataSource testDataSource = null; // placeholder
 
-    private final RowParser<User> userParser =
-        RowParser.<User>builder()
+    private final RowCodec<User> userCodec =
+        RowCodec.<User>builder()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::email)
             .build(User::new);
 
-    private final RowParser<Product> productParser =
-        RowParser.<Product>builder()
+    private final RowCodec<Product> productCodec =
+        RowCodec.<Product>builder()
             .field(PgTypes.int4, Product::id)
             .field(PgTypes.text, Product::name)
             .build(Product::new);
 
     //start
-    void allQueriesTypeCheck() throws SQLException {
+    void allQueriesTypeCheck() {
         try (var conn = testDataSource.getConnection()) {
             // Collect all queries to check
             List<Operation.Query<?>> queries = List.of(
@@ -42,14 +43,14 @@ public class QueryAnalysisTestSuite {
                         FROM users WHERE id =
                         """)
                     .value(PgTypes.int4, 1)
-                    .query(userParser.all()),
+                    .query(userCodec.all()),
                 Fragment.of("""
                         SELECT id, name
                         FROM products
                         WHERE name LIKE
                         """)
                     .value(PgTypes.text, "%widget%")
-                    .query(productParser.all())
+                    .query(productCodec.all())
             );
 
             // Analyze each one
@@ -69,6 +70,8 @@ public class QueryAnalysisTestSuite {
                     "Query type check failed:\n\n"
                         + String.join("\n\n", failures));
             }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
         }
     }
     //stop

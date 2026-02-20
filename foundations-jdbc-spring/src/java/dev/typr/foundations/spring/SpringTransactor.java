@@ -44,7 +44,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  *     }
  *
  *     @Transactional
- *     public List<Order> getOrders() throws SQLException {
+ *     public List<Order> getOrders() {
  *         return new Operation.Query<>(sql, parser).transact(tx);
  *     }
  * }
@@ -68,7 +68,11 @@ public final class SpringTransactor {
   }
 
   private static Strategy strategy(DataSource dataSource) {
-    return new Strategy(before(), after(), oops(), always(dataSource), QueryListener.NOOP);
+    return Strategy.empty()
+        .replaceBefore(before())
+        .replaceAfter(after())
+        .replaceOops(oops())
+        .replaceAlways(always(dataSource));
   }
 
   private static SqlConsumer<Connection> before() {

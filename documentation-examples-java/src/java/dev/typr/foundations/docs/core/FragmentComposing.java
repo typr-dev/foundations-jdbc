@@ -2,11 +2,10 @@ package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -15,8 +14,8 @@ import java.util.stream.Stream;
 public class FragmentComposing {
     record ProductRow(Integer id, String name, BigDecimal price) {}
 
-    static RowParser<ProductRow> rowParser =
-        RowParser.<ProductRow>builder()
+    static RowCodec<ProductRow> rowCodec =
+        RowCodec.<ProductRow>builder()
             .field(PgTypes.int4, ProductRow::id)
             .field(PgTypes.text, ProductRow::name)
             .field(PgTypes.numeric, ProductRow::price)
@@ -35,7 +34,7 @@ public class FragmentComposing {
     }
 
     // Compose dynamically — only include the filters that are present
-    List<ProductRow> query() throws SQLException {
+    List<ProductRow> query() {
         List<Fragment> filters = Stream.of(
                 Optional.of(byName("%widget%")),
                 maxPrice.map(this::cheaperThan)
@@ -46,7 +45,7 @@ public class FragmentComposing {
         return tx.execute(conn ->
             Fragment.of("SELECT * FROM product ")
                 .append(Fragment.whereAnd(filters))
-                .query(rowParser.all())
+                .query(rowCodec.all())
                 .run(conn));
     }
     //stop

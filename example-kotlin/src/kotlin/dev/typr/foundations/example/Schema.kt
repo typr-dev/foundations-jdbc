@@ -1,5 +1,6 @@
 package dev.typr.foundations.example
 
+import dev.typr.foundationskt.*
 import java.sql.Connection
 
 object Schema {
@@ -47,8 +48,6 @@ object Schema {
     )
 
     fun apply(conn: Connection) {
-        conn.createStatement().use { stmt ->
-            DDL.forEach { stmt.execute(it) }
-        }
+        DDL.forEach { Fragment.of(it).execute().run(conn) }
     }
 }

@@ -95,19 +95,19 @@ class MariaTypes {
 
   // JSON-encoded row types
 
-  def jsonArrayEncoded[Row](parser: RowParser[Row]): MariaType[Row] =
+  def jsonArrayEncoded[Row](parser: RowCodec[Row]): MariaType[Row] =
     MariaType(JavaMariaTypes.jsonArrayEncoded(parser.underlying))
 
-  def jsonArrayEncodedList[Row](parser: RowParser[Row]): MariaType[List[Row]] =
+  def jsonArrayEncodedList[Row](parser: RowCodec[Row]): MariaType[List[Row]] =
     MariaType(JavaMariaTypes.jsonArrayEncodedList(parser.underlying).transform(
       jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
       slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
     ))
 
-  def jsonObjectEncoded[Row](parser: RowParserNamed[Row]): MariaType[Row] =
+  def jsonObjectEncoded[Row](parser: RowCodecNamed[Row]): MariaType[Row] =
     MariaType(JavaMariaTypes.jsonObjectEncoded(parser.underlying))
 
-  def jsonObjectEncodedList[Row](parser: RowParserNamed[Row]): MariaType[List[Row]] =
+  def jsonObjectEncodedList[Row](parser: RowCodecNamed[Row]): MariaType[List[Row]] =
     MariaType(JavaMariaTypes.jsonObjectEncodedList(parser.underlying).transform(
       jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
       slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)

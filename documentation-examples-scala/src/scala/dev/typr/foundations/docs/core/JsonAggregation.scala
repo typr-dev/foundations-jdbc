@@ -9,8 +9,8 @@ object JsonAggregation:
 
   case class OrderLine(product: String, qty: Int, price: BigDecimal)
 
-  val lineParser: RowParser[OrderLine] =
-    RowParser.builder[OrderLine]()
+  val lineCodec: RowCodec[OrderLine] =
+    RowCodec.builder[OrderLine]()
       .field(DuckDbTypes.varchar)(_.product)
       .field(DuckDbTypes.integer)(_.qty)
       .field(DuckDbTypes.decimal(10, 2))(_.price)
@@ -18,7 +18,7 @@ object JsonAggregation:
 
   // A column type that stores rows as positional JSON arrays
   val linesType: DuckDbType[List[OrderLine]] =
-    DuckDbTypes.jsonArrayEncodedList(lineParser)
+    DuckDbTypes.jsonArrayEncodedList(lineCodec)
 
   //start
   // Aggregate child rows as JSON in a single query
@@ -28,6 +28,6 @@ object JsonAggregation:
           FROM order_lines
           WHERE customer_id =
               ${DuckDbTypes.integer(customerId)}"""
-      .query(RowParser.of(linesType).exactlyOne())
+      .query(RowCodec.of(linesType).exactlyOne())
       .transact(tx)
   //stop

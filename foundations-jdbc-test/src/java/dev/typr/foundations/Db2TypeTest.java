@@ -30,14 +30,14 @@ public class Db2TypeTest {
 
   record Item(String name, int quantity) {}
 
-  static RowParser<Item> itemParser =
-      RowParser.<Item>builder()
+  static RowCodec<Item> itemCodec =
+      RowCodec.<Item>builder()
           .field(Db2Types.varchar(100), Item::name)
           .field(Db2Types.integer, Item::quantity)
           .build(Item::new);
 
-  static RowParserNamed<Item> namedItemParser =
-      RowParser.<Item>namedBuilder()
+  static RowCodecNamed<Item> namedItemCodec =
+      RowCodec.<Item>namedBuilder()
           .field("name", Db2Types.varchar(100), Item::name)
           .field("quantity", Db2Types.integer, Item::quantity)
           .build(Item::new);
@@ -173,27 +173,23 @@ public class Db2TypeTest {
 
           // ==================== JSON-Encoded Row Types ====================
           new Db2TypeAndExample<>(
-                  Db2Types.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+                  Db2Types.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new Db2TypeAndExample<>(
-                  Db2Types.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+                  Db2Types.jsonArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           new Db2TypeAndExample<>(
-                  Db2Types.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+                  Db2Types.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new Db2TypeAndExample<>(
-                  Db2Types.jsonObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
+                  Db2Types.jsonObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
               .noIdentity());
 
   // Note: DB2 does not support arrays as a column type like PostgreSQL
   // Array operations in DB2 are handled via ARRAY data type in SQL PL only
 
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    try {
-      return Containers.db2Transactor().execute(f);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+    return Containers.db2Transactor().execute(f);
   }
 
   @Test
@@ -353,7 +349,7 @@ public class Db2TypeTest {
     }
     conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
@@ -381,7 +377,7 @@ public class Db2TypeTest {
     conn.createStatement()
         .execute("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment =
           Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
               .value(t.type, t.example);
@@ -530,8 +526,8 @@ public class Db2TypeTest {
 
   static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
       throws SQLException {
-    RowParserNamed<A> parser =
-        RowParser.<A>namedBuilder()
+    RowCodecNamed<A> parser =
+        RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
     Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
@@ -539,7 +535,7 @@ public class Db2TypeTest {
         .append(")")
         .update()
         .onMany(List.of(value).iterator())
-        .runChecked(conn);
+        .run(conn);
   }
 
   static <A> void testCase(Connection conn, Db2TypeAndExample<A> t) throws SQLException {
@@ -616,7 +612,7 @@ public class Db2TypeTest {
 
     try {
       A expected = t.example;
-      A actual = proc.call(expected).runChecked(conn);
+      A actual = proc.call(expected).run(conn);
 
       System.out.println(
           "Callable roundtrip "

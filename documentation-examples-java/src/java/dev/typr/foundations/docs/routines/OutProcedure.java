@@ -2,8 +2,6 @@ package dev.typr.foundations.docs.routines;
 
 import dev.typr.foundations.*;
 
-import java.sql.SQLException;
-
 @SuppressWarnings("unused")
 public class OutProcedure {
     Transactor tx = null; // placeholder
@@ -20,7 +18,7 @@ public class OutProcedure {
     // call() is fully typed — wrong argument types won't compile
     Tuple.Tuple2<String, String> findUser(
         int userId
-    ) throws SQLException {
+    ) {
         return getUser
             .call(userId)
             .transact(tx);

@@ -25,24 +25,28 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @param <T> the result type
    * @param operation the operation to execute with a connection
    * @return the operation result
-   * @throws SQLException if a database error occurs
+   * @throws DatabaseException if a database error occurs
    */
-  public <T> T execute(SqlFunction<Connection, T> operation) throws SQLException {
-    Connection raw = connect.get();
-    Connection conn =
-        strategy.listener() != QueryListener.NOOP
-            ? new InstrumentedConnection(raw, strategy.listener(), null, null)
-            : raw;
+  public <T> T execute(SqlFunction<Connection, T> operation) {
     try {
-      strategy.before().apply(conn);
-      T result = operation.apply(conn);
-      strategy.after().apply(conn);
-      return result;
-    } catch (SQLException | RuntimeException e) {
-      strategy.oops().apply(conn, e);
-      throw e;
-    } finally {
-      strategy.always().apply(conn);
+      Connection raw = connect.get();
+      Connection conn =
+          strategy.listener() != QueryListener.NOOP
+              ? new InstrumentedConnection(raw, strategy.listener(), null, null)
+              : raw;
+      try {
+        strategy.before().apply(conn);
+        T result = operation.apply(conn);
+        strategy.after().apply(conn);
+        return result;
+      } catch (SQLException | RuntimeException e) {
+        strategy.oops().apply(conn, e);
+        throw e;
+      } finally {
+        strategy.always().apply(conn);
+      }
+    } catch (SQLException e) {
+      throw new DatabaseException(e);
     }
   }
 
@@ -52,19 +56,19 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @param <T> the result type
    * @param op the Operation to execute
    * @return the operation result
-   * @throws SQLException if a database error occurs
+   * @throws DatabaseException if a database error occurs
    */
-  public <T> T execute(Operation<T> op) throws SQLException {
-    return execute(op::runChecked);
+  public <T> T execute(Operation<T> op) {
+    return execute(conn -> op.run(conn));
   }
 
   /**
    * Execute a void operation with full strategy lifecycle.
    *
    * @param operation the operation to execute with a connection
-   * @throws SQLException if a database error occurs
+   * @throws DatabaseException if a database error occurs
    */
-  public void executeVoid(SqlConsumer<Connection> operation) throws SQLException {
+  public void executeVoid(SqlConsumer<Connection> operation) {
     execute(
         conn -> {
           operation.apply(conn);
@@ -83,16 +87,25 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
   }
 
   /**
+   * Returns a new Transactor with the given listener merged into the existing strategy.
+   *
+   * @param listener the listener to merge
+   * @return a new Transactor with the merged listener
+   */
+  public Transactor mergeListener(QueryListener listener) {
+    return new Transactor(connect, strategy.mergeListener(listener));
+  }
+
+  /**
    * Execute an operation with a one-shot strategy override merged on top of the base strategy.
    *
    * @param <T> the result type
    * @param override the strategy to merge for this execution
    * @param operation the operation to execute
    * @return the operation result
-   * @throws SQLException if a database error occurs
+   * @throws DatabaseException if a database error occurs
    */
-  public <T> T execute(Strategy override, SqlFunction<Connection, T> operation)
-      throws SQLException {
+  public <T> T execute(Strategy override, SqlFunction<Connection, T> operation) {
     return withStrategy(override).execute(operation);
   }
 
@@ -111,12 +124,10 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @return a strategy for manual transaction management
    */
   public static Strategy defaultStrategy() {
-    return new Strategy(
-        conn -> conn.setAutoCommit(false),
-        Connection::commit,
-        (conn, t) -> {},
-        Connection::close,
-        QueryListener.NOOP);
+    return Strategy.empty()
+        .replaceBefore(conn -> conn.setAutoCommit(false))
+        .replaceAfter(Connection::commit)
+        .replaceAlways(Connection::close);
   }
 
   /**
@@ -134,8 +145,7 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @return a strategy for auto-commit mode
    */
   public static Strategy autoCommitStrategy() {
-    return new Strategy(
-        conn -> {}, conn -> {}, (conn, t) -> {}, Connection::close, QueryListener.NOOP);
+    return Strategy.empty().replaceAlways(Connection::close);
   }
 
   /**
@@ -153,19 +163,19 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @return a strategy that rolls back on error
    */
   public static Strategy rollbackOnErrorStrategy() {
-    return new Strategy(
-        conn -> conn.setAutoCommit(false),
-        Connection::commit,
-        (conn, t) -> {
-          try {
-            if (!conn.getAutoCommit() && !conn.isClosed()) {
-              conn.rollback();
-            }
-          } catch (SQLException ignored) {
-          }
-        },
-        Connection::close,
-        QueryListener.NOOP);
+    return Strategy.empty()
+        .replaceBefore(conn -> conn.setAutoCommit(false))
+        .replaceAfter(Connection::commit)
+        .replaceOops(
+            (conn, t) -> {
+              try {
+                if (!conn.getAutoCommit() && !conn.isClosed()) {
+                  conn.rollback();
+                }
+              } catch (SQLException ignored) {
+              }
+            })
+        .replaceAlways(Connection::close);
   }
 
   /**
@@ -183,12 +193,10 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @return a strategy for testing that always rolls back
    */
   public static Strategy testStrategy() {
-    return new Strategy(
-        conn -> conn.setAutoCommit(false),
-        Connection::rollback,
-        (conn, t) -> {},
-        Connection::close,
-        QueryListener.NOOP);
+    return Strategy.empty()
+        .replaceBefore(conn -> conn.setAutoCommit(false))
+        .replaceAfter(Connection::rollback)
+        .replaceAlways(Connection::close);
   }
 
   /**
@@ -208,8 +216,84 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
       SqlConsumer<Connection> always,
       QueryListener listener) {
 
-    public Strategy withListener(QueryListener listener) {
+    public static Strategy empty() {
+      return new Strategy(conn -> {}, conn -> {}, (conn, t) -> {}, conn -> {}, QueryListener.NOOP);
+    }
+
+    public Strategy replaceBefore(SqlConsumer<Connection> before) {
       return new Strategy(before, after, oops, always, listener);
+    }
+
+    public Strategy replaceAfter(SqlConsumer<Connection> after) {
+      return new Strategy(before, after, oops, always, listener);
+    }
+
+    public Strategy replaceOops(SqlBiConsumer<Connection, Throwable> oops) {
+      return new Strategy(before, after, oops, always, listener);
+    }
+
+    public Strategy replaceAlways(SqlConsumer<Connection> always) {
+      return new Strategy(before, after, oops, always, listener);
+    }
+
+    public Strategy replaceListener(QueryListener listener) {
+      return new Strategy(before, after, oops, always, listener);
+    }
+
+    public Strategy mergeBefore(SqlConsumer<Connection> other) {
+      SqlConsumer<Connection> existing = this.before;
+      return new Strategy(
+          conn -> {
+            existing.apply(conn);
+            other.apply(conn);
+          },
+          after,
+          oops,
+          always,
+          listener);
+    }
+
+    public Strategy mergeAfter(SqlConsumer<Connection> other) {
+      SqlConsumer<Connection> existing = this.after;
+      return new Strategy(
+          before,
+          conn -> {
+            existing.apply(conn);
+            other.apply(conn);
+          },
+          oops,
+          always,
+          listener);
+    }
+
+    public Strategy mergeOops(SqlBiConsumer<Connection, Throwable> other) {
+      SqlBiConsumer<Connection, Throwable> existing = this.oops;
+      return new Strategy(
+          before,
+          after,
+          (conn, t) -> {
+            existing.apply(conn, t);
+            other.apply(conn, t);
+          },
+          always,
+          listener);
+    }
+
+    public Strategy mergeAlways(SqlConsumer<Connection> other) {
+      SqlConsumer<Connection> existing = this.always;
+      return new Strategy(
+          before,
+          after,
+          oops,
+          conn -> {
+            existing.apply(conn);
+            other.apply(conn);
+          },
+          listener);
+    }
+
+    public Strategy mergeListener(QueryListener other) {
+      return new Strategy(before, after, oops, always, listener.compose(other));
     }
 
     public Strategy merge(Strategy other) {

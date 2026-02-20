@@ -111,7 +111,7 @@ def generateTuples(): String = {
       |""".stripMargin
 }
 
-def generateRowParserBuilders(): String = {
+def generateRowCodecBuilders(): String = {
   val maxArity = N - 1  // N is 100, so 99 fields max (matching Functions.FunctionN)
 
   val builder0 = s"""|    public static final class Builder0<Row> {
@@ -153,9 +153,9 @@ def generateRowParserBuilders(): String = {
         |        }
         |
         |        @SuppressWarnings("unchecked")
-        |        public RowParser<Row> build($functionType decode) {
+        |        public RowCodec<Row> build($functionType decode) {
         |            java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-        |            return RowParser.create(
+        |            return RowCodec.create(
         |                java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
         |                arr -> decode.apply($decodeArgs),
         |                row -> {
@@ -172,19 +172,19 @@ def generateRowParserBuilders(): String = {
   s"""|package dev.typr.foundations;
       |
       |/**
-      | * Type-safe builders for RowParser.
+      | * Type-safe builders for RowCodec.
       | * <p>
       | * Usage:
       | * <pre>{@code
-      | * RowParser<Product> parser = RowParserBuilders.<Product>builder()
+      | * RowCodec<Product> parser = RowCodecBuilders.<Product>builder()
       | *     .field(PgTypes.int4, Product::id)
       | *     .field(PgTypes.text, Product::name)
       | *     .field(PgTypes.numeric, Product::price)
       | *     .build(Product::new);
       | * }</pre>
       | */
-      |public final class RowParserBuilders {
-      |    private RowParserBuilders() {}
+      |public final class RowCodecBuilders {
+      |    private RowCodecBuilders() {}
       |
       |    public static <Row> Builder0<Row> builder() {
       |        return new Builder0<>();
@@ -197,7 +197,7 @@ def generateRowParserBuilders(): String = {
       |""".stripMargin
 }
 
-def generateNamedRowParserBuilders(): String = {
+def generateNamedRowCodecBuilders(): String = {
   val maxArity = N - 1
 
   val builder0 = s"""|    public static final class Builder0<Row> {
@@ -244,9 +244,9 @@ def generateNamedRowParserBuilders(): String = {
         |        }
         |
         |        @SuppressWarnings("unchecked")
-        |        public RowParserNamed<Row> build($functionType decode) {
+        |        public RowCodecNamed<Row> build($functionType decode) {
         |            java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-        |            return RowParser.createNamed(
+        |            return RowCodec.createNamed(
         |                java.util.List.copyOf(names),
         |                java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
         |                arr -> decode.apply($decodeArgs),
@@ -264,19 +264,19 @@ def generateNamedRowParserBuilders(): String = {
   s"""|package dev.typr.foundations;
       |
       |/**
-      | * Type-safe named builders for RowParser.
+      | * Type-safe named builders for RowCodec.
       | * <p>
       | * Usage:
       | * <pre>{@code
-      | * RowParserNamed<Product> parser = RowParserNamedBuilders.<Product>builder()
+      | * RowCodecNamed<Product> parser = RowCodecNamedBuilders.<Product>builder()
       | *     .field("id", PgTypes.int4, Product::id)
       | *     .field("name", PgTypes.text, Product::name)
       | *     .field("price", PgTypes.numeric, Product::price)
       | *     .build(Product::new);
       | * }</pre>
       | */
-      |public final class RowParserNamedBuilders {
-      |    private RowParserNamedBuilders() {}
+      |public final class RowCodecNamedBuilders {
+      |    private RowCodecNamedBuilders() {}
       |
       |    public static <Row> Builder0<Row> builder() {
       |        return new Builder0<>();
@@ -1000,7 +1000,7 @@ def generateDbFunction(): String = {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ParamBuilders / SqlTemplate generators
+// ParamBuilders / Template generators
 // ─────────────────────────────────────────────────────────────────────────────
 
 def generateParamBuilders(): String = {
@@ -1088,13 +1088,13 @@ $ctorAssignments
     }
 $paramTypeMethod$optionallyMethods
 
-    public <Out> SqlTemplate.Query$n<$tparams, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query$n<>(
+    public <Out> Template.Query$n<$tparams, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query$n<>(
           fragment, $queryTypeFields, parser);
     }
 
-    public SqlTemplate.Update$n<$tparams> update() {
-      return new SqlTemplate.Update$n<>(
+    public Template.Update$n<$tparams> update() {
+      return new Template.Update$n<>(
           fragment, $updateTypeFields);
     }
 
@@ -1113,7 +1113,7 @@ $paramTypeMethod$optionallyMethods
       |""".stripMargin
 }
 
-def generateSqlTemplate(): String = {
+def generateTemplate(): String = {
   val maxArity = PROC_N - 1 // 10
 
   def inputType(n: Int): String = {
@@ -1125,9 +1125,9 @@ def generateSqlTemplate(): String = {
   }
 
   val permits = {
-    val queryPermits = 1.to(maxArity).map(n => s"SqlTemplate.Query$n")
-    val updatePermits = 1.to(maxArity).map(n => s"SqlTemplate.Update$n")
-    (queryPermits ++ updatePermits :+ "SqlTemplate.From").mkString(",\n        ")
+    val queryPermits = 1.to(maxArity).map(n => s"Template.Query$n")
+    val updatePermits = 1.to(maxArity).map(n => s"Template.Update$n")
+    (queryPermits ++ updatePermits :+ "Template.From").mkString(",\n        ")
   }
 
   val queryRecords = 1.to(maxArity).map { n =>
@@ -1142,7 +1142,7 @@ def generateSqlTemplate(): String = {
 
     if (n == 1) {
       s"""  record Query1<P0, Out>(Fragment fragment, DbType<P0> p0Type, ResultSetParser<Out> parser)
-      implements SqlTemplate<P0, Out> {
+      implements Template<P0, Out> {
     @Override
     public Operation.Query<Out> on(P0 p0) {
       return new Operation.Query<>(
@@ -1161,7 +1161,7 @@ def generateSqlTemplate(): String = {
       Fragment fragment,
 ${range.map(i => s"      DbType<P$i> p${i}Type,").mkString("\n")}
       ResultSetParser<Out> parser)
-      implements SqlTemplate<$inType, Out> {
+      implements Template<$inType, Out> {
     @Override
     public Operation.Query<Out> on($inType in) {
       return on($extractArgs);
@@ -1192,7 +1192,7 @@ ${range.map(i => s"      DbType<P$i> p${i}Type,").mkString("\n")}
 
     if (n == 1) {
       s"""  record Update1<P0>(Fragment fragment, DbType<P0> p0Type)
-      implements SqlTemplate<P0, Integer> {
+      implements Template<P0, Integer> {
     @Override
     public Operation.Update on(P0 p0) {
       return new Operation.Update(
@@ -1210,7 +1210,7 @@ ${range.map(i => s"      DbType<P$i> p${i}Type,").mkString("\n")}
       s"""  record Update$n<$tparams>(
       Fragment fragment,
 ${range.map(i => s"      DbType<P$i> p${i}Type${if (i < n - 1) "," else ")"}").mkString("\n")}
-      implements SqlTemplate<$inType, Integer> {
+      implements Template<$inType, Integer> {
     @Override
     public Operation.Update on($inType in) {
       return on($extractArgs);
@@ -1231,7 +1231,7 @@ ${range.map(i => s"      DbType<P$i> p${i}Type${if (i < n - 1) "," else ")"}").m
 
   s"""|package dev.typr.foundations;
       |
-      |public sealed interface SqlTemplate<In, Out>
+      |public sealed interface Template<In, Out> extends Analyzable
       |    permits $permits {
       |
       |  Operation<Out> on(In in);
@@ -1243,9 +1243,9 @@ ${range.map(i => s"      DbType<P$i> p${i}Type${if (i < n - 1) "," else ")"}").m
       |${updateRecords.mkString("\n\n")}
       |
       |  record From<T, Out>(
-      |      SqlTemplate<?, Out> inner,
+      |      Template<?, Out> inner,
       |      java.util.function.Function<T, ? extends Operation<Out>> resolver)
-      |      implements SqlTemplate<T, Out> {
+      |      implements Template<T, Out> {
       |    @Override
       |    public Operation<Out> on(T t) {
       |      return resolver.apply(t);
@@ -1471,11 +1471,11 @@ val functionsPath = outputDir.resolve("Functions.java")
 Files.writeString(functionsPath, functionsContent)
 println(s"Wrote ${functionsPath}")
 
-// Delete old RowParsers.java if it exists
-val oldRowParsersPath = outputDir.resolve("RowParsers.java")
-if (Files.exists(oldRowParsersPath)) {
-  Files.delete(oldRowParsersPath)
-  println(s"Deleted ${oldRowParsersPath}")
+// Delete old RowCodecs.java if it exists
+val oldRowCodecsPath = outputDir.resolve("RowCodecs.java")
+if (Files.exists(oldRowCodecsPath)) {
+  Files.delete(oldRowCodecsPath)
+  println(s"Deleted ${oldRowCodecsPath}")
 }
 
 val pgStructBuildersContent = generatePgStructBuilders()
@@ -1493,15 +1493,15 @@ val oracleObjectBuildersPath = outputDir.resolve("OracleObjectBuilders.java")
 Files.writeString(oracleObjectBuildersPath, oracleObjectBuildersContent)
 println(s"Wrote ${oracleObjectBuildersPath}")
 
-val rowParserBuildersContent = generateRowParserBuilders()
-val rowParserBuildersPath = outputDir.resolve("RowParserBuilders.java")
-Files.writeString(rowParserBuildersPath, rowParserBuildersContent)
-println(s"Wrote ${rowParserBuildersPath}")
+val rowCodecBuildersContent = generateRowCodecBuilders()
+val rowCodecBuildersPath = outputDir.resolve("RowCodecBuilders.java")
+Files.writeString(rowCodecBuildersPath, rowCodecBuildersContent)
+println(s"Wrote ${rowCodecBuildersPath}")
 
-val namedRowParserBuildersContent = generateNamedRowParserBuilders()
-val namedRowParserBuildersPath = outputDir.resolve("RowParserNamedBuilders.java")
-Files.writeString(namedRowParserBuildersPath, namedRowParserBuildersContent)
-println(s"Wrote ${namedRowParserBuildersPath}")
+val namedRowCodecBuildersContent = generateNamedRowCodecBuilders()
+val namedRowCodecBuildersPath = outputDir.resolve("RowCodecNamedBuilders.java")
+Files.writeString(namedRowCodecBuildersPath, namedRowCodecBuildersContent)
+println(s"Wrote ${namedRowCodecBuildersPath}")
 
 val tupleContent = generateTuples()
 val tuplePath = outputDir.resolve("Tuple.java")
@@ -1526,9 +1526,9 @@ val paramBuildersPath = outputDir.resolve("ParamBuilders.java")
 Files.writeString(paramBuildersPath, paramBuildersContent)
 println(s"Wrote ${paramBuildersPath}")
 
-// Generate SqlTemplate.java
-val sqlTemplateContent = generateSqlTemplate()
-val sqlTemplatePath = outputDir.resolve("SqlTemplate.java")
+// Generate Template.java
+val sqlTemplateContent = generateTemplate()
+val sqlTemplatePath = outputDir.resolve("Template.java")
 Files.writeString(sqlTemplatePath, sqlTemplateContent)
 println(s"Wrote ${sqlTemplatePath}")
 

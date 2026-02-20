@@ -10,7 +10,7 @@ val STRUCT_N = 31
 val baseDir = Path.of(sys.props.getOrElse("user.dir", "."))
 val generatedOutputDir = baseDir.resolve("foundations-jdbc-scala/generated-and-checked-in/dev/typr/foundationssc")
 
-def generateScalaRowParserBuilders(): String = {
+def generateScalaRowCodecBuilders(): String = {
   val maxArity = N - 1
 
   val builder0 = s"""|  class Builder0[Row] private[foundationssc] () {
@@ -44,14 +44,14 @@ def generateScalaRowParserBuilders(): String = {
         |    private val types: scala.collection.mutable.ListBuffer[DbType[?]],
         |    private val getters: scala.collection.mutable.ListBuffer[Row => Any]
         |  ) {
-        |    def build(decode: ($decodeParams) => Row): RowParser[Row] = {
+        |    def build(decode: ($decodeParams) => Row): RowCodec[Row] = {
         |      val capturedGetters = getters.toList
-        |      val javaParser = dev.typr.foundations.RowParser.create[Row](
+        |      val javaParser = dev.typr.foundations.RowCodec.create[Row](
         |        java.util.List.copyOf(types.map(_.underlying).asJava),
         |        arr => decode($decodeArgs),
         |        row => capturedGetters.map(_(row)).toArray
         |      )
-        |      new RowParser(javaParser)
+        |      new RowCodec(javaParser)
         |    }$nextBuilder
         |  }""".stripMargin
   }
@@ -60,18 +60,18 @@ def generateScalaRowParserBuilders(): String = {
       |
       |import scala.jdk.CollectionConverters.*
       |
-      |/** Type-safe builders for Scala RowParser.
+      |/** Type-safe builders for Scala RowCodec.
       |  *
       |  * Usage:
       |  * {{{
-      |  * val parser: RowParser[Product] = RowParser.builder[Product]()
+      |  * val parser: RowCodec[Product] = RowCodec.builder[Product]()
       |  *   .field(PgTypes.int4)(_.id)
       |  *   .field(PgTypes.text)(_.name)
       |  *   .field(PgTypes.numeric)(_.price)
       |  *   .build(Product.apply)
       |  * }}}
       |  */
-      |object RowParserBuilders {
+      |object RowCodecBuilders {
       |  def builder[Row](): Builder0[Row] = new Builder0()
       |
       |$builder0
@@ -81,7 +81,7 @@ def generateScalaRowParserBuilders(): String = {
       |""".stripMargin
 }
 
-def generateScalaNamedRowParserBuilders(): String = {
+def generateScalaNamedRowCodecBuilders(): String = {
   val maxArity = N - 1
 
   val builder0 = s"""|  class Builder0[Row] private[foundationssc] () {
@@ -119,15 +119,15 @@ def generateScalaNamedRowParserBuilders(): String = {
         |    private val types: scala.collection.mutable.ListBuffer[DbType[?]],
         |    private val getters: scala.collection.mutable.ListBuffer[Row => Any]
         |  ) {
-        |    def build(decode: ($decodeParams) => Row): RowParserNamed[Row] = {
+        |    def build(decode: ($decodeParams) => Row): RowCodecNamed[Row] = {
         |      val capturedGetters = getters.toList
-        |      val javaParser = dev.typr.foundations.RowParser.createNamed[Row](
+        |      val javaParser = dev.typr.foundations.RowCodec.createNamed[Row](
         |        java.util.List.copyOf(names.asJava),
         |        java.util.List.copyOf(types.map(_.underlying).asJava),
         |        arr => decode($decodeArgs),
         |        row => capturedGetters.map(_(row)).toArray
         |      )
-        |      new RowParserNamed(javaParser)
+        |      new RowCodecNamed(javaParser)
         |    }$nextBuilder
         |  }""".stripMargin
   }
@@ -136,18 +136,18 @@ def generateScalaNamedRowParserBuilders(): String = {
       |
       |import scala.jdk.CollectionConverters.*
       |
-      |/** Type-safe named builders for Scala RowParser.
+      |/** Type-safe named builders for Scala RowCodec.
       |  *
       |  * Usage:
       |  * {{{
-      |  * val parser: RowParserNamed[Product] = RowParser.namedBuilder[Product]()
+      |  * val parser: RowCodecNamed[Product] = RowCodec.namedBuilder[Product]()
       |  *   .field("id", PgTypes.int4)(_.id)
       |  *   .field("name", PgTypes.text)(_.name)
       |  *   .field("price", PgTypes.numeric)(_.price)
       |  *   .build(Product.apply)
       |  * }}}
       |  */
-      |object RowParserNamedBuilders {
+      |object RowCodecNamedBuilders {
       |  def builder[Row](): Builder0[Row] = new Builder0()
       |
       |$builder0
@@ -528,7 +528,7 @@ def generateScalaTuple(): String = {
       |""".stripMargin
 }
 
-def generateScalaSqlTemplate(): String = {
+def generateScalaTemplate(): String = {
   val maxArity = PROC_N - 1 // 10
 
   val queryClasses = 1.to(maxArity).map { n =>
@@ -547,11 +547,11 @@ def generateScalaSqlTemplate(): String = {
 
     if (n == 1) {
       s"""|  class Query1[P0, Out](
-          |    private val _java: dev.typr.foundations.SqlTemplate.Query1[?, Out],
+          |    private val _java: dev.typr.foundations.Template.Query1[?, Out],
           |    private val _transforms: List[Option[AnyRef => AnyRef]]
-          |  ) extends SqlTemplate[P0, Out]:
-          |    def this(j: dev.typr.foundations.SqlTemplate.Query1[?, Out]) = this(j, List(None))
-          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
+          |  ) extends Template[P0, Out]:
+          |    def this(j: dev.typr.foundations.Template.Query1[?, Out]) = this(j, List(None))
+          |    override def underlying: dev.typr.foundations.Template[?, ?] = _java
           |    override def on(input: P0): Operation.Query[Out] =
           |      val v0: AnyRef = _transforms(0).map(_(input.asInstanceOf[AnyRef])).getOrElse(input.asInstanceOf[AnyRef])
           |      val resolved = dev.typr.foundations.OptionallyResolver.resolve(
@@ -564,11 +564,11 @@ def generateScalaSqlTemplate(): String = {
       val tupleDecompose = range.map(i => s"input._${i + 1}").mkString(", ")
 
       s"""|  class Query$n[$allTparams](
-          |    private val _java: dev.typr.foundations.SqlTemplate.Query$n[$wildcards, Out],
+          |    private val _java: dev.typr.foundations.Template.Query$n[$wildcards, Out],
           |    private val _transforms: List[Option[AnyRef => AnyRef]]
-          |  ) extends SqlTemplate[$tupleType, Out]:
-          |    def this(j: dev.typr.foundations.SqlTemplate.Query$n[$wildcards, Out]) = this(j, List.fill($n)(None))
-          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
+          |  ) extends Template[$tupleType, Out]:
+          |    def this(j: dev.typr.foundations.Template.Query$n[$wildcards, Out]) = this(j, List.fill($n)(None))
+          |    override def underlying: dev.typr.foundations.Template[?, ?] = _java
           |    override def on(input: $tupleType): Operation.Query[Out] =
           |      on($tupleDecompose)
           |    def on($onParams): Operation.Query[Out] =
@@ -596,11 +596,11 @@ def generateScalaSqlTemplate(): String = {
 
     if (n == 1) {
       s"""|  class Update1[P0](
-          |    private val _java: dev.typr.foundations.SqlTemplate.Update1[?],
+          |    private val _java: dev.typr.foundations.Template.Update1[?],
           |    private val _transforms: List[Option[AnyRef => AnyRef]]
-          |  ) extends SqlTemplate[P0, Int]:
-          |    def this(j: dev.typr.foundations.SqlTemplate.Update1[?]) = this(j, List(None))
-          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
+          |  ) extends Template[P0, Int]:
+          |    def this(j: dev.typr.foundations.Template.Update1[?]) = this(j, List(None))
+          |    override def underlying: dev.typr.foundations.Template[?, ?] = _java
           |    override def on(input: P0): Operation.Update =
           |      val v0: AnyRef = _transforms(0).map(_(input.asInstanceOf[AnyRef])).getOrElse(input.asInstanceOf[AnyRef])
           |      val resolved = dev.typr.foundations.OptionallyResolver.resolve(
@@ -613,11 +613,11 @@ def generateScalaSqlTemplate(): String = {
       val tupleDecompose = range.map(i => s"input._${i + 1}").mkString(", ")
 
       s"""|  class Update$n[$tparams](
-          |    private val _java: dev.typr.foundations.SqlTemplate.Update$n[$wildcards],
+          |    private val _java: dev.typr.foundations.Template.Update$n[$wildcards],
           |    private val _transforms: List[Option[AnyRef => AnyRef]]
-          |  ) extends SqlTemplate[$tupleType, Int]:
-          |    def this(j: dev.typr.foundations.SqlTemplate.Update$n[$wildcards]) = this(j, List.fill($n)(None))
-          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
+          |  ) extends Template[$tupleType, Int]:
+          |    def this(j: dev.typr.foundations.Template.Update$n[$wildcards]) = this(j, List.fill($n)(None))
+          |    override def underlying: dev.typr.foundations.Template[?, ?] = _java
           |    override def on(input: $tupleType): Operation.Update =
           |      on($tupleDecompose)
           |    def on($onParams): Operation.Update =
@@ -632,24 +632,26 @@ def generateScalaSqlTemplate(): String = {
 
   s"""|package dev.typr.foundationssc
       |
-      |sealed trait SqlTemplate[In, Out]:
-      |  def underlying: dev.typr.foundations.SqlTemplate[?, ?]
+      |sealed trait Template[In, Out] extends Analyzable:
+      |  def underlying: dev.typr.foundations.Template[?, ?]
+      |
+      |  override def analyzable: dev.typr.foundations.Analyzable = underlying
       |
       |  def on(input: In): Operation[Out]
       |
       |  def fragment: Fragment = new Fragment(underlying.fragment())
       |
-      |object SqlTemplate:
+      |object Template:
       |
       |${queryClasses.mkString("\n\n")}
       |
       |${updateClasses.mkString("\n\n")}
       |
       |  class From[T, Out](
-      |    private val _innerUnderlying: dev.typr.foundations.SqlTemplate[?, ?],
+      |    private val _innerUnderlying: dev.typr.foundations.Template[?, ?],
       |    private val _resolver: T => Operation[Out]
-      |  ) extends SqlTemplate[T, Out]:
-      |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _innerUnderlying
+      |  ) extends Template[T, Out]:
+      |    override def underlying: dev.typr.foundations.Template[?, ?] = _innerUnderlying
       |    override def on(input: T): Operation[Out] = _resolver(input)
       |""".stripMargin
 }
@@ -701,11 +703,11 @@ def generateScalaParamBuilders(): String = {
         |
         |    def append(fragment: Fragment): ParamBuilder$n[$tparams] = new ParamBuilder$n(underlying.append(fragment.underlying), transforms)
         |$nextParamMethod$optionallyMethods
-        |    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query$n[$tparams, Out] =
-        |      new SqlTemplate.Query$n(underlying.query(parser.underlying), transforms)
+        |    def query[Out](parser: ResultSetParser[Out]): Template.Query$n[$tparams, Out] =
+        |      new Template.Query$n(underlying.query(parser.underlying), transforms)
         |
-        |    def update(): SqlTemplate.Update$n[$tparams] =
-        |      new SqlTemplate.Update$n(underlying.update(), transforms)
+        |    def update(): Template.Update$n[$tparams] =
+        |      new Template.Update$n(underlying.update(), transforms)
         |
         |    def done(): Fragment = new Fragment(underlying.done())""".stripMargin
   }
@@ -723,17 +725,17 @@ def generateScalaParamBuilders(): String = {
 
 Files.createDirectories(generatedOutputDir)
 
-// RowParserBuilders.scala -> generated-and-checked-in
-val scalaRowParserBuildersContent = generateScalaRowParserBuilders()
-val scalaRowParserBuildersPath = generatedOutputDir.resolve("RowParserBuilders.scala")
-Files.writeString(scalaRowParserBuildersPath, scalaRowParserBuildersContent)
-println(s"Wrote ${scalaRowParserBuildersPath}")
+// RowCodecBuilders.scala -> generated-and-checked-in
+val scalaRowCodecBuildersContent = generateScalaRowCodecBuilders()
+val scalaRowCodecBuildersPath = generatedOutputDir.resolve("RowCodecBuilders.scala")
+Files.writeString(scalaRowCodecBuildersPath, scalaRowCodecBuildersContent)
+println(s"Wrote ${scalaRowCodecBuildersPath}")
 
-// RowParserNamedBuilders.scala -> generated-and-checked-in
-val scalaNamedRowParserBuildersContent = generateScalaNamedRowParserBuilders()
-val scalaNamedRowParserBuildersPath = generatedOutputDir.resolve("RowParserNamedBuilders.scala")
-Files.writeString(scalaNamedRowParserBuildersPath, scalaNamedRowParserBuildersContent)
-println(s"Wrote ${scalaNamedRowParserBuildersPath}")
+// RowCodecNamedBuilders.scala -> generated-and-checked-in
+val scalaNamedRowCodecBuildersContent = generateScalaNamedRowCodecBuilders()
+val scalaNamedRowCodecBuildersPath = generatedOutputDir.resolve("RowCodecNamedBuilders.scala")
+Files.writeString(scalaNamedRowCodecBuildersPath, scalaNamedRowCodecBuildersContent)
+println(s"Wrote ${scalaNamedRowCodecBuildersPath}")
 
 // DbProcedure.scala -> generated-and-checked-in
 val scalaDbProcedureContent = generateScalaDbProcedure()
@@ -771,11 +773,11 @@ val scalaTuplePath = generatedOutputDir.resolve("Tuple.scala")
 Files.writeString(scalaTuplePath, scalaTupleContent)
 println(s"Wrote ${scalaTuplePath}")
 
-// SqlTemplate.scala -> generated-and-checked-in
-val scalaSqlTemplateContent = generateScalaSqlTemplate()
-val scalaSqlTemplatePath = generatedOutputDir.resolve("SqlTemplate.scala")
-Files.writeString(scalaSqlTemplatePath, scalaSqlTemplateContent)
-println(s"Wrote ${scalaSqlTemplatePath}")
+// Template.scala -> generated-and-checked-in
+val scalaTemplateContent = generateScalaTemplate()
+val scalaTemplatePath = generatedOutputDir.resolve("Template.scala")
+Files.writeString(scalaTemplatePath, scalaTemplateContent)
+println(s"Wrote ${scalaTemplatePath}")
 
 // ParamBuilders.scala -> generated-and-checked-in
 val scalaParamBuildersContent = generateScalaParamBuilders()

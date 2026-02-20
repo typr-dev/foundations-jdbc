@@ -1,5 +1,6 @@
 package dev.typr.foundations.internal;
 
+import dev.typr.foundations.DatabaseException;
 import java.sql.SQLException;
 import org.postgresql.util.PGobject;
 
@@ -24,7 +25,7 @@ public final class TypoPGObjectHelper {
       obj.setValue(value);
       return obj;
     } catch (SQLException e) {
-      throw new RuntimeException("Failed to create PGobject for type: " + type, e);
+      throw new DatabaseException("Failed to create PGobject for type: " + type, e);
     }
   }
 }

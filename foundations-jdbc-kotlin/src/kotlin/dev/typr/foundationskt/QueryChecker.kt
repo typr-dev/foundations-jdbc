@@ -1,16 +1,27 @@
 @file:Suppress("unused")
 package dev.typr.foundationskt
 
-object QueryChecker {
-    @JvmStatic
-    fun create(transactor: Transactor): dev.typr.foundations.QueryChecker =
-        dev.typr.foundations.QueryChecker { transactor.underlying }
+class QueryChecker(val underlying: dev.typr.foundations.QueryChecker) {
 
-    @JvmStatic
-    fun checkRoutine(checker: dev.typr.foundations.QueryChecker, procedure: Procedure<*>) {
-        checker.checkRoutine(procedure.javaProcedure)
+    fun check(analyzable: Analyzable) {
+        underlying.check(analyzable.analyzable)
+    }
+
+    fun checkAll(analyzables: List<Analyzable>) {
+        underlying.checkAll(analyzables.map { it.analyzable })
+    }
+
+    fun checkAll(vararg analyzables: Analyzable) {
+        checkAll(analyzables.toList())
+    }
+
+    fun checkRoutine(procedure: Procedure<*>) {
+        underlying.checkRoutine(procedure.javaProcedure)
+    }
+
+    companion object {
+        @JvmStatic
+        fun create(transactor: Transactor): QueryChecker =
+            QueryChecker(dev.typr.foundations.QueryChecker { transactor.underlying })
     }
 }
-
-fun dev.typr.foundations.QueryChecker.check(op: Operation<*>) = check(op.underlying)
-fun dev.typr.foundations.QueryChecker.check(template: SqlTemplate<*, *>) = check(template.underlying)

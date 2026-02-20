@@ -2,8 +2,6 @@ package dev.typr.foundations.docs.landing;
 
 import dev.typr.foundations.*;
 
-import java.sql.SQLException;
-
 @SuppressWarnings("unused")
 public class StoredProcedure {
     Transactor tx = null; // placeholder
@@ -18,7 +16,7 @@ public class StoredProcedure {
             .build();
 
     // call() returns an Operation — compose it like any other query
-    Tuple.Tuple2<String, String> findUser(int userId) throws SQLException {
+    Tuple.Tuple2<String, String> findUser(int userId) {
         return getUser.call(userId).transact(tx);
     }
     //stop

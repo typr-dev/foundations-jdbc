@@ -11,15 +11,15 @@ class QueryAnalysisTestSuite {
 
     private lateinit var testDataSource: DataSource
 
-    private val userParser: RowParser<User> =
-        RowParser.builder<User>()
+    private val userCodec: RowCodec<User> =
+        RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::email)
             .build(::User)
 
-    private val productParser: RowParser<Product> =
-        RowParser.builder<Product>()
+    private val productCodec: RowCodec<Product> =
+        RowCodec.builder<Product>()
             .field(PgTypes.int4, Product::id)
             .field(PgTypes.text, Product::name)
             .build(::Product)
@@ -29,18 +29,18 @@ class QueryAnalysisTestSuite {
         testDataSource.connection.use { conn ->
             // Collect all queries to check
             val queries: List<Operation.Query<*>> = listOf(
-                Sql { """
+                sql { """
                     SELECT id, name, email
                     FROM users
                     WHERE id = ${PgTypes.int4(1)}
                 """ }
-                    .query(userParser.all()),
-                Sql { """
+                    .query(userCodec.all()),
+                sql { """
                     SELECT id, name
                     FROM products
                     WHERE name LIKE ${PgTypes.text("%widget%")}
                 """ }
-                    .query(productParser.all())
+                    .query(productCodec.all())
             )
 
             // Analyze each one

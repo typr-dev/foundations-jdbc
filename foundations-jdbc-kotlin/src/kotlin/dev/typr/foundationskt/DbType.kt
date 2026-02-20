@@ -7,4 +7,7 @@ open class DbType<T>(open val underlying: dev.typr.foundations.DbType<T>) {
 
     open fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): DbType<B> =
         DbType(underlying.to(bijection))
+
+    operator fun invoke(value: T): Fragment =
+        Fragment(underlying.apply(value))
 }

@@ -36,11 +36,11 @@ object ParamBuilders {
             ParamBuilder2(
                 underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
                 transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))
-        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query1<P0, Out> =
-            SqlTemplate.Query1(underlying.query(parser.underlying), transforms)
+        fun <Out> query(parser: ResultSetParser<Out>): Template.Query1<P0, Out> =
+            Template.Query1(underlying.query(parser.underlying), transforms)
 
-        fun update(): SqlTemplate.Update1<P0> =
-            SqlTemplate.Update1(underlying.update(), transforms)
+        fun update(): Template.Update1<P0> =
+            Template.Update1(underlying.update(), transforms)
 
         fun done(): Fragment = Fragment(underlying.done())
     }
@@ -79,11 +79,11 @@ object ParamBuilders {
             ParamBuilder3(
                 underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
                 transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))
-        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query2<P0, P1, Out> =
-            SqlTemplate.Query2(underlying.query(parser.underlying), transforms)
+        fun <Out> query(parser: ResultSetParser<Out>): Template.Query2<P0, P1, Out> =
+            Template.Query2(underlying.query(parser.underlying), transforms)
 
-        fun update(): SqlTemplate.Update2<P0, P1> =
-            SqlTemplate.Update2(underlying.update(), transforms)
+        fun update(): Template.Update2<P0, P1> =
+            Template.Update2(underlying.update(), transforms)
 
         fun done(): Fragment = Fragment(underlying.done())
     }
@@ -122,11 +122,11 @@ object ParamBuilders {
             ParamBuilder4(
                 underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
                 transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))
-        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query3<P0, P1, P2, Out> =
-            SqlTemplate.Query3(underlying.query(parser.underlying), transforms)
+        fun <Out> query(parser: ResultSetParser<Out>): Template.Query3<P0, P1, P2, Out> =
+            Template.Query3(underlying.query(parser.underlying), transforms)
 
-        fun update(): SqlTemplate.Update3<P0, P1, P2> =
-            SqlTemplate.Update3(underlying.update(), transforms)
+        fun update(): Template.Update3<P0, P1, P2> =
+            Template.Update3(underlying.update(), transforms)
 
         fun done(): Fragment = Fragment(underlying.done())
     }
@@ -165,11 +165,11 @@ object ParamBuilders {
             ParamBuilder5(
                 underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
                 transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))
-        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query4<P0, P1, P2, P3, Out> =
-            SqlTemplate.Query4(underlying.query(parser.underlying), transforms)
+        fun <Out> query(parser: ResultSetParser<Out>): Template.Query4<P0, P1, P2, P3, Out> =
+            Template.Query4(underlying.query(parser.underlying), transforms)
 
-        fun update(): SqlTemplate.Update4<P0, P1, P2, P3> =
-            SqlTemplate.Update4(underlying.update(), transforms)
+        fun update(): Template.Update4<P0, P1, P2, P3> =
+            Template.Update4(underlying.update(), transforms)
 
         fun done(): Fragment = Fragment(underlying.done())
     }
@@ -208,11 +208,11 @@ object ParamBuilders {
             ParamBuilder6(
                 underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
                 transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))
-        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query5<P0, P1, P2, P3, P4, Out> =
-            SqlTemplate.Query5(underlying.query(parser.underlying), transforms)
+        fun <Out> query(parser: ResultSetParser<Out>): Template.Query5<P0, P1, P2, P3, P4, Out> =
+            Template.Query5(underlying.query(parser.underlying), transforms)
 
-        fun update(): SqlTemplate.Update5<P0, P1, P2, P3, P4> =
-            SqlTemplate.Update5(underlying.update(), transforms)
+        fun update(): Template.Update5<P0, P1, P2, P3, P4> =
+            Template.Update5(underlying.update(), transforms)
 
         fun done(): Fragment = Fragment(underlying.done())
     }
@@ -251,11 +251,11 @@ object ParamBuilders {
             ParamBuilder7(
                 underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
                 transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))
-        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query6<P0, P1, P2, P3, P4, P5, Out> =
-            SqlTemplate.Query6(underlying.query(parser.underlying), transforms)
+        fun <Out> query(parser: ResultSetParser<Out>): Template.Query6<P0, P1, P2, P3, P4, P5, Out> =
+            Template.Query6(underlying.query(parser.underlying), transforms)
 
-        fun update(): SqlTemplate.Update6<P0, P1, P2, P3, P4, P5> =
-            SqlTemplate.Update6(underlying.update(), transforms)
+        fun update(): Template.Update6<P0, P1, P2, P3, P4, P5> =
+            Template.Update6(underlying.update(), transforms)
 
         fun done(): Fragment = Fragment(underlying.done())
     }
@@ -294,11 +294,11 @@ object ParamBuilders {
             ParamBuilder8(
                 underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
                 transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))
-        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query7<P0, P1, P2, P3, P4, P5, P6, Out> =
-            SqlTemplate.Query7(underlying.query(parser.underlying), transforms)
+        fun <Out> query(parser: ResultSetParser<Out>): Template.Query7<P0, P1, P2, P3, P4, P5, P6, Out> =
+            Template.Query7(underlying.query(parser.underlying), transforms)
 
-        fun update(): SqlTemplate.Update7<P0, P1, P2, P3, P4, P5, P6> =
-            SqlTemplate.Update7(underlying.update(), transforms)
+        fun update(): Template.Update7<P0, P1, P2, P3, P4, P5, P6> =
+            Template.Update7(underlying.update(), transforms)
 
         fun done(): Fragment = Fragment(underlying.done())
     }
@@ -337,11 +337,11 @@ object ParamBuilders {
             ParamBuilder9(
                 underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
                 transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))
-        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query8<P0, P1, P2, P3, P4, P5, P6, P7, Out> =
-            SqlTemplate.Query8(underlying.query(parser.underlying), transforms)
+        fun <Out> query(parser: ResultSetParser<Out>): Template.Query8<P0, P1, P2, P3, P4, P5, P6, P7, Out> =
+            Template.Query8(underlying.query(parser.underlying), transforms)
 
-        fun update(): SqlTemplate.Update8<P0, P1, P2, P3, P4, P5, P6, P7> =
-            SqlTemplate.Update8(underlying.update(), transforms)
+        fun update(): Template.Update8<P0, P1, P2, P3, P4, P5, P6, P7> =
+            Template.Update8(underlying.update(), transforms)
 
         fun done(): Fragment = Fragment(underlying.done())
     }
@@ -380,11 +380,11 @@ object ParamBuilders {
             ParamBuilder10(
                 underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
                 transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))
-        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query9<P0, P1, P2, P3, P4, P5, P6, P7, P8, Out> =
-            SqlTemplate.Query9(underlying.query(parser.underlying), transforms)
+        fun <Out> query(parser: ResultSetParser<Out>): Template.Query9<P0, P1, P2, P3, P4, P5, P6, P7, P8, Out> =
+            Template.Query9(underlying.query(parser.underlying), transforms)
 
-        fun update(): SqlTemplate.Update9<P0, P1, P2, P3, P4, P5, P6, P7, P8> =
-            SqlTemplate.Update9(underlying.update(), transforms)
+        fun update(): Template.Update9<P0, P1, P2, P3, P4, P5, P6, P7, P8> =
+            Template.Update9(underlying.update(), transforms)
 
         fun done(): Fragment = Fragment(underlying.done())
     }
@@ -401,11 +401,11 @@ object ParamBuilders {
 
         fun append(fragment: Fragment): ParamBuilder10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9> = ParamBuilder10(underlying.append(fragment.underlying), transforms)
 
-        fun <Out> query(parser: ResultSetParser<Out>): SqlTemplate.Query10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, Out> =
-            SqlTemplate.Query10(underlying.query(parser.underlying), transforms)
+        fun <Out> query(parser: ResultSetParser<Out>): Template.Query10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, Out> =
+            Template.Query10(underlying.query(parser.underlying), transforms)
 
-        fun update(): SqlTemplate.Update10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9> =
-            SqlTemplate.Update10(underlying.update(), transforms)
+        fun update(): Template.Update10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9> =
+            Template.Update10(underlying.update(), transforms)
 
         fun done(): Fragment = Fragment(underlying.done())
     }

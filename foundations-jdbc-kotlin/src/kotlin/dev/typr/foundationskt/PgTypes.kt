@@ -160,30 +160,30 @@ open class PgTypes {
 
     // JSON-encoded row types (json)
 
-    open fun <Row : Any> jsonArrayEncoded(parser: RowParser<Row>) =
+    open fun <Row : Any> jsonArrayEncoded(parser: RowCodec<Row>) =
         PgType<Row>(JavaPgTypes.jsonArrayEncoded(parser.underlying))
 
-    open fun <Row : Any> jsonArrayEncodedList(parser: RowParser<Row>) =
+    open fun <Row : Any> jsonArrayEncodedList(parser: RowCodec<Row>) =
         PgType<List<Row>>(JavaPgTypes.jsonArrayEncodedList(parser.underlying))
 
-    open fun <Row : Any> jsonObjectEncoded(parser: RowParserNamed<Row>) =
+    open fun <Row : Any> jsonObjectEncoded(parser: RowCodecNamed<Row>) =
         PgType<Row>(JavaPgTypes.jsonObjectEncoded(parser.underlying))
 
-    open fun <Row : Any> jsonObjectEncodedList(parser: RowParserNamed<Row>) =
+    open fun <Row : Any> jsonObjectEncodedList(parser: RowCodecNamed<Row>) =
         PgType<List<Row>>(JavaPgTypes.jsonObjectEncodedList(parser.underlying))
 
     // JSON-encoded row types (jsonb)
 
-    open fun <Row : Any> jsonbArrayEncoded(parser: RowParser<Row>) =
+    open fun <Row : Any> jsonbArrayEncoded(parser: RowCodec<Row>) =
         PgType<Row>(JavaPgTypes.jsonbArrayEncoded(parser.underlying))
 
-    open fun <Row : Any> jsonbArrayEncodedList(parser: RowParser<Row>) =
+    open fun <Row : Any> jsonbArrayEncodedList(parser: RowCodec<Row>) =
         PgType<List<Row>>(JavaPgTypes.jsonbArrayEncodedList(parser.underlying))
 
-    open fun <Row : Any> jsonbObjectEncoded(parser: RowParserNamed<Row>) =
+    open fun <Row : Any> jsonbObjectEncoded(parser: RowCodecNamed<Row>) =
         PgType<Row>(JavaPgTypes.jsonbObjectEncoded(parser.underlying))
 
-    open fun <Row : Any> jsonbObjectEncodedList(parser: RowParserNamed<Row>) =
+    open fun <Row : Any> jsonbObjectEncodedList(parser: RowCodecNamed<Row>) =
         PgType<List<Row>>(JavaPgTypes.jsonbObjectEncodedList(parser.underlying))
 
     companion object : PgTypes()

@@ -2,8 +2,9 @@ package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.ResultSetParser;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 
+import dev.typr.foundations.DatabaseException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -14,8 +15,8 @@ import java.util.Optional;
 public class ResultSetParserUsage {
     record Person(Integer id, String name, Instant createdAt) {}
 
-    RowParser<Person> personParser =
-        RowParser.<Person>builder()
+    RowCodec<Person> personCodec =
+        RowCodec.<Person>builder()
             .field(PgTypes.int4, Person::id)
             .field(PgTypes.text, Person::name)
             .field(PgTypes.timestamptz, Person::createdAt)
@@ -26,15 +27,19 @@ public class ResultSetParserUsage {
     //start
     // Parse a single optional result
     ResultSetParser<Optional<Person>> singleParser =
-        personParser.maxOne();
+        personCodec.maxOne();
 
     // Parse all results as a list
     ResultSetParser<List<Person>> listParser =
-        personParser.all();
+        personCodec.all();
 
     // Execute with ResultSet
-    Optional<Person> parse() throws SQLException {
-        return singleParser.apply(resultSet);
+    Optional<Person> parse() {
+        try {
+            return singleParser.apply(resultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
     //stop
 }

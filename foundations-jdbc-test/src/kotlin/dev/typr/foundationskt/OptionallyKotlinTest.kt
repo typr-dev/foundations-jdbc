@@ -24,7 +24,7 @@ class OptionallyKotlinTest {
         }
     }
 
-    private val parser = RowParser.builder<String>()
+    private val parser = RowCodec.builder<String>()
         .field(DuckDbTypes.varchar) { it }
         .build { it }
 

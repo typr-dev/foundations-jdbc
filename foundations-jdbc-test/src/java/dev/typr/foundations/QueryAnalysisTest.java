@@ -56,7 +56,7 @@ public class QueryAnalysisTest {
         conn.rollback();
       }
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DatabaseException(e);
     }
   }
 
@@ -69,7 +69,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE users (id INTEGER, name VARCHAR)");
 
-      RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer);
+      RowCodec<Integer> parser = RowCodec.of(DuckDbTypes.integer);
 
       Fragment fragment = Fragment.of("SELECT id FROM users");
       Operation.Query<List<Integer>> query = fragment.query(parser.all());
@@ -91,7 +91,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE products (id INTEGER, name VARCHAR, price DECIMAL(10, 2))");
 
-      RowParser<String> parser = RowParser.of(DuckDbTypes.varchar);
+      RowCodec<String> parser = RowCodec.of(DuckDbTypes.varchar);
 
       Fragment fragment = Fragment.of("SELECT name FROM products WHERE id = ")
           .value(DuckDbTypes.integer, 42);
@@ -111,7 +111,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE simple (id INTEGER)");
 
-      RowParser<IntStr> parser = RowParser.<IntStr>builder()
+      RowCodec<IntStr> parser = RowCodec.<IntStr>builder()
           .field(DuckDbTypes.integer, IntStr::i)
           .field(DuckDbTypes.varchar, IntStr::s)
           .build(IntStr::new);
@@ -141,7 +141,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE multi (id INTEGER, name VARCHAR, active BOOLEAN)");
 
-      RowParser<IntStr> parser = RowParser.<IntStr>builder()
+      RowCodec<IntStr> parser = RowCodec.<IntStr>builder()
           .field(DuckDbTypes.integer, IntStr::i)
           .field(DuckDbTypes.varchar, IntStr::s)
           .build(IntStr::new);
@@ -172,7 +172,7 @@ public class QueryAnalysisTest {
           "CREATE TABLE nullable_test (id INTEGER NOT NULL, name VARCHAR)"
       );
 
-      RowParser<IntStr> parser = RowParser.<IntStr>builder()
+      RowCodec<IntStr> parser = RowCodec.<IntStr>builder()
           .field(DuckDbTypes.integer, IntStr::i)
           .field(DuckDbTypes.varchar, IntStr::s)
           .build(IntStr::new);
@@ -198,7 +198,7 @@ public class QueryAnalysisTest {
           "CREATE TABLE nullable_correct (id INTEGER NOT NULL, name VARCHAR)"
       );
 
-      RowParser<IntOptStr> parser = RowParser.<IntOptStr>builder()
+      RowCodec<IntOptStr> parser = RowCodec.<IntOptStr>builder()
           .field(DuckDbTypes.integer, IntOptStr::i)
           .field(DuckDbTypes.varchar.opt(), IntOptStr::s)
           .build(IntOptStr::new);
@@ -225,7 +225,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE typed (id INTEGER, ts TIMESTAMP)");
 
-      RowParser<IntInt> parser = RowParser.<IntInt>builder()
+      RowCodec<IntInt> parser = RowCodec.<IntInt>builder()
           .field(DuckDbTypes.integer, IntInt::i1)
           .field(DuckDbTypes.integer, IntInt::i2)
           .build(IntInt::new);
@@ -258,7 +258,7 @@ public class QueryAnalysisTest {
 
       // Use a record with wrong types to test type mismatch detection
       record IntIntDouble(Integer a, Integer b, Double c) {}
-      RowParser<IntIntDouble> parser = RowParser.<IntIntDouble>builder()
+      RowCodec<IntIntDouble> parser = RowCodec.<IntIntDouble>builder()
           .field(DuckDbTypes.integer, IntIntDouble::a)
           .field(DuckDbTypes.integer, IntIntDouble::b)  // wrong - should be varchar
           .field(DuckDbTypes.double_, IntIntDouble::c)
@@ -353,7 +353,7 @@ public class QueryAnalysisTest {
           )
           """);
 
-      RowParser<IntTypes> parser = RowParser.<IntTypes>builder()
+      RowCodec<IntTypes> parser = RowCodec.<IntTypes>builder()
           .field(DuckDbTypes.tinyint, IntTypes::t)
           .field(DuckDbTypes.smallint, IntTypes::s)
           .field(DuckDbTypes.integer, IntTypes::m)
@@ -384,7 +384,7 @@ public class QueryAnalysisTest {
           )
           """);
 
-      RowParser<UIntTypes> parser = RowParser.<UIntTypes>builder()
+      RowCodec<UIntTypes> parser = RowCodec.<UIntTypes>builder()
           .field(DuckDbTypes.utinyint, UIntTypes::t)
           .field(DuckDbTypes.usmallint, UIntTypes::s)
           .field(DuckDbTypes.uinteger, UIntTypes::m)
@@ -412,7 +412,7 @@ public class QueryAnalysisTest {
           )
           """);
 
-      RowParser<FloatTypes> parser = RowParser.<FloatTypes>builder()
+      RowCodec<FloatTypes> parser = RowCodec.<FloatTypes>builder()
           .field(DuckDbTypes.float_, FloatTypes::f)
           .field(DuckDbTypes.double_, FloatTypes::d)
           .field(DuckDbTypes.decimal, FloatTypes::dec)
@@ -439,7 +439,7 @@ public class QueryAnalysisTest {
           )
           """);
 
-      RowParser<StrStrStr> parser = RowParser.<StrStrStr>builder()
+      RowCodec<StrStrStr> parser = RowCodec.<StrStrStr>builder()
           .field(DuckDbTypes.varchar, StrStrStr::a)
           .field(DuckDbTypes.text, StrStrStr::b)
           .field(DuckDbTypes.char_, StrStrStr::c)
@@ -460,7 +460,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE bool_types (b BOOLEAN)");
 
-      RowParser<Boolean> parser = RowParser.of(DuckDbTypes.boolean_);
+      RowCodec<Boolean> parser = RowCodec.of(DuckDbTypes.boolean_);
 
       Fragment fragment = Fragment.of("SELECT b FROM bool_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
@@ -484,7 +484,7 @@ public class QueryAnalysisTest {
           )
           """);
 
-      RowParser<DateTimeTypes> parser = RowParser.<DateTimeTypes>builder()
+      RowCodec<DateTimeTypes> parser = RowCodec.<DateTimeTypes>builder()
           .field(DuckDbTypes.date, DateTimeTypes::d)
           .field(DuckDbTypes.time, DateTimeTypes::t)
           .field(DuckDbTypes.timestamp, DateTimeTypes::ts)
@@ -505,7 +505,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE uuid_types (u UUID)");
 
-      RowParser<UUID> parser = RowParser.of(DuckDbTypes.uuid);
+      RowCodec<UUID> parser = RowCodec.of(DuckDbTypes.uuid);
 
       Fragment fragment = Fragment.of("SELECT u FROM uuid_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
@@ -521,7 +521,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE blob_types (b BLOB)");
 
-      RowParser<byte[]> parser = RowParser.of(DuckDbTypes.blob);
+      RowCodec<byte[]> parser = RowCodec.of(DuckDbTypes.blob);
 
       Fragment fragment = Fragment.of("SELECT b FROM blob_types");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
@@ -542,7 +542,7 @@ public class QueryAnalysisTest {
           )
           """);
 
-      RowParser<ArrayTypes> parser = RowParser.<ArrayTypes>builder()
+      RowCodec<ArrayTypes> parser = RowCodec.<ArrayTypes>builder()
           .field(DuckDbTypes.integerArray, ArrayTypes::ints)
           .field(DuckDbTypes.varcharArray, ArrayTypes::strs)
           .build(ArrayTypes::new);
@@ -561,7 +561,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE mismatch1 (name VARCHAR)");
 
-      RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer);
+      RowCodec<Integer> parser = RowCodec.of(DuckDbTypes.integer);
 
       Fragment fragment = Fragment.of("SELECT name FROM mismatch1");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
@@ -581,7 +581,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE mismatch2 (flag BOOLEAN)");
 
-      RowParser<String> parser = RowParser.of(DuckDbTypes.varchar);
+      RowCodec<String> parser = RowCodec.of(DuckDbTypes.varchar);
 
       Fragment fragment = Fragment.of("SELECT flag FROM mismatch2");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
@@ -599,7 +599,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE mismatch3 (d DATE)");
 
-      RowParser<LocalDateTime> parser = RowParser.of(DuckDbTypes.timestamp);
+      RowCodec<LocalDateTime> parser = RowCodec.of(DuckDbTypes.timestamp);
 
       Fragment fragment = Fragment.of("SELECT d FROM mismatch3");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
@@ -622,7 +622,7 @@ public class QueryAnalysisTest {
           .append(" AND active = ")
           .value(DuckDbTypes.boolean_, true);
 
-      RowParser<IntStrBool> parser = RowParser.<IntStrBool>builder()
+      RowCodec<IntStrBool> parser = RowCodec.<IntStrBool>builder()
           .field(DuckDbTypes.integer, IntStrBool::i)
           .field(DuckDbTypes.varchar, IntStrBool::s)
           .field(DuckDbTypes.boolean_, IntStrBool::b)
@@ -653,7 +653,7 @@ public class QueryAnalysisTest {
           """);
 
       record JoinRow(Integer id, String name, BigDecimal total) {}
-      RowParser<JoinRow> parser = RowParser.<JoinRow>builder()
+      RowCodec<JoinRow> parser = RowCodec.<JoinRow>builder()
           .field(DuckDbTypes.integer, JoinRow::id)
           .field(DuckDbTypes.varchar, JoinRow::name)
           .field(DuckDbTypes.decimal, JoinRow::total)
@@ -676,7 +676,7 @@ public class QueryAnalysisTest {
 
       Fragment fragment = Fragment.of("SELECT SUM(amount), AVG(amount), COUNT(*) FROM sales");
 
-      RowParser<DecDoubleInt> parser = RowParser.<DecDoubleInt>builder()
+      RowCodec<DecDoubleInt> parser = RowCodec.<DecDoubleInt>builder()
           .field(DuckDbTypes.decimal, DecDoubleInt::sum)
           .field(DuckDbTypes.double_, DecDoubleInt::avg)
           .field(DuckDbTypes.bigint, DecDoubleInt::cnt)
@@ -697,7 +697,7 @@ public class QueryAnalysisTest {
 
       Fragment fragment = Fragment.of("SELECT CAST(price AS DOUBLE) FROM items");
 
-      RowParser<Double> parser = RowParser.of(DuckDbTypes.double_);
+      RowCodec<Double> parser = RowCodec.of(DuckDbTypes.double_);
 
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
 
@@ -714,7 +714,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE json_test (data JSON)");
 
-      RowParser<dev.typr.foundations.data.Json> parser = RowParser.of(DuckDbTypes.json);
+      RowCodec<dev.typr.foundations.data.Json> parser = RowCodec.of(DuckDbTypes.json);
 
       Fragment fragment = Fragment.of("SELECT data FROM json_test");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
@@ -730,7 +730,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE interval_test (dur INTERVAL)");
 
-      RowParser<Duration> parser = RowParser.of(DuckDbTypes.interval);
+      RowCodec<Duration> parser = RowCodec.of(DuckDbTypes.interval);
 
       Fragment fragment = Fragment.of("SELECT dur FROM interval_test");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
@@ -747,7 +747,7 @@ public class QueryAnalysisTest {
       conn.createStatement().execute("CREATE TABLE color_test (id INTEGER, name VARCHAR)");
 
       // Intentionally use wrong type to generate errors
-      RowParser<IntInt> parser = RowParser.<IntInt>builder()
+      RowCodec<IntInt> parser = RowCodec.<IntInt>builder()
           .field(DuckDbTypes.integer, IntInt::i1)
           .field(DuckDbTypes.integer, IntInt::i2)  // Wrong type
           .build(IntInt::new);
@@ -798,7 +798,7 @@ public class QueryAnalysisTest {
           """);
 
       record JoinRow(Integer userId, String name, Optional<BigDecimal> total) {}
-      RowParser<JoinRow> parser = RowParser.<JoinRow>builder()
+      RowCodec<JoinRow> parser = RowCodec.<JoinRow>builder()
           .field(DuckDbTypes.integer, JoinRow::userId)
           .field(DuckDbTypes.varchar, JoinRow::name)
           .field(DuckDbTypes.decimal.opt(), JoinRow::total)
@@ -828,7 +828,7 @@ public class QueryAnalysisTest {
           """);
 
       record JoinRow(Integer userId, String name, BigDecimal total) {}
-      RowParser<JoinRow> parser = RowParser.<JoinRow>builder()
+      RowCodec<JoinRow> parser = RowCodec.<JoinRow>builder()
           .field(DuckDbTypes.integer, JoinRow::userId)
           .field(DuckDbTypes.varchar, JoinRow::name)
           .field(DuckDbTypes.decimal, JoinRow::total)
@@ -857,7 +857,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE uc_test (name VARCHAR)");
 
-      RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer.unchecked());
+      RowCodec<Integer> parser = RowCodec.of(DuckDbTypes.integer.unchecked());
 
       Fragment fragment = Fragment.of("SELECT name FROM uc_test");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
@@ -882,7 +882,7 @@ public class QueryAnalysisTest {
       );
 
       record Row(Integer id, String name) {}
-      RowParser<Row> parser = RowParser.<Row>builder()
+      RowCodec<Row> parser = RowCodec.<Row>builder()
           .field(DuckDbTypes.integer, Row::id)
           .field(DuckDbTypes.varchar.nullableOk(), Row::name)
           .build(Row::new);
@@ -911,7 +911,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE nq_test (id INTEGER, name VARCHAR)");
 
-      RowParser<IntStr> parser = RowParser.<IntStr>builder()
+      RowCodec<IntStr> parser = RowCodec.<IntStr>builder()
           .field(DuckDbTypes.integer, IntStr::i)
           .field(DuckDbTypes.varchar, IntStr::s)
           .build(IntStr::new);
@@ -934,7 +934,7 @@ public class QueryAnalysisTest {
     withConnection(conn -> {
       conn.createStatement().execute("CREATE TABLE nqe_test (name VARCHAR)");
 
-      RowParser<Integer> parser = RowParser.of(DuckDbTypes.integer);
+      RowCodec<Integer> parser = RowCodec.of(DuckDbTypes.integer);
 
       Fragment fragment = Fragment.of("SELECT name FROM nqe_test");
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()).named("getUserId"), conn).getFirst();
@@ -961,7 +961,7 @@ public class QueryAnalysisTest {
           CREATE VIEW va_users_view AS SELECT id, name FROM va_users;
           """);
 
-      RowParser<IntStr> parser = RowParser.<IntStr>builder()
+      RowCodec<IntStr> parser = RowCodec.<IntStr>builder()
           .field(DuckDbTypes.integer, IntStr::i)
           .field(DuckDbTypes.varchar, IntStr::s)
           .build(IntStr::new);

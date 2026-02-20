@@ -143,11 +143,7 @@ public class PgStructTest {
   static final PgType<Point2D> point2dType = point2dStruct.asType();
 
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    try {
-      return Containers.postgresTransactor().execute(f);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+    return Containers.postgresTransactor().execute(f);
   }
 
   @Test

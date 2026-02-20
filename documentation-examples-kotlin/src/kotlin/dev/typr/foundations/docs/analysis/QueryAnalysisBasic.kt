@@ -11,8 +11,8 @@ class QueryAnalysisBasic {
     private lateinit var connection: Connection
     private val userId = 1
 
-    private val userRowParser: RowParser<User> =
-        RowParser.builder<User>()
+    private val userRowCodec: RowCodec<User> =
+        RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::email)
@@ -22,12 +22,12 @@ class QueryAnalysisBasic {
     fun analyzeQuery() {
         // Build your query as normal
         val query: Operation.Query<List<User>> =
-            Sql { """
+            sql { """
                 SELECT id, name, email
                 FROM users
                 WHERE id = ${PgTypes.int4(userId)}
             """ }
-                .query(userRowParser.all())
+                .query(userRowCodec.all())
 
         // Analyze it against the database
         val analysis: QueryAnalysis =

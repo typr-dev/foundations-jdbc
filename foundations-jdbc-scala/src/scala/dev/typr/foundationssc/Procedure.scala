@@ -1,6 +1,6 @@
 package dev.typr.foundationssc
 
-import java.sql.{Connection, SQLException}
+import java.sql.Connection
 
 /** Scala wrapper for dev.typr.foundations.Procedure with Unit instead of Void. */
 class Procedure[Out] private[foundationssc] (
@@ -37,20 +37,14 @@ object Procedure {
     dev.typr.foundations.Procedure.buildFunction(name, inParams, returnType.underlying)
 }
 
-/** Operation returned by Procedure.call() — wraps a Java Operation with result conversion. */
+/** Operation returned by Procedure.call() -- wraps a Java Operation with result conversion. */
 class ProcedureOp[Out] private[foundationssc] (
     private val javaOp: dev.typr.foundations.Operation[Any],
     private val mapResult: Any => Out
 ) {
 
-  @throws[SQLException]
-  def runChecked(conn: Connection): Out = mapResult(javaOp.runChecked(conn))
+  def run(conn: Connection): Out = mapResult(javaOp.run(conn))
 
-  def run(conn: Connection): Out =
-    try runChecked(conn)
-    catch { case e: SQLException => throw new RuntimeException(e) }
-
-  @throws[SQLException]
   def transact(transactor: Transactor): Out =
     mapResult(javaOp.transact(transactor.underlying))
 }

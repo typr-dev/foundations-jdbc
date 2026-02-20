@@ -18,7 +18,7 @@ object ComposingSequence:
         sql"""INSERT INTO users(name)
               VALUES(${PgTypes.text(name)})
               RETURNING id"""
-          .query(RowParser.of(PgTypes.int4).exactlyOne())
+          .query(RowCodec.of(PgTypes.int4).exactlyOne())
       }
 
     Operation.sequence(inserts).transact(tx)

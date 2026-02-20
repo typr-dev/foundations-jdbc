@@ -17,8 +17,8 @@ class OracleTransactor {
 
     // Everything inside runs in one transaction
     fun getGreeting(): String =
-        Sql { "SELECT 'Hello from Oracle' FROM dual" }
-            .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
+        sql { "SELECT 'Hello from Oracle' FROM dual" }
+            .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())
             .transact(tx)
 
     //stop

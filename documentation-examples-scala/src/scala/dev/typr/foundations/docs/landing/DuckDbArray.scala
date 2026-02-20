@@ -11,6 +11,6 @@ object DuckDbArray:
   // DuckDB arrays are first-class typed values
   def getTagSets(): List[Array[String]] =
     sql"SELECT tags FROM posts WHERE published = true"
-      .query(RowParser.of(DuckDbTypes.varcharArray).all())
+      .query(RowCodec.of(DuckDbTypes.varcharArray).all())
       .transact(tx)
   //stop

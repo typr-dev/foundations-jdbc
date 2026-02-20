@@ -1,8 +1,10 @@
 package dev.typr.foundations.example;
 
+import dev.typr.foundations.QueryChecker;
 import dev.typr.foundations.Transactor;
 import dev.typr.foundations.connect.DuckDbConfig;
 import dev.typr.foundations.connect.SingleConnectionDataSource;
+import javax.sql.DataSource;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,13 +18,12 @@ public class App {
     }
 
     @Bean
-    Transactor transactor() {
-        var ds = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build());
-        return ds.transactor(Transactor.autoCommitStrategy());
+    DataSource dataSource() {
+        return SingleConnectionDataSource.create(DuckDbConfig.inMemory().build());
     }
 
     @Bean
-    CommandLineRunner demo(TodoRepository todos) {
+    CommandLineRunner demo(TodoRepository todos, Transactor tx) {
         return args -> {
             todos.createSchema();
 
@@ -33,7 +34,8 @@ public class App {
             System.out.println("Created: " + write);
             System.out.println("Created: " + read);
 
-            todos.setDone(buy.id(), true);
+            var completed = todos.createAndComplete("Walk the dog");
+            System.out.println("Created and completed: " + completed);
 
             System.out.println("\nAll todos:");
             for (var todo : todos.findAll()) {
@@ -42,7 +44,9 @@ public class App {
             }
 
             System.out.println("\nQuery analysis:");
-            todos.analyzeQueries();
+            QueryChecker checker = () -> tx;
+            checker.checkAll(TodoRepository.analyzables);
+            System.out.println("  All queries passed analysis.");
         };
     }
 }
