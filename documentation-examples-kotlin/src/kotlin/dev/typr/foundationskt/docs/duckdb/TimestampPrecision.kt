@@ -1,0 +1,14 @@
+package dev.typr.foundationskt.docs.duckdb
+
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
+import java.time.LocalDateTime
+
+@Suppress("unused")
+class TimestampPrecision {
+    //start
+    val tsSeconds: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_s
+    val tsMillis: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_ms
+    val tsNanos: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_ns
+    //stop
+}

@@ -14,7 +14,4 @@ object QueryAnalyzer {
     fun analyze(template: Template<*, *>, conn: java.sql.Connection): List<dev.typr.foundations.QueryAnalysis> =
         dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn)
 
-    @JvmStatic
-    fun analyze(template: RowTemplate<*, *>, conn: java.sql.Connection): List<dev.typr.foundations.QueryAnalysis> =
-        dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn)
 }

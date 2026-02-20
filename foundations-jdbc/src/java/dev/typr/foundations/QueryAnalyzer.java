@@ -12,13 +12,21 @@ public final class QueryAnalyzer {
   public static List<QueryAnalysis> analyze(Analyzable analyzable, Connection conn) {
     try {
       return switch (analyzable) {
+        case Analyzable.Named(var defaultName, var inner) -> applyDefaultName(defaultName, analyze(inner, conn));
         case Operation<?> op -> analyzeChecked(op, conn);
         case Template<?, ?> t -> analyzeChecked(t, conn);
-        case RowTemplate<?, ?> rt -> analyzeChecked(rt, conn);
       };
     } catch (SQLException e) {
       throw new DatabaseException(e);
     }
+  }
+
+  private static List<QueryAnalysis> applyDefaultName(String defaultName, List<QueryAnalysis> results) {
+    return results.stream()
+        .map(r -> r.queryName() == null
+            ? new QueryAnalysis(r.sql(), defaultName, r.parameterAlignment(), r.columnAlignment(), r.parameterMetadataAvailable())
+            : r)
+        .toList();
   }
 
   public static List<QueryAnalysis> analyze(Template<?, ?> template, Connection conn) {
@@ -45,24 +53,6 @@ public final class QueryAnalyzer {
     return results;
   }
 
-  public static List<QueryAnalysis> analyze(RowTemplate<?, ?> template, Connection conn) {
-    try {
-      return analyzeChecked(template, conn);
-    } catch (SQLException e) {
-      throw new DatabaseException(e);
-    }
-  }
-
-  private static List<QueryAnalysis> analyzeChecked(RowTemplate<?, ?> template, Connection conn)
-      throws SQLException {
-    return switch (template) {
-      case RowTemplate.Query<?, ?> q ->
-          List.of(analyzeFragmentAndParserChecked(q.fragment(), q.resultParser(), conn));
-      case RowTemplate.Update<?> u ->
-          List.of(analyzeUpdate(new Operation.Update(u.fragment()), conn));
-    };
-  }
-
   public static List<QueryAnalysis> analyze(Operation<?> op, Connection conn) {
     try {
       return analyzeChecked(op, conn);
@@ -84,7 +74,7 @@ public final class QueryAnalyzer {
       case Operation.Update u -> List.of(analyzeUpdate(name, u, conn));
       case Operation.Configured<?> c -> analyzeNamed(name != null ? name : c.name(), c.inner(), conn);
       case Operation.Mapped<?, ?> m -> analyzeNamed(name, m.source(), conn);
-      case Operation.With<?, ?> w -> {
+      case Operation.Combine<?, ?> w -> {
         var r = new ArrayList<>(analyzeNamed(null, w.first(), conn));
         r.addAll(analyzeNamed(null, w.second(), conn));
         yield r;
@@ -197,6 +187,7 @@ public final class QueryAnalyzer {
       case Template.Query9 q -> q.parser();
       case Template.Query10 q -> q.parser();
       case Template.From f -> extractResultSetParser(f.inner());
+      case RowTemplate.Query<?, ?> q -> q.resultParser();
       default -> null;
     };
   }

@@ -1,0 +1,13 @@
+package dev.typr.foundationskt.docs.mariadb
+
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
+import java.math.BigDecimal
+
+@Suppress("unused")
+class FixedPointTypes {
+    //start
+    val decimalType: MariaType<BigDecimal> = MariaTypes.decimal
+    val preciseDecimal: MariaType<BigDecimal> = MariaTypes.decimal(10, 2)
+    //stop
+}

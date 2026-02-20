@@ -1,8 +1,8 @@
 package dev.typr.foundations.docs.core;
 
-import dev.typr.foundations.And;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
+import dev.typr.foundations.Tuple;
 
 import java.util.Optional;
 
@@ -25,11 +25,11 @@ public class ComposingCodecs {
 
     //start
     // Inner join — both sides always present
-    RowCodec<And<ProductRow, CategoryRow>> innerJoined =
+    RowCodec<Tuple.Tuple2<ProductRow, CategoryRow>> innerJoined =
         productCodec.joined(categoryCodec);
 
     // Left join — right side is Optional (nullable in Kotlin, Option in Scala)
-    RowCodec<And<ProductRow, Optional<CategoryRow>>> leftJoined =
+    RowCodec<Tuple.Tuple2<ProductRow, Optional<CategoryRow>>> leftJoined =
         productCodec.leftJoined(categoryCodec);
     //stop
 }

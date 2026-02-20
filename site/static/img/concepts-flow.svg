@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 400" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arr-dash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#64748b"/>
+    </marker>
+    <linearGradient id="gFragment" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="gTemplate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="gOperation" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="gResult" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="gSupport" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="116%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="470" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="#1e293b">Concepts at a Glance</text>
+
+  <!-- ═══ MAIN FLOW (y=170) ═══ -->
+
+  <!-- Fragment -->
+  <rect x="40" y="145" width="160" height="56" rx="10" fill="url(#gFragment)" filter="url(#shadow)"/>
+  <text x="120" y="170" text-anchor="middle" font-size="15" font-weight="700" fill="white">Fragment</text>
+  <text x="120" y="186" text-anchor="middle" font-size="10.5" fill="rgba(255,255,255,0.8)">SQL + bound params</text>
+
+  <!-- Arrow: Fragment → Template -->
+  <line x1="200" y1="173" x2="300" y2="173" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="216" y="148" width="70" height="20" rx="4" fill="white" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="251" y="162" text-anchor="middle" font-size="11" fill="#475569" font-family="'SF Mono', 'Fira Code', monospace">.param()</text>
+
+  <!-- Template -->
+  <rect x="306" y="145" width="160" height="56" rx="10" fill="url(#gTemplate)" filter="url(#shadow)"/>
+  <text x="386" y="170" text-anchor="middle" font-size="15" font-weight="700" fill="white">Template</text>
+  <text x="386" y="186" text-anchor="middle" font-size="10.5" fill="rgba(255,255,255,0.8)">SQL + param holes</text>
+
+  <!-- Arrow: Template → Operation -->
+  <line x1="466" y1="173" x2="560" y2="173" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="478" y="148" width="70" height="20" rx="4" fill="white" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="513" y="162" text-anchor="middle" font-size="11" fill="#475569" font-family="'SF Mono', 'Fira Code', monospace">.on(val)</text>
+
+  <!-- Operation -->
+  <rect x="566" y="145" width="160" height="56" rx="10" fill="url(#gOperation)" filter="url(#shadow)"/>
+  <text x="646" y="170" text-anchor="middle" font-size="15" font-weight="700" fill="white">Operation</text>
+  <text x="646" y="186" text-anchor="middle" font-size="10.5" fill="rgba(255,255,255,0.8)">runnable DB action</text>
+
+  <!-- Arrow: Operation → Result -->
+  <line x1="726" y1="173" x2="810" y2="173" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="726" y="148" width="84" height="20" rx="4" fill="white" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="768" y="162" text-anchor="middle" font-size="11" fill="#475569" font-family="'SF Mono', 'Fira Code', monospace">.transact()</text>
+
+  <!-- Result -->
+  <rect x="816" y="145" width="100" height="56" rx="10" fill="url(#gResult)" filter="url(#shadow)"/>
+  <text x="866" y="170" text-anchor="middle" font-size="15" font-weight="700" fill="white">Result</text>
+  <text x="866" y="186" text-anchor="middle" font-size="10.5" fill="rgba(255,255,255,0.8)">your data</text>
+
+  <!-- ═══ SHORTCUT: Fragment → Operation (curved, dashed) ═══ -->
+  <path d="M 120 201 C 120 275, 646 275, 646 201" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arr-dash)"/>
+  <rect x="310" y="254" width="150" height="20" rx="4" fill="white" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="385" y="268" text-anchor="middle" font-size="11" fill="#64748b" font-family="'SF Mono', 'Fira Code', monospace">.query() / .update()</text>
+  <text x="385" y="288" text-anchor="middle" font-size="10" fill="#94a3b8" font-style="italic">direct (values already bound)</text>
+
+  <!-- ═══ SUPPORTING CONCEPTS (top row, y=70) ═══ -->
+
+  <!-- DbType -->
+  <rect x="60" y="58" width="120" height="44" rx="8" fill="url(#gSupport)" filter="url(#shadow)"/>
+  <text x="120" y="78" text-anchor="middle" font-size="13" font-weight="600" fill="white">DbType</text>
+  <text x="120" y="92" text-anchor="middle" font-size="9.5" fill="rgba(255,255,255,0.7)">column type codec</text>
+
+  <!-- RowCodec -->
+  <rect x="220" y="58" width="120" height="44" rx="8" fill="url(#gSupport)" filter="url(#shadow)"/>
+  <text x="280" y="78" text-anchor="middle" font-size="13" font-weight="600" fill="white">RowCodec</text>
+  <text x="280" y="92" text-anchor="middle" font-size="9.5" fill="rgba(255,255,255,0.7)">row ↔ record map</text>
+
+  <!-- Transactor -->
+  <rect x="740" y="58" width="120" height="44" rx="8" fill="url(#gSupport)" filter="url(#shadow)"/>
+  <text x="800" y="78" text-anchor="middle" font-size="13" font-weight="600" fill="white">Transactor</text>
+  <text x="800" y="92" text-anchor="middle" font-size="9.5" fill="rgba(255,255,255,0.7)">connection + tx mgmt</text>
+
+  <!-- Dashed connectors from support to main -->
+  <line x1="120" y1="102" x2="120" y2="145" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+  <line x1="280" y1="102" x2="200" y2="145" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+  <line x1="280" y1="102" x2="386" y2="145" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+  <line x1="800" y1="102" x2="768" y2="148" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+
+  <!-- ═══ LEGEND / ANNOTATION (bottom) ═══ -->
+  <rect x="40" y="320" width="876" height="60" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Legend items -->
+  <rect x="60" y="337" width="12" height="12" rx="3" fill="url(#gFragment)"/>
+  <text x="78" y="348" font-size="11" fill="#475569">Build SQL</text>
+
+  <text x="148" y="348" font-size="14" fill="#cbd5e1">→</text>
+
+  <rect x="168" y="337" width="12" height="12" rx="3" fill="url(#gTemplate)"/>
+  <text x="186" y="348" font-size="11" fill="#475569">Add param holes</text>
+
+  <text x="286" y="348" font-size="14" fill="#cbd5e1">→</text>
+
+  <rect x="306" y="337" width="12" height="12" rx="3" fill="url(#gOperation)"/>
+  <text x="324" y="348" font-size="11" fill="#475569">Fill values</text>
+
+  <text x="394" y="348" font-size="14" fill="#cbd5e1">→</text>
+
+  <rect x="414" y="337" width="12" height="12" rx="3" fill="url(#gResult)"/>
+  <text x="432" y="348" font-size="11" fill="#475569">Execute &amp; get results</text>
+
+  <line x1="580" y1="343" x2="600" y2="343" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="608" y="348" font-size="11" fill="#475569">Shortcut: skip Template when all values are known</text>
+
+  <!-- Subtitle -->
+  <text x="470" y="366" text-anchor="middle" font-size="10.5" fill="#94a3b8">DbType models a single column. RowCodec maps an entire row. Transactor manages connections and transactions.</text>
+</svg>

@@ -190,6 +190,20 @@ public sealed interface Fragment {
     return new Literal(value);
   }
 
+  static <Row> RowTemplate.Update<Row> insertInto(String table, RowCodecNamed<Row> codec, String... except) {
+    Set<String> excludeSet = except.length > 0 ? Set.of(except) : Set.of();
+    List<String> names = codec.columnNames();
+    List<String> included = new ArrayList<>();
+    for (String name : names) {
+      if (!excludeSet.contains(name)) included.add(name);
+    }
+    String cols = String.join(", ", included);
+    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
+        .paramRow(codec, except)
+        .append(")")
+        .update();
+  }
+
   static Fragment empty() {
     return EMPTY;
   }

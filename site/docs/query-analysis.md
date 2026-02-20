@@ -174,7 +174,7 @@ The recommended pattern is to analyze all your queries in a dedicated test.
 
 ## Analyzing Composed Operations
 
-When you compose operations with `.with()`, `.then()`, or `Operation.ifEmpty()`, you can verify every SQL statement in the tree with a single call:
+When you compose operations with `.combine()`/`.combineWith()`, `.then()`, or `Operation.ifEmpty()`, you can verify every SQL statement in the tree with a single call:
 
 <Snippet file="analysis/QueryAnalysisAll" />
 

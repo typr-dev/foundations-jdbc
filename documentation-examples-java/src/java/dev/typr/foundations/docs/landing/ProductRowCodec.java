@@ -1,10 +1,10 @@
 package dev.typr.foundations.docs.landing;
 
-import dev.typr.foundations.And;
 import dev.typr.foundations.PgStruct;
 import dev.typr.foundations.PgType;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
+import dev.typr.foundations.Tuple;
 import dev.typr.foundations.data.Jsonb;
 
 import java.math.BigDecimal;
@@ -48,7 +48,7 @@ public class ProductRowCodec {
             .build(Product::new);
 
     // Compose codecs for joins
-    static RowCodec<And<Product, Optional<Category>>> joined =
+    static RowCodec<Tuple.Tuple2<Product, Optional<Category>>> joined =
         rowCodec.leftJoined(categoryRowCodec);
     //stop
 }

@@ -36,47 +36,47 @@ object DbProcedure {
 
   /** Procedure definition with 0 input(s) and 2 output(s). */
   trait Def0_2[O0, O1] {
-    def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]]
+    def call(): ProcedureOp[(O0, O1)]
   }
 
   /** Procedure definition with 0 input(s) and 3 output(s). */
   trait Def0_3[O0, O1, O2] {
-    def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]
+    def call(): ProcedureOp[(O0, O1, O2)]
   }
 
   /** Procedure definition with 0 input(s) and 4 output(s). */
   trait Def0_4[O0, O1, O2, O3] {
-    def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]
+    def call(): ProcedureOp[(O0, O1, O2, O3)]
   }
 
   /** Procedure definition with 0 input(s) and 5 output(s). */
   trait Def0_5[O0, O1, O2, O3, O4] {
-    def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]
+    def call(): ProcedureOp[(O0, O1, O2, O3, O4)]
   }
 
   /** Procedure definition with 0 input(s) and 6 output(s). */
   trait Def0_6[O0, O1, O2, O3, O4, O5] {
-    def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]
+    def call(): ProcedureOp[(O0, O1, O2, O3, O4, O5)]
   }
 
   /** Procedure definition with 0 input(s) and 7 output(s). */
   trait Def0_7[O0, O1, O2, O3, O4, O5, O6] {
-    def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]
+    def call(): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)]
   }
 
   /** Procedure definition with 0 input(s) and 8 output(s). */
   trait Def0_8[O0, O1, O2, O3, O4, O5, O6, O7] {
-    def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]
+    def call(): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)]
   }
 
   /** Procedure definition with 0 input(s) and 9 output(s). */
   trait Def0_9[O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-    def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]
+    def call(): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)]
   }
 
   /** Procedure definition with 0 input(s) and 10 output(s). */
   trait Def0_10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-    def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]
+    def call(): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)]
   }
 
   /** Procedure definition with 1 input(s) and 0 output(s). */
@@ -91,47 +91,47 @@ object DbProcedure {
 
   /** Procedure definition with 1 input(s) and 2 output(s). */
   trait Def1_2[I0, O0, O1] {
-    def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]]
+    def call(i0: I0): ProcedureOp[(O0, O1)]
   }
 
   /** Procedure definition with 1 input(s) and 3 output(s). */
   trait Def1_3[I0, O0, O1, O2] {
-    def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]
+    def call(i0: I0): ProcedureOp[(O0, O1, O2)]
   }
 
   /** Procedure definition with 1 input(s) and 4 output(s). */
   trait Def1_4[I0, O0, O1, O2, O3] {
-    def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]
+    def call(i0: I0): ProcedureOp[(O0, O1, O2, O3)]
   }
 
   /** Procedure definition with 1 input(s) and 5 output(s). */
   trait Def1_5[I0, O0, O1, O2, O3, O4] {
-    def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]
+    def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4)]
   }
 
   /** Procedure definition with 1 input(s) and 6 output(s). */
   trait Def1_6[I0, O0, O1, O2, O3, O4, O5] {
-    def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]
+    def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4, O5)]
   }
 
   /** Procedure definition with 1 input(s) and 7 output(s). */
   trait Def1_7[I0, O0, O1, O2, O3, O4, O5, O6] {
-    def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]
+    def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)]
   }
 
   /** Procedure definition with 1 input(s) and 8 output(s). */
   trait Def1_8[I0, O0, O1, O2, O3, O4, O5, O6, O7] {
-    def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]
+    def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)]
   }
 
   /** Procedure definition with 1 input(s) and 9 output(s). */
   trait Def1_9[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-    def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]
+    def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)]
   }
 
   /** Procedure definition with 1 input(s) and 10 output(s). */
   trait Def1_10[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-    def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]
+    def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)]
   }
 
   /** Procedure definition with 2 input(s) and 0 output(s). */
@@ -146,47 +146,47 @@ object DbProcedure {
 
   /** Procedure definition with 2 input(s) and 2 output(s). */
   trait Def2_2[I0, I1, O0, O1] {
-    def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]]
+    def call(i0: I0, i1: I1): ProcedureOp[(O0, O1)]
   }
 
   /** Procedure definition with 2 input(s) and 3 output(s). */
   trait Def2_3[I0, I1, O0, O1, O2] {
-    def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]
+    def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2)]
   }
 
   /** Procedure definition with 2 input(s) and 4 output(s). */
   trait Def2_4[I0, I1, O0, O1, O2, O3] {
-    def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]
+    def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3)]
   }
 
   /** Procedure definition with 2 input(s) and 5 output(s). */
   trait Def2_5[I0, I1, O0, O1, O2, O3, O4] {
-    def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]
+    def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4)]
   }
 
   /** Procedure definition with 2 input(s) and 6 output(s). */
   trait Def2_6[I0, I1, O0, O1, O2, O3, O4, O5] {
-    def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]
+    def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4, O5)]
   }
 
   /** Procedure definition with 2 input(s) and 7 output(s). */
   trait Def2_7[I0, I1, O0, O1, O2, O3, O4, O5, O6] {
-    def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]
+    def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)]
   }
 
   /** Procedure definition with 2 input(s) and 8 output(s). */
   trait Def2_8[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7] {
-    def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]
+    def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)]
   }
 
   /** Procedure definition with 2 input(s) and 9 output(s). */
   trait Def2_9[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-    def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]
+    def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)]
   }
 
   /** Procedure definition with 2 input(s) and 10 output(s). */
   trait Def2_10[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-    def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]
+    def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)]
   }
 
   /** Procedure definition with 3 input(s) and 0 output(s). */
@@ -201,47 +201,47 @@ object DbProcedure {
 
   /** Procedure definition with 3 input(s) and 2 output(s). */
   trait Def3_2[I0, I1, I2, O0, O1] {
-    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]]
+    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1)]
   }
 
   /** Procedure definition with 3 input(s) and 3 output(s). */
   trait Def3_3[I0, I1, I2, O0, O1, O2] {
-    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]
+    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2)]
   }
 
   /** Procedure definition with 3 input(s) and 4 output(s). */
   trait Def3_4[I0, I1, I2, O0, O1, O2, O3] {
-    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]
+    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3)]
   }
 
   /** Procedure definition with 3 input(s) and 5 output(s). */
   trait Def3_5[I0, I1, I2, O0, O1, O2, O3, O4] {
-    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]
+    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4)]
   }
 
   /** Procedure definition with 3 input(s) and 6 output(s). */
   trait Def3_6[I0, I1, I2, O0, O1, O2, O3, O4, O5] {
-    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]
+    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4, O5)]
   }
 
   /** Procedure definition with 3 input(s) and 7 output(s). */
   trait Def3_7[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6] {
-    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]
+    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)]
   }
 
   /** Procedure definition with 3 input(s) and 8 output(s). */
   trait Def3_8[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7] {
-    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]
+    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)]
   }
 
   /** Procedure definition with 3 input(s) and 9 output(s). */
   trait Def3_9[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]
+    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)]
   }
 
   /** Procedure definition with 3 input(s) and 10 output(s). */
   trait Def3_10[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]
+    def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)]
   }
 
   /** Procedure definition with 4 input(s) and 0 output(s). */
@@ -256,47 +256,47 @@ object DbProcedure {
 
   /** Procedure definition with 4 input(s) and 2 output(s). */
   trait Def4_2[I0, I1, I2, I3, O0, O1] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1)]
   }
 
   /** Procedure definition with 4 input(s) and 3 output(s). */
   trait Def4_3[I0, I1, I2, I3, O0, O1, O2] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2)]
   }
 
   /** Procedure definition with 4 input(s) and 4 output(s). */
   trait Def4_4[I0, I1, I2, I3, O0, O1, O2, O3] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3)]
   }
 
   /** Procedure definition with 4 input(s) and 5 output(s). */
   trait Def4_5[I0, I1, I2, I3, O0, O1, O2, O3, O4] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4)]
   }
 
   /** Procedure definition with 4 input(s) and 6 output(s). */
   trait Def4_6[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4, O5)]
   }
 
   /** Procedure definition with 4 input(s) and 7 output(s). */
   trait Def4_7[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)]
   }
 
   /** Procedure definition with 4 input(s) and 8 output(s). */
   trait Def4_8[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)]
   }
 
   /** Procedure definition with 4 input(s) and 9 output(s). */
   trait Def4_9[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)]
   }
 
   /** Procedure definition with 4 input(s) and 10 output(s). */
   trait Def4_10[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)]
   }
 
   /** Procedure definition with 5 input(s) and 0 output(s). */
@@ -311,47 +311,47 @@ object DbProcedure {
 
   /** Procedure definition with 5 input(s) and 2 output(s). */
   trait Def5_2[I0, I1, I2, I3, I4, O0, O1] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1)]
   }
 
   /** Procedure definition with 5 input(s) and 3 output(s). */
   trait Def5_3[I0, I1, I2, I3, I4, O0, O1, O2] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2)]
   }
 
   /** Procedure definition with 5 input(s) and 4 output(s). */
   trait Def5_4[I0, I1, I2, I3, I4, O0, O1, O2, O3] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3)]
   }
 
   /** Procedure definition with 5 input(s) and 5 output(s). */
   trait Def5_5[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4)]
   }
 
   /** Procedure definition with 5 input(s) and 6 output(s). */
   trait Def5_6[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4, O5)]
   }
 
   /** Procedure definition with 5 input(s) and 7 output(s). */
   trait Def5_7[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)]
   }
 
   /** Procedure definition with 5 input(s) and 8 output(s). */
   trait Def5_8[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)]
   }
 
   /** Procedure definition with 5 input(s) and 9 output(s). */
   trait Def5_9[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)]
   }
 
   /** Procedure definition with 5 input(s) and 10 output(s). */
   trait Def5_10[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)]
   }
 
   /** Procedure definition with 6 input(s) and 0 output(s). */
@@ -366,47 +366,47 @@ object DbProcedure {
 
   /** Procedure definition with 6 input(s) and 2 output(s). */
   trait Def6_2[I0, I1, I2, I3, I4, I5, O0, O1] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1)]
   }
 
   /** Procedure definition with 6 input(s) and 3 output(s). */
   trait Def6_3[I0, I1, I2, I3, I4, I5, O0, O1, O2] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2)]
   }
 
   /** Procedure definition with 6 input(s) and 4 output(s). */
   trait Def6_4[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3)]
   }
 
   /** Procedure definition with 6 input(s) and 5 output(s). */
   trait Def6_5[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4)]
   }
 
   /** Procedure definition with 6 input(s) and 6 output(s). */
   trait Def6_6[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4, O5)]
   }
 
   /** Procedure definition with 6 input(s) and 7 output(s). */
   trait Def6_7[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)]
   }
 
   /** Procedure definition with 6 input(s) and 8 output(s). */
   trait Def6_8[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)]
   }
 
   /** Procedure definition with 6 input(s) and 9 output(s). */
   trait Def6_9[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)]
   }
 
   /** Procedure definition with 6 input(s) and 10 output(s). */
   trait Def6_10[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)]
   }
 
   /** Procedure definition with 7 input(s) and 0 output(s). */
@@ -421,47 +421,47 @@ object DbProcedure {
 
   /** Procedure definition with 7 input(s) and 2 output(s). */
   trait Def7_2[I0, I1, I2, I3, I4, I5, I6, O0, O1] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1)]
   }
 
   /** Procedure definition with 7 input(s) and 3 output(s). */
   trait Def7_3[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2)]
   }
 
   /** Procedure definition with 7 input(s) and 4 output(s). */
   trait Def7_4[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3)]
   }
 
   /** Procedure definition with 7 input(s) and 5 output(s). */
   trait Def7_5[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4)]
   }
 
   /** Procedure definition with 7 input(s) and 6 output(s). */
   trait Def7_6[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4, O5)]
   }
 
   /** Procedure definition with 7 input(s) and 7 output(s). */
   trait Def7_7[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)]
   }
 
   /** Procedure definition with 7 input(s) and 8 output(s). */
   trait Def7_8[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)]
   }
 
   /** Procedure definition with 7 input(s) and 9 output(s). */
   trait Def7_9[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)]
   }
 
   /** Procedure definition with 7 input(s) and 10 output(s). */
   trait Def7_10[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)]
   }
 
   /** Procedure definition with 8 input(s) and 0 output(s). */
@@ -476,47 +476,47 @@ object DbProcedure {
 
   /** Procedure definition with 8 input(s) and 2 output(s). */
   trait Def8_2[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1)]
   }
 
   /** Procedure definition with 8 input(s) and 3 output(s). */
   trait Def8_3[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2)]
   }
 
   /** Procedure definition with 8 input(s) and 4 output(s). */
   trait Def8_4[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3)]
   }
 
   /** Procedure definition with 8 input(s) and 5 output(s). */
   trait Def8_5[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4)]
   }
 
   /** Procedure definition with 8 input(s) and 6 output(s). */
   trait Def8_6[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4, O5)]
   }
 
   /** Procedure definition with 8 input(s) and 7 output(s). */
   trait Def8_7[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)]
   }
 
   /** Procedure definition with 8 input(s) and 8 output(s). */
   trait Def8_8[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)]
   }
 
   /** Procedure definition with 8 input(s) and 9 output(s). */
   trait Def8_9[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)]
   }
 
   /** Procedure definition with 8 input(s) and 10 output(s). */
   trait Def8_10[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)]
   }
 
   /** Procedure definition with 9 input(s) and 0 output(s). */
@@ -531,47 +531,47 @@ object DbProcedure {
 
   /** Procedure definition with 9 input(s) and 2 output(s). */
   trait Def9_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1)]
   }
 
   /** Procedure definition with 9 input(s) and 3 output(s). */
   trait Def9_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2)]
   }
 
   /** Procedure definition with 9 input(s) and 4 output(s). */
   trait Def9_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3)]
   }
 
   /** Procedure definition with 9 input(s) and 5 output(s). */
   trait Def9_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4)]
   }
 
   /** Procedure definition with 9 input(s) and 6 output(s). */
   trait Def9_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4, O5)]
   }
 
   /** Procedure definition with 9 input(s) and 7 output(s). */
   trait Def9_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)]
   }
 
   /** Procedure definition with 9 input(s) and 8 output(s). */
   trait Def9_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)]
   }
 
   /** Procedure definition with 9 input(s) and 9 output(s). */
   trait Def9_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)]
   }
 
   /** Procedure definition with 9 input(s) and 10 output(s). */
   trait Def9_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)]
   }
 
   /** Procedure definition with 10 input(s) and 0 output(s). */
@@ -586,47 +586,47 @@ object DbProcedure {
 
   /** Procedure definition with 10 input(s) and 2 output(s). */
   trait Def10_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1)]
   }
 
   /** Procedure definition with 10 input(s) and 3 output(s). */
   trait Def10_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2)]
   }
 
   /** Procedure definition with 10 input(s) and 4 output(s). */
   trait Def10_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3)]
   }
 
   /** Procedure definition with 10 input(s) and 5 output(s). */
   trait Def10_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4)]
   }
 
   /** Procedure definition with 10 input(s) and 6 output(s). */
   trait Def10_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4, O5)]
   }
 
   /** Procedure definition with 10 input(s) and 7 output(s). */
   trait Def10_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)]
   }
 
   /** Procedure definition with 10 input(s) and 8 output(s). */
   trait Def10_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)]
   }
 
   /** Procedure definition with 10 input(s) and 9 output(s). */
   trait Def10_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)]
   }
 
   /** Procedure definition with 10 input(s) and 10 output(s). */
   trait Def10_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]
+    def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)]
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -684,8 +684,8 @@ object DbProcedure {
     def build(): Def0_2[O0, O1] = {
       val javaProc = underlying.build()
       new Def0_2[O0, O1] {
-        def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]] =
-          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]])
+        def call(): ProcedureOp[(O0, O1)] =
+          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]]; (t._1(), t._2()) })
       }
     }
   }
@@ -703,8 +703,8 @@ object DbProcedure {
     def build(): Def0_3[O0, O1, O2] = {
       val javaProc = underlying.build()
       new Def0_3[O0, O1, O2] {
-        def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]] =
-          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]])
+        def call(): ProcedureOp[(O0, O1, O2)] =
+          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]; (t._1(), t._2(), t._3()) })
       }
     }
   }
@@ -722,8 +722,8 @@ object DbProcedure {
     def build(): Def0_4[O0, O1, O2, O3] = {
       val javaProc = underlying.build()
       new Def0_4[O0, O1, O2, O3] {
-        def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]] =
-          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]])
+        def call(): ProcedureOp[(O0, O1, O2, O3)] =
+          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]; (t._1(), t._2(), t._3(), t._4()) })
       }
     }
   }
@@ -741,8 +741,8 @@ object DbProcedure {
     def build(): Def0_5[O0, O1, O2, O3, O4] = {
       val javaProc = underlying.build()
       new Def0_5[O0, O1, O2, O3, O4] {
-        def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]] =
-          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]])
+        def call(): ProcedureOp[(O0, O1, O2, O3, O4)] =
+          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]; (t._1(), t._2(), t._3(), t._4(), t._5()) })
       }
     }
   }
@@ -760,8 +760,8 @@ object DbProcedure {
     def build(): Def0_6[O0, O1, O2, O3, O4, O5] = {
       val javaProc = underlying.build()
       new Def0_6[O0, O1, O2, O3, O4, O5] {
-        def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]] =
-          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]])
+        def call(): ProcedureOp[(O0, O1, O2, O3, O4, O5)] =
+          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()) })
       }
     }
   }
@@ -779,8 +779,8 @@ object DbProcedure {
     def build(): Def0_7[O0, O1, O2, O3, O4, O5, O6] = {
       val javaProc = underlying.build()
       new Def0_7[O0, O1, O2, O3, O4, O5, O6] {
-        def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]] =
-          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]])
+        def call(): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)] =
+          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()) })
       }
     }
   }
@@ -798,8 +798,8 @@ object DbProcedure {
     def build(): Def0_8[O0, O1, O2, O3, O4, O5, O6, O7] = {
       val javaProc = underlying.build()
       new Def0_8[O0, O1, O2, O3, O4, O5, O6, O7] {
-        def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]] =
-          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]])
+        def call(): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)] =
+          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()) })
       }
     }
   }
@@ -817,8 +817,8 @@ object DbProcedure {
     def build(): Def0_9[O0, O1, O2, O3, O4, O5, O6, O7, O8] = {
       val javaProc = underlying.build()
       new Def0_9[O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-        def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]] =
-          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]])
+        def call(): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)] =
+          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()) })
       }
     }
   }
@@ -832,8 +832,8 @@ object DbProcedure {
     def build(): Def0_10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] = {
       val javaProc = underlying.build()
       new Def0_10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-        def call(): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]] =
-          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]])
+        def call(): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)] =
+          new ProcedureOp(javaProc.call().asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9(), t._10()) })
       }
     }
   }
@@ -889,8 +889,8 @@ object DbProcedure {
     def build(): Def1_2[I0, O0, O1] = {
       val javaProc = underlying.build()
       new Def1_2[I0, O0, O1] {
-        def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]] =
-          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]])
+        def call(i0: I0): ProcedureOp[(O0, O1)] =
+          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]]; (t._1(), t._2()) })
       }
     }
   }
@@ -908,8 +908,8 @@ object DbProcedure {
     def build(): Def1_3[I0, O0, O1, O2] = {
       val javaProc = underlying.build()
       new Def1_3[I0, O0, O1, O2] {
-        def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]] =
-          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]])
+        def call(i0: I0): ProcedureOp[(O0, O1, O2)] =
+          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]; (t._1(), t._2(), t._3()) })
       }
     }
   }
@@ -927,8 +927,8 @@ object DbProcedure {
     def build(): Def1_4[I0, O0, O1, O2, O3] = {
       val javaProc = underlying.build()
       new Def1_4[I0, O0, O1, O2, O3] {
-        def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]] =
-          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]])
+        def call(i0: I0): ProcedureOp[(O0, O1, O2, O3)] =
+          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]; (t._1(), t._2(), t._3(), t._4()) })
       }
     }
   }
@@ -946,8 +946,8 @@ object DbProcedure {
     def build(): Def1_5[I0, O0, O1, O2, O3, O4] = {
       val javaProc = underlying.build()
       new Def1_5[I0, O0, O1, O2, O3, O4] {
-        def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]] =
-          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]])
+        def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4)] =
+          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]; (t._1(), t._2(), t._3(), t._4(), t._5()) })
       }
     }
   }
@@ -965,8 +965,8 @@ object DbProcedure {
     def build(): Def1_6[I0, O0, O1, O2, O3, O4, O5] = {
       val javaProc = underlying.build()
       new Def1_6[I0, O0, O1, O2, O3, O4, O5] {
-        def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]] =
-          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]])
+        def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4, O5)] =
+          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()) })
       }
     }
   }
@@ -984,8 +984,8 @@ object DbProcedure {
     def build(): Def1_7[I0, O0, O1, O2, O3, O4, O5, O6] = {
       val javaProc = underlying.build()
       new Def1_7[I0, O0, O1, O2, O3, O4, O5, O6] {
-        def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]] =
-          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]])
+        def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)] =
+          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()) })
       }
     }
   }
@@ -1003,8 +1003,8 @@ object DbProcedure {
     def build(): Def1_8[I0, O0, O1, O2, O3, O4, O5, O6, O7] = {
       val javaProc = underlying.build()
       new Def1_8[I0, O0, O1, O2, O3, O4, O5, O6, O7] {
-        def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]] =
-          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]])
+        def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)] =
+          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()) })
       }
     }
   }
@@ -1022,8 +1022,8 @@ object DbProcedure {
     def build(): Def1_9[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8] = {
       val javaProc = underlying.build()
       new Def1_9[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-        def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]] =
-          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]])
+        def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)] =
+          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()) })
       }
     }
   }
@@ -1037,8 +1037,8 @@ object DbProcedure {
     def build(): Def1_10[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] = {
       val javaProc = underlying.build()
       new Def1_10[I0, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-        def call(i0: I0): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]] =
-          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]])
+        def call(i0: I0): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)] =
+          new ProcedureOp(javaProc.call(i0).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9(), t._10()) })
       }
     }
   }
@@ -1094,8 +1094,8 @@ object DbProcedure {
     def build(): Def2_2[I0, I1, O0, O1] = {
       val javaProc = underlying.build()
       new Def2_2[I0, I1, O0, O1] {
-        def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]] =
-          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]])
+        def call(i0: I0, i1: I1): ProcedureOp[(O0, O1)] =
+          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]]; (t._1(), t._2()) })
       }
     }
   }
@@ -1113,8 +1113,8 @@ object DbProcedure {
     def build(): Def2_3[I0, I1, O0, O1, O2] = {
       val javaProc = underlying.build()
       new Def2_3[I0, I1, O0, O1, O2] {
-        def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]] =
-          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]])
+        def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2)] =
+          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]; (t._1(), t._2(), t._3()) })
       }
     }
   }
@@ -1132,8 +1132,8 @@ object DbProcedure {
     def build(): Def2_4[I0, I1, O0, O1, O2, O3] = {
       val javaProc = underlying.build()
       new Def2_4[I0, I1, O0, O1, O2, O3] {
-        def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]] =
-          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]])
+        def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3)] =
+          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]; (t._1(), t._2(), t._3(), t._4()) })
       }
     }
   }
@@ -1151,8 +1151,8 @@ object DbProcedure {
     def build(): Def2_5[I0, I1, O0, O1, O2, O3, O4] = {
       val javaProc = underlying.build()
       new Def2_5[I0, I1, O0, O1, O2, O3, O4] {
-        def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]] =
-          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]])
+        def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4)] =
+          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]; (t._1(), t._2(), t._3(), t._4(), t._5()) })
       }
     }
   }
@@ -1170,8 +1170,8 @@ object DbProcedure {
     def build(): Def2_6[I0, I1, O0, O1, O2, O3, O4, O5] = {
       val javaProc = underlying.build()
       new Def2_6[I0, I1, O0, O1, O2, O3, O4, O5] {
-        def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]] =
-          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]])
+        def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4, O5)] =
+          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()) })
       }
     }
   }
@@ -1189,8 +1189,8 @@ object DbProcedure {
     def build(): Def2_7[I0, I1, O0, O1, O2, O3, O4, O5, O6] = {
       val javaProc = underlying.build()
       new Def2_7[I0, I1, O0, O1, O2, O3, O4, O5, O6] {
-        def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]] =
-          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]])
+        def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)] =
+          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()) })
       }
     }
   }
@@ -1208,8 +1208,8 @@ object DbProcedure {
     def build(): Def2_8[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7] = {
       val javaProc = underlying.build()
       new Def2_8[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7] {
-        def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]] =
-          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]])
+        def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)] =
+          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()) })
       }
     }
   }
@@ -1227,8 +1227,8 @@ object DbProcedure {
     def build(): Def2_9[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8] = {
       val javaProc = underlying.build()
       new Def2_9[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-        def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]] =
-          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]])
+        def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)] =
+          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()) })
       }
     }
   }
@@ -1242,8 +1242,8 @@ object DbProcedure {
     def build(): Def2_10[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] = {
       val javaProc = underlying.build()
       new Def2_10[I0, I1, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-        def call(i0: I0, i1: I1): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]] =
-          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]])
+        def call(i0: I0, i1: I1): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)] =
+          new ProcedureOp(javaProc.call(i0, i1).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9(), t._10()) })
       }
     }
   }
@@ -1299,8 +1299,8 @@ object DbProcedure {
     def build(): Def3_2[I0, I1, I2, O0, O1] = {
       val javaProc = underlying.build()
       new Def3_2[I0, I1, I2, O0, O1] {
-        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]])
+        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]]; (t._1(), t._2()) })
       }
     }
   }
@@ -1318,8 +1318,8 @@ object DbProcedure {
     def build(): Def3_3[I0, I1, I2, O0, O1, O2] = {
       val javaProc = underlying.build()
       new Def3_3[I0, I1, I2, O0, O1, O2] {
-        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]])
+        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]; (t._1(), t._2(), t._3()) })
       }
     }
   }
@@ -1337,8 +1337,8 @@ object DbProcedure {
     def build(): Def3_4[I0, I1, I2, O0, O1, O2, O3] = {
       val javaProc = underlying.build()
       new Def3_4[I0, I1, I2, O0, O1, O2, O3] {
-        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]])
+        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]; (t._1(), t._2(), t._3(), t._4()) })
       }
     }
   }
@@ -1356,8 +1356,8 @@ object DbProcedure {
     def build(): Def3_5[I0, I1, I2, O0, O1, O2, O3, O4] = {
       val javaProc = underlying.build()
       new Def3_5[I0, I1, I2, O0, O1, O2, O3, O4] {
-        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]])
+        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]; (t._1(), t._2(), t._3(), t._4(), t._5()) })
       }
     }
   }
@@ -1375,8 +1375,8 @@ object DbProcedure {
     def build(): Def3_6[I0, I1, I2, O0, O1, O2, O3, O4, O5] = {
       val javaProc = underlying.build()
       new Def3_6[I0, I1, I2, O0, O1, O2, O3, O4, O5] {
-        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]])
+        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4, O5)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()) })
       }
     }
   }
@@ -1394,8 +1394,8 @@ object DbProcedure {
     def build(): Def3_7[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6] = {
       val javaProc = underlying.build()
       new Def3_7[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6] {
-        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]])
+        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()) })
       }
     }
   }
@@ -1413,8 +1413,8 @@ object DbProcedure {
     def build(): Def3_8[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7] = {
       val javaProc = underlying.build()
       new Def3_8[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7] {
-        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]])
+        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()) })
       }
     }
   }
@@ -1432,8 +1432,8 @@ object DbProcedure {
     def build(): Def3_9[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8] = {
       val javaProc = underlying.build()
       new Def3_9[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]])
+        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()) })
       }
     }
   }
@@ -1447,8 +1447,8 @@ object DbProcedure {
     def build(): Def3_10[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] = {
       val javaProc = underlying.build()
       new Def3_10[I0, I1, I2, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]])
+        def call(i0: I0, i1: I1, i2: I2): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9(), t._10()) })
       }
     }
   }
@@ -1504,8 +1504,8 @@ object DbProcedure {
     def build(): Def4_2[I0, I1, I2, I3, O0, O1] = {
       val javaProc = underlying.build()
       new Def4_2[I0, I1, I2, I3, O0, O1] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]]; (t._1(), t._2()) })
       }
     }
   }
@@ -1523,8 +1523,8 @@ object DbProcedure {
     def build(): Def4_3[I0, I1, I2, I3, O0, O1, O2] = {
       val javaProc = underlying.build()
       new Def4_3[I0, I1, I2, I3, O0, O1, O2] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]; (t._1(), t._2(), t._3()) })
       }
     }
   }
@@ -1542,8 +1542,8 @@ object DbProcedure {
     def build(): Def4_4[I0, I1, I2, I3, O0, O1, O2, O3] = {
       val javaProc = underlying.build()
       new Def4_4[I0, I1, I2, I3, O0, O1, O2, O3] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]; (t._1(), t._2(), t._3(), t._4()) })
       }
     }
   }
@@ -1561,8 +1561,8 @@ object DbProcedure {
     def build(): Def4_5[I0, I1, I2, I3, O0, O1, O2, O3, O4] = {
       val javaProc = underlying.build()
       new Def4_5[I0, I1, I2, I3, O0, O1, O2, O3, O4] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]; (t._1(), t._2(), t._3(), t._4(), t._5()) })
       }
     }
   }
@@ -1580,8 +1580,8 @@ object DbProcedure {
     def build(): Def4_6[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5] = {
       val javaProc = underlying.build()
       new Def4_6[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4, O5)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()) })
       }
     }
   }
@@ -1599,8 +1599,8 @@ object DbProcedure {
     def build(): Def4_7[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6] = {
       val javaProc = underlying.build()
       new Def4_7[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()) })
       }
     }
   }
@@ -1618,8 +1618,8 @@ object DbProcedure {
     def build(): Def4_8[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7] = {
       val javaProc = underlying.build()
       new Def4_8[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()) })
       }
     }
   }
@@ -1637,8 +1637,8 @@ object DbProcedure {
     def build(): Def4_9[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8] = {
       val javaProc = underlying.build()
       new Def4_9[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()) })
       }
     }
   }
@@ -1652,8 +1652,8 @@ object DbProcedure {
     def build(): Def4_10[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] = {
       val javaProc = underlying.build()
       new Def4_10[I0, I1, I2, I3, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9(), t._10()) })
       }
     }
   }
@@ -1709,8 +1709,8 @@ object DbProcedure {
     def build(): Def5_2[I0, I1, I2, I3, I4, O0, O1] = {
       val javaProc = underlying.build()
       new Def5_2[I0, I1, I2, I3, I4, O0, O1] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]]; (t._1(), t._2()) })
       }
     }
   }
@@ -1728,8 +1728,8 @@ object DbProcedure {
     def build(): Def5_3[I0, I1, I2, I3, I4, O0, O1, O2] = {
       val javaProc = underlying.build()
       new Def5_3[I0, I1, I2, I3, I4, O0, O1, O2] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]; (t._1(), t._2(), t._3()) })
       }
     }
   }
@@ -1747,8 +1747,8 @@ object DbProcedure {
     def build(): Def5_4[I0, I1, I2, I3, I4, O0, O1, O2, O3] = {
       val javaProc = underlying.build()
       new Def5_4[I0, I1, I2, I3, I4, O0, O1, O2, O3] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]; (t._1(), t._2(), t._3(), t._4()) })
       }
     }
   }
@@ -1766,8 +1766,8 @@ object DbProcedure {
     def build(): Def5_5[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4] = {
       val javaProc = underlying.build()
       new Def5_5[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]; (t._1(), t._2(), t._3(), t._4(), t._5()) })
       }
     }
   }
@@ -1785,8 +1785,8 @@ object DbProcedure {
     def build(): Def5_6[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5] = {
       val javaProc = underlying.build()
       new Def5_6[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4, O5)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()) })
       }
     }
   }
@@ -1804,8 +1804,8 @@ object DbProcedure {
     def build(): Def5_7[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6] = {
       val javaProc = underlying.build()
       new Def5_7[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()) })
       }
     }
   }
@@ -1823,8 +1823,8 @@ object DbProcedure {
     def build(): Def5_8[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7] = {
       val javaProc = underlying.build()
       new Def5_8[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()) })
       }
     }
   }
@@ -1842,8 +1842,8 @@ object DbProcedure {
     def build(): Def5_9[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8] = {
       val javaProc = underlying.build()
       new Def5_9[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()) })
       }
     }
   }
@@ -1857,8 +1857,8 @@ object DbProcedure {
     def build(): Def5_10[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] = {
       val javaProc = underlying.build()
       new Def5_10[I0, I1, I2, I3, I4, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9(), t._10()) })
       }
     }
   }
@@ -1914,8 +1914,8 @@ object DbProcedure {
     def build(): Def6_2[I0, I1, I2, I3, I4, I5, O0, O1] = {
       val javaProc = underlying.build()
       new Def6_2[I0, I1, I2, I3, I4, I5, O0, O1] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]]; (t._1(), t._2()) })
       }
     }
   }
@@ -1933,8 +1933,8 @@ object DbProcedure {
     def build(): Def6_3[I0, I1, I2, I3, I4, I5, O0, O1, O2] = {
       val javaProc = underlying.build()
       new Def6_3[I0, I1, I2, I3, I4, I5, O0, O1, O2] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]; (t._1(), t._2(), t._3()) })
       }
     }
   }
@@ -1952,8 +1952,8 @@ object DbProcedure {
     def build(): Def6_4[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3] = {
       val javaProc = underlying.build()
       new Def6_4[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]; (t._1(), t._2(), t._3(), t._4()) })
       }
     }
   }
@@ -1971,8 +1971,8 @@ object DbProcedure {
     def build(): Def6_5[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4] = {
       val javaProc = underlying.build()
       new Def6_5[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]; (t._1(), t._2(), t._3(), t._4(), t._5()) })
       }
     }
   }
@@ -1990,8 +1990,8 @@ object DbProcedure {
     def build(): Def6_6[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5] = {
       val javaProc = underlying.build()
       new Def6_6[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4, O5)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()) })
       }
     }
   }
@@ -2009,8 +2009,8 @@ object DbProcedure {
     def build(): Def6_7[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6] = {
       val javaProc = underlying.build()
       new Def6_7[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()) })
       }
     }
   }
@@ -2028,8 +2028,8 @@ object DbProcedure {
     def build(): Def6_8[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7] = {
       val javaProc = underlying.build()
       new Def6_8[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()) })
       }
     }
   }
@@ -2047,8 +2047,8 @@ object DbProcedure {
     def build(): Def6_9[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8] = {
       val javaProc = underlying.build()
       new Def6_9[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()) })
       }
     }
   }
@@ -2062,8 +2062,8 @@ object DbProcedure {
     def build(): Def6_10[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] = {
       val javaProc = underlying.build()
       new Def6_10[I0, I1, I2, I3, I4, I5, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9(), t._10()) })
       }
     }
   }
@@ -2119,8 +2119,8 @@ object DbProcedure {
     def build(): Def7_2[I0, I1, I2, I3, I4, I5, I6, O0, O1] = {
       val javaProc = underlying.build()
       new Def7_2[I0, I1, I2, I3, I4, I5, I6, O0, O1] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]]; (t._1(), t._2()) })
       }
     }
   }
@@ -2138,8 +2138,8 @@ object DbProcedure {
     def build(): Def7_3[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2] = {
       val javaProc = underlying.build()
       new Def7_3[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]; (t._1(), t._2(), t._3()) })
       }
     }
   }
@@ -2157,8 +2157,8 @@ object DbProcedure {
     def build(): Def7_4[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3] = {
       val javaProc = underlying.build()
       new Def7_4[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]; (t._1(), t._2(), t._3(), t._4()) })
       }
     }
   }
@@ -2176,8 +2176,8 @@ object DbProcedure {
     def build(): Def7_5[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4] = {
       val javaProc = underlying.build()
       new Def7_5[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]; (t._1(), t._2(), t._3(), t._4(), t._5()) })
       }
     }
   }
@@ -2195,8 +2195,8 @@ object DbProcedure {
     def build(): Def7_6[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5] = {
       val javaProc = underlying.build()
       new Def7_6[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4, O5)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()) })
       }
     }
   }
@@ -2214,8 +2214,8 @@ object DbProcedure {
     def build(): Def7_7[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6] = {
       val javaProc = underlying.build()
       new Def7_7[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()) })
       }
     }
   }
@@ -2233,8 +2233,8 @@ object DbProcedure {
     def build(): Def7_8[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7] = {
       val javaProc = underlying.build()
       new Def7_8[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()) })
       }
     }
   }
@@ -2252,8 +2252,8 @@ object DbProcedure {
     def build(): Def7_9[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8] = {
       val javaProc = underlying.build()
       new Def7_9[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()) })
       }
     }
   }
@@ -2267,8 +2267,8 @@ object DbProcedure {
     def build(): Def7_10[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] = {
       val javaProc = underlying.build()
       new Def7_10[I0, I1, I2, I3, I4, I5, I6, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9(), t._10()) })
       }
     }
   }
@@ -2324,8 +2324,8 @@ object DbProcedure {
     def build(): Def8_2[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1] = {
       val javaProc = underlying.build()
       new Def8_2[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]]; (t._1(), t._2()) })
       }
     }
   }
@@ -2343,8 +2343,8 @@ object DbProcedure {
     def build(): Def8_3[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2] = {
       val javaProc = underlying.build()
       new Def8_3[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]; (t._1(), t._2(), t._3()) })
       }
     }
   }
@@ -2362,8 +2362,8 @@ object DbProcedure {
     def build(): Def8_4[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3] = {
       val javaProc = underlying.build()
       new Def8_4[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]; (t._1(), t._2(), t._3(), t._4()) })
       }
     }
   }
@@ -2381,8 +2381,8 @@ object DbProcedure {
     def build(): Def8_5[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4] = {
       val javaProc = underlying.build()
       new Def8_5[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]; (t._1(), t._2(), t._3(), t._4(), t._5()) })
       }
     }
   }
@@ -2400,8 +2400,8 @@ object DbProcedure {
     def build(): Def8_6[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5] = {
       val javaProc = underlying.build()
       new Def8_6[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4, O5)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()) })
       }
     }
   }
@@ -2419,8 +2419,8 @@ object DbProcedure {
     def build(): Def8_7[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6] = {
       val javaProc = underlying.build()
       new Def8_7[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()) })
       }
     }
   }
@@ -2438,8 +2438,8 @@ object DbProcedure {
     def build(): Def8_8[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7] = {
       val javaProc = underlying.build()
       new Def8_8[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()) })
       }
     }
   }
@@ -2457,8 +2457,8 @@ object DbProcedure {
     def build(): Def8_9[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8] = {
       val javaProc = underlying.build()
       new Def8_9[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()) })
       }
     }
   }
@@ -2472,8 +2472,8 @@ object DbProcedure {
     def build(): Def8_10[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] = {
       val javaProc = underlying.build()
       new Def8_10[I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9(), t._10()) })
       }
     }
   }
@@ -2529,8 +2529,8 @@ object DbProcedure {
     def build(): Def9_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1] = {
       val javaProc = underlying.build()
       new Def9_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]]; (t._1(), t._2()) })
       }
     }
   }
@@ -2548,8 +2548,8 @@ object DbProcedure {
     def build(): Def9_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2] = {
       val javaProc = underlying.build()
       new Def9_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]; (t._1(), t._2(), t._3()) })
       }
     }
   }
@@ -2567,8 +2567,8 @@ object DbProcedure {
     def build(): Def9_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3] = {
       val javaProc = underlying.build()
       new Def9_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]; (t._1(), t._2(), t._3(), t._4()) })
       }
     }
   }
@@ -2586,8 +2586,8 @@ object DbProcedure {
     def build(): Def9_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4] = {
       val javaProc = underlying.build()
       new Def9_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]; (t._1(), t._2(), t._3(), t._4(), t._5()) })
       }
     }
   }
@@ -2605,8 +2605,8 @@ object DbProcedure {
     def build(): Def9_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5] = {
       val javaProc = underlying.build()
       new Def9_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4, O5)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()) })
       }
     }
   }
@@ -2624,8 +2624,8 @@ object DbProcedure {
     def build(): Def9_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6] = {
       val javaProc = underlying.build()
       new Def9_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()) })
       }
     }
   }
@@ -2643,8 +2643,8 @@ object DbProcedure {
     def build(): Def9_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7] = {
       val javaProc = underlying.build()
       new Def9_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()) })
       }
     }
   }
@@ -2662,8 +2662,8 @@ object DbProcedure {
     def build(): Def9_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8] = {
       val javaProc = underlying.build()
       new Def9_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()) })
       }
     }
   }
@@ -2677,8 +2677,8 @@ object DbProcedure {
     def build(): Def9_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] = {
       val javaProc = underlying.build()
       new Def9_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9(), t._10()) })
       }
     }
   }
@@ -2722,8 +2722,8 @@ object DbProcedure {
     def build(): Def10_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1] = {
       val javaProc = underlying.build()
       new Def10_2[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple2[O0, O1]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple2[O0, O1]]; (t._1(), t._2()) })
       }
     }
   }
@@ -2737,8 +2737,8 @@ object DbProcedure {
     def build(): Def10_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2] = {
       val javaProc = underlying.build()
       new Def10_3[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple3[O0, O1, O2]]; (t._1(), t._2(), t._3()) })
       }
     }
   }
@@ -2752,8 +2752,8 @@ object DbProcedure {
     def build(): Def10_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3] = {
       val javaProc = underlying.build()
       new Def10_4[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple4[O0, O1, O2, O3]]; (t._1(), t._2(), t._3(), t._4()) })
       }
     }
   }
@@ -2767,8 +2767,8 @@ object DbProcedure {
     def build(): Def10_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4] = {
       val javaProc = underlying.build()
       new Def10_5[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple5[O0, O1, O2, O3, O4]]; (t._1(), t._2(), t._3(), t._4(), t._5()) })
       }
     }
   }
@@ -2782,8 +2782,8 @@ object DbProcedure {
     def build(): Def10_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5] = {
       val javaProc = underlying.build()
       new Def10_6[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4, O5)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple6[O0, O1, O2, O3, O4, O5]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()) })
       }
     }
   }
@@ -2797,8 +2797,8 @@ object DbProcedure {
     def build(): Def10_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6] = {
       val javaProc = underlying.build()
       new Def10_7[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple7[O0, O1, O2, O3, O4, O5, O6]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()) })
       }
     }
   }
@@ -2812,8 +2812,8 @@ object DbProcedure {
     def build(): Def10_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7] = {
       val javaProc = underlying.build()
       new Def10_8[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple8[O0, O1, O2, O3, O4, O5, O6, O7]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()) })
       }
     }
   }
@@ -2827,8 +2827,8 @@ object DbProcedure {
     def build(): Def10_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8] = {
       val javaProc = underlying.build()
       new Def10_9[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple9[O0, O1, O2, O3, O4, O5, O6, O7, O8]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()) })
       }
     }
   }
@@ -2840,8 +2840,8 @@ object DbProcedure {
     def build(): Def10_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] = {
       val javaProc = underlying.build()
       new Def10_10[I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2, O3, O4, O5, O6, O7, O8, O9] {
-        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]] =
-          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]])
+        def call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp[(O0, O1, O2, O3, O4, O5, O6, O7, O8, O9)] =
+          new ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9).asInstanceOf[dev.typr.foundations.Operation[Any]], { r => val t = r.asInstanceOf[dev.typr.foundations.Tuple.Tuple10[O0, O1, O2, O3, O4, O5, O6, O7, O8, O9]]; (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9(), t._10()) })
       }
     }
   }

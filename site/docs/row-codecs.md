@@ -44,7 +44,7 @@ Row codecs compose for joins. Given a `productCodec` and a `categoryCodec`, comb
 
 <Snippet file="core/ComposingCodecs" />
 
-The result type is `And<A, B>` in Java (with `.left()` and `.right()` accessors), `Pair<A, B>` in Kotlin, and a tuple `(A, B)` in Scala. Left join wraps the right side in `Optional` (or nullable in Kotlin, `Option` in Scala).
+The result type is `Tuple2<A, B>` in Java (with `._1()` and `._2()` accessors), `Pair<A, B>` in Kotlin, and a tuple `(A, B)` in Scala. Left join wraps the right side in `Optional` (or nullable in Kotlin, `Option` in Scala).
 
 This is why row codecs use index-based reading rather than column names. When you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
 
