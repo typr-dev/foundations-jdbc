@@ -8,13 +8,13 @@ class ComposingCodecs {
     data class ProductRow(val id: Int, val name: String)
     data class CategoryRow(val id: Int, val categoryName: String)
 
-    val productParser: RowCodec<ProductRow> =
+    val productCodec: RowCodec<ProductRow> =
         RowCodec.builder<ProductRow>()
             .field(PgTypes.int4, ProductRow::id)
             .field(PgTypes.text, ProductRow::name)
             .build(::ProductRow)
 
-    val categoryParser: RowCodec<CategoryRow> =
+    val categoryCodec: RowCodec<CategoryRow> =
         RowCodec.builder<CategoryRow>()
             .field(PgTypes.int4, CategoryRow::id)
             .field(PgTypes.text, CategoryRow::categoryName)
@@ -23,10 +23,10 @@ class ComposingCodecs {
     //start
     // Inner join — both sides always present
     val innerJoined: RowCodec<Pair<ProductRow, CategoryRow>> =
-        productParser.joined(categoryParser)
+        productCodec.joined(categoryCodec)
 
     // Left join — right side is nullable
     val leftJoined: RowCodec<Pair<ProductRow, CategoryRow?>> =
-        productParser.leftJoined(categoryParser)
+        productCodec.leftJoined(categoryCodec)
     //stop
 }

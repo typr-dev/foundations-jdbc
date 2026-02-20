@@ -9,7 +9,7 @@ object OperationNamed:
   //start
   val users: Operation[List[String]] =
     Fragment.of("SELECT name FROM users")
-      .queryList(PgTypes.text)
+      .queryAll(PgTypes.text)
       .named("load-users")
       .timeout(Duration.ofSeconds(5))
   //stop

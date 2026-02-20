@@ -7,7 +7,7 @@ import dev.typr.foundationskt.data.*
 class ComposingIfEmpty {
     data class User(val id: Int, val name: String, val email: String)
 
-    val userParser: RowCodec<User> =
+    val userCodec: RowCodec<User> =
         RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
@@ -20,18 +20,18 @@ class ComposingIfEmpty {
 
     //start
     // Find-or-create pattern
-    val findUser: SqlTemplate<String, User?> =
+    val findUser: Template<String, User?> =
         Fragment.of("SELECT id, name, email FROM users WHERE email = ")
             .param(PgTypes.text)
-            .query(userParser.maxOne())
+            .query(userCodec.maxOne())
 
-    val createUser: SqlTemplate.Query2<String, String, User> =
+    val createUser: Template.Query2<String, String, User> =
         Fragment.of("INSERT INTO users(name, email) VALUES(")
             .param(PgTypes.text)
             .append(", ")
             .param(PgTypes.text)
             .append(") RETURNING *")
-            .query(userParser.exactlyOne())
+            .query(userCodec.exactlyOne())
 
     fun findOrCreate(): User =
         Operation.ifEmpty(

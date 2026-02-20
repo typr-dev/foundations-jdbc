@@ -9,7 +9,7 @@ import Snippet from '@site/src/components/Snippet';
 A Fragment is a composable SQL building block — it holds a SQL string together with its bound parameters. There are two ways to build fragments: **string interpolation** (Kotlin and Scala) and the **builder pattern** (all languages).
 
 :::tip Which style should I use?
-- **Kotlin** — Use `Sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [SQL Templates](./sql-templates).
+- **Kotlin** — Use `Sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [Templates](./templates).
 - **Scala** — Same guidance, using `sql""` instead of `Sql { }`.
 - **Java** — Use the builder pattern for everything (no string interpolation available).
 :::
@@ -25,7 +25,7 @@ Kotlin uses `Sql { }` and Scala uses `sql""` to build fragments from string temp
 Inside the interpolation block, you can embed:
 
 - **Bound values** — `${PgTypes.int4(userId)}` becomes a `?` parameter
-- **Other fragments** — `${parser.columnList}` or `${Fragment.whereAnd(filters)}` are spliced into the SQL
+- **Other fragments** — `${codec.columnList}` or `${Fragment.whereAnd(filters)}` are spliced into the SQL
 - **Nested blocks** — fragments built with `Sql { }` / `sql""` compose naturally
 
 This makes dynamic query composition concise:
@@ -38,7 +38,7 @@ The builder pattern works in all languages and is useful for constructing fragme
 
 <Snippet file="core/FragmentBuilderBasic" />
 
-For parameterized templates with unfilled parameter holes, see [SQL Templates](./sql-templates).
+For parameterized templates with unfilled parameter holes, see [Templates](./templates).
 
 ## Chaining Reference
 
@@ -50,9 +50,9 @@ Fragments are self-composing — every combinator returns a new `Fragment`:
 | `.value(type, value)` | Append a bound parameter |
 | `.append(fragment)` | Append another fragment (e.g. `columnList`, `whereAnd()`) |
 | `.appendAll(fragments, separator)` | Append multiple fragments joined by a separator |
-| `.row(parser, value)` | Append all columns of a named row codec as bound parameters |
-| `.paramRow(parser)` | Append all columns of a named row codec as parameter holes — see [SQL Templates](./sql-templates) |
-| `.param(type)` | Create a single parameter hole — see [SQL Templates](./sql-templates) |
+| `.row(codec, value)` | Append all columns of a named row codec as bound parameters |
+| `.paramRow(codec)` | Append all columns of a named row codec as parameter holes — see [Templates](./templates) |
+| `.param(type)` | Create a single parameter hole — see [Templates](./templates) |
 
 ## Static Factories
 
@@ -80,8 +80,11 @@ Fragments are self-composing — every combinator returns a new `Fragment`:
 | Method | Returns |
 |--------|---------|
 | `.query(parser)` | `Operation<T>` — a SELECT that reads rows using the given result set parser |
-| `.queryOne(type)` | `Operation<T>` — convenience for `.query(RowCodec.of(type).exactlyOne())` |
-| `.queryList(type)` | `Operation<List<T>>` — convenience for `.query(RowCodec.of(type).all())` |
-| `.queryMaybe(type)` | `Operation<Optional<T>>` / `Operation<T?>` / `Operation<Option[T]]>` — convenience for `.query(RowCodec.of(type).maxOne())` |
+| `.queryExactlyOne(type)` | `Operation<T>` — convenience for `.query(RowCodec.of(type).exactlyOne())` |
+| `.queryAll(type)` | `Operation<List<T>>` — convenience for `.query(RowCodec.of(type).all())` |
+| `.queryMaxOne(type)` | `Operation<Optional<T>>` / `Operation<T?>` / `Operation<Option[T]]>` — convenience for `.query(RowCodec.of(type).maxOne())` |
+| `.queryExactlyOne(codec)` | `Operation<T>` — convenience for `.query(codec.exactlyOne())` |
+| `.queryAll(codec)` | `Operation<List<T>>` — convenience for `.query(codec.all())` |
+| `.queryMaxOne(codec)` | `Operation<Optional<T>>` / `Operation<T?>` / `Operation<Option[T]]>` — convenience for `.query(codec.maxOne())` |
 | `.update()` | `Operation<Int>` — an INSERT/UPDATE/DELETE returning the affected row count |
 | `.execute()` | `Operation<Void>` — like `.update()` but discards the row count |

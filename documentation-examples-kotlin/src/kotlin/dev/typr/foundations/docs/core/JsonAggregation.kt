@@ -9,7 +9,7 @@ object JsonAggregation {
 
     data class OrderLine(val product: String, val qty: Int, val price: BigDecimal)
 
-    val lineParser: RowCodec<OrderLine> =
+    val lineCodec: RowCodec<OrderLine> =
         RowCodec.builder<OrderLine>()
             .field(DuckDbTypes.varchar, OrderLine::product)
             .field(DuckDbTypes.integer, OrderLine::qty)
@@ -18,7 +18,7 @@ object JsonAggregation {
 
     // A column type that stores rows as positional JSON arrays
     val linesType: DuckDbType<List<OrderLine>> =
-        DuckDbTypes.jsonArrayEncodedList(lineParser)
+        DuckDbTypes.jsonArrayEncodedList(lineCodec)
 
     //start
     // Aggregate child rows as JSON in a single query

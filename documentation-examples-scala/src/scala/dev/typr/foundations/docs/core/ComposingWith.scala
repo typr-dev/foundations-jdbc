@@ -11,7 +11,7 @@ object ComposingWith:
   case class Dashboard(userCount: Long, recentOrders: List[Order])
   case class Stats(userCount: Long, orderCount: Long, revenue: Long)
 
-  val orderParser: RowCodec[Order] = RowCodec.builder[Order]()
+  val orderCodec: RowCodec[Order] = RowCodec.builder[Order]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.int4)(_.userId)
     .field(PgTypes.text)(_.product)
@@ -26,7 +26,7 @@ object ComposingWith:
       .query(RowCodec.of(PgTypes.int8).exactlyOne())
   val recentOrders: Operation[List[Order]] =
     sql"SELECT * FROM orders ORDER BY id DESC LIMIT 10"
-      .query(orderParser.all())
+      .query(orderCodec.all())
 
   def dashboard(): Dashboard =
     countUsers.`with`(recentOrders)(Dashboard.apply)

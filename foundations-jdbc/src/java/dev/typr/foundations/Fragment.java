@@ -115,19 +115,28 @@ public sealed interface Fragment {
     return new Operation.Query<>(this, parser);
   }
 
-  /** Convenience for {@code query(RowCodec.of(type).exactlyOne())}. */
-  default <T> Operation.Query<T> queryOne(DbType<T> type) {
+  default <T> Operation.Query<T> queryExactlyOne(DbType<T> type) {
     return query(RowCodec.of(type).exactlyOne());
   }
 
-  /** Convenience for {@code query(RowCodec.of(type).all())}. */
-  default <T> Operation.Query<List<T>> queryList(DbType<T> type) {
+  default <T> Operation.Query<T> queryExactlyOne(RowCodec<T> codec) {
+    return query(codec.exactlyOne());
+  }
+
+  default <T> Operation.Query<List<T>> queryAll(DbType<T> type) {
     return query(RowCodec.of(type).all());
   }
 
-  /** Convenience for {@code query(RowCodec.of(type).maxOne())}. */
-  default <T> Operation.Query<java.util.Optional<T>> queryMaybe(DbType<T> type) {
+  default <T> Operation.Query<List<T>> queryAll(RowCodec<T> codec) {
+    return query(codec.all());
+  }
+
+  default <T> Operation.Query<java.util.Optional<T>> queryMaxOne(DbType<T> type) {
     return query(RowCodec.of(type).maxOne());
+  }
+
+  default <T> Operation.Query<java.util.Optional<T>> queryMaxOne(RowCodec<T> codec) {
+    return query(codec.maxOne());
   }
 
   default Operation.Update update() {
@@ -148,18 +157,18 @@ public sealed interface Fragment {
     return new Operation.UpdateReturningGeneratedKeys<>(this, columnNames, parser);
   }
 
-  default <Row> Operation.UpdateMany<Row> updateMany(RowCodec<Row> parser, Iterator<Row> rows) {
-    return new Operation.UpdateMany<>(this, parser, rows);
+  default <Row> Operation.UpdateMany<Row> updateMany(RowCodec<Row> codec, Iterator<Row> rows) {
+    return new Operation.UpdateMany<>(this, codec, rows);
   }
 
   default <Row> Operation.UpdateManyReturning<Row> updateManyReturning(
-      RowCodec<Row> parser, Iterator<Row> rows) {
-    return new Operation.UpdateManyReturning<>(this, parser, rows);
+      RowCodec<Row> codec, Iterator<Row> rows) {
+    return new Operation.UpdateManyReturning<>(this, codec, rows);
   }
 
   default <Row> Operation.UpdateReturningEach<Row> updateReturningEach(
-      RowCodec<Row> parser, Iterator<Row> rows) {
-    return new Operation.UpdateReturningEach<>(this, parser, rows);
+      RowCodec<Row> codec, Iterator<Row> rows) {
+    return new Operation.UpdateReturningEach<>(this, codec, rows);
   }
 
   record Literal(String value) implements Fragment {
@@ -325,7 +334,7 @@ public sealed interface Fragment {
 
     @Override
     public void collectParameterTypes(List<DbType<?>> types) {
-      // Optionally nodes do not collect inner params — managed by SqlTemplate layer
+      // Optionally nodes do not collect inner params — managed by Template layer
     }
 
     @Override
@@ -516,9 +525,9 @@ public sealed interface Fragment {
     return new ParamBuilders.ParamBuilder1<>(append(new Optionally(inner, countParams(inner))), null);
   }
 
-  default <Row> RowParamBuilder<Row> paramRow(RowCodecNamed<Row> parser, String... except) {
-    List<DbType<?>> types = parser.columns();
-    List<String> names = parser.columnNames();
+  default <Row> RowParamBuilder<Row> paramRow(RowCodecNamed<Row> codec, String... except) {
+    List<DbType<?>> types = codec.columns();
+    List<String> names = codec.columnNames();
     Set<String> exceptSet = except.length > 0 ? Set.of(except) : Set.of();
     List<Fragment> fragments = new ArrayList<>();
     List<Integer> indices = new ArrayList<>();
@@ -528,14 +537,14 @@ public sealed interface Fragment {
       indices.add(i);
     }
     int[] includedIndices = indices.stream().mapToInt(Integer::intValue).toArray();
-    return new RowParamBuilder<>(append(Fragment.comma(fragments)), parser, includedIndices);
+    return new RowParamBuilder<>(append(Fragment.comma(fragments)), codec, includedIndices);
   }
 
   @SuppressWarnings("unchecked")
-  default <Row> Fragment row(RowCodecNamed<Row> parser, Row row, String... except) {
-    Object[] values = parser.encode().apply(row);
-    List<DbType<?>> types = parser.columns();
-    List<String> names = parser.columnNames();
+  default <Row> Fragment row(RowCodecNamed<Row> codec, Row row, String... except) {
+    Object[] values = codec.encode().apply(row);
+    List<DbType<?>> types = codec.columns();
+    List<String> names = codec.columnNames();
     Set<String> exceptSet = except.length > 0 ? Set.of(except) : Set.of();
     List<Fragment> fragments = new ArrayList<>();
     for (int i = 0; i < types.size(); i++) {

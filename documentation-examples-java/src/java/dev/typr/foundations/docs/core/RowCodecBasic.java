@@ -10,7 +10,7 @@ public class RowCodecBasic {
     //start
     record Person(Integer id, String name, Instant createdAt) {}
 
-    RowCodec<Person> personParser =
+    RowCodec<Person> personCodec =
         RowCodec.<Person>builder()
             .field(PgTypes.int4, Person::id)
             .field(PgTypes.text, Person::name)

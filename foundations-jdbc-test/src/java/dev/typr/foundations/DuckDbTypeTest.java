@@ -64,13 +64,13 @@ public class DuckDbTypeTest {
   DuckDbType<Person> personType = personStruct.asType();
 
   // Parsers for JSON-encoded row type testing
-  static RowCodec<Person> personParser =
+  static RowCodec<Person> personCodec =
       RowCodec.<Person>builder()
           .field(DuckDbTypes.varchar, Person::name)
           .field(DuckDbTypes.integer, Person::age)
           .build(Person::new);
 
-  static RowCodecNamed<Person> namedPersonParser =
+  static RowCodecNamed<Person> namedPersonCodec =
       RowCodec.<Person>namedBuilder()
           .field("name", DuckDbTypes.varchar, Person::name)
           .field("age", DuckDbTypes.integer, Person::age)
@@ -249,17 +249,17 @@ public class DuckDbTypeTest {
           // ==================== JSON-Encoded Row Types ====================
           // These types store structured rows as JSON — the codec is derived from the RowCodec
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.jsonArrayEncoded(personParser), new Person("Alice", 30))
+                  DuckDbTypes.jsonArrayEncoded(personCodec), new Person("Alice", 30))
               .noIdentity(),
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.jsonArrayEncodedList(personParser),
+                  DuckDbTypes.jsonArrayEncodedList(personCodec),
                   List.of(new Person("Alice", 30), new Person("Bob", 25)))
               .noIdentity(),
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.jsonObjectEncoded(namedPersonParser), new Person("Alice", 30))
+                  DuckDbTypes.jsonObjectEncoded(namedPersonCodec), new Person("Alice", 30))
               .noIdentity(),
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.jsonObjectEncodedList(namedPersonParser),
+                  DuckDbTypes.jsonObjectEncodedList(namedPersonCodec),
                   List.of(new Person("Alice", 30), new Person("Bob", 25)))
               .noIdentity(),
 

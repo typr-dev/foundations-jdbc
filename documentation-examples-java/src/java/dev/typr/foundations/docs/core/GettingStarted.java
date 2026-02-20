@@ -14,7 +14,7 @@ import java.util.List;
 public class GettingStarted {
     record City(String name, int population) {}
 
-    RowCodec<City> cityParser =
+    RowCodec<City> cityCodec =
         RowCodec.<City>builder()
             .field(DuckDbTypes.varchar, City::name)
             .field(DuckDbTypes.integer, City::population)
@@ -42,7 +42,7 @@ public class GettingStarted {
                     SELECT name, population
                     FROM city
                     ORDER BY population DESC""")
-                .query(cityParser.all())
+                .query(cityCodec.all())
                 .run(conn));
     }
     //stop

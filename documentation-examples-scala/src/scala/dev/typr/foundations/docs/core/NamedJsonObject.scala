@@ -8,7 +8,7 @@ object NamedJsonObject:
     product: String, qty: Int, price: BigDecimal
   )
 
-  val lineParser: RowCodecNamed[OrderLine] =
+  val lineCodec: RowCodecNamed[OrderLine] =
     RowCodec.namedBuilder[OrderLine]()
       .field("product", DuckDbTypes.varchar)(_.product)
       .field("qty", DuckDbTypes.integer)(_.qty)
@@ -17,9 +17,9 @@ object NamedJsonObject:
 
   // Stores rows as positional JSON arrays
   val arrayType: DuckDbType[List[OrderLine]] =
-    DuckDbTypes.jsonArrayEncodedList(lineParser)
+    DuckDbTypes.jsonArrayEncodedList(lineCodec)
 
   // Stores rows as named JSON objects — keys from the parser
   val objectType: DuckDbType[List[OrderLine]] =
-    DuckDbTypes.jsonObjectEncodedList(lineParser)
+    DuckDbTypes.jsonObjectEncodedList(lineCodec)
   //stop

@@ -528,7 +528,7 @@ def generateScalaTuple(): String = {
       |""".stripMargin
 }
 
-def generateScalaSqlTemplate(): String = {
+def generateScalaTemplate(): String = {
   val maxArity = PROC_N - 1 // 10
 
   val queryClasses = 1.to(maxArity).map { n =>
@@ -547,11 +547,11 @@ def generateScalaSqlTemplate(): String = {
 
     if (n == 1) {
       s"""|  class Query1[P0, Out](
-          |    private val _java: dev.typr.foundations.SqlTemplate.Query1[?, Out],
+          |    private val _java: dev.typr.foundations.Template.Query1[?, Out],
           |    private val _transforms: List[Option[AnyRef => AnyRef]]
-          |  ) extends SqlTemplate[P0, Out]:
-          |    def this(j: dev.typr.foundations.SqlTemplate.Query1[?, Out]) = this(j, List(None))
-          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
+          |  ) extends Template[P0, Out]:
+          |    def this(j: dev.typr.foundations.Template.Query1[?, Out]) = this(j, List(None))
+          |    override def underlying: dev.typr.foundations.Template[?, ?] = _java
           |    override def on(input: P0): Operation.Query[Out] =
           |      val v0: AnyRef = _transforms(0).map(_(input.asInstanceOf[AnyRef])).getOrElse(input.asInstanceOf[AnyRef])
           |      val resolved = dev.typr.foundations.OptionallyResolver.resolve(
@@ -564,11 +564,11 @@ def generateScalaSqlTemplate(): String = {
       val tupleDecompose = range.map(i => s"input._${i + 1}").mkString(", ")
 
       s"""|  class Query$n[$allTparams](
-          |    private val _java: dev.typr.foundations.SqlTemplate.Query$n[$wildcards, Out],
+          |    private val _java: dev.typr.foundations.Template.Query$n[$wildcards, Out],
           |    private val _transforms: List[Option[AnyRef => AnyRef]]
-          |  ) extends SqlTemplate[$tupleType, Out]:
-          |    def this(j: dev.typr.foundations.SqlTemplate.Query$n[$wildcards, Out]) = this(j, List.fill($n)(None))
-          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
+          |  ) extends Template[$tupleType, Out]:
+          |    def this(j: dev.typr.foundations.Template.Query$n[$wildcards, Out]) = this(j, List.fill($n)(None))
+          |    override def underlying: dev.typr.foundations.Template[?, ?] = _java
           |    override def on(input: $tupleType): Operation.Query[Out] =
           |      on($tupleDecompose)
           |    def on($onParams): Operation.Query[Out] =
@@ -596,11 +596,11 @@ def generateScalaSqlTemplate(): String = {
 
     if (n == 1) {
       s"""|  class Update1[P0](
-          |    private val _java: dev.typr.foundations.SqlTemplate.Update1[?],
+          |    private val _java: dev.typr.foundations.Template.Update1[?],
           |    private val _transforms: List[Option[AnyRef => AnyRef]]
-          |  ) extends SqlTemplate[P0, Int]:
-          |    def this(j: dev.typr.foundations.SqlTemplate.Update1[?]) = this(j, List(None))
-          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
+          |  ) extends Template[P0, Int]:
+          |    def this(j: dev.typr.foundations.Template.Update1[?]) = this(j, List(None))
+          |    override def underlying: dev.typr.foundations.Template[?, ?] = _java
           |    override def on(input: P0): Operation.Update =
           |      val v0: AnyRef = _transforms(0).map(_(input.asInstanceOf[AnyRef])).getOrElse(input.asInstanceOf[AnyRef])
           |      val resolved = dev.typr.foundations.OptionallyResolver.resolve(
@@ -613,11 +613,11 @@ def generateScalaSqlTemplate(): String = {
       val tupleDecompose = range.map(i => s"input._${i + 1}").mkString(", ")
 
       s"""|  class Update$n[$tparams](
-          |    private val _java: dev.typr.foundations.SqlTemplate.Update$n[$wildcards],
+          |    private val _java: dev.typr.foundations.Template.Update$n[$wildcards],
           |    private val _transforms: List[Option[AnyRef => AnyRef]]
-          |  ) extends SqlTemplate[$tupleType, Int]:
-          |    def this(j: dev.typr.foundations.SqlTemplate.Update$n[$wildcards]) = this(j, List.fill($n)(None))
-          |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _java
+          |  ) extends Template[$tupleType, Int]:
+          |    def this(j: dev.typr.foundations.Template.Update$n[$wildcards]) = this(j, List.fill($n)(None))
+          |    override def underlying: dev.typr.foundations.Template[?, ?] = _java
           |    override def on(input: $tupleType): Operation.Update =
           |      on($tupleDecompose)
           |    def on($onParams): Operation.Update =
@@ -632,24 +632,24 @@ def generateScalaSqlTemplate(): String = {
 
   s"""|package dev.typr.foundationssc
       |
-      |sealed trait SqlTemplate[In, Out]:
-      |  def underlying: dev.typr.foundations.SqlTemplate[?, ?]
+      |sealed trait Template[In, Out]:
+      |  def underlying: dev.typr.foundations.Template[?, ?]
       |
       |  def on(input: In): Operation[Out]
       |
       |  def fragment: Fragment = new Fragment(underlying.fragment())
       |
-      |object SqlTemplate:
+      |object Template:
       |
       |${queryClasses.mkString("\n\n")}
       |
       |${updateClasses.mkString("\n\n")}
       |
       |  class From[T, Out](
-      |    private val _innerUnderlying: dev.typr.foundations.SqlTemplate[?, ?],
+      |    private val _innerUnderlying: dev.typr.foundations.Template[?, ?],
       |    private val _resolver: T => Operation[Out]
-      |  ) extends SqlTemplate[T, Out]:
-      |    override def underlying: dev.typr.foundations.SqlTemplate[?, ?] = _innerUnderlying
+      |  ) extends Template[T, Out]:
+      |    override def underlying: dev.typr.foundations.Template[?, ?] = _innerUnderlying
       |    override def on(input: T): Operation[Out] = _resolver(input)
       |""".stripMargin
 }
@@ -701,11 +701,11 @@ def generateScalaParamBuilders(): String = {
         |
         |    def append(fragment: Fragment): ParamBuilder$n[$tparams] = new ParamBuilder$n(underlying.append(fragment.underlying), transforms)
         |$nextParamMethod$optionallyMethods
-        |    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query$n[$tparams, Out] =
-        |      new SqlTemplate.Query$n(underlying.query(parser.underlying), transforms)
+        |    def query[Out](parser: ResultSetParser[Out]): Template.Query$n[$tparams, Out] =
+        |      new Template.Query$n(underlying.query(parser.underlying), transforms)
         |
-        |    def update(): SqlTemplate.Update$n[$tparams] =
-        |      new SqlTemplate.Update$n(underlying.update(), transforms)
+        |    def update(): Template.Update$n[$tparams] =
+        |      new Template.Update$n(underlying.update(), transforms)
         |
         |    def done(): Fragment = new Fragment(underlying.done())""".stripMargin
   }
@@ -771,11 +771,11 @@ val scalaTuplePath = generatedOutputDir.resolve("Tuple.scala")
 Files.writeString(scalaTuplePath, scalaTupleContent)
 println(s"Wrote ${scalaTuplePath}")
 
-// SqlTemplate.scala -> generated-and-checked-in
-val scalaSqlTemplateContent = generateScalaSqlTemplate()
-val scalaSqlTemplatePath = generatedOutputDir.resolve("SqlTemplate.scala")
-Files.writeString(scalaSqlTemplatePath, scalaSqlTemplateContent)
-println(s"Wrote ${scalaSqlTemplatePath}")
+// Template.scala -> generated-and-checked-in
+val scalaTemplateContent = generateScalaTemplate()
+val scalaTemplatePath = generatedOutputDir.resolve("Template.scala")
+Files.writeString(scalaTemplatePath, scalaTemplateContent)
+println(s"Wrote ${scalaTemplatePath}")
 
 // ParamBuilders.scala -> generated-and-checked-in
 val scalaParamBuildersContent = generateScalaParamBuilders()

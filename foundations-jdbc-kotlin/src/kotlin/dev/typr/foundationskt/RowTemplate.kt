@@ -1,20 +1,20 @@
 @file:Suppress("unused")
 package dev.typr.foundationskt
 
-sealed class RowSqlTemplate<Row : Any, Out> {
-    abstract val underlying: dev.typr.foundations.RowSqlTemplate<*, *>
+sealed class RowTemplate<Row : Any, Out> {
+    abstract val underlying: dev.typr.foundations.RowTemplate<*, *>
 
     abstract fun on(row: Row): Operation<Out>
 
     fun fragment(): Fragment = Fragment(underlying.fragment())
 
-    class Query<Row : Any, Out>(override val underlying: dev.typr.foundations.RowSqlTemplate.Query<Row, Out>)
-        : RowSqlTemplate<Row, Out>() {
+    class Query<Row : Any, Out>(override val underlying: dev.typr.foundations.RowTemplate.Query<Row, Out>)
+        : RowTemplate<Row, Out>() {
         override fun on(row: Row): Operation.Query<Out> = Operation.Query(underlying.on(row))
     }
 
-    class Update<Row : Any>(override val underlying: dev.typr.foundations.RowSqlTemplate.Update<Row>)
-        : RowSqlTemplate<Row, Int>() {
+    class Update<Row : Any>(override val underlying: dev.typr.foundations.RowTemplate.Update<Row>)
+        : RowTemplate<Row, Int>() {
         override fun on(row: Row): Operation.Update = Operation.Update(underlying.on(row))
 
         fun onMany(rows: Iterator<Row>): Operation.UpdateManyTemplate<Row> =

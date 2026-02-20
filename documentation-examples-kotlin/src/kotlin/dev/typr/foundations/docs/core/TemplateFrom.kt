@@ -4,7 +4,7 @@ import dev.typr.foundationskt.*
 import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
-class SqlTemplateFrom {
+class TemplateFrom {
     lateinit var tx: Transactor
 
     //start
@@ -12,7 +12,7 @@ class SqlTemplateFrom {
     data class InsertUser(val name: String, val email: String)
 
     // .from() maps data class fields to template params
-    val insertUser: SqlTemplate.From<InsertUser, Int> =
+    val insertUser: Template.From<InsertUser, Int> =
         Fragment.of("INSERT INTO users(name, email) VALUES(")
             .param(PgTypes.text)
             .append(", ")

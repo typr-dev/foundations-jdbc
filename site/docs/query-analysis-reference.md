@@ -161,9 +161,9 @@ interface QueryChecker {
     void check(Operation<?> op)
     void check(String name, Operation<?> op)
 
-    // Check fragments with parsers
+    // Check fragments with codecs
     void check(Fragment fragment, ResultSetParser<?> parser)
-    void check(Fragment fragment, RowCodec<?> parser)
+    void check(Fragment fragment, RowCodec<?> codec)
 
     // Batch check
     void checkAll(Operation<?>... operations)

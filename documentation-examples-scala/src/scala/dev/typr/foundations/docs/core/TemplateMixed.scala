@@ -4,10 +4,10 @@ import dev.typr.foundationssc.data.*
 
 
 @SuppressWarnings(Array("unused"))
-object SqlTemplateMixed:
+object TemplateMixed:
   case class User(id: Int, name: String, status: String)
 
-  val userParser: RowCodec[User] = RowCodec.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.status)
@@ -18,13 +18,13 @@ object SqlTemplateMixed:
   //start
   // Mix bound and unbound parameters in the same template.
   // Status is fixed at "active", limit varies per call.
-  val activeUsersWithLimit: SqlTemplate[Int, List[User]] =
+  val activeUsersWithLimit: Template[Int, List[User]] =
     Fragment.of(
       "SELECT id, name, status FROM users WHERE status = "
     ).value(PgTypes.text, "active")
       .append(" ORDER BY name LIMIT ")
       .param(PgTypes.int4)
-      .query(userParser.all())
+      .query(userCodec.all())
 
   def topTen(): List[User] =
     activeUsersWithLimit.on(10).transact(tx)

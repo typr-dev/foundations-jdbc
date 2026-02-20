@@ -168,7 +168,7 @@ Routine analysis checks:
 
 The recommended pattern is to analyze all your queries in a dedicated test.
 
-[SQL Templates](./sql-templates) are ideal for this — since their parameters are unbound, you can analyze them without providing concrete values:
+[Templates](./templates) are ideal for this — since their parameters are unbound, you can analyze them without providing concrete values:
 
 <Snippet file="analysis/QueryAnalysisTestSuite" />
 
@@ -182,7 +182,7 @@ This walks the entire operation tree and returns one `QueryAnalysis` per SQL sta
 
 ## Dynamic SQL Analysis
 
-When a template uses [`.optionally()`](./sql-templates#dynamic-templates), analysis automatically expands all 2^N structural variants. Each variant is prepared against the database and verified independently.
+When a template uses [`.optionally()`](./templates#dynamic-templates), analysis automatically expands all 2^N structural variants. Each variant is prepared against the database and verified independently.
 
 For example, a template with 3 optional predicates produces 8 combinations — all checked with a single `checker.check()` call:
 

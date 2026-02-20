@@ -7,7 +7,7 @@ import dev.typr.foundationssc.data.*
 object OptionalQueryBasic:
   case class User(id: Int, name: String, email: String)
 
-  val userParser: RowCodec[User] = RowCodec.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.email)
@@ -18,12 +18,12 @@ object OptionalQueryBasic:
   //start
   // A search with an optional name filter.
   // When present, the filter is applied; when absent, it's skipped.
-  val searchUsers: SqlTemplate[Option[String], List[User]] =
+  val searchUsers: Template[Option[String], List[User]] =
     Fragment.of(
       "SELECT id, name, email FROM users WHERE 1=1"
     ).optionally(
         Fragment.of(" AND name ILIKE ").param(PgTypes.text))
-      .query(userParser.all())
+      .query(userCodec.all())
 
   // Apply filter
   def filtered(): List[User] =

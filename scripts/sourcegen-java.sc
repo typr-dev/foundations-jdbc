@@ -1000,7 +1000,7 @@ def generateDbFunction(): String = {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ParamBuilders / SqlTemplate generators
+// ParamBuilders / Template generators
 // ─────────────────────────────────────────────────────────────────────────────
 
 def generateParamBuilders(): String = {
@@ -1088,13 +1088,13 @@ $ctorAssignments
     }
 $paramTypeMethod$optionallyMethods
 
-    public <Out> SqlTemplate.Query$n<$tparams, Out> query(ResultSetParser<Out> parser) {
-      return new SqlTemplate.Query$n<>(
+    public <Out> Template.Query$n<$tparams, Out> query(ResultSetParser<Out> parser) {
+      return new Template.Query$n<>(
           fragment, $queryTypeFields, parser);
     }
 
-    public SqlTemplate.Update$n<$tparams> update() {
-      return new SqlTemplate.Update$n<>(
+    public Template.Update$n<$tparams> update() {
+      return new Template.Update$n<>(
           fragment, $updateTypeFields);
     }
 
@@ -1113,7 +1113,7 @@ $paramTypeMethod$optionallyMethods
       |""".stripMargin
 }
 
-def generateSqlTemplate(): String = {
+def generateTemplate(): String = {
   val maxArity = PROC_N - 1 // 10
 
   def inputType(n: Int): String = {
@@ -1125,9 +1125,9 @@ def generateSqlTemplate(): String = {
   }
 
   val permits = {
-    val queryPermits = 1.to(maxArity).map(n => s"SqlTemplate.Query$n")
-    val updatePermits = 1.to(maxArity).map(n => s"SqlTemplate.Update$n")
-    (queryPermits ++ updatePermits :+ "SqlTemplate.From").mkString(",\n        ")
+    val queryPermits = 1.to(maxArity).map(n => s"Template.Query$n")
+    val updatePermits = 1.to(maxArity).map(n => s"Template.Update$n")
+    (queryPermits ++ updatePermits :+ "Template.From").mkString(",\n        ")
   }
 
   val queryRecords = 1.to(maxArity).map { n =>
@@ -1142,7 +1142,7 @@ def generateSqlTemplate(): String = {
 
     if (n == 1) {
       s"""  record Query1<P0, Out>(Fragment fragment, DbType<P0> p0Type, ResultSetParser<Out> parser)
-      implements SqlTemplate<P0, Out> {
+      implements Template<P0, Out> {
     @Override
     public Operation.Query<Out> on(P0 p0) {
       return new Operation.Query<>(
@@ -1161,7 +1161,7 @@ def generateSqlTemplate(): String = {
       Fragment fragment,
 ${range.map(i => s"      DbType<P$i> p${i}Type,").mkString("\n")}
       ResultSetParser<Out> parser)
-      implements SqlTemplate<$inType, Out> {
+      implements Template<$inType, Out> {
     @Override
     public Operation.Query<Out> on($inType in) {
       return on($extractArgs);
@@ -1192,7 +1192,7 @@ ${range.map(i => s"      DbType<P$i> p${i}Type,").mkString("\n")}
 
     if (n == 1) {
       s"""  record Update1<P0>(Fragment fragment, DbType<P0> p0Type)
-      implements SqlTemplate<P0, Integer> {
+      implements Template<P0, Integer> {
     @Override
     public Operation.Update on(P0 p0) {
       return new Operation.Update(
@@ -1210,7 +1210,7 @@ ${range.map(i => s"      DbType<P$i> p${i}Type,").mkString("\n")}
       s"""  record Update$n<$tparams>(
       Fragment fragment,
 ${range.map(i => s"      DbType<P$i> p${i}Type${if (i < n - 1) "," else ")"}").mkString("\n")}
-      implements SqlTemplate<$inType, Integer> {
+      implements Template<$inType, Integer> {
     @Override
     public Operation.Update on($inType in) {
       return on($extractArgs);
@@ -1231,7 +1231,7 @@ ${range.map(i => s"      DbType<P$i> p${i}Type${if (i < n - 1) "," else ")"}").m
 
   s"""|package dev.typr.foundations;
       |
-      |public sealed interface SqlTemplate<In, Out>
+      |public sealed interface Template<In, Out>
       |    permits $permits {
       |
       |  Operation<Out> on(In in);
@@ -1243,9 +1243,9 @@ ${range.map(i => s"      DbType<P$i> p${i}Type${if (i < n - 1) "," else ")"}").m
       |${updateRecords.mkString("\n\n")}
       |
       |  record From<T, Out>(
-      |      SqlTemplate<?, Out> inner,
+      |      Template<?, Out> inner,
       |      java.util.function.Function<T, ? extends Operation<Out>> resolver)
-      |      implements SqlTemplate<T, Out> {
+      |      implements Template<T, Out> {
       |    @Override
       |    public Operation<Out> on(T t) {
       |      return resolver.apply(t);
@@ -1526,9 +1526,9 @@ val paramBuildersPath = outputDir.resolve("ParamBuilders.java")
 Files.writeString(paramBuildersPath, paramBuildersContent)
 println(s"Wrote ${paramBuildersPath}")
 
-// Generate SqlTemplate.java
-val sqlTemplateContent = generateSqlTemplate()
-val sqlTemplatePath = outputDir.resolve("SqlTemplate.java")
+// Generate Template.java
+val sqlTemplateContent = generateTemplate()
+val sqlTemplatePath = outputDir.resolve("Template.java")
 Files.writeString(sqlTemplatePath, sqlTemplateContent)
 println(s"Wrote ${sqlTemplatePath}")
 

@@ -8,7 +8,7 @@ object FirstQuery:
   //start
   case class City(name: String, country: String, population: Int)
 
-  val cityParser: RowCodecNamed[City] =
+  val cityCodec: RowCodecNamed[City] =
     RowCodec.namedBuilder[City]()
       .field("name", DuckDbTypes.varchar)(_.name)
       .field("country", DuckDbTypes.varchar)(_.country)
@@ -32,8 +32,8 @@ object FirstQuery:
     }
 
     val cities: List[City] = tx.transact { conn =>
-      sql"SELECT ${cityParser.columnList} FROM city ORDER BY population DESC"
-        .query(cityParser.all())
+      sql"SELECT ${cityCodec.columnList} FROM city ORDER BY population DESC"
+        .query(cityCodec.all())
         .run(conn)
     }
 
@@ -41,8 +41,8 @@ object FirstQuery:
 
     // Verify that query types match the database schema
     tx.transact { conn =>
-      val query = sql"SELECT ${cityParser.columnList} FROM city"
-        .query(cityParser.all())
+      val query = sql"SELECT ${cityCodec.columnList} FROM city"
+        .query(cityCodec.all())
       val analysis: QueryAnalysis =
         QueryAnalyzer.analyze(query, conn).head
       assert(analysis.succeeded, analysis.report())

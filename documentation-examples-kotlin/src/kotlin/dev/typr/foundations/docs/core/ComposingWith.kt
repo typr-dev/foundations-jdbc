@@ -10,7 +10,7 @@ class ComposingWith {
     data class Dashboard(val userCount: Long, val recentOrders: List<Order>)
     data class Stats(val userCount: Long, val orderCount: Long, val revenue: Long)
 
-    val orderParser: RowCodec<Order> =
+    val orderCodec: RowCodec<Order> =
         RowCodec.builder<Order>()
             .field(PgTypes.int4, Order::id)
             .field(PgTypes.int4, Order::userId)
@@ -26,7 +26,7 @@ class ComposingWith {
             .query(RowCodec.of(PgTypes.int8).exactlyOne())
     val recentOrders: Operation<List<Order>> =
         Sql { "SELECT * FROM orders ORDER BY id DESC LIMIT 10" }
-            .query(orderParser.all())
+            .query(orderCodec.all())
 
     fun dashboard(): Dashboard =
         countUsers

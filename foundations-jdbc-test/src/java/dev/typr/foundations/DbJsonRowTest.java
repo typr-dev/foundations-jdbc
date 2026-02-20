@@ -19,7 +19,7 @@ public class DbJsonRowTest {
   record OrderLine(String product, int qty, BigDecimal price) {}
 
   // Define once — used for both ResultSet reading and JSON parsing
-  static final RowCodecNamed<OrderLine> lineParser =
+  static final RowCodecNamed<OrderLine> lineCodec =
       RowCodec.<OrderLine>namedBuilder()
           .field("product", DuckDbTypes.varchar, OrderLine::product)
           .field("qty", DuckDbTypes.integer, OrderLine::qty)
@@ -27,7 +27,7 @@ public class DbJsonRowTest {
           .build(OrderLine::new);
 
   static final DbJson<List<OrderLine>> linesCodec =
-      DbJsonRow.jsonArray(lineParser).list();
+      DbJsonRow.jsonArray(lineCodec).list();
 
   static Transactor newDuckDbTransactor() throws Exception {
     var f = java.io.File.createTempFile("duckdb_test", ".db");
@@ -79,7 +79,7 @@ public class DbJsonRowTest {
     // Single query: parent rows with child rows aggregated as JSON
     record CustomerWithLines(String name, Json linesJson) {}
 
-    RowCodec<CustomerWithLines> customerParser = RowCodec.<CustomerWithLines>builder()
+    RowCodec<CustomerWithLines> customerCodec = RowCodec.<CustomerWithLines>builder()
         .field(DuckDbTypes.varchar, CustomerWithLines::name)
         .field(DuckDbTypes.json, CustomerWithLines::linesJson)
         .build(CustomerWithLines::new);
@@ -89,7 +89,7 @@ public class DbJsonRowTest {
             + "(SELECT json_group_array(json_array(l.product, l.qty, l.price)) "
             + " FROM order_lines l WHERE l.customer_id = c.id) "
             + "FROM customers c ORDER BY c.id")
-        .query(customerParser.all())
+        .query(customerCodec.all())
         .transact(tx);
 
     // Alice has 2 order lines
@@ -113,7 +113,7 @@ public class DbJsonRowTest {
   @Test
   public void objectEncoding() throws Exception {
     DbJson<List<OrderLine>> objectCodec =
-        DbJsonRow.jsonObject(lineParser).list();
+        DbJsonRow.jsonObject(lineCodec).list();
 
     List<OrderLine> original = List.of(
         new OrderLine("Widget", 3, new BigDecimal("9.99")),

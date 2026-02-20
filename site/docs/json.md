@@ -10,7 +10,7 @@ Every database supports JSON — PostgreSQL has `json`/`jsonb`, MySQL and MariaD
 
 ## JSON-Encoded Column Types
 
-Pass a `RowCodec` to your database's `jsonArrayEncoded` or `jsonObjectEncoded` method to get a column type that reads and writes structured rows as JSON. An unnamed parser can produce positional JSON arrays (`[value1, value2, ...]`), while a [named parser](./row-codecs) can also produce keyed JSON objects (`{"column": value, ...}`):
+Pass a `RowCodec` to your database's `jsonArrayEncoded` or `jsonObjectEncoded` method to get a column type that reads and writes structured rows as JSON. An unnamed codec can produce positional JSON arrays (`[value1, value2, ...]`), while a [named codec](./row-codecs) can also produce keyed JSON objects (`{"column": value, ...}`):
 
 <Snippet file="core/NamedJsonObject" />
 

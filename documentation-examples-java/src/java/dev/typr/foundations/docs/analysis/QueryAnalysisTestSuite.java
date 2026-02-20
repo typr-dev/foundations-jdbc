@@ -19,14 +19,14 @@ public class QueryAnalysisTestSuite {
 
     private final DataSource testDataSource = null; // placeholder
 
-    private final RowCodec<User> userParser =
+    private final RowCodec<User> userCodec =
         RowCodec.<User>builder()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::email)
             .build(User::new);
 
-    private final RowCodec<Product> productParser =
+    private final RowCodec<Product> productCodec =
         RowCodec.<Product>builder()
             .field(PgTypes.int4, Product::id)
             .field(PgTypes.text, Product::name)
@@ -42,14 +42,14 @@ public class QueryAnalysisTestSuite {
                         FROM users WHERE id =
                         """)
                     .value(PgTypes.int4, 1)
-                    .query(userParser.all()),
+                    .query(userCodec.all()),
                 Fragment.of("""
                         SELECT id, name
                         FROM products
                         WHERE name LIKE
                         """)
                     .value(PgTypes.text, "%widget%")
-                    .query(productParser.all())
+                    .query(productCodec.all())
             );
 
             // Analyze each one

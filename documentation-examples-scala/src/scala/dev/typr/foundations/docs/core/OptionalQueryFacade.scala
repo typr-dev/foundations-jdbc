@@ -7,7 +7,7 @@ import dev.typr.foundationssc.data.*
 object OptionalQueryFacade:
   case class User(id: Int, name: String, email: String)
 
-  val userParser: RowCodec[User] = RowCodec.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.email)
@@ -24,7 +24,7 @@ object OptionalQueryFacade:
   )
 
   // .from() maps getters to template params
-  private val searchTemplate: SqlTemplate.From[UserSearch, List[User]] =
+  private val searchTemplate: Template.From[UserSearch, List[User]] =
     Fragment.of(
       "SELECT id, name, email FROM users WHERE 1=1"
     ).optionally(
@@ -34,7 +34,7 @@ object OptionalQueryFacade:
       .optionally(
         Fragment.of(" AND active = TRUE"))
       .append(" ORDER BY name")
-      .query(userParser.all())
+      .query(userCodec.all())
       .from(_.name, _.email, _.activeOnly)
 
   // Callers just pass the case class

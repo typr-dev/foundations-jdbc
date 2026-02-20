@@ -47,13 +47,13 @@ public class PgTypeTest {
   // Simple record and parsers for JSON-encoded row type testing
   record Item(String name, int quantity) {}
 
-  static RowCodec<Item> itemParser =
+  static RowCodec<Item> itemCodec =
       RowCodec.<Item>builder()
           .field(PgTypes.text, Item::name)
           .field(PgTypes.int4, Item::quantity)
           .build(Item::new);
 
-  static RowCodecNamed<Item> namedItemParser =
+  static RowCodecNamed<Item> namedItemCodec =
       RowCodec.<Item>namedBuilder()
           .field("name", PgTypes.text, Item::name)
           .field("quantity", PgTypes.int4, Item::quantity)
@@ -349,29 +349,29 @@ public class PgTypeTest {
           // ==================== JSON-Encoded Row Types ====================
           // json variants — store structured rows as json columns
           new PgTypeAndExample<>(
-                  PgTypes.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+                  PgTypes.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+                  PgTypes.jsonArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+                  PgTypes.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
+                  PgTypes.jsonObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           // jsonb variants — store structured rows as jsonb columns
           new PgTypeAndExample<>(
-                  PgTypes.jsonbArrayEncoded(itemParser), new Item("Widget", 5))
+                  PgTypes.jsonbArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonbArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+                  PgTypes.jsonbArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonbObjectEncoded(namedItemParser), new Item("Widget", 5))
+                  PgTypes.jsonbObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
-                  PgTypes.jsonbObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
+                  PgTypes.jsonbObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
 
           // ==================== Record Types ====================

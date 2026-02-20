@@ -10,7 +10,7 @@ public class NamedRowCodec {
     //start
     record Product(Integer id, String name, BigDecimal price, Instant createdAt) {}
 
-    RowCodecNamed<Product> productParser =
+    RowCodecNamed<Product> productCodec =
         RowCodec.<Product>namedBuilder()
             .field("id", PgTypes.int4, Product::id)
             .field("name", PgTypes.text, Product::name)
@@ -21,7 +21,7 @@ public class NamedRowCodec {
     // Column list for SQL — no hand-written strings to keep in sync
     Fragment allProducts =
         Fragment.of("SELECT ")
-            .append(productParser.columnList())
+            .append(productCodec.columnList())
             .append(" FROM product");
     //stop
 }

@@ -4,7 +4,7 @@ import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.QueryChecker;
 import dev.typr.foundations.RowCodec;
-import dev.typr.foundations.SqlTemplate;
+import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
 import java.sql.SQLException;
@@ -15,7 +15,7 @@ import java.util.Optional;
 public class OptionalQueryMulti {
     record User(int id, String name, String email) {}
 
-    static RowCodec<User> userParser =
+    static RowCodec<User> userCodec =
         RowCodec.<User>builder()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
@@ -27,7 +27,7 @@ public class OptionalQueryMulti {
 
     //start
     // Multiple optional filters — each independently present or absent
-    SqlTemplate.Query3<Optional<String>, Optional<String>, Boolean, List<User>>
+    Template.Query3<Optional<String>, Optional<String>, Boolean, List<User>>
         search = Fragment.of("""
                 SELECT id, name, email FROM users WHERE 1=1
                 """)
@@ -38,7 +38,7 @@ public class OptionalQueryMulti {
             .optionally(
                 Fragment.of(" AND active = TRUE"))
             .append(" ORDER BY name")
-            .query(userParser.all());
+            .query(userCodec.all());
 
     // Each combination is type-safe
     List<User> example() throws SQLException {

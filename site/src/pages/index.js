@@ -115,7 +115,7 @@ import dev.typr.foundationskt.connect.*
 fun main() {
     val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
     val answer: Int = Sql { "SELECT 42" }
-        .queryOne(DuckDbTypes.integer)
+        .queryExactlyOne(DuckDbTypes.integer)
         .transact(tx)
     println("Result: $answer")
 }`;

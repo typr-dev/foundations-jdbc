@@ -10,7 +10,7 @@ import java.time.Instant
 class ResultSetParserUsage {
     data class Person(val id: Int, val name: String, val createdAt: Instant)
 
-    val personParser: RowCodec<Person> =
+    val personCodec: RowCodec<Person> =
         RowCodec.builder<Person>()
             .field(PgTypes.int4, Person::id)
             .field(PgTypes.text, Person::name)
@@ -21,10 +21,10 @@ class ResultSetParserUsage {
 
     //start
     // Parse at most one result - returns Person? (nullable)
-    val singleParser: ResultSetParser<Person?> = personParser.maxOne()
+    val singleParser: ResultSetParser<Person?> = personCodec.maxOne()
 
     // Parse all results as a list
-    val listParser: ResultSetParser<List<Person>> = personParser.all()
+    val listParser: ResultSetParser<List<Person>> = personCodec.all()
 
     // Execute with ResultSet
     fun parse(): Person? = singleParser.apply(resultSet!!)

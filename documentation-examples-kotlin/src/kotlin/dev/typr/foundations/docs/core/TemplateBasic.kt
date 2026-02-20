@@ -4,10 +4,10 @@ import dev.typr.foundationskt.*
 import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
-class SqlTemplateBasic {
+class TemplateBasic {
     data class User(val id: Int, val name: String, val email: String)
 
-    val userParser: RowCodec<User> =
+    val userCodec: RowCodec<User> =
         RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
@@ -18,10 +18,10 @@ class SqlTemplateBasic {
 
     //start
     // Define a reusable template — SQL structure is fixed, values come later
-    val findByEmail: SqlTemplate<String, User?> =
+    val findByEmail: Template<String, User?> =
         Fragment.of("SELECT id, name, email FROM users WHERE email = ")
             .param(PgTypes.text)
-            .query(userParser.maxOne())
+            .query(userCodec.maxOne())
 
     // Fill the template with a value to get a concrete operation
     fun findAlice(): User? =

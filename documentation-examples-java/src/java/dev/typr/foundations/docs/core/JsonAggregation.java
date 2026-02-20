@@ -12,7 +12,7 @@ public class JsonAggregation {
 
     record OrderLine(String product, int qty, BigDecimal price) {}
 
-    static final RowCodec<OrderLine> lineParser =
+    static final RowCodec<OrderLine> lineCodec =
         RowCodec.<OrderLine>builder()
             .field(DuckDbTypes.varchar, OrderLine::product)
             .field(DuckDbTypes.integer, OrderLine::qty)
@@ -21,7 +21,7 @@ public class JsonAggregation {
 
     // A column type that stores rows as positional JSON arrays
     static final DuckDbType<List<OrderLine>> linesType =
-        DuckDbTypes.jsonArrayEncodedList(lineParser);
+        DuckDbTypes.jsonArrayEncodedList(lineCodec);
 
     //start
     // Aggregate child rows as JSON in a single query

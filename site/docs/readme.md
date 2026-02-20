@@ -121,7 +121,7 @@ The last block uses [Query Analysis](./query-analysis) to verify that the column
 
 ## What's Next
 
-**Continue reading:** [Fragments](./fragments) &rarr; [Row Codecs](./row-codecs) &rarr; [SQL Templates](./sql-templates) &rarr; [Operations](./operations) &rarr; [Query Analysis](./query-analysis)
+**Continue reading:** [Fragments](./fragments) &rarr; [Row Codecs](./row-codecs) &rarr; [Templates](./templates) &rarr; [Operations](./operations) &rarr; [Query Analysis](./query-analysis)
 
 **Jump to a topic:** [Transactors](./transactors) (connection management) &middot; [Database Types](./database-types) (type catalog)
 

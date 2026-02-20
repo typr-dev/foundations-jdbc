@@ -9,14 +9,14 @@ A common pattern is to define queries as private fields on a repository object, 
 ```kotlin
 object UserRepo {
     // Fixed query — use Sql { } (Kotlin) or Fragment.of() (Java)
-    private val selectAll = Sql { "SELECT ${userParser.columnList} FROM users ORDER BY name" }
-        .query(userParser.all())
+    private val selectAll = Sql { "SELECT ${userCodec.columnList} FROM users ORDER BY name" }
+        .query(userCodec.all())
 
-    // Parameterized query — use the builder to create a SqlTemplate
+    // Parameterized query — use the builder to create a Template
     private val selectByIdTemplate = Fragment.of("SELECT ")
-        .append(userParser.columnList).append(" FROM users WHERE id = ")
+        .append(userCodec.columnList).append(" FROM users WHERE id = ")
         .param(PgTypes.int4)
-        .query(userParser.maxOne())
+        .query(userCodec.maxOne())
 
     // Public methods bind parameters and return Operations or results
     fun findAll(conn: Connection): List<User> = selectAll.run(conn)

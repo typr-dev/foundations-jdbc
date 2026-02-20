@@ -440,34 +440,34 @@ public interface SqlServerTypes {
   // ==================== JSON-Encoded Row Types ====================
 
   /** A JSON column type that stores a single row as a positional JSON array. */
-  static <Row> SqlServerType<Row> jsonArrayEncoded(RowCodec<Row> parser) {
-    DbJson<Row> codec = DbJsonRow.jsonArray(parser);
+  static <Row> SqlServerType<Row> jsonArrayEncoded(RowCodec<Row> codec) {
+    DbJson<Row> rowJson = DbJsonRow.jsonArray(codec);
     return json.transform(
-        j -> codec.fromJson(JsonValue.parse(j.value())),
-        row -> new Json(codec.toJson(row).encode()));
+        j -> rowJson.fromJson(JsonValue.parse(j.value())),
+        row -> new Json(rowJson.toJson(row).encode()));
   }
 
   /** A JSON column type that stores a list of rows, each as a positional JSON array. */
-  static <Row> SqlServerType<List<Row>> jsonArrayEncodedList(RowCodec<Row> parser) {
-    DbJson<List<Row>> codec = DbJsonRow.jsonArray(parser).list();
+  static <Row> SqlServerType<List<Row>> jsonArrayEncodedList(RowCodec<Row> codec) {
+    DbJson<List<Row>> rowJson = DbJsonRow.jsonArray(codec).list();
     return json.transform(
-        j -> codec.fromJson(JsonValue.parse(j.value())),
-        list -> new Json(codec.toJson(list).encode()));
+        j -> rowJson.fromJson(JsonValue.parse(j.value())),
+        list -> new Json(rowJson.toJson(list).encode()));
   }
 
   /** A JSON column type that stores a single row as a keyed JSON object. */
-  static <Row> SqlServerType<Row> jsonObjectEncoded(RowCodecNamed<Row> parser) {
-    DbJson<Row> codec = DbJsonRow.jsonObject(parser);
+  static <Row> SqlServerType<Row> jsonObjectEncoded(RowCodecNamed<Row> codec) {
+    DbJson<Row> rowJson = DbJsonRow.jsonObject(codec);
     return json.transform(
-        j -> codec.fromJson(JsonValue.parse(j.value())),
-        row -> new Json(codec.toJson(row).encode()));
+        j -> rowJson.fromJson(JsonValue.parse(j.value())),
+        row -> new Json(rowJson.toJson(row).encode()));
   }
 
   /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
-  static <Row> SqlServerType<List<Row>> jsonObjectEncodedList(RowCodecNamed<Row> parser) {
-    DbJson<List<Row>> codec = DbJsonRow.jsonObject(parser).list();
+  static <Row> SqlServerType<List<Row>> jsonObjectEncodedList(RowCodecNamed<Row> codec) {
+    DbJson<List<Row>> rowJson = DbJsonRow.jsonObject(codec).list();
     return json.transform(
-        j -> codec.fromJson(JsonValue.parse(j.value())),
-        list -> new Json(codec.toJson(list).encode()));
+        j -> rowJson.fromJson(JsonValue.parse(j.value())),
+        list -> new Json(rowJson.toJson(list).encode()));
   }
 }

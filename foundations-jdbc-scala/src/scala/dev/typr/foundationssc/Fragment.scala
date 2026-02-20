@@ -25,14 +25,23 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
   def query[T](parser: ResultSetParser[T]): Operation.Query[T] =
     Operation.Query(this, parser)
 
-  def queryOne[T](tpe: DbType[T]): Operation.Query[T] =
+  def queryExactlyOne[T](tpe: DbType[T]): Operation.Query[T] =
     query(RowCodec.of(tpe).exactlyOne())
 
-  def queryList[T](tpe: DbType[T]): Operation.Query[List[T]] =
+  def queryExactlyOne[T](codec: RowCodec[T]): Operation.Query[T] =
+    query(codec.exactlyOne())
+
+  def queryAll[T](tpe: DbType[T]): Operation.Query[List[T]] =
     query(RowCodec.of(tpe).all())
 
-  def queryMaybe[T](tpe: DbType[T]): Operation.Query[Option[T]] =
+  def queryAll[T](codec: RowCodec[T]): Operation.Query[List[T]] =
+    query(codec.all())
+
+  def queryMaxOne[T](tpe: DbType[T]): Operation.Query[Option[T]] =
     query(RowCodec.of(tpe).maxOne())
+
+  def queryMaxOne[T](codec: RowCodec[T]): Operation.Query[Option[T]] =
+    query(codec.maxOne())
 
   def update(): Operation.Update =
     Operation.Update(this)

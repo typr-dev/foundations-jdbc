@@ -30,13 +30,13 @@ public class Db2TypeTest {
 
   record Item(String name, int quantity) {}
 
-  static RowCodec<Item> itemParser =
+  static RowCodec<Item> itemCodec =
       RowCodec.<Item>builder()
           .field(Db2Types.varchar(100), Item::name)
           .field(Db2Types.integer, Item::quantity)
           .build(Item::new);
 
-  static RowCodecNamed<Item> namedItemParser =
+  static RowCodecNamed<Item> namedItemCodec =
       RowCodec.<Item>namedBuilder()
           .field("name", Db2Types.varchar(100), Item::name)
           .field("quantity", Db2Types.integer, Item::quantity)
@@ -173,16 +173,16 @@ public class Db2TypeTest {
 
           // ==================== JSON-Encoded Row Types ====================
           new Db2TypeAndExample<>(
-                  Db2Types.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+                  Db2Types.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new Db2TypeAndExample<>(
-                  Db2Types.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+                  Db2Types.jsonArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           new Db2TypeAndExample<>(
-                  Db2Types.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+                  Db2Types.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new Db2TypeAndExample<>(
-                  Db2Types.jsonObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
+                  Db2Types.jsonObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
               .noIdentity());
 
   // Note: DB2 does not support arrays as a column type like PostgreSQL

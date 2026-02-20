@@ -2,13 +2,13 @@ package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.SqlTemplate;
+import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
 import java.sql.SQLException;
 
 @SuppressWarnings("unused")
-public class SqlTemplateFrom {
+public class TemplateFrom {
     Transactor tx = null; // placeholder
 
     //start
@@ -16,7 +16,7 @@ public class SqlTemplateFrom {
     record InsertUser(String name, String email) {}
 
     // .from() maps record fields to template params
-    SqlTemplate.From<InsertUser, Integer> insertUser =
+    Template.From<InsertUser, Integer> insertUser =
         Fragment.of("INSERT INTO users(name, email) VALUES(")
             .param(PgTypes.text)
             .append(", ")

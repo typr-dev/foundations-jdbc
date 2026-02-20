@@ -6,39 +6,47 @@ import Snippet from '@site/src/components/Snippet';
 
 # Operations
 
-An `Operation<T>` is a database action that produces a value of type `T`. You create one by calling a terminal method on a [Fragment](./fragments):
+An `Operation<T>` is a database action that produces a value of type `T`. It describes *what* to do but doesn't run anything until you execute it on a connection. You create one by calling a terminal method on a [Fragment](./fragments).
 
-| Method | Returns |
-|--------|---------|
-| `.query(parser)` | `Operation<T>` — a SELECT that reads rows using the given result set parser |
-| `.update()` | `Operation<Int>` — an INSERT/UPDATE/DELETE returning the affected row count |
-| `.execute()` | `Operation<Void>` — DDL or DML where the row count is irrelevant |
+## Queries
 
-Operations are values — they describe *what* to do but don't run anything until you execute them on a connection.
+Read rows from the database. Pass a `RowCodec` with a result mode to control how the ResultSet is consumed. For single-column results, shorthand methods skip the codec:
 
-## Result Set Parsers
+<Snippet file="core/OperationQueries" />
 
-A `ResultSetParser<T>` reads a complete ResultSet and produces a value of type `T`. You typically create one from a `RowCodec`:
+## Updates
 
-<Snippet file="core/ResultSetParserUsage" />
+Write to the database — INSERT, UPDATE, DELETE, or DDL:
 
-From any `RowCodec<T>` you can create:
+<Snippet file="core/OperationUpdates" />
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `.all()` | `List<T>` | All rows as a list |
-| `.maxOne()` | `Optional<T>` / `T?` / `Option[T]` | Zero or one row (throws if more than one) |
-| `.exactlyOne()` | `T` | Exactly one row (throws otherwise) |
+## Returning Rows from Updates
+
+`INSERT ... RETURNING` or `UPDATE ... RETURNING` — run a write and read back the affected rows:
+
+<Snippet file="core/OperationReturning" />
 
 ## Running Operations
 
-The transactor manages connections and transactions. Call `.transact` to obtain a connection, run your code, and commit:
+Use a [Transactor](./transactors) to obtain a connection, run the operation, and handle commit/rollback automatically:
 
 <Snippet file="core/ExecuteTransact" />
 
 For multiple operations in a single transaction, call `.run(conn)` on each one inside the same block:
 
 <Snippet file="core/ManualTransaction" />
+
+## Operation Modifiers
+
+Every operation supports these modifiers before execution:
+
+| Modifier | Effect |
+|----------|--------|
+| `.named("findUser")` | Prepends `/* findUser */` to the SQL — visible in `pg_stat_activity`, slow query logs, and [listener callbacks](./observability) |
+| `.timeout(Duration.ofSeconds(5))` | Sets a query timeout via `Statement.setQueryTimeout()` |
+| `.withListener(listener)` | Attaches a [QueryListener](./observability) to this specific operation |
+| `.map(row -> transform(row))` | Transforms the result after execution |
+| `.voided()` | Discards the result, returning `Operation<Void>` |
 
 ## Composing Operations
 

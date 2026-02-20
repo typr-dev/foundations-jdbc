@@ -15,13 +15,13 @@ object QueryAnalysisTestSuite:
 
   private val testDataSource: DataSource = null // placeholder
 
-  private val userParser: RowCodec[User] = RowCodec.builder[User]()
+  private val userCodec: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.email)
     .build(User.apply)
 
-  private val productParser: RowCodec[Product] = RowCodec.builder[Product]()
+  private val productCodec: RowCodec[Product] = RowCodec.builder[Product]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .build(Product.apply)
@@ -33,11 +33,11 @@ object QueryAnalysisTestSuite:
         sql"""SELECT id, name, email
               FROM users
               WHERE id = ${PgTypes.int4(1)}"""
-          .query(userParser.all()),
+          .query(userCodec.all()),
         sql"""SELECT id, name
               FROM products
               WHERE name LIKE ${PgTypes.text("%widget%")}"""
-          .query(productParser.all())
+          .query(productCodec.all())
       )
 
       val failures = queries.flatMap { query =>

@@ -53,7 +53,7 @@ sealed trait Operation[Out] {
   def thenIgnore[B](other: Operation[B]): Operation[Out] =
     `with`(other).map(_._1)
 
-  def andThen[B](template: SqlTemplate[Out, B]): Operation[B] =
+  def andThen[B](template: Template[Out, B]): Operation[B] =
     Operation.Then(this, identity[Out], template)
 
   def voided: Operation[Unit] =
@@ -186,13 +186,13 @@ object Operation {
       underlying.runChecked(conn).asInstanceOf[Out]
   }
 
-  class Then[A, In, B](val source: Operation[A], val extract: A => In, val continuation: SqlTemplate[In, B]) extends Operation[B] {
+  class Then[A, In, B](val source: Operation[A], val extract: A => In, val continuation: Template[In, B]) extends Operation[B] {
     @SuppressWarnings(Array("unchecked"))
     val underlying: dev.typr.foundations.Operation[?] =
       new dev.typr.foundations.Operation.Then(
         source.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]],
         java.util.function.Function.identity[Object](),
-        continuation.underlying.asInstanceOf[dev.typr.foundations.SqlTemplate[Object, Object]]
+        continuation.underlying.asInstanceOf[dev.typr.foundations.Template[Object, Object]]
       )
     override def runChecked(conn: Connection): B = {
       val a = source.runChecked(conn)

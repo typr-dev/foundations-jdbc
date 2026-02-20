@@ -10,7 +10,7 @@ class NamedRowCodec {
     //start
     data class Product(val id: Int, val name: String, val price: BigDecimal, val createdAt: Instant)
 
-    val productParser: RowCodecNamed<Product> =
+    val productCodec: RowCodecNamed<Product> =
         RowCodec.namedBuilder<Product>()
             .field("id", PgTypes.int4, Product::id)
             .field("name", PgTypes.text, Product::name)
@@ -20,6 +20,6 @@ class NamedRowCodec {
 
     // Column list for SQL — no hand-written strings to keep in sync
     val allProducts =
-        Sql { "SELECT ${productParser.columnList} FROM product" }
+        Sql { "SELECT ${productCodec.columnList} FROM product" }
     //stop
 }

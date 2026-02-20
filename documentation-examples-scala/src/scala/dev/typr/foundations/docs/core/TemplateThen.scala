@@ -4,10 +4,10 @@ import dev.typr.foundationssc.data.*
 
 
 @SuppressWarnings(Array("unused"))
-object SqlTemplateThen:
+object TemplateThen:
   case class Order(id: Int, userId: Int, product: String)
 
-  val orderParser: RowCodec[Order] = RowCodec.builder[Order]()
+  val orderCodec: RowCodec[Order] = RowCodec.builder[Order]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.int4)(_.userId)
     .field(PgTypes.text)(_.product)
@@ -17,17 +17,17 @@ object SqlTemplateThen:
 
   //start
   // Define templates
-  val insertUser: SqlTemplate[String, Int] =
+  val insertUser: Template[String, Int] =
     Fragment.of("INSERT INTO users(name) VALUES(")
       .param(PgTypes.text)
       .append(") RETURNING id")
       .query(RowCodec.of(PgTypes.int4).exactlyOne())
 
-  val ordersByUser: SqlTemplate[Int, List[Order]] =
+  val ordersByUser: Template[Int, List[Order]] =
     Fragment.of(
       "SELECT id, user_id, product FROM orders WHERE user_id = "
     ).param(PgTypes.int4)
-      .query(orderParser.all())
+      .query(orderCodec.all())
 
   // Chain: insert user, then fetch their orders
   def insertAndFetchOrders(): List[Order] =

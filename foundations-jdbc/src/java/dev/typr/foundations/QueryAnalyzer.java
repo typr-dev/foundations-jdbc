@@ -9,7 +9,7 @@ public final class QueryAnalyzer {
 
   private QueryAnalyzer() {}
 
-  public static List<QueryAnalysis> analyze(SqlTemplate<?, ?> template, Connection conn)
+  public static List<QueryAnalysis> analyze(Template<?, ?> template, Connection conn)
       throws SQLException {
     Fragment fragment = template.fragment();
     List<Fragment> variants = OptionallyResolver.analysisVariants(fragment);
@@ -25,12 +25,12 @@ public final class QueryAnalyzer {
     return results;
   }
 
-  public static List<QueryAnalysis> analyze(RowSqlTemplate<?, ?> template, Connection conn)
+  public static List<QueryAnalysis> analyze(RowTemplate<?, ?> template, Connection conn)
       throws SQLException {
     return switch (template) {
-      case RowSqlTemplate.Query<?, ?> q ->
+      case RowTemplate.Query<?, ?> q ->
           List.of(analyzeFragmentAndParser(q.fragment(), q.resultParser(), conn));
-      case RowSqlTemplate.Update<?> u ->
+      case RowTemplate.Update<?> u ->
           List.of(analyzeUpdate(new Operation.Update(u.fragment()), conn));
     };
   }
@@ -137,19 +137,19 @@ public final class QueryAnalyzer {
   }
 
   @SuppressWarnings("rawtypes")
-  private static ResultSetParser<?> extractResultSetParser(SqlTemplate<?, ?> template) {
+  private static ResultSetParser<?> extractResultSetParser(Template<?, ?> template) {
     return switch (template) {
-      case SqlTemplate.Query1 q -> q.parser();
-      case SqlTemplate.Query2 q -> q.parser();
-      case SqlTemplate.Query3 q -> q.parser();
-      case SqlTemplate.Query4 q -> q.parser();
-      case SqlTemplate.Query5 q -> q.parser();
-      case SqlTemplate.Query6 q -> q.parser();
-      case SqlTemplate.Query7 q -> q.parser();
-      case SqlTemplate.Query8 q -> q.parser();
-      case SqlTemplate.Query9 q -> q.parser();
-      case SqlTemplate.Query10 q -> q.parser();
-      case SqlTemplate.From f -> extractResultSetParser(f.inner());
+      case Template.Query1 q -> q.parser();
+      case Template.Query2 q -> q.parser();
+      case Template.Query3 q -> q.parser();
+      case Template.Query4 q -> q.parser();
+      case Template.Query5 q -> q.parser();
+      case Template.Query6 q -> q.parser();
+      case Template.Query7 q -> q.parser();
+      case Template.Query8 q -> q.parser();
+      case Template.Query9 q -> q.parser();
+      case Template.Query10 q -> q.parser();
+      case Template.From f -> extractResultSetParser(f.inner());
       default -> null;
     };
   }

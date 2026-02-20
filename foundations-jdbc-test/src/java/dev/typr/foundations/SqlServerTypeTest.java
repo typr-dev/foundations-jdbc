@@ -28,13 +28,13 @@ public class SqlServerTypeTest {
 
   record Item(String name, int quantity) {}
 
-  static RowCodec<Item> itemParser =
+  static RowCodec<Item> itemCodec =
       RowCodec.<Item>builder()
           .field(SqlServerTypes.varchar, Item::name)
           .field(SqlServerTypes.int_, Item::quantity)
           .build(Item::new);
 
-  static RowCodecNamed<Item> namedItemParser =
+  static RowCodecNamed<Item> namedItemCodec =
       RowCodec.<Item>namedBuilder()
           .field("name", SqlServerTypes.varchar, Item::name)
           .field("quantity", SqlServerTypes.int_, Item::quantity)
@@ -246,16 +246,16 @@ public class SqlServerTypeTest {
 
           // ==================== JSON-Encoded Row Types ====================
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+                  SqlServerTypes.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+                  SqlServerTypes.jsonArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+                  SqlServerTypes.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.jsonObjectEncodedList(namedItemParser),
+                  SqlServerTypes.jsonObjectEncodedList(namedItemCodec),
                   List.of(new Item("Widget", 5)))
               .noIdentity());
 

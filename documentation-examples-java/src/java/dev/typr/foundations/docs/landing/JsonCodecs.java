@@ -12,7 +12,7 @@ public class JsonCodecs {
 
     record OrderLine(String product, int qty, BigDecimal price) {}
 
-    static final RowCodec<OrderLine> lineParser =
+    static final RowCodec<OrderLine> lineCodec =
         RowCodec.<OrderLine>builder()
             .field(DuckDbTypes.varchar, OrderLine::product)
             .field(DuckDbTypes.integer, OrderLine::qty)
@@ -22,7 +22,7 @@ public class JsonCodecs {
     //start
     // RowCodec → JSON column type, zero extra code
     DuckDbType<List<OrderLine>> linesType =
-        DuckDbTypes.jsonArrayEncodedList(lineParser);
+        DuckDbTypes.jsonArrayEncodedList(lineCodec);
 
     List<OrderLine> getOrderLines(int customerId) throws SQLException {
         return Fragment.of("""

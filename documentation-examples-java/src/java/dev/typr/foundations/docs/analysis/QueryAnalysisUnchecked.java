@@ -16,7 +16,7 @@ public class QueryAnalysisUnchecked {
     record Stats(String name, int count) {}
 
     // .unchecked() skips type checking entirely for this column
-    RowCodec<Stats> statsParser =
+    RowCodec<Stats> statsCodec =
         RowCodec.<Stats>builder()
             .field(PgTypes.text, Stats::name)
             .field(PgTypes.int4.unchecked(), Stats::count)

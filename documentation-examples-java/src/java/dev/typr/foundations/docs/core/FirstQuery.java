@@ -12,7 +12,7 @@ public class FirstQuery {
     //start
     record City(String name, String country, int population) {}
 
-    static RowCodecNamed<City> cityParser =
+    static RowCodecNamed<City> cityCodec =
         RowCodec.<City>namedBuilder()
             .field("name", DuckDbTypes.varchar, City::name)
             .field("country", DuckDbTypes.varchar, City::country)
@@ -40,9 +40,9 @@ public class FirstQuery {
 
         List<City> cities = tx.execute(conn ->
             Fragment.of("SELECT ")
-                .append(cityParser.columnList())
+                .append(cityCodec.columnList())
                 .append(" FROM city ORDER BY population DESC")
-                .query(cityParser.all())
+                .query(cityCodec.all())
                 .run(conn));
 
         // [City[name=Stockholm, ...], City[name=Oslo, ...], City[name=Bergen, ...]]
@@ -50,9 +50,9 @@ public class FirstQuery {
         // Verify that query types match the database schema
         tx.execute(conn -> {
             var query = Fragment.of("SELECT ")
-                .append(cityParser.columnList())
+                .append(cityCodec.columnList())
                 .append(" FROM city")
-                .query(cityParser.all());
+                .query(cityCodec.all());
             QueryAnalysis analysis =
                 QueryAnalyzer.analyze(query, conn).getFirst();
             assert analysis.succeeded() : analysis.report();

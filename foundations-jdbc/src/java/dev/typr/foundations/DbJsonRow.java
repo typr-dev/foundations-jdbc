@@ -20,7 +20,7 @@ import java.util.Map;
  * <p>Example usage:
  *
  * <pre>{@code
- * RowCodec<Email> emailParser = RowCodecs.of(
+ * RowCodec<Email> emailCodec = RowCodecs.of(
  *     PgTypes.int4,
  *     PgTypes.text,
  *     Email::new,
@@ -28,10 +28,10 @@ import java.util.Map;
  * );
  *
  * // Array encoding (compact)
- * DbJson<Email> arrayCodec = DbJsonRow.jsonArray(emailParser);
+ * DbJson<Email> arrayCodec = DbJsonRow.jsonArray(emailCodec);
  *
  * // Object encoding (with field names)
- * DbJson<Email> objectCodec = DbJsonRow.jsonObject(emailParser, List.of("id", "email"));
+ * DbJson<Email> objectCodec = DbJsonRow.jsonObject(emailCodec, List.of("id", "email"));
  *
  * // Compose with list() for JSON arrays of rows
  * DbJson<List<Email>> listCodec = arrayCodec.list();
@@ -50,7 +50,7 @@ public final class DbJsonRow {
    * <p>This is the most compact encoding. Each row becomes a JSON array where the elements
    * correspond to the columns in order.
    *
-   * @param rowCodec the parser that defines the row structure and types
+   * @param rowCodec the codec that defines the row structure and types
    * @return a DbJson codec for the row type
    */
   public static <Row> DbJson<Row> jsonArray(RowCodec<Row> rowCodec) {
@@ -58,9 +58,9 @@ public final class DbJsonRow {
   }
 
   /**
-   * Create a DbJson codec that encodes rows as JSON objects, using column names from the parser.
+   * Create a DbJson codec that encodes rows as JSON objects, using column names from the codec.
    *
-   * @param rowCodec a named parser that carries column names
+   * @param rowCodec a named codec that carries column names
    * @return a DbJson codec for the row type
    */
   public static <Row> DbJson<Row> jsonObject(RowCodecNamed<Row> rowCodec) {
@@ -72,7 +72,7 @@ public final class DbJsonRow {
    *
    * <p>Each row becomes a JSON object where keys are the column names provided.
    *
-   * @param rowCodec the parser that defines the row structure and types
+   * @param rowCodec the codec that defines the row structure and types
    * @param columnNames the JSON object keys corresponding to each column (in order)
    * @return a DbJson codec for the row type
    * @throws IllegalArgumentException if columnNames size doesn't match rowCodec columns

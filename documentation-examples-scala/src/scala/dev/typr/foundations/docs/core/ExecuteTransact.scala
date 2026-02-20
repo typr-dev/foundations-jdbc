@@ -8,7 +8,7 @@ import dev.typr.foundationssc.data.*
 object ExecuteTransact:
   case class City(name: String, population: Int)
 
-  val cityParser: RowCodec[City] = RowCodec.builder[City]()
+  val cityCodec: RowCodec[City] = RowCodec.builder[City]()
     .field(PgTypes.text)(_.name)
     .field(PgTypes.int4)(_.population)
     .build(City.apply)
@@ -17,7 +17,7 @@ object ExecuteTransact:
 
   val findCities: Operation[List[City]] =
     sql"SELECT name, population FROM city ORDER BY population DESC"
-      .query(cityParser.all())
+      .query(cityCodec.all())
 
   //start
   def cities(): List[City] = tx.transact { conn =>

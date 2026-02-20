@@ -7,10 +7,10 @@ object QueryAnalyzer {
         dev.typr.foundations.QueryAnalyzer.analyze(op.underlying, conn)
 
     @JvmStatic
-    fun analyze(template: SqlTemplate<*, *>, conn: java.sql.Connection): List<dev.typr.foundations.QueryAnalysis> =
+    fun analyze(template: Template<*, *>, conn: java.sql.Connection): List<dev.typr.foundations.QueryAnalysis> =
         dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn)
 
     @JvmStatic
-    fun analyze(template: RowSqlTemplate<*, *>, conn: java.sql.Connection): List<dev.typr.foundations.QueryAnalysis> =
+    fun analyze(template: RowTemplate<*, *>, conn: java.sql.Connection): List<dev.typr.foundations.QueryAnalysis> =
         dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn)
 }

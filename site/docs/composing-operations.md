@@ -28,13 +28,13 @@ When you have a dynamic list of operations, `Operation.sequence()` runs them all
 
 ## Data Flow Between Operations
 
-Use `.then()` to feed one operation's result into the next operation's [SQL template](./sql-templates). The first operation runs, and its result becomes the input to the template:
+Use `.then()` to feed one operation's result into the next operation's [template](./templates). The first operation runs, and its result becomes the input to the template:
 
-<Snippet file="core/SqlTemplateThen" />
+<Snippet file="core/TemplateThen" />
 
-When the first operation returns a record and the template uses `.from()`, use `.then()` with the `SqlTemplate.From` directly:
+When the first operation returns a record and the template uses `.from()`, use `.then()` with the `Template.From` directly:
 
-<Snippet file="core/SqlTemplateThenFrom" />
+<Snippet file="core/TemplateThenFrom" />
 
 ## Conditional Execution
 

@@ -35,13 +35,13 @@ public class MariaTypeTest {
 
   record Item(String name, int quantity) {}
 
-  static RowCodec<Item> itemParser =
+  static RowCodec<Item> itemCodec =
       RowCodec.<Item>builder()
           .field(MariaTypes.varchar, Item::name)
           .field(MariaTypes.int_, Item::quantity)
           .build(Item::new);
 
-  static RowCodecNamed<Item> namedItemParser =
+  static RowCodecNamed<Item> namedItemCodec =
       RowCodec.<Item>namedBuilder()
           .field("name", MariaTypes.varchar, Item::name)
           .field("quantity", MariaTypes.int_, Item::quantity)
@@ -299,16 +299,16 @@ public class MariaTypeTest {
 
           // ==================== JSON-Encoded Row Types ====================
           new MariaTypeAndExample<>(
-                  MariaTypes.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+                  MariaTypes.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new MariaTypeAndExample<>(
-                  MariaTypes.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+                  MariaTypes.jsonArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           new MariaTypeAndExample<>(
-                  MariaTypes.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+                  MariaTypes.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new MariaTypeAndExample<>(
-                  MariaTypes.jsonObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
+                  MariaTypes.jsonObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
 
           // ==================== Network Types (MariaDB 10.10+) ====================

@@ -81,13 +81,13 @@ public class OracleTypeTest {
 
   record OracleItem(String name, int quantity) {}
 
-  static RowCodec<OracleItem> oracleItemParser =
+  static RowCodec<OracleItem> oracleItemCodec =
       RowCodec.<OracleItem>builder()
           .field(OracleTypes.varchar2(100), OracleItem::name)
           .field(OracleTypes.numberInt, OracleItem::quantity)
           .build(OracleItem::new);
 
-  static RowCodecNamed<OracleItem> namedOracleItemParser =
+  static RowCodecNamed<OracleItem> namedOracleItemCodec =
       RowCodec.<OracleItem>namedBuilder()
           .field("name", OracleTypes.varchar2(100), OracleItem::name)
           .field("quantity", OracleTypes.numberInt, OracleItem::quantity)
@@ -490,17 +490,17 @@ public class OracleTypeTest {
           // ═══════════════════════════════════════════════════════════════════════════
 
           new OracleTypeAndExample<>(
-                  OracleTypes.jsonArrayEncoded(oracleItemParser), new OracleItem("Widget", 5))
+                  OracleTypes.jsonArrayEncoded(oracleItemCodec), new OracleItem("Widget", 5))
               .noIdentity(),
           new OracleTypeAndExample<>(
-                  OracleTypes.jsonArrayEncodedList(oracleItemParser),
+                  OracleTypes.jsonArrayEncodedList(oracleItemCodec),
                   List.of(new OracleItem("Widget", 5)))
               .noIdentity(),
           new OracleTypeAndExample<>(
-                  OracleTypes.jsonObjectEncoded(namedOracleItemParser), new OracleItem("Widget", 5))
+                  OracleTypes.jsonObjectEncoded(namedOracleItemCodec), new OracleItem("Widget", 5))
               .noIdentity(),
           new OracleTypeAndExample<>(
-                  OracleTypes.jsonObjectEncodedList(namedOracleItemParser),
+                  OracleTypes.jsonObjectEncodedList(namedOracleItemCodec),
                   List.of(new OracleItem("Widget", 5)))
               .noIdentity(),
 

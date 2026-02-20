@@ -11,14 +11,14 @@ class QueryAnalysisTestSuite {
 
     private lateinit var testDataSource: DataSource
 
-    private val userParser: RowCodec<User> =
+    private val userCodec: RowCodec<User> =
         RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::email)
             .build(::User)
 
-    private val productParser: RowCodec<Product> =
+    private val productCodec: RowCodec<Product> =
         RowCodec.builder<Product>()
             .field(PgTypes.int4, Product::id)
             .field(PgTypes.text, Product::name)
@@ -34,13 +34,13 @@ class QueryAnalysisTestSuite {
                     FROM users
                     WHERE id = ${PgTypes.int4(1)}
                 """ }
-                    .query(userParser.all()),
+                    .query(userCodec.all()),
                 Sql { """
                     SELECT id, name
                     FROM products
                     WHERE name LIKE ${PgTypes.text("%widget%")}
                 """ }
-                    .query(productParser.all())
+                    .query(productCodec.all())
             )
 
             // Analyze each one

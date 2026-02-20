@@ -22,14 +22,23 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun <T> query(parser: ResultSetParser<T>): Operation.Query<T> =
         Operation.Query(dev.typr.foundations.Operation.Query(underlying, parser.underlying))
 
-    fun <T : Any> queryOne(type: DbType<T>): Operation.Query<T> =
+    fun <T : Any> queryExactlyOne(type: DbType<T>): Operation.Query<T> =
         query(RowCodec.of(type).exactlyOne())
 
-    fun <T : Any> queryList(type: DbType<T>): Operation.Query<List<T>> =
+    fun <T : Any> queryExactlyOne(codec: RowCodec<T>): Operation.Query<T> =
+        query(codec.exactlyOne())
+
+    fun <T : Any> queryAll(type: DbType<T>): Operation.Query<List<T>> =
         query(RowCodec.of(type).all())
 
-    fun <T : Any> queryMaybe(type: DbType<T>): Operation.Query<T?> =
+    fun <T : Any> queryAll(codec: RowCodec<T>): Operation.Query<List<T>> =
+        query(codec.all())
+
+    fun <T : Any> queryMaxOne(type: DbType<T>): Operation.Query<T?> =
         query(RowCodec.of(type).maxOne())
+
+    fun <T : Any> queryMaxOne(codec: RowCodec<T>): Operation.Query<T?> =
+        query(codec.maxOne())
 
     fun update(): Operation.Update =
         Operation.Update(dev.typr.foundations.Operation.Update(underlying))

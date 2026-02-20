@@ -10,7 +10,7 @@ import java.time.Instant
 class FragmentRow {
     data class Product(val id: Int, val name: String, val price: BigDecimal, val createdAt: Instant)
 
-    val productParser: RowCodecNamed<Product> =
+    val productCodec: RowCodecNamed<Product> =
         RowCodec.namedBuilder<Product>()
             .field("id", PgTypes.int4, Product::id)
             .field("name", PgTypes.text, Product::name)
@@ -23,23 +23,23 @@ class FragmentRow {
     //start
     fun insert(product: Product): Product =
         Fragment.of("INSERT INTO product (")
-            .append(productParser.columnList)
+            .append(productCodec.columnList)
             .append(") VALUES (")
-            .row(productParser, product)
+            .row(productCodec, product)
             .append(") RETURNING ")
-            .append(productParser.columnList)
-            .query(productParser.exactlyOne())
+            .append(productCodec.columnList)
+            .query(productCodec.exactlyOne())
             .run(conn)
 
     // Skip columns with database defaults — pass column names to except
     fun insertWithDefault(product: Product): Product =
         Fragment.of("INSERT INTO product (")
-            .append(productParser.columnList)
+            .append(productCodec.columnList)
             .append(") VALUES (DEFAULT, ")
-            .row(productParser, product, "id")
+            .row(productCodec, product, "id")
             .append(") RETURNING ")
-            .append(productParser.columnList)
-            .query(productParser.exactlyOne())
+            .append(productCodec.columnList)
+            .query(productCodec.exactlyOne())
             .run(conn)
     //stop
 }

@@ -13,7 +13,7 @@ import java.util.List;
 public class ExecuteTransact {
     record City(String name, int population) {}
 
-    static RowCodec<City> cityParser =
+    static RowCodec<City> cityCodec =
         RowCodec.<City>builder()
             .field(PgTypes.text, City::name)
             .field(PgTypes.int4, City::population)
@@ -25,7 +25,7 @@ public class ExecuteTransact {
         Fragment.of("""
                 SELECT name, population FROM city
                 ORDER BY population DESC""")
-            .query(cityParser.all());
+            .query(cityCodec.all());
 
     //start
     List<City> cities() throws SQLException {

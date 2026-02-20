@@ -4,7 +4,7 @@ import dev.typr.foundationssc.data.*
 
 
 @SuppressWarnings(Array("unused"))
-object SqlTemplateFrom:
+object TemplateFrom:
   var tx: Transactor = null // placeholder
 
   //start
@@ -12,7 +12,7 @@ object SqlTemplateFrom:
   case class InsertUser(name: String, email: String)
 
   // .from() maps case class fields to template params
-  val insertUser: SqlTemplate.From[InsertUser, Int] =
+  val insertUser: Template.From[InsertUser, Int] =
     Fragment.of("INSERT INTO users(name, email) VALUES(")
       .param(PgTypes.text)
       .append(", ")

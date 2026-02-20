@@ -8,7 +8,7 @@ import java.math.BigDecimal
 class OptionalQueryRange {
     data class Product(val id: Int, val name: String, val price: BigDecimal)
 
-    val productParser: RowCodec<Product> =
+    val productCodec: RowCodec<Product> =
         RowCodec.builder<Product>()
             .field(PgTypes.int4, Product::id)
             .field(PgTypes.text, Product::name)
@@ -21,14 +21,14 @@ class OptionalQueryRange {
     // When an optional clause needs multiple parameters,
     // pass a multi-parameter builder.
     // The grouped parameters are provided or omitted together.
-    val byPriceRange: SqlTemplate<Pair<BigDecimal, BigDecimal>?, List<Product>> =
+    val byPriceRange: Template<Pair<BigDecimal, BigDecimal>?, List<Product>> =
         Fragment.of("SELECT id, name, price FROM products WHERE 1=1")
             .optionally(
                 Fragment.of(" AND price BETWEEN ")
                     .param(PgTypes.numeric)
                     .append(" AND ")
                     .param(PgTypes.numeric))
-            .query(productParser.all())
+            .query(productCodec.all())
 
     // With range
     fun inRange(): List<Product> =

@@ -16,7 +16,7 @@ public class ComposingWith {
     record Dashboard(long userCount, List<Order> recentOrders) {}
     record Stats(long userCount, long orderCount, long revenue) {}
 
-    static RowCodec<Order> orderParser =
+    static RowCodec<Order> orderCodec =
         RowCodec.<Order>builder()
             .field(PgTypes.int4, Order::id)
             .field(PgTypes.int4, Order::userId)
@@ -34,7 +34,7 @@ public class ComposingWith {
         Fragment.of("""
                 SELECT * FROM orders
                 ORDER BY id DESC LIMIT 10""")
-            .query(orderParser.all());
+            .query(orderCodec.all());
 
     Dashboard dashboard() throws SQLException {
         return countUsers

@@ -4,8 +4,8 @@ import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
 
 @SuppressWarnings("unused")
-public class SingleColumnParser {
+public class SingleColumnCodec {
     //start
-    RowCodec<Integer> idParser = RowCodec.of(PgTypes.int4);
+    RowCodec<Integer> idCodec = RowCodec.of(PgTypes.int4);
     //stop
 }

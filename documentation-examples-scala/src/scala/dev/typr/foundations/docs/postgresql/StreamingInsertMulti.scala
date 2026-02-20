@@ -9,7 +9,7 @@ object StreamingInsertMulti:
 
   //start
   // Define a RowCodec for your row type
-  val productParser: RowCodec[ProductRow] =
+  val productCodec: RowCodec[ProductRow] =
     RowCodec.builder[ProductRow]()
       .field(PgTypes.text)(_.name)
       .field(PgTypes.numeric)(_.price)
@@ -17,7 +17,7 @@ object StreamingInsertMulti:
       .build(ProductRow.apply)
 
   // PgText.from() derives a text encoder from the RowCodec
-  val productText: PgText[ProductRow] = PgText.from(productParser)
+  val productText: PgText[ProductRow] = PgText.from(productCodec)
 
   def insertProducts(products: Iterator[ProductRow], tx: Transactor): Long =
     streamingInsert

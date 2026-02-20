@@ -13,7 +13,7 @@ object NamedRowCodec:
     price: BigDecimal, createdAt: Instant
   )
 
-  val productParser: RowCodecNamed[Product] =
+  val productCodec: RowCodecNamed[Product] =
     RowCodec.namedBuilder[Product]()
       .field("id", PgTypes.int4)(_.id)
       .field("name", PgTypes.text)(_.name)
@@ -23,5 +23,5 @@ object NamedRowCodec:
 
   // Column list — no hand-written strings to keep in sync
   val allProducts =
-    sql"SELECT ${productParser.columnList} FROM product"
+    sql"SELECT ${productCodec.columnList} FROM product"
   //stop

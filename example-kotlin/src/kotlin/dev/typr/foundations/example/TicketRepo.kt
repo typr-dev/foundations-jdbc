@@ -22,11 +22,11 @@ fun insertTicket(ticket: Ticket): Operation.Query<Ticket> {
 
 fun countTicketsByEvent(eventId: EventId): Operation.Query<Long> =
     Sql { "SELECT count(*) FROM ticket WHERE event_id = ${eventIdType(eventId)}" }
-        .queryOne(DuckDbTypes.bigint)
+        .queryExactlyOne(DuckDbTypes.bigint)
 
 fun revenueByEvent(eventId: EventId): Operation.Query<Money> =
     Sql { "SELECT coalesce(sum(price), 0) FROM ticket WHERE event_id = ${eventIdType(eventId)}" }
-        .queryOne(moneyType)
+        .queryExactlyOne(moneyType)
 
 val eventSummaries: Operation.Query<List<EventSummary>> =
     Sql { """SELECT e.id, e.title, v.name, count(t.id), coalesce(sum(t.price), 0)

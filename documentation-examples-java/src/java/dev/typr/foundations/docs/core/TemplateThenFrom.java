@@ -3,16 +3,16 @@ package dev.typr.foundations.docs.core;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
-import dev.typr.foundations.SqlTemplate;
+import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
 import java.sql.SQLException;
 
 @SuppressWarnings("unused")
-public class SqlTemplateThenFrom {
+public class TemplateThenFrom {
     record NewUser(int id, String name) {}
 
-    static RowCodec<NewUser> newUserParser =
+    static RowCodec<NewUser> newUserCodec =
         RowCodec.<NewUser>builder()
             .field(PgTypes.int4, NewUser::id)
             .field(PgTypes.text, NewUser::name)
@@ -22,14 +22,14 @@ public class SqlTemplateThenFrom {
 
     //start
     // 1-param template: insert user, return id and name
-    SqlTemplate<String, NewUser> insertUser =
+    Template<String, NewUser> insertUser =
         Fragment.of("INSERT INTO users(name) VALUES(")
             .param(PgTypes.text)
             .append(") RETURNING id, name")
-            .query(newUserParser.exactlyOne());
+            .query(newUserCodec.exactlyOne());
 
     // 2-param template: log the creation with both fields
-    SqlTemplate.Update2<Integer, String> logCreation =
+    Template.Update2<Integer, String> logCreation =
         Fragment.of("INSERT INTO audit_log(user_id, username) VALUES(")
             .param(PgTypes.int4)
             .append(", ")

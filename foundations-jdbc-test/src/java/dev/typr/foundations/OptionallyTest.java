@@ -21,7 +21,7 @@ public class OptionallyTest {
 
   record Product(String name, BigDecimal price, boolean active) {}
 
-  static RowCodecNamed<Product> productParser =
+  static RowCodecNamed<Product> productCodec =
       RowCodec.<Product>namedBuilder()
           .field("name", DuckDbTypes.varchar, Product::name)
           .field("price", DuckDbTypes.decimal(10, 2), Product::price)
@@ -40,7 +40,7 @@ public class OptionallyTest {
       var template = Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
           .optionally(Fragment.of(" AND active = true"))
           .append(" ORDER BY name")
-          .query(productParser.all());
+          .query(productCodec.all());
 
       List<Product> result1 = template.on(true).run(conn);
       assertEquals(1, result1.size());
@@ -63,7 +63,7 @@ public class OptionallyTest {
       var template = Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
           .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
           .append(" ORDER BY name")
-          .query(productParser.all());
+          .query(productCodec.all());
 
       List<Product> result1 = template.on(Optional.of("Widget")).run(conn);
       assertEquals(1, result1.size());
@@ -89,7 +89,7 @@ public class OptionallyTest {
           .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimal(10, 2)))
           .optionally(Fragment.of(" AND active = true"))
           .append(" ORDER BY name")
-          .query(productParser.all());
+          .query(productCodec.all());
 
       List<Product> result1 = template.on(Optional.of("Widget"), Optional.empty(), false).run(conn);
       assertEquals(1, result1.size());
@@ -119,7 +119,7 @@ public class OptionallyTest {
           .param(DuckDbTypes.boolean_)
           .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
           .append(" ORDER BY name")
-          .query(productParser.all());
+          .query(productCodec.all());
 
       List<Product> result1 = template.on(true, Optional.empty()).run(conn);
       assertEquals(2, result1.size());
@@ -145,7 +145,7 @@ public class OptionallyTest {
           .optionally(
               Fragment.of(" AND price BETWEEN ").param(decType).append(" AND ").param(decType))
           .append(" ORDER BY name")
-          .query(productParser.all());
+          .query(productCodec.all());
 
       List<Product> result1 = template.on(
           Optional.of(Tuple.of(new BigDecimal("5.00"), new BigDecimal("10.00")))).run(conn);
@@ -170,7 +170,7 @@ public class OptionallyTest {
           .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimal(10, 2)))
           .optionally(Fragment.of(" AND active = true"))
           .append(" ORDER BY name")
-          .query(productParser.all());
+          .query(productCodec.all());
 
       List<Fragment> variants = OptionallyResolver.analysisVariants(template.fragment());
       assertEquals(8, variants.size());
@@ -193,7 +193,7 @@ public class OptionallyTest {
       var template = Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
           .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
           .append(" ORDER BY name")
-          .query(productParser.all());
+          .query(productCodec.all());
 
       List<QueryAnalysis> analyses = QueryAnalyzer.analyze(template, conn);
       assertEquals(2, analyses.size());

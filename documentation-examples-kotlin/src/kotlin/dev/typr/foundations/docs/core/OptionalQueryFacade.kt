@@ -7,7 +7,7 @@ import dev.typr.foundationskt.data.*
 class OptionalQueryFacade {
     data class User(val id: Int, val name: String, val email: String)
 
-    val userParser: RowCodec<User> =
+    val userCodec: RowCodec<User> =
         RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
@@ -25,7 +25,7 @@ class OptionalQueryFacade {
     )
 
     // .from() maps getters to template params
-    private val searchTemplate: SqlTemplate.From<UserSearch, List<User>> =
+    private val searchTemplate: Template.From<UserSearch, List<User>> =
         Fragment.of("SELECT id, name, email FROM users WHERE 1=1")
             .optionally(
                 Fragment.of(" AND name ILIKE ").param(PgTypes.text))
@@ -34,7 +34,7 @@ class OptionalQueryFacade {
             .optionally(
                 Fragment.of(" AND active = TRUE"))
             .append(" ORDER BY name")
-            .query(userParser.all())
+            .query(userCodec.all())
             .from(UserSearch::name, UserSearch::email,
                 UserSearch::activeOnly)
 

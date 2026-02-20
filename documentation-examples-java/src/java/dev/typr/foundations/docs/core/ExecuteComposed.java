@@ -14,7 +14,7 @@ public class ExecuteComposed {
     record Order(int id, int userId, String product) {}
     record Dashboard(long userCount, List<Order> recentOrders) {}
 
-    static RowCodec<Order> orderParser =
+    static RowCodec<Order> orderCodec =
         RowCodec.<Order>builder()
             .field(PgTypes.int4, Order::id)
             .field(PgTypes.int4, Order::userId)
@@ -30,7 +30,7 @@ public class ExecuteComposed {
         Fragment.of("""
                 SELECT * FROM orders
                 ORDER BY id DESC LIMIT 10""")
-            .query(orderParser.all());
+            .query(orderCodec.all());
 
     //start
     Dashboard dashboard() throws SQLException {

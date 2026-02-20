@@ -224,7 +224,7 @@ public sealed interface Operation<Out>
     return with(other).map(and -> and.left());
   }
 
-  default <B> Operation<B> then(SqlTemplate<Out, B> next) {
+  default <B> Operation<B> then(Template<Out, B> next) {
     return new Then<>(this, java.util.function.Function.identity(), next);
   }
 
@@ -354,7 +354,7 @@ public sealed interface Operation<Out>
     }
   }
 
-  record UpdateMany<Row>(Fragment query, RowCodec<Row> parser, Iterator<Row> rows)
+  record UpdateMany<Row>(Fragment query, RowCodec<Row> codec, Iterator<Row> rows)
       implements Operation<int[]> {
     @Override
     public int[] runChecked(Connection conn) throws SQLException {
@@ -365,7 +365,7 @@ public sealed interface Operation<Out>
           query.set(stmt);
           while (rows.hasNext()) {
             Row row = rows.next();
-            parser.writeRow(stmt, row);
+            codec.writeRow(stmt, row);
             stmt.addBatch();
           }
           return stmt.executeBatch();
@@ -374,7 +374,7 @@ public sealed interface Operation<Out>
     }
   }
 
-  record UpdateManyReturning<Row>(Fragment query, RowCodec<Row> parser, Iterator<Row> rows)
+  record UpdateManyReturning<Row>(Fragment query, RowCodec<Row> codec, Iterator<Row> rows)
       implements Operation<List<Row>> {
     @Override
     public List<Row> runChecked(Connection conn) throws SQLException {
@@ -386,12 +386,12 @@ public sealed interface Operation<Out>
           query.set(stmt);
           while (rows.hasNext()) {
             Row row = rows.next();
-            parser.writeRow(stmt, row);
+            codec.writeRow(stmt, row);
             stmt.addBatch();
           }
           stmt.executeBatch();
           try (ResultSet rs = stmt.getGeneratedKeys()) {
-            return parser.all().apply(rs);
+            return codec.all().apply(rs);
           }
         }
       });
@@ -403,7 +403,7 @@ public sealed interface Operation<Out>
    * RETURNING doesn't work properly via getGeneratedKeys(). Each INSERT/UPDATE is executed
    * separately and the RETURNING result is read from executeQuery().
    */
-  record UpdateReturningEach<Row>(Fragment query, RowCodec<Row> parser, Iterator<Row> rows)
+  record UpdateReturningEach<Row>(Fragment query, RowCodec<Row> codec, Iterator<Row> rows)
       implements Operation<List<Row>> {
     @Override
     public List<Row> runChecked(Connection conn) throws SQLException {
@@ -415,9 +415,9 @@ public sealed interface Operation<Out>
           try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             Instrumentation.applyTimeout(stmt, conn);
             query.set(stmt);
-            parser.writeRow(stmt, row);
+            codec.writeRow(stmt, row);
             try (ResultSet rs = stmt.executeQuery()) {
-              results.addAll(parser.all().apply(rs));
+              results.addAll(codec.all().apply(rs));
             }
           }
         }
@@ -427,16 +427,16 @@ public sealed interface Operation<Out>
   }
 
   /**
-   * Batch executes a row-parameterized template. Unlike UpdateMany (which writes all parser fields),
+   * Batch executes a row-parameterized template. Unlike UpdateMany (which writes all codec fields),
    * this only writes the fields specified by includedIndices, matching the Param holes in the fragment.
-   * Created by RowSqlTemplate.Update.onMany().
+   * Created by RowTemplate.Update.onMany().
    *
    * <p>Parameter positions and types are computed once from the fragment tree before the loop.
    * Each row is then written directly to the PreparedStatement without rebuilding the fragment.
    */
   record UpdateManyTemplate<Row>(
       Fragment fragment,
-      RowCodecNamed<Row> parser,
+      RowCodecNamed<Row> codec,
       int[] includedIndices,
       Iterator<Row> rows)
       implements Operation<int[]> {
@@ -446,13 +446,13 @@ public sealed interface Operation<Out>
       String sql = Instrumentation.applyName(fragment.render(), conn);
       return Instrumentation.instrumented(conn, fragment, sql, () -> {
         int[] paramPositions = fragment.paramPositions();
-        List<DbType<?>> allCols = parser.columns();
+        List<DbType<?>> allCols = codec.columns();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
           Instrumentation.applyTimeout(stmt, conn);
           while (rows.hasNext()) {
             Row row = rows.next();
             fragment.set(stmt);
-            Object[] encoded = parser.encode().apply(row);
+            Object[] encoded = codec.encode().apply(row);
             for (int i = 0; i < includedIndices.length; i++) {
               DbType<Object> type = (DbType<Object>) allCols.get(includedIndices[i]);
               type.write().set(stmt, paramPositions[i], encoded[includedIndices[i]]);
@@ -510,7 +510,7 @@ public sealed interface Operation<Out>
   record Then<A, In, B>(
       Operation<A> source,
       java.util.function.Function<A, In> extract,
-      SqlTemplate<In, B> continuation)
+      Template<In, B> continuation)
       implements Operation<B> {
     @Override
     public B runChecked(Connection conn) throws SQLException {

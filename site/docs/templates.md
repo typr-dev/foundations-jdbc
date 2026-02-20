@@ -1,14 +1,14 @@
 ---
-title: SQL Templates
+title: Templates
 ---
 
 import Snippet from '@site/src/components/Snippet';
 
-# SQL Templates
+# Templates
 
-SQL Templates let you define the SQL structure once and supply values later. Use `.param(type)` (without a value) to create a typed parameter hole. This produces a `SqlTemplate` — a reusable operation factory that can be analyzed by [Query Analysis](./query-analysis) without providing concrete values:
+Templates let you define the SQL structure once and supply values later. Use `.param(type)` (without a value) to create a typed parameter hole. This produces a `Template` — a reusable operation factory that can be analyzed by [Query Analysis](./query-analysis) without providing concrete values:
 
-<Snippet file="core/SqlTemplateBasic" />
+<Snippet file="core/TemplateBasic" />
 
 Fill the template with `.on(value)` to get a concrete operation.
 
@@ -16,15 +16,15 @@ Fill the template with `.on(value)` to get a concrete operation.
 
 You can mix `.value(type, value)` (bound immediately) with `.param(type)` (filled later) in the same fragment. Only the unbound parameters become template parameters:
 
-<Snippet file="core/SqlTemplateMixed" />
+<Snippet file="core/TemplateMixed" />
 
 ## Packaging Parameters in a Record
 
 When a template has multiple parameters, use `.from()` to map a record's fields to the template parameters. This gives each parameter a name and lets callers pass a single object:
 
-<Snippet file="core/SqlTemplateFrom" />
+<Snippet file="core/TemplateFrom" />
 
-`SqlTemplate.From` implements `SqlTemplate`, so it works with all combinators including [`.then()`](./composing-operations#data-flow-between-operations) for chaining operations and [`.optionally()`](#dynamic-templates) for dynamic queries.
+`Template.From` implements `Template`, so it works with all combinators including [`.then()`](./composing-operations#data-flow-between-operations) for chaining operations and [`.optionally()`](#dynamic-templates) for dynamic queries.
 
 ## Batch Operations
 
@@ -32,7 +32,7 @@ Use a template with `.onMany()` to batch-insert or batch-update rows. The templa
 
 <Snippet file="core/BatchOperations" />
 
-Driver-level optimizations like `reWriteBatchedInserts` (PostgreSQL), `useBulkStmts` (MariaDB), and `useBulkCopyForBatchInsert` (SQL Server) are applied automatically when enabled in the connection URL.
+Driver-level optimizations like `.reWriteBatchedInserts()` (PostgreSQL), `.useBulkStmts()` (MariaDB), and `.useBulkCopyForBatchInsert()` (SQL Server) must be enabled on the [connection config](./transactors#setting-up) for best performance.
 
 For PostgreSQL high-throughput inserts, use [streaming inserts](./streaming-inserts) with the COPY protocol instead.
 
@@ -63,10 +63,10 @@ The template parameter type reflects the optionality — `Optional<String>` in J
 For SQL chunks without parameters (e.g., `AND active = TRUE`), pass a plain `Fragment` to `.optionally()`. The template parameter becomes a `Boolean` — `true` includes the chunk, `false` skips it:
 
 ```java
-SqlTemplate<Boolean, List<User>> activeUsers =
+Template<Boolean, List<User>> activeUsers =
     Fragment.of("SELECT * FROM users WHERE 1=1")
         .optionally(Fragment.of(" AND active = TRUE"))
-        .query(userParser.all());
+        .query(userCodec.all());
 ```
 
 ### Multiple Optional Parameters

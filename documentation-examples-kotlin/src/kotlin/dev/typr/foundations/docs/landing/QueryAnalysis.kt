@@ -10,7 +10,7 @@ class QueryAnalysis {
     data class User(val id: Int, val name: String, val createdAt: Int, val email: String)
     lateinit var connection: Connection
 
-    val userParser: RowCodec<User> =
+    val userCodec: RowCodec<User> =
         RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)           // id: correct
             .field(PgTypes.text, User::name)         // name: correct
@@ -25,7 +25,7 @@ class QueryAnalysis {
             FROM users
             WHERE active = ${PgTypes.bool(true)}
         """ }
-            .query(userParser.all())
+            .query(userCodec.all())
 
     fun check() {
         val analysis: AnalysisResult =

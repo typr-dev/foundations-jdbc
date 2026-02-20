@@ -7,7 +7,7 @@ import dev.typr.foundationssc.data.*
 object OptionalQueryMulti:
   case class User(id: Int, name: String, email: String)
 
-  val userParser: RowCodec[User] = RowCodec.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.email)
@@ -18,7 +18,7 @@ object OptionalQueryMulti:
 
   //start
   // Multiple optional filters - each independently present or absent
-  val search: SqlTemplate.Query3[Option[String], Option[String], Boolean, List[User]] =
+  val search: Template.Query3[Option[String], Option[String], Boolean, List[User]] =
     Fragment.of(
       "SELECT id, name, email FROM users WHERE 1=1"
     ).optionally(
@@ -28,7 +28,7 @@ object OptionalQueryMulti:
       .optionally(
         Fragment.of(" AND active = TRUE"))
       .append(" ORDER BY name")
-      .query(userParser.all())
+      .query(userCodec.all())
 
   // Each combination is type-safe
   def example(): List[User] =

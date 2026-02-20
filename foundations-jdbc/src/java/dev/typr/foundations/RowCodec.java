@@ -51,11 +51,11 @@ public sealed class RowCodec<Row> permits RowCodecNamed, RowCodecUnnamed {
   }
 
   /**
-   * Create a type-safe row parser builder.
+   * Create a type-safe row codec builder.
    *
    * <p>Usage:
    * <pre>{@code
-   * RowCodec<Product> parser = RowCodec.<Product>builder()
+   * RowCodec<Product> codec = RowCodec.<Product>builder()
    *     .field(PgTypes.int4, Product::id)
    *     .field(PgTypes.text, Product::name)
    *     .build(Product::new);
@@ -69,11 +69,11 @@ public sealed class RowCodec<Row> permits RowCodecNamed, RowCodecUnnamed {
   }
 
   /**
-   * Create a type-safe named row parser builder.
+   * Create a type-safe named row codec builder.
    *
    * <p>Usage:
    * <pre>{@code
-   * RowCodecNamed<Product> parser = RowCodec.<Product>namedBuilder()
+   * RowCodecNamed<Product> codec = RowCodec.<Product>namedBuilder()
    *     .field("id", PgTypes.int4, Product::id)
    *     .field("name", PgTypes.text, Product::name)
    *     .build(Product::new);
@@ -87,10 +87,10 @@ public sealed class RowCodec<Row> permits RowCodecNamed, RowCodecUnnamed {
   }
 
   /**
-   * Create a single-column row parser.
+   * Create a single-column row codec.
    *
    * @param type the column type
-   * @return a row parser that returns the column value directly
+   * @return a row codec that returns the column value directly
    */
   @SuppressWarnings("unchecked")
   public static <T> RowCodec<T> of(DbType<T> type) {

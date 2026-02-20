@@ -18,7 +18,7 @@ public class QueryAnalysisNullableOk {
 
     // The LEFT JOIN makes o.total nullable in the result set,
     // but .nullableOk() tells analysis we'll handle it
-    RowCodec<OrderRow> orderParser =
+    RowCodec<OrderRow> orderCodec =
         RowCodec.<OrderRow>builder()
             .field(PgTypes.int4, OrderRow::userId)
             .field(PgTypes.text, OrderRow::userName)
@@ -31,7 +31,7 @@ public class QueryAnalysisNullableOk {
             SELECT u.id, u.name, o.total
             FROM users u
             LEFT JOIN orders o ON u.id = o.user_id
-            """).query(orderParser.all());
+            """).query(orderCodec.all());
 
         QueryAnalysis analysis =
             QueryAnalyzer.analyze(query, connection)

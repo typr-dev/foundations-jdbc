@@ -11,7 +11,7 @@ import java.util.List;
 public class BatchOperations {
     record Product(Integer id, String name, BigDecimal price, Instant createdAt) {}
 
-    RowCodecNamed<Product> productParser =
+    RowCodecNamed<Product> productCodec =
         RowCodec.<Product>namedBuilder()
             .field("id", PgTypes.int4, Product::id)
             .field("name", PgTypes.text, Product::name)
@@ -23,11 +23,11 @@ public class BatchOperations {
 
     //start
     // Batch insert — all columns as parameters
-    RowSqlTemplate.Update<Product> insertAll =
+    RowTemplate.Update<Product> insertAll =
         Fragment.of("INSERT INTO product (")
-            .append(productParser.columnList())
+            .append(productCodec.columnList())
             .append(") VALUES (")
-            .paramRow(productParser)
+            .paramRow(productCodec)
             .append(")")
             .update();
 
@@ -36,12 +36,12 @@ public class BatchOperations {
     }
 
     // Batch insert — skip auto-generated ID column
-    RowSqlTemplate.Update<Product> insertAutoId =
+    RowTemplate.Update<Product> insertAutoId =
         Fragment.of("""
                 INSERT INTO product
                 (name, price, created_at) VALUES (\
                 """)
-            .paramRow(productParser, "id")
+            .paramRow(productCodec, "id")
             .append(")")
             .update();
 

@@ -11,4 +11,4 @@ object QueryChecker:
 
 extension (checker: dev.typr.foundations.QueryChecker)
   def check(op: Operation[?]): Unit = checker.check(op.underlying)
-  def check(template: SqlTemplate[?, ?]): Unit = checker.check(template.underlying)
+  def check(template: Template[?, ?]): Unit = checker.check(template.underlying)

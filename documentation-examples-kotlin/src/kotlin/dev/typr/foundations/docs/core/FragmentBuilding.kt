@@ -9,7 +9,7 @@ import java.time.Instant
 class FragmentBuilding {
     data class User(val id: Int, val name: String, val status: String, val createdAt: Instant)
 
-    val userParser: RowCodec<User> =
+    val userCodec: RowCodec<User> =
         RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
@@ -32,6 +32,6 @@ class FragmentBuilding {
 
     // Execute safely — parameters are bound, not interpolated
     val users: List<User> =
-        query.query(userParser.all()).run(connection)
+        query.query(userCodec.all()).run(connection)
     //stop
 }

@@ -11,7 +11,7 @@ import java.time.Instant
 object FragmentBuilding:
   case class User(id: Int, name: String, status: String, createdAt: Instant)
 
-  val userParser: RowCodec[User] = RowCodec.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.status)
@@ -31,5 +31,5 @@ object FragmentBuilding:
 
   // Parameters are bound, not interpolated
   val users: List[User] =
-    query.query(userParser.all()).run(connection)
+    query.query(userCodec.all()).run(connection)
   //stop

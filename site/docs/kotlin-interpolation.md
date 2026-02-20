@@ -51,12 +51,12 @@ Any `Fragment` can be embedded inside `Sql { }` — its SQL is spliced directly 
 Embed a `columnList` from a named row codec:
 
 ```kotlin
-val parser: RowCodecNamed<User> = RowCodec.namedBuilder<User>()
+val codec: RowCodecNamed<User> = RowCodec.namedBuilder<User>()
     .field("id", PgTypes.int4, User::id)
     .field("name", PgTypes.text, User::name)
     .build(::User)
 
-val frag = Sql { "SELECT ${parser.columnList} FROM users WHERE id = ${PgTypes.int4(userId)}" }
+val frag = Sql { "SELECT ${codec.columnList} FROM users WHERE id = ${PgTypes.int4(userId)}" }
 // Produces: SELECT id, name FROM users WHERE id = ?
 ```
 
@@ -97,7 +97,7 @@ if (active) {
 }
 
 val query = Sql { "SELECT * FROM users ${Fragment.whereAnd(filters)}" }
-    .query(userParser.list())
+    .query(userCodec.list())
 ```
 
 Append fragments incrementally:

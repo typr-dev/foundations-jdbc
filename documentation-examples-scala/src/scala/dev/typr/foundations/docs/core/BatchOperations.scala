@@ -9,7 +9,7 @@ import java.time.Instant
 object BatchOperations:
   case class Product(id: Int, name: String, price: BigDecimal, createdAt: Instant)
 
-  val productParser: RowCodecNamed[Product] = RowCodec.namedBuilder[Product]()
+  val productCodec: RowCodecNamed[Product] = RowCodec.namedBuilder[Product]()
     .field("id", PgTypes.int4)(_.id)
     .field("name", PgTypes.text)(_.name)
     .field("price", PgTypes.numeric)(_.price)
@@ -20,11 +20,11 @@ object BatchOperations:
 
   //start
   // Batch insert — all columns as parameters
-  val insertAll: RowSqlTemplate.Update[Product] =
+  val insertAll: RowTemplate.Update[Product] =
     Fragment.of("INSERT INTO product (")
-      .append(productParser.columnList)
+      .append(productCodec.columnList)
       .append(") VALUES (")
-      .paramRow(productParser)
+      .paramRow(productCodec)
       .append(")")
       .update()
 
@@ -32,10 +32,10 @@ object BatchOperations:
     insertAll.onMany(products.iterator).run(conn)
 
   // Batch insert — skip auto-generated ID column
-  val insertAutoId: RowSqlTemplate.Update[Product] =
+  val insertAutoId: RowTemplate.Update[Product] =
     Fragment.of(
       "INSERT INTO product (name, price, created_at) VALUES ("
-    ).paramRow(productParser, "id")
+    ).paramRow(productCodec, "id")
       .append(")")
       .update()
 

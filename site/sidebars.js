@@ -11,7 +11,7 @@ const sidebars = {
         {type: "doc", id: "readme", label: "Getting Started"},
         {type: "doc", id: "fragments", label: "Fragments"},
         {type: "doc", id: "row-codecs", label: "Row Codecs"},
-        {type: "doc", id: "sql-templates", label: "SQL Templates"},
+        {type: "doc", id: "templates", label: "Templates"},
         {type: "doc", id: "operations", label: "Operations"},
         {type: "doc", id: "transactors", label: "Transactors"},
         {type: "doc", id: "query-analysis", label: "Query Analysis"},

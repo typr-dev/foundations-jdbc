@@ -1,34 +1,34 @@
 package dev.typr.foundations;
 
-public sealed interface SqlTemplate<In, Out>
-    permits SqlTemplate.Query1,
-        SqlTemplate.Query2,
-        SqlTemplate.Query3,
-        SqlTemplate.Query4,
-        SqlTemplate.Query5,
-        SqlTemplate.Query6,
-        SqlTemplate.Query7,
-        SqlTemplate.Query8,
-        SqlTemplate.Query9,
-        SqlTemplate.Query10,
-        SqlTemplate.Update1,
-        SqlTemplate.Update2,
-        SqlTemplate.Update3,
-        SqlTemplate.Update4,
-        SqlTemplate.Update5,
-        SqlTemplate.Update6,
-        SqlTemplate.Update7,
-        SqlTemplate.Update8,
-        SqlTemplate.Update9,
-        SqlTemplate.Update10,
-        SqlTemplate.From {
+public sealed interface Template<In, Out>
+    permits Template.Query1,
+        Template.Query2,
+        Template.Query3,
+        Template.Query4,
+        Template.Query5,
+        Template.Query6,
+        Template.Query7,
+        Template.Query8,
+        Template.Query9,
+        Template.Query10,
+        Template.Update1,
+        Template.Update2,
+        Template.Update3,
+        Template.Update4,
+        Template.Update5,
+        Template.Update6,
+        Template.Update7,
+        Template.Update8,
+        Template.Update9,
+        Template.Update10,
+        Template.From {
 
   Operation<Out> on(In in);
 
   Fragment fragment();
 
   record Query1<P0, Out>(Fragment fragment, DbType<P0> p0Type, ResultSetParser<Out> parser)
-      implements SqlTemplate<P0, Out> {
+      implements Template<P0, Out> {
     @Override
     public Operation.Query<Out> on(P0 p0) {
       return new Operation.Query<>(
@@ -45,7 +45,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P0> p0Type,
       DbType<P1> p1Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<Tuple.Tuple2<P0, P1>, Out> {
+      implements Template<Tuple.Tuple2<P0, P1>, Out> {
     @Override
     public Operation.Query<Out> on(Tuple.Tuple2<P0, P1> in) {
       return on(in._1(),
@@ -70,7 +70,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P1> p1Type,
       DbType<P2> p2Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<Tuple.Tuple3<P0, P1, P2>, Out> {
+      implements Template<Tuple.Tuple3<P0, P1, P2>, Out> {
     @Override
     public Operation.Query<Out> on(Tuple.Tuple3<P0, P1, P2> in) {
       return on(in._1(),
@@ -97,7 +97,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P2> p2Type,
       DbType<P3> p3Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<Tuple.Tuple4<P0, P1, P2, P3>, Out> {
+      implements Template<Tuple.Tuple4<P0, P1, P2, P3>, Out> {
     @Override
     public Operation.Query<Out> on(Tuple.Tuple4<P0, P1, P2, P3> in) {
       return on(in._1(),
@@ -126,7 +126,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P3> p3Type,
       DbType<P4> p4Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<Tuple.Tuple5<P0, P1, P2, P3, P4>, Out> {
+      implements Template<Tuple.Tuple5<P0, P1, P2, P3, P4>, Out> {
     @Override
     public Operation.Query<Out> on(Tuple.Tuple5<P0, P1, P2, P3, P4> in) {
       return on(in._1(),
@@ -157,7 +157,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P4> p4Type,
       DbType<P5> p5Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<Tuple.Tuple6<P0, P1, P2, P3, P4, P5>, Out> {
+      implements Template<Tuple.Tuple6<P0, P1, P2, P3, P4, P5>, Out> {
     @Override
     public Operation.Query<Out> on(Tuple.Tuple6<P0, P1, P2, P3, P4, P5> in) {
       return on(in._1(),
@@ -190,7 +190,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P5> p5Type,
       DbType<P6> p6Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6>, Out> {
+      implements Template<Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6>, Out> {
     @Override
     public Operation.Query<Out> on(Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6> in) {
       return on(in._1(),
@@ -225,7 +225,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P6> p6Type,
       DbType<P7> p7Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7>, Out> {
+      implements Template<Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7>, Out> {
     @Override
     public Operation.Query<Out> on(Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7> in) {
       return on(in._1(),
@@ -262,7 +262,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P7> p7Type,
       DbType<P8> p8Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8>, Out> {
+      implements Template<Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8>, Out> {
     @Override
     public Operation.Query<Out> on(Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8> in) {
       return on(in._1(),
@@ -301,7 +301,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P8> p8Type,
       DbType<P9> p9Type,
       ResultSetParser<Out> parser)
-      implements SqlTemplate<Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>, Out> {
+      implements Template<Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>, Out> {
     @Override
     public Operation.Query<Out> on(Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9> in) {
       return on(in._1(),
@@ -329,7 +329,7 @@ public sealed interface SqlTemplate<In, Out>
   }
 
   record Update1<P0>(Fragment fragment, DbType<P0> p0Type)
-      implements SqlTemplate<P0, Integer> {
+      implements Template<P0, Integer> {
     @Override
     public Operation.Update on(P0 p0) {
       return new Operation.Update(
@@ -345,7 +345,7 @@ public sealed interface SqlTemplate<In, Out>
       Fragment fragment,
       DbType<P0> p0Type,
       DbType<P1> p1Type)
-      implements SqlTemplate<Tuple.Tuple2<P0, P1>, Integer> {
+      implements Template<Tuple.Tuple2<P0, P1>, Integer> {
     @Override
     public Operation.Update on(Tuple.Tuple2<P0, P1> in) {
       return on(in._1(),
@@ -368,7 +368,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P0> p0Type,
       DbType<P1> p1Type,
       DbType<P2> p2Type)
-      implements SqlTemplate<Tuple.Tuple3<P0, P1, P2>, Integer> {
+      implements Template<Tuple.Tuple3<P0, P1, P2>, Integer> {
     @Override
     public Operation.Update on(Tuple.Tuple3<P0, P1, P2> in) {
       return on(in._1(),
@@ -393,7 +393,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P1> p1Type,
       DbType<P2> p2Type,
       DbType<P3> p3Type)
-      implements SqlTemplate<Tuple.Tuple4<P0, P1, P2, P3>, Integer> {
+      implements Template<Tuple.Tuple4<P0, P1, P2, P3>, Integer> {
     @Override
     public Operation.Update on(Tuple.Tuple4<P0, P1, P2, P3> in) {
       return on(in._1(),
@@ -420,7 +420,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P2> p2Type,
       DbType<P3> p3Type,
       DbType<P4> p4Type)
-      implements SqlTemplate<Tuple.Tuple5<P0, P1, P2, P3, P4>, Integer> {
+      implements Template<Tuple.Tuple5<P0, P1, P2, P3, P4>, Integer> {
     @Override
     public Operation.Update on(Tuple.Tuple5<P0, P1, P2, P3, P4> in) {
       return on(in._1(),
@@ -449,7 +449,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P3> p3Type,
       DbType<P4> p4Type,
       DbType<P5> p5Type)
-      implements SqlTemplate<Tuple.Tuple6<P0, P1, P2, P3, P4, P5>, Integer> {
+      implements Template<Tuple.Tuple6<P0, P1, P2, P3, P4, P5>, Integer> {
     @Override
     public Operation.Update on(Tuple.Tuple6<P0, P1, P2, P3, P4, P5> in) {
       return on(in._1(),
@@ -480,7 +480,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P4> p4Type,
       DbType<P5> p5Type,
       DbType<P6> p6Type)
-      implements SqlTemplate<Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6>, Integer> {
+      implements Template<Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6>, Integer> {
     @Override
     public Operation.Update on(Tuple.Tuple7<P0, P1, P2, P3, P4, P5, P6> in) {
       return on(in._1(),
@@ -513,7 +513,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P5> p5Type,
       DbType<P6> p6Type,
       DbType<P7> p7Type)
-      implements SqlTemplate<Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7>, Integer> {
+      implements Template<Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7>, Integer> {
     @Override
     public Operation.Update on(Tuple.Tuple8<P0, P1, P2, P3, P4, P5, P6, P7> in) {
       return on(in._1(),
@@ -548,7 +548,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P6> p6Type,
       DbType<P7> p7Type,
       DbType<P8> p8Type)
-      implements SqlTemplate<Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8>, Integer> {
+      implements Template<Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8>, Integer> {
     @Override
     public Operation.Update on(Tuple.Tuple9<P0, P1, P2, P3, P4, P5, P6, P7, P8> in) {
       return on(in._1(),
@@ -585,7 +585,7 @@ public sealed interface SqlTemplate<In, Out>
       DbType<P7> p7Type,
       DbType<P8> p8Type,
       DbType<P9> p9Type)
-      implements SqlTemplate<Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>, Integer> {
+      implements Template<Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>, Integer> {
     @Override
     public Operation.Update on(Tuple.Tuple10<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9> in) {
       return on(in._1(),
@@ -612,9 +612,9 @@ public sealed interface SqlTemplate<In, Out>
   }
 
   record From<T, Out>(
-      SqlTemplate<?, Out> inner,
+      Template<?, Out> inner,
       java.util.function.Function<T, ? extends Operation<Out>> resolver)
-      implements SqlTemplate<T, Out> {
+      implements Template<T, Out> {
     @Override
     public Operation<Out> on(T t) {
       return resolver.apply(t);

@@ -3,17 +3,17 @@ package dev.typr.foundations.docs.core;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
-import dev.typr.foundations.SqlTemplate;
+import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
 import java.sql.SQLException;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
-public class SqlTemplateBasic {
+public class TemplateBasic {
     record User(int id, String name, String email) {}
 
-    static RowCodec<User> userParser =
+    static RowCodec<User> userCodec =
         RowCodec.<User>builder()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
@@ -24,13 +24,13 @@ public class SqlTemplateBasic {
 
     //start
     // Define a reusable template — SQL structure is fixed, values come later
-    SqlTemplate<String, Optional<User>> findByEmail =
+    Template<String, Optional<User>> findByEmail =
         Fragment.of("""
                 SELECT id, name, email
                 FROM users WHERE email =
                 """)
             .param(PgTypes.text)
-            .query(userParser.maxOne());
+            .query(userCodec.maxOne());
 
     // Fill the template with a value to get a concrete operation
     Optional<User> findAlice() throws SQLException {

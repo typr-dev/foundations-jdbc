@@ -53,13 +53,13 @@ sealed class Operation<Out> {
     fun <B> thenIgnore(other: Operation<B>): Operation<Out> =
         with(other).map { pair -> pair.first }
 
-    fun <B> then(template: SqlTemplate<Out, B>): Operation<B> {
+    fun <B> then(template: Template<Out, B>): Operation<B> {
         val javaTemplate = template.underlying
         @Suppress("UNCHECKED_CAST")
         val javaOp = dev.typr.foundations.Operation.Then(
             underlying as dev.typr.foundations.Operation<Out>,
             java.util.function.Function.identity(),
-            javaTemplate as dev.typr.foundations.SqlTemplate<Out, B>
+            javaTemplate as dev.typr.foundations.Template<Out, B>
         )
         return Then(javaOp, this, { it }, template)
     }
@@ -152,7 +152,7 @@ sealed class Operation<Out> {
         override val underlying: dev.typr.foundations.Operation<*>,
         val source: Operation<A>,
         val extract: (A) -> In,
-        val continuation: SqlTemplate<In, Out>
+        val continuation: Template<In, Out>
     ) : Operation<Out>() {
         @Throws(SQLException::class)
         override fun runChecked(conn: Connection): Out {

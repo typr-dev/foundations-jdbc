@@ -8,7 +8,7 @@ import dev.typr.foundationssc.data.*
 object GettingStarted:
   case class City(name: String, population: Int)
 
-  val cityParser: RowCodec[City] = RowCodec.builder[City]()
+  val cityCodec: RowCodec[City] = RowCodec.builder[City]()
     .field(DuckDbTypes.varchar)(_.name)
     .field(DuckDbTypes.integer)(_.population)
     .build(City.apply)
@@ -32,7 +32,7 @@ object GettingStarted:
       sql"""SELECT name, population
             FROM city
             ORDER BY population DESC"""
-        .query(cityParser.all())
+        .query(cityCodec.all())
         .run(conn)
     }
   //stop

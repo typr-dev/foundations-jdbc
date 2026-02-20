@@ -10,7 +10,7 @@ object RowCodecBasic:
   //start
   case class Person(id: Int, name: String, createdAt: Instant)
 
-  val personParser: RowCodec[Person] = RowCodec.builder[Person]()
+  val personCodec: RowCodec[Person] = RowCodec.builder[Person]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.timestamptz)(_.createdAt)

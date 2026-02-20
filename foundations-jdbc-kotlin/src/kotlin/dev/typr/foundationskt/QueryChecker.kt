@@ -13,4 +13,4 @@ object QueryChecker {
 }
 
 fun dev.typr.foundations.QueryChecker.check(op: Operation<*>) = check(op.underlying)
-fun dev.typr.foundations.QueryChecker.check(template: SqlTemplate<*, *>) = check(template.underlying)
+fun dev.typr.foundations.QueryChecker.check(template: Template<*, *>) = check(template.underlying)

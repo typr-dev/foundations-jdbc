@@ -4,10 +4,10 @@ import dev.typr.foundationskt.*
 import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
-class SqlTemplateThenFrom {
+class TemplateThenFrom {
     data class NewUser(val id: Int, val name: String)
 
-    val newUserParser: RowCodec<NewUser> =
+    val newUserCodec: RowCodec<NewUser> =
         RowCodec.builder<NewUser>()
             .field(PgTypes.int4, NewUser::id)
             .field(PgTypes.text, NewUser::name)
@@ -17,14 +17,14 @@ class SqlTemplateThenFrom {
 
     //start
     // 1-param template: insert user, return id and name
-    val insertUser: SqlTemplate<String, NewUser> =
+    val insertUser: Template<String, NewUser> =
         Fragment.of("INSERT INTO users(name) VALUES(")
             .param(PgTypes.text)
             .append(") RETURNING id, name")
-            .query(newUserParser.exactlyOne())
+            .query(newUserCodec.exactlyOne())
 
     // 2-param template: log the creation with both fields
-    val logCreation: SqlTemplate.Update2<Int, String> =
+    val logCreation: Template.Update2<Int, String> =
         Fragment.of("INSERT INTO audit_log(user_id, username) VALUES(")
             .param(PgTypes.int4)
             .append(", ")

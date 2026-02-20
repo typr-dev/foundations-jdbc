@@ -10,7 +10,7 @@ import java.time.Instant;
 public class FragmentRow {
     record Product(Integer id, String name, BigDecimal price, Instant createdAt) {}
 
-    RowCodecNamed<Product> productParser =
+    RowCodecNamed<Product> productCodec =
         RowCodec.<Product>namedBuilder()
             .field("id", PgTypes.int4, Product::id)
             .field("name", PgTypes.text, Product::name)
@@ -23,24 +23,24 @@ public class FragmentRow {
     //start
     Product insert(Product product) {
         return Fragment.of("INSERT INTO product (")
-            .append(productParser.columnList())
+            .append(productCodec.columnList())
             .append(") VALUES (")
-            .row(productParser, product)
+            .row(productCodec, product)
             .append(") RETURNING ")
-            .append(productParser.columnList())
-            .query(productParser.exactlyOne())
+            .append(productCodec.columnList())
+            .query(productCodec.exactlyOne())
             .run(conn);
     }
 
     // Skip columns with database defaults — pass column names to except
     Product insertWithDefault(Product product) {
         return Fragment.of("INSERT INTO product (")
-            .append(productParser.columnList())
+            .append(productCodec.columnList())
             .append(") VALUES (DEFAULT, ")
-            .row(productParser, product, "id")
+            .row(productCodec, product, "id")
             .append(") RETURNING ")
-            .append(productParser.columnList())
-            .query(productParser.exactlyOne())
+            .append(productCodec.columnList())
+            .query(productCodec.exactlyOne())
             .run(conn);
     }
     //stop

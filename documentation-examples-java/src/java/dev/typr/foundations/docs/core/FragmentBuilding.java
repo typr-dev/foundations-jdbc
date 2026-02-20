@@ -12,7 +12,7 @@ import java.util.List;
 public class FragmentBuilding {
     record User(Integer id, String name, String status, Instant createdAt) {}
 
-    RowCodec<User> userParser =
+    RowCodec<User> userCodec =
         RowCodec.<User>builder()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
@@ -38,6 +38,6 @@ public class FragmentBuilding {
 
     // Execute safely — parameters are bound, not interpolated
     List<User> users =
-        query.query(userParser.all()).run(connection);
+        query.query(userCodec.all()).run(connection);
     //stop
 }

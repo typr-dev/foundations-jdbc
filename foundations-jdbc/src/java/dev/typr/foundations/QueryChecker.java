@@ -26,7 +26,7 @@ public interface QueryChecker {
     }
   }
 
-  default void check(SqlTemplate<?, ?> template) {
+  default void check(Template<?, ?> template) {
     List<QueryAnalysis> analyses;
     try {
       analyses = transactor().execute(conn -> QueryAnalyzer.analyze(template, conn));
@@ -46,7 +46,7 @@ public interface QueryChecker {
     }
   }
 
-  default void check(RowSqlTemplate<?, ?> template) {
+  default void check(RowTemplate<?, ?> template) {
     List<QueryAnalysis> analyses;
     try {
       analyses = transactor().execute(conn -> QueryAnalyzer.analyze(template, conn));
@@ -78,8 +78,8 @@ public interface QueryChecker {
     }
   }
 
-  default <T> void check(Fragment fragment, RowCodec<T> parser) {
-    check(fragment, parser.all());
+  default <T> void check(Fragment fragment, RowCodec<T> codec) {
+    check(fragment, codec.all());
   }
 
   default void checkAll(Operation<?>... operations) {

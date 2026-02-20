@@ -14,7 +14,7 @@ public class ManualTransaction {
     record Order(int id, int userId, String product) {}
     record Dashboard(long userCount, List<Order> recentOrders) {}
 
-    static RowCodec<Order> orderParser =
+    static RowCodec<Order> orderCodec =
         RowCodec.<Order>builder()
             .field(PgTypes.int4, Order::id)
             .field(PgTypes.int4, Order::userId)
@@ -31,7 +31,7 @@ public class ManualTransaction {
         Fragment.of("""
                 SELECT * FROM orders
                 ORDER BY id DESC LIMIT 10""")
-            .query(orderParser.all());
+            .query(orderCodec.all());
 
     // Run both in one transaction using the connection directly
     Dashboard dashboard() throws SQLException {

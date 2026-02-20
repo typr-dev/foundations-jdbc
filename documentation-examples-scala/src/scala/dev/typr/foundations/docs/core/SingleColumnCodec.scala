@@ -5,7 +5,7 @@ import dev.typr.foundationssc.data.*
 
 
 @SuppressWarnings(Array("unused"))
-object SingleColumnParser:
+object SingleColumnCodec:
   //start
-  val idParser: RowCodec[Int] = RowCodec.of(PgTypes.int4)
+  val idCodec: RowCodec[Int] = RowCodec.of(PgTypes.int4)
   //stop

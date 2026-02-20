@@ -8,7 +8,7 @@ import java.sql.Connection
 class QueryAnalysisAll {
     data class User(val id: Int, val name: String)
 
-    val userParser: RowCodec<User> =
+    val userCodec: RowCodec<User> =
         RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
@@ -16,7 +16,7 @@ class QueryAnalysisAll {
 
     lateinit var conn: Connection
 
-    val insertUser: SqlTemplate<String, Int> =
+    val insertUser: Template<String, Int> =
         Fragment.of("INSERT INTO users(name) VALUES(")
             .param(PgTypes.text)
             .append(") RETURNING id")
@@ -24,7 +24,7 @@ class QueryAnalysisAll {
 
     val allUsers: Operation<List<User>> =
         Sql { "SELECT id, name FROM users" }
-            .query(userParser.all())
+            .query(userCodec.all())
 
     //start
     fun analyzeComposedOperation() {

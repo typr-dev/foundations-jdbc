@@ -369,7 +369,7 @@ public class BatchOperationTest {
   static void assertOnMany(
       Connection conn, RowCodecNamed<IdItem> parser, String table, int expectedCount)
       throws SQLException {
-    RowSqlTemplate.Update<IdItem> template =
+    RowTemplate.Update<IdItem> template =
         Fragment.of("INSERT INTO " + table + " (")
             .append(parser.columnList())
             .append(") VALUES (")
@@ -396,7 +396,7 @@ public class BatchOperationTest {
 
   static void assertOnManySkipId(
       Connection conn, RowCodecNamed<IdItem> parser, String table) throws SQLException {
-    RowSqlTemplate.Update<IdItem> template =
+    RowTemplate.Update<IdItem> template =
         Fragment.of("INSERT INTO " + table + " (name, quantity) VALUES (")
             .paramRow(parser, "id")
             .append(")")
@@ -443,7 +443,7 @@ public class BatchOperationTest {
 
   static void assertSingleThenBatch(
       Connection conn, RowCodecNamed<IdItem> parser, String table) throws SQLException {
-    RowSqlTemplate.Update<IdItem> template =
+    RowTemplate.Update<IdItem> template =
         Fragment.of("INSERT INTO " + table + " (")
             .append(parser.columnList())
             .append(") VALUES (")

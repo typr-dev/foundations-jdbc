@@ -10,7 +10,7 @@ import java.time.Instant
 object FragmentRow:
   case class Product(id: Int, name: String, price: BigDecimal, createdAt: Instant)
 
-  val productParser: RowCodecNamed[Product] = RowCodec.namedBuilder[Product]()
+  val productCodec: RowCodecNamed[Product] = RowCodec.namedBuilder[Product]()
     .field("id", PgTypes.int4)(_.id)
     .field("name", PgTypes.text)(_.name)
     .field("price", PgTypes.numeric)(_.price)
@@ -22,22 +22,22 @@ object FragmentRow:
   //start
   def insert(product: Product): Product =
     Fragment.of("INSERT INTO product (")
-      .append(productParser.columnList)
+      .append(productCodec.columnList)
       .append(") VALUES (")
-      .row(productParser, product)
+      .row(productCodec, product)
       .append(") RETURNING ")
-      .append(productParser.columnList)
-      .query(productParser.exactlyOne())
+      .append(productCodec.columnList)
+      .query(productCodec.exactlyOne())
       .run(conn)
 
   // Skip columns with database defaults — pass column names to except
   def insertWithDefault(product: Product): Product =
     Fragment.of("INSERT INTO product (")
-      .append(productParser.columnList)
+      .append(productCodec.columnList)
       .append(") VALUES (DEFAULT, ")
-      .row(productParser, product, "id")
+      .row(productCodec, product, "id")
       .append(") RETURNING ")
-      .append(productParser.columnList)
-      .query(productParser.exactlyOne())
+      .append(productCodec.columnList)
+      .query(productCodec.exactlyOne())
       .run(conn)
   //stop

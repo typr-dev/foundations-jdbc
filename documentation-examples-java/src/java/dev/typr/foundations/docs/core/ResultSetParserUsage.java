@@ -14,7 +14,7 @@ import java.util.Optional;
 public class ResultSetParserUsage {
     record Person(Integer id, String name, Instant createdAt) {}
 
-    RowCodec<Person> personParser =
+    RowCodec<Person> personCodec =
         RowCodec.<Person>builder()
             .field(PgTypes.int4, Person::id)
             .field(PgTypes.text, Person::name)
@@ -26,11 +26,11 @@ public class ResultSetParserUsage {
     //start
     // Parse a single optional result
     ResultSetParser<Optional<Person>> singleParser =
-        personParser.maxOne();
+        personCodec.maxOne();
 
     // Parse all results as a list
     ResultSetParser<List<Person>> listParser =
-        personParser.all();
+        personCodec.all();
 
     // Execute with ResultSet
     Optional<Person> parse() throws SQLException {

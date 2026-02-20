@@ -4,10 +4,10 @@ import dev.typr.foundationssc.data.*
 
 
 @SuppressWarnings(Array("unused"))
-object SqlTemplateBasic:
+object TemplateBasic:
   case class User(id: Int, name: String, email: String)
 
-  val userParser: RowCodec[User] = RowCodec.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.email)
@@ -18,12 +18,12 @@ object SqlTemplateBasic:
   //start
   // Reusable template - SQL is fixed, values come later.
   // sql"..." cannot be used with unbound parameters;
-  // the builder API provides type-safe SqlTemplate construction.
-  val findByEmail: SqlTemplate[String, Option[User]] =
+  // the builder API provides type-safe Template construction.
+  val findByEmail: Template[String, Option[User]] =
     Fragment.of(
       "SELECT id, name, email FROM users WHERE email = "
     ).param(PgTypes.text)
-      .query(userParser.maxOne())
+      .query(userCodec.maxOne())
 
   // Fill the template to get a concrete operation
   def findAlice(): Option[User] =

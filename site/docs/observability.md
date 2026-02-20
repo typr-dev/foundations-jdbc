@@ -42,7 +42,7 @@ For composite operations (e.g. `a.with(b).named("dashboard")`), each leaf query 
 
 ```java
 Fragment.of("SELECT * FROM large_table")
-    .query(parser.all())
+    .query(codec.all())
     .timeout(Duration.ofSeconds(10))
     .transact(tx);
 ```
