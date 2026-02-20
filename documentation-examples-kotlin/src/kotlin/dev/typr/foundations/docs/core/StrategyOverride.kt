@@ -10,6 +10,6 @@ class StrategyOverride {
 
     //start
     val txWithLogging: Transactor =
-        tx.withStrategy(Transactor.defaultStrategy().withListener(logger))
+        tx.withStrategy(Strategy.empty().withListener(logger))
     //stop
 }

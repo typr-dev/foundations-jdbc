@@ -68,7 +68,11 @@ public final class SpringTransactor {
   }
 
   private static Strategy strategy(DataSource dataSource) {
-    return new Strategy(before(), after(), oops(), always(dataSource), QueryListener.NOOP);
+    return Strategy.empty()
+        .withBefore(before())
+        .withAfter(after())
+        .withOops(oops())
+        .withAlways(always(dataSource));
   }
 
   private static SqlConsumer<Connection> before() {

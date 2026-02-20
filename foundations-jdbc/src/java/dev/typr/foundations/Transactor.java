@@ -111,12 +111,10 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @return a strategy for manual transaction management
    */
   public static Strategy defaultStrategy() {
-    return new Strategy(
-        conn -> conn.setAutoCommit(false),
-        Connection::commit,
-        (conn, t) -> {},
-        Connection::close,
-        QueryListener.NOOP);
+    return Strategy.empty()
+        .withBefore(conn -> conn.setAutoCommit(false))
+        .withAfter(Connection::commit)
+        .withAlways(Connection::close);
   }
 
   /**
@@ -134,8 +132,7 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @return a strategy for auto-commit mode
    */
   public static Strategy autoCommitStrategy() {
-    return new Strategy(
-        conn -> {}, conn -> {}, (conn, t) -> {}, Connection::close, QueryListener.NOOP);
+    return Strategy.empty().withAlways(Connection::close);
   }
 
   /**
@@ -153,19 +150,19 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @return a strategy that rolls back on error
    */
   public static Strategy rollbackOnErrorStrategy() {
-    return new Strategy(
-        conn -> conn.setAutoCommit(false),
-        Connection::commit,
-        (conn, t) -> {
-          try {
-            if (!conn.getAutoCommit() && !conn.isClosed()) {
-              conn.rollback();
-            }
-          } catch (SQLException ignored) {
-          }
-        },
-        Connection::close,
-        QueryListener.NOOP);
+    return Strategy.empty()
+        .withBefore(conn -> conn.setAutoCommit(false))
+        .withAfter(Connection::commit)
+        .withOops(
+            (conn, t) -> {
+              try {
+                if (!conn.getAutoCommit() && !conn.isClosed()) {
+                  conn.rollback();
+                }
+              } catch (SQLException ignored) {
+              }
+            })
+        .withAlways(Connection::close);
   }
 
   /**
@@ -183,12 +180,10 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @return a strategy for testing that always rolls back
    */
   public static Strategy testStrategy() {
-    return new Strategy(
-        conn -> conn.setAutoCommit(false),
-        Connection::rollback,
-        (conn, t) -> {},
-        Connection::close,
-        QueryListener.NOOP);
+    return Strategy.empty()
+        .withBefore(conn -> conn.setAutoCommit(false))
+        .withAfter(Connection::rollback)
+        .withAlways(Connection::close);
   }
 
   /**
@@ -207,6 +202,26 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
       SqlBiConsumer<Connection, Throwable> oops,
       SqlConsumer<Connection> always,
       QueryListener listener) {
+
+    public static Strategy empty() {
+      return new Strategy(conn -> {}, conn -> {}, (conn, t) -> {}, conn -> {}, QueryListener.NOOP);
+    }
+
+    public Strategy withBefore(SqlConsumer<Connection> before) {
+      return new Strategy(before, after, oops, always, listener);
+    }
+
+    public Strategy withAfter(SqlConsumer<Connection> after) {
+      return new Strategy(before, after, oops, always, listener);
+    }
+
+    public Strategy withOops(SqlBiConsumer<Connection, Throwable> oops) {
+      return new Strategy(before, after, oops, always, listener);
+    }
+
+    public Strategy withAlways(SqlConsumer<Connection> always) {
+      return new Strategy(before, after, oops, always, listener);
+    }
 
     public Strategy withListener(QueryListener listener) {
       return new Strategy(before, after, oops, always, listener);

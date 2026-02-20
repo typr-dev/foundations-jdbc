@@ -9,6 +9,6 @@ public class StrategyOverride {
     QueryListener logger = QueryListener.NOOP; // placeholder
     //start
     Transactor txWithLogging = tx.withStrategy(
-        Transactor.defaultStrategy().withListener(logger));
+        Transactor.Strategy.empty().withListener(logger));
     //stop
 }

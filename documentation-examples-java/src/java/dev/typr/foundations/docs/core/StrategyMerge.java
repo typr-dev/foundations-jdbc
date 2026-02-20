@@ -9,7 +9,6 @@ public class StrategyMerge {
     //start
     Transactor.Strategy base = Transactor.defaultStrategy();
     Transactor.Strategy withLogging =
-        base.merge(new Transactor.Strategy(
-            conn -> {}, conn -> {}, (conn, t) -> {}, conn -> {}, logger));
+        base.merge(Transactor.Strategy.empty().withListener(logger));
     //stop
 }
