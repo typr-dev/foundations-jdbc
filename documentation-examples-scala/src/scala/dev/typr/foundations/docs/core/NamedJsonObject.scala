@@ -8,8 +8,8 @@ object NamedJsonObject:
     product: String, qty: Int, price: BigDecimal
   )
 
-  val lineParser: RowParserNamed[OrderLine] =
-    RowParser.namedBuilder[OrderLine]()
+  val lineParser: RowCodecNamed[OrderLine] =
+    RowCodec.namedBuilder[OrderLine]()
       .field("product", DuckDbTypes.varchar)(_.product)
       .field("qty", DuckDbTypes.integer)(_.qty)
       .field("price", DuckDbTypes.decimal(10, 2))(_.price)

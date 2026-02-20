@@ -10,8 +10,8 @@ import java.time.Instant;
 public class FragmentRow {
     record Product(Integer id, String name, BigDecimal price, Instant createdAt) {}
 
-    RowParserNamed<Product> productParser =
-        RowParser.<Product>namedBuilder()
+    RowCodecNamed<Product> productParser =
+        RowCodec.<Product>namedBuilder()
             .field("id", PgTypes.int4, Product::id)
             .field("name", PgTypes.text, Product::name)
             .field("price", PgTypes.numeric, Product::price)

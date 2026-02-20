@@ -26,13 +26,13 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
     Operation.Query(this, parser)
 
   def queryOne[T](tpe: DbType[T]): Operation.Query[T] =
-    query(RowParser.of(tpe).exactlyOne())
+    query(RowCodec.of(tpe).exactlyOne())
 
   def queryList[T](tpe: DbType[T]): Operation.Query[List[T]] =
-    query(RowParser.of(tpe).all())
+    query(RowCodec.of(tpe).all())
 
   def queryMaybe[T](tpe: DbType[T]): Operation.Query[Option[T]] =
-    query(RowParser.of(tpe).maxOne())
+    query(RowCodec.of(tpe).maxOne())
 
   def update(): Operation.Update =
     Operation.Update(this)
@@ -42,17 +42,17 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
   def updateReturning[T](parser: ResultSetParser[T]): Operation.UpdateReturning[T] =
     Operation.UpdateReturning(this, parser)
 
-  def updateMany[Row](parser: RowParser[Row], rows: Iterator[Row]): Operation.UpdateMany[Row] = {
+  def updateMany[Row](parser: RowCodec[Row], rows: Iterator[Row]): Operation.UpdateMany[Row] = {
     import _root_.scala.jdk.CollectionConverters.*
     new Operation.UpdateMany(underlying.updateMany(parser.underlying, rows.asJava))
   }
 
-  def updateManyReturning[Row](parser: RowParser[Row], rows: Iterator[Row]): Operation.UpdateManyReturning[Row] = {
+  def updateManyReturning[Row](parser: RowCodec[Row], rows: Iterator[Row]): Operation.UpdateManyReturning[Row] = {
     import _root_.scala.jdk.CollectionConverters.*
     new Operation.UpdateManyReturning(underlying.updateManyReturning(parser.underlying, rows.asJava))
   }
 
-  def updateReturningEach[Row](parser: RowParser[Row], rows: Iterator[Row]): Operation.UpdateReturningEach[Row] = {
+  def updateReturningEach[Row](parser: RowCodec[Row], rows: Iterator[Row]): Operation.UpdateReturningEach[Row] = {
     import _root_.scala.jdk.CollectionConverters.*
     new Operation.UpdateReturningEach(underlying.updateReturningEach(parser.underlying, rows.asJava))
   }
@@ -69,10 +69,10 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
     new Fragment(underlying.value(dbType.underlying.opt(), value.toJava))
   }
 
-  def paramRow[Row](parser: RowParserNamed[Row], except: String*): RowParamBuilder[Row] =
+  def paramRow[Row](parser: RowCodecNamed[Row], except: String*): RowParamBuilder[Row] =
     new RowParamBuilder(underlying.paramRow(parser.underlying, except*))
 
-  def row[Row](parser: RowParserNamed[Row], row: Row, except: String*): Fragment =
+  def row[Row](parser: RowCodecNamed[Row], row: Row, except: String*): Fragment =
     new Fragment(underlying.row(parser.underlying, row, except*))
 
   def param[P0](dbType: DbType[P0]): ParamBuilders.ParamBuilder1[P0] =

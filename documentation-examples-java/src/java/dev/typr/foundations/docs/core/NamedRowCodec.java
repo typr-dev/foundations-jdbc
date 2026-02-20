@@ -6,12 +6,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @SuppressWarnings("unused")
-public class NamedRowParser {
+public class NamedRowCodec {
     //start
     record Product(Integer id, String name, BigDecimal price, Instant createdAt) {}
 
-    RowParserNamed<Product> productParser =
-        RowParser.<Product>namedBuilder()
+    RowCodecNamed<Product> productParser =
+        RowCodec.<Product>namedBuilder()
             .field("id", PgTypes.int4, Product::id)
             .field("name", PgTypes.text, Product::name)
             .field("price", PgTypes.numeric, Product::price)

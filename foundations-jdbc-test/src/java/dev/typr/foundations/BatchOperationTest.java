@@ -25,12 +25,12 @@ public class BatchOperationTest {
   public void duckdb() throws Exception {
     try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
       var ip =
-          RowParser.<Item>namedBuilder()
+          RowCodec.<Item>namedBuilder()
               .field("name", DuckDbTypes.varchar, Item::name)
               .field("quantity", DuckDbTypes.integer, Item::quantity)
               .build(Item::new);
       var pp =
-          RowParser.<IdItem>namedBuilder()
+          RowCodec.<IdItem>namedBuilder()
               .field("id", DuckDbTypes.integer, IdItem::id)
               .field("name", DuckDbTypes.varchar, IdItem::name)
               .field("quantity", DuckDbTypes.integer, IdItem::quantity)
@@ -92,12 +92,12 @@ public class BatchOperationTest {
         .execute(
             conn -> {
               var ip =
-                  RowParser.<Item>namedBuilder()
+                  RowCodec.<Item>namedBuilder()
                       .field("name", PgTypes.text, Item::name)
                       .field("quantity", PgTypes.int4, Item::quantity)
                       .build(Item::new);
               var pp =
-                  RowParser.<IdItem>namedBuilder()
+                  RowCodec.<IdItem>namedBuilder()
                       .field("id", PgTypes.int4, IdItem::id)
                       .field("name", PgTypes.text, IdItem::name)
                       .field("quantity", PgTypes.int4, IdItem::quantity)
@@ -143,12 +143,12 @@ public class BatchOperationTest {
         .execute(
             conn -> {
               var ip =
-                  RowParser.<Item>namedBuilder()
+                  RowCodec.<Item>namedBuilder()
                       .field("name", MariaTypes.varchar, Item::name)
                       .field("quantity", MariaTypes.int_, Item::quantity)
                       .build(Item::new);
               var pp =
-                  RowParser.<IdItem>namedBuilder()
+                  RowCodec.<IdItem>namedBuilder()
                       .field("id", MariaTypes.int_, IdItem::id)
                       .field("name", MariaTypes.varchar, IdItem::name)
                       .field("quantity", MariaTypes.int_, IdItem::quantity)
@@ -194,12 +194,12 @@ public class BatchOperationTest {
         .execute(
             conn -> {
               var ip =
-                  RowParser.<Item>namedBuilder()
+                  RowCodec.<Item>namedBuilder()
                       .field("name", SqlServerTypes.varchar, Item::name)
                       .field("quantity", SqlServerTypes.int_, Item::quantity)
                       .build(Item::new);
               var pp =
-                  RowParser.<IdItem>namedBuilder()
+                  RowCodec.<IdItem>namedBuilder()
                       .field("id", SqlServerTypes.int_, IdItem::id)
                       .field("name", SqlServerTypes.varchar, IdItem::name)
                       .field("quantity", SqlServerTypes.int_, IdItem::quantity)
@@ -240,12 +240,12 @@ public class BatchOperationTest {
         .execute(
             conn -> {
               var ip =
-                  RowParser.<Item>namedBuilder()
+                  RowCodec.<Item>namedBuilder()
                       .field("name", OracleTypes.varchar2, Item::name)
                       .field("quantity", OracleTypes.numberInt, Item::quantity)
                       .build(Item::new);
               var pp =
-                  RowParser.<IdItem>namedBuilder()
+                  RowCodec.<IdItem>namedBuilder()
                       .field("id", OracleTypes.numberInt, IdItem::id)
                       .field("name", OracleTypes.varchar2, IdItem::name)
                       .field("quantity", OracleTypes.numberInt, IdItem::quantity)
@@ -293,12 +293,12 @@ public class BatchOperationTest {
         .execute(
             conn -> {
               var ip =
-                  RowParser.<Item>namedBuilder()
+                  RowCodec.<Item>namedBuilder()
                       .field("name", Db2Types.varchar, Item::name)
                       .field("quantity", Db2Types.integer, Item::quantity)
                       .build(Item::new);
               var pp =
-                  RowParser.<IdItem>namedBuilder()
+                  RowCodec.<IdItem>namedBuilder()
                       .field("id", Db2Types.integer, IdItem::id)
                       .field("name", Db2Types.varchar, IdItem::name)
                       .field("quantity", Db2Types.integer, IdItem::quantity)
@@ -346,7 +346,7 @@ public class BatchOperationTest {
       List.of(new IdItem(1, "widget", 100), new IdItem(2, "gadget", 200), new IdItem(3, "doohickey", 300));
 
   static void assertBatchInsert(
-      Connection conn, RowParserNamed<Item> parser, String table, int expectedCount)
+      Connection conn, RowCodecNamed<Item> parser, String table, int expectedCount)
       throws SQLException {
     Fragment insert =
         Fragment.of("INSERT INTO " + table + " (name, quantity) VALUES (?, ?)");
@@ -367,7 +367,7 @@ public class BatchOperationTest {
   }
 
   static void assertOnMany(
-      Connection conn, RowParserNamed<IdItem> parser, String table, int expectedCount)
+      Connection conn, RowCodecNamed<IdItem> parser, String table, int expectedCount)
       throws SQLException {
     RowSqlTemplate.Update<IdItem> template =
         Fragment.of("INSERT INTO " + table + " (")
@@ -395,7 +395,7 @@ public class BatchOperationTest {
   }
 
   static void assertOnManySkipId(
-      Connection conn, RowParserNamed<IdItem> parser, String table) throws SQLException {
+      Connection conn, RowCodecNamed<IdItem> parser, String table) throws SQLException {
     RowSqlTemplate.Update<IdItem> template =
         Fragment.of("INSERT INTO " + table + " (name, quantity) VALUES (")
             .paramRow(parser, "id")
@@ -424,7 +424,7 @@ public class BatchOperationTest {
   }
 
   static void assertReturningEach(
-      Connection conn, RowParserNamed<Item> parser, String table) throws SQLException {
+      Connection conn, RowCodecNamed<Item> parser, String table) throws SQLException {
     Fragment insert =
         Fragment.of(
             "INSERT INTO "
@@ -442,7 +442,7 @@ public class BatchOperationTest {
   }
 
   static void assertSingleThenBatch(
-      Connection conn, RowParserNamed<IdItem> parser, String table) throws SQLException {
+      Connection conn, RowCodecNamed<IdItem> parser, String table) throws SQLException {
     RowSqlTemplate.Update<IdItem> template =
         Fragment.of("INSERT INTO " + table + " (")
             .append(parser.columnList())

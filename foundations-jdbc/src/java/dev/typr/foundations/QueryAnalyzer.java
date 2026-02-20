@@ -158,15 +158,15 @@ public final class QueryAnalyzer {
     if (parser instanceof ResultSetParser.Mapped<?, ?> m) {
       return extractColumnTypes(m.inner());
     } else if (parser instanceof ResultSetParser.First<?> f) {
-      return f.rowParser().columns();
+      return f.rowCodec().columns();
     } else if (parser instanceof ResultSetParser.MaxOne<?> m) {
-      return m.rowParser().columns();
+      return m.rowCodec().columns();
     } else if (parser instanceof ResultSetParser.ExactlyOne<?> e) {
-      return e.rowParser().columns();
+      return e.rowCodec().columns();
     } else if (parser instanceof ResultSetParser.All<?> a) {
-      return a.rowParser().columns();
+      return a.rowCodec().columns();
     } else if (parser instanceof ResultSetParser.Foreach<?> f) {
-      return f.rowParser().columns();
+      return f.rowCodec().columns();
     } else {
       return List.of();
     }

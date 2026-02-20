@@ -7,8 +7,8 @@ import dev.typr.foundationskt.data.*
 class SqlTemplateThen {
     data class Order(val id: Int, val userId: Int, val product: String)
 
-    val orderParser: RowParser<Order> =
-        RowParser.builder<Order>()
+    val orderParser: RowCodec<Order> =
+        RowCodec.builder<Order>()
             .field(PgTypes.int4, Order::id)
             .field(PgTypes.int4, Order::userId)
             .field(PgTypes.text, Order::product)
@@ -22,7 +22,7 @@ class SqlTemplateThen {
         Fragment.of("INSERT INTO users(name) VALUES(")
             .param(PgTypes.text)
             .append(") RETURNING id")
-            .query(RowParser.of(PgTypes.int4).exactlyOne())
+            .query(RowCodec.of(PgTypes.int4).exactlyOne())
 
     val ordersByUser: SqlTemplate<Int, List<Order>> =
         Fragment.of("""

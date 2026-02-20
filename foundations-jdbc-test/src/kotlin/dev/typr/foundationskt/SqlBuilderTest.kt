@@ -98,7 +98,7 @@ class SqlBuilderTest {
         DriverManager.getConnection("jdbc:duckdb:").use { conn ->
             val frag = Sql { "SELECT ${DuckDbTypes.integer(42)} AS answer" }
             val result = frag
-                .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
+                .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
                 .runChecked(conn)
             assertEquals(42, result)
         }
@@ -109,7 +109,7 @@ class SqlBuilderTest {
         DriverManager.getConnection("jdbc:duckdb:").use { conn ->
             val frag = Sql { "SELECT ${DuckDbTypes.integer(10)} + ${DuckDbTypes.integer(32)} AS answer" }
             val result = frag
-                .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
+                .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
                 .runChecked(conn)
             assertEquals(42, result)
         }
@@ -137,7 +137,7 @@ class SqlBuilderTest {
     fun columnListEmbedding() {
         data class Row(val id: Int, val name: String)
 
-        val parser: RowParserNamed<Row> = RowParser.namedBuilder<Row>()
+        val parser: RowCodecNamed<Row> = RowCodec.namedBuilder<Row>()
             .field("id", DuckDbTypes.integer, Row::id)
             .field("name", DuckDbTypes.varchar, Row::name)
             .build(::Row)
@@ -150,7 +150,7 @@ class SqlBuilderTest {
     fun columnListEmbeddingRuntime() {
         data class Row(val id: Int, val name: String)
 
-        val parser: RowParserNamed<Row> = RowParser.namedBuilder<Row>()
+        val parser: RowCodecNamed<Row> = RowCodec.namedBuilder<Row>()
             .field("id", DuckDbTypes.integer, Row::id)
             .field("name", DuckDbTypes.varchar, Row::name)
             .build(::Row)
@@ -228,7 +228,7 @@ class SqlBuilderTest {
                 Thread.ofVirtual().start {
                     val frag = Sql { "SELECT ${DuckDbTypes.integer(i)}" }
                     val result = synchronized(conn) {
-                        frag.query(RowParser.of(DuckDbTypes.integer).exactlyOne()).runChecked(conn)
+                        frag.query(RowCodec.of(DuckDbTypes.integer).exactlyOne()).runChecked(conn)
                     }
                     results.add(i to result)
                 }
@@ -254,7 +254,7 @@ class SqlBuilderTest {
                     async(Dispatchers.Default) {
                         val frag = Sql { "SELECT ${DuckDbTypes.integer(i)}" }
                         val result = mutex.withLock {
-                            frag.query(RowParser.of(DuckDbTypes.integer).exactlyOne()).runChecked(conn)
+                            frag.query(RowCodec.of(DuckDbTypes.integer).exactlyOne()).runChecked(conn)
                         }
                         i to result
                     }

@@ -24,9 +24,9 @@ Traditional JDBC gives you no compile-time or test-time feedback about your quer
 Query Analysis uses JDBC metadata to verify your queries against the actual database schema. It compares vendor type names (e.g., `int4`, `varchar`, `timestamptz`) directly — no JDBC integer code mapping needed. Run it in your test suite, and you'll know immediately when:
 
 1. **Parameter types don't match** — You're passing a String where the database expects an Integer
-2. **Column types don't match** — Your RowParser expects a timestamp but the column is a date
+2. **Column types don't match** — Your RowCodec expects a timestamp but the column is a date
 3. **Nullability is wrong** — The column is nullable but your type isn't Optional
-4. **Counts are off** — Your RowParser expects 5 columns but the query returns 4
+4. **Counts are off** — Your RowCodec expects 5 columns but the query returns 4
 
 ## Basic Usage
 
@@ -70,7 +70,7 @@ SQL (findUserById):
      │ Returned: timestamptz
      └ The declared type does not match the returned vendor type "timestamptz"
 
-  2. Column 4 'status' is returned by query (varchar) but not declared in RowParser
+  2. Column 4 'status' is returned by query (varchar) but not declared in RowCodec
 ```
 
 ## Error Types
@@ -90,7 +90,7 @@ Parameter 1: type mismatch
 
 ### Column Type Mismatch
 
-When your RowParser expects a different type than the database returns:
+When your RowCodec expects a different type than the database returns:
 
 ```
 Column 2 'price': type mismatch
@@ -99,7 +99,7 @@ Column 2 'price': type mismatch
   └ The declared type does not match the returned vendor type "numeric"
 ```
 
-**Fix:** Use the correct DbType in your RowParser. Here, use `PgTypes.numeric` instead of `PgTypes.int4`.
+**Fix:** Use the correct DbType in your RowCodec. Here, use `PgTypes.numeric` instead of `PgTypes.int4`.
 
 ### Nullability Mismatch
 
@@ -117,23 +117,23 @@ Column 3 'email': nullability mismatch
 
 ### Missing Column
 
-When your RowParser expects more columns than the query returns:
+When your RowCodec expects more columns than the query returns:
 
 ```
-Column 5 is declared in RowParser (boolean) but not returned by query
+Column 5 is declared in RowCodec (boolean) but not returned by query
 ```
 
-**Fix:** Either add the missing column to your SELECT, or remove it from your RowParser.
+**Fix:** Either add the missing column to your SELECT, or remove it from your RowCodec.
 
 ### Extra Column
 
-When the query returns more columns than your RowParser expects:
+When the query returns more columns than your RowCodec expects:
 
 ```
-Column 4 'updated_at' is returned by query (timestamptz) but not declared in RowParser
+Column 4 'updated_at' is returned by query (timestamptz) but not declared in RowCodec
 ```
 
-**Fix:** Either add the column to your RowParser, or remove it from your SELECT.
+**Fix:** Either add the column to your RowCodec, or remove it from your SELECT.
 
 ## Escape Hatches
 

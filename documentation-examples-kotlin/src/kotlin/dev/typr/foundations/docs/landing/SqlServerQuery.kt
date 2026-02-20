@@ -8,7 +8,7 @@ import java.sql.Connection
 @Suppress("unused")
 class SqlServerQuery {
     data class OrderRow(val id: Int, val name: String, val price: BigDecimal)
-    val orderRowParser: RowParser<OrderRow>? = null // placeholder
+    val orderRowCodec: RowCodec<OrderRow>? = null // placeholder
     val maxPrice: BigDecimal? = null
     lateinit var conn: Connection
 
@@ -29,7 +29,7 @@ class SqlServerQuery {
 
     val orders: List<OrderRow> =
         Sql { "SELECT * FROM orders ${Fragment.whereAnd(filters)}" }
-            .query(orderRowParser!!.all())
+            .query(orderRowCodec!!.all())
             .run(conn)
     //stop
 }

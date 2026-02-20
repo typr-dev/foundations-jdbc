@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.ResultSetParser;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,8 +14,8 @@ import java.util.Optional;
 public class ResultSetParserUsage {
     record Person(Integer id, String name, Instant createdAt) {}
 
-    RowParser<Person> personParser =
-        RowParser.<Person>builder()
+    RowCodec<Person> personParser =
+        RowCodec.<Person>builder()
             .field(PgTypes.int4, Person::id)
             .field(PgTypes.text, Person::name)
             .field(PgTypes.timestamptz, Person::createdAt)

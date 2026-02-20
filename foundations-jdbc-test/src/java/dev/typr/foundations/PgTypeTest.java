@@ -47,14 +47,14 @@ public class PgTypeTest {
   // Simple record and parsers for JSON-encoded row type testing
   record Item(String name, int quantity) {}
 
-  static RowParser<Item> itemParser =
-      RowParser.<Item>builder()
+  static RowCodec<Item> itemParser =
+      RowCodec.<Item>builder()
           .field(PgTypes.text, Item::name)
           .field(PgTypes.int4, Item::quantity)
           .build(Item::new);
 
-  static RowParserNamed<Item> namedItemParser =
-      RowParser.<Item>namedBuilder()
+  static RowCodecNamed<Item> namedItemParser =
+      RowCodec.<Item>namedBuilder()
           .field("name", PgTypes.text, Item::name)
           .field("quantity", PgTypes.int4, Item::quantity)
           .build(Item::new);
@@ -1008,7 +1008,7 @@ public class PgTypeTest {
     String tableName = uniqueTableName("qa");
     conn.createStatement().execute("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
@@ -1021,8 +1021,8 @@ public class PgTypeTest {
 
   static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
       throws SQLException {
-    RowParserNamed<A> parser =
-        RowParser.<A>namedBuilder()
+    RowCodecNamed<A> parser =
+        RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
     Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
@@ -1059,7 +1059,7 @@ public class PgTypeTest {
     select.execute();
     var rs = select.getResultSet();
     List<TestPair<A>> rows =
-        RowParser.<TestPair<A>>builder()
+        RowCodec.<TestPair<A>>builder()
             .field(t.type, TestPair::t0)
             .field(t.type.opt(), TestPair::t1)
             .build(TestPair::new)

@@ -6,18 +6,18 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * A {@link RowParser} that carries column names alongside the types.
+ * A {@link RowCodec} that carries column names alongside the types.
  *
  * <p>This enables convenience methods that require column names, such as
- * {@link Fragment#row(RowParserNamed, Object, String...)} and
- * {@link DbJsonRow#jsonObject(RowParserNamed)}.
+ * {@link Fragment#row(RowCodecNamed, Object, String...)} and
+ * {@link DbJsonRow#jsonObject(RowCodecNamed)}.
  *
- * <p>Create via {@link RowParser#namedBuilder()} or {@link RowParser#createNamed}.
+ * <p>Create via {@link RowCodec#namedBuilder()} or {@link RowCodec#createNamed}.
  */
-public final class RowParserNamed<Row> extends RowParser<Row> {
+public final class RowCodecNamed<Row> extends RowCodec<Row> {
   private final List<String> columnNames;
 
-  RowParserNamed(
+  RowCodecNamed(
       List<String> columnNames,
       List<DbType<?>> columns,
       Function<Object[], Row> decode,
@@ -42,7 +42,7 @@ public final class RowParserNamed<Row> extends RowParser<Row> {
   }
 
   @Override
-  public RowParser<Optional<Row>> opt() {
+  public RowCodec<Optional<Row>> opt() {
     List<DbType<?>> optColumns = new ArrayList<>(columns().size());
     for (int i = 0; i < columns().size(); i++) {
       optColumns.add(columns().get(i).opt());
@@ -88,13 +88,13 @@ public final class RowParserNamed<Row> extends RowParser<Row> {
           return innerEncode.apply(row.get());
         };
 
-    return new RowParserNamed<>(columnNames, optColumns, optDecode, optEncode);
+    return new RowCodecNamed<>(columnNames, optColumns, optDecode, optEncode);
   }
 
   @Override
-  public <Row2> RowParser<Row2> to(Bijection<Row, Row2> bijection) {
+  public <Row2> RowCodec<Row2> to(Bijection<Row, Row2> bijection) {
     Function<Object[], Row2> newDecode = values -> bijection.underlying(this.decode().apply(values));
     Function<Row2, Object[]> newEncode = row2 -> this.encode().apply(bijection.from(row2));
-    return new RowParserNamed<>(this.columnNames, this.columns(), newDecode, newEncode);
+    return new RowCodecNamed<>(this.columnNames, this.columns(), newDecode, newEncode);
   }
 }

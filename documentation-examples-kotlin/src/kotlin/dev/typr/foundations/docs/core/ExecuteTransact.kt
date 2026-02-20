@@ -7,8 +7,8 @@ import dev.typr.foundationskt.data.*
 class ExecuteTransact {
     data class City(val name: String, val population: Int)
 
-    val cityParser: RowParser<City> =
-        RowParser.builder<City>()
+    val cityParser: RowCodec<City> =
+        RowCodec.builder<City>()
             .field(PgTypes.text, City::name)
             .field(PgTypes.int4, City::population)
             .build(::City)

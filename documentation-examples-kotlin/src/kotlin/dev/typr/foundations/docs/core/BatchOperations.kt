@@ -9,8 +9,8 @@ import java.time.Instant
 class BatchOperations {
     data class Product(val id: Int, val name: String, val price: BigDecimal, val createdAt: Instant)
 
-    val productParser: RowParserNamed<Product> =
-        RowParser.namedBuilder<Product>()
+    val productParser: RowCodecNamed<Product> =
+        RowCodec.namedBuilder<Product>()
             .field("id", PgTypes.int4, Product::id)
             .field("name", PgTypes.text, Product::name)
             .field("price", PgTypes.numeric, Product::price)

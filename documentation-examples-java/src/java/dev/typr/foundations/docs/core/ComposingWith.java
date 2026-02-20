@@ -3,7 +3,7 @@ package dev.typr.foundations.docs.core;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.Operation;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
 import java.sql.SQLException;
@@ -16,8 +16,8 @@ public class ComposingWith {
     record Dashboard(long userCount, List<Order> recentOrders) {}
     record Stats(long userCount, long orderCount, long revenue) {}
 
-    static RowParser<Order> orderParser =
-        RowParser.<Order>builder()
+    static RowCodec<Order> orderParser =
+        RowCodec.<Order>builder()
             .field(PgTypes.int4, Order::id)
             .field(PgTypes.int4, Order::userId)
             .field(PgTypes.text, Order::product)
@@ -29,7 +29,7 @@ public class ComposingWith {
     // Combine two independent queries — both run in one transaction
     Operation<Long> countUsers =
         Fragment.of("SELECT count(*) FROM users")
-            .query(RowParser.of(PgTypes.int8).exactlyOne());
+            .query(RowCodec.of(PgTypes.int8).exactlyOne());
     Operation<List<Order>> recentOrders =
         Fragment.of("""
                 SELECT * FROM orders
@@ -45,12 +45,12 @@ public class ComposingWith {
     // Three-way: all run in one transaction, results combined
     Operation<Long> countOrders =
         Fragment.of("SELECT count(*) FROM orders")
-            .query(RowParser.of(PgTypes.int8).exactlyOne());
+            .query(RowCodec.of(PgTypes.int8).exactlyOne());
     Operation<Long> totalRevenue =
         Fragment.of("""
                 SELECT coalesce(sum(amount), 0)
                 FROM orders""")
-            .query(RowParser.of(PgTypes.int8).exactlyOne());
+            .query(RowCodec.of(PgTypes.int8).exactlyOne());
 
     Stats stats() throws SQLException {
         return countUsers

@@ -8,7 +8,7 @@ import dev.typr.foundationssc.data.*
 object ExecuteTransact:
   case class City(name: String, population: Int)
 
-  val cityParser: RowParser[City] = RowParser.builder[City]()
+  val cityParser: RowCodec[City] = RowCodec.builder[City]()
     .field(PgTypes.text)(_.name)
     .field(PgTypes.int4)(_.population)
     .build(City.apply)

@@ -8,8 +8,8 @@ import java.math.BigDecimal
 class FragmentComposing {
     data class ProductRow(val id: Int, val name: String, val price: BigDecimal)
 
-    val rowParser: RowParser<ProductRow> =
-        RowParser.builder<ProductRow>()
+    val rowCodec: RowCodec<ProductRow> =
+        RowCodec.builder<ProductRow>()
             .field(PgTypes.int4, ProductRow::id)
             .field(PgTypes.text, ProductRow::name)
             .field(PgTypes.numeric, ProductRow::price)
@@ -35,7 +35,7 @@ class FragmentComposing {
 
         return tx.transact { conn ->
             Sql { "SELECT * FROM product ${Fragment.whereAnd(filters)}" }
-                .query(rowParser.all())
+                .query(rowCodec.all())
                 .run(conn)
         }
     }

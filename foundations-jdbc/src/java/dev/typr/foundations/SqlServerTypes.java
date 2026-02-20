@@ -440,7 +440,7 @@ public interface SqlServerTypes {
   // ==================== JSON-Encoded Row Types ====================
 
   /** A JSON column type that stores a single row as a positional JSON array. */
-  static <Row> SqlServerType<Row> jsonArrayEncoded(RowParser<Row> parser) {
+  static <Row> SqlServerType<Row> jsonArrayEncoded(RowCodec<Row> parser) {
     DbJson<Row> codec = DbJsonRow.jsonArray(parser);
     return json.transform(
         j -> codec.fromJson(JsonValue.parse(j.value())),
@@ -448,7 +448,7 @@ public interface SqlServerTypes {
   }
 
   /** A JSON column type that stores a list of rows, each as a positional JSON array. */
-  static <Row> SqlServerType<List<Row>> jsonArrayEncodedList(RowParser<Row> parser) {
+  static <Row> SqlServerType<List<Row>> jsonArrayEncodedList(RowCodec<Row> parser) {
     DbJson<List<Row>> codec = DbJsonRow.jsonArray(parser).list();
     return json.transform(
         j -> codec.fromJson(JsonValue.parse(j.value())),
@@ -456,7 +456,7 @@ public interface SqlServerTypes {
   }
 
   /** A JSON column type that stores a single row as a keyed JSON object. */
-  static <Row> SqlServerType<Row> jsonObjectEncoded(RowParserNamed<Row> parser) {
+  static <Row> SqlServerType<Row> jsonObjectEncoded(RowCodecNamed<Row> parser) {
     DbJson<Row> codec = DbJsonRow.jsonObject(parser);
     return json.transform(
         j -> codec.fromJson(JsonValue.parse(j.value())),
@@ -464,7 +464,7 @@ public interface SqlServerTypes {
   }
 
   /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
-  static <Row> SqlServerType<List<Row>> jsonObjectEncodedList(RowParserNamed<Row> parser) {
+  static <Row> SqlServerType<List<Row>> jsonObjectEncodedList(RowCodecNamed<Row> parser) {
     DbJson<List<Row>> codec = DbJsonRow.jsonObject(parser).list();
     return json.transform(
         j -> codec.fromJson(JsonValue.parse(j.value())),

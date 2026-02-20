@@ -1,11 +1,11 @@
 package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 
 @SuppressWarnings("unused")
 public class SingleColumnParser {
     //start
-    RowParser<Integer> idParser = RowParser.of(PgTypes.int4);
+    RowCodec<Integer> idParser = RowCodec.of(PgTypes.int4);
     //stop
 }

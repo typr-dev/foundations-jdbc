@@ -3,7 +3,7 @@ package dev.typr.foundations.docs.core;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.Operation;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
 import java.sql.SQLException;
@@ -27,7 +27,7 @@ public class ComposingSequence {
                             """)
                         .value(PgTypes.text, name)
                         .append(") RETURNING id")
-                        .query(RowParser.of(PgTypes.int4)
+                        .query(RowCodec.of(PgTypes.int4)
                             .exactlyOne()))
                 .toList();
 

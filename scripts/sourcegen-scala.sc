@@ -10,7 +10,7 @@ val STRUCT_N = 31
 val baseDir = Path.of(sys.props.getOrElse("user.dir", "."))
 val generatedOutputDir = baseDir.resolve("foundations-jdbc-scala/generated-and-checked-in/dev/typr/foundationssc")
 
-def generateScalaRowParserBuilders(): String = {
+def generateScalaRowCodecBuilders(): String = {
   val maxArity = N - 1
 
   val builder0 = s"""|  class Builder0[Row] private[foundationssc] () {
@@ -44,14 +44,14 @@ def generateScalaRowParserBuilders(): String = {
         |    private val types: scala.collection.mutable.ListBuffer[DbType[?]],
         |    private val getters: scala.collection.mutable.ListBuffer[Row => Any]
         |  ) {
-        |    def build(decode: ($decodeParams) => Row): RowParser[Row] = {
+        |    def build(decode: ($decodeParams) => Row): RowCodec[Row] = {
         |      val capturedGetters = getters.toList
-        |      val javaParser = dev.typr.foundations.RowParser.create[Row](
+        |      val javaParser = dev.typr.foundations.RowCodec.create[Row](
         |        java.util.List.copyOf(types.map(_.underlying).asJava),
         |        arr => decode($decodeArgs),
         |        row => capturedGetters.map(_(row)).toArray
         |      )
-        |      new RowParser(javaParser)
+        |      new RowCodec(javaParser)
         |    }$nextBuilder
         |  }""".stripMargin
   }
@@ -60,18 +60,18 @@ def generateScalaRowParserBuilders(): String = {
       |
       |import scala.jdk.CollectionConverters.*
       |
-      |/** Type-safe builders for Scala RowParser.
+      |/** Type-safe builders for Scala RowCodec.
       |  *
       |  * Usage:
       |  * {{{
-      |  * val parser: RowParser[Product] = RowParser.builder[Product]()
+      |  * val parser: RowCodec[Product] = RowCodec.builder[Product]()
       |  *   .field(PgTypes.int4)(_.id)
       |  *   .field(PgTypes.text)(_.name)
       |  *   .field(PgTypes.numeric)(_.price)
       |  *   .build(Product.apply)
       |  * }}}
       |  */
-      |object RowParserBuilders {
+      |object RowCodecBuilders {
       |  def builder[Row](): Builder0[Row] = new Builder0()
       |
       |$builder0
@@ -81,7 +81,7 @@ def generateScalaRowParserBuilders(): String = {
       |""".stripMargin
 }
 
-def generateScalaNamedRowParserBuilders(): String = {
+def generateScalaNamedRowCodecBuilders(): String = {
   val maxArity = N - 1
 
   val builder0 = s"""|  class Builder0[Row] private[foundationssc] () {
@@ -119,15 +119,15 @@ def generateScalaNamedRowParserBuilders(): String = {
         |    private val types: scala.collection.mutable.ListBuffer[DbType[?]],
         |    private val getters: scala.collection.mutable.ListBuffer[Row => Any]
         |  ) {
-        |    def build(decode: ($decodeParams) => Row): RowParserNamed[Row] = {
+        |    def build(decode: ($decodeParams) => Row): RowCodecNamed[Row] = {
         |      val capturedGetters = getters.toList
-        |      val javaParser = dev.typr.foundations.RowParser.createNamed[Row](
+        |      val javaParser = dev.typr.foundations.RowCodec.createNamed[Row](
         |        java.util.List.copyOf(names.asJava),
         |        java.util.List.copyOf(types.map(_.underlying).asJava),
         |        arr => decode($decodeArgs),
         |        row => capturedGetters.map(_(row)).toArray
         |      )
-        |      new RowParserNamed(javaParser)
+        |      new RowCodecNamed(javaParser)
         |    }$nextBuilder
         |  }""".stripMargin
   }
@@ -136,18 +136,18 @@ def generateScalaNamedRowParserBuilders(): String = {
       |
       |import scala.jdk.CollectionConverters.*
       |
-      |/** Type-safe named builders for Scala RowParser.
+      |/** Type-safe named builders for Scala RowCodec.
       |  *
       |  * Usage:
       |  * {{{
-      |  * val parser: RowParserNamed[Product] = RowParser.namedBuilder[Product]()
+      |  * val parser: RowCodecNamed[Product] = RowCodec.namedBuilder[Product]()
       |  *   .field("id", PgTypes.int4)(_.id)
       |  *   .field("name", PgTypes.text)(_.name)
       |  *   .field("price", PgTypes.numeric)(_.price)
       |  *   .build(Product.apply)
       |  * }}}
       |  */
-      |object RowParserNamedBuilders {
+      |object RowCodecNamedBuilders {
       |  def builder[Row](): Builder0[Row] = new Builder0()
       |
       |$builder0
@@ -723,17 +723,17 @@ def generateScalaParamBuilders(): String = {
 
 Files.createDirectories(generatedOutputDir)
 
-// RowParserBuilders.scala -> generated-and-checked-in
-val scalaRowParserBuildersContent = generateScalaRowParserBuilders()
-val scalaRowParserBuildersPath = generatedOutputDir.resolve("RowParserBuilders.scala")
-Files.writeString(scalaRowParserBuildersPath, scalaRowParserBuildersContent)
-println(s"Wrote ${scalaRowParserBuildersPath}")
+// RowCodecBuilders.scala -> generated-and-checked-in
+val scalaRowCodecBuildersContent = generateScalaRowCodecBuilders()
+val scalaRowCodecBuildersPath = generatedOutputDir.resolve("RowCodecBuilders.scala")
+Files.writeString(scalaRowCodecBuildersPath, scalaRowCodecBuildersContent)
+println(s"Wrote ${scalaRowCodecBuildersPath}")
 
-// RowParserNamedBuilders.scala -> generated-and-checked-in
-val scalaNamedRowParserBuildersContent = generateScalaNamedRowParserBuilders()
-val scalaNamedRowParserBuildersPath = generatedOutputDir.resolve("RowParserNamedBuilders.scala")
-Files.writeString(scalaNamedRowParserBuildersPath, scalaNamedRowParserBuildersContent)
-println(s"Wrote ${scalaNamedRowParserBuildersPath}")
+// RowCodecNamedBuilders.scala -> generated-and-checked-in
+val scalaNamedRowCodecBuildersContent = generateScalaNamedRowCodecBuilders()
+val scalaNamedRowCodecBuildersPath = generatedOutputDir.resolve("RowCodecNamedBuilders.scala")
+Files.writeString(scalaNamedRowCodecBuildersPath, scalaNamedRowCodecBuildersContent)
+println(s"Wrote ${scalaNamedRowCodecBuildersPath}")
 
 // DbProcedure.scala -> generated-and-checked-in
 val scalaDbProcedureContent = generateScalaDbProcedure()

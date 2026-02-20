@@ -11,7 +11,7 @@ object ComposingWith:
   case class Dashboard(userCount: Long, recentOrders: List[Order])
   case class Stats(userCount: Long, orderCount: Long, revenue: Long)
 
-  val orderParser: RowParser[Order] = RowParser.builder[Order]()
+  val orderParser: RowCodec[Order] = RowCodec.builder[Order]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.int4)(_.userId)
     .field(PgTypes.text)(_.product)
@@ -23,7 +23,7 @@ object ComposingWith:
   // Combine two independent queries in one transaction
   val countUsers: Operation[Long] =
     sql"SELECT count(*) FROM users"
-      .query(RowParser.of(PgTypes.int8).exactlyOne())
+      .query(RowCodec.of(PgTypes.int8).exactlyOne())
   val recentOrders: Operation[List[Order]] =
     sql"SELECT * FROM orders ORDER BY id DESC LIMIT 10"
       .query(orderParser.all())
@@ -35,10 +35,10 @@ object ComposingWith:
   // Three-way: all run in one transaction
   val countOrders: Operation[Long] =
     sql"SELECT count(*) FROM orders"
-      .query(RowParser.of(PgTypes.int8).exactlyOne())
+      .query(RowCodec.of(PgTypes.int8).exactlyOne())
   val totalRevenue: Operation[Long] =
     sql"SELECT coalesce(sum(amount), 0) FROM orders"
-      .query(RowParser.of(PgTypes.int8).exactlyOne())
+      .query(RowCodec.of(PgTypes.int8).exactlyOne())
 
   def stats(): Stats =
     countUsers

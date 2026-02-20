@@ -81,14 +81,14 @@ public class OracleTypeTest {
 
   record OracleItem(String name, int quantity) {}
 
-  static RowParser<OracleItem> oracleItemParser =
-      RowParser.<OracleItem>builder()
+  static RowCodec<OracleItem> oracleItemParser =
+      RowCodec.<OracleItem>builder()
           .field(OracleTypes.varchar2(100), OracleItem::name)
           .field(OracleTypes.numberInt, OracleItem::quantity)
           .build(OracleItem::new);
 
-  static RowParserNamed<OracleItem> namedOracleItemParser =
-      RowParser.<OracleItem>namedBuilder()
+  static RowCodecNamed<OracleItem> namedOracleItemParser =
+      RowCodec.<OracleItem>namedBuilder()
           .field("name", OracleTypes.varchar2(100), OracleItem::name)
           .field("quantity", OracleTypes.numberInt, OracleItem::quantity)
           .build(OracleItem::new);
@@ -1530,7 +1530,7 @@ public class OracleTypeTest {
     }
     conn.createStatement().execute(createTableDDL);
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
@@ -1656,8 +1656,8 @@ public class OracleTypeTest {
 
   static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
       throws SQLException {
-    RowParserNamed<A> parser =
-        RowParser.<A>namedBuilder()
+    RowCodecNamed<A> parser =
+        RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
     Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")

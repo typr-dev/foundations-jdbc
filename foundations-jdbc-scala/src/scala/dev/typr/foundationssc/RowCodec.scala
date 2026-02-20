@@ -4,23 +4,23 @@ import java.sql.ResultSet
 import _root_.scala.jdk.CollectionConverters.*
 import _root_.scala.jdk.OptionConverters.*
 
-/** Scala wrapper for dev.typr.foundations.RowParser that provides Scala-native methods.
+/** Scala wrapper for dev.typr.foundations.RowCodec that provides Scala-native methods.
   *
-  * This class has the same API surface as the Java RowParser but returns Scala types (Option[T]) instead of Java types (Optional[T]).
+  * This class has the same API surface as the Java RowCodec but returns Scala types (Option[T]) instead of Java types (Optional[T]).
   */
-class RowParser[Row](val underlying: dev.typr.foundations.RowParser[Row]) {
+class RowCodec[Row](val underlying: dev.typr.foundations.RowCodec[Row]) {
 
-  def joined[Row2](other: RowParser[Row2]): RowParser[(Row, Row2)] =
-    new RowParser(underlying.joined(other.underlying).to(Bijections.andToTuple[Row, Row2]))
+  def joined[Row2](other: RowCodec[Row2]): RowCodec[(Row, Row2)] =
+    new RowCodec(underlying.joined(other.underlying).to(Bijections.andToTuple[Row, Row2]))
 
-  def leftJoined[Row2](other: RowParser[Row2]): RowParser[(Row, Option[Row2])] =
-    new RowParser(underlying.leftJoined(other.underlying).to(Bijections.leftJoinToTuple[Row, Row2]))
+  def leftJoined[Row2](other: RowCodec[Row2]): RowCodec[(Row, Option[Row2])] =
+    new RowCodec(underlying.leftJoined(other.underlying).to(Bijections.leftJoinToTuple[Row, Row2]))
 
-  def rightJoined[Row2](other: RowParser[Row2]): RowParser[(Option[Row], Row2)] =
-    new RowParser(underlying.rightJoined(other.underlying).to(Bijections.rightJoinToTuple[Row, Row2]))
+  def rightJoined[Row2](other: RowCodec[Row2]): RowCodec[(Option[Row], Row2)] =
+    new RowCodec(underlying.rightJoined(other.underlying).to(Bijections.rightJoinToTuple[Row, Row2]))
 
-  def fullJoined[Row2](other: RowParser[Row2]): RowParser[(Option[Row], Option[Row2])] =
-    new RowParser(underlying.fullJoined(other.underlying).to(Bijections.fullJoinToTuple[Row, Row2]))
+  def fullJoined[Row2](other: RowCodec[Row2]): RowCodec[(Option[Row], Option[Row2])] =
+    new RowCodec(underlying.fullJoined(other.underlying).to(Bijections.fullJoinToTuple[Row, Row2]))
 
   /** Parse all rows from a ResultSet. Returns Scala List instead of java.util.List.
     */
@@ -62,11 +62,11 @@ class RowParser[Row](val underlying: dev.typr.foundations.RowParser[Row]) {
     dev.typr.foundations.DbJsonRow.jsonObject(underlying, columnNames.asJava)
 }
 
-/** Scala wrapper for dev.typr.foundations.RowParserNamed.
+/** Scala wrapper for dev.typr.foundations.RowCodecNamed.
   * Adds columnNames, columnList, and no-argument jsonObject().
   */
-class RowParserNamed[Row](override val underlying: dev.typr.foundations.RowParserNamed[Row])
-    extends RowParser[Row](underlying) {
+class RowCodecNamed[Row](override val underlying: dev.typr.foundations.RowCodecNamed[Row])
+    extends RowCodec[Row](underlying) {
 
   def columnNames: List[String] =
     import _root_.scala.jdk.CollectionConverters.*
@@ -78,17 +78,17 @@ class RowParserNamed[Row](override val underlying: dev.typr.foundations.RowParse
     dev.typr.foundations.DbJsonRow.jsonObject(underlying)
 }
 
-object RowParser {
-  /** Create a type-safe builder for RowParser.
+object RowCodec {
+  /** Create a type-safe builder for RowCodec.
     */
-  def builder[Row](): RowParserBuilders.Builder0[Row] = RowParserBuilders.builder[Row]()
+  def builder[Row](): RowCodecBuilders.Builder0[Row] = RowCodecBuilders.builder[Row]()
 
-  /** Create a type-safe named builder for RowParser.
+  /** Create a type-safe named builder for RowCodec.
     */
-  def namedBuilder[Row](): RowParserNamedBuilders.Builder0[Row] = RowParserNamedBuilders.builder[Row]()
+  def namedBuilder[Row](): RowCodecNamedBuilders.Builder0[Row] = RowCodecNamedBuilders.builder[Row]()
 
   /** Create a single-column row parser.
     */
-  def of[T](dbType: DbType[T]): RowParser[T] =
-    new RowParser(dev.typr.foundations.RowParser.of(dbType.underlying))
+  def of[T](dbType: DbType[T]): RowCodec[T] =
+    new RowCodec(dev.typr.foundations.RowCodec.of(dbType.underlying))
 }

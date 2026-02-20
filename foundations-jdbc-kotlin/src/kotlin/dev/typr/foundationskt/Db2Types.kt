@@ -75,19 +75,19 @@ open class Db2Types {
     // JSON-encoded row types
 
     /** A JSON column type that stores a single row as a positional JSON array: [val1, val2, val3]. */
-    open fun <Row : Any> jsonArrayEncoded(parser: RowParser<Row>) =
+    open fun <Row : Any> jsonArrayEncoded(parser: RowCodec<Row>) =
         Db2Type<Row>(JavaDb2Types.jsonArrayEncoded(parser.underlying))
 
     /** A JSON column type that stores a list of rows, each as a positional JSON array. */
-    open fun <Row : Any> jsonArrayEncodedList(parser: RowParser<Row>) =
+    open fun <Row : Any> jsonArrayEncodedList(parser: RowCodec<Row>) =
         Db2Type<List<Row>>(JavaDb2Types.jsonArrayEncodedList(parser.underlying))
 
     /** A JSON column type that stores a single row as a keyed JSON object: {"col": val, ...}. */
-    open fun <Row : Any> jsonObjectEncoded(parser: RowParserNamed<Row>) =
+    open fun <Row : Any> jsonObjectEncoded(parser: RowCodecNamed<Row>) =
         Db2Type<Row>(JavaDb2Types.jsonObjectEncoded(parser.underlying))
 
     /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
-    open fun <Row : Any> jsonObjectEncodedList(parser: RowParserNamed<Row>) =
+    open fun <Row : Any> jsonObjectEncodedList(parser: RowCodecNamed<Row>) =
         Db2Type<List<Row>>(JavaDb2Types.jsonObjectEncodedList(parser.underlying))
 
     companion object : Db2Types()

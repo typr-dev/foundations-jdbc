@@ -1,19 +1,19 @@
 package dev.typr.foundations;
 
 /**
- * Type-safe named builders for RowParser.
+ * Type-safe named builders for RowCodec.
  * <p>
  * Usage:
  * <pre>{@code
- * RowParserNamed<Product> parser = RowParserNamedBuilders.<Product>builder()
+ * RowCodecNamed<Product> parser = RowCodecNamedBuilders.<Product>builder()
  *     .field("id", PgTypes.int4, Product::id)
  *     .field("name", PgTypes.text, Product::name)
  *     .field("price", PgTypes.numeric, Product::price)
  *     .build(Product::new);
  * }</pre>
  */
-public final class RowParserNamedBuilders {
-    private RowParserNamedBuilders() {}
+public final class RowCodecNamedBuilders {
+    private RowCodecNamedBuilders() {}
 
     public static <Row> Builder0<Row> builder() {
         return new Builder0<>();
@@ -46,9 +46,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(java.util.function.Function<T0, Row> decode) {
+        public RowCodecNamed<Row> build(java.util.function.Function<T0, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0]),
@@ -80,9 +80,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function2<T0, T1, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function2<T0, T1, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1]),
@@ -114,9 +114,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function3<T0, T1, T2, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function3<T0, T1, T2, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2]),
@@ -148,9 +148,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function4<T0, T1, T2, T3, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function4<T0, T1, T2, T3, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3]),
@@ -182,9 +182,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function5<T0, T1, T2, T3, T4, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function5<T0, T1, T2, T3, T4, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4]),
@@ -216,9 +216,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function6<T0, T1, T2, T3, T4, T5, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function6<T0, T1, T2, T3, T4, T5, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5]),
@@ -250,9 +250,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function7<T0, T1, T2, T3, T4, T5, T6, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function7<T0, T1, T2, T3, T4, T5, T6, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6]),
@@ -284,9 +284,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function8<T0, T1, T2, T3, T4, T5, T6, T7, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function8<T0, T1, T2, T3, T4, T5, T6, T7, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7]),
@@ -318,9 +318,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function9<T0, T1, T2, T3, T4, T5, T6, T7, T8, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function9<T0, T1, T2, T3, T4, T5, T6, T7, T8, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8]),
@@ -352,9 +352,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function10<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function10<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9]),
@@ -386,9 +386,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function11<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function11<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10]),
@@ -420,9 +420,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function12<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function12<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11]),
@@ -454,9 +454,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function13<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function13<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12]),
@@ -488,9 +488,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function14<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function14<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13]),
@@ -522,9 +522,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function15<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function15<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14]),
@@ -556,9 +556,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function16<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function16<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15]),
@@ -590,9 +590,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function17<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function17<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16]),
@@ -624,9 +624,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function18<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function18<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17]),
@@ -658,9 +658,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function19<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function19<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18]),
@@ -692,9 +692,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function20<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function20<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19]),
@@ -726,9 +726,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function21<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function21<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20]),
@@ -760,9 +760,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function22<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function22<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21]),
@@ -794,9 +794,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function23<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function23<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22]),
@@ -828,9 +828,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function24<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function24<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23]),
@@ -862,9 +862,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function25<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function25<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24]),
@@ -896,9 +896,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function26<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function26<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25]),
@@ -930,9 +930,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function27<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function27<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26]),
@@ -964,9 +964,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function28<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function28<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27]),
@@ -998,9 +998,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function29<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function29<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28]),
@@ -1032,9 +1032,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function30<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function30<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29]),
@@ -1066,9 +1066,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function31<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function31<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30]),
@@ -1100,9 +1100,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function32<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function32<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31]),
@@ -1134,9 +1134,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function33<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function33<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32]),
@@ -1168,9 +1168,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function34<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function34<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33]),
@@ -1202,9 +1202,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function35<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function35<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34]),
@@ -1236,9 +1236,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function36<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function36<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35]),
@@ -1270,9 +1270,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function37<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function37<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36]),
@@ -1304,9 +1304,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function38<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function38<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37]),
@@ -1338,9 +1338,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function39<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function39<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38]),
@@ -1372,9 +1372,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function40<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function40<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39]),
@@ -1406,9 +1406,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function41<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function41<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40]),
@@ -1440,9 +1440,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function42<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function42<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41]),
@@ -1474,9 +1474,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function43<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function43<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42]),
@@ -1508,9 +1508,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function44<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function44<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43]),
@@ -1542,9 +1542,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function45<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function45<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44]),
@@ -1576,9 +1576,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function46<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function46<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45]),
@@ -1610,9 +1610,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function47<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function47<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46]),
@@ -1644,9 +1644,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function48<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function48<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47]),
@@ -1678,9 +1678,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function49<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function49<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48]),
@@ -1712,9 +1712,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function50<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function50<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49]),
@@ -1746,9 +1746,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function51<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function51<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50]),
@@ -1780,9 +1780,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function52<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function52<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51]),
@@ -1814,9 +1814,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function53<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function53<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52]),
@@ -1848,9 +1848,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function54<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function54<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53]),
@@ -1882,9 +1882,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function55<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function55<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54]),
@@ -1916,9 +1916,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function56<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function56<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55]),
@@ -1950,9 +1950,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function57<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function57<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56]),
@@ -1984,9 +1984,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function58<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function58<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57]),
@@ -2018,9 +2018,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function59<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function59<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58]),
@@ -2052,9 +2052,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function60<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function60<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59]),
@@ -2086,9 +2086,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function61<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function61<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60]),
@@ -2120,9 +2120,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function62<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function62<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61]),
@@ -2154,9 +2154,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function63<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function63<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62]),
@@ -2188,9 +2188,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function64<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function64<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63]),
@@ -2222,9 +2222,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function65<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function65<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64]),
@@ -2256,9 +2256,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function66<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function66<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65]),
@@ -2290,9 +2290,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function67<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function67<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66]),
@@ -2324,9 +2324,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function68<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function68<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67]),
@@ -2358,9 +2358,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function69<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function69<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68]),
@@ -2392,9 +2392,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function70<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function70<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69]),
@@ -2426,9 +2426,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function71<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function71<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70]),
@@ -2460,9 +2460,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function72<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function72<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71]),
@@ -2494,9 +2494,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function73<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function73<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72]),
@@ -2528,9 +2528,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function74<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function74<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73]),
@@ -2562,9 +2562,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function75<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function75<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74]),
@@ -2596,9 +2596,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function76<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function76<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75]),
@@ -2630,9 +2630,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function77<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function77<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76]),
@@ -2664,9 +2664,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function78<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function78<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77]),
@@ -2698,9 +2698,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function79<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function79<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78]),
@@ -2732,9 +2732,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function80<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function80<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79]),
@@ -2766,9 +2766,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function81<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function81<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80]),
@@ -2800,9 +2800,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function82<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function82<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81]),
@@ -2834,9 +2834,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function83<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function83<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82]),
@@ -2868,9 +2868,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function84<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function84<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83]),
@@ -2902,9 +2902,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function85<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function85<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84]),
@@ -2936,9 +2936,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function86<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function86<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85]),
@@ -2970,9 +2970,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function87<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function87<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86]),
@@ -3004,9 +3004,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function88<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function88<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87]),
@@ -3038,9 +3038,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function89<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function89<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87], (T88) arr[88]),
@@ -3072,9 +3072,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function90<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function90<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87], (T88) arr[88], (T89) arr[89]),
@@ -3106,9 +3106,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function91<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function91<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87], (T88) arr[88], (T89) arr[89], (T90) arr[90]),
@@ -3140,9 +3140,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function92<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function92<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87], (T88) arr[88], (T89) arr[89], (T90) arr[90], (T91) arr[91]),
@@ -3174,9 +3174,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function93<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function93<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87], (T88) arr[88], (T89) arr[89], (T90) arr[90], (T91) arr[91], (T92) arr[92]),
@@ -3208,9 +3208,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function94<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function94<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87], (T88) arr[88], (T89) arr[89], (T90) arr[90], (T91) arr[91], (T92) arr[92], (T93) arr[93]),
@@ -3242,9 +3242,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function95<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function95<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87], (T88) arr[88], (T89) arr[89], (T90) arr[90], (T91) arr[91], (T92) arr[92], (T93) arr[93], (T94) arr[94]),
@@ -3276,9 +3276,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function96<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function96<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87], (T88) arr[88], (T89) arr[89], (T90) arr[90], (T91) arr[91], (T92) arr[92], (T93) arr[93], (T94) arr[94], (T95) arr[95]),
@@ -3310,9 +3310,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function97<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function97<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87], (T88) arr[88], (T89) arr[89], (T90) arr[90], (T91) arr[91], (T92) arr[92], (T93) arr[93], (T94) arr[94], (T95) arr[95], (T96) arr[96]),
@@ -3344,9 +3344,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function98<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function98<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87], (T88) arr[88], (T89) arr[89], (T90) arr[90], (T91) arr[91], (T92) arr[92], (T93) arr[93], (T94) arr[94], (T95) arr[95], (T96) arr[96], (T97) arr[97]),
@@ -3378,9 +3378,9 @@ public final class RowParserNamedBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public RowParserNamed<Row> build(Functions.Function99<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, T98, Row> decode) {
+        public RowCodecNamed<Row> build(Functions.Function99<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, T98, Row> decode) {
             java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-            return RowParser.createNamed(
+            return RowCodec.createNamed(
                 java.util.List.copyOf(names),
                 java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
                 arr -> decode.apply((T0) arr[0], (T1) arr[1], (T2) arr[2], (T3) arr[3], (T4) arr[4], (T5) arr[5], (T6) arr[6], (T7) arr[7], (T8) arr[8], (T9) arr[9], (T10) arr[10], (T11) arr[11], (T12) arr[12], (T13) arr[13], (T14) arr[14], (T15) arr[15], (T16) arr[16], (T17) arr[17], (T18) arr[18], (T19) arr[19], (T20) arr[20], (T21) arr[21], (T22) arr[22], (T23) arr[23], (T24) arr[24], (T25) arr[25], (T26) arr[26], (T27) arr[27], (T28) arr[28], (T29) arr[29], (T30) arr[30], (T31) arr[31], (T32) arr[32], (T33) arr[33], (T34) arr[34], (T35) arr[35], (T36) arr[36], (T37) arr[37], (T38) arr[38], (T39) arr[39], (T40) arr[40], (T41) arr[41], (T42) arr[42], (T43) arr[43], (T44) arr[44], (T45) arr[45], (T46) arr[46], (T47) arr[47], (T48) arr[48], (T49) arr[49], (T50) arr[50], (T51) arr[51], (T52) arr[52], (T53) arr[53], (T54) arr[54], (T55) arr[55], (T56) arr[56], (T57) arr[57], (T58) arr[58], (T59) arr[59], (T60) arr[60], (T61) arr[61], (T62) arr[62], (T63) arr[63], (T64) arr[64], (T65) arr[65], (T66) arr[66], (T67) arr[67], (T68) arr[68], (T69) arr[69], (T70) arr[70], (T71) arr[71], (T72) arr[72], (T73) arr[73], (T74) arr[74], (T75) arr[75], (T76) arr[76], (T77) arr[77], (T78) arr[78], (T79) arr[79], (T80) arr[80], (T81) arr[81], (T82) arr[82], (T83) arr[83], (T84) arr[84], (T85) arr[85], (T86) arr[86], (T87) arr[87], (T88) arr[88], (T89) arr[89], (T90) arr[90], (T91) arr[91], (T92) arr[92], (T93) arr[93], (T94) arr[94], (T95) arr[95], (T96) arr[96], (T97) arr[97], (T98) arr[98]),

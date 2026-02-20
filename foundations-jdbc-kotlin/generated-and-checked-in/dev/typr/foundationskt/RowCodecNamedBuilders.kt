@@ -1,18 +1,18 @@
 package dev.typr.foundationskt
 
 /**
- * Type-safe named builders for Kotlin RowParser.
+ * Type-safe named builders for Kotlin RowCodec.
  *
  * Usage:
  * ```kotlin
- * val parser: RowParserNamed<Product> = RowParser.namedBuilder<Product>()
+ * val parser: RowCodecNamed<Product> = RowCodec.namedBuilder<Product>()
  *     .field("id", PgTypes.int4, Product::id)
  *     .field("name", PgTypes.text, Product::name)
  *     .field("price", PgTypes.numeric, Product::price)
  *     .build(::Product)
  * ```
  */
-object RowParserNamedBuilders {
+object RowCodecNamedBuilders {
     fun <Row : Any> builder(): Builder0<Row> = Builder0()
 
     class Builder0<Row : Any> internal constructor() {
@@ -35,15 +35,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder2<Row, T0, F> {
             names.add(name)
@@ -60,15 +60,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder3<Row, T0, T1, F> {
             names.add(name)
@@ -85,15 +85,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder4<Row, T0, T1, T2, F> {
             names.add(name)
@@ -110,15 +110,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder5<Row, T0, T1, T2, T3, F> {
             names.add(name)
@@ -135,15 +135,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder6<Row, T0, T1, T2, T3, T4, F> {
             names.add(name)
@@ -160,15 +160,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder7<Row, T0, T1, T2, T3, T4, T5, F> {
             names.add(name)
@@ -185,15 +185,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder8<Row, T0, T1, T2, T3, T4, T5, T6, F> {
             names.add(name)
@@ -210,15 +210,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder9<Row, T0, T1, T2, T3, T4, T5, T6, T7, F> {
             names.add(name)
@@ -235,15 +235,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder10<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, F> {
             names.add(name)
@@ -260,15 +260,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder11<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, F> {
             names.add(name)
@@ -285,15 +285,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder12<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, F> {
             names.add(name)
@@ -310,15 +310,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder13<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, F> {
             names.add(name)
@@ -335,15 +335,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder14<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, F> {
             names.add(name)
@@ -360,15 +360,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder15<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, F> {
             names.add(name)
@@ -385,15 +385,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder16<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, F> {
             names.add(name)
@@ -410,15 +410,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder17<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, F> {
             names.add(name)
@@ -435,15 +435,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder18<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, F> {
             names.add(name)
@@ -460,15 +460,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder19<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, F> {
             names.add(name)
@@ -485,15 +485,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder20<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, F> {
             names.add(name)
@@ -510,15 +510,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder21<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, F> {
             names.add(name)
@@ -535,15 +535,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder22<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, F> {
             names.add(name)
@@ -560,15 +560,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder23<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, F> {
             names.add(name)
@@ -585,15 +585,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder24<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, F> {
             names.add(name)
@@ -610,15 +610,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder25<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, F> {
             names.add(name)
@@ -635,15 +635,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder26<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, F> {
             names.add(name)
@@ -660,15 +660,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder27<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, F> {
             names.add(name)
@@ -685,15 +685,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder28<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, F> {
             names.add(name)
@@ -710,15 +710,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder29<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, F> {
             names.add(name)
@@ -735,15 +735,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder30<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, F> {
             names.add(name)
@@ -760,15 +760,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder31<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, F> {
             names.add(name)
@@ -785,15 +785,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder32<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, F> {
             names.add(name)
@@ -810,15 +810,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder33<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, F> {
             names.add(name)
@@ -835,15 +835,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder34<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, F> {
             names.add(name)
@@ -860,15 +860,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder35<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, F> {
             names.add(name)
@@ -885,15 +885,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder36<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, F> {
             names.add(name)
@@ -910,15 +910,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder37<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, F> {
             names.add(name)
@@ -935,15 +935,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder38<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, F> {
             names.add(name)
@@ -960,15 +960,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder39<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, F> {
             names.add(name)
@@ -985,15 +985,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder40<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, F> {
             names.add(name)
@@ -1010,15 +1010,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder41<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, F> {
             names.add(name)
@@ -1035,15 +1035,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder42<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, F> {
             names.add(name)
@@ -1060,15 +1060,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder43<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, F> {
             names.add(name)
@@ -1085,15 +1085,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder44<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, F> {
             names.add(name)
@@ -1110,15 +1110,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder45<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, F> {
             names.add(name)
@@ -1135,15 +1135,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder46<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, F> {
             names.add(name)
@@ -1160,15 +1160,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder47<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, F> {
             names.add(name)
@@ -1185,15 +1185,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder48<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, F> {
             names.add(name)
@@ -1210,15 +1210,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder49<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, F> {
             names.add(name)
@@ -1235,15 +1235,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder50<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, F> {
             names.add(name)
@@ -1260,15 +1260,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder51<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, F> {
             names.add(name)
@@ -1285,15 +1285,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder52<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, F> {
             names.add(name)
@@ -1310,15 +1310,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder53<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, F> {
             names.add(name)
@@ -1335,15 +1335,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder54<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, F> {
             names.add(name)
@@ -1360,15 +1360,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder55<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, F> {
             names.add(name)
@@ -1385,15 +1385,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder56<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, F> {
             names.add(name)
@@ -1410,15 +1410,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder57<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, F> {
             names.add(name)
@@ -1435,15 +1435,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder58<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, F> {
             names.add(name)
@@ -1460,15 +1460,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder59<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, F> {
             names.add(name)
@@ -1485,15 +1485,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder60<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, F> {
             names.add(name)
@@ -1510,15 +1510,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder61<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, F> {
             names.add(name)
@@ -1535,15 +1535,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder62<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, F> {
             names.add(name)
@@ -1560,15 +1560,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder63<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, F> {
             names.add(name)
@@ -1585,15 +1585,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder64<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, F> {
             names.add(name)
@@ -1610,15 +1610,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder65<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, F> {
             names.add(name)
@@ -1635,15 +1635,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder66<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, F> {
             names.add(name)
@@ -1660,15 +1660,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder67<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, F> {
             names.add(name)
@@ -1685,15 +1685,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder68<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, F> {
             names.add(name)
@@ -1710,15 +1710,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder69<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, F> {
             names.add(name)
@@ -1735,15 +1735,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder70<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, F> {
             names.add(name)
@@ -1760,15 +1760,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder71<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, F> {
             names.add(name)
@@ -1785,15 +1785,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder72<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, F> {
             names.add(name)
@@ -1810,15 +1810,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder73<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, F> {
             names.add(name)
@@ -1835,15 +1835,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder74<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, F> {
             names.add(name)
@@ -1860,15 +1860,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder75<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, F> {
             names.add(name)
@@ -1885,15 +1885,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder76<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, F> {
             names.add(name)
@@ -1910,15 +1910,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder77<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, F> {
             names.add(name)
@@ -1935,15 +1935,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder78<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, F> {
             names.add(name)
@@ -1960,15 +1960,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder79<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, F> {
             names.add(name)
@@ -1985,15 +1985,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder80<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, F> {
             names.add(name)
@@ -2010,15 +2010,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder81<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, F> {
             names.add(name)
@@ -2035,15 +2035,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder82<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, F> {
             names.add(name)
@@ -2060,15 +2060,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder83<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, F> {
             names.add(name)
@@ -2085,15 +2085,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder84<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, F> {
             names.add(name)
@@ -2110,15 +2110,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder85<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, F> {
             names.add(name)
@@ -2135,15 +2135,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder86<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, F> {
             names.add(name)
@@ -2160,15 +2160,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder87<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, F> {
             names.add(name)
@@ -2185,15 +2185,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder88<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, F> {
             names.add(name)
@@ -2210,15 +2210,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder89<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, F> {
             names.add(name)
@@ -2235,15 +2235,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87, arr[88] as T88) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder90<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, F> {
             names.add(name)
@@ -2260,15 +2260,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87, arr[88] as T88, arr[89] as T89) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder91<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, F> {
             names.add(name)
@@ -2285,15 +2285,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87, arr[88] as T88, arr[89] as T89, arr[90] as T90) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder92<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, F> {
             names.add(name)
@@ -2310,15 +2310,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87, arr[88] as T88, arr[89] as T89, arr[90] as T90, arr[91] as T91) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder93<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, F> {
             names.add(name)
@@ -2335,15 +2335,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87, arr[88] as T88, arr[89] as T89, arr[90] as T90, arr[91] as T91, arr[92] as T92) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder94<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, F> {
             names.add(name)
@@ -2360,15 +2360,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87, arr[88] as T88, arr[89] as T89, arr[90] as T90, arr[91] as T91, arr[92] as T92, arr[93] as T93) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder95<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, F> {
             names.add(name)
@@ -2385,15 +2385,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87, arr[88] as T88, arr[89] as T89, arr[90] as T90, arr[91] as T91, arr[92] as T92, arr[93] as T93, arr[94] as T94) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder96<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, F> {
             names.add(name)
@@ -2410,15 +2410,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87, arr[88] as T88, arr[89] as T89, arr[90] as T90, arr[91] as T91, arr[92] as T92, arr[93] as T93, arr[94] as T94, arr[95] as T95) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder97<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, F> {
             names.add(name)
@@ -2435,15 +2435,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87, arr[88] as T88, arr[89] as T89, arr[90] as T90, arr[91] as T91, arr[92] as T92, arr[93] as T93, arr[94] as T94, arr[95] as T95, arr[96] as T96) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder98<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, F> {
             names.add(name)
@@ -2460,15 +2460,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87, arr[88] as T88, arr[89] as T89, arr[90] as T90, arr[91] as T91, arr[92] as T92, arr[93] as T93, arr[94] as T94, arr[95] as T95, arr[96] as T96, arr[97] as T97) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
         fun <F> field(name: String, type: DbType<F>, getter: (Row) -> F): Builder99<Row, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, F> {
             names.add(name)
@@ -2485,15 +2485,15 @@ object RowParserNamedBuilders {
         private val getters: MutableList<(Row) -> Any?>
     ) {
         @Suppress("UNCHECKED_CAST")
-        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, T98) -> Row): RowParserNamed<Row> {
+        fun build(decode: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, T98) -> Row): RowCodecNamed<Row> {
             val capturedGetters = getters.toList()
-            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
                 names.toList(),
                 types.toList(),
                 { arr -> decode(arr[0] as T0, arr[1] as T1, arr[2] as T2, arr[3] as T3, arr[4] as T4, arr[5] as T5, arr[6] as T6, arr[7] as T7, arr[8] as T8, arr[9] as T9, arr[10] as T10, arr[11] as T11, arr[12] as T12, arr[13] as T13, arr[14] as T14, arr[15] as T15, arr[16] as T16, arr[17] as T17, arr[18] as T18, arr[19] as T19, arr[20] as T20, arr[21] as T21, arr[22] as T22, arr[23] as T23, arr[24] as T24, arr[25] as T25, arr[26] as T26, arr[27] as T27, arr[28] as T28, arr[29] as T29, arr[30] as T30, arr[31] as T31, arr[32] as T32, arr[33] as T33, arr[34] as T34, arr[35] as T35, arr[36] as T36, arr[37] as T37, arr[38] as T38, arr[39] as T39, arr[40] as T40, arr[41] as T41, arr[42] as T42, arr[43] as T43, arr[44] as T44, arr[45] as T45, arr[46] as T46, arr[47] as T47, arr[48] as T48, arr[49] as T49, arr[50] as T50, arr[51] as T51, arr[52] as T52, arr[53] as T53, arr[54] as T54, arr[55] as T55, arr[56] as T56, arr[57] as T57, arr[58] as T58, arr[59] as T59, arr[60] as T60, arr[61] as T61, arr[62] as T62, arr[63] as T63, arr[64] as T64, arr[65] as T65, arr[66] as T66, arr[67] as T67, arr[68] as T68, arr[69] as T69, arr[70] as T70, arr[71] as T71, arr[72] as T72, arr[73] as T73, arr[74] as T74, arr[75] as T75, arr[76] as T76, arr[77] as T77, arr[78] as T78, arr[79] as T79, arr[80] as T80, arr[81] as T81, arr[82] as T82, arr[83] as T83, arr[84] as T84, arr[85] as T85, arr[86] as T86, arr[87] as T87, arr[88] as T88, arr[89] as T89, arr[90] as T90, arr[91] as T91, arr[92] as T92, arr[93] as T93, arr[94] as T94, arr[95] as T95, arr[96] as T96, arr[97] as T97, arr[98] as T98) },
                 { row -> capturedGetters.map { it(row) }.toTypedArray() }
             )
-            return RowParserNamed(javaParser)
+            return RowCodecNamed(javaParser)
         }
     }
 }

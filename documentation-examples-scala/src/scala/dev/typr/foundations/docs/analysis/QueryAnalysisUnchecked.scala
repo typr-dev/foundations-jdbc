@@ -8,7 +8,7 @@ object QueryAnalysisUnchecked:
   case class Stats(name: String, count: Int)
 
   // .unchecked() skips type checking entirely for this column
-  val statsParser: RowParser[Stats] = RowParser.builder[Stats]()
+  val statsParser: RowCodec[Stats] = RowCodec.builder[Stats]()
     .field(PgTypes.text)(_.name)
     .field(PgTypes.int4.unchecked())(_.count)
     .build(Stats.apply)

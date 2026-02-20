@@ -8,8 +8,8 @@ import java.math.BigDecimal
 class OptionalQueryRange {
     data class Product(val id: Int, val name: String, val price: BigDecimal)
 
-    val productParser: RowParser<Product> =
-        RowParser.builder<Product>()
+    val productParser: RowCodec<Product> =
+        RowCodec.builder<Product>()
             .field(PgTypes.int4, Product::id)
             .field(PgTypes.text, Product::name)
             .field(PgTypes.numeric, Product::price)

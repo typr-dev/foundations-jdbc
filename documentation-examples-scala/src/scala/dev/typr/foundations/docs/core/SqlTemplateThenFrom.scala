@@ -7,7 +7,7 @@ import dev.typr.foundationssc.data.*
 object SqlTemplateThenFrom:
   case class NewUser(id: Int, name: String)
 
-  val newUserParser: RowParser[NewUser] = RowParser.builder[NewUser]()
+  val newUserParser: RowCodec[NewUser] = RowCodec.builder[NewUser]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .build(NewUser.apply)

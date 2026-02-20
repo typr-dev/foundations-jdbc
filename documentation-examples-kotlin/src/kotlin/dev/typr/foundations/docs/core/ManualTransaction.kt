@@ -8,8 +8,8 @@ class ManualTransaction {
     data class Order(val id: Int, val userId: Int, val product: String)
     data class Dashboard(val userCount: Long, val recentOrders: List<Order>)
 
-    val orderParser: RowParser<Order> =
-        RowParser.builder<Order>()
+    val orderParser: RowCodec<Order> =
+        RowCodec.builder<Order>()
             .field(PgTypes.int4, Order::id)
             .field(PgTypes.int4, Order::userId)
             .field(PgTypes.text, Order::product)
@@ -20,7 +20,7 @@ class ManualTransaction {
     //start
     val countUsers: Operation<Long> =
         Sql { "SELECT count(*) FROM users" }
-            .query(RowParser.of(PgTypes.int8).exactlyOne())
+            .query(RowCodec.of(PgTypes.int8).exactlyOne())
     val recentOrders: Operation<List<Order>> =
         Sql { "SELECT * FROM orders ORDER BY id DESC LIMIT 10" }
             .query(orderParser.all())

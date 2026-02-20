@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.DuckDbTypes;
 import dev.typr.foundations.Fragment;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 import dev.typr.foundations.connect.SingleConnectionDataSource;
 import dev.typr.foundations.connect.DuckDbConfig;
@@ -14,8 +14,8 @@ import java.util.List;
 public class GettingStarted {
     record City(String name, int population) {}
 
-    RowParser<City> cityParser =
-        RowParser.<City>builder()
+    RowCodec<City> cityParser =
+        RowCodec.<City>builder()
             .field(DuckDbTypes.varchar, City::name)
             .field(DuckDbTypes.integer, City::population)
             .build(City::new);

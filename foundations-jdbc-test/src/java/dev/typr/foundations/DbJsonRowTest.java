@@ -12,15 +12,15 @@ import org.junit.Test;
  * Tests for DbJsonRow — roundtripping arrays of structs as JSON across the JDBC boundary.
  *
  * <p>Uses DuckDB (embedded, no Docker) to verify the full flow:
- * insert data → aggregate with json_group_array → parse with RowParser-derived codec.
+ * insert data → aggregate with json_group_array → parse with RowCodec-derived codec.
  */
 public class DbJsonRowTest {
 
   record OrderLine(String product, int qty, BigDecimal price) {}
 
   // Define once — used for both ResultSet reading and JSON parsing
-  static final RowParserNamed<OrderLine> lineParser =
-      RowParser.<OrderLine>namedBuilder()
+  static final RowCodecNamed<OrderLine> lineParser =
+      RowCodec.<OrderLine>namedBuilder()
           .field("product", DuckDbTypes.varchar, OrderLine::product)
           .field("qty", DuckDbTypes.integer, OrderLine::qty)
           .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
@@ -56,7 +56,7 @@ public class DbJsonRowTest {
         .transact(tx);
 
     Json fromDb = Fragment.of("SELECT lines FROM orders")
-        .query(RowParser.of(DuckDbTypes.json).exactlyOne())
+        .query(RowCodec.of(DuckDbTypes.json).exactlyOne())
         .transact(tx);
 
     List<OrderLine> decoded = linesCodec.fromJson(JsonValue.parse(fromDb.value()));
@@ -79,7 +79,7 @@ public class DbJsonRowTest {
     // Single query: parent rows with child rows aggregated as JSON
     record CustomerWithLines(String name, Json linesJson) {}
 
-    RowParser<CustomerWithLines> customerParser = RowParser.<CustomerWithLines>builder()
+    RowCodec<CustomerWithLines> customerParser = RowCodec.<CustomerWithLines>builder()
         .field(DuckDbTypes.varchar, CustomerWithLines::name)
         .field(DuckDbTypes.json, CustomerWithLines::linesJson)
         .build(CustomerWithLines::new);
@@ -131,7 +131,7 @@ public class DbJsonRowTest {
         .transact(tx);
 
     Json fromDb = Fragment.of("SELECT lines FROM orders")
-        .query(RowParser.of(DuckDbTypes.json).exactlyOne())
+        .query(RowCodec.of(DuckDbTypes.json).exactlyOne())
         .transact(tx);
 
     List<OrderLine> decoded = objectCodec.fromJson(JsonValue.parse(fromDb.value()));

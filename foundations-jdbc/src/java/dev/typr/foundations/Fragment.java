@@ -115,19 +115,19 @@ public sealed interface Fragment {
     return new Operation.Query<>(this, parser);
   }
 
-  /** Convenience for {@code query(RowParser.of(type).exactlyOne())}. */
+  /** Convenience for {@code query(RowCodec.of(type).exactlyOne())}. */
   default <T> Operation.Query<T> queryOne(DbType<T> type) {
-    return query(RowParser.of(type).exactlyOne());
+    return query(RowCodec.of(type).exactlyOne());
   }
 
-  /** Convenience for {@code query(RowParser.of(type).all())}. */
+  /** Convenience for {@code query(RowCodec.of(type).all())}. */
   default <T> Operation.Query<List<T>> queryList(DbType<T> type) {
-    return query(RowParser.of(type).all());
+    return query(RowCodec.of(type).all());
   }
 
-  /** Convenience for {@code query(RowParser.of(type).maxOne())}. */
+  /** Convenience for {@code query(RowCodec.of(type).maxOne())}. */
   default <T> Operation.Query<java.util.Optional<T>> queryMaybe(DbType<T> type) {
-    return query(RowParser.of(type).maxOne());
+    return query(RowCodec.of(type).maxOne());
   }
 
   default Operation.Update update() {
@@ -148,17 +148,17 @@ public sealed interface Fragment {
     return new Operation.UpdateReturningGeneratedKeys<>(this, columnNames, parser);
   }
 
-  default <Row> Operation.UpdateMany<Row> updateMany(RowParser<Row> parser, Iterator<Row> rows) {
+  default <Row> Operation.UpdateMany<Row> updateMany(RowCodec<Row> parser, Iterator<Row> rows) {
     return new Operation.UpdateMany<>(this, parser, rows);
   }
 
   default <Row> Operation.UpdateManyReturning<Row> updateManyReturning(
-      RowParser<Row> parser, Iterator<Row> rows) {
+      RowCodec<Row> parser, Iterator<Row> rows) {
     return new Operation.UpdateManyReturning<>(this, parser, rows);
   }
 
   default <Row> Operation.UpdateReturningEach<Row> updateReturningEach(
-      RowParser<Row> parser, Iterator<Row> rows) {
+      RowCodec<Row> parser, Iterator<Row> rows) {
     return new Operation.UpdateReturningEach<>(this, parser, rows);
   }
 
@@ -516,7 +516,7 @@ public sealed interface Fragment {
     return new ParamBuilders.ParamBuilder1<>(append(new Optionally(inner, countParams(inner))), null);
   }
 
-  default <Row> RowParamBuilder<Row> paramRow(RowParserNamed<Row> parser, String... except) {
+  default <Row> RowParamBuilder<Row> paramRow(RowCodecNamed<Row> parser, String... except) {
     List<DbType<?>> types = parser.columns();
     List<String> names = parser.columnNames();
     Set<String> exceptSet = except.length > 0 ? Set.of(except) : Set.of();
@@ -532,7 +532,7 @@ public sealed interface Fragment {
   }
 
   @SuppressWarnings("unchecked")
-  default <Row> Fragment row(RowParserNamed<Row> parser, Row row, String... except) {
+  default <Row> Fragment row(RowCodecNamed<Row> parser, Row row, String... except) {
     Object[] values = parser.encode().apply(row);
     List<DbType<?>> types = parser.columns();
     List<String> names = parser.columnNames();

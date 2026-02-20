@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.SqlTemplate;
 import dev.typr.foundations.Transactor;
 
@@ -13,8 +13,8 @@ import java.util.List;
 public class SqlTemplateMixed {
     record User(int id, String name, String status) {}
 
-    static RowParser<User> userParser =
-        RowParser.<User>builder()
+    static RowCodec<User> userParser =
+        RowCodec.<User>builder()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::status)

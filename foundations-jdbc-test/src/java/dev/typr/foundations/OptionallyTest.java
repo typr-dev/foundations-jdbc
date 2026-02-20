@@ -21,8 +21,8 @@ public class OptionallyTest {
 
   record Product(String name, BigDecimal price, boolean active) {}
 
-  static RowParserNamed<Product> productParser =
-      RowParser.<Product>namedBuilder()
+  static RowCodecNamed<Product> productParser =
+      RowCodec.<Product>namedBuilder()
           .field("name", DuckDbTypes.varchar, Product::name)
           .field("price", DuckDbTypes.decimal(10, 2), Product::price)
           .field("active", DuckDbTypes.boolean_, Product::active)

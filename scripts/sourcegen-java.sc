@@ -111,7 +111,7 @@ def generateTuples(): String = {
       |""".stripMargin
 }
 
-def generateRowParserBuilders(): String = {
+def generateRowCodecBuilders(): String = {
   val maxArity = N - 1  // N is 100, so 99 fields max (matching Functions.FunctionN)
 
   val builder0 = s"""|    public static final class Builder0<Row> {
@@ -153,9 +153,9 @@ def generateRowParserBuilders(): String = {
         |        }
         |
         |        @SuppressWarnings("unchecked")
-        |        public RowParser<Row> build($functionType decode) {
+        |        public RowCodec<Row> build($functionType decode) {
         |            java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-        |            return RowParser.create(
+        |            return RowCodec.create(
         |                java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
         |                arr -> decode.apply($decodeArgs),
         |                row -> {
@@ -172,19 +172,19 @@ def generateRowParserBuilders(): String = {
   s"""|package dev.typr.foundations;
       |
       |/**
-      | * Type-safe builders for RowParser.
+      | * Type-safe builders for RowCodec.
       | * <p>
       | * Usage:
       | * <pre>{@code
-      | * RowParser<Product> parser = RowParserBuilders.<Product>builder()
+      | * RowCodec<Product> parser = RowCodecBuilders.<Product>builder()
       | *     .field(PgTypes.int4, Product::id)
       | *     .field(PgTypes.text, Product::name)
       | *     .field(PgTypes.numeric, Product::price)
       | *     .build(Product::new);
       | * }</pre>
       | */
-      |public final class RowParserBuilders {
-      |    private RowParserBuilders() {}
+      |public final class RowCodecBuilders {
+      |    private RowCodecBuilders() {}
       |
       |    public static <Row> Builder0<Row> builder() {
       |        return new Builder0<>();
@@ -197,7 +197,7 @@ def generateRowParserBuilders(): String = {
       |""".stripMargin
 }
 
-def generateNamedRowParserBuilders(): String = {
+def generateNamedRowCodecBuilders(): String = {
   val maxArity = N - 1
 
   val builder0 = s"""|    public static final class Builder0<Row> {
@@ -244,9 +244,9 @@ def generateNamedRowParserBuilders(): String = {
         |        }
         |
         |        @SuppressWarnings("unchecked")
-        |        public RowParserNamed<Row> build($functionType decode) {
+        |        public RowCodecNamed<Row> build($functionType decode) {
         |            java.util.List<java.util.function.Function<Row, ?>> capturedGetters = java.util.List.copyOf(getters);
-        |            return RowParser.createNamed(
+        |            return RowCodec.createNamed(
         |                java.util.List.copyOf(names),
         |                java.util.Collections.unmodifiableList(new java.util.ArrayList<>(types)),
         |                arr -> decode.apply($decodeArgs),
@@ -264,19 +264,19 @@ def generateNamedRowParserBuilders(): String = {
   s"""|package dev.typr.foundations;
       |
       |/**
-      | * Type-safe named builders for RowParser.
+      | * Type-safe named builders for RowCodec.
       | * <p>
       | * Usage:
       | * <pre>{@code
-      | * RowParserNamed<Product> parser = RowParserNamedBuilders.<Product>builder()
+      | * RowCodecNamed<Product> parser = RowCodecNamedBuilders.<Product>builder()
       | *     .field("id", PgTypes.int4, Product::id)
       | *     .field("name", PgTypes.text, Product::name)
       | *     .field("price", PgTypes.numeric, Product::price)
       | *     .build(Product::new);
       | * }</pre>
       | */
-      |public final class RowParserNamedBuilders {
-      |    private RowParserNamedBuilders() {}
+      |public final class RowCodecNamedBuilders {
+      |    private RowCodecNamedBuilders() {}
       |
       |    public static <Row> Builder0<Row> builder() {
       |        return new Builder0<>();
@@ -1471,11 +1471,11 @@ val functionsPath = outputDir.resolve("Functions.java")
 Files.writeString(functionsPath, functionsContent)
 println(s"Wrote ${functionsPath}")
 
-// Delete old RowParsers.java if it exists
-val oldRowParsersPath = outputDir.resolve("RowParsers.java")
-if (Files.exists(oldRowParsersPath)) {
-  Files.delete(oldRowParsersPath)
-  println(s"Deleted ${oldRowParsersPath}")
+// Delete old RowCodecs.java if it exists
+val oldRowCodecsPath = outputDir.resolve("RowCodecs.java")
+if (Files.exists(oldRowCodecsPath)) {
+  Files.delete(oldRowCodecsPath)
+  println(s"Deleted ${oldRowCodecsPath}")
 }
 
 val pgStructBuildersContent = generatePgStructBuilders()
@@ -1493,15 +1493,15 @@ val oracleObjectBuildersPath = outputDir.resolve("OracleObjectBuilders.java")
 Files.writeString(oracleObjectBuildersPath, oracleObjectBuildersContent)
 println(s"Wrote ${oracleObjectBuildersPath}")
 
-val rowParserBuildersContent = generateRowParserBuilders()
-val rowParserBuildersPath = outputDir.resolve("RowParserBuilders.java")
-Files.writeString(rowParserBuildersPath, rowParserBuildersContent)
-println(s"Wrote ${rowParserBuildersPath}")
+val rowCodecBuildersContent = generateRowCodecBuilders()
+val rowCodecBuildersPath = outputDir.resolve("RowCodecBuilders.java")
+Files.writeString(rowCodecBuildersPath, rowCodecBuildersContent)
+println(s"Wrote ${rowCodecBuildersPath}")
 
-val namedRowParserBuildersContent = generateNamedRowParserBuilders()
-val namedRowParserBuildersPath = outputDir.resolve("RowParserNamedBuilders.java")
-Files.writeString(namedRowParserBuildersPath, namedRowParserBuildersContent)
-println(s"Wrote ${namedRowParserBuildersPath}")
+val namedRowCodecBuildersContent = generateNamedRowCodecBuilders()
+val namedRowCodecBuildersPath = outputDir.resolve("RowCodecNamedBuilders.java")
+Files.writeString(namedRowCodecBuildersPath, namedRowCodecBuildersContent)
+println(s"Wrote ${namedRowCodecBuildersPath}")
 
 val tupleContent = generateTuples()
 val tuplePath = outputDir.resolve("Tuple.java")

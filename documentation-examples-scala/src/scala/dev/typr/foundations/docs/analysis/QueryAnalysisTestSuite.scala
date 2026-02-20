@@ -15,13 +15,13 @@ object QueryAnalysisTestSuite:
 
   private val testDataSource: DataSource = null // placeholder
 
-  private val userParser: RowParser[User] = RowParser.builder[User]()
+  private val userParser: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.email)
     .build(User.apply)
 
-  private val productParser: RowParser[Product] = RowParser.builder[Product]()
+  private val productParser: RowCodec[Product] = RowCodec.builder[Product]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .build(Product.apply)

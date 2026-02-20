@@ -10,8 +10,8 @@ class ComposingWith {
     data class Dashboard(val userCount: Long, val recentOrders: List<Order>)
     data class Stats(val userCount: Long, val orderCount: Long, val revenue: Long)
 
-    val orderParser: RowParser<Order> =
-        RowParser.builder<Order>()
+    val orderParser: RowCodec<Order> =
+        RowCodec.builder<Order>()
             .field(PgTypes.int4, Order::id)
             .field(PgTypes.int4, Order::userId)
             .field(PgTypes.text, Order::product)
@@ -23,7 +23,7 @@ class ComposingWith {
     // Combine two independent queries — both run in one transaction
     val countUsers: Operation<Long> =
         Sql { "SELECT count(*) FROM users" }
-            .query(RowParser.of(PgTypes.int8).exactlyOne())
+            .query(RowCodec.of(PgTypes.int8).exactlyOne())
     val recentOrders: Operation<List<Order>> =
         Sql { "SELECT * FROM orders ORDER BY id DESC LIMIT 10" }
             .query(orderParser.all())
@@ -36,10 +36,10 @@ class ComposingWith {
     // Three-way: all run in one transaction, results combined
     val countOrders: Operation<Long> =
         Sql { "SELECT count(*) FROM orders" }
-            .query(RowParser.of(PgTypes.int8).exactlyOne())
+            .query(RowCodec.of(PgTypes.int8).exactlyOne())
     val totalRevenue: Operation<Long> =
         Sql { "SELECT coalesce(sum(amount), 0) FROM orders" }
-            .query(RowParser.of(PgTypes.int8).exactlyOne())
+            .query(RowCodec.of(PgTypes.int8).exactlyOne())
 
     fun stats(): Stats =
         countUsers

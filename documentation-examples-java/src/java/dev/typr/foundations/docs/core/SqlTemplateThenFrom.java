@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.SqlTemplate;
 import dev.typr.foundations.Transactor;
 
@@ -12,8 +12,8 @@ import java.sql.SQLException;
 public class SqlTemplateThenFrom {
     record NewUser(int id, String name) {}
 
-    static RowParser<NewUser> newUserParser =
-        RowParser.<NewUser>builder()
+    static RowCodec<NewUser> newUserParser =
+        RowCodec.<NewUser>builder()
             .field(PgTypes.int4, NewUser::id)
             .field(PgTypes.text, NewUser::name)
             .build(NewUser::new);

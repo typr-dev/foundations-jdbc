@@ -8,8 +8,8 @@ import java.sql.Connection
 class QueryAnalysisAll {
     data class User(val id: Int, val name: String)
 
-    val userParser: RowParser<User> =
-        RowParser.builder<User>()
+    val userParser: RowCodec<User> =
+        RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .build(::User)
@@ -20,7 +20,7 @@ class QueryAnalysisAll {
         Fragment.of("INSERT INTO users(name) VALUES(")
             .param(PgTypes.text)
             .append(") RETURNING id")
-            .query(RowParser.of(PgTypes.int4).exactlyOne())
+            .query(RowCodec.of(PgTypes.int4).exactlyOne())
 
     val allUsers: Operation<List<User>> =
         Sql { "SELECT id, name FROM users" }

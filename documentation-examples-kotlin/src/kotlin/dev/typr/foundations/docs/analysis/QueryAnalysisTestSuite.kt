@@ -11,15 +11,15 @@ class QueryAnalysisTestSuite {
 
     private lateinit var testDataSource: DataSource
 
-    private val userParser: RowParser<User> =
-        RowParser.builder<User>()
+    private val userParser: RowCodec<User> =
+        RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::email)
             .build(::User)
 
-    private val productParser: RowParser<Product> =
-        RowParser.builder<Product>()
+    private val productParser: RowCodec<Product> =
+        RowCodec.builder<Product>()
             .field(PgTypes.int4, Product::id)
             .field(PgTypes.text, Product::name)
             .build(::Product)

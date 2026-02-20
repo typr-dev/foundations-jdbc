@@ -79,15 +79,15 @@ public abstract class PgText<A> implements DbText<A> {
   }
 
   @SuppressWarnings("unchecked")
-  public static <A> PgText<A> from(RowParser<A> rowParser) {
+  public static <A> PgText<A> from(RowCodec<A> rowCodec) {
     return instance(
         (row, sb) -> {
-          var encoded = rowParser.encode().apply(row);
+          var encoded = rowCodec.encode().apply(row);
           for (int i = 0; i < encoded.length; i++) {
             if (i > 0) {
               sb.append(PgText.DELIMETER);
             }
-            DbText<Object> text = (DbText<Object>) rowParser.columns().get(i).text().orElseThrow();
+            DbText<Object> text = (DbText<Object>) rowCodec.columns().get(i).text().orElseThrow();
             text.unsafeEncode(encoded[i], sb);
           }
         });

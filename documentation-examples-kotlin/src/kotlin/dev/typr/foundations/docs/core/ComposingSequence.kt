@@ -14,7 +14,7 @@ class ComposingSequence {
     fun insertAll(): List<Int> {
         val inserts: List<Operation<Int>> = names.map { name ->
             Sql { "INSERT INTO users(name) VALUES(${PgTypes.text(name)}) RETURNING id" }
-                .query(RowParser.of(PgTypes.int4).exactlyOne())
+                .query(RowCodec.of(PgTypes.int4).exactlyOne())
         }
 
         return Operation.sequence(inserts).transact(tx)

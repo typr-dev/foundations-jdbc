@@ -7,8 +7,8 @@ import dev.typr.foundationskt.data.*
 class SqlTemplateThenFrom {
     data class NewUser(val id: Int, val name: String)
 
-    val newUserParser: RowParser<NewUser> =
-        RowParser.builder<NewUser>()
+    val newUserParser: RowCodec<NewUser> =
+        RowCodec.builder<NewUser>()
             .field(PgTypes.int4, NewUser::id)
             .field(PgTypes.text, NewUser::name)
             .build(::NewUser)

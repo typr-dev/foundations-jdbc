@@ -10,8 +10,8 @@ class QueryAnalysis {
     data class User(val id: Int, val name: String, val createdAt: Int, val email: String)
     lateinit var connection: Connection
 
-    val userParser: RowParser<User> =
-        RowParser.builder<User>()
+    val userParser: RowCodec<User> =
+        RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)           // id: correct
             .field(PgTypes.text, User::name)         // name: correct
             .field(PgTypes.int4, User::createdAt)    // created_at: WRONG! Should be timestamptz

@@ -10,7 +10,7 @@ val STRUCT_N = 31
 val baseDir = Path.of(sys.props.getOrElse("user.dir", "."))
 val generatedOutputDir = baseDir.resolve("foundations-jdbc-kotlin/generated-and-checked-in/dev/typr/foundationskt")
 
-def generateKotlinRowParserBuilders(): String = {
+def generateKotlinRowCodecBuilders(): String = {
   val maxArity = N - 1
 
   val builder0 = s"""|    class Builder0<Row : Any> internal constructor() {
@@ -47,14 +47,14 @@ def generateKotlinRowParserBuilders(): String = {
         |        private val getters: MutableList<(Row) -> Any?>
         |    ) {
         |        @Suppress("UNCHECKED_CAST")
-        |        fun build(decode: ($decodeParams) -> Row): RowParser<Row> {
+        |        fun build(decode: ($decodeParams) -> Row): RowCodec<Row> {
         |            val capturedGetters = getters.toList()
-        |            val javaParser = dev.typr.foundations.RowParser.create<Row>(
+        |            val javaParser = dev.typr.foundations.RowCodec.create<Row>(
         |                types.toList(),
         |                { arr -> decode($decodeArgs) },
         |                { row -> capturedGetters.map { it(row) }.toTypedArray() }
         |            )
-        |            return RowParser(javaParser)
+        |            return RowCodec(javaParser)
         |        }$nextBuilder
         |    }""".stripMargin
   }
@@ -62,18 +62,18 @@ def generateKotlinRowParserBuilders(): String = {
   s"""|package dev.typr.foundationskt
       |
       |/**
-      | * Type-safe builders for Kotlin RowParser.
+      | * Type-safe builders for Kotlin RowCodec.
       | *
       | * Usage:
       | * ```kotlin
-      | * val parser: RowParser<Product> = RowParser.builder<Product>()
+      | * val parser: RowCodec<Product> = RowCodec.builder<Product>()
       | *     .field(PgTypes.int4, Product::id)
       | *     .field(PgTypes.text, Product::name)
       | *     .field(PgTypes.numeric, Product::price)
       | *     .build(::Product)
       | * ```
       | */
-      |object RowParserBuilders {
+      |object RowCodecBuilders {
       |    fun <Row : Any> builder(): Builder0<Row> = Builder0()
       |
       |$builder0
@@ -83,7 +83,7 @@ def generateKotlinRowParserBuilders(): String = {
       |""".stripMargin
 }
 
-def generateKotlinNamedRowParserBuilders(): String = {
+def generateKotlinNamedRowCodecBuilders(): String = {
   val maxArity = N - 1
 
   val builder0 = s"""|    class Builder0<Row : Any> internal constructor() {
@@ -124,15 +124,15 @@ def generateKotlinNamedRowParserBuilders(): String = {
         |        private val getters: MutableList<(Row) -> Any?>
         |    ) {
         |        @Suppress("UNCHECKED_CAST")
-        |        fun build(decode: ($decodeParams) -> Row): RowParserNamed<Row> {
+        |        fun build(decode: ($decodeParams) -> Row): RowCodecNamed<Row> {
         |            val capturedGetters = getters.toList()
-        |            val javaParser = dev.typr.foundations.RowParser.createNamed<Row>(
+        |            val javaParser = dev.typr.foundations.RowCodec.createNamed<Row>(
         |                names.toList(),
         |                types.toList(),
         |                { arr -> decode($decodeArgs) },
         |                { row -> capturedGetters.map { it(row) }.toTypedArray() }
         |            )
-        |            return RowParserNamed(javaParser)
+        |            return RowCodecNamed(javaParser)
         |        }$nextBuilder
         |    }""".stripMargin
   }
@@ -140,18 +140,18 @@ def generateKotlinNamedRowParserBuilders(): String = {
   s"""|package dev.typr.foundationskt
       |
       |/**
-      | * Type-safe named builders for Kotlin RowParser.
+      | * Type-safe named builders for Kotlin RowCodec.
       | *
       | * Usage:
       | * ```kotlin
-      | * val parser: RowParserNamed<Product> = RowParser.namedBuilder<Product>()
+      | * val parser: RowCodecNamed<Product> = RowCodec.namedBuilder<Product>()
       | *     .field("id", PgTypes.int4, Product::id)
       | *     .field("name", PgTypes.text, Product::name)
       | *     .field("price", PgTypes.numeric, Product::price)
       | *     .build(::Product)
       | * ```
       | */
-      |object RowParserNamedBuilders {
+      |object RowCodecNamedBuilders {
       |    fun <Row : Any> builder(): Builder0<Row> = Builder0()
       |
       |$builder0
@@ -807,17 +807,17 @@ def generateKotlinParamBuilders(): String = {
 
 Files.createDirectories(generatedOutputDir)
 
-// RowParserBuilders.kt -> generated-and-checked-in
-val kotlinRowParserBuildersContent = generateKotlinRowParserBuilders()
-val kotlinRowParserBuildersPath = generatedOutputDir.resolve("RowParserBuilders.kt")
-Files.writeString(kotlinRowParserBuildersPath, kotlinRowParserBuildersContent)
-println(s"Wrote ${kotlinRowParserBuildersPath}")
+// RowCodecBuilders.kt -> generated-and-checked-in
+val kotlinRowCodecBuildersContent = generateKotlinRowCodecBuilders()
+val kotlinRowCodecBuildersPath = generatedOutputDir.resolve("RowCodecBuilders.kt")
+Files.writeString(kotlinRowCodecBuildersPath, kotlinRowCodecBuildersContent)
+println(s"Wrote ${kotlinRowCodecBuildersPath}")
 
-// RowParserNamedBuilders.kt -> generated-and-checked-in
-val kotlinNamedRowParserBuildersContent = generateKotlinNamedRowParserBuilders()
-val kotlinNamedRowParserBuildersPath = generatedOutputDir.resolve("RowParserNamedBuilders.kt")
-Files.writeString(kotlinNamedRowParserBuildersPath, kotlinNamedRowParserBuildersContent)
-println(s"Wrote ${kotlinNamedRowParserBuildersPath}")
+// RowCodecNamedBuilders.kt -> generated-and-checked-in
+val kotlinNamedRowCodecBuildersContent = generateKotlinNamedRowCodecBuilders()
+val kotlinNamedRowCodecBuildersPath = generatedOutputDir.resolve("RowCodecNamedBuilders.kt")
+Files.writeString(kotlinNamedRowCodecBuildersPath, kotlinNamedRowCodecBuildersContent)
+println(s"Wrote ${kotlinNamedRowCodecBuildersPath}")
 
 // DbProcedure.kt -> generated-and-checked-in
 val kotlinDbProcedureContent = generateKotlinDbProcedure()

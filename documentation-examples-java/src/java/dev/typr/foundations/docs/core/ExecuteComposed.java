@@ -3,7 +3,7 @@ package dev.typr.foundations.docs.core;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.Operation;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
 import java.sql.SQLException;
@@ -14,8 +14,8 @@ public class ExecuteComposed {
     record Order(int id, int userId, String product) {}
     record Dashboard(long userCount, List<Order> recentOrders) {}
 
-    static RowParser<Order> orderParser =
-        RowParser.<Order>builder()
+    static RowCodec<Order> orderParser =
+        RowCodec.<Order>builder()
             .field(PgTypes.int4, Order::id)
             .field(PgTypes.int4, Order::userId)
             .field(PgTypes.text, Order::product)
@@ -25,7 +25,7 @@ public class ExecuteComposed {
 
     Operation<Long> countUsers =
         Fragment.of("SELECT count(*) FROM users")
-            .query(RowParser.of(PgTypes.int8).exactlyOne());
+            .query(RowCodec.of(PgTypes.int8).exactlyOne());
     Operation<List<Order>> recentOrders =
         Fragment.of("""
                 SELECT * FROM orders

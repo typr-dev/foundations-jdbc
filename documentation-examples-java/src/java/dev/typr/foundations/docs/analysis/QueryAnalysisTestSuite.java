@@ -3,7 +3,7 @@ package dev.typr.foundations.docs.analysis;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.Operation;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
 import javax.sql.DataSource;
@@ -19,15 +19,15 @@ public class QueryAnalysisTestSuite {
 
     private final DataSource testDataSource = null; // placeholder
 
-    private final RowParser<User> userParser =
-        RowParser.<User>builder()
+    private final RowCodec<User> userParser =
+        RowCodec.<User>builder()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::email)
             .build(User::new);
 
-    private final RowParser<Product> productParser =
-        RowParser.<Product>builder()
+    private final RowCodec<Product> productParser =
+        RowCodec.<Product>builder()
             .field(PgTypes.int4, Product::id)
             .field(PgTypes.text, Product::name)
             .build(Product::new);

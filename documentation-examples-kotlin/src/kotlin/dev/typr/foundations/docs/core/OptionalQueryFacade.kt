@@ -7,8 +7,8 @@ import dev.typr.foundationskt.data.*
 class OptionalQueryFacade {
     data class User(val id: Int, val name: String, val email: String)
 
-    val userParser: RowParser<User> =
-        RowParser.builder<User>()
+    val userParser: RowCodec<User> =
+        RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::email)

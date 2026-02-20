@@ -13,14 +13,14 @@ public class StreamingInsertMulti {
     record ProductRow(String name, BigDecimal price, int quantity) {}
 
     //start
-    // Define a RowParser for your row type
-    static RowParser<ProductRow> productParser = RowParser.<ProductRow>builder()
+    // Define a RowCodec for your row type
+    static RowCodec<ProductRow> productParser = RowCodec.<ProductRow>builder()
         .field(PgTypes.text, ProductRow::name)
         .field(PgTypes.numeric, ProductRow::price)
         .field(PgTypes.int4, ProductRow::quantity)
         .build(ProductRow::new);
 
-    // PgText.from() derives a text encoder from the RowParser
+    // PgText.from() derives a text encoder from the RowCodec
     static PgText<ProductRow> productText = PgText.from(productParser);
 
     long insertProducts(Iterator<ProductRow> products, Transactor tx) throws SQLException {

@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.landing;
 
 import dev.typr.foundations.Fragment;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.SqlServerTypes;
 
 import java.math.BigDecimal;
@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("unused")
 public class SqlServerQuery {
     record OrderRow(Integer id, String name, BigDecimal price) {}
-    static RowParser<OrderRow> orderRowParser = null; // placeholder
+    static RowCodec<OrderRow> orderRowCodec = null; // placeholder
     Optional<BigDecimal> maxPrice = Optional.empty();
     Connection conn = null; // placeholder
 
@@ -40,7 +40,7 @@ public class SqlServerQuery {
     List<OrderRow> orders =
         Fragment.of("SELECT * FROM orders ")
             .append(Fragment.whereAnd(filters))
-            .query(orderRowParser.all())
+            .query(orderRowCodec.all())
             .run(conn);
     //stop
 }

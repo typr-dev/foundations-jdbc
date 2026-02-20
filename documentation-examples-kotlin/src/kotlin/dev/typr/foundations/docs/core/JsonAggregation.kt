@@ -9,8 +9,8 @@ object JsonAggregation {
 
     data class OrderLine(val product: String, val qty: Int, val price: BigDecimal)
 
-    val lineParser: RowParser<OrderLine> =
-        RowParser.builder<OrderLine>()
+    val lineParser: RowCodec<OrderLine> =
+        RowCodec.builder<OrderLine>()
             .field(DuckDbTypes.varchar, OrderLine::product)
             .field(DuckDbTypes.integer, OrderLine::qty)
             .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
@@ -28,7 +28,7 @@ object JsonAggregation {
             FROM order_lines
             WHERE customer_id = ${DuckDbTypes.integer(customerId)}
         """ }
-            .query(RowParser.of(linesType).exactlyOne())
+            .query(RowCodec.of(linesType).exactlyOne())
             .transact(tx)
     //stop
 }

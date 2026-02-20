@@ -18,11 +18,11 @@ Operations are values — they describe *what* to do but don't run anything unti
 
 ## Result Set Parsers
 
-A `ResultSetParser<T>` reads a complete ResultSet and produces a value of type `T`. You typically create one from a `RowParser`:
+A `ResultSetParser<T>` reads a complete ResultSet and produces a value of type `T`. You typically create one from a `RowCodec`:
 
 <Snippet file="core/ResultSetParserUsage" />
 
-From any `RowParser<T>` you can create:
+From any `RowCodec<T>` you can create:
 
 | Method | Returns | Description |
 |--------|---------|-------------|

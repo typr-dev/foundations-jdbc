@@ -5,7 +5,7 @@ fun main() {
     val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
     val answer: Int = tx.transact { conn ->
         Sql { "SELECT 42" }
-            .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
+            .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
             .run(conn)
     }
     println("Result: $answer")

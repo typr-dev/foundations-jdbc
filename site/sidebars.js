@@ -10,7 +10,7 @@ const sidebars = {
       items: [
         {type: "doc", id: "readme", label: "Getting Started"},
         {type: "doc", id: "fragments", label: "Fragments"},
-        {type: "doc", id: "row-parsers", label: "Row Parsers"},
+        {type: "doc", id: "row-codecs", label: "Row Codecs"},
         {type: "doc", id: "sql-templates", label: "SQL Templates"},
         {type: "doc", id: "operations", label: "Operations"},
         {type: "doc", id: "transactors", label: "Transactors"},

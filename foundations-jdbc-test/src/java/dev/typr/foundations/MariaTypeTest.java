@@ -35,14 +35,14 @@ public class MariaTypeTest {
 
   record Item(String name, int quantity) {}
 
-  static RowParser<Item> itemParser =
-      RowParser.<Item>builder()
+  static RowCodec<Item> itemParser =
+      RowCodec.<Item>builder()
           .field(MariaTypes.varchar, Item::name)
           .field(MariaTypes.int_, Item::quantity)
           .build(Item::new);
 
-  static RowParserNamed<Item> namedItemParser =
-      RowParser.<Item>namedBuilder()
+  static RowCodecNamed<Item> namedItemParser =
+      RowCodec.<Item>namedBuilder()
           .field("name", MariaTypes.varchar, Item::name)
           .field("quantity", MariaTypes.int_, Item::quantity)
           .build(Item::new);
@@ -485,7 +485,7 @@ public class MariaTypeTest {
     String tableName = uniqueTableName("qa");
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
@@ -504,7 +504,7 @@ public class MariaTypeTest {
     conn.createStatement()
         .execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment =
           Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
               .value(t.type, t.example);
@@ -609,8 +609,8 @@ public class MariaTypeTest {
 
   static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
       throws SQLException {
-    RowParserNamed<A> parser =
-        RowParser.<A>namedBuilder()
+    RowCodecNamed<A> parser =
+        RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
     Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")

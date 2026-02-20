@@ -87,19 +87,19 @@ class Db2Types {
 
   // JSON-encoded row types
 
-  def jsonArrayEncoded[Row](parser: RowParser[Row]): Db2Type[Row] =
+  def jsonArrayEncoded[Row](parser: RowCodec[Row]): Db2Type[Row] =
     Db2Type(JavaDb2Types.jsonArrayEncoded(parser.underlying))
 
-  def jsonArrayEncodedList[Row](parser: RowParser[Row]): Db2Type[List[Row]] =
+  def jsonArrayEncodedList[Row](parser: RowCodec[Row]): Db2Type[List[Row]] =
     Db2Type(JavaDb2Types.jsonArrayEncodedList(parser.underlying).transform(
       jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
       slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
     ))
 
-  def jsonObjectEncoded[Row](parser: RowParserNamed[Row]): Db2Type[Row] =
+  def jsonObjectEncoded[Row](parser: RowCodecNamed[Row]): Db2Type[Row] =
     Db2Type(JavaDb2Types.jsonObjectEncoded(parser.underlying))
 
-  def jsonObjectEncodedList[Row](parser: RowParserNamed[Row]): Db2Type[List[Row]] =
+  def jsonObjectEncodedList[Row](parser: RowCodecNamed[Row]): Db2Type[List[Row]] =
     Db2Type(JavaDb2Types.jsonObjectEncodedList(parser.underlying).transform(
       jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
       slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)

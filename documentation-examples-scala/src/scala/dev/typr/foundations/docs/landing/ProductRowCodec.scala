@@ -6,7 +6,7 @@ import dev.typr.foundationssc.data.*
 import java.time.Instant
 
 @SuppressWarnings(Array("unused"))
-object ProductRowParser:
+object ProductRowCodec:
   case class Product(id: ProductId, name: String, price: BigDecimal, tags: Option[Array[String]],
                      dimensions: Option[Dim], metadata: Option[Jsonb], createdAt: Option[Instant])
   case class ProductId(value: Int)
@@ -15,10 +15,10 @@ object ProductRowParser:
 
   val productIdType: PgType[ProductId] = PgTypes.int4.transform(ProductId.apply, _.value)
   val dimensionsType: PgType[Dim] = null // placeholder
-  val categoryRowParser: RowParser[Category] = null // placeholder
+  val categoryRowCodec: RowCodec[Category] = null // placeholder
 
   //start
-  val rowParser: RowParser[Product] = RowParser.builder[Product]()
+  val rowCodec: RowCodec[Product] = RowCodec.builder[Product]()
     .field(productIdType)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.numeric)(_.price)
@@ -29,6 +29,6 @@ object ProductRowParser:
     .build(Product.apply)
 
   // Compose parsers for joins
-  val joined: RowParser[(Product, Option[Category])] =
-    rowParser.leftJoined(categoryRowParser)
+  val joined: RowCodec[(Product, Option[Category])] =
+    rowCodec.leftJoined(categoryRowCodec)
   //stop

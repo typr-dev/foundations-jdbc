@@ -6,6 +6,6 @@ import dev.typr.foundationskt.data.*
 @Suppress("unused")
 class SingleColumnParser {
     //start
-    val idParser: RowParser<Int> = RowParser.of(PgTypes.int4)
+    val idParser: RowCodec<Int> = RowCodec.of(PgTypes.int4)
     //stop
 }

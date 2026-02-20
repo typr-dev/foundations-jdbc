@@ -7,7 +7,7 @@ import dev.typr.foundationssc.data.*
 object OptionalQueryRange:
   case class Product(id: Int, name: String, price: BigDecimal)
 
-  val productParser: RowParser[Product] = RowParser.builder[Product]()
+  val productParser: RowCodec[Product] = RowCodec.builder[Product]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.numeric)(_.price)

@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.SqlTemplate;
 import dev.typr.foundations.Transactor;
 import dev.typr.foundations.Tuple;
@@ -16,8 +16,8 @@ import java.util.Optional;
 public class OptionalQueryRange {
     record Product(int id, String name, BigDecimal price) {}
 
-    static RowParser<Product> productParser =
-        RowParser.<Product>builder()
+    static RowCodec<Product> productParser =
+        RowCodec.<Product>builder()
             .field(PgTypes.int4, Product::id)
             .field(PgTypes.text, Product::name)
             .field(PgTypes.numeric, Product::price)

@@ -3,7 +3,7 @@ package dev.typr.foundations.docs.landing;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.Operation;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.QueryAnalyzer;
 
 import java.sql.Connection;
@@ -15,7 +15,7 @@ public class QueryAnalysis {
     record User(Integer id, String name, Integer createdAt, String email) {}
     Connection connection = null; // placeholder
 
-    RowParser<User> parser = RowParser.<User>builder()
+    RowCodec<User> parser = RowCodec.<User>builder()
         .field(PgTypes.int4, User::id)
         .field(PgTypes.text, User::name)
         .field(PgTypes.int4, User::createdAt)

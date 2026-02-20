@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 
 import java.sql.Connection;
 import java.time.Instant;
@@ -12,8 +12,8 @@ import java.util.List;
 public class FragmentBuilding {
     record User(Integer id, String name, String status, Instant createdAt) {}
 
-    RowParser<User> userParser =
-        RowParser.<User>builder()
+    RowCodec<User> userParser =
+        RowCodec.<User>builder()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::status)

@@ -3,7 +3,7 @@ package dev.typr.foundations.docs.analysis;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.Operation;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.SqlTemplate;
 import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
@@ -16,8 +16,8 @@ import java.util.List;
 public class QueryAnalysisAll {
     record User(int id, String name) {}
 
-    static RowParser<User> userParser =
-        RowParser.<User>builder()
+    static RowCodec<User> userParser =
+        RowCodec.<User>builder()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .build(User::new);
@@ -28,7 +28,7 @@ public class QueryAnalysisAll {
         Fragment.of("INSERT INTO users(name) VALUES(")
             .param(PgTypes.text)
             .append(") RETURNING id")
-            .query(RowParser.of(PgTypes.int4).exactlyOne());
+            .query(RowCodec.of(PgTypes.int4).exactlyOne());
 
     Operation<List<User>> allUsers =
         Fragment.of("SELECT id, name FROM users")

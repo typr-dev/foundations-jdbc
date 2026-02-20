@@ -64,14 +64,14 @@ public class DuckDbTypeTest {
   DuckDbType<Person> personType = personStruct.asType();
 
   // Parsers for JSON-encoded row type testing
-  static RowParser<Person> personParser =
-      RowParser.<Person>builder()
+  static RowCodec<Person> personParser =
+      RowCodec.<Person>builder()
           .field(DuckDbTypes.varchar, Person::name)
           .field(DuckDbTypes.integer, Person::age)
           .build(Person::new);
 
-  static RowParserNamed<Person> namedPersonParser =
-      RowParser.<Person>namedBuilder()
+  static RowCodecNamed<Person> namedPersonParser =
+      RowCodec.<Person>namedBuilder()
           .field("name", DuckDbTypes.varchar, Person::name)
           .field("age", DuckDbTypes.integer, Person::age)
           .build(Person::new);
@@ -247,7 +247,7 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(DuckDbTypes.json, new Json("{}")).noIdentity(),
 
           // ==================== JSON-Encoded Row Types ====================
-          // These types store structured rows as JSON — the codec is derived from the RowParser
+          // These types store structured rows as JSON — the codec is derived from the RowCodec
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.jsonArrayEncoded(personParser), new Person("Alice", 30))
               .noIdentity(),
@@ -630,7 +630,7 @@ public class DuckDbTypeTest {
     String tableName = uniqueTableName("qa");
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
@@ -646,7 +646,7 @@ public class DuckDbTypeTest {
     String tableName = uniqueTableName("qap");
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
           .value(t.type, t.example);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
@@ -660,8 +660,8 @@ public class DuckDbTypeTest {
 
   static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
       throws SQLException {
-    RowParserNamed<A> parser =
-        RowParser.<A>namedBuilder()
+    RowCodecNamed<A> parser =
+        RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
     Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")

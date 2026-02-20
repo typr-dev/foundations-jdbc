@@ -354,7 +354,7 @@ public sealed interface Operation<Out>
     }
   }
 
-  record UpdateMany<Row>(Fragment query, RowParser<Row> parser, Iterator<Row> rows)
+  record UpdateMany<Row>(Fragment query, RowCodec<Row> parser, Iterator<Row> rows)
       implements Operation<int[]> {
     @Override
     public int[] runChecked(Connection conn) throws SQLException {
@@ -374,7 +374,7 @@ public sealed interface Operation<Out>
     }
   }
 
-  record UpdateManyReturning<Row>(Fragment query, RowParser<Row> parser, Iterator<Row> rows)
+  record UpdateManyReturning<Row>(Fragment query, RowCodec<Row> parser, Iterator<Row> rows)
       implements Operation<List<Row>> {
     @Override
     public List<Row> runChecked(Connection conn) throws SQLException {
@@ -403,7 +403,7 @@ public sealed interface Operation<Out>
    * RETURNING doesn't work properly via getGeneratedKeys(). Each INSERT/UPDATE is executed
    * separately and the RETURNING result is read from executeQuery().
    */
-  record UpdateReturningEach<Row>(Fragment query, RowParser<Row> parser, Iterator<Row> rows)
+  record UpdateReturningEach<Row>(Fragment query, RowCodec<Row> parser, Iterator<Row> rows)
       implements Operation<List<Row>> {
     @Override
     public List<Row> runChecked(Connection conn) throws SQLException {
@@ -436,7 +436,7 @@ public sealed interface Operation<Out>
    */
   record UpdateManyTemplate<Row>(
       Fragment fragment,
-      RowParserNamed<Row> parser,
+      RowCodecNamed<Row> parser,
       int[] includedIndices,
       Iterator<Row> rows)
       implements Operation<int[]> {

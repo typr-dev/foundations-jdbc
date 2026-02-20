@@ -9,14 +9,14 @@ class BatchOperationTest {
 
     data class Item(val name: String, val quantity: Int)
 
-    val itemParser: RowParserNamed<Item> = RowParser.namedBuilder<Item>()
+    val itemParser: RowCodecNamed<Item> = RowCodec.namedBuilder<Item>()
         .field("name", DuckDbTypes.varchar, Item::name)
         .field("quantity", DuckDbTypes.integer, Item::quantity)
         .build(::Item)
 
     data class Product(val id: Int, val name: String, val quantity: Int)
 
-    val productParser: RowParserNamed<Product> = RowParser.namedBuilder<Product>()
+    val productParser: RowCodecNamed<Product> = RowCodec.namedBuilder<Product>()
         .field("id", DuckDbTypes.integer, Product::id)
         .field("name", DuckDbTypes.varchar, Product::name)
         .field("quantity", DuckDbTypes.integer, Product::quantity)

@@ -12,8 +12,8 @@ public class FirstQuery {
     //start
     record City(String name, String country, int population) {}
 
-    static RowParserNamed<City> cityParser =
-        RowParser.<City>namedBuilder()
+    static RowCodecNamed<City> cityParser =
+        RowCodec.<City>namedBuilder()
             .field("name", DuckDbTypes.varchar, City::name)
             .field("country", DuckDbTypes.varchar, City::country)
             .field("population", DuckDbTypes.integer, City::population)

@@ -10,7 +10,7 @@ object NullableColumns:
   //start
   case class Person(id: Int, name: String, createdAt: Option[Instant])
 
-  val personParser: RowParser[Person] = RowParser.builder[Person]()
+  val personParser: RowCodec[Person] = RowCodec.builder[Person]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.timestamptz.opt)(_.createdAt)

@@ -9,7 +9,7 @@ import java.time.Instant
 object BatchOperations:
   case class Product(id: Int, name: String, price: BigDecimal, createdAt: Instant)
 
-  val productParser: RowParserNamed[Product] = RowParser.namedBuilder[Product]()
+  val productParser: RowCodecNamed[Product] = RowCodec.namedBuilder[Product]()
     .field("id", PgTypes.int4)(_.id)
     .field("name", PgTypes.text)(_.name)
     .field("price", PgTypes.numeric)(_.price)

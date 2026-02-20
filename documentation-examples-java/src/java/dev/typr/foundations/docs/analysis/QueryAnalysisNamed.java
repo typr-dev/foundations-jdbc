@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.analysis;
 
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
 import java.sql.Connection;
@@ -15,8 +15,8 @@ public class QueryAnalysisNamed {
     private final Connection connection = null; // placeholder
     private final int userId = 1;
 
-    private final RowParser<User> userRowParser =
-        RowParser.<User>builder()
+    private final RowCodec<User> userRowCodec =
+        RowCodec.<User>builder()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::email)
@@ -30,7 +30,7 @@ public class QueryAnalysisNamed {
                     FROM users WHERE id =
                     """)
                 .value(PgTypes.int4, userId)
-                .query(userRowParser.all())
+                .query(userRowCodec.all())
                 .named("findUserById");
 
         // The name shows up in the error report

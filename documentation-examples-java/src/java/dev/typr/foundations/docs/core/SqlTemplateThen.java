@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.SqlTemplate;
 import dev.typr.foundations.Transactor;
 
@@ -13,8 +13,8 @@ import java.util.List;
 public class SqlTemplateThen {
     record Order(int id, int userId, String product) {}
 
-    static RowParser<Order> orderParser =
-        RowParser.<Order>builder()
+    static RowCodec<Order> orderParser =
+        RowCodec.<Order>builder()
             .field(PgTypes.int4, Order::id)
             .field(PgTypes.int4, Order::userId)
             .field(PgTypes.text, Order::product)
@@ -28,7 +28,7 @@ public class SqlTemplateThen {
         Fragment.of("INSERT INTO users(name) VALUES(")
             .param(PgTypes.text)
             .append(") RETURNING id")
-            .query(RowParser.of(PgTypes.int4).exactlyOne());
+            .query(RowCodec.of(PgTypes.int4).exactlyOne());
 
     SqlTemplate<Integer, List<Order>> ordersByUser =
         Fragment.of("""

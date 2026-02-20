@@ -48,10 +48,10 @@ val frag = Sql { "SELECT 1" }
 
 Any `Fragment` can be embedded inside `Sql { }` — its SQL is spliced directly into the result. This works because `Fragment.toString()` detects the active `SqlContext` and registers itself for splicing instead of returning rendered SQL.
 
-Embed a `columnList` from a named row parser:
+Embed a `columnList` from a named row codec:
 
 ```kotlin
-val parser: RowParserNamed<User> = RowParser.namedBuilder<User>()
+val parser: RowCodecNamed<User> = RowCodec.namedBuilder<User>()
     .field("id", PgTypes.int4, User::id)
     .field("name", PgTypes.text, User::name)
     .build(::User)

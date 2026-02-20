@@ -376,10 +376,10 @@ public interface Db2Types {
 
   // ==================== JSON-Encoded Row Types ====================
   // These types store structured rows as JSON in a CLOB column.
-  // The codec is derived from the RowParser — no manual JSON handling needed.
+  // The codec is derived from the RowCodec — no manual JSON handling needed.
 
   /** A JSON column type that stores a single row as a positional JSON array. */
-  static <Row> Db2Type<Row> jsonArrayEncoded(RowParser<Row> parser) {
+  static <Row> Db2Type<Row> jsonArrayEncoded(RowCodec<Row> parser) {
     DbJson<Row> codec = DbJsonRow.jsonArray(parser);
     return json.transform(
         j -> codec.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
@@ -387,7 +387,7 @@ public interface Db2Types {
   }
 
   /** A JSON column type that stores a list of rows, each as a positional JSON array. */
-  static <Row> Db2Type<java.util.List<Row>> jsonArrayEncodedList(RowParser<Row> parser) {
+  static <Row> Db2Type<java.util.List<Row>> jsonArrayEncodedList(RowCodec<Row> parser) {
     DbJson<java.util.List<Row>> codec = DbJsonRow.jsonArray(parser).list();
     return json.transform(
         j -> codec.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
@@ -395,7 +395,7 @@ public interface Db2Types {
   }
 
   /** A JSON column type that stores a single row as a keyed JSON object. */
-  static <Row> Db2Type<Row> jsonObjectEncoded(RowParserNamed<Row> parser) {
+  static <Row> Db2Type<Row> jsonObjectEncoded(RowCodecNamed<Row> parser) {
     DbJson<Row> codec = DbJsonRow.jsonObject(parser);
     return json.transform(
         j -> codec.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
@@ -403,7 +403,7 @@ public interface Db2Types {
   }
 
   /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
-  static <Row> Db2Type<java.util.List<Row>> jsonObjectEncodedList(RowParserNamed<Row> parser) {
+  static <Row> Db2Type<java.util.List<Row>> jsonObjectEncodedList(RowCodecNamed<Row> parser) {
     DbJson<java.util.List<Row>> codec = DbJsonRow.jsonObject(parser).list();
     return json.transform(
         j -> codec.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),

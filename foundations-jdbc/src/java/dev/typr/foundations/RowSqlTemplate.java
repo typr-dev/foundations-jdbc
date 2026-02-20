@@ -10,7 +10,7 @@ public sealed interface RowSqlTemplate<Row, Out> {
 
   record Query<Row, Out>(
       Fragment fragment,
-      RowParserNamed<Row> parser,
+      RowCodecNamed<Row> parser,
       int[] includedIndices,
       ResultSetParser<Out> resultParser)
       implements RowSqlTemplate<Row, Out> {
@@ -25,7 +25,7 @@ public sealed interface RowSqlTemplate<Row, Out> {
   }
 
   record Update<Row>(
-      Fragment fragment, RowParserNamed<Row> parser, int[] includedIndices)
+      Fragment fragment, RowCodecNamed<Row> parser, int[] includedIndices)
       implements RowSqlTemplate<Row, Integer> {
     @Override
     public Operation.Update on(Row row) {

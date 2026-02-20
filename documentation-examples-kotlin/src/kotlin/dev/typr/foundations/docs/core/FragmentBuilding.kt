@@ -9,8 +9,8 @@ import java.time.Instant
 class FragmentBuilding {
     data class User(val id: Int, val name: String, val status: String, val createdAt: Instant)
 
-    val userParser: RowParser<User> =
-        RowParser.builder<User>()
+    val userParser: RowCodec<User> =
+        RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::status)

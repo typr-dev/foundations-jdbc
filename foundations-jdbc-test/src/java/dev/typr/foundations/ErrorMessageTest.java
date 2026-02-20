@@ -49,7 +49,7 @@ public class ErrorMessageTest {
 
         // Try to read the VARCHAR column as INTEGER - should fail
         return Fragment.of("SELECT id, name FROM test_err")
-            .query(RowParser.<Integer>builder()
+            .query(RowCodec.<Integer>builder()
                 .field(DuckDbTypes.integer, x -> x)
                 .field(DuckDbTypes.integer, x -> x)  // Wrong type for 'name'!
                 .build((id, name) -> id)
@@ -97,7 +97,7 @@ public class ErrorMessageTest {
             .runChecked(conn);
 
         return Fragment.of("SELECT id FROM empty_table")
-            .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
+            .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
             .runChecked(conn);
       });
       fail("Expected SQLException for no rows");
@@ -127,7 +127,7 @@ public class ErrorMessageTest {
             .runChecked(conn);
 
         return Fragment.of("SELECT id FROM multi_table")
-            .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
+            .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
             .runChecked(conn);
       });
       fail("Expected SQLException for too many rows");
@@ -157,7 +157,7 @@ public class ErrorMessageTest {
             .runChecked(conn);
 
         return Fragment.of("SELECT id FROM multi_table2")
-            .query(RowParser.of(DuckDbTypes.integer).maxOne())
+            .query(RowCodec.of(DuckDbTypes.integer).maxOne())
             .runChecked(conn);
       });
       fail("Expected SQLException for too many rows");
@@ -240,7 +240,7 @@ public class ErrorMessageTest {
 
     System.out.println("ACTUAL LIBRARY MESSAGES (Query Analysis-aligned format):");
     System.out.println("--------------------------------------------------------------------");
-    System.out.println("  RowParser.SqlResultParseException:");
+    System.out.println("  RowCodec.SqlResultParseException:");
     System.out.println("    Failed to read column 3 'created_at'");
     System.out.println("       │ Expected: timestamptz");
     System.out.println("       │ Actual:   TIMESTAMP (nullable)");
@@ -259,13 +259,13 @@ public class ErrorMessageTest {
     System.out.println("REMAINING IMPROVEMENT OPPORTUNITIES:");
     System.out.println("--------------------------------------------------------------------");
     System.out.println("  1. Add column NAME to error messages (currently only index)");
-    System.out.println("     - Would require passing column names through RowParser");
+    System.out.println("     - Would require passing column names through RowCodec");
     System.out.println();
     System.out.println("  2. Add 'Hint:' suggestions for common type mismatches");
     System.out.println("     - timestamp vs timestamptz");
     System.out.println("     - int4 vs int8");
     System.out.println();
-    System.out.println("  3. Show expected vs actual column count when RowParser fails");
+    System.out.println("  3. Show expected vs actual column count when RowCodec fails");
     System.out.println("     - This would catch ResultSet having wrong number of columns");
     System.out.println();
   }
@@ -295,7 +295,7 @@ public class ErrorMessageTest {
         // Try to read VARCHAR 'created_at' as timestamptz - this will fail
         record UserRow(Integer id, String name, java.time.OffsetDateTime createdAt) {}
         return Fragment.of("SELECT id, name, created_at FROM users")
-            .query(RowParser.<UserRow>builder()
+            .query(RowCodec.<UserRow>builder()
                 .field(DuckDbTypes.integer, UserRow::id)
                 .field(DuckDbTypes.varchar, UserRow::name)
                 .field(DuckDbTypes.timestamptz, UserRow::createdAt)  // Wrong! created_at is VARCHAR
@@ -304,7 +304,7 @@ public class ErrorMessageTest {
             .runChecked(conn);
       });
       fail("Expected SqlResultParseException");
-    } catch (RowParser.SqlResultParseException e) {
+    } catch (RowCodec.SqlResultParseException e) {
       System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
       System.out.println("║  LANDING PAGE ERROR MESSAGE (copy this exactly)              ║");
       System.out.println("╚══════════════════════════════════════════════════════════════╝\n");

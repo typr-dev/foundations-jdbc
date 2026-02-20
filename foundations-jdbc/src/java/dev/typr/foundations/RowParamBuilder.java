@@ -2,10 +2,10 @@ package dev.typr.foundations;
 
 public final class RowParamBuilder<Row> {
   private final Fragment fragment;
-  private final RowParserNamed<Row> parser;
+  private final RowCodecNamed<Row> parser;
   private final int[] includedIndices;
 
-  RowParamBuilder(Fragment fragment, RowParserNamed<Row> parser, int[] includedIndices) {
+  RowParamBuilder(Fragment fragment, RowCodecNamed<Row> parser, int[] includedIndices) {
     this.fragment = fragment;
     this.parser = parser;
     this.includedIndices = includedIndices;

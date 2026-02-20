@@ -322,7 +322,7 @@ function SchemaAndParsers() {
         <h2 className={styles.sectionTitle}>Start with your schema</h2>
         <p className={styles.sectionSubtitle}>
           Take a PostgreSQL table with a composite type, arrays, and jsonb.
-          The <code>RowParser</code> maps each column to a <code>DbType</code> that knows exactly how to read and write its value.
+          The <code>RowCodec</code> maps each column to a <code>DbType</code> that knows exactly how to read and write its value.
           No <code>getObject()</code> guessing, no <code>wasNull()</code> checking.
         </p>
         <div className={styles.twoCol}>
@@ -334,7 +334,7 @@ function SchemaAndParsers() {
           </div>
         </div>
         <div style={{marginTop: '2rem'}}>
-          <Snippet file="landing/ProductRowParser" />
+          <Snippet file="landing/ProductRowCodec" />
         </div>
       </div>
     </section>
@@ -440,7 +440,7 @@ function JsonSection() {
         <h2 className={styles.sectionTitle}>Built-in JSON codecs</h2>
         <p className={styles.sectionSubtitle}>
           All databases can transfer data as JSON — and now you can use it uniformly.
-          Your <code>RowParser</code> doubles as a JSON codec with zero extra code.
+          Your <code>RowCodec</code> doubles as a JSON codec with zero extra code.
           Aggregate child rows with <code>json_agg()</code>, <code>JSON_ARRAYAGG</code>,
           or <code>FOR JSON</code> and parse them with the same types. <a href="/foundations-jdbc/json">Learn more →</a>
         </p>

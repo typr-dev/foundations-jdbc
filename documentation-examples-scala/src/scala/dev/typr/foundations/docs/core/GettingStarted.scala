@@ -8,7 +8,7 @@ import dev.typr.foundationssc.data.*
 object GettingStarted:
   case class City(name: String, population: Int)
 
-  val cityParser: RowParser[City] = RowParser.builder[City]()
+  val cityParser: RowCodec[City] = RowCodec.builder[City]()
     .field(DuckDbTypes.varchar)(_.name)
     .field(DuckDbTypes.integer)(_.population)
     .build(City.apply)

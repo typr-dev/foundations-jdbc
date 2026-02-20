@@ -9,7 +9,7 @@ import java.sql.Connection
 object QueryAnalysisAll:
   case class User(id: Int, name: String)
 
-  val userParser: RowParser[User] = RowParser.builder[User]()
+  val userParser: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .build(User.apply)
@@ -20,7 +20,7 @@ object QueryAnalysisAll:
     Fragment.of("INSERT INTO users(name) VALUES(")
       .param(PgTypes.text)
       .append(") RETURNING id")
-      .query(RowParser.of(PgTypes.int4).exactlyOne())
+      .query(RowCodec.of(PgTypes.int4).exactlyOne())
 
   val allUsers: Operation[List[User]] =
     sql"SELECT id, name FROM users"

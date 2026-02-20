@@ -16,8 +16,8 @@ object QueryAnalysisNullableOk:
 
   // LEFT JOIN makes o.total nullable in the result set,
   // but .nullableOk() tells analysis we'll handle it
-  val orderParser: RowParser[OrderRow] =
-    RowParser.builder[OrderRow]()
+  val orderParser: RowCodec[OrderRow] =
+    RowCodec.builder[OrderRow]()
       .field(PgTypes.int4)(_.userId)
       .field(PgTypes.text)(_.userName)
       .field(PgTypes.numeric.nullableOk())(_.orderTotal)

@@ -50,8 +50,8 @@ Fragments are self-composing — every combinator returns a new `Fragment`:
 | `.value(type, value)` | Append a bound parameter |
 | `.append(fragment)` | Append another fragment (e.g. `columnList`, `whereAnd()`) |
 | `.appendAll(fragments, separator)` | Append multiple fragments joined by a separator |
-| `.row(parser, value)` | Append all columns of a named row parser as bound parameters |
-| `.paramRow(parser)` | Append all columns of a named row parser as parameter holes — see [SQL Templates](./sql-templates) |
+| `.row(parser, value)` | Append all columns of a named row codec as bound parameters |
+| `.paramRow(parser)` | Append all columns of a named row codec as parameter holes — see [SQL Templates](./sql-templates) |
 | `.param(type)` | Create a single parameter hole — see [SQL Templates](./sql-templates) |
 
 ## Static Factories
@@ -80,8 +80,8 @@ Fragments are self-composing — every combinator returns a new `Fragment`:
 | Method | Returns |
 |--------|---------|
 | `.query(parser)` | `Operation<T>` — a SELECT that reads rows using the given result set parser |
-| `.queryOne(type)` | `Operation<T>` — convenience for `.query(RowParser.of(type).exactlyOne())` |
-| `.queryList(type)` | `Operation<List<T>>` — convenience for `.query(RowParser.of(type).all())` |
-| `.queryMaybe(type)` | `Operation<Optional<T>>` / `Operation<T?>` / `Operation<Option[T]]>` — convenience for `.query(RowParser.of(type).maxOne())` |
+| `.queryOne(type)` | `Operation<T>` — convenience for `.query(RowCodec.of(type).exactlyOne())` |
+| `.queryList(type)` | `Operation<List<T>>` — convenience for `.query(RowCodec.of(type).all())` |
+| `.queryMaybe(type)` | `Operation<Optional<T>>` / `Operation<T?>` / `Operation<Option[T]]>` — convenience for `.query(RowCodec.of(type).maxOne())` |
 | `.update()` | `Operation<Int>` — an INSERT/UPDATE/DELETE returning the affected row count |
 | `.execute()` | `Operation<Void>` — like `.update()` but discards the row count |

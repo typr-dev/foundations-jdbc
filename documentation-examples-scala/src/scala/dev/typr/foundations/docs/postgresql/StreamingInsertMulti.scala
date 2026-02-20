@@ -8,15 +8,15 @@ object StreamingInsertMulti:
   case class ProductRow(name: String, price: BigDecimal, quantity: Int)
 
   //start
-  // Define a RowParser for your row type
-  val productParser: RowParser[ProductRow] =
-    RowParser.builder[ProductRow]()
+  // Define a RowCodec for your row type
+  val productParser: RowCodec[ProductRow] =
+    RowCodec.builder[ProductRow]()
       .field(PgTypes.text)(_.name)
       .field(PgTypes.numeric)(_.price)
       .field(PgTypes.int4)(_.quantity)
       .build(ProductRow.apply)
 
-  // PgText.from() derives a text encoder from the RowParser
+  // PgText.from() derives a text encoder from the RowCodec
   val productText: PgText[ProductRow] = PgText.from(productParser)
 
   def insertProducts(products: Iterator[ProductRow], tx: Transactor): Long =

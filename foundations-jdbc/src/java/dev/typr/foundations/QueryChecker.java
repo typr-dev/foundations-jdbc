@@ -78,7 +78,7 @@ public interface QueryChecker {
     }
   }
 
-  default <T> void check(Fragment fragment, RowParser<T> parser) {
+  default <T> void check(Fragment fragment, RowCodec<T> parser) {
     check(fragment, parser.all());
   }
 

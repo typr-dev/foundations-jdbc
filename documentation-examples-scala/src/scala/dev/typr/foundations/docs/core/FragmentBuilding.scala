@@ -11,7 +11,7 @@ import java.time.Instant
 object FragmentBuilding:
   case class User(id: Int, name: String, status: String, createdAt: Instant)
 
-  val userParser: RowParser[User] = RowParser.builder[User]()
+  val userParser: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.status)

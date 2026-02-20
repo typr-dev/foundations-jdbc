@@ -119,19 +119,19 @@ class OracleTypes {
 
   // JSON-encoded row types
 
-  def jsonArrayEncoded[Row](parser: RowParser[Row]): OracleType[Row] =
+  def jsonArrayEncoded[Row](parser: RowCodec[Row]): OracleType[Row] =
     OracleType(JavaOracleTypes.jsonArrayEncoded(parser.underlying))
 
-  def jsonArrayEncodedList[Row](parser: RowParser[Row]): OracleType[List[Row]] =
+  def jsonArrayEncodedList[Row](parser: RowCodec[Row]): OracleType[List[Row]] =
     OracleType(JavaOracleTypes.jsonArrayEncodedList(parser.underlying).transform(
       jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
       slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
     ))
 
-  def jsonObjectEncoded[Row](parser: RowParserNamed[Row]): OracleType[Row] =
+  def jsonObjectEncoded[Row](parser: RowCodecNamed[Row]): OracleType[Row] =
     OracleType(JavaOracleTypes.jsonObjectEncoded(parser.underlying))
 
-  def jsonObjectEncodedList[Row](parser: RowParserNamed[Row]): OracleType[List[Row]] =
+  def jsonObjectEncodedList[Row](parser: RowCodecNamed[Row]): OracleType[List[Row]] =
     OracleType(JavaOracleTypes.jsonObjectEncodedList(parser.underlying).transform(
       jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
       slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)

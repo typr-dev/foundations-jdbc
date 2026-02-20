@@ -11,12 +11,12 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
+public sealed class RowCodec<Row> permits RowCodecNamed, RowCodecUnnamed {
   private final List<DbType<?>> columns;
   private final Function<Object[], Row> decode;
   private final Function<Row, Object[]> encode;
 
-  RowParser(List<DbType<?>> columns, Function<Object[], Row> decode, Function<Row, Object[]> encode) {
+  RowCodec(List<DbType<?>> columns, Function<Object[], Row> decode, Function<Row, Object[]> encode) {
     this.columns = columns;
     this.decode = decode;
     this.encode = encode;
@@ -35,19 +35,19 @@ public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
   }
 
   /**
-   * Create a RowParser without column names. Used by generated builders and Kotlin/Scala wrappers.
+   * Create a RowCodec without column names. Used by generated builders and Kotlin/Scala wrappers.
    */
-  public static <Row> RowParser<Row> create(
+  public static <Row> RowCodec<Row> create(
       List<DbType<?>> columns, Function<Object[], Row> decode, Function<Row, Object[]> encode) {
-    return new RowParserUnnamed<>(columns, decode, encode);
+    return new RowCodecUnnamed<>(columns, decode, encode);
   }
 
   /**
-   * Create a RowParser with column names. Used by generated named builders and Kotlin/Scala wrappers.
+   * Create a RowCodec with column names. Used by generated named builders and Kotlin/Scala wrappers.
    */
-  public static <Row> RowParserNamed<Row> createNamed(
+  public static <Row> RowCodecNamed<Row> createNamed(
       List<String> columnNames, List<DbType<?>> columns, Function<Object[], Row> decode, Function<Row, Object[]> encode) {
-    return new RowParserNamed<>(columnNames, columns, decode, encode);
+    return new RowCodecNamed<>(columnNames, columns, decode, encode);
   }
 
   /**
@@ -55,7 +55,7 @@ public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
    *
    * <p>Usage:
    * <pre>{@code
-   * RowParser<Product> parser = RowParser.<Product>builder()
+   * RowCodec<Product> parser = RowCodec.<Product>builder()
    *     .field(PgTypes.int4, Product::id)
    *     .field(PgTypes.text, Product::name)
    *     .build(Product::new);
@@ -64,8 +64,8 @@ public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
    * @param <Row> the row type (typically a record)
    * @return a type-safe builder
    */
-  public static <Row> RowParserBuilders.Builder0<Row> builder() {
-    return RowParserBuilders.builder();
+  public static <Row> RowCodecBuilders.Builder0<Row> builder() {
+    return RowCodecBuilders.builder();
   }
 
   /**
@@ -73,7 +73,7 @@ public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
    *
    * <p>Usage:
    * <pre>{@code
-   * RowParserNamed<Product> parser = RowParser.<Product>namedBuilder()
+   * RowCodecNamed<Product> parser = RowCodec.<Product>namedBuilder()
    *     .field("id", PgTypes.int4, Product::id)
    *     .field("name", PgTypes.text, Product::name)
    *     .build(Product::new);
@@ -82,8 +82,8 @@ public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
    * @param <Row> the row type (typically a record)
    * @return a type-safe named builder
    */
-  public static <Row> RowParserNamedBuilders.Builder0<Row> namedBuilder() {
-    return RowParserNamedBuilders.builder();
+  public static <Row> RowCodecNamedBuilders.Builder0<Row> namedBuilder() {
+    return RowCodecNamedBuilders.builder();
   }
 
   /**
@@ -93,8 +93,8 @@ public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
    * @return a row parser that returns the column value directly
    */
   @SuppressWarnings("unchecked")
-  public static <T> RowParser<T> of(DbType<T> type) {
-    return new RowParserUnnamed<>(
+  public static <T> RowCodec<T> of(DbType<T> type) {
+    return new RowCodecUnnamed<>(
         List.of(type),
         arr -> (T) arr[0],
         t -> new Object[] {t});
@@ -146,7 +146,7 @@ public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
    * <p>Usage:
    * <pre>{@code
    * try {
-   *     rowParser.parse(rs);
+   *     rowCodec.parse(rs);
    * } catch (SqlResultParseException e) {
    *     // Detailed with colors (for terminal)
    *     System.err.println(e.detailed().render());
@@ -228,7 +228,7 @@ public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
    * if all values are `null` / `Optional.empty()` then return empty row. This is used for left
    * joins where all columns from the joined table can be null.
    */
-  public RowParser<Optional<Row>> opt() {
+  public RowCodec<Optional<Row>> opt() {
     List<DbType<?>> optColumns = new ArrayList<>(columns.size());
     for (int i = 0; i < columns.size(); i++) {
       optColumns.add(columns.get(i).opt());
@@ -272,10 +272,10 @@ public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
           return this.encode.apply(row.get());
         };
 
-    return new RowParserUnnamed<>(optColumns, optDecode, optEncode);
+    return new RowCodecUnnamed<>(optColumns, optDecode, optEncode);
   }
 
-  public <Row2> RowParser<And<Row, Row2>> joined(RowParser<Row2> right) {
+  public <Row2> RowCodec<And<Row, Row2>> joined(RowCodec<Row2> right) {
     var allColumns = new ArrayList<>(columns);
     allColumns.addAll(right.columns);
     var left = this;
@@ -296,18 +296,18 @@ public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
           System.arraycopy(rightValues, 0, allValues, leftValues.length, rightValues.length);
           return allValues;
         };
-    return new RowParserUnnamed<>(allColumns, joinDecode, joinEncode);
+    return new RowCodecUnnamed<>(allColumns, joinDecode, joinEncode);
   }
 
-  public <Row2> RowParser<And<Row, Optional<Row2>>> leftJoined(RowParser<Row2> other) {
+  public <Row2> RowCodec<And<Row, Optional<Row2>>> leftJoined(RowCodec<Row2> other) {
     return joined(other.opt());
   }
 
-  public <Row2> RowParser<And<Optional<Row>, Row2>> rightJoined(RowParser<Row2> other) {
+  public <Row2> RowCodec<And<Optional<Row>, Row2>> rightJoined(RowCodec<Row2> other) {
     return opt().joined(other);
   }
 
-  public <Row2> RowParser<And<Optional<Row>, Optional<Row2>>> fullJoined(RowParser<Row2> other) {
+  public <Row2> RowCodec<And<Optional<Row>, Optional<Row2>>> fullJoined(RowCodec<Row2> other) {
     return opt().joined(other.opt());
   }
 
@@ -315,10 +315,10 @@ public sealed class RowParser<Row> permits RowParserNamed, RowParserUnnamed {
    * Transform the row type using a bijection. This is useful for language wrappers that need to
    * convert between Java and language-native types.
    */
-  public <Row2> RowParser<Row2> to(Bijection<Row, Row2> bijection) {
+  public <Row2> RowCodec<Row2> to(Bijection<Row, Row2> bijection) {
     Function<Object[], Row2> newDecode = values -> bijection.underlying(this.decode.apply(values));
     Function<Row2, Object[]> newEncode = row2 -> this.encode.apply(bijection.from(row2));
-    return new RowParserUnnamed<>(this.columns, newDecode, newEncode);
+    return new RowCodecUnnamed<>(this.columns, newDecode, newEncode);
   }
 
   /**

@@ -8,7 +8,7 @@ import java.sql.Connection
 @SuppressWarnings(Array("unused"))
 object SqlServerQuery:
   case class OrderRow(id: Int, name: String, price: BigDecimal)
-  val orderRowParser: RowParser[OrderRow] = null // placeholder
+  val orderRowCodec: RowCodec[OrderRow] = null // placeholder
   val maxPrice: Option[BigDecimal] = None
   val conn: Connection = null // placeholder
 
@@ -32,6 +32,6 @@ object SqlServerQuery:
 
   val orders: List[OrderRow] =
     sql"SELECT * FROM orders ${Fragment.whereAnd(filters)}"
-      .query(orderRowParser.all())
+      .query(orderRowCodec.all())
       .run(conn)
   //stop

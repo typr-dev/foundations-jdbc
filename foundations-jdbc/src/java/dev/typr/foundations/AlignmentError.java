@@ -94,7 +94,7 @@ public sealed interface AlignmentError {
     public Str styledMessage() {
       return Str.plain("Column ")
           .add(Str.yellow(String.valueOf(position)))
-          .add(" is declared in RowParser (")
+          .add(" is declared in RowCodec (")
           .add(Str.cyan(type.typename().sqlType()))
           .add(") but not returned by query");
     }
@@ -112,7 +112,7 @@ public sealed interface AlignmentError {
           .add(Str.cyan(meta.displayName()))
           .add("' is returned by query (")
           .add(Str.red(meta.vendorTypeName()))
-          .add(") but not declared in RowParser");
+          .add(") but not declared in RowCodec");
     }
   }
 

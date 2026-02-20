@@ -14,7 +14,7 @@ class SpringTransactorExample {
         @Transactional
         fun getGreeting(): String =
             Sql { "SELECT 'Hello from Oracle' FROM dual" }
-                .query(RowParser.of(OracleTypes.varchar2).exactlyOne())
+                .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())
                 .transact(tx)
     }
     //stop

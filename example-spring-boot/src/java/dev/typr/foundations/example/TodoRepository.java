@@ -11,7 +11,7 @@ public class TodoRepository {
 
     public record Todo(Integer id, String title, Boolean done) {}
 
-    private static final RowParserNamed<Todo> parser = RowParser.<Todo>namedBuilder()
+    private static final RowCodecNamed<Todo> parser = RowCodec.<Todo>namedBuilder()
             .field("id", DuckDbTypes.integer, Todo::id)
             .field("title", DuckDbTypes.varchar, Todo::title)
             .field("done", DuckDbTypes.boolean_, Todo::done)

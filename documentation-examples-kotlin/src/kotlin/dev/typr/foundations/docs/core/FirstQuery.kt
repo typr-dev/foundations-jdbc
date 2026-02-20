@@ -8,8 +8,8 @@ class FirstQuery {
     //start
     data class City(val name: String, val country: String, val population: Int)
 
-    val cityParser: RowParserNamed<City> =
-        RowParser.namedBuilder<City>()
+    val cityParser: RowCodecNamed<City> =
+        RowCodec.namedBuilder<City>()
             .field("name", DuckDbTypes.varchar, City::name)
             .field("country", DuckDbTypes.varchar, City::country)
             .field("population", DuckDbTypes.integer, City::population)

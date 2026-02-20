@@ -705,7 +705,7 @@ public interface OracleTypes {
   // ==================== JSON-Encoded Row Types ====================
 
   /** A JSON column type that stores a single row as a positional JSON array. */
-  static <Row> OracleType<Row> jsonArrayEncoded(RowParser<Row> parser) {
+  static <Row> OracleType<Row> jsonArrayEncoded(RowCodec<Row> parser) {
     DbJson<Row> codec = DbJsonRow.jsonArray(parser);
     return json.transform(
         j -> codec.fromJson(JsonValue.parse(j.value())),
@@ -713,7 +713,7 @@ public interface OracleTypes {
   }
 
   /** A JSON column type that stores a list of rows, each as a positional JSON array. */
-  static <Row> OracleType<List<Row>> jsonArrayEncodedList(RowParser<Row> parser) {
+  static <Row> OracleType<List<Row>> jsonArrayEncodedList(RowCodec<Row> parser) {
     DbJson<List<Row>> codec = DbJsonRow.jsonArray(parser).list();
     return json.transform(
         j -> codec.fromJson(JsonValue.parse(j.value())),
@@ -721,7 +721,7 @@ public interface OracleTypes {
   }
 
   /** A JSON column type that stores a single row as a keyed JSON object. */
-  static <Row> OracleType<Row> jsonObjectEncoded(RowParserNamed<Row> parser) {
+  static <Row> OracleType<Row> jsonObjectEncoded(RowCodecNamed<Row> parser) {
     DbJson<Row> codec = DbJsonRow.jsonObject(parser);
     return json.transform(
         j -> codec.fromJson(JsonValue.parse(j.value())),
@@ -729,7 +729,7 @@ public interface OracleTypes {
   }
 
   /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
-  static <Row> OracleType<List<Row>> jsonObjectEncodedList(RowParserNamed<Row> parser) {
+  static <Row> OracleType<List<Row>> jsonObjectEncodedList(RowCodecNamed<Row> parser) {
     DbJson<List<Row>> codec = DbJsonRow.jsonObject(parser).list();
     return json.transform(
         j -> codec.fromJson(JsonValue.parse(j.value())),

@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.analysis;
 
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
 import java.math.BigDecimal;
@@ -18,8 +18,8 @@ public class QueryAnalysisNullableOk {
 
     // The LEFT JOIN makes o.total nullable in the result set,
     // but .nullableOk() tells analysis we'll handle it
-    RowParser<OrderRow> orderParser =
-        RowParser.<OrderRow>builder()
+    RowCodec<OrderRow> orderParser =
+        RowCodec.<OrderRow>builder()
             .field(PgTypes.int4, OrderRow::userId)
             .field(PgTypes.text, OrderRow::userName)
             .field(PgTypes.numeric.nullableOk(),

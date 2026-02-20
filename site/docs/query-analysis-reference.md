@@ -12,13 +12,13 @@ This page covers the internals, database support, and API surface of [Query Anal
 
 ```java
 // Full query with parameters and result parser
-QueryAnalyzer.analyze(fragment.query(rowParser.all()), conn).getFirst();
+QueryAnalyzer.analyze(fragment.query(rowCodec.all()), conn).getFirst();
 
 // Named query
-QueryAnalyzer.analyze("findUsers", fragment.query(rowParser.all()), conn).getFirst();
+QueryAnalyzer.analyze("findUsers", fragment.query(rowCodec.all()), conn).getFirst();
 
 // Update-returning operations
-QueryAnalyzer.analyze(fragment.updateReturning(rowParser), conn).getFirst();
+QueryAnalyzer.analyze(fragment.updateReturning(rowCodec), conn).getFirst();
 ```
 
 ### Update Operations (Parameters Only)
@@ -40,7 +40,7 @@ QueryAnalyzer.analyzeFragmentAndParser(fragment, resultSetParser, conn);
 
 ## How It Works
 
-1. **Extract declared types** — The Fragment knows the DbType of each parameter. The RowParser knows the DbType of each column.
+1. **Extract declared types** — The Fragment knows the DbType of each parameter. The RowCodec knows the DbType of each column.
 
 2. **Prepare the statement** — We call `connection.prepareStatement(sql)` to get JDBC metadata.
 
@@ -163,7 +163,7 @@ interface QueryChecker {
 
     // Check fragments with parsers
     void check(Fragment fragment, ResultSetParser<?> parser)
-    void check(Fragment fragment, RowParser<?> parser)
+    void check(Fragment fragment, RowCodec<?> parser)
 
     // Batch check
     void checkAll(Operation<?>... operations)

@@ -12,8 +12,8 @@ public class JsonAggregation {
 
     record OrderLine(String product, int qty, BigDecimal price) {}
 
-    static final RowParser<OrderLine> lineParser =
-        RowParser.<OrderLine>builder()
+    static final RowCodec<OrderLine> lineParser =
+        RowCodec.<OrderLine>builder()
             .field(DuckDbTypes.varchar, OrderLine::product)
             .field(DuckDbTypes.integer, OrderLine::qty)
             .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
@@ -32,7 +32,7 @@ public class JsonAggregation {
                     FROM order_lines
                     WHERE customer_id = """)
                 .value(DuckDbTypes.integer, customerId)
-                .query(RowParser.of(linesType).exactlyOne())
+                .query(RowCodec.of(linesType).exactlyOne())
                 .transact(tx);
     }
     //stop

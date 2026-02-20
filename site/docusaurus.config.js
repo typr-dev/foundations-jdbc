@@ -65,7 +65,7 @@ const config = {
               { label: 'Getting Started', to: '/docs/' },
               { label: 'Transactors', to: '/docs/transactors' },
               { label: 'Fragments', to: '/docs/fragments' },
-              { label: 'Row Parsers', to: '/docs/row-parsers' },
+              { label: 'Row Codecs', to: '/docs/row-codecs' },
               { label: 'SQL Templates', to: '/docs/sql-templates' },
             ],
           },

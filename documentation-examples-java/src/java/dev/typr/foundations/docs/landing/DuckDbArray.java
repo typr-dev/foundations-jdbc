@@ -2,7 +2,7 @@ package dev.typr.foundations.docs.landing;
 
 import dev.typr.foundations.DuckDbTypes;
 import dev.typr.foundations.Fragment;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
 import java.sql.SQLException;
@@ -16,7 +16,7 @@ public class DuckDbArray {
     // DuckDB arrays are first-class typed values
     List<String[]> getTagSets() throws SQLException {
         return Fragment.of("SELECT tags FROM posts WHERE published = true")
-            .query(RowParser.of(DuckDbTypes.varcharArray).all())
+            .query(RowCodec.of(DuckDbTypes.varcharArray).all())
             .transact(tx);
     }
     //stop

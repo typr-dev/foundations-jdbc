@@ -3,7 +3,7 @@ package dev.typr.foundations.docs.landing;
 import dev.typr.foundations.And;
 import dev.typr.foundations.PgType;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.data.Jsonb;
 
 import java.math.BigDecimal;
@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
-public class ProductRowParser {
+public class ProductRowCodec {
     record Product(ProductId id, String name, BigDecimal price, Optional<String[]> tags,
                    Optional<Dim> dimensions, Optional<Jsonb> metadata, Optional<Instant> createdAt) {}
     record ProductId(Integer value) {}
@@ -20,11 +20,11 @@ public class ProductRowParser {
 
     static final PgType<ProductId> productIdType = PgTypes.int4.transform(ProductId::new, ProductId::value);
     static final PgType<Dim> dimensionsType = null; // placeholder
-    static final RowParser<Category> categoryRowParser = null; // placeholder
+    static final RowCodec<Category> categoryRowCodec = null; // placeholder
 
     //start
-    static RowParser<Product> rowParser =
-        RowParser.<Product>builder()
+    static RowCodec<Product> rowCodec =
+        RowCodec.<Product>builder()
             .field(productIdType, Product::id)
             .field(PgTypes.text, Product::name)
             .field(PgTypes.numeric, Product::price)
@@ -35,7 +35,7 @@ public class ProductRowParser {
             .build(Product::new);
 
     // Compose parsers for joins
-    static RowParser<And<Product, Optional<Category>>> joined =
-        rowParser.leftJoined(categoryRowParser);
+    static RowCodec<And<Product, Optional<Category>>> joined =
+        rowCodec.leftJoined(categoryRowCodec);
     //stop
 }

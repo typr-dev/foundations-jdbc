@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Factory for creating {@link DbJson} codecs from a {@link RowParser}.
+ * Factory for creating {@link DbJson} codecs from a {@link RowCodec}.
  *
  * <p>Supports two encoding modes:
  *
@@ -20,7 +20,7 @@ import java.util.Map;
  * <p>Example usage:
  *
  * <pre>{@code
- * RowParser<Email> emailParser = RowParsers.of(
+ * RowCodec<Email> emailParser = RowCodecs.of(
  *     PgTypes.int4,
  *     PgTypes.text,
  *     Email::new,
@@ -50,21 +50,21 @@ public final class DbJsonRow {
    * <p>This is the most compact encoding. Each row becomes a JSON array where the elements
    * correspond to the columns in order.
    *
-   * @param rowParser the parser that defines the row structure and types
+   * @param rowCodec the parser that defines the row structure and types
    * @return a DbJson codec for the row type
    */
-  public static <Row> DbJson<Row> jsonArray(RowParser<Row> rowParser) {
-    return new ArrayCodec<>(rowParser);
+  public static <Row> DbJson<Row> jsonArray(RowCodec<Row> rowCodec) {
+    return new ArrayCodec<>(rowCodec);
   }
 
   /**
    * Create a DbJson codec that encodes rows as JSON objects, using column names from the parser.
    *
-   * @param rowParser a named parser that carries column names
+   * @param rowCodec a named parser that carries column names
    * @return a DbJson codec for the row type
    */
-  public static <Row> DbJson<Row> jsonObject(RowParserNamed<Row> rowParser) {
-    return new ObjectCodec<>(rowParser, rowParser.columnNames());
+  public static <Row> DbJson<Row> jsonObject(RowCodecNamed<Row> rowCodec) {
+    return new ObjectCodec<>(rowCodec, rowCodec.columnNames());
   }
 
   /**
@@ -72,33 +72,33 @@ public final class DbJsonRow {
    *
    * <p>Each row becomes a JSON object where keys are the column names provided.
    *
-   * @param rowParser the parser that defines the row structure and types
+   * @param rowCodec the parser that defines the row structure and types
    * @param columnNames the JSON object keys corresponding to each column (in order)
    * @return a DbJson codec for the row type
-   * @throws IllegalArgumentException if columnNames size doesn't match rowParser columns
+   * @throws IllegalArgumentException if columnNames size doesn't match rowCodec columns
    */
-  public static <Row> DbJson<Row> jsonObject(RowParser<Row> rowParser, List<String> columnNames) {
-    if (rowParser.columns().size() != columnNames.size()) {
+  public static <Row> DbJson<Row> jsonObject(RowCodec<Row> rowCodec, List<String> columnNames) {
+    if (rowCodec.columns().size() != columnNames.size()) {
       throw new IllegalArgumentException(
-          "Column count mismatch: RowParser has "
-              + rowParser.columns().size()
+          "Column count mismatch: RowCodec has "
+              + rowCodec.columns().size()
               + " columns, but "
               + columnNames.size()
               + " column names provided");
     }
-    return new ObjectCodec<>(rowParser, List.copyOf(columnNames));
+    return new ObjectCodec<>(rowCodec, List.copyOf(columnNames));
   }
 
   /** Array encoding: rows become JSON arrays like [val1, val2, ...] */
-  private record ArrayCodec<Row>(RowParser<Row> rowParser) implements DbJson<Row> {
+  private record ArrayCodec<Row>(RowCodec<Row> rowCodec) implements DbJson<Row> {
 
     @Override
     @SuppressWarnings("unchecked")
     public JsonValue toJson(Row value) {
-      Object[] values = rowParser.encode().apply(value);
+      Object[] values = rowCodec.encode().apply(value);
       List<JsonValue> elements = new ArrayList<>(values.length);
-      for (int i = 0; i < rowParser.columns().size(); i++) {
-        DbJson<Object> jsonCodec = (DbJson<Object>) rowParser.columns().get(i).json();
+      for (int i = 0; i < rowCodec.columns().size(); i++) {
+        DbJson<Object> jsonCodec = (DbJson<Object>) rowCodec.columns().get(i).json();
         elements.add(jsonCodec.toJson(values[i]));
       }
       return new JsonValue.JArray(elements);
@@ -111,33 +111,33 @@ public final class DbJsonRow {
         throw new IllegalArgumentException(
             "Expected JSON array for row, got: " + json.getClass().getSimpleName());
       }
-      if (arrayValues.size() != rowParser.columns().size()) {
+      if (arrayValues.size() != rowCodec.columns().size()) {
         throw new IllegalArgumentException(
             "JSON array size "
                 + arrayValues.size()
                 + " doesn't match column count "
-                + rowParser.columns().size());
+                + rowCodec.columns().size());
       }
-      Object[] values = new Object[rowParser.columns().size()];
-      for (int i = 0; i < rowParser.columns().size(); i++) {
-        DbJson<Object> jsonCodec = (DbJson<Object>) rowParser.columns().get(i).json();
+      Object[] values = new Object[rowCodec.columns().size()];
+      for (int i = 0; i < rowCodec.columns().size(); i++) {
+        DbJson<Object> jsonCodec = (DbJson<Object>) rowCodec.columns().get(i).json();
         values[i] = jsonCodec.fromJson(arrayValues.get(i));
       }
-      return rowParser.decode().apply(values);
+      return rowCodec.decode().apply(values);
     }
   }
 
   /** Object encoding: rows become JSON objects like {"col1": val1, "col2": val2, ...} */
-  private record ObjectCodec<Row>(RowParser<Row> rowParser, List<String> columnNames)
+  private record ObjectCodec<Row>(RowCodec<Row> rowCodec, List<String> columnNames)
       implements DbJson<Row> {
 
     @Override
     @SuppressWarnings("unchecked")
     public JsonValue toJson(Row value) {
-      Object[] values = rowParser.encode().apply(value);
+      Object[] values = rowCodec.encode().apply(value);
       java.util.LinkedHashMap<String, JsonValue> fields = new java.util.LinkedHashMap<>();
-      for (int i = 0; i < rowParser.columns().size(); i++) {
-        DbJson<Object> jsonCodec = (DbJson<Object>) rowParser.columns().get(i).json();
+      for (int i = 0; i < rowCodec.columns().size(); i++) {
+        DbJson<Object> jsonCodec = (DbJson<Object>) rowCodec.columns().get(i).json();
         fields.put(columnNames.get(i), jsonCodec.toJson(values[i]));
       }
       return new JsonValue.JObject(fields);
@@ -150,18 +150,18 @@ public final class DbJsonRow {
         throw new IllegalArgumentException(
             "Expected JSON object for row, got: " + json.getClass().getSimpleName());
       }
-      Object[] values = new Object[rowParser.columns().size()];
-      for (int i = 0; i < rowParser.columns().size(); i++) {
+      Object[] values = new Object[rowCodec.columns().size()];
+      for (int i = 0; i < rowCodec.columns().size(); i++) {
         String colName = columnNames.get(i);
         JsonValue colValue = fields.get(colName);
         if (colValue == null || colValue instanceof JsonValue.JNull) {
           values[i] = null;
         } else {
-          DbJson<Object> jsonCodec = (DbJson<Object>) rowParser.columns().get(i).json();
+          DbJson<Object> jsonCodec = (DbJson<Object>) rowCodec.columns().get(i).json();
           values[i] = jsonCodec.fromJson(colValue);
         }
       }
-      return rowParser.decode().apply(values);
+      return rowCodec.decode().apply(values);
     }
   }
 }

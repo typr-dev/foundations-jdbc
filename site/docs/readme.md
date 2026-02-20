@@ -77,7 +77,7 @@ Each module includes everything you need — the Kotlin and Scala modules depend
 <TabItem value="java" label="Java">
 
 ```java
-import dev.typr.foundations.*;           // Core: Fragment, RowParser, Operation, Transactor, *Types
+import dev.typr.foundations.*;           // Core: Fragment, RowCodec, Operation, Transactor, *Types
 import dev.typr.foundations.connect.*;    // Connection: SimpleDataSource, *Config
 import dev.typr.foundations.data.*;       // Data types: Json, Range, Uint4, etc.
 ```
@@ -86,7 +86,7 @@ import dev.typr.foundations.data.*;       // Data types: Json, Range, Uint4, etc
 <TabItem value="kotlin" label="Kotlin">
 
 ```kotlin
-import dev.typr.foundationskt.*         // Core: Fragment, RowParser, Operation, Transactor, *Types
+import dev.typr.foundationskt.*         // Core: Fragment, RowCodec, Operation, Transactor, *Types
 import dev.typr.foundationskt.connect.* // Connection: SimpleDataSource, *Config
 import dev.typr.foundationskt.data.*    // Data types: Json, Range, Uint4, etc.
 ```
@@ -95,7 +95,7 @@ import dev.typr.foundationskt.data.*    // Data types: Json, Range, Uint4, etc.
 <TabItem value="scala" label="Scala">
 
 ```scala
-import dev.typr.foundationssc.*         // Core: Fragment, RowParser, Operation, Transactor, *Types
+import dev.typr.foundationssc.*         // Core: Fragment, RowCodec, Operation, Transactor, *Types
 import dev.typr.foundationssc.connect.* // Connection: SimpleDataSource, *Config
 import dev.typr.foundationssc.data.*    // Data types: Json, Range, Uint4, etc.
 ```
@@ -113,15 +113,15 @@ For production connection setup with PostgreSQL, MariaDB, and other databases, s
 
 ## Your First Query
 
-Here's a complete end-to-end example: define a named row parser, create a table, insert some data, query it back — and verify that all your types match the database schema:
+Here's a complete end-to-end example: define a named row codec, create a table, insert some data, query it back — and verify that all your types match the database schema:
 
 <Snippet file="core/FirstQuery" />
 
-The last block uses [Query Analysis](./query-analysis) to verify that the column types in your row parser match the actual database columns. This catches type mismatches, nullability errors, and column count problems at test time instead of production. It's one of the most powerful features in the library — see [Query Analysis](./query-analysis) for the full story.
+The last block uses [Query Analysis](./query-analysis) to verify that the column types in your row codec match the actual database columns. This catches type mismatches, nullability errors, and column count problems at test time instead of production. It's one of the most powerful features in the library — see [Query Analysis](./query-analysis) for the full story.
 
 ## What's Next
 
-**Continue reading:** [Fragments](./fragments) &rarr; [Row Parsers](./row-parsers) &rarr; [SQL Templates](./sql-templates) &rarr; [Operations](./operations) &rarr; [Query Analysis](./query-analysis)
+**Continue reading:** [Fragments](./fragments) &rarr; [Row Codecs](./row-codecs) &rarr; [SQL Templates](./sql-templates) &rarr; [Operations](./operations) &rarr; [Query Analysis](./query-analysis)
 
 **Jump to a topic:** [Transactors](./transactors) (connection management) &middot; [Database Types](./database-types) (type catalog)
 

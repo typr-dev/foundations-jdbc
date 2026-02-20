@@ -1,14 +1,14 @@
 ---
-title: Row Parsers
+title: Row Codecs
 ---
 
 import Snippet from '@site/src/components/Snippet';
 
-# Row Parsers
+# Row Codecs
 
 Reading rows from JDBC means calling `rs.getInt(1)`, `rs.getString(2)`, `rs.getTimestamp(3)` — column by column, in the right order, with the right types. Get any of it wrong and you get a `ClassCastException` at runtime. Add a column to your query and you silently shift every index after it.
 
-A `RowParser<T>` replaces all of that with a single declaration: you list the database types and a constructor, and the parser does the rest. Once defined, the same parser drives everything the library does with your type:
+A `RowCodec<T>` replaces all of that with a single declaration: you list the database types and a constructor, and the parser does the rest. Once defined, the same parser drives everything the library does with your type:
 
 - **Reading** — decodes rows from a `ResultSet` (queries) or a `CallableStatement` (stored procedures)
 - **Writing** — encodes values into a `PreparedStatement` for inserts, updates, and batch operations
@@ -20,7 +20,7 @@ You define the mapping once, and it propagates everywhere.
 
 You build a parser by listing `.field()` calls — one per column, in SELECT order — and finishing with `.build(constructor)`:
 
-<Snippet file="core/RowParserBasic" />
+<Snippet file="core/RowCodecBasic" />
 
 Each `.field()` takes a `DbType` that models the exact database column type. `DbType<A>` knows how to read a value of type `A` from a ResultSet and write it to a PreparedStatement — no JDBC integer codes, no manual `rs.getX()` calls. Each supported database has its own set (`PgTypes`, `DuckDbTypes`, `MariaDbTypes`, etc.) with full-precision mappings for every type. See [Database Types](./database-types) for the complete catalog.
 
@@ -42,17 +42,17 @@ Use `.opt()` to wrap a type for nullable columns:
 
 Row parsers compose for joins. Given a `productParser` and a `categoryParser`, combine them with `.joined()` or `.leftJoined()`:
 
-<Snippet file="core/ComposingParsers" />
+<Snippet file="core/ComposingCodecs" />
 
 The result type is `And<A, B>` in Java (with `.left()` and `.right()` accessors), `Pair<A, B>` in Kotlin, and a tuple `(A, B)` in Scala. Left join wraps the right side in `Optional` (or nullable in Kotlin, `Option` in Scala).
 
-This is why row parsers use index-based reading rather than column names. When you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each parser reads its own slice of columns in sequence, and name clashes are irrelevant.
+This is why row codecs use index-based reading rather than column names. When you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each parser reads its own slice of columns in sequence, and name clashes are irrelevant.
 
-## Named Row Parsers
+## Named Row Codecs
 
-The parsers above only track types. A *named* row parser also tracks column names — same index-based reading, but with metadata that eliminates hand-written column strings throughout your code:
+The parsers above only track types. A *named* row codec also tracks column names — same index-based reading, but with metadata that eliminates hand-written column strings throughout your code:
 
-<Snippet file="core/NamedRowParser" />
+<Snippet file="core/NamedRowCodec" />
 
 Having names lets you:
 
