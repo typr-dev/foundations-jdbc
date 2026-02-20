@@ -15,6 +15,7 @@ const sidebars = {
     {type: "doc", id: "optional-queries", label: "Dynamic SQL"},
     {type: "doc", id: "composing-operations", label: "Composing Operations"},
     {type: "doc", id: "production-patterns", label: "Production Patterns"},
+    {type: "doc", id: "virtual-threads", label: "Virtual Threads"},
     {type: "doc", id: "kotlin-interpolation", label: "Kotlin String Interpolation"},
     {type: "doc", id: "transactor-strategies", label: "Transactor Strategies"},
     {type: "doc", id: "observability", label: "Observability"},
