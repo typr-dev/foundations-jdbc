@@ -111,91 +111,19 @@ The quickest way to get started is with DuckDB in-memory using `SingleConnection
 
 For production connection setup with PostgreSQL, MariaDB, and other databases, see [Transactors](./transactors).
 
-## Types
+## Your First Query
 
-A `DbType<A>` models a single database column type — it knows how to write a Java/Kotlin/Scala value into a PreparedStatement and read it back from a ResultSet. Each supported database has its own set of types (`PgTypes`, `DuckDbTypes`, `MariaDbTypes`, etc.) that map database-specific SQL types to JVM types with full precision.
+Here's a complete end-to-end example: define a named row parser, create a table, insert some data, query it back — and verify that all your types match the database schema:
 
-See the [Database Types](./database-types) pages for the complete type catalog for each database.
+<Snippet file="core/FirstQuery" />
 
-## Fragments
+The last block uses [Query Analysis](./query-analysis) to verify that the column types in your row parser match the actual database columns. This catches type mismatches, nullability errors, and column count problems at test time instead of production. It's one of the most powerful features in the library — see [Query Analysis](./query-analysis) for the full story.
 
-Fragments let you build SQL queries safely with type-checked parameters. Parameters are always bound via prepared statements — never interpolated into the SQL string:
+## What's Next
 
-<Snippet file="core/FragmentBuilding" />
+**Continue reading:** [Fragments](./fragments) &rarr; [Row Parsers](./row-parsers) &rarr; [SQL Templates](./sql-templates) &rarr; [Operations](./operations) &rarr; [Query Analysis](./query-analysis)
 
-Fragments compose naturally for dynamic queries:
-
-<Snippet file="core/FragmentComposing" />
-
-See [Fragments](./fragments) for the full chaining API, string interpolation, and builder pattern details.
-
-## Row Parsers
-
-A `RowParser<T>` knows how to read a complete row from a ResultSet and construct an instance of `T`. It also knows how to decompose `T` back into column values for writing.
-
-<Snippet file="core/RowParserBasic" />
-
-### How It Works
-
-The `RowParser.builder()` pattern takes:
-
-1. **Fields** — each `.field(dbType, getter)` defines a column with its database type and how to extract that value from the row type.
-2. **Constructor** — `.build(constructor)` takes a function that receives the typed column values and returns your row type. For records/case classes, just use `::new` or `apply`.
-
-The builder is fully type-safe: the constructor function receives exactly the types you declared, with no casts needed. The parser uses column-index-based reading (not column names), which is both faster and catches schema mismatches at parse time.
-
-### Single-Column Parser
-
-For single-column queries, use the simpler `of()` factory:
-
-<Snippet file="core/SingleColumnParser" />
-
-### Nullable Columns
-
-Use `.opt()` to wrap a type for nullable columns:
-
-<Snippet file="core/NullableColumns" />
-
-For named row parsers with column metadata, data-driven inserts, and composing parsers for joins, see [Named Row Parsers](./named-row-parsers).
-
-## Executing Queries
-
-A fragment becomes an operation once you specify how to read the results:
-
-| Method | Returns |
-|--------|---------|
-| `.query(parser)` | `Operation<T>` — a SELECT that reads rows using the given result set parser |
-| `.update()` | `Operation<Int>` — an INSERT/UPDATE/DELETE returning the affected row count |
-
-### Result Set Parsers
-
-A `ResultSetParser<T>` reads a complete ResultSet and produces a value of type `T`. You typically create one from a `RowParser`:
-
-<Snippet file="core/ResultSetParserUsage" />
-
-From any `RowParser<T>` you can create:
-
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `.all()` | `List<T>` | All rows as a list |
-| `.maxOne()` | `Optional<T>` / `T?` / `Option[T]` | Zero or one row (throws if more than one) |
-| `.exactlyOne()` | `T` | Exactly one row (throws otherwise) |
-
-### Running Operations
-
-The transactor manages connections and transactions. Call `.transact` to obtain a connection, run your code, and commit:
-
-<Snippet file="core/ExecuteTransact" />
-
-For multiple operations in a single transaction, call `.run(conn)` on each one inside the same block:
-
-<Snippet file="core/ManualTransaction" />
-
-Or compose operations as values with `.with()` and run the combined result:
-
-<Snippet file="core/ExecuteComposed" />
-
-See [Composing Operations](./composing-operations) for the full set of combinators.
+**Jump to a topic:** [Transactors](./transactors) (connection management) &middot; [Database Types](./database-types) (type catalog)
 
 ## Full Example
 

@@ -1,0 +1,34 @@
+package dev.typr.foundations.docs.core;
+
+import dev.typr.foundations.Fragment;
+import dev.typr.foundations.PgTypes;
+import dev.typr.foundations.SqlTemplate;
+import dev.typr.foundations.Transactor;
+
+import java.sql.SQLException;
+
+@SuppressWarnings("unused")
+public class SqlTemplateFrom {
+    Transactor tx = null; // placeholder
+
+    //start
+    // A record gives names to each template parameter
+    record InsertUser(String name, String email) {}
+
+    // .from() maps record fields to template params
+    SqlTemplate.From<InsertUser, Integer> insertUser =
+        Fragment.of("INSERT INTO users(name, email) VALUES(")
+            .param(PgTypes.text)
+            .append(", ")
+            .param(PgTypes.text)
+            .append(")")
+            .update()
+            .from(InsertUser::name, InsertUser::email);
+
+    // Callers pass the record
+    int createUser() throws SQLException {
+        return insertUser.on(new InsertUser("Alice", "alice@example.com"))
+            .transact(tx);
+    }
+    //stop
+}

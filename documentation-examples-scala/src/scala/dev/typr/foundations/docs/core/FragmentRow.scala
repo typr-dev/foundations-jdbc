@@ -20,30 +20,24 @@ object FragmentRow:
   val conn: Connection = null // placeholder
 
   //start
-  // All columns as parameters
-  val insertTemplate: RowSqlTemplate.Query[Product, Product] =
+  def insert(product: Product): Product =
     Fragment.of("INSERT INTO product (")
       .append(productParser.columnList)
       .append(") VALUES (")
-      .paramRow(productParser)
+      .row(productParser, product)
       .append(") RETURNING ")
       .append(productParser.columnList)
       .query(productParser.exactlyOne())
+      .run(conn)
 
-  def insert(product: Product): Product =
-    insertTemplate.on(product).run(conn)
-
-  // Skip columns handled by the database
-  val insertWithSequenceTemplate
-      : RowSqlTemplate.Query[Product, Product] =
+  // Skip columns with database defaults — pass column names to except
+  def insertWithDefault(product: Product): Product =
     Fragment.of("INSERT INTO product (")
       .append(productParser.columnList)
-      .append(") VALUES (nextval('product_id_seq'), ")
-      .paramRow(productParser, "id")
+      .append(") VALUES (DEFAULT, ")
+      .row(productParser, product, "id")
       .append(") RETURNING ")
       .append(productParser.columnList)
       .query(productParser.exactlyOne())
-
-  def insertWithSequence(product: Product): Product =
-    insertWithSequenceTemplate.on(product).run(conn)
+      .run(conn)
   //stop

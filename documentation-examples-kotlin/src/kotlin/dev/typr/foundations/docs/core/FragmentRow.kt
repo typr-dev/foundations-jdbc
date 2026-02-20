@@ -21,30 +21,25 @@ class FragmentRow {
     lateinit var conn: Connection
 
     //start
-    // All columns as parameters — great for app-generated IDs
-    val insertTemplate =
+    fun insert(product: Product): Product =
         Fragment.of("INSERT INTO product (")
             .append(productParser.columnList)
             .append(") VALUES (")
-            .paramRow(productParser)
+            .row(productParser, product)
             .append(") RETURNING ")
             .append(productParser.columnList)
             .query(productParser.exactlyOne())
+            .run(conn)
 
-    fun insert(product: Product): Product =
-        insertTemplate.on(product).run(conn)
-
-    // Skip columns handled by the database — e.g. sequences or defaults
-    val insertWithSequenceTemplate =
+    // Skip columns with database defaults — pass column names to except
+    fun insertWithDefault(product: Product): Product =
         Fragment.of("INSERT INTO product (")
             .append(productParser.columnList)
-            .append(") VALUES (nextval('product_id_seq'), ")
-            .paramRow(productParser, "id")
+            .append(") VALUES (DEFAULT, ")
+            .row(productParser, product, "id")
             .append(") RETURNING ")
             .append(productParser.columnList)
             .query(productParser.exactlyOne())
-
-    fun insertWithSequence(product: Product): Product =
-        insertWithSequenceTemplate.on(product).run(conn)
+            .run(conn)
     //stop
 }

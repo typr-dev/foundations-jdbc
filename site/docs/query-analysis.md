@@ -182,197 +182,23 @@ This walks the entire operation tree and returns one `QueryAnalysis` per SQL sta
 
 ## Dynamic SQL Analysis
 
-When a template uses `.optionally()`, analysis automatically expands all 2^N structural variants and verifies each one against the database. See [Dynamic SQL](./optional-queries) for details.
+When a template uses [`.optionally()`](./sql-templates#dynamic-templates), analysis automatically expands all 2^N structural variants. Each variant is prepared against the database and verified independently.
 
-## What Gets Analyzed
+For example, a template with 3 optional predicates produces 8 combinations — all checked with a single `checker.check()` call:
 
-### Query Operations
+| name filter | email filter | active flag | SQL WHERE clause |
+|:-----------:|:------------:|:-----------:|:-----------------|
+| absent | absent | absent | `WHERE 1=1 ORDER BY name` |
+| present | absent | absent | `WHERE 1=1 AND name ILIKE ? ORDER BY name` |
+| absent | present | absent | `WHERE 1=1 AND email ILIKE ? ORDER BY name` |
+| present | present | absent | `WHERE 1=1 AND name ILIKE ? AND email ILIKE ? ORDER BY name` |
+| absent | absent | present | `WHERE 1=1 AND active = TRUE ORDER BY name` |
+| present | absent | present | `WHERE 1=1 AND name ILIKE ? AND active = TRUE ORDER BY name` |
+| absent | present | present | `WHERE 1=1 AND email ILIKE ? AND active = TRUE ORDER BY name` |
+| present | present | present | `WHERE 1=1 AND name ILIKE ? AND email ILIKE ? AND active = TRUE ORDER BY name` |
 
-```java
-// Full query with parameters and result parser
-QueryAnalyzer.analyze(fragment.query(rowParser.all()), conn).getFirst();
+If any variant has a type error, the analysis report tells you exactly which combination failed and why.
 
-// Named query — the name shows up in the error report
-QueryAnalyzer.analyze(fragment.query(rowParser.all()).named("findUsers"), conn).getFirst();
+## Further Reading
 
-// Update-returning operations
-QueryAnalyzer.analyze(fragment.updateReturning(rowParser), conn).getFirst();
-```
-
-### Update Operations (Parameters Only)
-
-```java
-// Updates have no result columns, only parameters
-QueryAnalyzer.analyze(fragment.update(), conn).getFirst();
-
-// Named update
-QueryAnalyzer.analyze(fragment.update().named("updateUser"), conn).getFirst();
-```
-
-### Low-Level Analysis
-
-```java
-// Analyze a fragment + parser directly
-QueryAnalyzer.analyzeFragmentAndParser(fragment, resultSetParser, conn);
-```
-
-## How It Works
-
-1. **Extract declared types** — The Fragment knows the DbType of each parameter. The RowParser knows the DbType of each column.
-
-2. **Prepare the statement** — We call `connection.prepareStatement(sql)` to get JDBC metadata.
-
-3. **Extract vendor type names** — ParameterMetaData and ResultSetMetaData provide vendor-specific type names (e.g., `int4`, `varchar`, `timestamptz`).
-
-4. **Normalize and compare** — Type names are normalized (lowercased, precision stripped) and compared against the declared type's vendor type names. For example, `VARCHAR(255)` and `VARCHAR` both normalize to `varchar`.
-
-5. **Report errors** — Any mismatches become detailed error messages explaining exactly what's wrong and how to fix it.
-
-## Database Support
-
-Query Analysis works with all supported databases, with varying levels of JDBC metadata support:
-
-| Database | Param Types | Param Nullability | Column Types | Column Nullability |
-|----------|-------------|-------------------|--------------|--------------------|
-| PostgreSQL | Yes | Unknown | Yes | Reliable |
-| DuckDB | None* | Unknown | Yes | All nullable** |
-| Oracle | Yes | Yes | Yes | Reliable |
-| SQL Server | Yes | Unknown | Yes | Reliable |
-| MariaDB/MySQL | None*** | None*** | Yes | Reliable |
-| DB2 | Yes | All nullable**** | Yes | Reliable |
-
-\* DuckDB reports parameter count but not parameter type names; parameter type checks are skipped.
-
-\*\* DuckDB reports all columns as nullable regardless of NOT NULL constraints; nullability checks are skipped.
-
-\*\*\* MariaDB/MySQL throws an exception on `getParameterMetaData()`; parameter checks are skipped entirely.
-
-\*\*\*\* DB2 reports all parameters as nullable regardless of column constraints; parameter nullability is ignored.
-
-## Tips
-
-### Use Meaningful Test Data
-
-Analysis only checks types, not data. You don't need real data in your tables — just the schema:
-
-```java
-conn.createStatement().execute("""
-    CREATE TABLE users (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        email TEXT,
-        created_at TIMESTAMPTZ DEFAULT now()
-    )
-""");
-```
-
-### Check During Development
-
-Run query analysis as you develop, not just in CI. Catch errors early:
-
-```java
-// Add a quick check in your main during development
-public static void main(String[] args) throws SQLException {
-    try (var conn = getConnection()) {
-        var analysis = QueryAnalyzer.analyze(myQuery, conn).getFirst();
-        System.out.println(analysis.report());
-    }
-}
-```
-
-### Analysis is Cheap
-
-Preparing a statement and reading metadata is fast — milliseconds per query. You can check hundreds of queries in a single test.
-
-## API Reference
-
-### QueryAnalyzer
-
-```java
-// Analyze any operation (query, update, composed tree)
-static List<QueryAnalysis> analyze(Operation<?> operation, Connection conn)
-
-// Analyze a SQL template
-static List<QueryAnalysis> analyze(SqlTemplate<?, ?> template, Connection conn)
-
-// Low-level: analyze fragment + parser directly
-static QueryAnalysis analyzeFragmentAndParser(
-    Fragment fragment,
-    ResultSetParser<?> parser,
-    Connection conn)
-```
-
-Use `.named("queryName")` on operations to include the name in error reports.
-
-### QueryAnalysis
-
-```java
-// Did the analysis pass?
-boolean succeeded()
-
-// Get all errors
-List<AlignmentError> allErrors()
-List<AlignmentError> parameterErrors()
-List<AlignmentError> columnErrors()
-
-// Generate human-readable report
-String report()          // plain text
-String reportColored()   // with ANSI color codes
-
-// Access raw alignment data
-List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment()
-List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment()
-```
-
-### QueryChecker (Test Interface)
-
-```java
-interface QueryChecker {
-    Transactor transactor();
-
-    // Check any operation
-    void check(Operation<?> op)
-    void check(String name, Operation<?> op)
-
-    // Check fragments with parsers
-    void check(Fragment fragment, ResultSetParser<?> parser)
-    void check(Fragment fragment, RowParser<?> parser)
-
-    // Batch check
-    void checkAll(Operation<?>... operations)
-
-    // Routine analysis
-    void checkRoutine(Procedure<?> procedure)
-}
-```
-
-### AnalysisOptions
-
-```java
-// Escape hatches on any DbType
-PgTypes.text.unchecked()     // skip all type checking for this column/parameter
-PgTypes.text.nullableOk()    // suppress nullability mismatch warnings
-```
-
-### AlignmentError Types
-
-```java
-sealed interface AlignmentError {
-    int position();
-    String message();
-    Str styledMessage();
-
-    // Parameter errors
-    record ExtraParameter(int position, DbType<?> type)
-    record MissingParameter(int position, JdbcMeta.ParameterMeta meta)
-    record ParameterTypeMismatch(int position, DbType<?> declared,
-        JdbcMeta.ParameterMeta expected, Set<String> declaredTypeNames, String reason)
-
-    // Column errors
-    record ExtraColumn(int position, DbType<?> type)
-    record MissingColumn(int position, JdbcMeta.ColumnMeta meta)
-    record ColumnTypeMismatch(int position, String columnName, DbType<?> declared,
-        JdbcMeta.ColumnMeta returned, Set<String> declaredTypeNames, String reason)
-    record NullabilityMismatch(int position, String columnName, DbType<?> type)
-}
-```
+See [Query Analysis Reference](./query-analysis-reference) for internals, database support matrix, and API reference.

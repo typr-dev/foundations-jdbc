@@ -6,7 +6,7 @@ import dev.typr.foundationskt.data.*
 @Suppress("unused")
 class QueryListenerBasic {
     //start
-    val logger = object : QueryListener {
+    object logger : QueryListener {
         override fun beforeQuery(sql: String, name: String?) {
             println("Executing: $sql")
         }

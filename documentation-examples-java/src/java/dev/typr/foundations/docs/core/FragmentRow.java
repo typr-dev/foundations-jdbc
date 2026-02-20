@@ -21,32 +21,27 @@ public class FragmentRow {
     Connection conn = null; // placeholder
 
     //start
-    // All columns as parameters — great for app-generated IDs
-    RowSqlTemplate<Product, Product> insertTemplate =
-        Fragment.of("INSERT INTO product (")
+    Product insert(Product product) {
+        return Fragment.of("INSERT INTO product (")
             .append(productParser.columnList())
             .append(") VALUES (")
-            .paramRow(productParser)
+            .row(productParser, product)
             .append(") RETURNING ")
             .append(productParser.columnList())
-            .query(productParser.exactlyOne());
-
-    Product insert(Product product) {
-        return insertTemplate.on(product).run(conn);
+            .query(productParser.exactlyOne())
+            .run(conn);
     }
 
-    // Skip columns handled by the database — e.g. sequences or defaults
-    RowSqlTemplate<Product, Product> insertWithSequenceTemplate =
-        Fragment.of("INSERT INTO product (")
+    // Skip columns with database defaults — pass column names to except
+    Product insertWithDefault(Product product) {
+        return Fragment.of("INSERT INTO product (")
             .append(productParser.columnList())
-            .append(") VALUES (nextval('product_id_seq'), ")
-            .paramRow(productParser, "id")
+            .append(") VALUES (DEFAULT, ")
+            .row(productParser, product, "id")
             .append(") RETURNING ")
             .append(productParser.columnList())
-            .query(productParser.exactlyOne());
-
-    Product insertWithSequence(Product product) {
-        return insertWithSequenceTemplate.on(product).run(conn);
+            .query(productParser.exactlyOne())
+            .run(conn);
     }
     //stop
 }
