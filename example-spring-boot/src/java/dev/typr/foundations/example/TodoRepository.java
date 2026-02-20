@@ -2,6 +2,7 @@ package dev.typr.foundations.example;
 
 import dev.typr.foundations.*;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -66,5 +67,14 @@ public class TodoRepository {
 
     public void setDone(int id) throws SQLException {
         setDoneById.on(id).transact(tx);
+    }
+
+    // rollbackFor is required — Spring only rolls back unchecked exceptions by default,
+    // so without it a SQLException would commit the transaction with partial writes.
+    @Transactional(rollbackFor = SQLException.class)
+    public Todo createAndComplete(String title) throws SQLException {
+        var todo = insertByTitle.on(title).transact(tx);
+        setDoneById.on(todo.id()).transact(tx);
+        return todo;
     }
 }

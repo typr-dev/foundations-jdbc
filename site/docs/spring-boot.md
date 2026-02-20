@@ -127,7 +127,7 @@ public class OrderService {
         this.tx = tx;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = SQLException.class)
     public void placeOrder(Order order) throws SQLException {
         insertOrder.bind(order).transact(tx);
         updateInventory.bind(order.itemId()).transact(tx);
@@ -140,6 +140,26 @@ public class OrderService {
     }
 }
 ```
+
+### Rollback and checked exceptions
+
+:::warning Always use `rollbackFor = SQLException.class`
+Spring's default rollback behavior only covers **unchecked** exceptions (`RuntimeException` and `Error`). Checked exceptions like `SQLException` are treated as normal outcomes and **will cause the transaction to commit** — even if the exception propagates out of the method.
+
+Since `transact()` declares `throws SQLException`, you must explicitly tell Spring to roll back on it:
+
+```java
+// WRONG — SQLException commits the transaction, leaving partial writes
+@Transactional
+public void placeOrder(Order order) throws SQLException { ... }
+
+// CORRECT — SQLException triggers a rollback
+@Transactional(rollbackFor = SQLException.class)
+public void placeOrder(Order order) throws SQLException { ... }
+```
+
+This only matters for `@Transactional` methods. Outside `@Transactional`, the `SpringTransactor` manages its own transaction and always rolls back on any exception.
+:::
 
 ## Manual Configuration
 
