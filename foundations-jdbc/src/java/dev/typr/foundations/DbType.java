@@ -79,4 +79,9 @@ public interface DbType<A> {
   default boolean isNullable() {
     return false;
   }
+
+  /** Encode a value into a SQL fragment using this type. Shorthand for {@code Fragment.encode(this, value)}. */
+  default Fragment apply(A value) {
+    return Fragment.encode(this, value);
+  }
 }

@@ -2,20 +2,16 @@
 package dev.typr.foundationskt
 
 import java.sql.Connection
-import java.sql.SQLException
 import java.time.Duration
 import java.util.Optional
 
-sealed class Operation<Out> {
+sealed class Operation<Out> : Analyzable {
     abstract val underlying: dev.typr.foundations.Operation<*>
 
-    @Throws(SQLException::class)
-    abstract fun runChecked(conn: Connection): Out
+    override val analyzable: dev.typr.foundations.Analyzable get() = underlying
 
-    fun run(conn: Connection): Out =
-        try { runChecked(conn) } catch (e: SQLException) { throw RuntimeException(e) }
+    abstract fun run(conn: Connection): Out
 
-    @Throws(SQLException::class)
     fun transact(transactor: Transactor): Out =
         transactor.execute(this)
 
@@ -53,13 +49,13 @@ sealed class Operation<Out> {
     fun <B> thenIgnore(other: Operation<B>): Operation<Out> =
         with(other).map { pair -> pair.first }
 
-    fun <B> then(template: SqlTemplate<Out, B>): Operation<B> {
+    fun <B> then(template: Template<Out, B>): Operation<B> {
         val javaTemplate = template.underlying
         @Suppress("UNCHECKED_CAST")
         val javaOp = dev.typr.foundations.Operation.Then(
             underlying as dev.typr.foundations.Operation<Out>,
             java.util.function.Function.identity(),
-            javaTemplate as dev.typr.foundations.SqlTemplate<Out, B>
+            javaTemplate as dev.typr.foundations.Template<Out, B>
         )
         return Then(javaOp, this, { it }, template)
     }
@@ -76,43 +72,39 @@ sealed class Operation<Out> {
         Configured(dev.typr.foundations.Operation.Configured(underlying, null, null, listener), this, null, null, listener)
 
     class Query<Out>(override val underlying: dev.typr.foundations.Operation.Query<Out>) : Operation<Out>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): Out = underlying.runChecked(conn)
+        override fun run(conn: Connection): Out = underlying.run(conn)
     }
 
     class Update(override val underlying: dev.typr.foundations.Operation.Update) : Operation<Int>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): Int = underlying.runChecked(conn)
+        override fun run(conn: Connection): Int = underlying.run(conn)
     }
 
     class UpdateReturning<Out>(override val underlying: dev.typr.foundations.Operation.UpdateReturning<Out>) : Operation<Out>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): Out = underlying.runChecked(conn)
+        override fun run(conn: Connection): Out = underlying.run(conn)
+    }
+
+    class UpdateReturningGeneratedKeys<Out>(override val underlying: dev.typr.foundations.Operation.UpdateReturningGeneratedKeys<Out>) : Operation<Out>() {
+        override fun run(conn: Connection): Out = underlying.run(conn)
     }
 
     class UpdateMany<Row>(override val underlying: dev.typr.foundations.Operation.UpdateMany<Row>) : Operation<IntArray>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): IntArray = underlying.runChecked(conn)
+        override fun run(conn: Connection): IntArray = underlying.run(conn)
     }
 
     class UpdateManyReturning<Row>(override val underlying: dev.typr.foundations.Operation.UpdateManyReturning<Row>) : Operation<List<Row>>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): List<Row> = underlying.runChecked(conn)
+        override fun run(conn: Connection): List<Row> = underlying.run(conn)
     }
 
     class UpdateReturningEach<Row>(override val underlying: dev.typr.foundations.Operation.UpdateReturningEach<Row>) : Operation<List<Row>>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): List<Row> = underlying.runChecked(conn)
+        override fun run(conn: Connection): List<Row> = underlying.run(conn)
     }
 
     class UpdateManyTemplate<Row>(override val underlying: dev.typr.foundations.Operation.UpdateManyTemplate<Row>) : Operation<IntArray>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): IntArray = underlying.runChecked(conn)
+        override fun run(conn: Connection): IntArray = underlying.run(conn)
     }
 
     class StreamingCopy(override val underlying: dev.typr.foundations.Operation<Long>) : Operation<Long>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): Long = underlying.runChecked(conn)
+        override fun run(conn: Connection): Long = underlying.run(conn)
     }
 
     class Mapped<A, B>(
@@ -120,12 +112,11 @@ sealed class Operation<Out> {
         val source: Operation<A>,
         val f: (A) -> B
     ) : Operation<B>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): B = f(source.runChecked(conn))
+        override fun run(conn: Connection): B = f(source.run(conn))
     }
 
     class Pure<T>(override val underlying: dev.typr.foundations.Operation.Pure<T>, val value: T) : Operation<T>() {
-        override fun runChecked(conn: Connection): T = value
+        override fun run(conn: Connection): T = value
     }
 
     class With<A, B>(
@@ -133,9 +124,8 @@ sealed class Operation<Out> {
         val first: Operation<A>,
         val second: Operation<B>
     ) : Operation<Pair<A, B>>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): Pair<A, B> =
-            Pair(first.runChecked(conn), second.runChecked(conn))
+        override fun run(conn: Connection): Pair<A, B> =
+            Pair(first.run(conn), second.run(conn))
     }
 
     class IfEmpty<T : Any>(
@@ -143,22 +133,20 @@ sealed class Operation<Out> {
         val check: Operation<T?>,
         val fallback: Operation<T>
     ) : Operation<T>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): T =
-            check.runChecked(conn) ?: fallback.runChecked(conn)
+        override fun run(conn: Connection): T =
+            check.run(conn) ?: fallback.run(conn)
     }
 
     class Then<A, In, Out>(
         override val underlying: dev.typr.foundations.Operation<*>,
         val source: Operation<A>,
         val extract: (A) -> In,
-        val continuation: SqlTemplate<In, Out>
+        val continuation: Template<In, Out>
     ) : Operation<Out>() {
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): Out {
-            val a = source.runChecked(conn)
+        override fun run(conn: Connection): Out {
+            val a = source.run(conn)
             val input = extract(a)
-            return continuation.on(input).runChecked(conn)
+            return continuation.on(input).run(conn)
         }
     }
 
@@ -170,8 +158,7 @@ sealed class Operation<Out> {
         val listener: dev.typr.foundations.QueryListener?
     ) : Operation<Out>() {
         @Suppress("UNCHECKED_CAST")
-        @Throws(SQLException::class)
-        override fun runChecked(conn: Connection): Out = underlying.runChecked(conn) as Out
+        override fun run(conn: Connection): Out = underlying.run(conn) as Out
     }
 
     companion object {

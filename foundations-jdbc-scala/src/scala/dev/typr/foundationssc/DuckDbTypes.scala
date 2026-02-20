@@ -140,22 +140,22 @@ class DuckDbTypes {
   // JSON-encoded row types
 
   /** A JSON column type that stores a single row as a positional JSON array: [val1, val2, val3]. */
-  def jsonArrayEncoded[Row](parser: RowParser[Row]): DuckDbType[Row] =
+  def jsonArrayEncoded[Row](parser: RowCodec[Row]): DuckDbType[Row] =
     DuckDbType(JavaDuckDbTypes.jsonArrayEncoded(parser.underlying))
 
   /** A JSON column type that stores a list of rows, each as a positional JSON array. */
-  def jsonArrayEncodedList[Row](parser: RowParser[Row]): DuckDbType[List[Row]] =
+  def jsonArrayEncodedList[Row](parser: RowCodec[Row]): DuckDbType[List[Row]] =
     DuckDbType(JavaDuckDbTypes.jsonArrayEncodedList(parser.underlying).transform(
       jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
       slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
     ))
 
   /** A JSON column type that stores a single row as a keyed JSON object: {"col": val, ...}. */
-  def jsonObjectEncoded[Row](parser: RowParserNamed[Row]): DuckDbType[Row] =
+  def jsonObjectEncoded[Row](parser: RowCodecNamed[Row]): DuckDbType[Row] =
     DuckDbType(JavaDuckDbTypes.jsonObjectEncoded(parser.underlying))
 
   /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
-  def jsonObjectEncodedList[Row](parser: RowParserNamed[Row]): DuckDbType[List[Row]] =
+  def jsonObjectEncodedList[Row](parser: RowCodecNamed[Row]): DuckDbType[List[Row]] =
     DuckDbType(JavaDuckDbTypes.jsonObjectEncodedList(parser.underlying).transform(
       jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
       slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)

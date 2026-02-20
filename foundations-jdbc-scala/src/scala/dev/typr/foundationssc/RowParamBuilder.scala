@@ -7,9 +7,9 @@ class RowParamBuilder[Row] private[foundationssc] (
 
   def append(fragment: Fragment): RowParamBuilder[Row] = new RowParamBuilder(underlying.append(fragment.underlying))
 
-  def query[Out](parser: ResultSetParser[Out]): RowSqlTemplate.Query[Row, Out] =
-    new RowSqlTemplate.Query(underlying.query(parser.underlying))
+  def query[Out](parser: ResultSetParser[Out]): RowTemplate.Query[Row, Out] =
+    new RowTemplate.Query(underlying.query(parser.underlying))
 
-  def update(): RowSqlTemplate.Update[Row] = new RowSqlTemplate.Update(underlying.update())
+  def update(): RowTemplate.Update[Row] = new RowTemplate.Update(underlying.update())
 
   def done(): Fragment = new Fragment(underlying.done())

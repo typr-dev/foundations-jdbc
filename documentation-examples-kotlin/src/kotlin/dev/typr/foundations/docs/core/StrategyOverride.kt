@@ -5,11 +5,10 @@ import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
 class StrategyOverride {
-    val tx: Transactor = null!! // placeholder
+    lateinit var tx: Transactor
     val logger: QueryListener = QueryListener.NOOP
 
     //start
-    val txWithLogging: Transactor =
-        tx.withStrategy(Transactor.defaultStrategy().withListener(logger))
+    val txWithLogging: Transactor = tx.mergeListener(logger)
     //stop
 }

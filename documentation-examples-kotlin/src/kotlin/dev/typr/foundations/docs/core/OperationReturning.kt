@@ -1,0 +1,29 @@
+package dev.typr.foundations.docs.core
+
+import dev.typr.foundationskt.*
+
+@Suppress("unused")
+class OperationReturning {
+    data class User(val id: Int, val name: String)
+
+    val userCodec: RowCodec<User> = RowCodec.builder<User>()
+        .field(PgTypes.int4, User::id)
+        .field(PgTypes.text, User::name)
+        .build(::User)
+
+    //start
+    // INSERT ... RETURNING id, name
+    val insertedUsers: Operation<List<User>> =
+        sql { "INSERT INTO users (name) VALUES ('alice') RETURNING id, name" }
+            .updateReturning(userCodec.all())
+
+    val insertedUser: Operation<User> =
+        sql { "INSERT INTO users (name) VALUES ('alice') RETURNING id, name" }
+            .updateReturning(userCodec.exactlyOne())
+
+    // For databases that use generated keys instead of RETURNING (SQL Server, MariaDB)
+    val generatedId: Operation<Int> =
+        sql { "INSERT INTO users (name) VALUES ('alice')" }
+            .updateReturningGeneratedKeys(arrayOf("id"), RowCodec.of(PgTypes.int4).exactlyOne())
+    //stop
+}

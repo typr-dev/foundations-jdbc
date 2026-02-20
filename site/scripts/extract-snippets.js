@@ -114,8 +114,8 @@ function extractContentWithoutHeader(content) {
 
 function getSnippetNameFromPath(filePath) {
   // Convert file path to snippet name
-  // e.g., documentation-examples-java/src/java/dev/typr/foundations/docs/core/RowParserBasic.java
-  // becomes: java/core/RowParserBasic
+  // e.g., documentation-examples-java/src/java/dev/typr/foundations/docs/core/RowCodecBasic.java
+  // becomes: java/core/RowCodecBasic
 
   const relativePath = path.relative(ROOT_DIR, filePath);
 

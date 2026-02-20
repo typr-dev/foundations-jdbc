@@ -2,25 +2,39 @@ package dev.typr.foundations.example;
 
 import dev.typr.foundations.*;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @Repository
 public class TodoRepository {
 
-    public record Todo(Integer id, String title, Boolean done) {}
+    public record Todo(Integer id, String title, Boolean done) {
+    }
 
-    private static final RowParserNamed<Todo> parser = RowParser.<Todo>namedBuilder()
+    private static final RowCodecNamed<Todo> todoCodec = RowCodec.<Todo>namedBuilder()
             .field("id", DuckDbTypes.integer, Todo::id)
             .field("title", DuckDbTypes.varchar, Todo::title)
             .field("done", DuckDbTypes.boolean_, Todo::done)
             .build(Todo::new);
 
-    private static final Operation.Query<List<Todo>> FIND_ALL =
-            Fragment.of("SELECT ").append(parser.columnList())
+    static final Operation<List<Todo>> selectAll =
+            Fragment.of("SELECT ").append(todoCodec.columnList())
                     .append(" FROM todo ORDER BY id")
-                    .query(parser.all());
+                    .query(todoCodec.all());
+
+    static final Template<String, Todo> insertByTitle =
+            Fragment.of("INSERT INTO todo (title) VALUES (")
+                    .param(DuckDbTypes.varchar)
+                    .append(Fragment.of(") RETURNING ").append(todoCodec.columnList()))
+                    .query(todoCodec.exactlyOne());
+
+    static final Template<Integer, Integer> setDoneById =
+            Fragment.of("UPDATE todo SET done = true WHERE id = ")
+                    .param(DuckDbTypes.integer)
+                    .update();
+
+    static final List<Analyzable> analyzables = List.of(selectAll, insertByTitle, setDoneById);
 
     private final Transactor tx;
 
@@ -28,48 +42,36 @@ public class TodoRepository {
         this.tx = tx;
     }
 
-    public void createSchema() throws SQLException {
+    public void createSchema() {
         tx.executeVoid(conn -> {
-            try (var stmt = conn.createStatement()) {
-                stmt.execute("CREATE SEQUENCE IF NOT EXISTS todo_id_seq START 1");
-                stmt.execute("""
-                        CREATE TABLE IF NOT EXISTS todo (
-                            id    INTEGER DEFAULT nextval('todo_id_seq'),
-                            title VARCHAR NOT NULL,
-                            done  BOOLEAN NOT NULL DEFAULT false
-                        )""");
-            }
+            Fragment.of("CREATE SEQUENCE IF NOT EXISTS todo_id_seq START 1")
+                    .execute().run(conn);
+            Fragment.of("""
+                    CREATE TABLE IF NOT EXISTS todo (
+                        id    INTEGER DEFAULT nextval('todo_id_seq'),
+                        title VARCHAR NOT NULL,
+                        done  BOOLEAN NOT NULL DEFAULT false
+                    )""")
+                    .execute().run(conn);
         });
     }
 
-    public List<Todo> findAll() throws SQLException {
-        return FIND_ALL.transact(tx);
+    public List<Todo> findAll() {
+        return selectAll.transact(tx);
     }
 
-    public Todo create(String title) throws SQLException {
-        return Fragment.of("INSERT INTO todo (title) VALUES (")
-                .value(DuckDbTypes.varchar, title)
-                .append(") RETURNING ").append(parser.columnList())
-                .query(parser.exactlyOne())
-                .transact(tx);
+    public Todo create(String title) {
+        return insertByTitle.on(title).transact(tx);
     }
 
-    public void setDone(int id, boolean done) throws SQLException {
-        Fragment.of("UPDATE todo SET done = ")
-                .value(DuckDbTypes.boolean_, done)
-                .append(" WHERE id = ").value(DuckDbTypes.integer, id)
-                .execute()
-                .transact(tx);
+    public void setDone(int id) {
+        setDoneById.on(id).transact(tx);
     }
 
-    public void analyzeQueries() throws SQLException {
-        tx.executeVoid(conn -> {
-            var result = QueryAnalyzer.analyze(FIND_ALL.named("findAll"), conn).getFirst();
-            if (result.succeeded()) {
-                System.out.println("  All queries passed analysis.");
-            } else {
-                System.err.println(result.reportColored());
-            }
-        });
+    @Transactional
+    public Todo createAndComplete(String title) {
+        var todo = insertByTitle.on(title).transact(tx);
+        setDoneById.on(todo.id()).transact(tx);
+        return todo;
     }
 }

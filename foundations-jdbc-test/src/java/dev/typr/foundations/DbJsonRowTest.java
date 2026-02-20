@@ -12,22 +12,22 @@ import org.junit.Test;
  * Tests for DbJsonRow — roundtripping arrays of structs as JSON across the JDBC boundary.
  *
  * <p>Uses DuckDB (embedded, no Docker) to verify the full flow:
- * insert data → aggregate with json_group_array → parse with RowParser-derived codec.
+ * insert data → aggregate with json_group_array → parse with RowCodec-derived codec.
  */
 public class DbJsonRowTest {
 
   record OrderLine(String product, int qty, BigDecimal price) {}
 
   // Define once — used for both ResultSet reading and JSON parsing
-  static final RowParserNamed<OrderLine> lineParser =
-      RowParser.<OrderLine>namedBuilder()
+  static final RowCodecNamed<OrderLine> lineCodec =
+      RowCodec.<OrderLine>namedBuilder()
           .field("product", DuckDbTypes.varchar, OrderLine::product)
           .field("qty", DuckDbTypes.integer, OrderLine::qty)
           .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
           .build(OrderLine::new);
 
   static final DbJson<List<OrderLine>> linesCodec =
-      DbJsonRow.jsonArray(lineParser).list();
+      DbJsonRow.jsonArray(lineCodec).list();
 
   static Transactor newDuckDbTransactor() throws Exception {
     var f = java.io.File.createTempFile("duckdb_test", ".db");
@@ -56,7 +56,7 @@ public class DbJsonRowTest {
         .transact(tx);
 
     Json fromDb = Fragment.of("SELECT lines FROM orders")
-        .query(RowParser.of(DuckDbTypes.json).exactlyOne())
+        .query(RowCodec.of(DuckDbTypes.json).exactlyOne())
         .transact(tx);
 
     List<OrderLine> decoded = linesCodec.fromJson(JsonValue.parse(fromDb.value()));
@@ -79,7 +79,7 @@ public class DbJsonRowTest {
     // Single query: parent rows with child rows aggregated as JSON
     record CustomerWithLines(String name, Json linesJson) {}
 
-    RowParser<CustomerWithLines> customerParser = RowParser.<CustomerWithLines>builder()
+    RowCodec<CustomerWithLines> customerCodec = RowCodec.<CustomerWithLines>builder()
         .field(DuckDbTypes.varchar, CustomerWithLines::name)
         .field(DuckDbTypes.json, CustomerWithLines::linesJson)
         .build(CustomerWithLines::new);
@@ -89,7 +89,7 @@ public class DbJsonRowTest {
             + "(SELECT json_group_array(json_array(l.product, l.qty, l.price)) "
             + " FROM order_lines l WHERE l.customer_id = c.id) "
             + "FROM customers c ORDER BY c.id")
-        .query(customerParser.all())
+        .query(customerCodec.all())
         .transact(tx);
 
     // Alice has 2 order lines
@@ -113,7 +113,7 @@ public class DbJsonRowTest {
   @Test
   public void objectEncoding() throws Exception {
     DbJson<List<OrderLine>> objectCodec =
-        DbJsonRow.jsonObject(lineParser).list();
+        DbJsonRow.jsonObject(lineCodec).list();
 
     List<OrderLine> original = List.of(
         new OrderLine("Widget", 3, new BigDecimal("9.99")),
@@ -131,7 +131,7 @@ public class DbJsonRowTest {
         .transact(tx);
 
     Json fromDb = Fragment.of("SELECT lines FROM orders")
-        .query(RowParser.of(DuckDbTypes.json).exactlyOne())
+        .query(RowCodec.of(DuckDbTypes.json).exactlyOne())
         .transact(tx);
 
     List<OrderLine> decoded = objectCodec.fromJson(JsonValue.parse(fromDb.value()));

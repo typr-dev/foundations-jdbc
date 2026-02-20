@@ -35,14 +35,14 @@ public class MariaTypeTest {
 
   record Item(String name, int quantity) {}
 
-  static RowParser<Item> itemParser =
-      RowParser.<Item>builder()
+  static RowCodec<Item> itemCodec =
+      RowCodec.<Item>builder()
           .field(MariaTypes.varchar, Item::name)
           .field(MariaTypes.int_, Item::quantity)
           .build(Item::new);
 
-  static RowParserNamed<Item> namedItemParser =
-      RowParser.<Item>namedBuilder()
+  static RowCodecNamed<Item> namedItemCodec =
+      RowCodec.<Item>namedBuilder()
           .field("name", MariaTypes.varchar, Item::name)
           .field("quantity", MariaTypes.int_, Item::quantity)
           .build(Item::new);
@@ -299,16 +299,16 @@ public class MariaTypeTest {
 
           // ==================== JSON-Encoded Row Types ====================
           new MariaTypeAndExample<>(
-                  MariaTypes.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+                  MariaTypes.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new MariaTypeAndExample<>(
-                  MariaTypes.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+                  MariaTypes.jsonArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           new MariaTypeAndExample<>(
-                  MariaTypes.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+                  MariaTypes.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new MariaTypeAndExample<>(
-                  MariaTypes.jsonObjectEncodedList(namedItemParser), List.of(new Item("Widget", 5)))
+                  MariaTypes.jsonObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
 
           // ==================== Network Types (MariaDB 10.10+) ====================
@@ -330,11 +330,7 @@ public class MariaTypeTest {
           );
 
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    try {
-      return Containers.mariadbTransactor().execute(f);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+    return Containers.mariadbTransactor().execute(f);
   }
 
   @Test
@@ -485,7 +481,7 @@ public class MariaTypeTest {
     String tableName = uniqueTableName("qa");
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
@@ -504,7 +500,7 @@ public class MariaTypeTest {
     conn.createStatement()
         .execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment =
           Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
               .value(t.type, t.example);
@@ -609,8 +605,8 @@ public class MariaTypeTest {
 
   static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
       throws SQLException {
-    RowParserNamed<A> parser =
-        RowParser.<A>namedBuilder()
+    RowCodecNamed<A> parser =
+        RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
     Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
@@ -618,7 +614,7 @@ public class MariaTypeTest {
         .append(")")
         .update()
         .onMany(List.of(value).iterator())
-        .runChecked(conn);
+        .run(conn);
   }
 
   static <A> void testCase(Connection conn, MariaTypeAndExample<A> t) throws SQLException {
@@ -686,7 +682,7 @@ public class MariaTypeTest {
                 + ") BEGIN SET p_out = p_in; END");
 
     try {
-      A result = proc.call(t.example).runChecked(conn);
+      A result = proc.call(t.example).run(conn);
 
       System.out.println(
           "Callable roundtrip "

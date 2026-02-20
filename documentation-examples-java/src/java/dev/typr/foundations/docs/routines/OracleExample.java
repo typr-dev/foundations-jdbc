@@ -3,7 +3,6 @@ package dev.typr.foundations.docs.routines;
 import dev.typr.foundations.*;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class OracleExample {

@@ -157,7 +157,7 @@ public record PgType<A>(
               try {
                 return f.apply(a);
               } catch (java.sql.SQLException e) {
-                throw new RuntimeException(e);
+                throw new DatabaseException(e);
               }
             },
             g),

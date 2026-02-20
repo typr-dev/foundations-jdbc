@@ -4,9 +4,9 @@ import dev.typr.foundationskt.*
 import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
-class InterpolatedSql {
+class Interpolatedsql {
     //start
-    val debugListener = object : QueryListener {
+    object debugListener : QueryListener {
         override fun beforeQuery(sql: String, name: String?) {}
         override fun afterQuery(event: QueryEvent) {
             println(event.interpolatedSql())

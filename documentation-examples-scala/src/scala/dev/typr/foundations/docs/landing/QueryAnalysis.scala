@@ -6,10 +6,10 @@ import dev.typr.foundationssc.data.*
 import java.sql.Connection
 
 @SuppressWarnings(Array("unused"))
-object QueryAnalysis:
+object QueryAnalysisExample:
   case class User(id: Int, name: String, createdAt: Int, email: String)
   object User:
-    val rowParser: RowParser[User] = RowParser.builder[User]()
+    val rowCodec: RowCodec[User] = RowCodec.builder[User]()
       .field(PgTypes.int4)(_.id)
       .field(PgTypes.text)(_.name)
       .field(PgTypes.int4)(_.createdAt)    // WRONG! Should be timestamptz
@@ -24,7 +24,7 @@ object QueryAnalysis:
     sql"""SELECT id, name, created_at, email
           FROM users
           WHERE active = ${PgTypes.bool(true)}"""
-      .query(User.rowParser.all())
+      .query(User.rowCodec.all())
 
   // But Query Analysis catches the bugs in your tests
   def check(): Unit =

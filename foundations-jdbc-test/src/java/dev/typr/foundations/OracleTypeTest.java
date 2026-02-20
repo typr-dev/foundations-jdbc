@@ -81,14 +81,14 @@ public class OracleTypeTest {
 
   record OracleItem(String name, int quantity) {}
 
-  static RowParser<OracleItem> oracleItemParser =
-      RowParser.<OracleItem>builder()
+  static RowCodec<OracleItem> oracleItemCodec =
+      RowCodec.<OracleItem>builder()
           .field(OracleTypes.varchar2(100), OracleItem::name)
           .field(OracleTypes.numberInt, OracleItem::quantity)
           .build(OracleItem::new);
 
-  static RowParserNamed<OracleItem> namedOracleItemParser =
-      RowParser.<OracleItem>namedBuilder()
+  static RowCodecNamed<OracleItem> namedOracleItemCodec =
+      RowCodec.<OracleItem>namedBuilder()
           .field("name", OracleTypes.varchar2(100), OracleItem::name)
           .field("quantity", OracleTypes.numberInt, OracleItem::quantity)
           .build(OracleItem::new);
@@ -490,17 +490,17 @@ public class OracleTypeTest {
           // ═══════════════════════════════════════════════════════════════════════════
 
           new OracleTypeAndExample<>(
-                  OracleTypes.jsonArrayEncoded(oracleItemParser), new OracleItem("Widget", 5))
+                  OracleTypes.jsonArrayEncoded(oracleItemCodec), new OracleItem("Widget", 5))
               .noIdentity(),
           new OracleTypeAndExample<>(
-                  OracleTypes.jsonArrayEncodedList(oracleItemParser),
+                  OracleTypes.jsonArrayEncodedList(oracleItemCodec),
                   List.of(new OracleItem("Widget", 5)))
               .noIdentity(),
           new OracleTypeAndExample<>(
-                  OracleTypes.jsonObjectEncoded(namedOracleItemParser), new OracleItem("Widget", 5))
+                  OracleTypes.jsonObjectEncoded(namedOracleItemCodec), new OracleItem("Widget", 5))
               .noIdentity(),
           new OracleTypeAndExample<>(
-                  OracleTypes.jsonObjectEncodedList(namedOracleItemParser),
+                  OracleTypes.jsonObjectEncodedList(namedOracleItemCodec),
                   List.of(new OracleItem("Widget", 5)))
               .noIdentity(),
 
@@ -1530,7 +1530,7 @@ public class OracleTypeTest {
     }
     conn.createStatement().execute(createTableDDL);
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
@@ -1656,8 +1656,8 @@ public class OracleTypeTest {
 
   static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
       throws SQLException {
-    RowParserNamed<A> parser =
-        RowParser.<A>namedBuilder()
+    RowCodecNamed<A> parser =
+        RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
     Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
@@ -1665,7 +1665,7 @@ public class OracleTypeTest {
         .append(")")
         .update()
         .onMany(List.of(value).iterator())
-        .runChecked(conn);
+        .run(conn);
   }
 
   static <A> void testCase(Connection conn, OracleTypeAndExample<A> t) throws SQLException {
@@ -1800,7 +1800,7 @@ public class OracleTypeTest {
       DbProcedure.Def1_1<A, A> proc =
           DbProcedure.define(procName).input(t.type).out(t.type).build();
 
-      A result = proc.call(input).runChecked(conn);
+      A result = proc.call(input).run(conn);
 
       // Oracle PL/SQL uses unconstrained param types, so we need relaxed comparison:
       // - CHAR/NCHAR: unconstrained CHAR pads to max PL/SQL size, so compare trimmed
@@ -1829,17 +1829,9 @@ public class OracleTypeTest {
                 + "'");
       }
       System.out.println("Callable roundtrip " + sqlType + ": PASSED");
-    } catch (SQLException e) {
-      if (e.getMessage() != null
-          && e.getMessage().contains("does not support stored procedure OUT parameters")) {
-        System.out.println("Callable roundtrip SKIPPED " + sqlType + " (not supported)");
-        return;
-      }
-      throw e;
-    } catch (RuntimeException e) {
-      if (e.getCause() instanceof SQLException sqlEx
-          && sqlEx.getMessage() != null
-          && sqlEx.getMessage().contains("does not support stored procedure OUT parameters")) {
+    } catch (DatabaseException e) {
+      if (e.sqlException().getMessage() != null
+          && e.sqlException().getMessage().contains("does not support stored procedure OUT parameters")) {
         System.out.println("Callable roundtrip SKIPPED " + sqlType + " (not supported)");
         return;
       }

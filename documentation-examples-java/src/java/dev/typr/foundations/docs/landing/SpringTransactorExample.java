@@ -2,13 +2,11 @@ package dev.typr.foundations.docs.landing;
 
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.OracleTypes;
-import dev.typr.foundations.RowParser;
+import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class SpringTransactorExample {
@@ -22,10 +20,10 @@ public class SpringTransactorExample {
         }
 
         @Transactional
-        String getGreeting() throws SQLException {
+        String getGreeting() {
             return Fragment
                 .of("SELECT 'Hello from Oracle' FROM dual")
-                .query(RowParser.of(OracleTypes.varchar2)
+                .query(RowCodec.of(OracleTypes.varchar2)
                     .exactlyOne())
                 .transact(tx);
         }

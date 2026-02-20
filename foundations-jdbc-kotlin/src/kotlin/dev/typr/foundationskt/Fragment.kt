@@ -8,7 +8,7 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun render(): String = underlying.render()
 
     override fun toString(): String {
-        val ctx = Sql.currentContext()
+        val ctx = SqlBuilder.currentContext()
         if (ctx != null) {
             return ctx.register(this)
         }
@@ -22,14 +22,23 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun <T> query(parser: ResultSetParser<T>): Operation.Query<T> =
         Operation.Query(dev.typr.foundations.Operation.Query(underlying, parser.underlying))
 
-    fun <T : Any> queryOne(type: DbType<T>): Operation.Query<T> =
-        query(RowParser.of(type).exactlyOne())
+    fun <T : Any> queryExactlyOne(type: DbType<T>): Operation.Query<T> =
+        query(RowCodec.of(type).exactlyOne())
 
-    fun <T : Any> queryList(type: DbType<T>): Operation.Query<List<T>> =
-        query(RowParser.of(type).all())
+    fun <T : Any> queryExactlyOne(codec: RowCodec<T>): Operation.Query<T> =
+        query(codec.exactlyOne())
 
-    fun <T : Any> queryMaybe(type: DbType<T>): Operation.Query<T?> =
-        query(RowParser.of(type).maxOne())
+    fun <T : Any> queryAll(type: DbType<T>): Operation.Query<List<T>> =
+        query(RowCodec.of(type).all())
+
+    fun <T : Any> queryAll(codec: RowCodec<T>): Operation.Query<List<T>> =
+        query(codec.all())
+
+    fun <T : Any> queryMaxOne(type: DbType<T>): Operation.Query<T?> =
+        query(RowCodec.of(type).maxOne())
+
+    fun <T : Any> queryMaxOne(codec: RowCodec<T>): Operation.Query<T?> =
+        query(codec.maxOne())
 
     fun update(): Operation.Update =
         Operation.Update(dev.typr.foundations.Operation.Update(underlying))
@@ -39,13 +48,16 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun <T> updateReturning(parser: ResultSetParser<T>): Operation.UpdateReturning<T> =
         Operation.UpdateReturning(dev.typr.foundations.Operation.UpdateReturning(underlying, parser.underlying))
 
-    fun <Row : Any> updateMany(parser: RowParser<Row>, rows: Iterator<Row>): Operation.UpdateMany<Row> =
+    fun <T> updateReturningGeneratedKeys(columnNames: Array<String>, parser: ResultSetParser<T>): Operation.UpdateReturningGeneratedKeys<T> =
+        Operation.UpdateReturningGeneratedKeys(underlying.updateReturningGeneratedKeys(columnNames, parser.underlying))
+
+    fun <Row : Any> updateMany(parser: RowCodec<Row>, rows: Iterator<Row>): Operation.UpdateMany<Row> =
         Operation.UpdateMany(underlying.updateMany(parser.underlying, rows))
 
-    fun <Row : Any> updateManyReturning(parser: RowParser<Row>, rows: Iterator<Row>): Operation.UpdateManyReturning<Row> =
+    fun <Row : Any> updateManyReturning(parser: RowCodec<Row>, rows: Iterator<Row>): Operation.UpdateManyReturning<Row> =
         Operation.UpdateManyReturning(underlying.updateManyReturning(parser.underlying, rows))
 
-    fun <Row : Any> updateReturningEach(parser: RowParser<Row>, rows: Iterator<Row>): Operation.UpdateReturningEach<Row> =
+    fun <Row : Any> updateReturningEach(parser: RowCodec<Row>, rows: Iterator<Row>): Operation.UpdateReturningEach<Row> =
         Operation.UpdateReturningEach(underlying.updateReturningEach(parser.underlying, rows))
 
     fun append(s: String): Fragment = Fragment(underlying.append(s))
@@ -58,10 +70,10 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun <T : Any> valueNullable(dbType: DbType<T>, value: T?): Fragment =
         Fragment(underlying.value(dbType.underlying.opt(), Optional.ofNullable(value)))
 
-    fun <Row : Any> paramRow(parser: RowParserNamed<Row>, vararg except: String): RowParamBuilder<Row> =
+    fun <Row : Any> paramRow(parser: RowCodecNamed<Row>, vararg except: String): RowParamBuilder<Row> =
         RowParamBuilder(underlying.paramRow(parser.underlying, *except))
 
-    fun <Row : Any> row(parser: RowParserNamed<Row>, row: Row, vararg except: String): Fragment =
+    fun <Row : Any> row(parser: RowCodecNamed<Row>, row: Row, vararg except: String): Fragment =
         Fragment(underlying.row(parser.underlying, row, *except))
 
     fun <P0> param(dbType: DbType<P0>): ParamBuilders.ParamBuilder1<P0> =
@@ -183,6 +195,11 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
         @JvmStatic
         fun of(vararg fragments: Fragment): Fragment =
             Fragment(dev.typr.foundations.Fragment.of(*fragments.map { it.underlying }.toTypedArray()))
+
+        @JvmStatic
+        @JvmName("rowStatic")
+        fun <Row : Any> row(codec: RowCodecNamed<Row>, row: Row, vararg except: String): Fragment =
+            Fragment(dev.typr.foundations.Fragment.EMPTY.row(codec.underlying, row, *except))
     }
 }
 

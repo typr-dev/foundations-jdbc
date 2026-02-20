@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Composing Operations
 
-Operations can be described as values and composed before execution. Rather than running queries imperatively against a connection, you describe each step as a value and combine them with combinators. The transactor then runs the entire composed operation in a single transaction.
+Operations can be composed as values — combined, sequenced, and chained — so that multiple database actions run in a single transaction without manual connection handling.
 
 ## Combining Independent Operations
 
@@ -28,9 +28,13 @@ When you have a dynamic list of operations, `Operation.sequence()` runs them all
 
 ## Data Flow Between Operations
 
-Use `.then()` to feed one operation's result into the next operation's [SQL template](./sql-templates). The first operation runs, and its result becomes the input to the template:
+Use `.then()` to feed one operation's result into the next operation's [template](./templates). The first operation runs, and its result becomes the input to the template:
 
-<Snippet file="core/SqlTemplateThen" />
+<Snippet file="core/TemplateThen" />
+
+When the first operation returns a record and the template uses `.from()`, use `.then()` with the `Template.From` directly:
+
+<Snippet file="core/TemplateThenFrom" />
 
 ## Conditional Execution
 

@@ -8,7 +8,7 @@ import java.sql.Connection
 @SuppressWarnings(Array("unused"))
 object QueryListenerBasic:
   //start
-  val logger: QueryListener = new QueryListener:
+  object logger extends QueryListener:
     override def beforeQuery(sql: String, name: String): Unit =
       println(s"Executing: $sql")
     override def afterQuery(event: QueryEvent): Unit =

@@ -139,7 +139,7 @@ public record OracleObject<A>(
         try {
           return reader.read(attrValues);
         } catch (SQLException e) {
-          throw new RuntimeException("Failed to construct object from JSON", e);
+          throw new DatabaseException("Failed to construct object from JSON", e);
         }
       }
     };

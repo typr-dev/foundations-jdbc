@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 
@@ -7,7 +8,7 @@ import dev.typr.foundationssc.data.*
 object OptionalQueryRange:
   case class Product(id: Int, name: String, price: BigDecimal)
 
-  val productParser: RowParser[Product] = RowParser.builder[Product]()
+  val productCodec: RowCodec[Product] = RowCodec.builder[Product]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.numeric)(_.price)
@@ -19,15 +20,14 @@ object OptionalQueryRange:
   // When an optional clause needs multiple parameters,
   // pass a multi-parameter builder.
   // The grouped parameters are provided or omitted together.
-  val byPriceRange: SqlTemplate[Option[(BigDecimal, BigDecimal)], List[Product]] =
-    Fragment.of(
-      "SELECT id, name, price FROM products WHERE 1=1"
-    ).optionally(
-        Fragment.of(" AND price BETWEEN ")
+  val byPriceRange: Template[Option[(BigDecimal, BigDecimal)], List[Product]] =
+    sql"SELECT id, name, price FROM products WHERE 1=1"
+      .optionally(
+        sql" AND price BETWEEN "
           .param(PgTypes.numeric)
           .append(" AND ")
           .param(PgTypes.numeric))
-      .query(productParser.all())
+      .query(productCodec.all())
 
   // With range
   def inRange(): List[Product] =

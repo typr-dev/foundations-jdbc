@@ -8,7 +8,7 @@ import dev.typr.foundationssc.data.*
 object FragmentComposing:
   case class ProductRow(id: Int, name: String, price: BigDecimal)
 
-  val rowParser: RowParser[ProductRow] = RowParser.builder[ProductRow]()
+  val rowCodec: RowCodec[ProductRow] = RowCodec.builder[ProductRow]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.numeric)(_.price)
@@ -35,7 +35,7 @@ object FragmentComposing:
 
     tx.transact { conn =>
       sql"SELECT * FROM product ${Fragment.whereAnd(filters)}"
-        .query(rowParser.all())
+        .query(rowCodec.all())
         .run(conn)
     }
   //stop

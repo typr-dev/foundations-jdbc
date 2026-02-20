@@ -21,7 +21,7 @@ sourceSets {
 
 dependencies {
     implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
-    implementation("org.springframework.boot:spring-boot-starter")
-    implementation(project(":foundations-jdbc"))
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation(project(":foundations-jdbc-spring"))
     runtimeOnly("org.duckdb:duckdb_jdbc:${property("duckdbDriverVersion")}")
 }

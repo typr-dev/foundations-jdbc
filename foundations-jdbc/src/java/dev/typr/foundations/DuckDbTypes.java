@@ -545,7 +545,7 @@ public interface DuckDbTypes {
 
   // ==================== JSON-Encoded Row Types ====================
   //
-  // These methods create JSON column types from a RowParser. The row's fields are serialized
+  // These methods create JSON column types from a RowCodec. The row's fields are serialized
   // into JSON when writing and deserialized back when reading — the JSON column stores the
   // complete row structure.
   //
@@ -556,43 +556,43 @@ public interface DuckDbTypes {
    * A JSON column type that stores a single row as a positional JSON array.
    * Each field is encoded by position: {@code [val1, val2, val3]}.
    */
-  static <Row> DuckDbType<Row> jsonArrayEncoded(RowParser<Row> parser) {
-    DbJson<Row> codec = DbJsonRow.jsonArray(parser);
+  static <Row> DuckDbType<Row> jsonArrayEncoded(RowCodec<Row> codec) {
+    DbJson<Row> rowJson = DbJsonRow.jsonArray(codec);
     return json.transform(
-        j -> codec.fromJson(JsonValue.parse(j.value())),
-        row -> new Json(codec.toJson(row).encode()));
+        j -> rowJson.fromJson(JsonValue.parse(j.value())),
+        row -> new Json(rowJson.toJson(row).encode()));
   }
 
   /**
    * A JSON column type that stores a list of rows, each as a positional JSON array.
    * The column contains: {@code [[val1, val2], [val3, val4], ...]}.
    */
-  static <Row> DuckDbType<List<Row>> jsonArrayEncodedList(RowParser<Row> parser) {
-    DbJson<List<Row>> codec = DbJsonRow.jsonArray(parser).list();
+  static <Row> DuckDbType<List<Row>> jsonArrayEncodedList(RowCodec<Row> codec) {
+    DbJson<List<Row>> rowJson = DbJsonRow.jsonArray(codec).list();
     return json.transform(
-        j -> codec.fromJson(JsonValue.parse(j.value())),
-        list -> new Json(codec.toJson(list).encode()));
+        j -> rowJson.fromJson(JsonValue.parse(j.value())),
+        list -> new Json(rowJson.toJson(list).encode()));
   }
 
   /**
    * A JSON column type that stores a single row as a keyed JSON object.
    * Each field is encoded with its column name: {@code {"name": val1, "age": val2}}.
    */
-  static <Row> DuckDbType<Row> jsonObjectEncoded(RowParserNamed<Row> parser) {
-    DbJson<Row> codec = DbJsonRow.jsonObject(parser);
+  static <Row> DuckDbType<Row> jsonObjectEncoded(RowCodecNamed<Row> codec) {
+    DbJson<Row> rowJson = DbJsonRow.jsonObject(codec);
     return json.transform(
-        j -> codec.fromJson(JsonValue.parse(j.value())),
-        row -> new Json(codec.toJson(row).encode()));
+        j -> rowJson.fromJson(JsonValue.parse(j.value())),
+        row -> new Json(rowJson.toJson(row).encode()));
   }
 
   /**
    * A JSON column type that stores a list of rows, each as a keyed JSON object.
    * The column contains: {@code [{"name": val1, "age": val2}, ...]}.
    */
-  static <Row> DuckDbType<List<Row>> jsonObjectEncodedList(RowParserNamed<Row> parser) {
-    DbJson<List<Row>> codec = DbJsonRow.jsonObject(parser).list();
+  static <Row> DuckDbType<List<Row>> jsonObjectEncodedList(RowCodecNamed<Row> codec) {
+    DbJson<List<Row>> rowJson = DbJsonRow.jsonObject(codec).list();
     return json.transform(
-        j -> codec.fromJson(JsonValue.parse(j.value())),
-        list -> new Json(codec.toJson(list).encode()));
+        j -> rowJson.fromJson(JsonValue.parse(j.value())),
+        list -> new Json(rowJson.toJson(list).encode()));
   }
 }

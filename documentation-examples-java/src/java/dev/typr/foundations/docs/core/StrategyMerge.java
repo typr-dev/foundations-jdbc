@@ -8,8 +8,6 @@ public class StrategyMerge {
     QueryListener logger = QueryListener.NOOP; // placeholder
     //start
     Transactor.Strategy base = Transactor.defaultStrategy();
-    Transactor.Strategy withLogging =
-        base.merge(new Transactor.Strategy(
-            conn -> {}, conn -> {}, (conn, t) -> {}, conn -> {}, logger));
+    Transactor.Strategy withLogging = base.mergeListener(logger);
     //stop
 }

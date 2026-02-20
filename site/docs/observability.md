@@ -42,7 +42,7 @@ For composite operations (e.g. `a.with(b).named("dashboard")`), each leaf query 
 
 ```java
 Fragment.of("SELECT * FROM large_table")
-    .query(parser.all())
+    .query(codec.all())
     .timeout(Duration.ofSeconds(10))
     .transact(tx);
 ```
@@ -53,17 +53,7 @@ Fragment.of("SELECT * FROM large_table")
 
 <Snippet file="core/InterpolatedSql" />
 
-## Strategy Merging
-
-Strategies can be merged. All hooks compose (both run), and listeners are combined:
-
-<Snippet file="core/StrategyMerge" />
-
-### Per-Transaction Override
-
-Use `withStrategy()` to create a new transactor with a merged strategy:
-
-<Snippet file="core/StrategyOverride" />
+For strategy merging and per-transaction overrides, see [Transactors — Strategies](./transactors#strategies).
 
 ## Patterns
 

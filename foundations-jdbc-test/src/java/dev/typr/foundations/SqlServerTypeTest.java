@@ -28,14 +28,14 @@ public class SqlServerTypeTest {
 
   record Item(String name, int quantity) {}
 
-  static RowParser<Item> itemParser =
-      RowParser.<Item>builder()
+  static RowCodec<Item> itemCodec =
+      RowCodec.<Item>builder()
           .field(SqlServerTypes.varchar, Item::name)
           .field(SqlServerTypes.int_, Item::quantity)
           .build(Item::new);
 
-  static RowParserNamed<Item> namedItemParser =
-      RowParser.<Item>namedBuilder()
+  static RowCodecNamed<Item> namedItemCodec =
+      RowCodec.<Item>namedBuilder()
           .field("name", SqlServerTypes.varchar, Item::name)
           .field("quantity", SqlServerTypes.int_, Item::quantity)
           .build(Item::new);
@@ -246,25 +246,21 @@ public class SqlServerTypeTest {
 
           // ==================== JSON-Encoded Row Types ====================
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.jsonArrayEncoded(itemParser), new Item("Widget", 5))
+                  SqlServerTypes.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.jsonArrayEncodedList(itemParser), List.of(new Item("Widget", 5)))
+                  SqlServerTypes.jsonArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.jsonObjectEncoded(namedItemParser), new Item("Widget", 5))
+                  SqlServerTypes.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.jsonObjectEncodedList(namedItemParser),
+                  SqlServerTypes.jsonObjectEncodedList(namedItemCodec),
                   List.of(new Item("Widget", 5)))
               .noIdentity());
 
   static void withConnection(SqlFunction<Connection, ?> f) {
-    try {
-      Containers.sqlserverTransactor().execute(f);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+    Containers.sqlserverTransactor().execute(f);
   }
 
   @Test
@@ -413,7 +409,7 @@ public class SqlServerTypeTest {
     String tableName = uniqueTableName("#qa");
     conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
@@ -432,7 +428,7 @@ public class SqlServerTypeTest {
     conn.createStatement()
         .execute("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
     try {
-      RowParser<A> parser = RowParser.of(t.type);
+      RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment =
           Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
               .value(t.type, t.example);
@@ -472,8 +468,8 @@ public class SqlServerTypeTest {
 
   static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
       throws SQLException {
-    RowParserNamed<A> parser =
-        RowParser.<A>namedBuilder()
+    RowCodecNamed<A> parser =
+        RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
     Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
@@ -481,7 +477,7 @@ public class SqlServerTypeTest {
         .append(")")
         .update()
         .onMany(List.of(value).iterator())
-        .runChecked(conn);
+        .run(conn);
   }
 
   static <A> void testJdbcRoundtrip(Connection conn, SqlServerTypeAndExample<A> t)
@@ -614,7 +610,7 @@ public class SqlServerTypeTest {
       DbProcedure.Def1_1<A, A> proc =
           DbProcedure.define(procName).input(t.type).out(t.type).build();
 
-      A result = proc.call(t.example).runChecked(conn);
+      A result = proc.call(t.example).run(conn);
 
       System.out.println(
           "Callable roundtrip "

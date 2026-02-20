@@ -11,8 +11,8 @@ class QueryAnalysisNamed {
     private lateinit var connection: Connection
     private val userId = 1
 
-    private val userRowParser: RowParser<User> =
-        RowParser.builder<User>()
+    private val userRowCodec: RowCodec<User> =
+        RowCodec.builder<User>()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::email)
@@ -21,12 +21,12 @@ class QueryAnalysisNamed {
     //start
     fun analyzeNamedQuery() {
         val query =
-            Sql { """
+            sql { """
                 SELECT id, name, email
                 FROM users
                 WHERE id = ${PgTypes.int4(userId)}
             """ }
-                .query(userRowParser.all())
+                .query(userRowCodec.all())
                 .named("findUserById")
 
         // The name shows up in the error report

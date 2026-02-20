@@ -9,7 +9,6 @@ class StrategyMerge {
 
     //start
     val base: Strategy = Transactor.defaultStrategy()
-    val withLogging: Strategy = base.merge(Strategy(
-        { _ -> }, { _ -> }, { _, _ -> }, { _ -> }, logger))
+    val withLogging: Strategy = base.mergeListener(logger)
     //stop
 }

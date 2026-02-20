@@ -90,7 +90,7 @@ For CHAR columns preserving padding:
 | `DATE` | `LocalDateTime` | Date + time (second precision) |
 | `TIMESTAMP` | `LocalDateTime` | Fractional seconds (default: 6) |
 | `TIMESTAMP WITH TIME ZONE` | `OffsetDateTime` | Explicit timezone |
-| `TIMESTAMP WITH LOCAL TIME ZONE` | `OffsetDateTime` | Session timezone |
+| `TIMESTAMP WITH LOCAL TIME ZONE` | `Instant` | Session timezone |
 
 <Snippet file="oracle/DateTimeTypes" />
 

@@ -84,19 +84,19 @@ open class MariaTypes {
     // JSON-encoded row types
 
     /** A JSON column type that stores a single row as a positional JSON array: [val1, val2, val3]. */
-    open fun <Row : Any> jsonArrayEncoded(parser: RowParser<Row>) =
+    open fun <Row : Any> jsonArrayEncoded(parser: RowCodec<Row>) =
         MariaType<Row>(JavaMariaTypes.jsonArrayEncoded(parser.underlying))
 
     /** A JSON column type that stores a list of rows, each as a positional JSON array. */
-    open fun <Row : Any> jsonArrayEncodedList(parser: RowParser<Row>) =
+    open fun <Row : Any> jsonArrayEncodedList(parser: RowCodec<Row>) =
         MariaType<List<Row>>(JavaMariaTypes.jsonArrayEncodedList(parser.underlying))
 
     /** A JSON column type that stores a single row as a keyed JSON object: {"col": val, ...}. */
-    open fun <Row : Any> jsonObjectEncoded(parser: RowParserNamed<Row>) =
+    open fun <Row : Any> jsonObjectEncoded(parser: RowCodecNamed<Row>) =
         MariaType<Row>(JavaMariaTypes.jsonObjectEncoded(parser.underlying))
 
     /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
-    open fun <Row : Any> jsonObjectEncodedList(parser: RowParserNamed<Row>) =
+    open fun <Row : Any> jsonObjectEncodedList(parser: RowCodecNamed<Row>) =
         MariaType<List<Row>>(JavaMariaTypes.jsonObjectEncodedList(parser.underlying))
 
     companion object : MariaTypes()

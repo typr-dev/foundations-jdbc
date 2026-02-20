@@ -1,5 +1,6 @@
 package dev.typr.foundations.docs.core
 import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 
@@ -7,7 +8,7 @@ import dev.typr.foundationssc.data.*
 object ComposingIfEmpty:
   case class User(id: Int, name: String, email: String)
 
-  val userParser: RowParser[User] = RowParser.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.email)
@@ -19,18 +20,17 @@ object ComposingIfEmpty:
 
   //start
   // Find-or-create pattern
-  val findUser: SqlTemplate[String, Option[User]] =
-    Fragment.of(
-      "SELECT id, name, email FROM users WHERE email = "
-    ).param(PgTypes.text)
-      .query(userParser.maxOne())
+  val findUser: Template[String, Option[User]] =
+    sql"SELECT id, name, email FROM users WHERE email = "
+      .param(PgTypes.text)
+      .query(userCodec.maxOne())
 
-  val createUser: SqlTemplate.Query2[String, String, User] =
-    Fragment.of("INSERT INTO users(name, email) VALUES(")
+  val createUser: Template.Query2[String, String, User] =
+    sql"INSERT INTO users(name, email) VALUES("
       .param(PgTypes.text).append(", ")
       .param(PgTypes.text)
       .append(") RETURNING *")
-      .query(userParser.exactlyOne())
+      .query(userCodec.exactlyOne())
 
   def findOrCreate(): User =
     Operation.ifEmpty(

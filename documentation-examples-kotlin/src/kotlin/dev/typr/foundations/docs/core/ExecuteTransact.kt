@@ -7,8 +7,8 @@ import dev.typr.foundationskt.data.*
 class ExecuteTransact {
     data class City(val name: String, val population: Int)
 
-    val cityParser: RowParser<City> =
-        RowParser.builder<City>()
+    val cityCodec: RowCodec<City> =
+        RowCodec.builder<City>()
             .field(PgTypes.text, City::name)
             .field(PgTypes.int4, City::population)
             .build(::City)
@@ -16,8 +16,8 @@ class ExecuteTransact {
     lateinit var tx: Transactor
 
     val findCities: Operation<List<City>> =
-        Sql { "SELECT name, population FROM city ORDER BY population DESC" }
-            .query(cityParser.all())
+        sql { "SELECT name, population FROM city ORDER BY population DESC" }
+            .query(cityCodec.all())
 
     //start
     fun cities(): List<City> = tx.transact { conn ->

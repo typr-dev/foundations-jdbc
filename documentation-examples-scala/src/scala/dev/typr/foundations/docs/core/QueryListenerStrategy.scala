@@ -10,5 +10,5 @@ object QueryListenerStrategy:
   //start
   val strategy: Transactor.Strategy =
     Transactor.defaultStrategy()
-      .withListener(logger)
+      .replaceListener(logger)
   //stop

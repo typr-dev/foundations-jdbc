@@ -119,7 +119,7 @@ public interface DbJson<A> {
         try {
           return f.apply(self.fromJson(json));
         } catch (java.sql.SQLException e) {
-          throw new RuntimeException(e);
+          throw new DatabaseException(e);
         }
       }
     };

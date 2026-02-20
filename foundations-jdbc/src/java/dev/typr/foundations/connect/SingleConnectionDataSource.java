@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A connection source that lazily creates a single connection and reuses it for all callers.
@@ -23,6 +24,7 @@ import java.sql.SQLException;
 public final class SingleConnectionDataSource implements ConnectionSource {
 
   private final ConnectionSource underlying;
+  private final ReentrantLock lock = new ReentrantLock();
   private Connection connection;
 
   private SingleConnectionDataSource(ConnectionSource underlying) {
@@ -52,11 +54,16 @@ public final class SingleConnectionDataSource implements ConnectionSource {
   }
 
   @Override
-  public synchronized Connection getConnection() throws SQLException {
-    if (connection == null || connection.isClosed()) {
-      connection = underlying.getConnection();
+  public Connection getConnection() throws SQLException {
+    lock.lock();
+    try {
+      if (connection == null || connection.isClosed()) {
+        connection = underlying.getConnection();
+      }
+      return nonClosingProxy(connection);
+    } finally {
+      lock.unlock();
     }
-    return nonClosingProxy(connection);
   }
 
   private static Connection nonClosingProxy(Connection real) {

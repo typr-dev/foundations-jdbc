@@ -2,8 +2,6 @@ package dev.typr.foundations.docs.routines;
 
 import dev.typr.foundations.*;
 
-import java.sql.SQLException;
-
 @SuppressWarnings("unused")
 public class VoidProcedure {
     Transactor tx = null; // placeholder
@@ -18,7 +16,7 @@ public class VoidProcedure {
 
     void logAction(
         String action, String details
-    ) throws SQLException {
+    ) {
         auditLog
             .call(action, details)
             .transact(tx);

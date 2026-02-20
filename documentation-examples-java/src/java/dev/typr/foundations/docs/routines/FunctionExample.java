@@ -3,7 +3,6 @@ package dev.typr.foundations.docs.routines;
 import dev.typr.foundations.*;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class FunctionExample {
@@ -26,7 +25,7 @@ public class FunctionExample {
 
     BigDecimal calculateTax(
         BigDecimal amount, String region
-    ) throws SQLException {
+    ) {
         return calcTax
             .call(amount, region)
             .transact(tx);

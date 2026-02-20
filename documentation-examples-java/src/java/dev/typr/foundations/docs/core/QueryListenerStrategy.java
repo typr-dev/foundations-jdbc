@@ -9,6 +9,6 @@ public class QueryListenerStrategy {
     //start
     Transactor.Strategy strategy =
         Transactor.defaultStrategy()
-            .withListener(logger);
+            .replaceListener(logger);
     //stop
 }

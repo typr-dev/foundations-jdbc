@@ -9,22 +9,22 @@ import java.sql.Connection
 object QueryAnalysisAll:
   case class User(id: Int, name: String)
 
-  val userParser: RowParser[User] = RowParser.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec.builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .build(User.apply)
 
   var conn: Connection = null // placeholder
 
-  val insertUser: SqlTemplate[String, Int] =
-    Fragment.of("INSERT INTO users(name) VALUES(")
+  val insertUser: Template[String, Int] =
+    sql"INSERT INTO users(name) VALUES("
       .param(PgTypes.text)
       .append(") RETURNING id")
-      .query(RowParser.of(PgTypes.int4).exactlyOne())
+      .query(RowCodec.of(PgTypes.int4).exactlyOne())
 
   val allUsers: Operation[List[User]] =
     sql"SELECT id, name FROM users"
-      .query(userParser.all())
+      .query(userCodec.all())
 
   //start
   def analyzeComposedOperation(): Unit =

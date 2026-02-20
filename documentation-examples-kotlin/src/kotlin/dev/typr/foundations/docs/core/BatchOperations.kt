@@ -9,8 +9,8 @@ import java.time.Instant
 class BatchOperations {
     data class Product(val id: Int, val name: String, val price: BigDecimal, val createdAt: Instant)
 
-    val productParser: RowParserNamed<Product> =
-        RowParser.namedBuilder<Product>()
+    val productCodec: RowCodecNamed<Product> =
+        RowCodec.namedBuilder<Product>()
             .field("id", PgTypes.int4, Product::id)
             .field("name", PgTypes.text, Product::name)
             .field("price", PgTypes.numeric, Product::price)
@@ -22,10 +22,10 @@ class BatchOperations {
     //start
     // Batch insert — all columns as parameters
     val insertAll =
-        Fragment.of("INSERT INTO product (")
-            .append(productParser.columnList)
+        sql { "INSERT INTO product (" }
+            .append(productCodec.columnList)
             .append(") VALUES (")
-            .paramRow(productParser)
+            .paramRow(productCodec)
             .append(")")
             .update()
 
@@ -34,8 +34,8 @@ class BatchOperations {
 
     // Batch insert — skip auto-generated ID column
     val insertAutoId =
-        Fragment.of("INSERT INTO product (name, price, created_at) VALUES (")
-            .paramRow(productParser, "id")
+        sql { "INSERT INTO product (name, price, created_at) VALUES (" }
+            .paramRow(productCodec, "id")
             .append(")")
             .update()
 

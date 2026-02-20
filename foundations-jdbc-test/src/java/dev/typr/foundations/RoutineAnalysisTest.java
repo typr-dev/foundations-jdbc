@@ -1,7 +1,6 @@
 package dev.typr.foundations;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import org.junit.Test;
 
@@ -10,11 +9,7 @@ import static org.junit.Assert.*;
 public class RoutineAnalysisTest {
 
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    try {
-      return Containers.postgresTransactor().execute(f);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+    return Containers.postgresTransactor().execute(f);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

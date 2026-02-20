@@ -1,6 +1,5 @@
 package dev.typr.foundations.docs.core;
 
-import dev.typr.foundations.QueryListener;
 import dev.typr.foundations.Transactor;
 
 import java.sql.Connection;
@@ -9,12 +8,10 @@ import java.sql.Connection;
 public class TransactorCustomStrategy {
     //start
     Transactor.Strategy customStrategy =
-        new Transactor.Strategy(
-            conn -> conn.setAutoCommit(false),
-            Connection::commit,
-            (conn, throwable) -> { /* handle error */ },
-            Connection::close,
-            QueryListener.NOOP
-        );
+        Transactor.Strategy.empty()
+            .replaceBefore(conn -> conn.setAutoCommit(false))
+            .replaceAfter(Connection::commit)
+            .replaceOops((conn, throwable) -> { /* handle error */ })
+            .replaceAlways(Connection::close);
     //stop
 }

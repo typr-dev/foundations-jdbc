@@ -376,37 +376,37 @@ public interface Db2Types {
 
   // ==================== JSON-Encoded Row Types ====================
   // These types store structured rows as JSON in a CLOB column.
-  // The codec is derived from the RowParser — no manual JSON handling needed.
+  // The codec is derived from the RowCodec — no manual JSON handling needed.
 
   /** A JSON column type that stores a single row as a positional JSON array. */
-  static <Row> Db2Type<Row> jsonArrayEncoded(RowParser<Row> parser) {
-    DbJson<Row> codec = DbJsonRow.jsonArray(parser);
+  static <Row> Db2Type<Row> jsonArrayEncoded(RowCodec<Row> codec) {
+    DbJson<Row> rowJson = DbJsonRow.jsonArray(codec);
     return json.transform(
-        j -> codec.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
-        row -> new dev.typr.foundations.data.Json(codec.toJson(row).encode()));
+        j -> rowJson.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
+        row -> new dev.typr.foundations.data.Json(rowJson.toJson(row).encode()));
   }
 
   /** A JSON column type that stores a list of rows, each as a positional JSON array. */
-  static <Row> Db2Type<java.util.List<Row>> jsonArrayEncodedList(RowParser<Row> parser) {
-    DbJson<java.util.List<Row>> codec = DbJsonRow.jsonArray(parser).list();
+  static <Row> Db2Type<java.util.List<Row>> jsonArrayEncodedList(RowCodec<Row> codec) {
+    DbJson<java.util.List<Row>> rowJson = DbJsonRow.jsonArray(codec).list();
     return json.transform(
-        j -> codec.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
-        list -> new dev.typr.foundations.data.Json(codec.toJson(list).encode()));
+        j -> rowJson.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
+        list -> new dev.typr.foundations.data.Json(rowJson.toJson(list).encode()));
   }
 
   /** A JSON column type that stores a single row as a keyed JSON object. */
-  static <Row> Db2Type<Row> jsonObjectEncoded(RowParserNamed<Row> parser) {
-    DbJson<Row> codec = DbJsonRow.jsonObject(parser);
+  static <Row> Db2Type<Row> jsonObjectEncoded(RowCodecNamed<Row> codec) {
+    DbJson<Row> rowJson = DbJsonRow.jsonObject(codec);
     return json.transform(
-        j -> codec.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
-        row -> new dev.typr.foundations.data.Json(codec.toJson(row).encode()));
+        j -> rowJson.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
+        row -> new dev.typr.foundations.data.Json(rowJson.toJson(row).encode()));
   }
 
   /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
-  static <Row> Db2Type<java.util.List<Row>> jsonObjectEncodedList(RowParserNamed<Row> parser) {
-    DbJson<java.util.List<Row>> codec = DbJsonRow.jsonObject(parser).list();
+  static <Row> Db2Type<java.util.List<Row>> jsonObjectEncodedList(RowCodecNamed<Row> codec) {
+    DbJson<java.util.List<Row>> rowJson = DbJsonRow.jsonObject(codec).list();
     return json.transform(
-        j -> codec.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
-        list -> new dev.typr.foundations.data.Json(codec.toJson(list).encode()));
+        j -> rowJson.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
+        list -> new dev.typr.foundations.data.Json(rowJson.toJson(list).encode()));
   }
 }

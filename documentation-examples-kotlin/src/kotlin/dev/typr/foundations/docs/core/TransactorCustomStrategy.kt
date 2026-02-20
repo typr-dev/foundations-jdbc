@@ -7,12 +7,11 @@ import java.sql.Connection
 @Suppress("unused")
 class TransactorCustomStrategy {
     //start
-    val customStrategy: Strategy = Strategy(
-        { conn -> conn.autoCommit = false },  // before
-        Connection::commit,                    // after (success)
-        { _, _ -> /* handle error */ },        // oops
-        Connection::close,                     // always (finally)
-        QueryListener.NOOP                     // listener
-    )
+    val customStrategy: Strategy =
+        Strategy.empty()
+            .replaceBefore { conn -> conn.autoCommit = false }
+            .replaceAfter(Connection::commit)
+            .replaceOops { _, _ -> /* handle error */ }
+            .replaceAlways(Connection::close)
     //stop
 }

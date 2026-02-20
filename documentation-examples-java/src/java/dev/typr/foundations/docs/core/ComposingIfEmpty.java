@@ -3,19 +3,18 @@ package dev.typr.foundations.docs.core;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.Operation;
 import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowParser;
-import dev.typr.foundations.SqlTemplate;
+import dev.typr.foundations.RowCodec;
+import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class ComposingIfEmpty {
     record User(int id, String name, String email) {}
 
-    static RowParser<User> userParser =
-        RowParser.<User>builder()
+    static RowCodec<User> userCodec =
+        RowCodec.<User>builder()
             .field(PgTypes.int4, User::id)
             .field(PgTypes.text, User::name)
             .field(PgTypes.text, User::email)
@@ -27,15 +26,15 @@ public class ComposingIfEmpty {
 
     //start
     // Find-or-create pattern
-    SqlTemplate<String, Optional<User>> findUser =
+    Template<String, Optional<User>> findUser =
         Fragment.of("""
                 SELECT id, name, email
                 FROM users WHERE email =
                 """)
             .param(PgTypes.text)
-            .query(userParser.maxOne());
+            .query(userCodec.maxOne());
 
-    SqlTemplate.Query2<String, String, User> createUser =
+    Template.Query2<String, String, User> createUser =
         Fragment.of("""
                 INSERT INTO users(name, email)
                 VALUES(\
@@ -43,9 +42,9 @@ public class ComposingIfEmpty {
             .param(PgTypes.text).append(", ")
             .param(PgTypes.text)
             .append(") RETURNING *")
-            .query(userParser.exactlyOne());
+            .query(userCodec.exactlyOne());
 
-    User findOrCreate() throws SQLException {
+    User findOrCreate() {
         return Operation.ifEmpty(
             findUser.on(email),
             createUser.on(name, email)

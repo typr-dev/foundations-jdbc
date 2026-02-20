@@ -32,11 +32,11 @@ object ParamBuilders:
       new ParamBuilder2(
         underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
         transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple3))
-    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query1[P0, Out] =
-      new SqlTemplate.Query1(underlying.query(parser.underlying), transforms)
+    def query[Out](parser: ResultSetParser[Out]): Template.Query1[P0, Out] =
+      new Template.Query1(underlying.query(parser.underlying), transforms)
 
-    def update(): SqlTemplate.Update1[P0] =
-      new SqlTemplate.Update1(underlying.update(), transforms)
+    def update(): Template.Update1[P0] =
+      new Template.Update1(underlying.update(), transforms)
 
     def done(): Fragment = new Fragment(underlying.done())
 
@@ -71,11 +71,11 @@ object ParamBuilders:
       new ParamBuilder3(
         underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
         transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple3))
-    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query2[P0, P1, Out] =
-      new SqlTemplate.Query2(underlying.query(parser.underlying), transforms)
+    def query[Out](parser: ResultSetParser[Out]): Template.Query2[P0, P1, Out] =
+      new Template.Query2(underlying.query(parser.underlying), transforms)
 
-    def update(): SqlTemplate.Update2[P0, P1] =
-      new SqlTemplate.Update2(underlying.update(), transforms)
+    def update(): Template.Update2[P0, P1] =
+      new Template.Update2(underlying.update(), transforms)
 
     def done(): Fragment = new Fragment(underlying.done())
 
@@ -110,11 +110,11 @@ object ParamBuilders:
       new ParamBuilder4(
         underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
         transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple3))
-    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query3[P0, P1, P2, Out] =
-      new SqlTemplate.Query3(underlying.query(parser.underlying), transforms)
+    def query[Out](parser: ResultSetParser[Out]): Template.Query3[P0, P1, P2, Out] =
+      new Template.Query3(underlying.query(parser.underlying), transforms)
 
-    def update(): SqlTemplate.Update3[P0, P1, P2] =
-      new SqlTemplate.Update3(underlying.update(), transforms)
+    def update(): Template.Update3[P0, P1, P2] =
+      new Template.Update3(underlying.update(), transforms)
 
     def done(): Fragment = new Fragment(underlying.done())
 
@@ -149,11 +149,11 @@ object ParamBuilders:
       new ParamBuilder5(
         underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
         transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple3))
-    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query4[P0, P1, P2, P3, Out] =
-      new SqlTemplate.Query4(underlying.query(parser.underlying), transforms)
+    def query[Out](parser: ResultSetParser[Out]): Template.Query4[P0, P1, P2, P3, Out] =
+      new Template.Query4(underlying.query(parser.underlying), transforms)
 
-    def update(): SqlTemplate.Update4[P0, P1, P2, P3] =
-      new SqlTemplate.Update4(underlying.update(), transforms)
+    def update(): Template.Update4[P0, P1, P2, P3] =
+      new Template.Update4(underlying.update(), transforms)
 
     def done(): Fragment = new Fragment(underlying.done())
 
@@ -188,11 +188,11 @@ object ParamBuilders:
       new ParamBuilder6(
         underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
         transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple3))
-    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query5[P0, P1, P2, P3, P4, Out] =
-      new SqlTemplate.Query5(underlying.query(parser.underlying), transforms)
+    def query[Out](parser: ResultSetParser[Out]): Template.Query5[P0, P1, P2, P3, P4, Out] =
+      new Template.Query5(underlying.query(parser.underlying), transforms)
 
-    def update(): SqlTemplate.Update5[P0, P1, P2, P3, P4] =
-      new SqlTemplate.Update5(underlying.update(), transforms)
+    def update(): Template.Update5[P0, P1, P2, P3, P4] =
+      new Template.Update5(underlying.update(), transforms)
 
     def done(): Fragment = new Fragment(underlying.done())
 
@@ -227,11 +227,11 @@ object ParamBuilders:
       new ParamBuilder7(
         underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
         transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple3))
-    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query6[P0, P1, P2, P3, P4, P5, Out] =
-      new SqlTemplate.Query6(underlying.query(parser.underlying), transforms)
+    def query[Out](parser: ResultSetParser[Out]): Template.Query6[P0, P1, P2, P3, P4, P5, Out] =
+      new Template.Query6(underlying.query(parser.underlying), transforms)
 
-    def update(): SqlTemplate.Update6[P0, P1, P2, P3, P4, P5] =
-      new SqlTemplate.Update6(underlying.update(), transforms)
+    def update(): Template.Update6[P0, P1, P2, P3, P4, P5] =
+      new Template.Update6(underlying.update(), transforms)
 
     def done(): Fragment = new Fragment(underlying.done())
 
@@ -266,11 +266,11 @@ object ParamBuilders:
       new ParamBuilder8(
         underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
         transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple3))
-    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query7[P0, P1, P2, P3, P4, P5, P6, Out] =
-      new SqlTemplate.Query7(underlying.query(parser.underlying), transforms)
+    def query[Out](parser: ResultSetParser[Out]): Template.Query7[P0, P1, P2, P3, P4, P5, P6, Out] =
+      new Template.Query7(underlying.query(parser.underlying), transforms)
 
-    def update(): SqlTemplate.Update7[P0, P1, P2, P3, P4, P5, P6] =
-      new SqlTemplate.Update7(underlying.update(), transforms)
+    def update(): Template.Update7[P0, P1, P2, P3, P4, P5, P6] =
+      new Template.Update7(underlying.update(), transforms)
 
     def done(): Fragment = new Fragment(underlying.done())
 
@@ -305,11 +305,11 @@ object ParamBuilders:
       new ParamBuilder9(
         underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
         transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple3))
-    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query8[P0, P1, P2, P3, P4, P5, P6, P7, Out] =
-      new SqlTemplate.Query8(underlying.query(parser.underlying), transforms)
+    def query[Out](parser: ResultSetParser[Out]): Template.Query8[P0, P1, P2, P3, P4, P5, P6, P7, Out] =
+      new Template.Query8(underlying.query(parser.underlying), transforms)
 
-    def update(): SqlTemplate.Update8[P0, P1, P2, P3, P4, P5, P6, P7] =
-      new SqlTemplate.Update8(underlying.update(), transforms)
+    def update(): Template.Update8[P0, P1, P2, P3, P4, P5, P6, P7] =
+      new Template.Update8(underlying.update(), transforms)
 
     def done(): Fragment = new Fragment(underlying.done())
 
@@ -344,11 +344,11 @@ object ParamBuilders:
       new ParamBuilder10(
         underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
         transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple3))
-    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query9[P0, P1, P2, P3, P4, P5, P6, P7, P8, Out] =
-      new SqlTemplate.Query9(underlying.query(parser.underlying), transforms)
+    def query[Out](parser: ResultSetParser[Out]): Template.Query9[P0, P1, P2, P3, P4, P5, P6, P7, P8, Out] =
+      new Template.Query9(underlying.query(parser.underlying), transforms)
 
-    def update(): SqlTemplate.Update9[P0, P1, P2, P3, P4, P5, P6, P7, P8] =
-      new SqlTemplate.Update9(underlying.update(), transforms)
+    def update(): Template.Update9[P0, P1, P2, P3, P4, P5, P6, P7, P8] =
+      new Template.Update9(underlying.update(), transforms)
 
     def done(): Fragment = new Fragment(underlying.done())
 
@@ -364,10 +364,10 @@ object ParamBuilders:
 
     def append(fragment: Fragment): ParamBuilder10[P0, P1, P2, P3, P4, P5, P6, P7, P8, P9] = new ParamBuilder10(underlying.append(fragment.underlying), transforms)
 
-    def query[Out](parser: ResultSetParser[Out]): SqlTemplate.Query10[P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, Out] =
-      new SqlTemplate.Query10(underlying.query(parser.underlying), transforms)
+    def query[Out](parser: ResultSetParser[Out]): Template.Query10[P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, Out] =
+      new Template.Query10(underlying.query(parser.underlying), transforms)
 
-    def update(): SqlTemplate.Update10[P0, P1, P2, P3, P4, P5, P6, P7, P8, P9] =
-      new SqlTemplate.Update10(underlying.update(), transforms)
+    def update(): Template.Update10[P0, P1, P2, P3, P4, P5, P6, P7, P8, P9] =
+      new Template.Update10(underlying.update(), transforms)
 
     def done(): Fragment = new Fragment(underlying.done())

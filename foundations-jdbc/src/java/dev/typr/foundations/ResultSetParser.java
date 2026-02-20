@@ -23,48 +23,48 @@ public sealed interface ResultSetParser<Out> {
     }
   }
 
-  record All<Out>(RowParser<Out> rowParser) implements ResultSetParser<List<Out>> {
+  record All<Out>(RowCodec<Out> rowCodec) implements ResultSetParser<List<Out>> {
     @Override
     public List<Out> apply(ResultSet resultSet) throws SQLException {
       var rowNum = 0;
       ArrayList<Out> rows = new ArrayList<>();
       while (resultSet.next()) {
-        rows.add(rowParser.readRow(resultSet, rowNum));
+        rows.add(rowCodec.readRow(resultSet, rowNum));
         rowNum += 1;
       }
       return rows;
     }
   }
 
-  record Foreach<Out>(RowParser<Out> rowParser, Consumer<Out> consumer)
+  record Foreach<Out>(RowCodec<Out> rowCodec, Consumer<Out> consumer)
       implements ResultSetParser<Void> {
     @Override
     public Void apply(ResultSet resultSet) throws SQLException {
       var rowNum = 0;
       while (resultSet.next()) {
-        consumer.accept(rowParser.readRow(resultSet, rowNum));
+        consumer.accept(rowCodec.readRow(resultSet, rowNum));
         rowNum += 1;
       }
       return null;
     }
   }
 
-  record First<Out>(RowParser<Out> rowParser) implements ResultSetParser<Optional<Out>> {
+  record First<Out>(RowCodec<Out> rowCodec) implements ResultSetParser<Optional<Out>> {
     @Override
     public Optional<Out> apply(ResultSet resultSet) throws SQLException {
       if (resultSet.next()) {
-        return Optional.of(rowParser.readRow(resultSet, 0));
+        return Optional.of(rowCodec.readRow(resultSet, 0));
       } else {
         return Optional.empty();
       }
     }
   }
 
-  record MaxOne<Out>(RowParser<Out> rowParser) implements ResultSetParser<Optional<Out>> {
+  record MaxOne<Out>(RowCodec<Out> rowCodec) implements ResultSetParser<Optional<Out>> {
     @Override
     public Optional<Out> apply(ResultSet resultSet) throws SQLException {
       if (resultSet.next()) {
-        Out result = rowParser.readRow(resultSet, 0);
+        Out result = rowCodec.readRow(resultSet, 0);
         if (resultSet.next()) {
           throw new SQLException("Expected single row, but found more");
         }
@@ -75,11 +75,11 @@ public sealed interface ResultSetParser<Out> {
     }
   }
 
-  record ExactlyOne<Out>(RowParser<Out> rowParser) implements ResultSetParser<Out> {
+  record ExactlyOne<Out>(RowCodec<Out> rowCodec) implements ResultSetParser<Out> {
     @Override
     public Out apply(ResultSet resultSet) throws SQLException {
       if (resultSet.next()) {
-        Out result = rowParser.readRow(resultSet, 0);
+        Out result = rowCodec.readRow(resultSet, 0);
         if (resultSet.next()) {
           throw new SQLException("Expected single row, but found more");
         }

@@ -14,40 +14,40 @@ class SqlBuilderTest {
 
     @Test
     fun basicInterpolation() {
-        val frag = Sql { "SELECT * FROM users WHERE id = ${DuckDbTypes.integer(42)}" }
+        val frag = sql { "SELECT * FROM users WHERE id = ${DuckDbTypes.integer(42)}" }
         assertEquals("SELECT * FROM users WHERE id = ?::INTEGER", frag.render())
     }
 
     @Test
     fun multipleParams() {
-        val frag = Sql { "SELECT * FROM t WHERE a = ${DuckDbTypes.integer(1)} AND b = ${DuckDbTypes.varchar("hello")}" }
+        val frag = sql { "SELECT * FROM t WHERE a = ${DuckDbTypes.integer(1)} AND b = ${DuckDbTypes.varchar("hello")}" }
         assertEquals("SELECT * FROM t WHERE a = ?::INTEGER AND b = ?::VARCHAR", frag.render())
     }
 
     @Test
     fun noParams() {
-        val frag = Sql { "SELECT 1" }
+        val frag = sql { "SELECT 1" }
         assertEquals("SELECT 1", frag.render())
     }
 
     @Test
     fun fragmentEmbedding() {
         val cols = Fragment.of("id, name")
-        val frag = Sql { "SELECT $cols FROM users" }
+        val frag = sql { "SELECT $cols FROM users" }
         assertEquals("SELECT id, name FROM users", frag.render())
     }
 
     @Test
     fun mixedParamsAndFragments() {
         val table = Fragment.of("users")
-        val frag = Sql { "SELECT * FROM $table WHERE id = ${DuckDbTypes.integer(1)} AND active = ${Fragment.of("true")}" }
+        val frag = sql { "SELECT * FROM $table WHERE id = ${DuckDbTypes.integer(1)} AND active = ${Fragment.of("true")}" }
         assertEquals("SELECT * FROM users WHERE id = ?::INTEGER AND active = true", frag.render())
     }
 
     @Test
     fun nestedSqlBlocks() {
-        val inner = Sql { "id = ${DuckDbTypes.integer(1)}" }
-        val outer = Sql { "SELECT * FROM t WHERE $inner AND name = ${DuckDbTypes.varchar("test")}" }
+        val inner = sql { "id = ${DuckDbTypes.integer(1)}" }
+        val outer = sql { "SELECT * FROM t WHERE $inner AND name = ${DuckDbTypes.varchar("test")}" }
         assertEquals("SELECT * FROM t WHERE id = ?::INTEGER AND name = ?::VARCHAR", outer.render())
     }
 
@@ -59,7 +59,7 @@ class SqlBuilderTest {
 
     @Test
     fun emptyString() {
-        val frag = Sql { "" }
+        val frag = sql { "" }
         assertEquals("", frag.render())
     }
 
@@ -74,7 +74,7 @@ class SqlBuilderTest {
             Thread {
                 try {
                     barrier.await()
-                    val frag = Sql { "SELECT ${DuckDbTypes.integer(i)} AS val" }
+                    val frag = sql { "SELECT ${DuckDbTypes.integer(i)} AS val" }
                     results[i] = frag.render()
                 } catch (e: Throwable) {
                     errors.compareAndSet(null, e)
@@ -96,10 +96,10 @@ class SqlBuilderTest {
     @Test
     fun runtimeExecution() {
         DriverManager.getConnection("jdbc:duckdb:").use { conn ->
-            val frag = Sql { "SELECT ${DuckDbTypes.integer(42)} AS answer" }
+            val frag = sql { "SELECT ${DuckDbTypes.integer(42)} AS answer" }
             val result = frag
-                .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
-                .runChecked(conn)
+                .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
+                .run(conn)
             assertEquals(42, result)
         }
     }
@@ -107,29 +107,29 @@ class SqlBuilderTest {
     @Test
     fun runtimeExecutionMultipleParams() {
         DriverManager.getConnection("jdbc:duckdb:").use { conn ->
-            val frag = Sql { "SELECT ${DuckDbTypes.integer(10)} + ${DuckDbTypes.integer(32)} AS answer" }
+            val frag = sql { "SELECT ${DuckDbTypes.integer(10)} + ${DuckDbTypes.integer(32)} AS answer" }
             val result = frag
-                .query(RowParser.of(DuckDbTypes.integer).exactlyOne())
-                .runChecked(conn)
+                .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
+                .run(conn)
             assertEquals(42, result)
         }
     }
 
     @Test
     fun paramAtStart() {
-        val frag = Sql { "${DuckDbTypes.integer(1)} + 2" }
+        val frag = sql { "${DuckDbTypes.integer(1)} + 2" }
         assertEquals("?::INTEGER + 2", frag.render())
     }
 
     @Test
     fun paramAtEnd() {
-        val frag = Sql { "SELECT ${DuckDbTypes.integer(1)}" }
+        val frag = sql { "SELECT ${DuckDbTypes.integer(1)}" }
         assertEquals("SELECT ?::INTEGER", frag.render())
     }
 
     @Test
     fun consecutiveParams() {
-        val frag = Sql { "${DuckDbTypes.integer(1)}${DuckDbTypes.integer(2)}" }
+        val frag = sql { "${DuckDbTypes.integer(1)}${DuckDbTypes.integer(2)}" }
         assertEquals("?::INTEGER?::INTEGER", frag.render())
     }
 
@@ -137,12 +137,12 @@ class SqlBuilderTest {
     fun columnListEmbedding() {
         data class Row(val id: Int, val name: String)
 
-        val parser: RowParserNamed<Row> = RowParser.namedBuilder<Row>()
+        val parser: RowCodecNamed<Row> = RowCodec.namedBuilder<Row>()
             .field("id", DuckDbTypes.integer, Row::id)
             .field("name", DuckDbTypes.varchar, Row::name)
             .build(::Row)
 
-        val frag = Sql { "SELECT ${parser.columnList} FROM users WHERE id = ${DuckDbTypes.integer(1)}" }
+        val frag = sql { "SELECT ${parser.columnList} FROM users WHERE id = ${DuckDbTypes.integer(1)}" }
         assertEquals("SELECT id, name FROM users WHERE id = ?::INTEGER", frag.render())
     }
 
@@ -150,7 +150,7 @@ class SqlBuilderTest {
     fun columnListEmbeddingRuntime() {
         data class Row(val id: Int, val name: String)
 
-        val parser: RowParserNamed<Row> = RowParser.namedBuilder<Row>()
+        val parser: RowCodecNamed<Row> = RowCodec.namedBuilder<Row>()
             .field("id", DuckDbTypes.integer, Row::id)
             .field("name", DuckDbTypes.varchar, Row::name)
             .build(::Row)
@@ -159,8 +159,8 @@ class SqlBuilderTest {
             conn.createStatement().execute("CREATE TABLE test_users (id INTEGER, name VARCHAR)")
             conn.createStatement().execute("INSERT INTO test_users VALUES (1, 'Alice'), (2, 'Bob')")
 
-            val frag = Sql { "SELECT ${parser.columnList} FROM test_users WHERE id = ${DuckDbTypes.integer(1)}" }
-            val result = frag.query(parser.exactlyOne()).runChecked(conn)
+            val frag = sql { "SELECT ${parser.columnList} FROM test_users WHERE id = ${DuckDbTypes.integer(1)}" }
+            val result = frag.query(parser.exactlyOne()).run(conn)
             assertEquals(1, result.id)
             assertEquals("Alice", result.name)
         }
@@ -172,7 +172,7 @@ class SqlBuilderTest {
 
         val threads = (0 until 1000).map { i ->
             Thread.ofVirtual().start {
-                val frag = Sql { "SELECT ${DuckDbTypes.integer(i)} AS val" }
+                val frag = sql { "SELECT ${DuckDbTypes.integer(i)} AS val" }
                 results.add(i to frag.render())
             }
         }
@@ -191,7 +191,7 @@ class SqlBuilderTest {
         val results = runBlocking {
             (0 until 1000).map { i ->
                 async(Dispatchers.Default) {
-                    val frag = Sql { "SELECT ${DuckDbTypes.integer(i)} AS val" }
+                    val frag = sql { "SELECT ${DuckDbTypes.integer(i)} AS val" }
                     i to frag.render()
                 }
             }.awaitAll()
@@ -208,10 +208,10 @@ class SqlBuilderTest {
     fun coroutinesWithContextSwitch() {
         runBlocking {
             val frag1 = withContext(Dispatchers.Default) {
-                Sql { "SELECT ${DuckDbTypes.integer(1)} AS a" }
+                sql { "SELECT ${DuckDbTypes.integer(1)} AS a" }
             }
             val frag2 = withContext(Dispatchers.IO) {
-                Sql { "SELECT ${DuckDbTypes.varchar("hello")} AS b" }
+                sql { "SELECT ${DuckDbTypes.varchar("hello")} AS b" }
             }
 
             assertEquals("SELECT ?::INTEGER AS a", frag1.render())
@@ -226,9 +226,9 @@ class SqlBuilderTest {
 
             val threads = (0 until 1000).map { i ->
                 Thread.ofVirtual().start {
-                    val frag = Sql { "SELECT ${DuckDbTypes.integer(i)}" }
+                    val frag = sql { "SELECT ${DuckDbTypes.integer(i)}" }
                     val result = synchronized(conn) {
-                        frag.query(RowParser.of(DuckDbTypes.integer).exactlyOne()).runChecked(conn)
+                        frag.query(RowCodec.of(DuckDbTypes.integer).exactlyOne()).run(conn)
                     }
                     results.add(i to result)
                 }
@@ -252,9 +252,9 @@ class SqlBuilderTest {
             val results = runBlocking {
                 (0 until 1000).map { i ->
                     async(Dispatchers.Default) {
-                        val frag = Sql { "SELECT ${DuckDbTypes.integer(i)}" }
+                        val frag = sql { "SELECT ${DuckDbTypes.integer(i)}" }
                         val result = mutex.withLock {
-                            frag.query(RowParser.of(DuckDbTypes.integer).exactlyOne()).runChecked(conn)
+                            frag.query(RowCodec.of(DuckDbTypes.integer).exactlyOne()).run(conn)
                         }
                         i to result
                     }
