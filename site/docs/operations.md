@@ -60,9 +60,9 @@ Every operation supports these modifiers before execution:
 
 ## Composing Operations
 
-Operations can be composed as values — combined, sequenced, and chained — so that multiple database actions run in a single transaction without manual connection handling. For the full set of combinators (`.with()`, `.then()`, `Operation.sequence()`, `Operation.ifEmpty()`, and more), see [Composing Operations](./composing-operations).
+Operations can be composed as values — combined, sequenced, and chained — so that multiple database actions run in a single transaction without manual connection handling. For the full set of combinators (`.combineWith()`, `.then()`, `Operation.sequence()`, `Operation.ifEmpty()`, and more), see [Composing Operations](./composing-operations).
 
-Here's a quick taste — `.with()` combines two independent operations:
+Here's a quick taste — `.combineWith()` combines two independent operations:
 
 <Snippet file="core/ExecuteComposed" />
 

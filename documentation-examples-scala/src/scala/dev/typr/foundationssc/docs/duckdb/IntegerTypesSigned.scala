@@ -1,0 +1,14 @@
+package dev.typr.foundationssc.docs.duckdb
+import dev.typr.foundationssc.*
+import dev.typr.foundationssc.data.*
+
+
+import java.math.BigInteger
+
+@SuppressWarnings(Array("unused"))
+object IntegerTypesSigned:
+  //start
+  val tinyType: DuckDbType[Byte] = DuckDbTypes.tinyint
+  val intType: DuckDbType[Int] = DuckDbTypes.integer
+  val hugeType: DuckDbType[java.math.BigInteger] = DuckDbTypes.hugeint
+  //stop

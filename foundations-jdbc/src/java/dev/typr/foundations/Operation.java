@@ -25,7 +25,7 @@ public sealed interface Operation<Out> extends Analyzable
         Operation.StreamingCopy,
         Operation.Mapped,
         Operation.Pure,
-        Operation.With,
+        Operation.Combine,
         Operation.IfEmpty,
         Operation.Then,
         Operation.Configured,
@@ -48,84 +48,81 @@ public sealed interface Operation<Out> extends Analyzable
     return new Mapped<>(this, f);
   }
 
-  default <B> Operation<And<Out, B>> with(Operation<B> other) {
-    return new With<>(this, other);
+  default <B> Operation<Tuple.Tuple2<Out, B>> combine(Operation<B> other) {
+    return new Combine<>(this, other);
   }
 
-  default <B, R> Operation<R> with(Operation<B> other, BiFunction<Out, B, R> combine) {
-    return with(other).map(and -> combine.apply(and.left(), and.right()));
+  default <B, C> Operation<Tuple.Tuple3<Out, B, C>> combine(Operation<B> b, Operation<C> c) {
+    return combine(b).combine(c).map(t -> new Tuple.Tuple3.Impl<>(t._1()._1(), t._1()._2(), t._2()));
   }
 
-  default <B, C, R> Operation<R> with(
+  default <B, C, D> Operation<Tuple.Tuple4<Out, B, C, D>> combine(
+      Operation<B> b, Operation<C> c, Operation<D> d) {
+    return combine(b, c).combine(d).map(t -> new Tuple.Tuple4.Impl<>(t._1()._1(), t._1()._2(), t._1()._3(), t._2()));
+  }
+
+  default <B, C, D, E> Operation<Tuple.Tuple5<Out, B, C, D, E>> combine(
+      Operation<B> b, Operation<C> c, Operation<D> d, Operation<E> e) {
+    return combine(b, c, d).combine(e).map(t -> new Tuple.Tuple5.Impl<>(t._1()._1(), t._1()._2(), t._1()._3(), t._1()._4(), t._2()));
+  }
+
+  default <B, C, D, E, F> Operation<Tuple.Tuple6<Out, B, C, D, E, F>> combine(
+      Operation<B> b, Operation<C> c, Operation<D> d, Operation<E> e, Operation<F> f) {
+    return combine(b, c, d, e).combine(f).map(t -> new Tuple.Tuple6.Impl<>(t._1()._1(), t._1()._2(), t._1()._3(), t._1()._4(), t._1()._5(), t._2()));
+  }
+
+  default <B, C, D, E, F, G> Operation<Tuple.Tuple7<Out, B, C, D, E, F, G>> combine(
+      Operation<B> b, Operation<C> c, Operation<D> d, Operation<E> e, Operation<F> f, Operation<G> g) {
+    return combine(b, c, d, e, f).combine(g).map(t -> new Tuple.Tuple7.Impl<>(t._1()._1(), t._1()._2(), t._1()._3(), t._1()._4(), t._1()._5(), t._1()._6(), t._2()));
+  }
+
+  default <B, C, D, E, F, G, H> Operation<Tuple.Tuple8<Out, B, C, D, E, F, G, H>> combine(
+      Operation<B> b, Operation<C> c, Operation<D> d, Operation<E> e, Operation<F> f, Operation<G> g, Operation<H> h) {
+    return combine(b, c, d, e, f, g).combine(h).map(t -> new Tuple.Tuple8.Impl<>(t._1()._1(), t._1()._2(), t._1()._3(), t._1()._4(), t._1()._5(), t._1()._6(), t._1()._7(), t._2()));
+  }
+
+  default <B, C, D, E, F, G, H, I> Operation<Tuple.Tuple9<Out, B, C, D, E, F, G, H, I>> combine(
+      Operation<B> b, Operation<C> c, Operation<D> d, Operation<E> e, Operation<F> f, Operation<G> g, Operation<H> h, Operation<I> i) {
+    return combine(b, c, d, e, f, g, h).combine(i).map(t -> new Tuple.Tuple9.Impl<>(t._1()._1(), t._1()._2(), t._1()._3(), t._1()._4(), t._1()._5(), t._1()._6(), t._1()._7(), t._1()._8(), t._2()));
+  }
+
+  default <B, R> Operation<R> combineWith(Operation<B> other, BiFunction<Out, B, R> combine) {
+    return combine(other).map(t -> combine.apply(t._1(), t._2()));
+  }
+
+  default <B, C, R> Operation<R> combineWith(
       Operation<B> b, Operation<C> c, Functions.Function3<Out, B, C, R> combine) {
-    return with(b)
-        .with(c)
-        .map(
-            and ->
-                combine.apply(and.left().left(), and.left().right(), and.right()));
+    return combine(b, c).map(t -> combine.apply(t._1(), t._2(), t._3()));
   }
 
-  default <B, C, D, R> Operation<R> with(
+  default <B, C, D, R> Operation<R> combineWith(
       Operation<B> b,
       Operation<C> c,
       Operation<D> d,
       Functions.Function4<Out, B, C, D, R> combine) {
-    return with(b)
-        .with(c)
-        .with(d)
-        .map(
-            and ->
-                combine.apply(
-                    and.left().left().left(),
-                    and.left().left().right(),
-                    and.left().right(),
-                    and.right()));
+    return combine(b, c, d).map(t -> combine.apply(t._1(), t._2(), t._3(), t._4()));
   }
 
-  default <B, C, D, E, R> Operation<R> with(
+  default <B, C, D, E, R> Operation<R> combineWith(
       Operation<B> b,
       Operation<C> c,
       Operation<D> d,
       Operation<E> e,
       Functions.Function5<Out, B, C, D, E, R> combine) {
-    return with(b)
-        .with(c)
-        .with(d)
-        .with(e)
-        .map(
-            and ->
-                combine.apply(
-                    and.left().left().left().left(),
-                    and.left().left().left().right(),
-                    and.left().left().right(),
-                    and.left().right(),
-                    and.right()));
+    return combine(b, c, d, e).map(t -> combine.apply(t._1(), t._2(), t._3(), t._4(), t._5()));
   }
 
-  default <B, C, D, E, F, R> Operation<R> with(
+  default <B, C, D, E, F, R> Operation<R> combineWith(
       Operation<B> b,
       Operation<C> c,
       Operation<D> d,
       Operation<E> e,
       Operation<F> f,
       Functions.Function6<Out, B, C, D, E, F, R> combine) {
-    return with(b)
-        .with(c)
-        .with(d)
-        .with(e)
-        .with(f)
-        .map(
-            and ->
-                combine.apply(
-                    and.left().left().left().left().left(),
-                    and.left().left().left().left().right(),
-                    and.left().left().left().right(),
-                    and.left().left().right(),
-                    and.left().right(),
-                    and.right()));
+    return combine(b, c, d, e, f).map(t -> combine.apply(t._1(), t._2(), t._3(), t._4(), t._5(), t._6()));
   }
 
-  default <B, C, D, E, F, G, R> Operation<R> with(
+  default <B, C, D, E, F, G, R> Operation<R> combineWith(
       Operation<B> b,
       Operation<C> c,
       Operation<D> d,
@@ -133,25 +130,10 @@ public sealed interface Operation<Out> extends Analyzable
       Operation<F> f,
       Operation<G> g,
       Functions.Function7<Out, B, C, D, E, F, G, R> combine) {
-    return with(b)
-        .with(c)
-        .with(d)
-        .with(e)
-        .with(f)
-        .with(g)
-        .map(
-            and ->
-                combine.apply(
-                    and.left().left().left().left().left().left(),
-                    and.left().left().left().left().left().right(),
-                    and.left().left().left().left().right(),
-                    and.left().left().left().right(),
-                    and.left().left().right(),
-                    and.left().right(),
-                    and.right()));
+    return combine(b, c, d, e, f, g).map(t -> combine.apply(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()));
   }
 
-  default <B, C, D, E, F, G, H, R> Operation<R> with(
+  default <B, C, D, E, F, G, H, R> Operation<R> combineWith(
       Operation<B> b,
       Operation<C> c,
       Operation<D> d,
@@ -160,27 +142,10 @@ public sealed interface Operation<Out> extends Analyzable
       Operation<G> g,
       Operation<H> h,
       Functions.Function8<Out, B, C, D, E, F, G, H, R> combine) {
-    return with(b)
-        .with(c)
-        .with(d)
-        .with(e)
-        .with(f)
-        .with(g)
-        .with(h)
-        .map(
-            and ->
-                combine.apply(
-                    and.left().left().left().left().left().left().left(),
-                    and.left().left().left().left().left().left().right(),
-                    and.left().left().left().left().left().right(),
-                    and.left().left().left().left().right(),
-                    and.left().left().left().right(),
-                    and.left().left().right(),
-                    and.left().right(),
-                    and.right()));
+    return combine(b, c, d, e, f, g, h).map(t -> combine.apply(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()));
   }
 
-  default <B, C, D, E, F, G, H, I, R> Operation<R> with(
+  default <B, C, D, E, F, G, H, I, R> Operation<R> combineWith(
       Operation<B> b,
       Operation<C> c,
       Operation<D> d,
@@ -190,30 +155,11 @@ public sealed interface Operation<Out> extends Analyzable
       Operation<H> h,
       Operation<I> i,
       Functions.Function9<Out, B, C, D, E, F, G, H, I, R> combine) {
-    return with(b)
-        .with(c)
-        .with(d)
-        .with(e)
-        .with(f)
-        .with(g)
-        .with(h)
-        .with(i)
-        .map(
-            and ->
-                combine.apply(
-                    and.left().left().left().left().left().left().left().left(),
-                    and.left().left().left().left().left().left().left().right(),
-                    and.left().left().left().left().left().left().right(),
-                    and.left().left().left().left().left().right(),
-                    and.left().left().left().left().right(),
-                    and.left().left().left().right(),
-                    and.left().left().right(),
-                    and.left().right(),
-                    and.right()));
+    return combine(b, c, d, e, f, g, h, i).map(t -> combine.apply(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()));
   }
 
   default <B> Operation<Out> thenIgnore(Operation<B> other) {
-    return with(other).map(and -> and.left());
+    return combine(other).map(t -> t._1());
   }
 
   default <B> Operation<B> then(Template<Out, B> next) {
@@ -255,11 +201,11 @@ public sealed interface Operation<Out> extends Analyzable
     for (int i = 1; i < ops.size(); i++) {
       result =
           result
-              .with(ops.get(i))
+              .combine(ops.get(i))
               .map(
-                  and -> {
-                    var list = new ArrayList<>(and.left());
-                    list.add(and.right());
+                  t -> {
+                    var list = new ArrayList<>(t._1());
+                    list.add(t._2());
                     return Collections.unmodifiableList(list);
                   });
     }
@@ -523,10 +469,10 @@ public sealed interface Operation<Out> extends Analyzable
     }
   }
 
-  record With<A, B>(Operation<A> first, Operation<B> second) implements Operation<And<A, B>> {
+  record Combine<A, B>(Operation<A> first, Operation<B> second) implements Operation<Tuple.Tuple2<A, B>> {
     @Override
-    public And<A, B> run(Connection conn) {
-      return new And<>(first.run(conn), second.run(conn));
+    public Tuple.Tuple2<A, B> run(Connection conn) {
+      return new Tuple.Tuple2.Impl<>(first.run(conn), second.run(conn));
     }
   }
 

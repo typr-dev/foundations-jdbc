@@ -423,3 +423,21 @@ object Template:
   ) extends Template[T, Out]:
     override def underlying: dev.typr.foundations.Template[?, ?] = _innerUnderlying
     override def on(input: T): Operation[Out] = _resolver(input)
+
+sealed trait RowTemplate[Row, Out] extends Template[Row, Out]:
+  override def underlying: dev.typr.foundations.RowTemplate[?, ?]
+
+object RowTemplate:
+
+  class Query[Row, Out](val underlying: dev.typr.foundations.RowTemplate.Query[Row, Out])
+      extends RowTemplate[Row, Out]:
+    override def on(input: Row): Operation.Query[Out] = new Operation.Query(underlying.on(input))
+
+  class Update[Row](val underlying: dev.typr.foundations.RowTemplate.Update[Row])
+      extends RowTemplate[Row, Int]:
+    override def on(input: Row): Operation.Update = new Operation.Update(underlying.on(input))
+
+    def onMany(rows: Iterator[Row]): Operation.UpdateManyTemplate[Row] = {
+      import _root_.scala.jdk.CollectionConverters.*
+      new Operation.UpdateManyTemplate(underlying.onMany(rows.asJava))
+    }

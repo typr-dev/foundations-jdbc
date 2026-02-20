@@ -165,8 +165,8 @@ async function main() {
   // Find all example files (only in docs/ folders)
   const patterns = [
     'documentation-examples-java/src/java/dev/typr/foundations/docs/**/*.java',
-    'documentation-examples-kotlin/src/kotlin/dev/typr/foundations/docs/**/*.kt',
-    'documentation-examples-scala/src/scala/dev/typr/foundations/docs/**/*.scala',
+    'documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/**/*.kt',
+    'documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/**/*.scala',
   ];
 
   const allFiles = [];

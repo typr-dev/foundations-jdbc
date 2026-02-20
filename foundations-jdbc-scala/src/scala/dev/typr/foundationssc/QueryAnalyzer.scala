@@ -13,6 +13,3 @@ object QueryAnalyzer:
     import scala.jdk.CollectionConverters.*
     dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn).asScala.toList
 
-  def analyze(template: RowTemplate[?, ?], conn: java.sql.Connection): List[QueryAnalysis] =
-    import scala.jdk.CollectionConverters.*
-    dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn).asScala.toList

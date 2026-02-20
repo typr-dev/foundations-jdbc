@@ -5,7 +5,6 @@ package dev.typr
 // For Java classes with static methods, use fully qualified names (e.g., Fragment.of).
 package object foundationssc:
   // Core types
-  type And[A, B] = (A, B)
   type SqlFunction[T, R] = dev.typr.foundations.SqlFunction[T, R]
   type DbJson[T] = dev.typr.foundations.DbJson[T]
 

@@ -121,6 +121,8 @@ The `RowCodecNamed` maps database columns to record fields by name. Use `.all()`
 
 ## What's Next
 
+![Concepts Flow](/img/concepts-flow.svg)
+
 **Continue reading:** [Fragments](./fragments) &rarr; [Row Codecs](./row-codecs) &rarr; [Templates](./templates) &rarr; [Operations](./operations) &rarr; [Query Analysis](./query-analysis)
 
 **Jump to a topic:** [Transactors](./transactors) (connection management) &middot; [Database Types](./database-types) (type catalog)
