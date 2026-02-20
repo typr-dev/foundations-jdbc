@@ -16,9 +16,9 @@ class GettingStarted {
 
     fun setup(tx: Transactor) {
         tx.transact { conn ->
-            Sql { "CREATE TABLE city (name VARCHAR, population INTEGER)" }
+            sql { "CREATE TABLE city (name VARCHAR, population INTEGER)" }
                 .update().run(conn)
-            Sql { "INSERT INTO city VALUES ('Oslo', 709037), ('Bergen', 291189)" }
+            sql { "INSERT INTO city VALUES ('Oslo', 709037), ('Bergen', 291189)" }
                 .update().run(conn)
         }
     }
@@ -30,7 +30,7 @@ class GettingStarted {
                 .transactor()
 
         val cities: List<City> = tx.transact { conn ->
-            Sql { """
+            sql { """
                 SELECT name, population
                 FROM city
                 ORDER BY population DESC

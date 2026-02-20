@@ -8,8 +8,8 @@ A common pattern is to define queries as private fields on a repository object, 
 
 ```kotlin
 object UserRepo {
-    // Fixed query — use Sql { } (Kotlin) or Fragment.of() (Java)
-    private val selectAll = Sql { "SELECT ${userCodec.columnList} FROM users ORDER BY name" }
+    // Fixed query — use sql { } (Kotlin) or Fragment.of() (Java)
+    private val selectAll = sql { "SELECT ${userCodec.columnList} FROM users ORDER BY name" }
         .query(userCodec.all())
 
     // Parameterized query — use the builder to create a Template

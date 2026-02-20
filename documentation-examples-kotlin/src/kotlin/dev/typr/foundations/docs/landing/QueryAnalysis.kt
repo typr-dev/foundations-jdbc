@@ -20,7 +20,7 @@ class QueryAnalysis {
 
     //start
     val query: Operation.Query<List<User>> =
-        Sql { """
+        sql { """
             SELECT id, name, created_at, email
             FROM users
             WHERE active = ${PgTypes.bool(true)}

@@ -23,7 +23,7 @@ object JsonAggregation {
     //start
     // Aggregate child rows as JSON in a single query
     fun getOrderLines(customerId: Int): List<OrderLine> =
-        Sql { """
+        sql { """
             SELECT json_group_array(json_array(product, qty, price))
             FROM order_lines
             WHERE customer_id = ${DuckDbTypes.integer(customerId)}

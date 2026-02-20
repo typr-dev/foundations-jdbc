@@ -21,7 +21,7 @@ class QueryAnalysisNamed {
     //start
     fun analyzeNamedQuery() {
         val query =
-            Sql { """
+            sql { """
                 SELECT id, name, email
                 FROM users
                 WHERE id = ${PgTypes.int4(userId)}

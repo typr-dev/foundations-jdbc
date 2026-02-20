@@ -8,7 +8,7 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun render(): String = underlying.render()
 
     override fun toString(): String {
-        val ctx = Sql.currentContext()
+        val ctx = SqlBuilder.currentContext()
         if (ctx != null) {
             return ctx.register(this)
         }

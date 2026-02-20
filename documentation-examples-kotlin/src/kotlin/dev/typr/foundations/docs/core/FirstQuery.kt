@@ -16,7 +16,7 @@ class FirstQuery {
             .build(::City)
 
     val findCities: Operation<List<City>> =
-        Sql { "SELECT ${cityCodec.columnList} FROM city ORDER BY population DESC" }
+        sql { "SELECT ${cityCodec.columnList} FROM city ORDER BY population DESC" }
             .query(cityCodec.all())
 
     fun example() {
@@ -24,12 +24,12 @@ class FirstQuery {
             DuckDbConfig.inMemory().build()).transactor()
 
         val cities: List<City> = tx.transact { conn ->
-            Sql { """
+            sql { """
                 CREATE TABLE city (
                     name VARCHAR, country VARCHAR, population INTEGER)
             """ }.update().run(conn)
 
-            Sql { """
+            sql { """
                 INSERT INTO city VALUES
                     ('Oslo', 'Norway', 709037),
                     ('Bergen', 'Norway', 291189),

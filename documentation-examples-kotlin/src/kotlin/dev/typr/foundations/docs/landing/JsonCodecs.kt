@@ -22,7 +22,7 @@ object JsonCodecs {
         DuckDbTypes.jsonArrayEncodedList(lineCodec)
 
     fun getOrderLines(customerId: Int): List<OrderLine> =
-        Sql { """
+        sql { """
             SELECT json_group_array(json_array(product, qty, price))
             FROM order_lines
             WHERE customer_id = ${DuckDbTypes.integer(customerId)}

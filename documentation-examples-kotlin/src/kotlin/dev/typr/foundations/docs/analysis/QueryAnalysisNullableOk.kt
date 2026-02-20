@@ -23,7 +23,7 @@ class QueryAnalysisNullableOk {
 
     fun analyzeLeftJoin() {
         val query =
-            Sql { """
+            sql { """
                 SELECT u.id, u.name, o.total
                 FROM users u
                 LEFT JOIN orders o ON u.id = o.user_id

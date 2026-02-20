@@ -7,29 +7,29 @@ import java.time.OffsetDateTime
 import java.util.*
 
 fun ticketsByEvent(eventId: EventId): Operation.Query<List<Ticket>> =
-    Sql { "SELECT ${ticketParser.columnList} FROM ticket WHERE event_id = ${eventIdType(eventId)} ORDER BY purchased" }
+    sql { "SELECT ${ticketParser.columnList} FROM ticket WHERE event_id = ${eventIdType(eventId)} ORDER BY purchased" }
         .query(ticketParser.all())
 
 fun ticketById(id: TicketId): Operation.Query<Ticket?> =
-    Sql { "SELECT ${ticketParser.columnList} FROM ticket WHERE id = ${ticketIdType(id)}" }
+    sql { "SELECT ${ticketParser.columnList} FROM ticket WHERE id = ${ticketIdType(id)}" }
         .query(ticketParser.maxOne())
 
 fun insertTicket(ticket: Ticket): Operation.Query<Ticket> {
     val values = Fragment.of("").row(ticketParser, ticket)
-    return Sql { "INSERT INTO ticket (${ticketParser.columnList}) VALUES ($values) RETURNING ${ticketParser.columnList}" }
+    return sql { "INSERT INTO ticket (${ticketParser.columnList}) VALUES ($values) RETURNING ${ticketParser.columnList}" }
         .query(ticketParser.exactlyOne())
 }
 
 fun countTicketsByEvent(eventId: EventId): Operation.Query<Long> =
-    Sql { "SELECT count(*) FROM ticket WHERE event_id = ${eventIdType(eventId)}" }
+    sql { "SELECT count(*) FROM ticket WHERE event_id = ${eventIdType(eventId)}" }
         .queryExactlyOne(DuckDbTypes.bigint)
 
 fun revenueByEvent(eventId: EventId): Operation.Query<Money> =
-    Sql { "SELECT coalesce(sum(price), 0) FROM ticket WHERE event_id = ${eventIdType(eventId)}" }
+    sql { "SELECT coalesce(sum(price), 0) FROM ticket WHERE event_id = ${eventIdType(eventId)}" }
         .queryExactlyOne(moneyType)
 
 val eventSummaries: Operation.Query<List<EventSummary>> =
-    Sql { """SELECT e.id, e.title, v.name, count(t.id), coalesce(sum(t.price), 0)
+    sql { """SELECT e.id, e.title, v.name, count(t.id), coalesce(sum(t.price), 0)
            FROM event e
            JOIN venue v ON e.venue_id = v.id
            LEFT JOIN ticket t ON t.event_id = e.id

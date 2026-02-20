@@ -23,7 +23,7 @@ class QueryAnalysisAll {
             .query(RowCodec.of(PgTypes.int4).exactlyOne())
 
     val allUsers: Operation<List<User>> =
-        Sql { "SELECT id, name FROM users" }
+        sql { "SELECT id, name FROM users" }
             .query(userCodec.all())
 
     //start

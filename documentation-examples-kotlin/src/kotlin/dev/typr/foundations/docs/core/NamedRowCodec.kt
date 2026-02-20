@@ -20,6 +20,6 @@ class NamedRowCodec {
 
     // Column list for SQL — no hand-written strings to keep in sync
     val allProducts =
-        Sql { "SELECT ${productCodec.columnList} FROM product" }
+        sql { "SELECT ${productCodec.columnList} FROM product" }
     //stop
 }

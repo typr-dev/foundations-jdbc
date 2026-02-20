@@ -5,41 +5,41 @@ import dev.typr.foundationskt.Fragment
 import dev.typr.foundationskt.Operation
 import dev.typr.foundationskt.QueryAnalysis
 import dev.typr.foundationskt.QueryAnalyzer
-import dev.typr.foundationskt.Sql
+import dev.typr.foundationskt.sql
 import dev.typr.foundationskt.invoke
 import java.sql.Connection
 
 val allEvents: Operation.Query<List<Event>> =
-    Sql { "SELECT ${eventParser.columnList} FROM event ORDER BY date" }
+    sql { "SELECT ${eventParser.columnList} FROM event ORDER BY date" }
         .query(eventParser.all())
 
 fun eventById(id: EventId): Operation.Query<Event?> =
-    Sql { "SELECT ${eventParser.columnList} FROM event WHERE id = ${eventIdType(id)}" }
+    sql { "SELECT ${eventParser.columnList} FROM event WHERE id = ${eventIdType(id)}" }
         .query(eventParser.maxOne())
 
 fun eventsByStatus(status: EventStatus): Operation.Query<List<Event>> =
-    Sql { "SELECT ${eventParser.columnList} FROM event WHERE status = ${eventStatusType(status)}" }
+    sql { "SELECT ${eventParser.columnList} FROM event WHERE status = ${eventStatusType(status)}" }
         .query(eventParser.all())
 
 fun eventsByVenue(venueId: VenueId): Operation.Query<List<Event>> =
-    Sql { "SELECT ${eventParser.columnList} FROM event WHERE venue_id = ${venueIdType(venueId)}" }
+    sql { "SELECT ${eventParser.columnList} FROM event WHERE venue_id = ${venueIdType(venueId)}" }
         .query(eventParser.all())
 
 fun createEvent(event: Event): Operation.Query<Event> {
     val cols = eventParser.columnNames.filter { it != "id" }.joinToString(", ")
     val values = Fragment.of("").row(eventParser, event, "id")
-    return Sql { "INSERT INTO event ($cols) VALUES ($values) RETURNING ${eventParser.columnList}" }
+    return sql { "INSERT INTO event ($cols) VALUES ($values) RETURNING ${eventParser.columnList}" }
         .query(eventParser.exactlyOne())
 }
 
 fun updateEventStatus(id: EventId, status: EventStatus): Operation.Update =
-    Sql {
+    sql {
         """UPDATE event SET status = ${eventStatusType(status)} 
         WHERE id = ${eventIdType(id)}"""
     }.update()
 
 fun addEventRating(id: EventId, rating: Double): Operation.Update =
-    Sql { """UPDATE event 
+    sql { """UPDATE event 
         SET ratings = list_append(ratings, ${DuckDbTypes.double_(rating)}) 
         WHERE id = ${eventIdType(id)}"""
     }.update()

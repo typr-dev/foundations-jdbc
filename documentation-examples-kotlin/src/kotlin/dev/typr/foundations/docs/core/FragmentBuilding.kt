@@ -23,7 +23,7 @@ class FragmentBuilding {
 
     //start
     val query: Fragment =
-        Sql { """
+        sql { """
             SELECT * FROM users
             WHERE id = ${PgTypes.int4(userId)}
                 AND status = ${PgTypes.text("active")}

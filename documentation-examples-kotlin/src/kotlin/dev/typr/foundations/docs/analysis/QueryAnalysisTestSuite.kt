@@ -29,13 +29,13 @@ class QueryAnalysisTestSuite {
         testDataSource.connection.use { conn ->
             // Collect all queries to check
             val queries: List<Operation.Query<*>> = listOf(
-                Sql { """
+                sql { """
                     SELECT id, name, email
                     FROM users
                     WHERE id = ${PgTypes.int4(1)}
                 """ }
                     .query(userCodec.all()),
-                Sql { """
+                sql { """
                     SELECT id, name
                     FROM products
                     WHERE name LIKE ${PgTypes.text("%widget%")}

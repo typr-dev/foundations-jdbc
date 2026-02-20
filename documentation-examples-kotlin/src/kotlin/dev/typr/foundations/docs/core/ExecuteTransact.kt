@@ -16,7 +16,7 @@ class ExecuteTransact {
     lateinit var tx: Transactor
 
     val findCities: Operation<List<City>> =
-        Sql { "SELECT name, population FROM city ORDER BY population DESC" }
+        sql { "SELECT name, population FROM city ORDER BY population DESC" }
             .query(cityCodec.all())
 
     //start

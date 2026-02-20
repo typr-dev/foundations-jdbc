@@ -18,10 +18,10 @@ class ExecuteComposed {
     lateinit var tx: Transactor
 
     val countUsers: Operation<Long> =
-        Sql { "SELECT count(*) FROM users" }
+        sql { "SELECT count(*) FROM users" }
             .query(RowCodec.of(PgTypes.int8).exactlyOne())
     val recentOrders: Operation<List<Order>> =
-        Sql { "SELECT * FROM orders ORDER BY id DESC LIMIT 10" }
+        sql { "SELECT * FROM orders ORDER BY id DESC LIMIT 10" }
             .query(orderCodec.all())
 
     //start

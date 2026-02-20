@@ -10,9 +10,9 @@ A Fragment is a composable SQL building block — it holds a SQL string together
 
 ## String Interpolation
 
-Kotlin uses `Sql { }` and Scala uses `sql""` to build fragments from string templates. Database values are embedded as typed, bound parameters — never concatenated into the SQL string.
+Kotlin uses `sql { }` and Scala uses `sql""` to build fragments from string templates. Database values are embedded as typed, bound parameters — never concatenated into the SQL string.
 
-> For a thorough explanation of how `Sql { }` works internally and its thread safety guarantees, see [Kotlin String Interpolation](./kotlin-interpolation).
+> For a thorough explanation of how `sql { }` works internally and its thread safety guarantees, see [Kotlin String Interpolation](./kotlin-interpolation).
 
 <Snippet file="core/FragmentBuilding" />
 
@@ -20,7 +20,7 @@ Inside the interpolation block, you can embed:
 
 - **Bound values** — `${PgTypes.int4(userId)}` becomes a `?` parameter
 - **Other fragments** — `${codec.columnList}` or `${Fragment.whereAnd(filters)}` are spliced into the SQL
-- **Nested blocks** — fragments built with `Sql { }` / `sql""` compose naturally
+- **Nested blocks** — fragments built with `sql { }` / `sql""` compose naturally
 
 ## Builder Pattern
 
@@ -31,8 +31,8 @@ The builder pattern works in all languages and is useful for constructing fragme
 For parameterized templates with unfilled parameter holes, see [Templates](./templates).
 
 :::tip Which style should I use?
-- **Kotlin** — Use `Sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [Templates](./templates).
-- **Scala** — Same guidance, using `sql""` instead of `Sql { }`.
+- **Kotlin** — Use `sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [Templates](./templates).
+- **Scala** — Same guidance, using `sql""` instead of `sql { }`.
 - **Java** — Use the builder pattern for everything (no string interpolation available).
 :::
 

@@ -4,17 +4,17 @@ import dev.typr.foundationskt.*
 import java.sql.Connection
 
 val allVenues: Operation.Query<List<Venue>> =
-    Sql { "SELECT ${venueParser.columnList} FROM venue ORDER BY name" }
+    sql { "SELECT ${venueParser.columnList} FROM venue ORDER BY name" }
         .query(venueParser.all())
 
 fun venueById(id: VenueId): Operation.Query<Venue?> =
-    Sql { "SELECT ${venueParser.columnList} FROM venue WHERE id = ${venueIdType(id)}" }
+    sql { "SELECT ${venueParser.columnList} FROM venue WHERE id = ${venueIdType(id)}" }
         .query(venueParser.maxOne())
 
 fun createVenue(venue: Venue): Operation.Query<Venue> {
     val cols = venueParser.columnNames.filter { it != "id" }.joinToString(", ")
     val values = Fragment.of("").row(venueParser, venue, "id")
-    return Sql { "INSERT INTO venue ($cols) VALUES ($values) RETURNING ${venueParser.columnList}" }
+    return sql { "INSERT INTO venue ($cols) VALUES ($values) RETURNING ${venueParser.columnList}" }
         .query(venueParser.exactlyOne())
 }
 

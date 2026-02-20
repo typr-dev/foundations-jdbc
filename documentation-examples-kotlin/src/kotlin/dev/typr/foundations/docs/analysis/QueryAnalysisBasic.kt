@@ -22,7 +22,7 @@ class QueryAnalysisBasic {
     fun analyzeQuery() {
         // Build your query as normal
         val query: Operation.Query<List<User>> =
-            Sql { """
+            sql { """
                 SELECT id, name, email
                 FROM users
                 WHERE id = ${PgTypes.int4(userId)}

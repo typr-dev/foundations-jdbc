@@ -10,25 +10,13 @@ class SqlContext {
     }
 }
 
-object Sql {
-    @PublishedApi
-    internal val threadLocal = ThreadLocal<SqlContext>()
+@PublishedApi
+internal object SqlBuilder {
+    val threadLocal = ThreadLocal<SqlContext>()
 
     fun currentContext(): SqlContext? = threadLocal.get()
 
-    inline operator fun invoke(block: () -> String): Fragment {
-        val ctx = SqlContext()
-        threadLocal.set(ctx)
-        try {
-            val result = block()
-            return buildFragment(result, ctx)
-        } finally {
-            threadLocal.remove()
-        }
-    }
-
-    @PublishedApi
-    internal fun buildFragment(template: String, ctx: SqlContext): Fragment {
+    fun buildFragment(template: String, ctx: SqlContext): Fragment {
         if (ctx.fragments.isEmpty()) {
             return Fragment.of(template)
         }
@@ -45,6 +33,17 @@ object Sql {
             }
         }
         return Fragment(dev.typr.foundations.Fragment.Concat(javaFragments))
+    }
+}
+
+inline fun sql(block: () -> String): Fragment {
+    val ctx = SqlContext()
+    SqlBuilder.threadLocal.set(ctx)
+    try {
+        val result = block()
+        return SqlBuilder.buildFragment(result, ctx)
+    } finally {
+        SqlBuilder.threadLocal.remove()
     }
 }
 
