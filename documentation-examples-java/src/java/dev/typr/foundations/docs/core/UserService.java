@@ -3,7 +3,6 @@ package dev.typr.foundations.docs.core;
 import dev.typr.foundations.*;
 import dev.typr.foundations.docs.core.UserRepo.User;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,11 +15,11 @@ public final class UserService {
         this.tx = tx;
     }
 
-    public List<User> listUsers() throws SQLException {
+    public List<User> listUsers() {
         return UserRepo.selectAll.transact(tx);
     }
 
-    public Optional<User> findUser(int id) throws SQLException {
+    public Optional<User> findUser(int id) {
         return UserRepo.selectById.on(id).transact(tx);
     }
 }

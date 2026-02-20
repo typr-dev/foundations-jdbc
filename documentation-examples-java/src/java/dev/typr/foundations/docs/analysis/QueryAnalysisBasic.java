@@ -6,7 +6,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class QueryAnalysisBasic {
@@ -23,7 +22,7 @@ public class QueryAnalysisBasic {
             .build(User::new);
 
     //start
-    void analyzeQuery() throws SQLException {
+    void analyzeQuery() {
         // Build your query as normal
         var query =
             Fragment.of("""

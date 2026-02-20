@@ -3,7 +3,6 @@ package dev.typr.foundations.docs.core;
 import dev.typr.foundations.*;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -25,7 +24,7 @@ public class JsonAggregation {
 
     //start
     // Aggregate child rows as JSON in a single query
-    List<OrderLine> getOrderLines(int customerId) throws SQLException {
+    List<OrderLine> getOrderLines(int customerId) {
         return Fragment.of("""
                     SELECT json_group_array(\
                     json_array(product, qty, price))

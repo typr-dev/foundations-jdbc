@@ -99,7 +99,7 @@ class SqlBuilderTest {
             val frag = sql { "SELECT ${DuckDbTypes.integer(42)} AS answer" }
             val result = frag
                 .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
-                .runChecked(conn)
+                .run(conn)
             assertEquals(42, result)
         }
     }
@@ -110,7 +110,7 @@ class SqlBuilderTest {
             val frag = sql { "SELECT ${DuckDbTypes.integer(10)} + ${DuckDbTypes.integer(32)} AS answer" }
             val result = frag
                 .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
-                .runChecked(conn)
+                .run(conn)
             assertEquals(42, result)
         }
     }
@@ -160,7 +160,7 @@ class SqlBuilderTest {
             conn.createStatement().execute("INSERT INTO test_users VALUES (1, 'Alice'), (2, 'Bob')")
 
             val frag = sql { "SELECT ${parser.columnList} FROM test_users WHERE id = ${DuckDbTypes.integer(1)}" }
-            val result = frag.query(parser.exactlyOne()).runChecked(conn)
+            val result = frag.query(parser.exactlyOne()).run(conn)
             assertEquals(1, result.id)
             assertEquals("Alice", result.name)
         }
@@ -228,7 +228,7 @@ class SqlBuilderTest {
                 Thread.ofVirtual().start {
                     val frag = sql { "SELECT ${DuckDbTypes.integer(i)}" }
                     val result = synchronized(conn) {
-                        frag.query(RowCodec.of(DuckDbTypes.integer).exactlyOne()).runChecked(conn)
+                        frag.query(RowCodec.of(DuckDbTypes.integer).exactlyOne()).run(conn)
                     }
                     results.add(i to result)
                 }
@@ -254,7 +254,7 @@ class SqlBuilderTest {
                     async(Dispatchers.Default) {
                         val frag = sql { "SELECT ${DuckDbTypes.integer(i)}" }
                         val result = mutex.withLock {
-                            frag.query(RowCodec.of(DuckDbTypes.integer).exactlyOne()).runChecked(conn)
+                            frag.query(RowCodec.of(DuckDbTypes.integer).exactlyOne()).run(conn)
                         }
                         i to result
                     }

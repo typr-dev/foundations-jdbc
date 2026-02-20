@@ -6,7 +6,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -39,7 +38,7 @@ public class TemplateThen {
             .query(orderCodec.all());
 
     // Chain: insert user, then use returned id to fetch their orders
-    List<Order> insertAndFetchOrders() throws SQLException {
+    List<Order> insertAndFetchOrders() {
         return insertUser.on("Alice")
             .then(ordersByUser)
             .transact(tx);

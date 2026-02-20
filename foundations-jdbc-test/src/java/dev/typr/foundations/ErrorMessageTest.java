@@ -42,10 +42,10 @@ public class ErrorMessageTest {
       tx.execute(conn -> {
         Fragment.of("CREATE TABLE test_err (id INTEGER, name VARCHAR)")
             .update()
-            .runChecked(conn);
+            .run(conn);
         Fragment.of("INSERT INTO test_err VALUES (1, 'hello')")
             .update()
-            .runChecked(conn);
+            .run(conn);
 
         // Try to read the VARCHAR column as INTEGER - should fail
         return Fragment.of("SELECT id, name FROM test_err")
@@ -54,7 +54,7 @@ public class ErrorMessageTest {
                 .field(DuckDbTypes.integer, x -> x)  // Wrong type for 'name'!
                 .build((id, name) -> id)
                 .all())
-            .runChecked(conn);
+            .run(conn);
       });
       fail("Expected SQLException for type mismatch");
     } catch (Exception e) {
@@ -94,11 +94,11 @@ public class ErrorMessageTest {
       tx.execute(conn -> {
         Fragment.of("CREATE TABLE empty_table (id INTEGER)")
             .update()
-            .runChecked(conn);
+            .run(conn);
 
         return Fragment.of("SELECT id FROM empty_table")
             .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
-            .runChecked(conn);
+            .run(conn);
       });
       fail("Expected SQLException for no rows");
     } catch (Exception e) {
@@ -121,14 +121,14 @@ public class ErrorMessageTest {
       tx.execute(conn -> {
         Fragment.of("CREATE TABLE multi_table (id INTEGER)")
             .update()
-            .runChecked(conn);
+            .run(conn);
         Fragment.of("INSERT INTO multi_table VALUES (1), (2)")
             .update()
-            .runChecked(conn);
+            .run(conn);
 
         return Fragment.of("SELECT id FROM multi_table")
             .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
-            .runChecked(conn);
+            .run(conn);
       });
       fail("Expected SQLException for too many rows");
     } catch (Exception e) {
@@ -151,14 +151,14 @@ public class ErrorMessageTest {
       tx.execute(conn -> {
         Fragment.of("CREATE TABLE multi_table2 (id INTEGER)")
             .update()
-            .runChecked(conn);
+            .run(conn);
         Fragment.of("INSERT INTO multi_table2 VALUES (1), (2)")
             .update()
-            .runChecked(conn);
+            .run(conn);
 
         return Fragment.of("SELECT id FROM multi_table2")
             .query(RowCodec.of(DuckDbTypes.integer).maxOne())
-            .runChecked(conn);
+            .run(conn);
       });
       fail("Expected SQLException for too many rows");
     } catch (Exception e) {
@@ -287,10 +287,10 @@ public class ErrorMessageTest {
         // Create table - simulate the landing page scenario
         Fragment.of("CREATE TABLE users (id INTEGER, name VARCHAR, created_at VARCHAR)")
             .update()
-            .runChecked(conn);
+            .run(conn);
         Fragment.of("INSERT INTO users VALUES (1, 'Alice', '2024-01-15 10:30:00')")
             .update()
-            .runChecked(conn);
+            .run(conn);
 
         // Try to read VARCHAR 'created_at' as timestamptz - this will fail
         record UserRow(Integer id, String name, java.time.OffsetDateTime createdAt) {}
@@ -301,10 +301,12 @@ public class ErrorMessageTest {
                 .field(DuckDbTypes.timestamptz, UserRow::createdAt)  // Wrong! created_at is VARCHAR
                 .build(UserRow::new)
                 .all())
-            .runChecked(conn);
+            .run(conn);
       });
-      fail("Expected SqlResultParseException");
-    } catch (RowCodec.SqlResultParseException e) {
+      fail("Expected DatabaseException wrapping SqlResultParseException");
+    } catch (DatabaseException de) {
+      assertTrue(de.getCause() instanceof RowCodec.SqlResultParseException);
+      var e = (RowCodec.SqlResultParseException) de.getCause();
       System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
       System.out.println("║  LANDING PAGE ERROR MESSAGE (copy this exactly)              ║");
       System.out.println("╚══════════════════════════════════════════════════════════════╝\n");

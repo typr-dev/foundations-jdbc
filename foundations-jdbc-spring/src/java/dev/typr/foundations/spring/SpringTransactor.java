@@ -44,7 +44,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  *     }
  *
  *     @Transactional
- *     public List<Order> getOrders() throws SQLException {
+ *     public List<Order> getOrders() {
  *         return new Operation.Query<>(sql, parser).transact(tx);
  *     }
  * }

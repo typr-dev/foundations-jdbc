@@ -20,4 +20,9 @@ object OperationReturning:
   val insertedUser: Operation[User] =
     sql"INSERT INTO users (name) VALUES ('alice') RETURNING id, name"
       .updateReturning(userCodec.exactlyOne())
+
+  // For databases that use generated keys instead of RETURNING (SQL Server, MariaDB)
+  val generatedId: Operation[Int] =
+    sql"INSERT INTO users (name) VALUES ('alice')"
+      .updateReturningGeneratedKeys(Array("id"), RowCodec.of(PgTypes.int4).exactlyOne())
   //stop

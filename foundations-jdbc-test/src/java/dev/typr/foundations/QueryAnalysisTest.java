@@ -56,7 +56,7 @@ public class QueryAnalysisTest {
         conn.rollback();
       }
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DatabaseException(e);
     }
   }
 

@@ -6,7 +6,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -32,12 +31,12 @@ public class OptionalQueryBooleanFlags {
             .query(userCodec.all());
 
     // Include the filter
-    List<User> onlyActive() throws SQLException {
+    List<User> onlyActive() {
         return activeUsers.on(true).transact(tx);
     }
 
     // Skip the filter — returns all users
-    List<User> all() throws SQLException {
+    List<User> all() {
         return activeUsers.on(false).transact(tx);
     }
     //stop

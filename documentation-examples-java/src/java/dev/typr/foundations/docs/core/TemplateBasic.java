@@ -6,7 +6,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
@@ -33,12 +32,12 @@ public class TemplateBasic {
             .query(userCodec.maxOne());
 
     // Fill the template with a value to get a concrete operation
-    Optional<User> findAlice() throws SQLException {
+    Optional<User> findAlice() {
         return findByEmail.on("alice@example.com").transact(tx);
     }
 
     // Reuse the same template with different values
-    Optional<User> findBob() throws SQLException {
+    Optional<User> findBob() {
         return findByEmail.on("bob@example.com").transact(tx);
     }
     //stop

@@ -6,7 +6,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,12 +35,12 @@ public class OptionalQueryBasic {
             .query(userCodec.all());
 
     // Apply filter
-    List<User> filtered() throws SQLException {
+    List<User> filtered() {
         return searchUsers.on(Optional.of("%alice%")).transact(tx);
     }
 
     // Skip filter — returns all users
-    List<User> all() throws SQLException {
+    List<User> all() {
         return searchUsers.on(Optional.empty()).transact(tx);
     }
     //stop

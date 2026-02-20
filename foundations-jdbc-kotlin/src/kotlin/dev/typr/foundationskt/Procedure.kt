@@ -1,7 +1,6 @@
 package dev.typr.foundationskt
 
 import java.sql.Connection
-import java.sql.SQLException
 
 /** Kotlin wrapper for dev.typr.foundations.Procedure with Unit instead of Void. */
 class Procedure<Out> internal constructor(
@@ -39,19 +38,14 @@ class Procedure<Out> internal constructor(
     }
 }
 
-/** Operation returned by [Procedure.call] — wraps a Java Operation with result conversion. */
+/** Operation returned by [Procedure.call] -- wraps a Java Operation with result conversion. */
 class ProcedureOp<Out> internal constructor(
     private val javaOp: dev.typr.foundations.Operation<Any?>,
     private val mapResult: (Any?) -> Out
 ) {
 
-    @Throws(SQLException::class)
-    fun runChecked(conn: Connection): Out = mapResult(javaOp.runChecked(conn))
+    fun run(conn: Connection): Out = mapResult(javaOp.run(conn))
 
-    fun run(conn: Connection): Out =
-        try { runChecked(conn) } catch (e: SQLException) { throw RuntimeException(e) }
-
-    @Throws(SQLException::class)
     fun transact(transactor: Transactor): Out =
         mapResult(javaOp.transact(transactor.underlying))
 }

@@ -6,8 +6,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 import dev.typr.foundations.connect.OracleConfig;
 
-import java.sql.SQLException;
-
 @SuppressWarnings("unused")
 public class OracleTransactor {
     //start
@@ -19,7 +17,7 @@ public class OracleTransactor {
             .transactor();
 
     // Everything inside runs in one transaction
-    String getGreeting() throws SQLException {
+    String getGreeting() {
         return Fragment
             .of("SELECT 'Hello from Oracle' FROM dual")
             .query(RowCodec.of(OracleTypes.varchar2)

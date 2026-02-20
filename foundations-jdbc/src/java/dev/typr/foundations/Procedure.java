@@ -112,38 +112,42 @@ public sealed interface Procedure<Out>
       implements Operation<Out> {
 
     @Override
-    public Out runChecked(Connection conn) throws SQLException {
-      StringBuilder sb = new StringBuilder("{call ");
-      sb.append(name);
-      sb.append('(');
-      for (int i = 0; i < params.size(); i++) {
-        if (i > 0) sb.append(", ");
-        sb.append('?');
-      }
-      sb.append(")}");
-
-      String sql = Instrumentation.applyName(sb.toString(), conn);
-      Fragment syntheticFragment = Fragment.of(sb.toString());
-      return Instrumentation.instrumented(conn, syntheticFragment, sql, () -> {
-        try (CallableStatement stmt = conn.prepareCall(sql)) {
-          Instrumentation.applyTimeout(stmt, conn);
-          int valueIndex = 0;
-          for (int i = 0; i < params.size(); i++) {
-            ParamDef p = params.get(i);
-            int pos = i + 1;
-            if (p.isInput()) {
-              @SuppressWarnings("unchecked")
-              DbType<Object> type = (DbType<Object>) p.type();
-              type.write().set(stmt, pos, inValues[valueIndex++]);
-            }
-            if (p.isOutput()) {
-              p.outParam().register(stmt, pos);
-            }
-          }
-          stmt.execute();
-          return reader.apply(stmt);
+    public Out run(Connection conn) {
+      try {
+        StringBuilder sb = new StringBuilder("{call ");
+        sb.append(name);
+        sb.append('(');
+        for (int i = 0; i < params.size(); i++) {
+          if (i > 0) sb.append(", ");
+          sb.append('?');
         }
-      });
+        sb.append(")}");
+
+        String sql = Instrumentation.applyName(sb.toString(), conn);
+        Fragment syntheticFragment = Fragment.of(sb.toString());
+        return Instrumentation.instrumented(conn, syntheticFragment, sql, () -> {
+          try (CallableStatement stmt = conn.prepareCall(sql)) {
+            Instrumentation.applyTimeout(stmt, conn);
+            int valueIndex = 0;
+            for (int i = 0; i < params.size(); i++) {
+              ParamDef p = params.get(i);
+              int pos = i + 1;
+              if (p.isInput()) {
+                @SuppressWarnings("unchecked")
+                DbType<Object> type = (DbType<Object>) p.type();
+                type.write().set(stmt, pos, inValues[valueIndex++]);
+              }
+              if (p.isOutput()) {
+                p.outParam().register(stmt, pos);
+              }
+            }
+            stmt.execute();
+            return reader.apply(stmt);
+          }
+        });
+      } catch (SQLException e) {
+        throw new DatabaseException(e);
+      }
     }
   }
 
@@ -156,34 +160,38 @@ public sealed interface Procedure<Out>
       implements Operation<R> {
 
     @Override
-    public R runChecked(Connection conn) throws SQLException {
-      StringBuilder sb = new StringBuilder("SELECT ");
-      sb.append(name);
-      sb.append('(');
-      for (int i = 0; i < inParams.size(); i++) {
-        if (i > 0) sb.append(", ");
-        sb.append('?');
-      }
-      sb.append(')');
-
-      String sql = Instrumentation.applyName(sb.toString(), conn);
-      Fragment syntheticFragment = Fragment.of(sb.toString());
-      return Instrumentation.instrumented(conn, syntheticFragment, sql, () -> {
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-          Instrumentation.applyTimeout(stmt, conn);
-          for (int i = 0; i < inParams.size(); i++) {
-            @SuppressWarnings("unchecked")
-            DbType<Object> type = (DbType<Object>) inParams.get(i).type();
-            type.write().set(stmt, i + 1, inValues[i]);
-          }
-          try (ResultSet rs = stmt.executeQuery()) {
-            if (!rs.next()) {
-              throw new SQLException("Function " + name + " returned no rows");
-            }
-            return returnType.read().read(rs, 1);
-          }
+    public R run(Connection conn) {
+      try {
+        StringBuilder sb = new StringBuilder("SELECT ");
+        sb.append(name);
+        sb.append('(');
+        for (int i = 0; i < inParams.size(); i++) {
+          if (i > 0) sb.append(", ");
+          sb.append('?');
         }
-      });
+        sb.append(')');
+
+        String sql = Instrumentation.applyName(sb.toString(), conn);
+        Fragment syntheticFragment = Fragment.of(sb.toString());
+        return Instrumentation.instrumented(conn, syntheticFragment, sql, () -> {
+          try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            Instrumentation.applyTimeout(stmt, conn);
+            for (int i = 0; i < inParams.size(); i++) {
+              @SuppressWarnings("unchecked")
+              DbType<Object> type = (DbType<Object>) inParams.get(i).type();
+              type.write().set(stmt, i + 1, inValues[i]);
+            }
+            try (ResultSet rs = stmt.executeQuery()) {
+              if (!rs.next()) {
+                throw new SQLException("Function " + name + " returned no rows");
+              }
+              return returnType.read().read(rs, 1);
+            }
+          }
+        });
+      } catch (SQLException e) {
+        throw new DatabaseException(e);
+      }
     }
   }
 }

@@ -5,6 +5,7 @@ import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
 class ComposingWith {
+    //start
     data class User(val id: Int, val name: String)
     data class Order(val id: Int, val userId: Int, val product: String)
     data class Dashboard(val userCount: Long, val recentOrders: List<Order>)
@@ -19,7 +20,6 @@ class ComposingWith {
 
     lateinit var tx: Transactor
 
-    //start
     // Combine two independent queries — both run in one transaction
     val countUsers: Operation<Long> =
         sql { "SELECT count(*) FROM users" }

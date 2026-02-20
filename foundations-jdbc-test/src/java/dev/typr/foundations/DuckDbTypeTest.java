@@ -669,7 +669,7 @@ public class DuckDbTypeTest {
         .append(")")
         .update()
         .onMany(List.of(value).iterator())
-        .runChecked(conn);
+        .run(conn);
   }
 
   static <A> void testCase(Connection conn, DuckDbTypeAndExample<A> t) throws SQLException {

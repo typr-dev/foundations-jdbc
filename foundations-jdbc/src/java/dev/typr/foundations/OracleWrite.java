@@ -108,7 +108,7 @@ public sealed interface OracleWrite<A> extends DbWrite<A>
                         try {
                           return converter.apply(v, conn);
                         } catch (SQLException e) {
-                          throw new RuntimeException(e);
+                          throw new DatabaseException(e);
                         }
                       })
                   .orElse(null),

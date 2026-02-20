@@ -7,7 +7,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
@@ -45,7 +44,7 @@ public class ComposingIfEmpty {
             .append(") RETURNING *")
             .query(userCodec.exactlyOne());
 
-    User findOrCreate() throws SQLException {
+    User findOrCreate() {
         return Operation.ifEmpty(
             findUser.on(email),
             createUser.on(name, email)

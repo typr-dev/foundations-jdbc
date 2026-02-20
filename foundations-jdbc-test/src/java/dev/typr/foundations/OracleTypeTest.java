@@ -1665,7 +1665,7 @@ public class OracleTypeTest {
         .append(")")
         .update()
         .onMany(List.of(value).iterator())
-        .runChecked(conn);
+        .run(conn);
   }
 
   static <A> void testCase(Connection conn, OracleTypeAndExample<A> t) throws SQLException {
@@ -1800,7 +1800,7 @@ public class OracleTypeTest {
       DbProcedure.Def1_1<A, A> proc =
           DbProcedure.define(procName).input(t.type).out(t.type).build();
 
-      A result = proc.call(input).runChecked(conn);
+      A result = proc.call(input).run(conn);
 
       // Oracle PL/SQL uses unconstrained param types, so we need relaxed comparison:
       // - CHAR/NCHAR: unconstrained CHAR pads to max PL/SQL size, so compare trimmed
@@ -1829,17 +1829,9 @@ public class OracleTypeTest {
                 + "'");
       }
       System.out.println("Callable roundtrip " + sqlType + ": PASSED");
-    } catch (SQLException e) {
-      if (e.getMessage() != null
-          && e.getMessage().contains("does not support stored procedure OUT parameters")) {
-        System.out.println("Callable roundtrip SKIPPED " + sqlType + " (not supported)");
-        return;
-      }
-      throw e;
-    } catch (RuntimeException e) {
-      if (e.getCause() instanceof SQLException sqlEx
-          && sqlEx.getMessage() != null
-          && sqlEx.getMessage().contains("does not support stored procedure OUT parameters")) {
+    } catch (DatabaseException e) {
+      if (e.sqlException().getMessage() != null
+          && e.sqlException().getMessage().contains("does not support stored procedure OUT parameters")) {
         System.out.println("Callable roundtrip SKIPPED " + sqlType + " (not supported)");
         return;
       }

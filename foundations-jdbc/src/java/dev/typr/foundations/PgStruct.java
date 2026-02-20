@@ -74,7 +74,7 @@ public record PgStruct<A>(
               try {
                 pgObj.setValue(encodeToText(value));
               } catch (SQLException e) {
-                throw new RuntimeException("Failed to encode composite type", e);
+                throw new DatabaseException("Failed to encode composite type", e);
               }
               return pgObj;
             });
@@ -106,7 +106,7 @@ public record PgStruct<A>(
             try {
               return self.parseFromText(text);
             } catch (SQLException e) {
-              throw new RuntimeException("Failed to parse composite type", e);
+              throw new DatabaseException("Failed to parse composite type", e);
             }
           }
         };

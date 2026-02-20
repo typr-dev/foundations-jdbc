@@ -6,6 +6,7 @@ import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
+import dev.typr.foundations.DatabaseException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -33,7 +34,7 @@ public class QueryAnalysisTestSuite {
             .build(Product::new);
 
     //start
-    void allQueriesTypeCheck() throws SQLException {
+    void allQueriesTypeCheck() {
         try (var conn = testDataSource.getConnection()) {
             // Collect all queries to check
             List<Operation.Query<?>> queries = List.of(
@@ -69,6 +70,8 @@ public class QueryAnalysisTestSuite {
                     "Query type check failed:\n\n"
                         + String.join("\n\n", failures));
             }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
         }
     }
     //stop

@@ -26,6 +26,16 @@ Write to the database — INSERT, UPDATE, DELETE, or DDL:
 
 <Snippet file="core/OperationReturning" />
 
+## Execute (No Result)
+
+When you don't need the row count — DDL statements, fire-and-forget DML — use `.execute()` instead of `.update()`. It returns `Operation<Void>` (Java) / `Operation<Unit>` (Kotlin/Scala):
+
+```java
+Fragment.of("CREATE TABLE users (id INT, name VARCHAR)").execute()
+```
+
+This is equivalent to `.update().voided()`.
+
 ## Running Operations
 
 Use a [Transactor](./transactors) to obtain a connection, run the operation, and handle commit/rollback automatically:

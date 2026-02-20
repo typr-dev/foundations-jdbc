@@ -6,7 +6,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class QueryAnalysisUnchecked {

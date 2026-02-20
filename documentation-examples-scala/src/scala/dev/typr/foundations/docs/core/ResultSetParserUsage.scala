@@ -3,7 +3,7 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
 
-import java.sql.{ResultSet, SQLException}
+import java.sql.ResultSet
 import java.time.Instant
 
 @SuppressWarnings(Array("unused"))

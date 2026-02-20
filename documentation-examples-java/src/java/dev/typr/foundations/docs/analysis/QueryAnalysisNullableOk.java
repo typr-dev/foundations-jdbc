@@ -7,7 +7,6 @@ import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class QueryAnalysisNullableOk {
@@ -26,7 +25,7 @@ public class QueryAnalysisNullableOk {
                 OrderRow::orderTotal)
             .build(OrderRow::new);
 
-    void analyzeLeftJoin() throws SQLException {
+    void analyzeLeftJoin() {
         var query = Fragment.of("""
             SELECT u.id, u.name, o.total
             FROM users u

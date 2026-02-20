@@ -18,7 +18,7 @@ public class streamingInsert {
     try {
       return insert(copyCommand, batchSize, rows, c, T);
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DatabaseException(e);
     }
   }
 

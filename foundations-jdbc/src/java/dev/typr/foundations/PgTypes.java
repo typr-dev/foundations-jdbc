@@ -599,7 +599,7 @@ public interface PgTypes {
               try {
                 return constructor.apply(s);
               } catch (java.sql.SQLException e) {
-                throw new RuntimeException(e);
+                throw new DatabaseException(e);
               }
             },
             extractor),
@@ -663,7 +663,7 @@ public interface PgTypes {
               try {
                 return RangeParser.parse(str, valueParser, rangeFactory);
               } catch (java.sql.SQLException e) {
-                throw new RuntimeException(e);
+                throw new DatabaseException(e);
               }
             }),
         json,

@@ -30,13 +30,13 @@ class BatchOperationTest {
             val items = listOf(Item("apple", 10), Item("banana", 20), Item("cherry", 30))
 
             val insert = Fragment.of("INSERT INTO items (name, quantity) VALUES (?, ?)")
-            val counts = insert.updateMany(itemCodec, items.iterator()).runChecked(conn)
+            val counts = insert.updateMany(itemCodec, items.iterator()).run(conn)
 
             assertEquals(3, counts.size)
 
             val result = Fragment.of("SELECT name, quantity FROM items ORDER BY name")
                 .query(itemCodec.all())
-                .runChecked(conn)
+                .run(conn)
             assertEquals(3, result.size)
             assertEquals("apple", result[0].name)
             assertEquals(10, result[0].quantity)
@@ -55,7 +55,7 @@ class BatchOperationTest {
             val items = listOf(Item("apple", 10), Item("banana", 20))
 
             val insert = Fragment.of("INSERT INTO items (name, quantity) VALUES (?, ?) RETURNING name, quantity")
-            val returned = insert.updateReturningEach(itemCodec, items.iterator()).runChecked(conn)
+            val returned = insert.updateReturningEach(itemCodec, items.iterator()).run(conn)
 
             assertEquals(2, returned.size)
             assertEquals("apple", returned[0].name)
@@ -82,12 +82,12 @@ class BatchOperationTest {
                 Product(3, "doohickey", 300)
             )
 
-            val counts = insertTemplate.onMany(products.iterator()).runChecked(conn)
+            val counts = insertTemplate.onMany(products.iterator()).run(conn)
             assertEquals(3, counts.size)
 
             val result = Fragment.of("SELECT id, name, quantity FROM products ORDER BY id")
                 .query(productCodec.all())
-                .runChecked(conn)
+                .run(conn)
             assertEquals(3, result.size)
             assertEquals(1, result[0].id)
             assertEquals("widget", result[0].name)
@@ -118,12 +118,12 @@ class BatchOperationTest {
                 Product(0, "doohickey", 300)
             )
 
-            val counts = insertTemplate.onMany(products.iterator()).runChecked(conn)
+            val counts = insertTemplate.onMany(products.iterator()).run(conn)
             assertEquals(3, counts.size)
 
             val result = Fragment.of("SELECT id, name, quantity FROM products2 ORDER BY id")
                 .query(productCodec.all())
-                .runChecked(conn)
+                .run(conn)
             assertEquals(3, result.size)
             assertEquals(1, result[0].id)
             assertEquals("widget", result[0].name)
@@ -140,7 +140,7 @@ class BatchOperationTest {
             conn.createStatement().execute("CREATE TABLE items (name VARCHAR, quantity INTEGER)")
 
             val insert = Fragment.of("INSERT INTO items (name, quantity) VALUES (?, ?)")
-            val counts = insert.updateMany(itemCodec, emptyList<Item>().iterator()).runChecked(conn)
+            val counts = insert.updateMany(itemCodec, emptyList<Item>().iterator()).run(conn)
             assertEquals(0, counts.size)
         }
     }
@@ -157,15 +157,15 @@ class BatchOperationTest {
                 .update()
 
             // Single insert via .on()
-            insertTemplate.on(Product(1, "first", 10)).runChecked(conn)
+            insertTemplate.on(Product(1, "first", 10)).run(conn)
 
             // Batch insert via .onMany()
             val batch = listOf(Product(2, "second", 20), Product(3, "third", 30))
-            insertTemplate.onMany(batch.iterator()).runChecked(conn)
+            insertTemplate.onMany(batch.iterator()).run(conn)
 
             val result = Fragment.of("SELECT id, name, quantity FROM products ORDER BY id")
                 .query(productCodec.all())
-                .runChecked(conn)
+                .run(conn)
             assertEquals(3, result.size)
             assertEquals("first", result[0].name)
             assertEquals("second", result[1].name)

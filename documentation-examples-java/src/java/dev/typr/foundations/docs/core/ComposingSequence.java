@@ -6,7 +6,6 @@ import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -17,7 +16,7 @@ public class ComposingSequence {
     // Execute a list of operations and collect all results
     List<String> names = List.of("Alice", "Bob", "Charlie");
 
-    List<Integer> insertAll() throws SQLException {
+    List<Integer> insertAll() {
         List<Operation<Integer>> inserts =
             names.stream()
                 .<Operation<Integer>>map(name ->

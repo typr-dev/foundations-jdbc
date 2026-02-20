@@ -111,7 +111,7 @@ public interface ConnectionSource extends DataSource {
     try {
       return getConnection();
     } catch (SQLException e) {
-      throw new RuntimeException("Failed to get connection", e);
+      throw new dev.typr.foundations.DatabaseException(e);
     }
   }
 }

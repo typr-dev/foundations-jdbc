@@ -7,7 +7,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.QueryAnalyzer;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -33,7 +32,7 @@ class QueryAnalysisExample {
             .query(userCodec.all());
 
     // But Query Analysis catches the bugs in your tests
-    void check() throws SQLException {
+    void check() {
         dev.typr.foundations.QueryAnalysis analysis =
             QueryAnalyzer.analyze(query, connection).getFirst();
         if (!analysis.succeeded()) {

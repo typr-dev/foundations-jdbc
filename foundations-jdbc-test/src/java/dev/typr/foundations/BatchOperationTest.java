@@ -79,7 +79,7 @@ public class BatchOperationTest {
       int[] empty =
           Fragment.of("INSERT INTO " + t6 + " (name, quantity) VALUES (?, ?)")
               .updateMany(ip, Collections.<Item>emptyIterator())
-              .runChecked(conn);
+              .run(conn);
       assertEquals(0, empty.length);
     }
   }
@@ -350,13 +350,13 @@ public class BatchOperationTest {
       throws SQLException {
     Fragment insert =
         Fragment.of("INSERT INTO " + table + " (name, quantity) VALUES (?, ?)");
-    int[] counts = insert.updateMany(parser, ITEMS.iterator()).runChecked(conn);
+    int[] counts = insert.updateMany(parser, ITEMS.iterator()).run(conn);
     assertEquals(expectedCount, counts.length);
 
     List<Item> result =
         Fragment.of("SELECT name, quantity FROM " + table + " ORDER BY name")
             .query(parser.all())
-            .runChecked(conn);
+            .run(conn);
     assertEquals(expectedCount, result.size());
     assertEquals("apple", result.get(0).name());
     assertEquals(10, result.get(0).quantity());
@@ -377,13 +377,13 @@ public class BatchOperationTest {
             .append(")")
             .update();
 
-    int[] counts = template.onMany(ID_ITEMS.iterator()).runChecked(conn);
+    int[] counts = template.onMany(ID_ITEMS.iterator()).run(conn);
     assertEquals(expectedCount, counts.length);
 
     List<IdItem> result =
         Fragment.of("SELECT id, name, quantity FROM " + table + " ORDER BY id")
             .query(parser.all())
-            .runChecked(conn);
+            .run(conn);
     assertEquals(expectedCount, result.size());
     assertEquals(1, result.get(0).id());
     assertEquals("widget", result.get(0).name());
@@ -407,13 +407,13 @@ public class BatchOperationTest {
             new IdItem(0, "widget", 100),
             new IdItem(0, "gadget", 200),
             new IdItem(0, "doohickey", 300));
-    int[] counts = template.onMany(items.iterator()).runChecked(conn);
+    int[] counts = template.onMany(items.iterator()).run(conn);
     assertEquals(3, counts.length);
 
     List<IdItem> result =
         Fragment.of("SELECT id, name, quantity FROM " + table + " ORDER BY id")
             .query(parser.all())
-            .runChecked(conn);
+            .run(conn);
     assertEquals(3, result.size());
     assertEquals(1, result.get(0).id());
     assertEquals("widget", result.get(0).name());
@@ -431,7 +431,7 @@ public class BatchOperationTest {
                 + table
                 + " (name, quantity) VALUES (?, ?) RETURNING name, quantity");
     List<Item> returned =
-        insert.updateReturningEach(parser, ITEMS.iterator()).runChecked(conn);
+        insert.updateReturningEach(parser, ITEMS.iterator()).run(conn);
     assertEquals(3, returned.size());
     assertEquals("apple", returned.get(0).name());
     assertEquals(10, returned.get(0).quantity());
@@ -451,15 +451,15 @@ public class BatchOperationTest {
             .append(")")
             .update();
 
-    template.on(new IdItem(1, "first", 10)).runChecked(conn);
+    template.on(new IdItem(1, "first", 10)).run(conn);
 
     var batch = List.of(new IdItem(2, "second", 20), new IdItem(3, "third", 30));
-    template.onMany(batch.iterator()).runChecked(conn);
+    template.onMany(batch.iterator()).run(conn);
 
     List<IdItem> result =
         Fragment.of("SELECT id, name, quantity FROM " + table + " ORDER BY id")
             .query(parser.all())
-            .runChecked(conn);
+            .run(conn);
     assertEquals(3, result.size());
     assertEquals("first", result.get(0).name());
     assertEquals("second", result.get(1).name());

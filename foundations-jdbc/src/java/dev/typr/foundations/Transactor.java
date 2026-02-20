@@ -25,24 +25,28 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @param <T> the result type
    * @param operation the operation to execute with a connection
    * @return the operation result
-   * @throws SQLException if a database error occurs
+   * @throws DatabaseException if a database error occurs
    */
-  public <T> T execute(SqlFunction<Connection, T> operation) throws SQLException {
-    Connection raw = connect.get();
-    Connection conn =
-        strategy.listener() != QueryListener.NOOP
-            ? new InstrumentedConnection(raw, strategy.listener(), null, null)
-            : raw;
+  public <T> T execute(SqlFunction<Connection, T> operation) {
     try {
-      strategy.before().apply(conn);
-      T result = operation.apply(conn);
-      strategy.after().apply(conn);
-      return result;
-    } catch (SQLException | RuntimeException e) {
-      strategy.oops().apply(conn, e);
-      throw e;
-    } finally {
-      strategy.always().apply(conn);
+      Connection raw = connect.get();
+      Connection conn =
+          strategy.listener() != QueryListener.NOOP
+              ? new InstrumentedConnection(raw, strategy.listener(), null, null)
+              : raw;
+      try {
+        strategy.before().apply(conn);
+        T result = operation.apply(conn);
+        strategy.after().apply(conn);
+        return result;
+      } catch (SQLException | RuntimeException e) {
+        strategy.oops().apply(conn, e);
+        throw e;
+      } finally {
+        strategy.always().apply(conn);
+      }
+    } catch (SQLException e) {
+      throw new DatabaseException(e);
     }
   }
 
@@ -52,19 +56,19 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @param <T> the result type
    * @param op the Operation to execute
    * @return the operation result
-   * @throws SQLException if a database error occurs
+   * @throws DatabaseException if a database error occurs
    */
-  public <T> T execute(Operation<T> op) throws SQLException {
-    return execute(op::runChecked);
+  public <T> T execute(Operation<T> op) {
+    return execute(conn -> op.run(conn));
   }
 
   /**
    * Execute a void operation with full strategy lifecycle.
    *
    * @param operation the operation to execute with a connection
-   * @throws SQLException if a database error occurs
+   * @throws DatabaseException if a database error occurs
    */
-  public void executeVoid(SqlConsumer<Connection> operation) throws SQLException {
+  public void executeVoid(SqlConsumer<Connection> operation) {
     execute(
         conn -> {
           operation.apply(conn);
@@ -99,10 +103,9 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * @param override the strategy to merge for this execution
    * @param operation the operation to execute
    * @return the operation result
-   * @throws SQLException if a database error occurs
+   * @throws DatabaseException if a database error occurs
    */
-  public <T> T execute(Strategy override, SqlFunction<Connection, T> operation)
-      throws SQLException {
+  public <T> T execute(Strategy override, SqlFunction<Connection, T> operation) {
     return withStrategy(override).execute(operation);
   }
 

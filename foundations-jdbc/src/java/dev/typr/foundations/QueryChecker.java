@@ -1,5 +1,4 @@
 package dev.typr.foundations;
-import java.sql.SQLException;
 import java.util.List;
 
 public interface QueryChecker {
@@ -7,12 +6,8 @@ public interface QueryChecker {
   Transactor transactor();
 
   default void check(Analyzable analyzable) {
-    List<QueryAnalysis> analyses;
-    try {
-      analyses = transactor().execute(conn -> QueryAnalyzer.analyze(analyzable, conn));
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to analyze query", e);
-    }
+    List<QueryAnalysis> analyses =
+        transactor().execute(conn -> QueryAnalyzer.analyze(analyzable, conn));
     StringBuilder errors = new StringBuilder();
     int errorCount = 0;
     for (QueryAnalysis analysis : analyses) {
@@ -27,12 +22,8 @@ public interface QueryChecker {
   }
 
   default void check(Fragment fragment, ResultSetParser<?> parser) {
-    QueryAnalysis analysis;
-    try {
-      analysis = transactor().execute(conn -> QueryAnalyzer.analyzeFragmentAndParser(fragment, parser, conn));
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to analyze query", e);
-    }
+    QueryAnalysis analysis =
+        transactor().execute(conn -> QueryAnalyzer.analyzeFragmentAndParser(fragment, parser, conn));
     if (!analysis.succeeded()) {
       throw new AssertionError("Query type check failed:\n" + analysis.report());
     }
@@ -48,12 +39,8 @@ public interface QueryChecker {
 
     for (int i = 0; i < analyzables.size(); i++) {
       Analyzable a = analyzables.get(i);
-      List<QueryAnalysis> analyses;
-      try {
-        analyses = transactor().execute(conn -> QueryAnalyzer.analyze(a, conn));
-      } catch (SQLException e) {
-        throw new RuntimeException("Failed to analyze query " + (i + 1), e);
-      }
+      List<QueryAnalysis> analyses =
+          transactor().execute(conn -> QueryAnalyzer.analyze(a, conn));
       for (QueryAnalysis analysis : analyses) {
         if (!analysis.succeeded()) {
           errorCount++;
@@ -75,12 +62,8 @@ public interface QueryChecker {
   }
 
   default void checkRoutine(Procedure<?> procedure) {
-    RoutineAnalysis analysis;
-    try {
-      analysis = transactor().execute(conn -> RoutineAnalyzer.analyzeProcedure(procedure, conn));
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to analyze routine", e);
-    }
+    RoutineAnalysis analysis =
+        transactor().execute(conn -> RoutineAnalyzer.analyzeProcedure(procedure, conn));
     if (!analysis.succeeded()) {
       throw new AssertionError("Routine analysis failed:\n" + analysis.report());
     }

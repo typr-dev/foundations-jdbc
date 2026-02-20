@@ -8,7 +8,6 @@ import dev.typr.foundations.Transactor;
 import dev.typr.foundations.Tuple;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +40,7 @@ public class OptionalQueryRange {
             .query(productCodec.all());
 
     // With range
-    List<Product> inRange() throws SQLException {
+    List<Product> inRange() {
         return byPriceRange
             .on(Optional.of(Tuple.of(
                 new BigDecimal("10"), new BigDecimal("50"))))
@@ -49,7 +48,7 @@ public class OptionalQueryRange {
     }
 
     // Without range — returns all products
-    List<Product> all() throws SQLException {
+    List<Product> all() {
         return byPriceRange.on(Optional.empty()).transact(tx);
     }
     //stop

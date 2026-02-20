@@ -19,8 +19,7 @@ Kotlin uses `sql { }` and Scala uses `sql""` to build fragments from string temp
 Inside the interpolation block, you can embed:
 
 - **Bound values** — `${PgTypes.int4(userId)}` becomes a `?` parameter
-- **Other fragments** — `${codec.columnList}` or `${Fragment.whereAnd(filters)}` are spliced into the SQL
-- **Nested blocks** — fragments built with `sql { }` / `sql""` compose naturally
+- **Other fragments** — `${codec.columnList}`, `${Fragment.whereAnd(filters)}`, or another `sql { }` / `sql""` block are spliced into the SQL
 
 ## Builder Pattern
 

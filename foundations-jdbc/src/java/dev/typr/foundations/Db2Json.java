@@ -48,7 +48,7 @@ public abstract class Db2Json<A> implements DbJson<A> {
         try {
           return fromJson.apply(jsonValue);
         } catch (java.sql.SQLException e) {
-          throw new RuntimeException(e);
+          throw new DatabaseException(e);
         }
       }
     };

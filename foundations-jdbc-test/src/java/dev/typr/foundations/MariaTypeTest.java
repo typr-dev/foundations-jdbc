@@ -330,11 +330,7 @@ public class MariaTypeTest {
           );
 
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    try {
-      return Containers.mariadbTransactor().execute(f);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+    return Containers.mariadbTransactor().execute(f);
   }
 
   @Test
@@ -618,7 +614,7 @@ public class MariaTypeTest {
         .append(")")
         .update()
         .onMany(List.of(value).iterator())
-        .runChecked(conn);
+        .run(conn);
   }
 
   static <A> void testCase(Connection conn, MariaTypeAndExample<A> t) throws SQLException {
@@ -686,7 +682,7 @@ public class MariaTypeTest {
                 + ") BEGIN SET p_out = p_in; END");
 
     try {
-      A result = proc.call(t.example).runChecked(conn);
+      A result = proc.call(t.example).run(conn);
 
       System.out.println(
           "Callable roundtrip "

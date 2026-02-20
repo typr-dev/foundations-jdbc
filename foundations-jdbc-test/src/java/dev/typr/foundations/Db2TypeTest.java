@@ -189,11 +189,7 @@ public class Db2TypeTest {
   // Array operations in DB2 are handled via ARRAY data type in SQL PL only
 
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    try {
-      return Containers.db2Transactor().execute(f);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+    return Containers.db2Transactor().execute(f);
   }
 
   @Test
@@ -539,7 +535,7 @@ public class Db2TypeTest {
         .append(")")
         .update()
         .onMany(List.of(value).iterator())
-        .runChecked(conn);
+        .run(conn);
   }
 
   static <A> void testCase(Connection conn, Db2TypeAndExample<A> t) throws SQLException {
@@ -616,7 +612,7 @@ public class Db2TypeTest {
 
     try {
       A expected = t.example;
-      A actual = proc.call(expected).runChecked(conn);
+      A actual = proc.call(expected).run(conn);
 
       System.out.println(
           "Callable roundtrip "

@@ -6,7 +6,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -35,7 +34,7 @@ public class FragmentComposing {
     }
 
     // Compose dynamically — only include the filters that are present
-    List<ProductRow> query() throws SQLException {
+    List<ProductRow> query() {
         List<Fragment> filters = Stream.of(
                 Optional.of(byName("%widget%")),
                 maxPrice.map(this::cheaperThan)

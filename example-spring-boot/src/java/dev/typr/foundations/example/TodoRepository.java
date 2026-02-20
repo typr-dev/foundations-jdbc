@@ -4,7 +4,6 @@ import dev.typr.foundations.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -43,7 +42,7 @@ public class TodoRepository {
         this.tx = tx;
     }
 
-    public void createSchema() throws SQLException {
+    public void createSchema() {
         tx.executeVoid(conn -> {
             Fragment.of("CREATE SEQUENCE IF NOT EXISTS todo_id_seq START 1")
                     .execute().run(conn);
@@ -57,22 +56,20 @@ public class TodoRepository {
         });
     }
 
-    public List<Todo> findAll() throws SQLException {
+    public List<Todo> findAll() {
         return selectAll.transact(tx);
     }
 
-    public Todo create(String title) throws SQLException {
+    public Todo create(String title) {
         return insertByTitle.on(title).transact(tx);
     }
 
-    public void setDone(int id) throws SQLException {
+    public void setDone(int id) {
         setDoneById.on(id).transact(tx);
     }
 
-    // rollbackFor is required — Spring only rolls back unchecked exceptions by default,
-    // so without it a SQLException would commit the transaction with partial writes.
-    @Transactional(rollbackFor = SQLException.class)
-    public Todo createAndComplete(String title) throws SQLException {
+    @Transactional
+    public Todo createAndComplete(String title) {
         var todo = insertByTitle.on(title).transact(tx);
         setDoneById.on(todo.id()).transact(tx);
         return todo;

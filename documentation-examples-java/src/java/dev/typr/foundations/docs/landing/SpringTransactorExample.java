@@ -8,8 +8,6 @@ import dev.typr.foundations.Transactor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
-
 @SuppressWarnings("unused")
 public class SpringTransactorExample {
     //start
@@ -22,7 +20,7 @@ public class SpringTransactorExample {
         }
 
         @Transactional
-        String getGreeting() throws SQLException {
+        String getGreeting() {
             return Fragment
                 .of("SELECT 'Hello from Oracle' FROM dual")
                 .query(RowCodec.of(OracleTypes.varchar2)

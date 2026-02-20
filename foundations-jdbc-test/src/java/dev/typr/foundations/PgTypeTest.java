@@ -533,11 +533,7 @@ public class PgTypeTest {
               }));
 
   static <T> void withConnection(SqlFunction<Connection, T> f) {
-    try {
-      Containers.postgresTransactor().execute(f);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+    Containers.postgresTransactor().execute(f);
   }
 
   @Test
@@ -1030,7 +1026,7 @@ public class PgTypeTest {
         .append(")")
         .update()
         .onMany(List.of(value).iterator())
-        .runChecked(conn);
+        .run(conn);
   }
 
   static <A> void testCase(Connection conn, PgTypeAndExample<A> t) throws SQLException {
@@ -1106,7 +1102,7 @@ public class PgTypeTest {
       Procedure<A> proc = Procedure.buildFunction(funcName,
           java.util.List.of(ParamDef.input(t.type)), t.type);
 
-      A result = proc.call(t.example).runChecked(conn);
+      A result = proc.call(t.example).run(conn);
 
       if (!areEqual(result, t.example)) {
         throw new RuntimeException(

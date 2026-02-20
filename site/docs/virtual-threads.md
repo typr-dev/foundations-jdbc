@@ -55,7 +55,7 @@ All request threads become virtual. No code changes needed — your existing `Tr
 ```java
 @RunOnVirtualThread
 @GET
-public List<Product> findAll() throws SQLException {
+public List<Product> findAll() {
     return selectAll.transact(tx);
 }
 ```

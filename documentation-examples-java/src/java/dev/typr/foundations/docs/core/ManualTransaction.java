@@ -6,7 +6,6 @@ import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -34,7 +33,7 @@ public class ManualTransaction {
             .query(orderCodec.all());
 
     // Run both in one transaction using the connection directly
-    Dashboard dashboard() throws SQLException {
+    Dashboard dashboard() {
         return tx.execute(conn -> {
             long count = countUsers.run(conn);
             List<Order> orders = recentOrders.run(conn);

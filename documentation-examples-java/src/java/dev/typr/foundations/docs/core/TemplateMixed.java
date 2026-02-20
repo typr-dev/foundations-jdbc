@@ -6,7 +6,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -37,7 +36,7 @@ public class TemplateMixed {
             .param(PgTypes.int4)
             .query(userCodec.all());
 
-    List<User> example() throws SQLException {
+    List<User> example() {
         return activeUsersByName.on("%alice%", 10).transact(tx);
     }
     //stop

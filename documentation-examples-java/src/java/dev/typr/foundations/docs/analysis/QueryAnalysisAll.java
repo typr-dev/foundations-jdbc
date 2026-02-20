@@ -9,7 +9,6 @@ import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -35,7 +34,7 @@ public class QueryAnalysisAll {
             .query(userCodec.all());
 
     //start
-    void analyzeComposedOperation() throws SQLException {
+    void analyzeComposedOperation() {
         // Build a composed operation
         Operation<?> transaction =
             insertUser.on("Alice").thenIgnore(allUsers);

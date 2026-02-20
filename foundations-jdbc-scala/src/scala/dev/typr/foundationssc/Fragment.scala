@@ -51,6 +51,9 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
   def updateReturning[T](parser: ResultSetParser[T]): Operation.UpdateReturning[T] =
     Operation.UpdateReturning(this, parser)
 
+  def updateReturningGeneratedKeys[T](columnNames: Array[String], parser: ResultSetParser[T]): Operation.UpdateReturningGeneratedKeys[T] =
+    new Operation.UpdateReturningGeneratedKeys(underlying.updateReturningGeneratedKeys(columnNames, parser.underlying))
+
   def updateMany[Row](parser: RowCodec[Row], rows: Iterator[Row]): Operation.UpdateMany[Row] = {
     import _root_.scala.jdk.CollectionConverters.*
     new Operation.UpdateMany(underlying.updateMany(parser.underlying, rows.asJava))

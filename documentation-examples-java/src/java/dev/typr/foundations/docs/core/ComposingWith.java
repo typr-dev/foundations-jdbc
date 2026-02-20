@@ -6,11 +6,11 @@ import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
 public class ComposingWith {
+    //start
     record User(int id, String name) {}
     record Order(int id, int userId, String product) {}
     record Dashboard(long userCount, List<Order> recentOrders) {}
@@ -25,7 +25,6 @@ public class ComposingWith {
 
     Transactor tx = null; // placeholder
 
-    //start
     // Combine two independent queries — both run in one transaction
     Operation<Long> countUsers =
         Fragment.of("SELECT count(*) FROM users")
@@ -36,7 +35,7 @@ public class ComposingWith {
                 ORDER BY id DESC LIMIT 10""")
             .query(orderCodec.all());
 
-    Dashboard dashboard() throws SQLException {
+    Dashboard dashboard() {
         return countUsers
             .with(recentOrders, Dashboard::new)
             .transact(tx);
@@ -52,7 +51,7 @@ public class ComposingWith {
                 FROM orders""")
             .query(RowCodec.of(PgTypes.int8).exactlyOne());
 
-    Stats stats() throws SQLException {
+    Stats stats() {
         return countUsers
             .with(countOrders, totalRevenue, Stats::new)
             .transact(tx);

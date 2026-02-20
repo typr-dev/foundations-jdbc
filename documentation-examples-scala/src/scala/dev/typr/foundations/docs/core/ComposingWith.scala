@@ -6,6 +6,7 @@ import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object ComposingWith:
+  //start
   case class User(id: Int, name: String)
   case class Order(id: Int, userId: Int, product: String)
   case class Dashboard(userCount: Long, recentOrders: List[Order])
@@ -19,7 +20,6 @@ object ComposingWith:
 
   var tx: Transactor = null // placeholder
 
-  //start
   // Combine two independent queries in one transaction
   val countUsers: Operation[Long] =
     sql"SELECT count(*) FROM users"

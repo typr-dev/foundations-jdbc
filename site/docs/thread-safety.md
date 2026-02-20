@@ -12,8 +12,8 @@ Do not share `Connection` objects across threads. If you need to run multiple op
 
 ```java
 tx.execute(conn -> {
-    var user = findUser.runChecked(conn);
-    var orders = findOrders.runChecked(conn);
+    var user = findUser.run(conn);
+    var orders = findOrders.run(conn);
     return new Dashboard(user, orders);
 });
 ```

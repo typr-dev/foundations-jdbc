@@ -3,7 +3,6 @@ package dev.typr.foundations.docs.landing;
 import dev.typr.foundations.*;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -24,7 +23,7 @@ public class JsonCodecs {
     DuckDbType<List<OrderLine>> linesType =
         DuckDbTypes.jsonArrayEncodedList(lineCodec);
 
-    List<OrderLine> getOrderLines(int customerId) throws SQLException {
+    List<OrderLine> getOrderLines(int customerId) {
         return Fragment.of("""
                     SELECT json_group_array(\
                     json_array(product, qty, price))

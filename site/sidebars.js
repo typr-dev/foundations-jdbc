@@ -24,6 +24,7 @@ const sidebars = {
       label: "Going to Production",
       collapsed: false,
       items: [
+        {type: "doc", id: "error-handling", label: "Error Handling"},
         {type: "doc", id: "connection-pooling", label: "Connection Pooling"},
         {type: "doc", id: "spring-boot", label: "Spring Boot"},
         {type: "doc", id: "thread-safety", label: "Thread Safety"},

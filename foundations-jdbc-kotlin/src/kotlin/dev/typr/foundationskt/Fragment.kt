@@ -48,6 +48,9 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun <T> updateReturning(parser: ResultSetParser<T>): Operation.UpdateReturning<T> =
         Operation.UpdateReturning(dev.typr.foundations.Operation.UpdateReturning(underlying, parser.underlying))
 
+    fun <T> updateReturningGeneratedKeys(columnNames: Array<String>, parser: ResultSetParser<T>): Operation.UpdateReturningGeneratedKeys<T> =
+        Operation.UpdateReturningGeneratedKeys(underlying.updateReturningGeneratedKeys(columnNames, parser.underlying))
+
     fun <Row : Any> updateMany(parser: RowCodec<Row>, rows: Iterator<Row>): Operation.UpdateMany<Row> =
         Operation.UpdateMany(underlying.updateMany(parser.underlying, rows))
 

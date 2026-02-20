@@ -6,7 +6,6 @@ import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -33,7 +32,7 @@ public class ExecuteComposed {
             .query(orderCodec.all());
 
     //start
-    Dashboard dashboard() throws SQLException {
+    Dashboard dashboard() {
         return tx.execute(conn ->
             countUsers
                 .with(recentOrders, Dashboard::new)

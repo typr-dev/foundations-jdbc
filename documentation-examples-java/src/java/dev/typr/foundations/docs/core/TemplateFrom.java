@@ -5,8 +5,6 @@ import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
-
 @SuppressWarnings("unused")
 public class TemplateFrom {
     Transactor tx = null; // placeholder
@@ -26,7 +24,7 @@ public class TemplateFrom {
             .from(InsertUser::name, InsertUser::email);
 
     // Callers pass the record
-    int createUser() throws SQLException {
+    int createUser() {
         return insertUser.on(new InsertUser("Alice", "alice@example.com"))
             .transact(tx);
     }

@@ -7,7 +7,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,14 +40,14 @@ public class OptionalQueryMulti {
             .query(userCodec.all());
 
     // Each combination is type-safe
-    List<User> example() throws SQLException {
+    List<User> example() {
         return search
             .on(Optional.of("%alice%"), Optional.empty(), true)
             .transact(tx);
     }
 
     // Query analysis expands all 2³ = 8 combinations automatically
-    void verifyAllVariants() throws SQLException {
+    void verifyAllVariants() {
         checker.check(search);
     }
     //stop

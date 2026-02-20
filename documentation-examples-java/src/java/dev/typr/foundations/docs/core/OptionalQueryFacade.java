@@ -7,7 +7,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,11 +48,11 @@ public class OptionalQueryFacade {
                 UserSearch::activeOnly);
 
     // Callers just pass the record
-    List<User> searchUsers(UserSearch search) throws SQLException {
+    List<User> searchUsers(UserSearch search) {
         return searchTemplate.on(search).transact(tx);
     }
 
-    List<User> example() throws SQLException {
+    List<User> example() {
         var search = new UserSearch(
             Optional.of("%alice%"), Optional.empty(), true);
         return searchUsers(search);

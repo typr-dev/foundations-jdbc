@@ -4,7 +4,7 @@ import java.sql.Connection
 
 class Transactor(val underlying: dev.typr.foundations.Transactor):
   def execute[T](operation: Operation[T]): T =
-    val f: dev.typr.foundations.SqlFunction[Connection, T] = (conn: Connection) => operation.runChecked(conn)
+    val f: dev.typr.foundations.SqlFunction[Connection, T] = (conn: Connection) => operation.run(conn)
     underlying.execute(f)
 
   def transact[T](f: Connection => T): T =

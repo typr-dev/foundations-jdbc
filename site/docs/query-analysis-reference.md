@@ -90,7 +90,7 @@ Run query analysis as you develop, not just in CI. Catch errors early:
 
 ```java
 // Add a quick check in your main during development
-public static void main(String[] args) throws SQLException {
+public static void main(String[] args) {
     try (var conn = getConnection()) {
         var analysis = QueryAnalyzer.analyze(myQuery, conn).getFirst();
         System.out.println(analysis.report());

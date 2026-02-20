@@ -9,16 +9,27 @@ public final class QueryAnalyzer {
 
   private QueryAnalyzer() {}
 
-  public static List<QueryAnalysis> analyze(Analyzable analyzable, Connection conn)
-      throws SQLException {
-    return switch (analyzable) {
-      case Operation<?> op -> analyze(op, conn);
-      case Template<?, ?> t -> analyze(t, conn);
-      case RowTemplate<?, ?> rt -> analyze(rt, conn);
-    };
+  public static List<QueryAnalysis> analyze(Analyzable analyzable, Connection conn) {
+    try {
+      return switch (analyzable) {
+        case Operation<?> op -> analyzeChecked(op, conn);
+        case Template<?, ?> t -> analyzeChecked(t, conn);
+        case RowTemplate<?, ?> rt -> analyzeChecked(rt, conn);
+      };
+    } catch (SQLException e) {
+      throw new DatabaseException(e);
+    }
   }
 
-  public static List<QueryAnalysis> analyze(Template<?, ?> template, Connection conn)
+  public static List<QueryAnalysis> analyze(Template<?, ?> template, Connection conn) {
+    try {
+      return analyzeChecked(template, conn);
+    } catch (SQLException e) {
+      throw new DatabaseException(e);
+    }
+  }
+
+  private static List<QueryAnalysis> analyzeChecked(Template<?, ?> template, Connection conn)
       throws SQLException {
     Fragment fragment = template.fragment();
     List<Fragment> variants = OptionallyResolver.analysisVariants(fragment);
@@ -26,7 +37,7 @@ public final class QueryAnalyzer {
     List<QueryAnalysis> results = new ArrayList<>();
     for (Fragment variant : variants) {
       if (parser != null) {
-        results.add(analyzeFragmentAndParser(variant, parser, conn));
+        results.add(analyzeFragmentAndParserChecked(variant, parser, conn));
       } else {
         results.add(analyzeUpdate(new Operation.Update(variant), conn));
       }
@@ -34,17 +45,33 @@ public final class QueryAnalyzer {
     return results;
   }
 
-  public static List<QueryAnalysis> analyze(RowTemplate<?, ?> template, Connection conn)
+  public static List<QueryAnalysis> analyze(RowTemplate<?, ?> template, Connection conn) {
+    try {
+      return analyzeChecked(template, conn);
+    } catch (SQLException e) {
+      throw new DatabaseException(e);
+    }
+  }
+
+  private static List<QueryAnalysis> analyzeChecked(RowTemplate<?, ?> template, Connection conn)
       throws SQLException {
     return switch (template) {
       case RowTemplate.Query<?, ?> q ->
-          List.of(analyzeFragmentAndParser(q.fragment(), q.resultParser(), conn));
+          List.of(analyzeFragmentAndParserChecked(q.fragment(), q.resultParser(), conn));
       case RowTemplate.Update<?> u ->
           List.of(analyzeUpdate(new Operation.Update(u.fragment()), conn));
     };
   }
 
-  public static List<QueryAnalysis> analyze(Operation<?> op, Connection conn)
+  public static List<QueryAnalysis> analyze(Operation<?> op, Connection conn) {
+    try {
+      return analyzeChecked(op, conn);
+    } catch (SQLException e) {
+      throw new DatabaseException(e);
+    }
+  }
+
+  private static List<QueryAnalysis> analyzeChecked(Operation<?> op, Connection conn)
       throws SQLException {
     return analyzeNamed(null, op, conn);
   }
@@ -52,23 +79,23 @@ public final class QueryAnalyzer {
   private static List<QueryAnalysis> analyzeNamed(String name, Operation<?> op, Connection conn)
       throws SQLException {
     return switch (op) {
-      case Operation.Query<?> q -> List.of(analyzeFragmentAndParser(name, q.query(), q.parser(), conn));
-      case Operation.UpdateReturning<?> ur -> List.of(analyzeFragmentAndParser(name, ur.query(), ur.parser(), conn));
+      case Operation.Query<?> q -> List.of(analyzeFragmentAndParserChecked(name, q.query(), q.parser(), conn));
+      case Operation.UpdateReturning<?> ur -> List.of(analyzeFragmentAndParserChecked(name, ur.query(), ur.parser(), conn));
       case Operation.Update u -> List.of(analyzeUpdate(name, u, conn));
       case Operation.Configured<?> c -> analyzeNamed(name != null ? name : c.name(), c.inner(), conn);
       case Operation.Mapped<?, ?> m -> analyzeNamed(name, m.source(), conn);
       case Operation.With<?, ?> w -> {
-        var r = new ArrayList<>(analyze(w.first(), conn));
-        r.addAll(analyze(w.second(), conn));
+        var r = new ArrayList<>(analyzeNamed(null, w.first(), conn));
+        r.addAll(analyzeNamed(null, w.second(), conn));
         yield r;
       }
       case Operation.IfEmpty<?> ie -> {
-        var r = new ArrayList<>(analyze(ie.check(), conn));
-        r.addAll(analyze(ie.fallback(), conn));
+        var r = new ArrayList<>(analyzeNamed(null, ie.check(), conn));
+        r.addAll(analyzeNamed(null, ie.fallback(), conn));
         yield r;
       }
       case Operation.Then<?, ?, ?> t -> {
-        var r = new ArrayList<>(analyze(t.source(), conn));
+        var r = new ArrayList<>(analyzeNamed(null, t.source(), conn));
         Fragment templateFragment = t.continuation().fragment();
         List<DbType<?>> paramTypes = templateFragment.parameterTypes();
         String sql = templateFragment.render();
@@ -94,11 +121,22 @@ public final class QueryAnalyzer {
   public static QueryAnalysis analyzeFragmentAndParser(
       Fragment fragment,
       ResultSetParser<?> parser,
-      Connection conn) throws SQLException {
-    return analyzeFragmentAndParser(null, fragment, parser, conn);
+      Connection conn) {
+    try {
+      return analyzeFragmentAndParserChecked(null, fragment, parser, conn);
+    } catch (SQLException e) {
+      throw new DatabaseException(e);
+    }
   }
 
-  private static QueryAnalysis analyzeFragmentAndParser(
+  private static QueryAnalysis analyzeFragmentAndParserChecked(
+      Fragment fragment,
+      ResultSetParser<?> parser,
+      Connection conn) throws SQLException {
+    return analyzeFragmentAndParserChecked(null, fragment, parser, conn);
+  }
+
+  private static QueryAnalysis analyzeFragmentAndParserChecked(
       String name,
       Fragment fragment,
       ResultSetParser<?> parser,

@@ -260,11 +260,7 @@ public class SqlServerTypeTest {
               .noIdentity());
 
   static void withConnection(SqlFunction<Connection, ?> f) {
-    try {
-      Containers.sqlserverTransactor().execute(f);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+    Containers.sqlserverTransactor().execute(f);
   }
 
   @Test
@@ -481,7 +477,7 @@ public class SqlServerTypeTest {
         .append(")")
         .update()
         .onMany(List.of(value).iterator())
-        .runChecked(conn);
+        .run(conn);
   }
 
   static <A> void testJdbcRoundtrip(Connection conn, SqlServerTypeAndExample<A> t)
@@ -614,7 +610,7 @@ public class SqlServerTypeTest {
       DbProcedure.Def1_1<A, A> proc =
           DbProcedure.define(procName).input(t.type).out(t.type).build();
 
-      A result = proc.call(t.example).runChecked(conn);
+      A result = proc.call(t.example).run(conn);
 
       System.out.println(
           "Callable roundtrip "

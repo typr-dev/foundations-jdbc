@@ -6,8 +6,6 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
-
 @SuppressWarnings("unused")
 public class TemplateThenFrom {
     record NewUser(int id, String name) {}
@@ -38,7 +36,7 @@ public class TemplateThenFrom {
             .update();
 
     // Chain: .from() adapts the 2-param template to accept NewUser
-    int insertAndLog() throws SQLException {
+    int insertAndLog() {
         return insertUser.on("Alice")
             .then(logCreation.from(NewUser::id, NewUser::name))
             .transact(tx);

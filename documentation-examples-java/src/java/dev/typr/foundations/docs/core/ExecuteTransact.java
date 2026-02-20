@@ -6,7 +6,6 @@ import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -28,7 +27,7 @@ public class ExecuteTransact {
             .query(cityCodec.all());
 
     //start
-    List<City> cities() throws SQLException {
+    List<City> cities() {
         return tx.execute(conn -> findCities.run(conn));
     }
     //stop

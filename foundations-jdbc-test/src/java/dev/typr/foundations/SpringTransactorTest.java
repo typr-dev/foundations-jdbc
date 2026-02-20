@@ -156,11 +156,11 @@ class SpringTransactorTest {
       tx.execute(conn -> {
         Fragment.of("INSERT INTO spring_test VALUES (2, 'will rollback')")
             .update()
-            .runChecked(conn);
+            .run(conn);
         throw new SQLException("Simulated failure");
       });
-      fail("Should have thrown SQLException");
-    } catch (SQLException e) {
+      fail("Should have thrown DatabaseException");
+    } catch (DatabaseException e) {
       assertEquals("Simulated failure", e.getMessage());
     }
 
