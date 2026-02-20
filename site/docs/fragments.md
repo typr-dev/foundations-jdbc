@@ -8,12 +8,6 @@ import Snippet from '@site/src/components/Snippet';
 
 A Fragment is a composable SQL building block — it holds a SQL string together with its bound parameters. There are two ways to build fragments: **string interpolation** (Kotlin and Scala) and the **builder pattern** (all languages).
 
-:::tip Which style should I use?
-- **Kotlin** — Use `Sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [Templates](./templates).
-- **Scala** — Same guidance, using `sql""` instead of `Sql { }`.
-- **Java** — Use the builder pattern for everything (no string interpolation available).
-:::
-
 ## String Interpolation
 
 Kotlin uses `Sql { }` and Scala uses `sql""` to build fragments from string templates. Database values are embedded as typed, bound parameters — never concatenated into the SQL string.
@@ -28,10 +22,6 @@ Inside the interpolation block, you can embed:
 - **Other fragments** — `${codec.columnList}` or `${Fragment.whereAnd(filters)}` are spliced into the SQL
 - **Nested blocks** — fragments built with `Sql { }` / `sql""` compose naturally
 
-This makes dynamic query composition concise:
-
-<Snippet file="core/FragmentComposing" />
-
 ## Builder Pattern
 
 The builder pattern works in all languages and is useful for constructing fragments programmatically:
@@ -40,51 +30,20 @@ The builder pattern works in all languages and is useful for constructing fragme
 
 For parameterized templates with unfilled parameter holes, see [Templates](./templates).
 
-## Chaining Reference
+:::tip Which style should I use?
+- **Kotlin** — Use `Sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [Templates](./templates).
+- **Scala** — Same guidance, using `sql""` instead of `Sql { }`.
+- **Java** — Use the builder pattern for everything (no string interpolation available).
+:::
 
-Fragments are self-composing — every combinator returns a new `Fragment`:
+## Composing Fragments
 
-| Method | Description |
-|--------|-------------|
-| `.append(string)` | Append a literal SQL string |
-| `.value(type, value)` | Append a bound parameter |
-| `.append(fragment)` | Append another fragment (e.g. `columnList`, `whereAnd()`) |
-| `.appendAll(fragments, separator)` | Append multiple fragments joined by a separator |
-| `.row(codec, value)` | Append all columns of a named row codec as bound parameters |
-| `.paramRow(codec)` | Append all columns of a named row codec as parameter holes — see [Templates](./templates) |
-| `.param(type)` | Create a single parameter hole — see [Templates](./templates) |
+Build small reusable fragments, then combine them into full queries. Static factories like `Fragment.whereAnd()`, `Fragment.set()`, and `Fragment.comma()` handle SQL syntax — commas, AND/OR separators, SET clauses — so you don't have to:
 
-## Static Factories
+<Snippet file="core/FragmentComposing" />
 
-| Method | Description |
-|--------|-------------|
-| `Fragment.of(sql)` | Create a fragment from a literal SQL string |
-| `Fragment.empty()` | An empty fragment (no SQL, no parameters) |
-| `Fragment.value(type, value)` | Create a single-parameter fragment |
-| `Fragment.encode(type, value)` | Alias for `value` — Kotlin: `type(value)`, Scala: `type(value)` |
-| `Fragment.concat(fragments...)` | Concatenate multiple fragments with no separator |
-| `Fragment.join(fragments, separator)` | Join fragments with a separator |
-| `Fragment.comma(fragments...)` | Join fragments with `, ` |
-| `Fragment.and(fragments...)` | Join fragments with ` AND ` |
-| `Fragment.or(fragments...)` | Join fragments with ` OR ` |
-| `Fragment.set(fragments...)` | `SET ` prefix with `, `-joined fragments |
-| `Fragment.orderBy(fragments...)` | `ORDER BY ` prefix with `, `-joined fragments |
-| `Fragment.whereAnd(fragments...)` | `WHERE ` prefix with ` AND `-joined fragments |
-| `Fragment.whereOr(fragments...)` | `WHERE ` prefix with ` OR `-joined fragments |
-| `Fragment.parentheses(fragment)` | Wrap a fragment in `(` `)` |
-| `Fragment.quotedDouble(name)` | Double-quote an identifier: `"name"` |
-| `Fragment.quotedSingle(value)` | Single-quote a literal: `'value'` |
+The same approach works for UPDATE statements — build a list of assignments and let `Fragment.set()` join them:
 
-## Terminals
+<Snippet file="core/FragmentCombinators" />
 
-| Method | Returns |
-|--------|---------|
-| `.query(parser)` | `Operation<T>` — a SELECT that reads rows using the given result set parser |
-| `.queryExactlyOne(type)` | `Operation<T>` — convenience for `.query(RowCodec.of(type).exactlyOne())` |
-| `.queryAll(type)` | `Operation<List<T>>` — convenience for `.query(RowCodec.of(type).all())` |
-| `.queryMaxOne(type)` | `Operation<Optional<T>>` / `Operation<T?>` / `Operation<Option[T]]>` — convenience for `.query(RowCodec.of(type).maxOne())` |
-| `.queryExactlyOne(codec)` | `Operation<T>` — convenience for `.query(codec.exactlyOne())` |
-| `.queryAll(codec)` | `Operation<List<T>>` — convenience for `.query(codec.all())` |
-| `.queryMaxOne(codec)` | `Operation<Optional<T>>` / `Operation<T?>` / `Operation<Option[T]]>` — convenience for `.query(codec.maxOne())` |
-| `.update()` | `Operation<Int>` — an INSERT/UPDATE/DELETE returning the affected row count |
-| `.execute()` | `Operation<Void>` — like `.update()` but discards the row count |
+Other useful combinators: `Fragment.and()`, `Fragment.or()`, `Fragment.whereOr()`, `Fragment.orderBy()`, `Fragment.comma()`, `Fragment.parentheses()`.

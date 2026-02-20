@@ -125,6 +125,6 @@ The last block uses [Query Analysis](./query-analysis) to verify that the column
 
 **Jump to a topic:** [Transactors](./transactors) (connection management) &middot; [Database Types](./database-types) (type catalog)
 
-## Full Example
+## Full Examples
 
-The [`example-kotlin`](https://github.com/typr-dev/foundations-jdbc/tree/main/example-kotlin) project is a complete working application using DuckDB with domain types, repositories, services, and query analysis. It demonstrates how all the pieces fit together in practice.
+The [`example-kotlin`](https://github.com/typr-dev/foundations-jdbc/tree/main/example-kotlin) project is a complete working application using DuckDB with domain types, repositories, services, and query analysis. The [`example-spring-boot`](https://github.com/typr-dev/foundations-jdbc/tree/main/example-spring-boot) project shows the same patterns in a Java Spring Boot application with HikariCP connection pooling. Both demonstrate how all the pieces fit together in practice.

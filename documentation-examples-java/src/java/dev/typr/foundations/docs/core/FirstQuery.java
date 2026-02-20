@@ -19,42 +19,36 @@ public class FirstQuery {
             .field("population", DuckDbTypes.integer, City::population)
             .build(City::new);
 
-    void example() throws SQLException {
-        var ds = SingleConnectionDataSource.create(
-            DuckDbConfig.inMemory().build());
-        var tx = ds.transactor();
+    static Operation<List<City>> findCities =
+        Fragment.of("SELECT ")
+            .append(cityCodec.columnList())
+            .append(" FROM city ORDER BY population DESC")
+            .query(cityCodec.all());
 
-        tx.execute(conn -> {
+    void example() throws SQLException {
+        var tx = SingleConnectionDataSource.create(
+            DuckDbConfig.inMemory().build()).transactor();
+
+        List<City> cities = tx.execute(conn -> {
             Fragment.of("""
                     CREATE TABLE city (
                         name VARCHAR, country VARCHAR, population INTEGER)""")
                 .update().run(conn);
+
             Fragment.of("""
                     INSERT INTO city VALUES
                         ('Oslo', 'Norway', 709037),
                         ('Bergen', 'Norway', 291189),
                         ('Stockholm', 'Sweden', 984748)""")
                 .update().run(conn);
-            return null;
+
+            return findCities.run(conn);
         });
-
-        List<City> cities = tx.execute(conn ->
-            Fragment.of("SELECT ")
-                .append(cityCodec.columnList())
-                .append(" FROM city ORDER BY population DESC")
-                .query(cityCodec.all())
-                .run(conn));
-
-        // [City[name=Stockholm, ...], City[name=Oslo, ...], City[name=Bergen, ...]]
 
         // Verify that query types match the database schema
         tx.execute(conn -> {
-            var query = Fragment.of("SELECT ")
-                .append(cityCodec.columnList())
-                .append(" FROM city")
-                .query(cityCodec.all());
             QueryAnalysis analysis =
-                QueryAnalyzer.analyze(query, conn).getFirst();
+                QueryAnalyzer.analyze(findCities, conn).getFirst();
             assert analysis.succeeded() : analysis.report();
             return null;
         });

@@ -15,36 +15,32 @@ object FirstQuery:
       .field("population", DuckDbTypes.integer)(_.population)
       .build(City.apply)
 
-  def example(): Unit =
-    val ds = SimpleDataSource.create(
-      DuckDbConfig.inMemory().build())
-    val tx = ds.transactor()
+  val findCities: Operation[List[City]] =
+    sql"SELECT ${cityCodec.columnList} FROM city ORDER BY population DESC"
+      .query(cityCodec.all())
 
-    tx.transact { conn =>
+  def example(): Unit =
+    val tx = SimpleDataSource.create(
+      DuckDbConfig.inMemory().build()).transactor()
+
+    val cities: List[City] = tx.transact { conn =>
       sql"""CREATE TABLE city (
                 name VARCHAR, country VARCHAR, population INTEGER)"""
         .update().run(conn)
+
       sql"""INSERT INTO city VALUES
                 ('Oslo', 'Norway', 709037),
                 ('Bergen', 'Norway', 291189),
                 ('Stockholm', 'Sweden', 984748)"""
         .update().run(conn)
-    }
 
-    val cities: List[City] = tx.transact { conn =>
-      sql"SELECT ${cityCodec.columnList} FROM city ORDER BY population DESC"
-        .query(cityCodec.all())
-        .run(conn)
+      findCities.run(conn)
     }
-
-    // List(City(Stockholm, ...), City(Oslo, ...), City(Bergen, ...))
 
     // Verify that query types match the database schema
     tx.transact { conn =>
-      val query = sql"SELECT ${cityCodec.columnList} FROM city"
-        .query(cityCodec.all())
       val analysis: QueryAnalysis =
-        QueryAnalyzer.analyze(query, conn).head
+        QueryAnalyzer.analyze(findCities, conn).head
       assert(analysis.succeeded, analysis.report())
     }
   //stop
