@@ -4,7 +4,7 @@ import dev.typr.foundationskt.*
 
 @Suppress("unused")
 class VoidProcedure {
-    private val tx: Transactor? = null // placeholder
+    private lateinit var tx: Transactor
 
     //start
     // A void procedure — no OUT parameters, just side effects
@@ -15,7 +15,7 @@ class VoidProcedure {
             .build()
 
     fun logAction(action: String, details: String) {
-        auditLog.call(action, details).transact(tx!!)
+        auditLog.call(action, details).transact(tx)
     }
     //stop
 }

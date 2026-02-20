@@ -250,11 +250,11 @@ function Features() {
     },
     {
       title: 'Queries are values',
-      description: 'Fragments and row parsers are immutable values you compose, pass around, and run when you\'re ready. Just functions and values.',
+      description: 'Fragments and row codecs are immutable values you compose, pass around, and run when you\'re ready. Just functions and values.',
     },
     {
       title: 'Composable',
-      description: 'Row parsers compose. Join two parsers for a joined query. Left join gives you Optional on the right side. Fragments compose with and(), or(), whereAnd(). It\'s just functions.',
+      description: 'Row codecs compose. Join two codecs for a joined query. Left join gives you Optional on the right side. Fragments compose with and(), or(), whereAnd(). It\'s just functions.',
     },
     {
       title: 'No reflection, no magic',
@@ -315,7 +315,7 @@ function ErrorMessagesSection() {
   );
 }
 
-function SchemaAndParsers() {
+function SchemaAndCodecs() {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
@@ -362,7 +362,7 @@ function TypeBuildingBlocks() {
           </TabItem>
           <TabItem value="wrapper" label="Wrapper Types">
             <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
-              Call <code>transform</code> (two-way mapping) on a base type — you get a full codec that works in row parsers, arrays, and JSON.
+              Call <code>transform</code> (two-way mapping) on a base type — you get a full codec that works in row codecs, arrays, and JSON.
             </p>
             <CodeBlock language="sql" title="MariaDB DDL">
               {`CREATE TABLE products (\n    id   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\n    name VARCHAR(255) NOT NULL\n);`}
@@ -762,7 +762,7 @@ export default function Home() {
         <QueryAnalysisSection />
         <ErrorMessagesSection />
         <Features />
-        <SchemaAndParsers />
+        <SchemaAndCodecs />
         <TypeBuildingBlocks />
         <QueryShowcase />
         <TransactorShowcase />

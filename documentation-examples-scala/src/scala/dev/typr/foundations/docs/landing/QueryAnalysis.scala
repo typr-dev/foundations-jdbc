@@ -6,7 +6,7 @@ import dev.typr.foundationssc.data.*
 import java.sql.Connection
 
 @SuppressWarnings(Array("unused"))
-object QueryAnalysis:
+object QueryAnalysisExample:
   case class User(id: Int, name: String, createdAt: Int, email: String)
   object User:
     val rowCodec: RowCodec[User] = RowCodec.builder[User]()

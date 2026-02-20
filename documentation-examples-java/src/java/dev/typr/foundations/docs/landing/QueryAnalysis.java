@@ -11,11 +11,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class QueryAnalysis {
+class QueryAnalysisExample {
     record User(Integer id, String name, Integer createdAt, String email) {}
     Connection connection = null; // placeholder
 
-    RowCodec<User> parser = RowCodec.<User>builder()
+    RowCodec<User> userCodec = RowCodec.<User>builder()
         .field(PgTypes.int4, User::id)
         .field(PgTypes.text, User::name)
         .field(PgTypes.int4, User::createdAt)
@@ -30,7 +30,7 @@ public class QueryAnalysis {
                 FROM users WHERE active =
                 """)
             .value(PgTypes.bool, true)
-            .query(parser.all());
+            .query(userCodec.all());
 
     // But Query Analysis catches the bugs in your tests
     void check() throws SQLException {

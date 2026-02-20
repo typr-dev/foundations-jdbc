@@ -192,6 +192,11 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
         @JvmStatic
         fun of(vararg fragments: Fragment): Fragment =
             Fragment(dev.typr.foundations.Fragment.of(*fragments.map { it.underlying }.toTypedArray()))
+
+        @JvmStatic
+        @JvmName("rowStatic")
+        fun <Row : Any> row(codec: RowCodecNamed<Row>, row: Row, vararg except: String): Fragment =
+            Fragment(dev.typr.foundations.Fragment.EMPTY.row(codec.underlying, row, *except))
     }
 }
 

@@ -26,7 +26,6 @@ const sidebars = {
       items: [
         {type: "doc", id: "connection-pooling", label: "Connection Pooling"},
         {type: "doc", id: "spring-boot", label: "Spring Boot"},
-        {type: "doc", id: "migrations", label: "Migrations"},
         {type: "doc", id: "thread-safety", label: "Thread Safety"},
         {type: "doc", id: "structuring-repositories", label: "Structuring Repositories"},
         {type: "doc", id: "observability", label: "Observability"},

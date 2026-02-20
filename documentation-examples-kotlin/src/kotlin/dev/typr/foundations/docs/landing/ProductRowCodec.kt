@@ -15,8 +15,20 @@ class ProductRowCodec {
 
     val productIdType: PgType<ProductId> =
         PgTypes.int4.transform(::ProductId, ProductId::value)
-    val dimensionsType: PgType<Dim>? = null // placeholder
-    val categoryRowCodec: RowCodec<Category>? = null // placeholder
+    val dimensionsType: PgType<Dim> =
+        PgStruct.builder<Dim>("dimensions")
+            .field("width", PgTypes.float8, Dim::width)
+            .field("height", PgTypes.float8, Dim::height)
+            .field("depth", PgTypes.float8, Dim::depth)
+            .field("unit", PgTypes.text, Dim::unit)
+            .build(::Dim)
+            .asType()
+
+    val categoryRowCodec: RowCodec<Category> =
+        RowCodec.builder<Category>()
+            .field(PgTypes.int4, Category::id)
+            .field(PgTypes.text, Category::name)
+            .build(::Category)
 
     //start
     val rowCodec: RowCodec<Product> =
@@ -25,12 +37,12 @@ class ProductRowCodec {
             .field(PgTypes.text, Product::name)
             .field(PgTypes.numeric, Product::price)
             .field(PgTypes.textArray.opt(), Product::tags)
-            .field(dimensionsType!!.opt(), Product::dimensions)
+            .field(dimensionsType.opt(), Product::dimensions)
             .field(PgTypes.jsonb.opt(), Product::metadata)
             .field(PgTypes.timestamptz.opt(), Product::createdAt)
             .build(::Product)
 
-    // Compose parsers for joins
+    // Compose codecs for joins
     val joined: RowCodec<Pair<Product, Category?>> =
         rowCodec.leftJoined(categoryRowCodec)
     //stop

@@ -43,10 +43,10 @@ var tx = config.transactor(settings);
 
 ## Connection Pooling
 
-For production, use `PooledDataSource` from the `foundations-jdbc-hikari` module:
+For production, use `HikariDataSourceFactory` from the `foundations-jdbc-hikari` module:
 
 ```java
-var pool = PooledDataSource.create(config);
+var pool = HikariDataSourceFactory.create(config);
 var tx = pool.transactor();
 ```
 

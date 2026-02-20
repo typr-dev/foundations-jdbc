@@ -11,16 +11,16 @@ public class TodoRepository {
 
     public record Todo(Integer id, String title, Boolean done) {}
 
-    private static final RowCodecNamed<Todo> parser = RowCodec.<Todo>namedBuilder()
+    private static final RowCodecNamed<Todo> todoCodec = RowCodec.<Todo>namedBuilder()
             .field("id", DuckDbTypes.integer, Todo::id)
             .field("title", DuckDbTypes.varchar, Todo::title)
             .field("done", DuckDbTypes.boolean_, Todo::done)
             .build(Todo::new);
 
     private static final Operation.Query<List<Todo>> FIND_ALL =
-            Fragment.of("SELECT ").append(parser.columnList())
+            Fragment.of("SELECT ").append(todoCodec.columnList())
                     .append(" FROM todo ORDER BY id")
-                    .query(parser.all());
+                    .query(todoCodec.all());
 
     private final Transactor tx;
 
@@ -49,8 +49,8 @@ public class TodoRepository {
     public Todo create(String title) throws SQLException {
         return Fragment.of("INSERT INTO todo (title) VALUES (")
                 .value(DuckDbTypes.varchar, title)
-                .append(") RETURNING ").append(parser.columnList())
-                .query(parser.exactlyOne())
+                .append(") RETURNING ").append(todoCodec.columnList())
+                .query(todoCodec.exactlyOne())
                 .transact(tx);
     }
 

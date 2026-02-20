@@ -5,7 +5,7 @@ import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
 class StrategyOverride {
-    val tx: Transactor = null!! // placeholder
+    lateinit var tx: Transactor
     val logger: QueryListener = QueryListener.NOOP
 
     //start

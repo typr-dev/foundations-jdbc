@@ -11,7 +11,7 @@ This page covers the internals, database support, and API surface of [Query Anal
 ### Query Operations
 
 ```java
-// Full query with parameters and result parser
+// Full query with parameters and result codec
 QueryAnalyzer.analyze(fragment.query(rowCodec.all()), conn).getFirst();
 
 // Named query
@@ -34,7 +34,7 @@ QueryAnalyzer.analyze("updateUser", fragment.update(), conn).getFirst();
 ### Low-Level Analysis
 
 ```java
-// Analyze a fragment + parser directly
+// Analyze a fragment + codec directly
 QueryAnalyzer.analyzeFragmentAndParser(fragment, resultSetParser, conn);
 ```
 

@@ -19,7 +19,7 @@ object NamedJsonObject:
   val arrayType: DuckDbType[List[OrderLine]] =
     DuckDbTypes.jsonArrayEncodedList(lineCodec)
 
-  // Stores rows as named JSON objects — keys from the parser
+  // Stores rows as named JSON objects — keys from the codec
   val objectType: DuckDbType[List[OrderLine]] =
     DuckDbTypes.jsonObjectEncodedList(lineCodec)
   //stop

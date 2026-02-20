@@ -5,7 +5,7 @@ import java.math.BigDecimal
 
 @Suppress("unused")
 class FunctionExample {
-    private val tx: Transactor? = null // placeholder
+    private lateinit var tx: Transactor
 
     //start
     // Functions use SELECT instead of CALL — every DbType reads correctly
@@ -22,6 +22,6 @@ class FunctionExample {
 
     fun calculateTax(amount: BigDecimal, region: String): BigDecimal =
         calcTax.call(amount, region)
-            .transact(tx!!)
+            .transact(tx)
     //stop
 }

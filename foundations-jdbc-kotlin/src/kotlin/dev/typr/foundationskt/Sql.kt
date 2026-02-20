@@ -46,6 +46,3 @@ inline fun sql(block: () -> String): Fragment {
         SqlBuilder.threadLocal.remove()
     }
 }
-
-operator fun <T> DbType<T>.invoke(value: T): Fragment =
-    Fragment(dev.typr.foundations.Fragment.value(value, underlying))

@@ -219,6 +219,9 @@ object Fragment {
 
   def of(fragments: Fragment*): Fragment =
     new Fragment(dev.typr.foundations.Fragment.of(fragments.map(_.underlying)*))
+
+  def row[Row](codec: RowCodecNamed[Row], row: Row, except: String*): Fragment =
+    new Fragment(dev.typr.foundations.Fragment.EMPTY.row(codec.underlying, row, except*))
 }
 
 private[foundationssc] object OptionallyTransforms:

@@ -7,17 +7,17 @@ import java.time.OffsetDateTime
 import java.util.*
 
 fun ticketsByEvent(eventId: EventId): Operation.Query<List<Ticket>> =
-    sql { "SELECT ${ticketParser.columnList} FROM ticket WHERE event_id = ${eventIdType(eventId)} ORDER BY purchased" }
-        .query(ticketParser.all())
+    sql { "SELECT ${ticketCodec.columnList} FROM ticket WHERE event_id = ${eventIdType(eventId)} ORDER BY purchased" }
+        .query(ticketCodec.all())
 
 fun ticketById(id: TicketId): Operation.Query<Ticket?> =
-    sql { "SELECT ${ticketParser.columnList} FROM ticket WHERE id = ${ticketIdType(id)}" }
-        .query(ticketParser.maxOne())
+    sql { "SELECT ${ticketCodec.columnList} FROM ticket WHERE id = ${ticketIdType(id)}" }
+        .query(ticketCodec.maxOne())
 
 fun insertTicket(ticket: Ticket): Operation.Query<Ticket> {
-    val values = Fragment.of("").row(ticketParser, ticket)
-    return sql { "INSERT INTO ticket (${ticketParser.columnList}) VALUES ($values) RETURNING ${ticketParser.columnList}" }
-        .query(ticketParser.exactlyOne())
+    val values = Fragment.row(ticketCodec, ticket)
+    return sql { "INSERT INTO ticket (${ticketCodec.columnList}) VALUES ($values) RETURNING ${ticketCodec.columnList}" }
+        .query(ticketCodec.exactlyOne())
 }
 
 fun countTicketsByEvent(eventId: EventId): Operation.Query<Long> =
@@ -35,7 +35,7 @@ val eventSummaries: Operation.Query<List<EventSummary>> =
            LEFT JOIN ticket t ON t.event_id = e.id
            GROUP BY e.id, e.title, v.name
            ORDER BY e.title""" }
-        .query(eventSummaryParser.all())
+        .query(eventSummaryCodec.all())
 
 fun purchaseTicket(
     eventId: EventId, tier: TicketTier, holderName: String, holderEmail: String?,

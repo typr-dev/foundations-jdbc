@@ -2,11 +2,10 @@ package dev.typr.foundations.docs.landing
 
 import dev.typr.foundationskt.*
 import dev.typr.foundationskt.data.*
-import dev.typr.foundationskt.QueryAnalysis as AnalysisResult
 import java.sql.Connection
 
 @Suppress("unused")
-class QueryAnalysis {
+class QueryAnalysisExample {
     data class User(val id: Int, val name: String, val createdAt: Int, val email: String)
     lateinit var connection: Connection
 
@@ -28,7 +27,7 @@ class QueryAnalysis {
             .query(userCodec.all())
 
     fun check() {
-        val analysis: AnalysisResult =
+        val analysis: QueryAnalysis =
             QueryAnalyzer.analyze(query, connection).single()
         if (!analysis.succeeded()) {
             throw AssertionError(analysis.report())

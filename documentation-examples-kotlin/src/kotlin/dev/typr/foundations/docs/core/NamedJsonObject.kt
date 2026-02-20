@@ -20,7 +20,7 @@ class NamedJsonObject {
         DuckDbTypes.jsonArrayEncodedList(lineCodec)
 
     // Stores rows as named JSON objects: [{"product": "Widget", "qty": 3, "price": 9.99}, ...]
-    // Column names come from the parser — no redundant list to maintain
+    // Column names come from the codec — no redundant list to maintain
     val objectType: DuckDbType<List<OrderLine>> =
         DuckDbTypes.jsonObjectEncodedList(lineCodec)
     //stop

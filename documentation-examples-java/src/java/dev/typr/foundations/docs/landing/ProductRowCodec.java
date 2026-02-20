@@ -1,6 +1,7 @@
 package dev.typr.foundations.docs.landing;
 
 import dev.typr.foundations.And;
+import dev.typr.foundations.PgStruct;
 import dev.typr.foundations.PgType;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
@@ -19,8 +20,20 @@ public class ProductRowCodec {
     record Category(Integer id, String name) {}
 
     static final PgType<ProductId> productIdType = PgTypes.int4.transform(ProductId::new, ProductId::value);
-    static final PgType<Dim> dimensionsType = null; // placeholder
-    static final RowCodec<Category> categoryRowCodec = null; // placeholder
+    static final PgType<Dim> dimensionsType =
+        PgStruct.<Dim>builder("dimensions")
+            .field("width", PgTypes.float8, Dim::width)
+            .field("height", PgTypes.float8, Dim::height)
+            .field("depth", PgTypes.float8, Dim::depth)
+            .field("unit", PgTypes.text, Dim::unit)
+            .build(Dim::new)
+            .asType();
+
+    static final RowCodec<Category> categoryRowCodec =
+        RowCodec.<Category>builder()
+            .field(PgTypes.int4, Category::id)
+            .field(PgTypes.text, Category::name)
+            .build(Category::new);
 
     //start
     static RowCodec<Product> rowCodec =
@@ -34,7 +47,7 @@ public class ProductRowCodec {
             .field(PgTypes.timestamptz.opt(), Product::createdAt)
             .build(Product::new);
 
-    // Compose parsers for joins
+    // Compose codecs for joins
     static RowCodec<And<Product, Optional<Category>>> joined =
         rowCodec.leftJoined(categoryRowCodec);
     //stop

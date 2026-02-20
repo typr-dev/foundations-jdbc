@@ -4,18 +4,18 @@ import dev.typr.foundationskt.*
 import java.sql.Connection
 
 val allVenues: Operation.Query<List<Venue>> =
-    sql { "SELECT ${venueParser.columnList} FROM venue ORDER BY name" }
-        .query(venueParser.all())
+    sql { "SELECT ${venueCodec.columnList} FROM venue ORDER BY name" }
+        .query(venueCodec.all())
 
 fun venueById(id: VenueId): Operation.Query<Venue?> =
-    sql { "SELECT ${venueParser.columnList} FROM venue WHERE id = ${venueIdType(id)}" }
-        .query(venueParser.maxOne())
+    sql { "SELECT ${venueCodec.columnList} FROM venue WHERE id = ${venueIdType(id)}" }
+        .query(venueCodec.maxOne())
 
 fun createVenue(venue: Venue): Operation.Query<Venue> {
-    val cols = venueParser.columnNames.filter { it != "id" }.joinToString(", ")
-    val values = Fragment.of("").row(venueParser, venue, "id")
-    return sql { "INSERT INTO venue ($cols) VALUES ($values) RETURNING ${venueParser.columnList}" }
-        .query(venueParser.exactlyOne())
+    val cols = venueCodec.columnNames.filter { it != "id" }.joinToString(", ")
+    val values = Fragment.row(venueCodec, venue, "id")
+    return sql { "INSERT INTO venue ($cols) VALUES ($values) RETURNING ${venueCodec.columnList}" }
+        .query(venueCodec.exactlyOne())
 }
 
 fun analyzeVenueQueries(conn: Connection): List<QueryAnalysis> = listOf(

@@ -26,9 +26,9 @@ val addressStruct: DuckDbStruct<Address> = DuckDbStruct.builder<Address>("addres
 
 val addressType: DuckDbType<Address> = addressStruct.asType()
 
-// ─── Row parsers ────────────────────────────────────────────────────
+// ─── Row codecs ─────────────────────────────────────────────────────
 
-val venueParser: RowCodecNamed<Venue> = RowCodec.namedBuilder<Venue>()
+val venueCodec: RowCodecNamed<Venue> = RowCodec.namedBuilder<Venue>()
     .field("id", venueIdType, Venue::id)
     .field("name", DuckDbTypes.varchar, Venue::name)
     .field("address", addressType, Venue::address)
@@ -37,7 +37,7 @@ val venueParser: RowCodecNamed<Venue> = RowCodec.namedBuilder<Venue>()
     .field("metadata", DuckDbTypes.varchar.mapTo(DuckDbTypes.varchar), Venue::metadata)
     .build(::Venue)
 
-val eventParser: RowCodecNamed<Event> = RowCodec.namedBuilder<Event>()
+val eventCodec: RowCodecNamed<Event> = RowCodec.namedBuilder<Event>()
     .field("id", eventIdType, Event::id)
     .field("venue_id", venueIdType, Event::venueId)
     .field("title", DuckDbTypes.varchar, Event::title)
@@ -50,7 +50,7 @@ val eventParser: RowCodecNamed<Event> = RowCodec.namedBuilder<Event>()
     .field("ratings", DuckDbTypes.listDouble, Event::ratings)
     .build(::Event)
 
-val ticketParser: RowCodecNamed<Ticket> = RowCodec.namedBuilder<Ticket>()
+val ticketCodec: RowCodecNamed<Ticket> = RowCodec.namedBuilder<Ticket>()
     .field("id", ticketIdType, Ticket::id)
     .field("event_id", eventIdType, Ticket::eventId)
     .field("tier", ticketTierType, Ticket::tier)
@@ -61,7 +61,7 @@ val ticketParser: RowCodecNamed<Ticket> = RowCodec.namedBuilder<Ticket>()
     .field("seat_numbers", DuckDbTypes.listInteger, Ticket::seatNumbers)
     .build(::Ticket)
 
-val eventSummaryParser: RowCodecNamed<EventSummary> = RowCodec.namedBuilder<EventSummary>()
+val eventSummaryCodec: RowCodecNamed<EventSummary> = RowCodec.namedBuilder<EventSummary>()
     .field("event_id", eventIdType, EventSummary::eventId)
     .field("title", DuckDbTypes.varchar, EventSummary::title)
     .field("venue_name", DuckDbTypes.varchar, EventSummary::venueName)

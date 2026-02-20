@@ -17,7 +17,7 @@ class ResultSetParserUsage {
             .field(PgTypes.timestamptz, Person::createdAt)
             .build(::Person)
 
-    val resultSet: ResultSet? = null // placeholder
+    lateinit var resultSet: ResultSet
 
     //start
     // Parse at most one result - returns Person? (nullable)
@@ -27,6 +27,6 @@ class ResultSetParserUsage {
     val listParser: ResultSetParser<List<Person>> = personCodec.all()
 
     // Execute with ResultSet
-    fun parse(): Person? = singleParser.apply(resultSet!!)
+    fun parse(): Person? = singleParser.apply(resultSet)
     //stop
 }

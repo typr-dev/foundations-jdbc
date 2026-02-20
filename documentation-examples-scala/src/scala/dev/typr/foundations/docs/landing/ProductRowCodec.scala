@@ -14,8 +14,20 @@ object ProductRowCodec:
   case class Category(id: Int, name: String)
 
   val productIdType: PgType[ProductId] = PgTypes.int4.transform(ProductId.apply, _.value)
-  val dimensionsType: PgType[Dim] = null // placeholder
-  val categoryRowCodec: RowCodec[Category] = null // placeholder
+  val dimensionsType: PgType[Dim] =
+    PgStruct.builder[Dim]("dimensions")
+      .field("width", PgTypes.float8, _.width)
+      .field("height", PgTypes.float8, _.height)
+      .field("depth", PgTypes.float8, _.depth)
+      .field("unit", PgTypes.text, _.unit)
+      .build(Dim.apply)
+      .asType()
+
+  val categoryRowCodec: RowCodec[Category] =
+    RowCodec.builder[Category]()
+      .field(PgTypes.int4)(_.id)
+      .field(PgTypes.text)(_.name)
+      .build(Category.apply)
 
   //start
   val rowCodec: RowCodec[Product] = RowCodec.builder[Product]()
@@ -28,7 +40,7 @@ object ProductRowCodec:
     .field(PgTypes.timestamptz.opt)(_.createdAt)
     .build(Product.apply)
 
-  // Compose parsers for joins
+  // Compose codecs for joins
   val joined: RowCodec[(Product, Option[Category])] =
     rowCodec.leftJoined(categoryRowCodec)
   //stop
