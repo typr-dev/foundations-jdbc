@@ -12,10 +12,10 @@ A `Transactor.Strategy` defines hooks that wrap every execution. The [built-in s
 
 | Hook | When it runs |
 |------|-------------|
-| `before` | Before your code — typically `setAutoCommit(false)` |
-| `after` | After your code succeeds — typically `commit` |
-| `oops` | When an exception is thrown (catch) — receives the connection and the throwable |
-| `always` | In all cases (finally) — typically `close` |
+| `onBegin` | Before your code — typically `setAutoCommit(false)` |
+| `onSuccess` | After your code succeeds — typically `commit` |
+| `onFailure` | When an exception is thrown (catch) — receives the connection and the throwable |
+| `onComplete` | In all cases (finally) — typically `close` |
 | `listener` | A `QueryListener` for observability (see [Observability](observability)) |
 
 ## Custom Strategies

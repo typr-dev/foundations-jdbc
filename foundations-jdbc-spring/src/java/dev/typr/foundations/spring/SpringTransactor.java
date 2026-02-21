@@ -69,13 +69,13 @@ public final class SpringTransactor {
 
   private static Strategy strategy(DataSource dataSource) {
     return Strategy.empty()
-        .replaceBefore(before())
-        .replaceAfter(after())
-        .replaceOops(oops())
-        .replaceAlways(always(dataSource));
+        .replaceOnBegin(onBegin())
+        .replaceOnSuccess(onSuccess())
+        .replaceOnFailure(onFailure())
+        .replaceOnComplete(onComplete(dataSource));
   }
 
-  private static SqlConsumer<Connection> before() {
+  private static SqlConsumer<Connection> onBegin() {
     return conn -> {
       if (!TransactionSynchronizationManager.isActualTransactionActive()) {
         conn.setAutoCommit(false);
@@ -83,7 +83,7 @@ public final class SpringTransactor {
     };
   }
 
-  private static SqlConsumer<Connection> after() {
+  private static SqlConsumer<Connection> onSuccess() {
     return conn -> {
       if (!TransactionSynchronizationManager.isActualTransactionActive()) {
         conn.commit();
@@ -91,11 +91,11 @@ public final class SpringTransactor {
     };
   }
 
-  private static dev.typr.foundations.SqlBiConsumer<Connection, Throwable> oops() {
+  private static dev.typr.foundations.SqlBiConsumer<Connection, Throwable> onFailure() {
     return (conn, err) -> {};
   }
 
-  private static SqlConsumer<Connection> always(DataSource dataSource) {
+  private static SqlConsumer<Connection> onComplete(DataSource dataSource) {
     return conn -> {
       if (!TransactionSynchronizationManager.isActualTransactionActive()) {
         try {
