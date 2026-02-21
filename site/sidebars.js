@@ -39,6 +39,7 @@ const sidebars = {
       items: [
         {type: "doc", id: "templates", label: "Templates"},
         {type: "doc", id: "composing-operations", label: "Composing Operations"},
+        {type: "doc", id: "strategies", label: "Strategies"},
         {type: "doc", id: "query-analysis-reference", label: "Query Analysis Reference"},
         {type: "doc", id: "streaming-inserts", label: "Streaming Inserts"},
         {type: "doc", id: "kotlin-interpolation", label: "Kotlin String Interpolation"},
