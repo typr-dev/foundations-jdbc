@@ -30,6 +30,38 @@ Query Analysis uses JDBC metadata to verify your queries against the actual data
 
 ## Basic Usage
 
+`AnalyzableScanner` scans a package and discovers every query, template, and operation. `QueryChecker` verifies them all against the database. Together, they give you a single test that covers your entire data layer:
+
+<Snippet file="analysis/QueryAnalysisTestSuite" />
+
+Add a new query anywhere in the package, and it's automatically included in the next test run. No manual list maintenance.
+
+### What the Scanner Finds
+
+The scanner discovers fields that implement `Analyzable` — this includes `Operation`, `Template`, and `RowTemplate`. It handles all three JVM languages:
+
+| Source | How it's found |
+|--------|----------------|
+| **Java classes** | Instantiated via no-arg constructor. Instance fields are scanned. |
+| **Kotlin objects** | Discovered via `INSTANCE` singleton. All `val` properties are scanned. |
+| **Scala objects** | Discovered via `MODULE$` singleton. All `val` fields are scanned. |
+
+The scanner recurses into subpackages, so `scan("com.myapp")` finds queries in `com.myapp.users`, `com.myapp.orders`, etc.
+
+Each discovered query is automatically named `ClassName.fieldName` (e.g. `UserRepo.findById`), so error reports pinpoint exactly which query failed.
+
+:::tip
+For classes that need a database connection at construction time, pass a `Transactor` to the scanner:
+```java
+AnalyzableScanner.scan("com.myapp.db", transactor)
+```
+The scanner will try constructors that accept a `Transactor` parameter.
+:::
+
+### Manual Check
+
+Some queries can't be discovered by the scanner — for example, queries built dynamically inside methods, or queries in classes that require constructor arguments the scanner can't provide. Use `checker.check()` to verify these individually:
+
 <Snippet file="analysis/QueryAnalysisBasic" />
 
 ## Named Queries
@@ -38,7 +70,7 @@ Give your queries names for clearer error reports:
 
 <Snippet file="analysis/QueryAnalysisNamed" />
 
-Named queries show the name in the report header, making it easy to find which query failed in a large test suite.
+Named queries show the name in the report header, making it easy to find which query failed in a large test suite. The scanner names queries automatically (`ClassName.fieldName`), so naming is mainly useful for manual checks.
 
 ## Reading the Report
 
@@ -164,17 +196,9 @@ Routine analysis checks:
 - Parameter modes match (IN, OUT, INOUT)
 - Return type matches (for functions)
 
-## Automatic Query Discovery
-
-`AnalyzableScanner` uses reflection to discover every `Operation`, `Template`, and `RowTemplate` field in a package — across Java classes, Kotlin objects, and Scala objects. Combined with `QueryChecker`, this gives you a single test that validates every query in your entire application:
-
-<Snippet file="analysis/QueryAnalysisTestSuite" />
-
-The scanner automatically names each query by its class and field name (e.g. `UserRepo.findById`), so failures pinpoint exactly which query has a type mismatch. No manual list maintenance — add a new query field anywhere in the package, and it's automatically included in the next test run.
-
 ## Analyzing Composed Operations
 
-When you compose operations with `.combine()`/`.combineWith()`, `.then()`, or `Operation.ifEmpty()`, you can verify every SQL statement in the tree with a single call:
+When you compose operations with `.combine()`/`.combineWith()`, `.then()`, or `Operation.ifEmpty()`, the checker walks the entire operation tree and verifies every SQL statement:
 
 <Snippet file="analysis/QueryAnalysisAll" />
 

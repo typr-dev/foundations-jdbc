@@ -2,14 +2,12 @@ package dev.typr.foundationskt.docs.analysis
 
 import dev.typr.foundationskt.*
 import dev.typr.foundationskt.data.*
-import java.sql.Connection
 
 @Suppress("unused")
 class QueryAnalysisBasic {
     data class User(val id: Int, val name: String, val email: String)
 
-    private lateinit var connection: Connection
-    private val userId = 1
+    private lateinit var transactor: Transactor
 
     private val userRowCodec: RowCodec<User> =
         RowCodec.builder<User>()
@@ -19,24 +17,17 @@ class QueryAnalysisBasic {
             .build(::User)
 
     //start
-    fun analyzeQuery() {
-        // Build your query as normal
+    fun checkQueryManually() {
         val query: Operation.Query<List<User>> =
             sql { """
                 SELECT id, name, email
                 FROM users
-                WHERE id = ${PgTypes.int4(userId)}
+                WHERE id = ${PgTypes.int4(1)}
             """ }
                 .query(userRowCodec.all())
 
-        // Analyze it against the database
-        val analysis: QueryAnalysis =
-            QueryAnalyzer.analyze(query, connection).single()
-
-        // Check the results
-        if (!analysis.succeeded()) {
-            throw AssertionError(analysis.report())
-        }
+        val checker = QueryChecker.create(transactor)
+        checker.check(query)
     }
     //stop
 }
