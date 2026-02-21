@@ -34,8 +34,6 @@ public class TodoRepository {
                     .param(DuckDbTypes.integer)
                     .update();
 
-    static final List<Analyzable> analyzables = List.of(selectAll, insertByTitle, setDoneById);
-
     private final Transactor tx;
 
     public TodoRepository(Transactor tx) {
