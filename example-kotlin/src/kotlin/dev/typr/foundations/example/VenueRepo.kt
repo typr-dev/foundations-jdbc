@@ -15,5 +15,4 @@ object VenueRepo {
     val createVenue: RowTemplate<Venue, Venue> =
         Fragment.insertIntoReturning("venue", venueCodec, "id")
 
-    val analyzables: List<Analyzable> = listOf(allVenues, venueById, createVenue)
 }

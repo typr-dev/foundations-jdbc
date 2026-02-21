@@ -1,6 +1,5 @@
 package dev.typr.foundations.example
 
-import dev.typr.foundationskt.Analyzable
 import dev.typr.foundationskt.DuckDbTypes
 import dev.typr.foundationskt.Fragment
 import dev.typr.foundationskt.Operation
@@ -62,8 +61,4 @@ object TicketRepo {
             )
         )
 
-    val analyzables: List<Analyzable> = listOf(
-        ticketsByEvent, ticketById, countTicketsByEvent, revenueByEvent,
-        eventSummaries, insertTicket
-    )
 }

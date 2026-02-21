@@ -39,8 +39,4 @@ object EventRepo {
             .param(eventIdType)
             .update()
 
-    val analyzables: List<Analyzable> = listOf(
-        allEvents, eventById, eventsByStatus, eventsByVenue,
-        createEvent, updateEventStatus, addEventRating
-    )
 }

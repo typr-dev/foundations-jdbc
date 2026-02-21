@@ -17,23 +17,10 @@ fun main() {
 
     // ── Query analysis ──────────────────────────────────────────────
     println("=== Running query analysis ===")
-    val allAnalyzables = VenueRepo.analyzables + EventRepo.analyzables + TicketRepo.analyzables
-    val analyses = tx.transact { conn ->
-        allAnalyzables.flatMap { QueryAnalyzer.analyze(it, conn) }
-    }
-
-    var allPassed = true
-    for (analysis in analyses) {
-        if (!analysis.succeeded()) {
-            allPassed = false
-            println(analysis.reportColored())
-        }
-    }
-    if (allPassed) {
-        println("All ${analyses.size} queries passed analysis.\n")
-    } else {
-        println("\nSome queries failed analysis! See above.\n")
-    }
+    val analyzables = AnalyzableScanner.scan("dev.typr.foundations.example")
+    val checker = QueryChecker.create(tx)
+    checker.checkAll(analyzables)
+    println("All ${analyzables.size} queries passed analysis.\n")
 
     val service = EventService(tx)
 

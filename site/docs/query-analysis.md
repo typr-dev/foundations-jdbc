@@ -164,13 +164,13 @@ Routine analysis checks:
 - Parameter modes match (IN, OUT, INOUT)
 - Return type matches (for functions)
 
-## Test Suite Integration
+## Automatic Query Discovery
 
-The recommended pattern is to analyze all your queries in a dedicated test.
-
-[Templates](./templates) are ideal for this — since their parameters are unbound, you can analyze them without providing concrete values:
+`AnalyzableScanner` uses reflection to discover every `Operation`, `Template`, and `RowTemplate` field in a package — across Java classes, Kotlin objects, and Scala objects. Combined with `QueryChecker`, this gives you a single test that validates every query in your entire application:
 
 <Snippet file="analysis/QueryAnalysisTestSuite" />
+
+The scanner automatically names each query by its class and field name (e.g. `UserRepo.findById`), so failures pinpoint exactly which query has a type mismatch. No manual list maintenance — add a new query field anywhere in the package, and it's automatically included in the next test run.
 
 ## Analyzing Composed Operations
 
