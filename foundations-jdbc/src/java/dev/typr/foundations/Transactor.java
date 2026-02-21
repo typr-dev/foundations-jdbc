@@ -35,15 +35,15 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
               ? new InstrumentedConnection(raw, strategy.listener(), null, null)
               : raw;
       try {
-        strategy.before().apply(conn);
+        strategy.onBegin().apply(conn);
         T result = operation.apply(conn);
-        strategy.after().apply(conn);
+        strategy.onSuccess().apply(conn);
         return result;
       } catch (SQLException | RuntimeException e) {
-        strategy.oops().apply(conn, e);
+        strategy.onFailure().apply(conn, e);
         throw e;
       } finally {
-        strategy.always().apply(conn);
+        strategy.onComplete().apply(conn);
       }
     } catch (SQLException e) {
       throw new DatabaseException(e);
@@ -115,19 +115,19 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * <p>Behavior:
    *
    * <ul>
-   *   <li>before: setAutoCommit(false)
-   *   <li>after: commit()
-   *   <li>oops: no-op (caller handles exceptions)
-   *   <li>always: close()
+   *   <li>onBegin: setAutoCommit(false)
+   *   <li>onSuccess: commit()
+   *   <li>onFailure: no-op (caller handles exceptions)
+   *   <li>onComplete: close()
    * </ul>
    *
    * @return a strategy for manual transaction management
    */
   public static Strategy defaultStrategy() {
     return Strategy.empty()
-        .replaceBefore(conn -> conn.setAutoCommit(false))
-        .replaceAfter(Connection::commit)
-        .replaceAlways(Connection::close);
+        .replaceOnBegin(conn -> conn.setAutoCommit(false))
+        .replaceOnSuccess(Connection::commit)
+        .replaceOnComplete(Connection::close);
   }
 
   /**
@@ -136,16 +136,16 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * <p>Behavior:
    *
    * <ul>
-   *   <li>before: no-op
-   *   <li>after: no-op
-   *   <li>oops: no-op
-   *   <li>always: close()
+   *   <li>onBegin: no-op
+   *   <li>onSuccess: no-op
+   *   <li>onFailure: no-op
+   *   <li>onComplete: close()
    * </ul>
    *
    * @return a strategy for auto-commit mode
    */
   public static Strategy autoCommitStrategy() {
-    return Strategy.empty().replaceAlways(Connection::close);
+    return Strategy.empty().replaceOnComplete(Connection::close);
   }
 
   /**
@@ -154,19 +154,19 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * <p>Behavior:
    *
    * <ul>
-   *   <li>before: setAutoCommit(false)
-   *   <li>after: commit()
-   *   <li>oops: rollback() (silently ignores rollback failures)
-   *   <li>always: close()
+   *   <li>onBegin: setAutoCommit(false)
+   *   <li>onSuccess: commit()
+   *   <li>onFailure: rollback() (silently ignores rollback failures)
+   *   <li>onComplete: close()
    * </ul>
    *
    * @return a strategy that rolls back on error
    */
   public static Strategy rollbackOnErrorStrategy() {
     return Strategy.empty()
-        .replaceBefore(conn -> conn.setAutoCommit(false))
-        .replaceAfter(Connection::commit)
-        .replaceOops(
+        .replaceOnBegin(conn -> conn.setAutoCommit(false))
+        .replaceOnSuccess(Connection::commit)
+        .replaceOnFailure(
             (conn, t) -> {
               try {
                 if (!conn.getAutoCommit() && !conn.isClosed()) {
@@ -175,7 +175,7 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
               } catch (SQLException ignored) {
               }
             })
-        .replaceAlways(Connection::close);
+        .replaceOnComplete(Connection::close);
   }
 
   /**
@@ -184,107 +184,107 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * <p>Behavior:
    *
    * <ul>
-   *   <li>before: setAutoCommit(false)
-   *   <li>after: rollback() (instead of commit, to keep test data isolated)
-   *   <li>oops: no-op (caller handles exceptions)
-   *   <li>always: close()
+   *   <li>onBegin: setAutoCommit(false)
+   *   <li>onSuccess: rollback() (instead of commit, to keep test data isolated)
+   *   <li>onFailure: no-op (caller handles exceptions)
+   *   <li>onComplete: close()
    * </ul>
    *
    * @return a strategy for testing that always rolls back
    */
   public static Strategy testStrategy() {
     return Strategy.empty()
-        .replaceBefore(conn -> conn.setAutoCommit(false))
-        .replaceAfter(Connection::rollback)
-        .replaceAlways(Connection::close);
+        .replaceOnBegin(conn -> conn.setAutoCommit(false))
+        .replaceOnSuccess(Connection::rollback)
+        .replaceOnComplete(Connection::close);
   }
 
   /**
    * Data type representing the common setup, error-handling, and cleanup strategy associated with
    * an SQL transaction. A `Transactor` uses a `Strategy` to wrap programs prior to execution.
    *
-   * @param before a program to prepare the connection for use
-   * @param after a program to run on success
-   * @param oops a program to run on failure (catch), receives the connection and the throwable
-   * @param always a program to run in all cases (finally)
+   * @param onBegin a program to prepare the connection for use
+   * @param onSuccess a program to run on success
+   * @param onFailure a program to run on failure (catch), receives the connection and the throwable
+   * @param onComplete a program to run in all cases (finally)
    * @param listener a query listener for observability (use QueryListener.NOOP for none)
    */
   public record Strategy(
-      SqlConsumer<Connection> before,
-      SqlConsumer<Connection> after,
-      SqlBiConsumer<Connection, Throwable> oops,
-      SqlConsumer<Connection> always,
+      SqlConsumer<Connection> onBegin,
+      SqlConsumer<Connection> onSuccess,
+      SqlBiConsumer<Connection, Throwable> onFailure,
+      SqlConsumer<Connection> onComplete,
       QueryListener listener) {
 
     public static Strategy empty() {
       return new Strategy(conn -> {}, conn -> {}, (conn, t) -> {}, conn -> {}, QueryListener.NOOP);
     }
 
-    public Strategy replaceBefore(SqlConsumer<Connection> before) {
-      return new Strategy(before, after, oops, always, listener);
+    public Strategy replaceOnBegin(SqlConsumer<Connection> onBegin) {
+      return new Strategy(onBegin, onSuccess, onFailure, onComplete, listener);
     }
 
-    public Strategy replaceAfter(SqlConsumer<Connection> after) {
-      return new Strategy(before, after, oops, always, listener);
+    public Strategy replaceOnSuccess(SqlConsumer<Connection> onSuccess) {
+      return new Strategy(onBegin, onSuccess, onFailure, onComplete, listener);
     }
 
-    public Strategy replaceOops(SqlBiConsumer<Connection, Throwable> oops) {
-      return new Strategy(before, after, oops, always, listener);
+    public Strategy replaceOnFailure(SqlBiConsumer<Connection, Throwable> onFailure) {
+      return new Strategy(onBegin, onSuccess, onFailure, onComplete, listener);
     }
 
-    public Strategy replaceAlways(SqlConsumer<Connection> always) {
-      return new Strategy(before, after, oops, always, listener);
+    public Strategy replaceOnComplete(SqlConsumer<Connection> onComplete) {
+      return new Strategy(onBegin, onSuccess, onFailure, onComplete, listener);
     }
 
     public Strategy replaceListener(QueryListener listener) {
-      return new Strategy(before, after, oops, always, listener);
+      return new Strategy(onBegin, onSuccess, onFailure, onComplete, listener);
     }
 
-    public Strategy mergeBefore(SqlConsumer<Connection> other) {
-      SqlConsumer<Connection> existing = this.before;
+    public Strategy mergeOnBegin(SqlConsumer<Connection> other) {
+      SqlConsumer<Connection> existing = this.onBegin;
       return new Strategy(
           conn -> {
             existing.apply(conn);
             other.apply(conn);
           },
-          after,
-          oops,
-          always,
+          onSuccess,
+          onFailure,
+          onComplete,
           listener);
     }
 
-    public Strategy mergeAfter(SqlConsumer<Connection> other) {
-      SqlConsumer<Connection> existing = this.after;
+    public Strategy mergeOnSuccess(SqlConsumer<Connection> other) {
+      SqlConsumer<Connection> existing = this.onSuccess;
       return new Strategy(
-          before,
+          onBegin,
           conn -> {
             existing.apply(conn);
             other.apply(conn);
           },
-          oops,
-          always,
+          onFailure,
+          onComplete,
           listener);
     }
 
-    public Strategy mergeOops(SqlBiConsumer<Connection, Throwable> other) {
-      SqlBiConsumer<Connection, Throwable> existing = this.oops;
+    public Strategy mergeOnFailure(SqlBiConsumer<Connection, Throwable> other) {
+      SqlBiConsumer<Connection, Throwable> existing = this.onFailure;
       return new Strategy(
-          before,
-          after,
+          onBegin,
+          onSuccess,
           (conn, t) -> {
             existing.apply(conn, t);
             other.apply(conn, t);
           },
-          always,
+          onComplete,
           listener);
     }
 
-    public Strategy mergeAlways(SqlConsumer<Connection> other) {
-      SqlConsumer<Connection> existing = this.always;
+    public Strategy mergeOnComplete(SqlConsumer<Connection> other) {
+      SqlConsumer<Connection> existing = this.onComplete;
       return new Strategy(
-          before,
-          after,
-          oops,
+          onBegin,
+          onSuccess,
+          onFailure,
           conn -> {
             existing.apply(conn);
             other.apply(conn);
@@ -293,26 +293,26 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
     }
 
     public Strategy mergeListener(QueryListener other) {
-      return new Strategy(before, after, oops, always, listener.compose(other));
+      return new Strategy(onBegin, onSuccess, onFailure, onComplete, listener.compose(other));
     }
 
     public Strategy merge(Strategy other) {
       return new Strategy(
           conn -> {
-            before.apply(conn);
-            other.before.apply(conn);
+            onBegin.apply(conn);
+            other.onBegin.apply(conn);
           },
           conn -> {
-            after.apply(conn);
-            other.after.apply(conn);
+            onSuccess.apply(conn);
+            other.onSuccess.apply(conn);
           },
           (conn, t) -> {
-            oops.apply(conn, t);
-            other.oops.apply(conn, t);
+            onFailure.apply(conn, t);
+            other.onFailure.apply(conn, t);
           },
           conn -> {
-            always.apply(conn);
-            other.always.apply(conn);
+            onComplete.apply(conn);
+            other.onComplete.apply(conn);
           },
           QueryListener.compose(listener, other.listener));
     }
