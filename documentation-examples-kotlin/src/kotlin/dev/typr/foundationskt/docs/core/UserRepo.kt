@@ -24,6 +24,5 @@ object UserRepo {
             .param(PgTypes.int4)
             .query(userCodec.maxOne())
 
-    val analyzables: List<Analyzable> = listOf(selectAll, selectById)
 }
 //stop
