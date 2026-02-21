@@ -201,6 +201,10 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
             RowTemplate.Update(dev.typr.foundations.Fragment.insertInto(table, codec.underlying, *except))
 
         @JvmStatic
+        fun <Row : Any> insertIntoReturning(table: String, codec: RowCodecNamed<Row>, vararg except: String): RowTemplate.Query<Row, Row> =
+            RowTemplate.Query(dev.typr.foundations.Fragment.insertIntoReturning(table, codec.underlying, *except))
+
+        @JvmStatic
         @JvmName("rowStatic")
         fun <Row : Any> row(codec: RowCodecNamed<Row>, row: Row, vararg except: String): Fragment =
             Fragment(dev.typr.foundations.Fragment.EMPTY.row(codec.underlying, row, *except))

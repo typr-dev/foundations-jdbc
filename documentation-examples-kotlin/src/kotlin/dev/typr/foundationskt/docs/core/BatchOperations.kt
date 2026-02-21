@@ -21,23 +21,15 @@ class BatchOperations {
 
     //start
     // Batch insert — all columns as parameters
-    val insertAll =
-        sql { "INSERT INTO product (" }
-            .append(productCodec.columnList)
-            .append(") VALUES (")
-            .paramRow(productCodec)
-            .append(")")
-            .update()
+    val insertAll: RowTemplate.Update<Product> =
+        Fragment.insertInto("product", productCodec)
 
     fun insertProducts(products: List<Product>): IntArray =
         insertAll.onMany(products.iterator()).run(conn)
 
     // Batch insert — skip auto-generated ID column
-    val insertAutoId =
-        sql { "INSERT INTO product (name, price, created_at) VALUES (" }
-            .paramRow(productCodec, "id")
-            .append(")")
-            .update()
+    val insertAutoId: RowTemplate.Update<Product> =
+        Fragment.insertInto("product", productCodec, "id")
 
     fun insertProductsAutoId(products: List<Product>): IntArray =
         insertAutoId.onMany(products.iterator()).run(conn)

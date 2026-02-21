@@ -44,10 +44,7 @@ object TicketRepo {
             .query(eventSummaryCodec.all())
 
     val insertTicket: RowTemplate.Query<Ticket, Ticket> =
-        Fragment.of("INSERT INTO ticket (${ticketCodec.columnNames.joinToString(", ")}) VALUES (")
-            .paramRow(ticketCodec)
-            .append(sql { ") RETURNING ${ticketCodec.columnList}" })
-            .query(ticketCodec.exactlyOne())
+        Fragment.insertIntoReturning("ticket", ticketCodec)
 
     fun purchaseTicket(
         eventId: EventId, tier: TicketTier, holderName: String, holderEmail: String?,
