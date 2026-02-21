@@ -13,6 +13,6 @@ object GettingStarted:
       .transactor()
 
   val result: Int = sql"SELECT 42"
-    .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
+    .queryExactlyOne(DuckDbTypes.integer)
     .transact(tx)
   //stop

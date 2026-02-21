@@ -86,6 +86,9 @@ Pass a strategy to `.transactor()`:
 var tx = config.transactor(Transactor.testStrategy());
 ```
 
+<details>
+<summary>Custom strategy hooks</summary>
+
 ### Custom Strategies
 
 Build a strategy from scratch using `replaceX` methods — each one sets a single hook:
@@ -101,3 +104,5 @@ Use `mergeX` methods to compose hooks — both the existing and new hook run in 
 The `mergeListener` convenience on `Transactor` creates a derived transactor with the listener merged into its strategy:
 
 <Snippet file="core/StrategyOverride" />
+
+</details>

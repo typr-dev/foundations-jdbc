@@ -1,11 +1,9 @@
 package dev.typr.foundations.docs.landing;
 
-import dev.typr.foundations.PgStruct;
-import dev.typr.foundations.PgType;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
+import dev.typr.foundations.RowCodecNamed;
 import dev.typr.foundations.Tuple;
-import dev.typr.foundations.data.Jsonb;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -13,21 +11,8 @@ import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class ProductRowCodec {
-    record Product(ProductId id, String name, BigDecimal price, Optional<String[]> tags,
-                   Optional<Dim> dimensions, Optional<Jsonb> metadata, Optional<Instant> createdAt) {}
-    record ProductId(Integer value) {}
-    record Dim(Double width, Double height, Double depth, String unit) {}
+    record Product(int id, String name, BigDecimal price, Optional<Instant> createdAt) {}
     record Category(Integer id, String name) {}
-
-    static final PgType<ProductId> productIdType = PgTypes.int4.transform(ProductId::new, ProductId::value);
-    static final PgType<Dim> dimensionsType =
-        PgStruct.<Dim>builder("dimensions")
-            .field("width", PgTypes.float8, Dim::width)
-            .field("height", PgTypes.float8, Dim::height)
-            .field("depth", PgTypes.float8, Dim::depth)
-            .field("unit", PgTypes.text, Dim::unit)
-            .build(Dim::new)
-            .asType();
 
     static final RowCodec<Category> categoryRowCodec =
         RowCodec.<Category>builder()
@@ -36,19 +21,16 @@ public class ProductRowCodec {
             .build(Category::new);
 
     //start
-    static RowCodec<Product> rowCodec =
-        RowCodec.<Product>builder()
-            .field(productIdType, Product::id)
-            .field(PgTypes.text, Product::name)
-            .field(PgTypes.numeric, Product::price)
-            .field(PgTypes.textArray.opt(), Product::tags)
-            .field(dimensionsType.opt(), Product::dimensions)
-            .field(PgTypes.jsonb.opt(), Product::metadata)
-            .field(PgTypes.timestamptz.opt(), Product::createdAt)
+    static RowCodecNamed<Product> productCodec =
+        RowCodec.<Product>namedBuilder()
+            .field("id", PgTypes.int4, Product::id)
+            .field("name", PgTypes.text, Product::name)
+            .field("price", PgTypes.numeric, Product::price)
+            .field("created_at", PgTypes.timestamptz.opt(), Product::createdAt)
             .build(Product::new);
 
     // Compose codecs for joins
     static RowCodec<Tuple.Tuple2<Product, Optional<Category>>> joined =
-        rowCodec.leftJoined(categoryRowCodec);
+        productCodec.leftJoined(categoryRowCodec);
     //stop
 }
