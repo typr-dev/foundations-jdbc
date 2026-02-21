@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Operations
 
-An `Operation<T>` is a database action that produces a value of type `T`. It describes *what* to do but doesn't run anything until you execute it on a connection. You create one by calling a terminal method on a [Fragment](./fragments).
+Call `.query()` or `.update()` on a Fragment to get an `Operation<T>` — a database action that produces a value of type `T`. It doesn't run until you call `.transact(tx)` or `.run(conn)`.
 
 ## Queries
 
