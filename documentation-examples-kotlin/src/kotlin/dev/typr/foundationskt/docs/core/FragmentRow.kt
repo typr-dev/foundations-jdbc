@@ -22,24 +22,14 @@ class FragmentRow {
 
     //start
     fun insert(product: Product): Product =
-        sql { "INSERT INTO product (" }
-            .append(productCodec.columnList)
-            .append(") VALUES (")
-            .row(productCodec, product)
-            .append(") RETURNING ")
-            .append(productCodec.columnList)
-            .query(productCodec.exactlyOne())
+        Fragment.insertIntoReturning("product", productCodec)
+            .on(product)
             .run(conn)
 
     // Skip columns with database defaults — pass column names to except
     fun insertWithDefault(product: Product): Product =
-        sql { "INSERT INTO product (" }
-            .append(productCodec.columnList)
-            .append(") VALUES (DEFAULT, ")
-            .row(productCodec, product, "id")
-            .append(") RETURNING ")
-            .append(productCodec.columnList)
-            .query(productCodec.exactlyOne())
+        Fragment.insertIntoReturning("product", productCodec, "id")
+            .on(product)
             .run(conn)
     //stop
 }

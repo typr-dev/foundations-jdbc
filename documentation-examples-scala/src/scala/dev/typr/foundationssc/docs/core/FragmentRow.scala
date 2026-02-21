@@ -1,6 +1,5 @@
 package dev.typr.foundationssc.docs.core
 import dev.typr.foundationssc.*
-import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 import java.sql.Connection
@@ -21,23 +20,13 @@ object FragmentRow:
 
   //start
   def insert(product: Product): Product =
-    sql"INSERT INTO product ("
-      .append(productCodec.columnList)
-      .append(") VALUES (")
-      .row(productCodec, product)
-      .append(") RETURNING ")
-      .append(productCodec.columnList)
-      .query(productCodec.exactlyOne())
+    Fragment.insertIntoReturning("product", productCodec)
+      .on(product)
       .run(conn)
 
   // Skip columns with database defaults — pass column names to except
   def insertWithDefault(product: Product): Product =
-    sql"INSERT INTO product ("
-      .append(productCodec.columnList)
-      .append(") VALUES (DEFAULT, ")
-      .row(productCodec, product, "id")
-      .append(") RETURNING ")
-      .append(productCodec.columnList)
-      .query(productCodec.exactlyOne())
+    Fragment.insertIntoReturning("product", productCodec, "id")
+      .on(product)
       .run(conn)
   //stop

@@ -58,13 +58,15 @@ Having names lets you:
 
 - **`columnList()`** — emit column names as a `Fragment` for SELECT clauses, so queries stay in sync with the codec
 - **`columnNames()`** — get column names as a list
-- **`fragment.row(codec, value)`** — emit an object's fields as comma-separated parameters for INSERT
+- **`Fragment.insertInto(table, codec)`** — generate a complete INSERT template from the codec's column metadata
+- **`Fragment.insertIntoReturning(table, codec)`** — same, with a `RETURNING` clause that parses the inserted row back
+- **`fragment.row(codec, value)`** — emit an object's fields as comma-separated parameters for custom INSERT patterns
 - **`DbJsonRow.jsonObject(codec)`** — build a [JSON object codec](./json) with column names as keys
 
 Named codecs are the recommended default — the small overhead of naming fields pays for itself quickly.
 
 ## Data-Driven Inserts
 
-Named codecs enable a pattern where `fragment.row()` emits an object's fields as parameters, driven by the codec's column and type metadata. Pass column names to `except` to skip columns handled by the database:
+`Fragment.insertIntoReturning()` generates a complete INSERT statement from a named codec — column list, parameter placeholders, and RETURNING clause. Pass column names to `except` to skip columns with database defaults:
 
 <Snippet file="core/FragmentRow" />

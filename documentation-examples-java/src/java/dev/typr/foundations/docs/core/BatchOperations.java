@@ -24,12 +24,7 @@ public class BatchOperations {
     //start
     // Batch insert — all columns as parameters
     RowTemplate.Update<Product> insertAll =
-        Fragment.of("INSERT INTO product (")
-            .append(productCodec.columnList())
-            .append(") VALUES (")
-            .paramRow(productCodec)
-            .append(")")
-            .update();
+        Fragment.insertInto("product", productCodec);
 
     int[] insertProducts(List<Product> products) {
         return insertAll.onMany(products.iterator()).run(conn);
@@ -37,13 +32,7 @@ public class BatchOperations {
 
     // Batch insert — skip auto-generated ID column
     RowTemplate.Update<Product> insertAutoId =
-        Fragment.of("""
-                INSERT INTO product
-                (name, price, created_at) VALUES (\
-                """)
-            .paramRow(productCodec, "id")
-            .append(")")
-            .update();
+        Fragment.insertInto("product", productCodec, "id");
 
     int[] insertProductsAutoId(List<Product> products) {
         return insertAutoId.onMany(products.iterator()).run(conn);
