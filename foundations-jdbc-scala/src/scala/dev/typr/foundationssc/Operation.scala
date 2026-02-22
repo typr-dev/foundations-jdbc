@@ -17,35 +17,35 @@ sealed trait Operation[Out] extends Analyzable {
   def map[B](f: Out => B): Operation[B] =
     Operation.Mapped(this, f)
 
-  def `with`[B](other: Operation[B]): Operation[(Out, B)] =
-    Operation.With(this, other)
+  def combine[B](other: Operation[B]): Operation[(Out, B)] =
+    Operation.Combine(this, other)
 
-  def `with`[B, R](other: Operation[B])(combine: (Out, B) => R): Operation[R] =
-    `with`(other).map(t => combine(t._1, t._2))
+  def combineWith[B, R](other: Operation[B])(combine: (Out, B) => R): Operation[R] =
+    this.combine(other).map(t => combine(t._1, t._2))
 
-  def `with`[B, C, R](b: Operation[B], c: Operation[C])(combine: (Out, B, C) => R): Operation[R] =
-    `with`(b).`with`(c).map(t => combine(t._1._1, t._1._2, t._2))
+  def combineWith[B, C, R](b: Operation[B], c: Operation[C])(combine: (Out, B, C) => R): Operation[R] =
+    this.combine(b).combine(c).map(t => combine(t._1._1, t._1._2, t._2))
 
-  def `with`[B, C, D, R](b: Operation[B], c: Operation[C], d: Operation[D])(combine: (Out, B, C, D) => R): Operation[R] =
-    `with`(b).`with`(c).`with`(d).map(t => combine(t._1._1._1, t._1._1._2, t._1._2, t._2))
+  def combineWith[B, C, D, R](b: Operation[B], c: Operation[C], d: Operation[D])(combine: (Out, B, C, D) => R): Operation[R] =
+    this.combine(b).combine(c).combine(d).map(t => combine(t._1._1._1, t._1._1._2, t._1._2, t._2))
 
-  def `with`[B, C, D, E, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E])(combine: (Out, B, C, D, E) => R): Operation[R] =
-    `with`(b).`with`(c).`with`(d).`with`(e).map(t => combine(t._1._1._1._1, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
+  def combineWith[B, C, D, E, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E])(combine: (Out, B, C, D, E) => R): Operation[R] =
+    this.combine(b).combine(c).combine(d).combine(e).map(t => combine(t._1._1._1._1, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
 
-  def `with`[B, C, D, E, F, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E], f: Operation[F])(combine: (Out, B, C, D, E, F) => R): Operation[R] =
-    `with`(b).`with`(c).`with`(d).`with`(e).`with`(f).map(t => combine(t._1._1._1._1._1, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
+  def combineWith[B, C, D, E, F, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E], f: Operation[F])(combine: (Out, B, C, D, E, F) => R): Operation[R] =
+    this.combine(b).combine(c).combine(d).combine(e).combine(f).map(t => combine(t._1._1._1._1._1, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
 
-  def `with`[B, C, D, E, F, G, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E], f: Operation[F], g: Operation[G])(combine: (Out, B, C, D, E, F, G) => R): Operation[R] =
-    `with`(b).`with`(c).`with`(d).`with`(e).`with`(f).`with`(g).map(t => combine(t._1._1._1._1._1._1, t._1._1._1._1._1._2, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
+  def combineWith[B, C, D, E, F, G, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E], f: Operation[F], g: Operation[G])(combine: (Out, B, C, D, E, F, G) => R): Operation[R] =
+    this.combine(b).combine(c).combine(d).combine(e).combine(f).combine(g).map(t => combine(t._1._1._1._1._1._1, t._1._1._1._1._1._2, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
 
-  def `with`[B, C, D, E, F, G, H, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E], f: Operation[F], g: Operation[G], h: Operation[H])(combine: (Out, B, C, D, E, F, G, H) => R): Operation[R] =
-    `with`(b).`with`(c).`with`(d).`with`(e).`with`(f).`with`(g).`with`(h).map(t => combine(t._1._1._1._1._1._1._1, t._1._1._1._1._1._1._2, t._1._1._1._1._1._2, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
+  def combineWith[B, C, D, E, F, G, H, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E], f: Operation[F], g: Operation[G], h: Operation[H])(combine: (Out, B, C, D, E, F, G, H) => R): Operation[R] =
+    this.combine(b).combine(c).combine(d).combine(e).combine(f).combine(g).combine(h).map(t => combine(t._1._1._1._1._1._1._1, t._1._1._1._1._1._1._2, t._1._1._1._1._1._2, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
 
-  def `with`[B, C, D, E, F, G, H, I, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E], f: Operation[F], g: Operation[G], h: Operation[H], i: Operation[I])(combine: (Out, B, C, D, E, F, G, H, I) => R): Operation[R] =
-    `with`(b).`with`(c).`with`(d).`with`(e).`with`(f).`with`(g).`with`(h).`with`(i).map(t => combine(t._1._1._1._1._1._1._1._1, t._1._1._1._1._1._1._1._2, t._1._1._1._1._1._1._2, t._1._1._1._1._1._2, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
+  def combineWith[B, C, D, E, F, G, H, I, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E], f: Operation[F], g: Operation[G], h: Operation[H], i: Operation[I])(combine: (Out, B, C, D, E, F, G, H, I) => R): Operation[R] =
+    this.combine(b).combine(c).combine(d).combine(e).combine(f).combine(g).combine(h).combine(i).map(t => combine(t._1._1._1._1._1._1._1._1, t._1._1._1._1._1._1._1._2, t._1._1._1._1._1._1._2, t._1._1._1._1._1._2, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
 
   def thenIgnore[B](other: Operation[B]): Operation[Out] =
-    `with`(other).map(_._1)
+    combine(other).map(_._1)
 
   def andThen[B](template: Template[Out, B]): Operation[B] =
     Operation.Then(this, identity[Out], template)
@@ -71,7 +71,7 @@ object Operation {
     if (operations.isEmpty) return pure(Nil)
     var result: Operation[List[T]] = operations.head.map(t => List(t))
     for (op <- operations.tail) {
-      result = result.`with`(op).map(t => t._1 :+ t._2)
+      result = result.combine(op).map(t => t._1 :+ t._2)
     }
     result
   }
@@ -151,10 +151,10 @@ object Operation {
     override def run(conn: Connection): T = value
   }
 
-  class With[A, B](val first: Operation[A], val second: Operation[B]) extends Operation[(A, B)] {
+  class Combine[A, B](val first: Operation[A], val second: Operation[B]) extends Operation[(A, B)] {
     @SuppressWarnings(Array("unchecked"))
     val underlying: dev.typr.foundations.Operation[?] =
-      new dev.typr.foundations.Operation.With(
+      new dev.typr.foundations.Operation.Combine(
         first.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]],
         second.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]]
       )

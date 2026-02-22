@@ -12,13 +12,7 @@ object VenueRepo {
             .param(venueIdType)
             .query(venueCodec.maxOne())
 
-    private val insertCols = venueCodec.columnNames.filter { it != "id" }.joinToString(", ")
-
     val createVenue: RowTemplate<Venue, Venue> =
-        Fragment.of("INSERT INTO venue ($insertCols) VALUES (")
-            .paramRow(venueCodec, "id")
-            .append(sql { ") RETURNING ${venueCodec.columnList}" })
-            .query(venueCodec.exactlyOne())
+        Fragment.insertIntoReturning("venue", venueCodec, "id")
 
-    val analyzables: List<Analyzable> = listOf(allVenues, venueById, createVenue)
 }

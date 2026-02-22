@@ -37,7 +37,7 @@ public class ComposingWith {
 
     Dashboard dashboard() {
         return countUsers
-            .with(recentOrders, Dashboard::new)
+            .combineWith(recentOrders, Dashboard::new)
             .transact(tx);
     }
 
@@ -53,7 +53,7 @@ public class ComposingWith {
 
     Stats stats() {
         return countUsers
-            .with(countOrders, totalRevenue, Stats::new)
+            .combineWith(countOrders, totalRevenue, Stats::new)
             .transact(tx);
     }
     //stop

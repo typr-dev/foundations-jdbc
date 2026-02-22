@@ -16,31 +16,31 @@ object Bijections {
 
   def optionToOptional[T]: Bijection[Option[T], Optional[T]] = optionalToOption[T].inverse()
 
-  def andToTuple[A, B]: Bijection[dev.typr.foundations.And[A, B], (A, B)] = {
-    Bijection.of[dev.typr.foundations.And[A, B], (A, B)](
-      (and: dev.typr.foundations.And[A, B]) => (and.left(), and.right()),
-      (t: (A, B)) => dev.typr.foundations.And(t._1, t._2)
+  def andToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[A, B], (A, B)] = {
+    Bijection.of[dev.typr.foundations.Tuple.Tuple2[A, B], (A, B)](
+      (t: dev.typr.foundations.Tuple.Tuple2[A, B]) => (t._1(), t._2()),
+      (t: (A, B)) => dev.typr.foundations.Tuple.Tuple2.Impl(t._1, t._2)
     )
   }
 
-  def leftJoinToTuple[A, B]: Bijection[dev.typr.foundations.And[A, Optional[B]], (A, Option[B])] = {
-    Bijection.of[dev.typr.foundations.And[A, Optional[B]], (A, Option[B])](
-      (and: dev.typr.foundations.And[A, Optional[B]]) => (and.left(), and.right().toScala),
-      (t: (A, Option[B])) => dev.typr.foundations.And(t._1, t._2.toJava)
+  def leftJoinToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[A, Optional[B]], (A, Option[B])] = {
+    Bijection.of[dev.typr.foundations.Tuple.Tuple2[A, Optional[B]], (A, Option[B])](
+      (t: dev.typr.foundations.Tuple.Tuple2[A, Optional[B]]) => (t._1(), t._2().toScala),
+      (t: (A, Option[B])) => dev.typr.foundations.Tuple.Tuple2.Impl(t._1, t._2.toJava)
     )
   }
 
-  def rightJoinToTuple[A, B]: Bijection[dev.typr.foundations.And[Optional[A], B], (Option[A], B)] = {
-    Bijection.of[dev.typr.foundations.And[Optional[A], B], (Option[A], B)](
-      (and: dev.typr.foundations.And[Optional[A], B]) => (and.left().toScala, and.right()),
-      (t: (Option[A], B)) => dev.typr.foundations.And(t._1.toJava, t._2)
+  def rightJoinToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[Optional[A], B], (Option[A], B)] = {
+    Bijection.of[dev.typr.foundations.Tuple.Tuple2[Optional[A], B], (Option[A], B)](
+      (t: dev.typr.foundations.Tuple.Tuple2[Optional[A], B]) => (t._1().toScala, t._2()),
+      (t: (Option[A], B)) => dev.typr.foundations.Tuple.Tuple2.Impl(t._1.toJava, t._2)
     )
   }
 
-  def fullJoinToTuple[A, B]: Bijection[dev.typr.foundations.And[Optional[A], Optional[B]], (Option[A], Option[B])] = {
-    Bijection.of[dev.typr.foundations.And[Optional[A], Optional[B]], (Option[A], Option[B])](
-      (and: dev.typr.foundations.And[Optional[A], Optional[B]]) => (and.left().toScala, and.right().toScala),
-      (t: (Option[A], Option[B])) => dev.typr.foundations.And(t._1.toJava, t._2.toJava)
+  def fullJoinToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[Optional[A], Optional[B]], (Option[A], Option[B])] = {
+    Bijection.of[dev.typr.foundations.Tuple.Tuple2[Optional[A], Optional[B]], (Option[A], Option[B])](
+      (t: dev.typr.foundations.Tuple.Tuple2[Optional[A], Optional[B]]) => (t._1().toScala, t._2().toScala),
+      (t: (Option[A], Option[B])) => dev.typr.foundations.Tuple.Tuple2.Impl(t._1.toJava, t._2.toJava)
     )
   }
 

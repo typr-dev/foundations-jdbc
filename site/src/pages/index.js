@@ -91,20 +91,10 @@ const typeGrid = [
   },
 ];
 
-const schemaSql = `CREATE TYPE dimensions AS (
-    width   double precision,
-    height  double precision,
-    depth   double precision,
-    unit    varchar(10)
-);
-
-CREATE TABLE product (
+const schemaSql = `CREATE TABLE product (
     id          serial PRIMARY KEY,
     name        text NOT NULL,
     price       numeric(10,2) NOT NULL,
-    tags        text[],
-    dimensions  dimensions,
-    metadata    jsonb,
     created_at  timestamptz DEFAULT now()
 );`;
 
@@ -321,7 +311,7 @@ function SchemaAndCodecs() {
       <div className={styles.container}>
         <h2 className={styles.sectionTitle}>Start with your schema</h2>
         <p className={styles.sectionSubtitle}>
-          Take a PostgreSQL table with a composite type, arrays, and jsonb.
+          Take a PostgreSQL table.
           The <code>RowCodec</code> maps each column to a <code>DbType</code> that knows exactly how to read and write its value.
           No <code>getObject()</code> guessing, no <code>wasNull()</code> checking.
         </p>

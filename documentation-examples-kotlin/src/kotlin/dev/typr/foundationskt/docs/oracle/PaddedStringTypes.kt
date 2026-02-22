@@ -1,0 +1,12 @@
+package dev.typr.foundationskt.docs.oracle
+
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
+
+@Suppress("unused")
+class PaddedStringTypes {
+    //start
+    val padded: OracleType<PaddedString> = OracleTypes.charPadded(10)  // CHAR(10)
+    val npadded: OracleType<PaddedString> = OracleTypes.ncharPadded(10) // NCHAR(10)
+    //stop
+}

@@ -35,7 +35,7 @@ public class ExecuteComposed {
     Dashboard dashboard() {
         return tx.execute(conn ->
             countUsers
-                .with(recentOrders, Dashboard::new)
+                .combineWith(recentOrders, Dashboard::new)
                 .run(conn));
     }
     //stop

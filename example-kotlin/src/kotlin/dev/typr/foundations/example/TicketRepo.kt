@@ -1,6 +1,5 @@
 package dev.typr.foundations.example
 
-import dev.typr.foundationskt.Analyzable
 import dev.typr.foundationskt.DuckDbTypes
 import dev.typr.foundationskt.Fragment
 import dev.typr.foundationskt.Operation
@@ -44,10 +43,7 @@ object TicketRepo {
             .query(eventSummaryCodec.all())
 
     val insertTicket: RowTemplate.Query<Ticket, Ticket> =
-        Fragment.of("INSERT INTO ticket (${ticketCodec.columnNames.joinToString(", ")}) VALUES (")
-            .paramRow(ticketCodec)
-            .append(sql { ") RETURNING ${ticketCodec.columnList}" })
-            .query(ticketCodec.exactlyOne())
+        Fragment.insertIntoReturning("ticket", ticketCodec)
 
     fun purchaseTicket(
         eventId: EventId, tier: TicketTier, holderName: String, holderEmail: String?,
@@ -65,8 +61,4 @@ object TicketRepo {
             )
         )
 
-    val analyzables: List<Analyzable> = listOf(
-        ticketsByEvent, ticketById, countTicketsByEvent, revenueByEvent,
-        eventSummaries, insertTicket
-    )
 }

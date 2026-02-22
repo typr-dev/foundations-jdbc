@@ -1,0 +1,14 @@
+package dev.typr.foundationskt.docs.duckdb
+
+import dev.typr.foundationskt.*
+import dev.typr.foundationskt.data.*
+import java.math.BigInteger
+
+@Suppress("unused")
+class IntegerTypesUnsigned {
+    //start
+    val utinyType: DuckDbType<Uint1> = DuckDbTypes.utinyint
+    val uintType: DuckDbType<Uint4> = DuckDbTypes.uinteger
+    val uhugeType: DuckDbType<BigInteger> = DuckDbTypes.uhugeint
+    //stop
+}

@@ -27,10 +27,10 @@ The builder pattern works in all languages and is useful for constructing fragme
 
 <Snippet file="core/FragmentBuilderBasic" />
 
-For parameterized templates with unfilled parameter holes, see [Templates](./templates).
+For parameterized templates with unfilled parameter holes, see [Templates](./templates) (Advanced).
 
 :::tip Which style should I use?
-- **Kotlin** — Use `sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [Templates](./templates).
+- **Kotlin** — Use `sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [Templates](./templates) (Advanced).
 - **Scala** — Same guidance, using `sql""` instead of `sql { }`.
 - **Java** — Use the builder pattern for everything (no string interpolation available).
 :::

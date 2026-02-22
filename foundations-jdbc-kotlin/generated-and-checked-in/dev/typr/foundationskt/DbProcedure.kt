@@ -37,12 +37,12 @@ object DbProcedure {
 
     /** Procedure definition with 0 input(s) and 2 output(s). */
     fun interface Def0_2<O0, O1> {
-        fun call(): ProcedureOp<dev.typr.foundations.Tuple.Tuple2<O0, O1>>
+        fun call(): ProcedureOp<Pair<O0, O1>>
     }
 
     /** Procedure definition with 0 input(s) and 3 output(s). */
     fun interface Def0_3<O0, O1, O2> {
-        fun call(): ProcedureOp<dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>>
+        fun call(): ProcedureOp<Triple<O0, O1, O2>>
     }
 
     /** Procedure definition with 0 input(s) and 4 output(s). */
@@ -92,12 +92,12 @@ object DbProcedure {
 
     /** Procedure definition with 1 input(s) and 2 output(s). */
     fun interface Def1_2<I0, O0, O1> {
-        fun call(i0: I0): ProcedureOp<dev.typr.foundations.Tuple.Tuple2<O0, O1>>
+        fun call(i0: I0): ProcedureOp<Pair<O0, O1>>
     }
 
     /** Procedure definition with 1 input(s) and 3 output(s). */
     fun interface Def1_3<I0, O0, O1, O2> {
-        fun call(i0: I0): ProcedureOp<dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>>
+        fun call(i0: I0): ProcedureOp<Triple<O0, O1, O2>>
     }
 
     /** Procedure definition with 1 input(s) and 4 output(s). */
@@ -147,12 +147,12 @@ object DbProcedure {
 
     /** Procedure definition with 2 input(s) and 2 output(s). */
     fun interface Def2_2<I0, I1, O0, O1> {
-        fun call(i0: I0, i1: I1): ProcedureOp<dev.typr.foundations.Tuple.Tuple2<O0, O1>>
+        fun call(i0: I0, i1: I1): ProcedureOp<Pair<O0, O1>>
     }
 
     /** Procedure definition with 2 input(s) and 3 output(s). */
     fun interface Def2_3<I0, I1, O0, O1, O2> {
-        fun call(i0: I0, i1: I1): ProcedureOp<dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>>
+        fun call(i0: I0, i1: I1): ProcedureOp<Triple<O0, O1, O2>>
     }
 
     /** Procedure definition with 2 input(s) and 4 output(s). */
@@ -202,12 +202,12 @@ object DbProcedure {
 
     /** Procedure definition with 3 input(s) and 2 output(s). */
     fun interface Def3_2<I0, I1, I2, O0, O1> {
-        fun call(i0: I0, i1: I1, i2: I2): ProcedureOp<dev.typr.foundations.Tuple.Tuple2<O0, O1>>
+        fun call(i0: I0, i1: I1, i2: I2): ProcedureOp<Pair<O0, O1>>
     }
 
     /** Procedure definition with 3 input(s) and 3 output(s). */
     fun interface Def3_3<I0, I1, I2, O0, O1, O2> {
-        fun call(i0: I0, i1: I1, i2: I2): ProcedureOp<dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>>
+        fun call(i0: I0, i1: I1, i2: I2): ProcedureOp<Triple<O0, O1, O2>>
     }
 
     /** Procedure definition with 3 input(s) and 4 output(s). */
@@ -257,12 +257,12 @@ object DbProcedure {
 
     /** Procedure definition with 4 input(s) and 2 output(s). */
     fun interface Def4_2<I0, I1, I2, I3, O0, O1> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp<dev.typr.foundations.Tuple.Tuple2<O0, O1>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp<Pair<O0, O1>>
     }
 
     /** Procedure definition with 4 input(s) and 3 output(s). */
     fun interface Def4_3<I0, I1, I2, I3, O0, O1, O2> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp<dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3): ProcedureOp<Triple<O0, O1, O2>>
     }
 
     /** Procedure definition with 4 input(s) and 4 output(s). */
@@ -312,12 +312,12 @@ object DbProcedure {
 
     /** Procedure definition with 5 input(s) and 2 output(s). */
     fun interface Def5_2<I0, I1, I2, I3, I4, O0, O1> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp<dev.typr.foundations.Tuple.Tuple2<O0, O1>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp<Pair<O0, O1>>
     }
 
     /** Procedure definition with 5 input(s) and 3 output(s). */
     fun interface Def5_3<I0, I1, I2, I3, I4, O0, O1, O2> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp<dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4): ProcedureOp<Triple<O0, O1, O2>>
     }
 
     /** Procedure definition with 5 input(s) and 4 output(s). */
@@ -367,12 +367,12 @@ object DbProcedure {
 
     /** Procedure definition with 6 input(s) and 2 output(s). */
     fun interface Def6_2<I0, I1, I2, I3, I4, I5, O0, O1> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp<dev.typr.foundations.Tuple.Tuple2<O0, O1>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp<Pair<O0, O1>>
     }
 
     /** Procedure definition with 6 input(s) and 3 output(s). */
     fun interface Def6_3<I0, I1, I2, I3, I4, I5, O0, O1, O2> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp<dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5): ProcedureOp<Triple<O0, O1, O2>>
     }
 
     /** Procedure definition with 6 input(s) and 4 output(s). */
@@ -422,12 +422,12 @@ object DbProcedure {
 
     /** Procedure definition with 7 input(s) and 2 output(s). */
     fun interface Def7_2<I0, I1, I2, I3, I4, I5, I6, O0, O1> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp<dev.typr.foundations.Tuple.Tuple2<O0, O1>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp<Pair<O0, O1>>
     }
 
     /** Procedure definition with 7 input(s) and 3 output(s). */
     fun interface Def7_3<I0, I1, I2, I3, I4, I5, I6, O0, O1, O2> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp<dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6): ProcedureOp<Triple<O0, O1, O2>>
     }
 
     /** Procedure definition with 7 input(s) and 4 output(s). */
@@ -477,12 +477,12 @@ object DbProcedure {
 
     /** Procedure definition with 8 input(s) and 2 output(s). */
     fun interface Def8_2<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp<dev.typr.foundations.Tuple.Tuple2<O0, O1>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp<Pair<O0, O1>>
     }
 
     /** Procedure definition with 8 input(s) and 3 output(s). */
     fun interface Def8_3<I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp<dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7): ProcedureOp<Triple<O0, O1, O2>>
     }
 
     /** Procedure definition with 8 input(s) and 4 output(s). */
@@ -532,12 +532,12 @@ object DbProcedure {
 
     /** Procedure definition with 9 input(s) and 2 output(s). */
     fun interface Def9_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp<dev.typr.foundations.Tuple.Tuple2<O0, O1>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp<Pair<O0, O1>>
     }
 
     /** Procedure definition with 9 input(s) and 3 output(s). */
     fun interface Def9_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, O0, O1, O2> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp<dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8): ProcedureOp<Triple<O0, O1, O2>>
     }
 
     /** Procedure definition with 9 input(s) and 4 output(s). */
@@ -587,12 +587,12 @@ object DbProcedure {
 
     /** Procedure definition with 10 input(s) and 2 output(s). */
     fun interface Def10_2<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp<dev.typr.foundations.Tuple.Tuple2<O0, O1>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp<Pair<O0, O1>>
     }
 
     /** Procedure definition with 10 input(s) and 3 output(s). */
     fun interface Def10_3<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, O0, O1, O2> {
-        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp<dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>>
+        fun call(i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9): ProcedureOp<Triple<O0, O1, O2>>
     }
 
     /** Procedure definition with 10 input(s) and 4 output(s). */
@@ -686,7 +686,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def0_2 { ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call() as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple2<O0, O1> }
+                ProcedureOp(javaProc.call() as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }
             }
         }
     }
@@ -705,7 +705,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def0_3 { ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call() as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2> }
+                ProcedureOp(javaProc.call() as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }
             }
         }
     }
@@ -891,7 +891,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def1_2 { i0: I0 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple2<O0, O1> }
+                ProcedureOp(javaProc.call(i0) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }
             }
         }
     }
@@ -910,7 +910,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def1_3 { i0: I0 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2> }
+                ProcedureOp(javaProc.call(i0) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }
             }
         }
     }
@@ -1096,7 +1096,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def2_2 { i0: I0, i1: I1 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple2<O0, O1> }
+                ProcedureOp(javaProc.call(i0, i1) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }
             }
         }
     }
@@ -1115,7 +1115,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def2_3 { i0: I0, i1: I1 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2> }
+                ProcedureOp(javaProc.call(i0, i1) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }
             }
         }
     }
@@ -1301,7 +1301,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def3_2 { i0: I0, i1: I1, i2: I2 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple2<O0, O1> }
+                ProcedureOp(javaProc.call(i0, i1, i2) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }
             }
         }
     }
@@ -1320,7 +1320,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def3_3 { i0: I0, i1: I1, i2: I2 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2> }
+                ProcedureOp(javaProc.call(i0, i1, i2) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }
             }
         }
     }
@@ -1506,7 +1506,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def4_2 { i0: I0, i1: I1, i2: I2, i3: I3 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple2<O0, O1> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }
             }
         }
     }
@@ -1525,7 +1525,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def4_3 { i0: I0, i1: I1, i2: I2, i3: I3 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }
             }
         }
     }
@@ -1711,7 +1711,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def5_2 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple2<O0, O1> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }
             }
         }
     }
@@ -1730,7 +1730,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def5_3 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }
             }
         }
     }
@@ -1916,7 +1916,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def6_2 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple2<O0, O1> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }
             }
         }
     }
@@ -1935,7 +1935,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def6_3 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }
             }
         }
     }
@@ -2121,7 +2121,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def7_2 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple2<O0, O1> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }
             }
         }
     }
@@ -2140,7 +2140,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def7_3 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }
             }
         }
     }
@@ -2326,7 +2326,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def8_2 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple2<O0, O1> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }
             }
         }
     }
@@ -2345,7 +2345,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def8_3 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }
             }
         }
     }
@@ -2531,7 +2531,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def9_2 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple2<O0, O1> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }
             }
         }
     }
@@ -2550,7 +2550,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def9_3 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }
             }
         }
     }
@@ -2724,7 +2724,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def10_2 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple2<O0, O1> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }
             }
         }
     }
@@ -2739,7 +2739,7 @@ object DbProcedure {
             val javaProc = underlying.build()
             return Def10_3 { i0: I0, i1: I1, i2: I2, i3: I3, i4: I4, i5: I5, i6: I6, i7: I7, i8: I8, i9: I9 ->
                 @Suppress("UNCHECKED_CAST")
-                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9) as dev.typr.foundations.Operation<Any?>) { it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2> }
+                ProcedureOp(javaProc.call(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9) as dev.typr.foundations.Operation<Any?>) { val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }
             }
         }
     }

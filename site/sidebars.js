@@ -11,7 +11,6 @@ const sidebars = {
         {type: "doc", id: "readme", label: "Getting Started"},
         {type: "doc", id: "fragments", label: "Fragments"},
         {type: "doc", id: "row-codecs", label: "Row Codecs"},
-        {type: "doc", id: "templates", label: "Templates"},
         {type: "doc", id: "operations", label: "Operations"},
         {type: "doc", id: "transactors", label: "Transactors"},
         {type: "doc", id: "query-analysis", label: "Query Analysis"},
@@ -38,7 +37,9 @@ const sidebars = {
       label: "Advanced",
       collapsed: false,
       items: [
+        {type: "doc", id: "templates", label: "Templates"},
         {type: "doc", id: "composing-operations", label: "Composing Operations"},
+        {type: "doc", id: "strategies", label: "Strategies"},
         {type: "doc", id: "query-analysis-reference", label: "Query Analysis Reference"},
         {type: "doc", id: "streaming-inserts", label: "Streaming Inserts"},
         {type: "doc", id: "kotlin-interpolation", label: "Kotlin String Interpolation"},

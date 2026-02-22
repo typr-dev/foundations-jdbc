@@ -22,13 +22,8 @@ object EventRepo {
             .param(venueIdType)
             .query(eventCodec.all())
 
-    private val insertCols = eventCodec.columnNames.filter { it != "id" }.joinToString(", ")
-
     val createEvent: RowTemplate<Event, Event> =
-        Fragment.of("INSERT INTO event ($insertCols) VALUES (")
-            .paramRow(eventCodec, "id")
-            .append(sql { ") RETURNING ${eventCodec.columnList}" })
-            .query(eventCodec.exactlyOne())
+        Fragment.insertIntoReturning("event", eventCodec, "id")
 
     val updateEventStatus: Template.Update2<EventStatus, EventId> =
         Fragment.of("UPDATE event SET status = ")
@@ -44,8 +39,4 @@ object EventRepo {
             .param(eventIdType)
             .update()
 
-    val analyzables: List<Analyzable> = listOf(
-        allEvents, eventById, eventsByStatus, eventsByVenue,
-        createEvent, updateEventStatus, addEventRating
-    )
 }

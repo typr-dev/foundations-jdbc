@@ -1127,7 +1127,7 @@ def generateTemplate(): String = {
   val permits = {
     val queryPermits = 1.to(maxArity).map(n => s"Template.Query$n")
     val updatePermits = 1.to(maxArity).map(n => s"Template.Update$n")
-    (queryPermits ++ updatePermits :+ "Template.From").mkString(",\n        ")
+    (queryPermits ++ updatePermits :+ "Template.From" :+ "RowTemplate").mkString(",\n        ")
   }
 
   val queryRecords = 1.to(maxArity).map { n =>

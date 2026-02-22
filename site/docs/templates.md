@@ -6,6 +6,8 @@ import Snippet from '@site/src/components/Snippet';
 
 # Templates
 
+Most parameterized queries work fine as plain functions that build a Fragment with bound values. Upgrade to Templates when you need: batch execution with `.onMany()`, dynamic query variants with `.optionally()`, or reusable query values for [Query Analysis](./query-analysis).
+
 Templates let you define the SQL structure once and supply values later. Use `.param(type)` (without a value) to create a typed parameter hole. This produces a `Template` — a reusable operation factory that can be analyzed by [Query Analysis](./query-analysis) without providing concrete values:
 
 <Snippet file="core/TemplateBasic" />

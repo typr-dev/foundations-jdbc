@@ -114,3 +114,15 @@ DB2's `JSON_OBJECT` does not support BINARY, VARBINARY, or BLOB types. JSON seri
 :::note
 DB2's `JSON_OBJECT` does not support the XML type. JSON serialization is not available for XML columns.
 :::
+
+## Nullable Types
+
+Any type can be made nullable using `.opt()`:
+
+<Snippet file="db2/NullableType" />
+
+## Custom Domain Types
+
+Wrap base types with custom Java types using `transform`:
+
+<Snippet file="db2/DomainType" />

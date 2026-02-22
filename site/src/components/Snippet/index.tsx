@@ -20,7 +20,8 @@ interface SnippetProps {
 
 function buildPath(file: string, lang: 'java' | 'kotlin' | 'scala'): string {
   const ext = lang === 'java' ? '.java' : lang === 'kotlin' ? '.kt' : '.scala';
-  return `documentation-examples-${lang}/src/${lang}/dev/typr/foundations/docs/${file}${ext}`;
+  const pkg = lang === 'java' ? 'foundations' : lang === 'kotlin' ? 'foundationskt' : 'foundationssc';
+  return `documentation-examples-${lang}/src/${lang}/dev/typr/${pkg}/docs/${file}${ext}`;
 }
 
 function getSnippetCode(path: string, showFull: boolean): string {

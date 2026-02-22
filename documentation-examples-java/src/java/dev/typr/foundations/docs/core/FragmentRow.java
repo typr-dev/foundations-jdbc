@@ -22,25 +22,15 @@ public class FragmentRow {
 
     //start
     Product insert(Product product) {
-        return Fragment.of("INSERT INTO product (")
-            .append(productCodec.columnList())
-            .append(") VALUES (")
-            .row(productCodec, product)
-            .append(") RETURNING ")
-            .append(productCodec.columnList())
-            .query(productCodec.exactlyOne())
+        return Fragment.insertIntoReturning("product", productCodec)
+            .on(product)
             .run(conn);
     }
 
     // Skip columns with database defaults — pass column names to except
     Product insertWithDefault(Product product) {
-        return Fragment.of("INSERT INTO product (")
-            .append(productCodec.columnList())
-            .append(") VALUES (DEFAULT, ")
-            .row(productCodec, product, "id")
-            .append(") RETURNING ")
-            .append(productCodec.columnList())
-            .query(productCodec.exactlyOne())
+        return Fragment.insertIntoReturning("product", productCodec, "id")
+            .on(product)
             .run(conn);
     }
     //stop
