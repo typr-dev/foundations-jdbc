@@ -28,6 +28,5 @@ public final class UserRepo {
             .param(PgTypes.int4)
             .query(userCodec.maxOne());
 
-    static final List<Analyzable> analyzables = List.of(selectAll, selectById);
 }
 //stop

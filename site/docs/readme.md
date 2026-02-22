@@ -119,11 +119,21 @@ Define a record, a row codec that maps columns to fields, and a query that retur
 
 The `RowCodecNamed` maps database columns to record fields by name. Use `.all()` to collect all rows, `.exactlyOne()` for a single result, or `.maxOne()` for an optional result. See [Row Codecs](./row-codecs) for more.
 
+## Parameterized Queries
+
+Use your types and codecs in a plain function to build parameterized queries:
+
+<Snippet file="core/ParameterizedQuery" />
+
+Values are always bound as JDBC parameters — never concatenated into SQL strings.
+
 ## What's Next
 
-**Continue reading:** [Fragments](./fragments) &rarr; [Row Codecs](./row-codecs) &rarr; [Templates](./templates) &rarr; [Operations](./operations) &rarr; [Query Analysis](./query-analysis)
+![Concepts Flow](/img/concepts-flow.svg)
 
-**Jump to a topic:** [Transactors](./transactors) (connection management) &middot; [Database Types](./database-types) (type catalog)
+**Continue reading:** [Fragments](./fragments) &rarr; [Row Codecs](./row-codecs) &rarr; [Operations](./operations) &rarr; [Transactors](./transactors) &rarr; [Query Analysis](./query-analysis)
+
+**Jump to a topic:** [Database Types](./database-types) (type catalog) &middot; [Templates](./templates) (Advanced: reusable param holes)
 
 ## Full Examples
 

@@ -51,7 +51,7 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
      * Returns Pair<Row, Row2?> with nullable right side.
      */
     fun <Row2 : Any> leftJoined(other: RowCodec<Row2>?): RowCodec<Pair<Row, Row2?>> {
-        val javaResult: dev.typr.foundations.RowCodec<dev.typr.foundations.And<Row, Optional<Row2>>> =
+        val javaResult: dev.typr.foundations.RowCodec<dev.typr.foundations.Tuple.Tuple2<Row, Optional<Row2>>> =
             underlying.leftJoined(other?.underlying)
         val converted = javaResult.to(Bijection.leftJoinToNullable<Row, Row2>())
         return RowCodec(converted)
@@ -62,7 +62,7 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
      * Returns Pair<Row?, Row2> with nullable left side.
      */
     fun <Row2 : Any> rightJoined(other: RowCodec<Row2>): RowCodec<Pair<Row?, Row2>> {
-        val javaResult: dev.typr.foundations.RowCodec<dev.typr.foundations.And<Optional<Row>, Row2>> =
+        val javaResult: dev.typr.foundations.RowCodec<dev.typr.foundations.Tuple.Tuple2<Optional<Row>, Row2>> =
             underlying.rightJoined(other.underlying)
         val converted = javaResult.to(Bijection.rightJoinToNullable<Row, Row2>())
         return RowCodec(converted)
@@ -73,7 +73,7 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
      * Returns Pair<Row?, Row2?> with both sides nullable.
      */
     fun <Row2 : Any> fullJoined(other: RowCodec<Row2>): RowCodec<Pair<Row?, Row2?>> {
-        val javaResult: dev.typr.foundations.RowCodec<dev.typr.foundations.And<Optional<Row>, Optional<Row2>>> =
+        val javaResult: dev.typr.foundations.RowCodec<dev.typr.foundations.Tuple.Tuple2<Optional<Row>, Optional<Row2>>> =
             underlying.fullJoined(other.underlying)
         val converted = javaResult.to(Bijection.fullJoinToNullable<Row, Row2>())
         return RowCodec(converted)

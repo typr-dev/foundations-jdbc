@@ -169,7 +169,7 @@ def generateScalaDbProcedure(): String = {
   def outType(o: Int): String = o match {
     case 0 => "Unit"
     case 1 => "O0"
-    case n => s"dev.typr.foundations.Tuple.Tuple$n[${oParams(n).mkString(", ")}]"
+    case n => "(" + oParams(n).mkString(", ") + ")"
   }
 
   // Def traits: 11x11
@@ -227,7 +227,10 @@ def generateScalaDbProcedure(): String = {
     val castExpr = o match {
       case 0 => "_ => ()"
       case 1 => "_.asInstanceOf[O0]"
-      case n => s"_.asInstanceOf[$retType]"
+      case n =>
+        val javaTupleType = s"dev.typr.foundations.Tuple.Tuple$n[${oParams(n).mkString(", ")}]"
+        val accessors = 0.until(n).map(i => s"t._${i+1}()").mkString(", ")
+        s"{ r => val t = r.asInstanceOf[$javaTupleType]; ($accessors) }"
     }
 
     val javaCallArgs = if (i == 0) "" else callArgNamesStr
@@ -653,6 +656,24 @@ def generateScalaTemplate(): String = {
       |  ) extends Template[T, Out]:
       |    override def underlying: dev.typr.foundations.Template[?, ?] = _innerUnderlying
       |    override def on(input: T): Operation[Out] = _resolver(input)
+      |
+      |sealed trait RowTemplate[Row, Out] extends Template[Row, Out]:
+      |  override def underlying: dev.typr.foundations.RowTemplate[?, ?]
+      |
+      |object RowTemplate:
+      |
+      |  class Query[Row, Out](val underlying: dev.typr.foundations.RowTemplate.Query[Row, Out])
+      |      extends RowTemplate[Row, Out]:
+      |    override def on(input: Row): Operation.Query[Out] = new Operation.Query(underlying.on(input))
+      |
+      |  class Update[Row](val underlying: dev.typr.foundations.RowTemplate.Update[Row])
+      |      extends RowTemplate[Row, Int]:
+      |    override def on(input: Row): Operation.Update = new Operation.Update(underlying.on(input))
+      |
+      |    def onMany(rows: Iterator[Row]): Operation.UpdateManyTemplate[Row] = {
+      |      import _root_.scala.jdk.CollectionConverters.*
+      |      new Operation.UpdateManyTemplate(underlying.onMany(rows.asJava))
+      |    }
       |""".stripMargin
 }
 

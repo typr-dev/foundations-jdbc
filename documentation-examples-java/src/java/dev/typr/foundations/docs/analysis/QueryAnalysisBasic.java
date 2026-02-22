@@ -3,16 +3,14 @@ package dev.typr.foundations.docs.analysis;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
-import dev.typr.foundations.QueryAnalysis;
-import dev.typr.foundations.QueryAnalyzer;
-import java.sql.Connection;
+import dev.typr.foundations.QueryChecker;
+import dev.typr.foundations.Transactor;
 
 @SuppressWarnings("unused")
 public class QueryAnalysisBasic {
     record User(int id, String name, String email) {}
 
-    private final Connection connection = null; // placeholder
-    private final int userId = 1;
+    private final Transactor transactor = null; // placeholder
 
     private final RowCodec<User> userRowCodec =
         RowCodec.<User>builder()
@@ -22,25 +20,17 @@ public class QueryAnalysisBasic {
             .build(User::new);
 
     //start
-    void analyzeQuery() {
-        // Build your query as normal
+    void checkQueryManually() {
         var query =
             Fragment.of("""
                     SELECT id, name, email
                     FROM users WHERE id =
                     """)
-                .value(PgTypes.int4, userId)
+                .value(PgTypes.int4, 1)
                 .query(userRowCodec.all());
 
-        // Analyze it against the database
-        QueryAnalysis analysis =
-            QueryAnalyzer.analyze(query, connection)
-                .getFirst();
-
-        // Check the results
-        if (!analysis.succeeded()) {
-            throw new AssertionError(analysis.report());
-        }
+        QueryChecker checker = QueryChecker.create(transactor);
+        checker.check(query);
     }
     //stop
 }

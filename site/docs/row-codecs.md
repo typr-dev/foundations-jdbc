@@ -18,13 +18,20 @@ A `RowCodec<T>` replaces all of that with a single declaration: you list the dat
 
 You define the mapping once, and it propagates everywhere.
 
-You build a codec by listing `.field()` calls — one per column, in SELECT order — and finishing with `.build(constructor)`:
+## Named Row Codecs
 
-<Snippet file="core/RowCodecBasic" />
+A *named* row codec tracks both types and column names. This is the recommended default — the small overhead of naming fields pays for itself quickly:
 
-Each `.field()` takes a `DbType` that models the exact database column type. `DbType<A>` knows how to read a value of type `A` from a ResultSet and write it to a PreparedStatement — no JDBC integer codes, no manual `rs.getX()` calls. Each supported database has its own set (`PgTypes`, `DuckDbTypes`, `MariaDbTypes`, etc.) with full-precision mappings for every type. See [Database Types](./database-types) for the complete catalog.
+<Snippet file="core/NamedRowCodec" />
 
-The builder is fully type-safe: the constructor receives exactly the types you declared, with no casts. Columns are read by index — the order of `.field()` calls must match the column order in your SELECT.
+Having names lets you:
+
+- **`columnList()`** — emit column names as a `Fragment` for SELECT clauses, so queries stay in sync with the codec
+- **`columnNames()`** — get column names as a list
+- **`Fragment.insertInto(table, codec)`** — generate a complete INSERT template from the codec's column metadata
+- **`Fragment.insertIntoReturning(table, codec)`** — same, with a `RETURNING` clause that parses the inserted row back
+- **`fragment.row(codec, value)`** — emit an object's fields as comma-separated parameters for custom INSERT patterns
+- **`DbJsonRow.jsonObject(codec)`** — build a [JSON object codec](./json) with column names as keys
 
 ## Single-Column Codec
 
@@ -44,27 +51,22 @@ Row codecs compose for joins. Given a `productCodec` and a `categoryCodec`, comb
 
 <Snippet file="core/ComposingCodecs" />
 
-The result type is `And<A, B>` in Java (with `.left()` and `.right()` accessors), `Pair<A, B>` in Kotlin, and a tuple `(A, B)` in Scala. Left join wraps the right side in `Optional` (or nullable in Kotlin, `Option` in Scala).
+The result type is `Tuple2<A, B>` in Java (with `._1()` and `._2()` accessors), `Pair<A, B>` in Kotlin, and a tuple `(A, B)` in Scala. Left join wraps the right side in `Optional` (or nullable in Kotlin, `Option` in Scala).
 
 This is why row codecs use index-based reading rather than column names. When you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
 
-## Named Row Codecs
-
-The codecs above only track types. A *named* row codec also tracks column names — same index-based reading, but with metadata that eliminates hand-written column strings throughout your code:
-
-<Snippet file="core/NamedRowCodec" />
-
-Having names lets you:
-
-- **`columnList()`** — emit column names as a `Fragment` for SELECT clauses, so queries stay in sync with the codec
-- **`columnNames()`** — get column names as a list
-- **`fragment.row(codec, value)`** — emit an object's fields as comma-separated parameters for INSERT
-- **`DbJsonRow.jsonObject(codec)`** — build a [JSON object codec](./json) with column names as keys
-
-Named codecs are the recommended default — the small overhead of naming fields pays for itself quickly.
-
 ## Data-Driven Inserts
 
-Named codecs enable a pattern where `fragment.row()` emits an object's fields as parameters, driven by the codec's column and type metadata. Pass column names to `except` to skip columns handled by the database:
+`Fragment.insertIntoReturning()` generates a complete INSERT statement from a named codec — column list, parameter placeholders, and RETURNING clause. Pass column names to `except` to skip columns with database defaults:
 
 <Snippet file="core/FragmentRow" />
+
+## Positional Codecs
+
+Use positional codecs when column names aren't needed — e.g., single-use queries or performance-sensitive paths. You build a positional codec by listing `.field()` calls — one per column, in SELECT order — and finishing with `.build(constructor)`:
+
+<Snippet file="core/RowCodecBasic" />
+
+Each `.field()` takes a `DbType` that models the exact database column type. `DbType<A>` knows how to read a value of type `A` from a ResultSet and write it to a PreparedStatement — no JDBC integer codes, no manual `rs.getX()` calls. Each supported database has its own set (`PgTypes`, `DuckDbTypes`, `MariaDbTypes`, etc.) with full-precision mappings for every type. See [Database Types](./database-types) for the complete catalog.
+
+The builder is fully type-safe: the constructor receives exactly the types you declared, with no casts. Columns are read by index — the order of `.field()` calls must match the column order in your SELECT.

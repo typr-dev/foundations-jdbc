@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Structuring Repositories
 
-A common pattern is to define queries as public vals on a repository object with declared types. Fixed queries become `Operation`s (name them for analysis reports), parameterized queries become `Template`s. Both implement `Analyzable`, so you can collect them into a single list for batch verification:
+A common pattern is to define queries as public vals on a repository object with declared types. Fixed queries become `Operation`s (name them for analysis reports), parameterized queries become `Template`s:
 
 <Snippet file="core/UserRepo" />
 
@@ -16,4 +16,4 @@ This also means the repository stays in the database layer: it knows _what_ to q
 
 <Snippet file="core/UserService" />
 
-Pass the `analyzables` list to `QueryChecker.checkAll` in a test to verify every query against the database schema at once.
+Both `Operation` and `Template` implement `Analyzable`, so `AnalyzableScanner` discovers them automatically — no manual list needed. See [Query Analysis](./query-analysis) for details.

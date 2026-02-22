@@ -9,9 +9,9 @@ public class TransactorCustomStrategy {
     //start
     Transactor.Strategy customStrategy =
         Transactor.Strategy.empty()
-            .replaceBefore(conn -> conn.setAutoCommit(false))
-            .replaceAfter(Connection::commit)
-            .replaceOops((conn, throwable) -> { /* handle error */ })
-            .replaceAlways(Connection::close);
+            .replaceOnBegin(conn -> conn.setAutoCommit(false))
+            .replaceOnSuccess(Connection::commit)
+            .replaceOnFailure((conn, throwable) -> { /* handle error */ })
+            .replaceOnComplete(Connection::close);
     //stop
 }

@@ -275,22 +275,22 @@ public sealed class RowCodec<Row> permits RowCodecNamed, RowCodecUnnamed {
     return new RowCodecUnnamed<>(optColumns, optDecode, optEncode);
   }
 
-  public <Row2> RowCodec<And<Row, Row2>> joined(RowCodec<Row2> right) {
+  public <Row2> RowCodec<Tuple.Tuple2<Row, Row2>> joined(RowCodec<Row2> right) {
     var allColumns = new ArrayList<>(columns);
     allColumns.addAll(right.columns);
     var left = this;
-    Function<Object[], And<Row, Row2>> joinDecode =
+    Function<Object[], Tuple.Tuple2<Row, Row2>> joinDecode =
         allValues -> {
           Object[] leftValues = new Object[left.columns.size()];
           System.arraycopy(allValues, 0, leftValues, 0, leftValues.length);
           Object[] rightValues = new Object[right.columns.size()];
           System.arraycopy(allValues, leftValues.length, rightValues, 0, right.columns.size());
-          return new And<>(left.decode.apply(leftValues), right.decode.apply(rightValues));
+          return new Tuple.Tuple2.Impl<>(left.decode.apply(leftValues), right.decode.apply(rightValues));
         };
-    Function<And<Row, Row2>, Object[]> joinEncode =
-        and -> {
-          Object[] leftValues = left.encode.apply(and.left());
-          Object[] rightValues = right.encode.apply(and.right());
+    Function<Tuple.Tuple2<Row, Row2>, Object[]> joinEncode =
+        t -> {
+          Object[] leftValues = left.encode.apply(t._1());
+          Object[] rightValues = right.encode.apply(t._2());
           Object[] allValues = new Object[leftValues.length + rightValues.length];
           System.arraycopy(leftValues, 0, allValues, 0, leftValues.length);
           System.arraycopy(rightValues, 0, allValues, leftValues.length, rightValues.length);
@@ -299,15 +299,15 @@ public sealed class RowCodec<Row> permits RowCodecNamed, RowCodecUnnamed {
     return new RowCodecUnnamed<>(allColumns, joinDecode, joinEncode);
   }
 
-  public <Row2> RowCodec<And<Row, Optional<Row2>>> leftJoined(RowCodec<Row2> other) {
+  public <Row2> RowCodec<Tuple.Tuple2<Row, Optional<Row2>>> leftJoined(RowCodec<Row2> other) {
     return joined(other.opt());
   }
 
-  public <Row2> RowCodec<And<Optional<Row>, Row2>> rightJoined(RowCodec<Row2> other) {
+  public <Row2> RowCodec<Tuple.Tuple2<Optional<Row>, Row2>> rightJoined(RowCodec<Row2> other) {
     return opt().joined(other);
   }
 
-  public <Row2> RowCodec<And<Optional<Row>, Optional<Row2>>> fullJoined(RowCodec<Row2> other) {
+  public <Row2> RowCodec<Tuple.Tuple2<Optional<Row>, Optional<Row2>>> fullJoined(RowCodec<Row2> other) {
     return opt().joined(other.opt());
   }
 

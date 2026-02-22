@@ -10,7 +10,7 @@ Operations can be composed as values — combined, sequenced, and chained — so
 
 ## Combining Independent Operations
 
-`.with()` combines two operations that don't depend on each other. Both run in the same transaction, and a function combines their results:
+`.combineWith()` combines two operations that don't depend on each other. Both run in the same transaction, and a function combines their results:
 
 <Snippet file="core/ComposingWith" />
 

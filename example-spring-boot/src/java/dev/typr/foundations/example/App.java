@@ -1,5 +1,6 @@
 package dev.typr.foundations.example;
 
+import dev.typr.foundations.AnalyzableScanner;
 import dev.typr.foundations.QueryChecker;
 import dev.typr.foundations.Transactor;
 import dev.typr.foundations.connect.DuckDbConfig;
@@ -44,9 +45,10 @@ public class App {
             }
 
             System.out.println("\nQuery analysis:");
+            var analyzables = AnalyzableScanner.scan("dev.typr.foundations.example");
             QueryChecker checker = () -> tx;
-            checker.checkAll(TodoRepository.analyzables);
-            System.out.println("  All queries passed analysis.");
+            checker.checkAll(analyzables);
+            System.out.println("  All " + analyzables.size() + " queries passed analysis.");
         };
     }
 }

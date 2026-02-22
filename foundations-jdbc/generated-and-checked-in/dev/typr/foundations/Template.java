@@ -21,7 +21,8 @@ public sealed interface Template<In, Out> extends Analyzable
         Template.Update8,
         Template.Update9,
         Template.Update10,
-        Template.From {
+        Template.From,
+        RowTemplate {
 
   Operation<Out> on(In in);
 

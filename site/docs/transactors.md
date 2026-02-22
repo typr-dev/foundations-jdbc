@@ -8,7 +8,7 @@ import Snippet from '@site/src/components/Snippet';
 
 A `Transactor` is how you run database operations. It obtains a connection, runs your code inside a transaction, and handles commit, rollback, and cleanup automatically.
 
-The default [strategy](#strategies) wraps each call in a transaction: auto-commit off, commit on success, rollback on error, close always. You can customize this behavior by passing a different [strategy](#strategies) to `.transactor(strategy)`.
+By default, each call is wrapped in a transaction: auto-commit off, commit on success, rollback on error, close always.
 
 ## Setting Up
 
@@ -61,17 +61,7 @@ var tx = ds.transactor();
 
 ## Strategies
 
-A `Transactor.Strategy` defines hooks that wrap every execution:
-
-| Hook | When it runs |
-|------|-------------|
-| `before` | Before your code — typically `setAutoCommit(false)` |
-| `after` | After your code succeeds — typically `commit` |
-| `oops` | When an exception is thrown (catch) — receives the connection and the throwable |
-| `always` | In all cases (finally) — typically `close` |
-| `listener` | A `QueryListener` for observability (see [Observability](observability)) |
-
-### Built-in Strategies
+The default strategy wraps each call in a transaction. Pass a different built-in strategy to `.transactor()`:
 
 | Strategy | Behavior |
 |----------|----------|
@@ -80,24 +70,8 @@ A `Transactor.Strategy` defines hooks that wrap every execution:
 | `rollbackOnErrorStrategy()` | begin, commit on success, rollback on error, close |
 | `testStrategy()` | begin, **rollback** (not commit), close — keeps test data isolated |
 
-Pass a strategy to `.transactor()`:
-
 ```java
 var tx = config.transactor(Transactor.testStrategy());
 ```
 
-### Custom Strategies
-
-Build a strategy from scratch using `replaceX` methods — each one sets a single hook:
-
-<Snippet file="core/TransactorCustomStrategy" />
-
-### Strategy Merging
-
-Use `mergeX` methods to compose hooks — both the existing and new hook run in order. `mergeListener` composes listeners:
-
-<Snippet file="core/StrategyMerge" />
-
-The `mergeListener` convenience on `Transactor` creates a derived transactor with the listener merged into its strategy:
-
-<Snippet file="core/StrategyOverride" />
+Strategies can be thoroughly customized with composable hooks for transaction lifecycle and observability. See [Strategies](./strategies) for details.

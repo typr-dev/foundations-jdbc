@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Operations
 
-An `Operation<T>` is a database action that produces a value of type `T`. It describes *what* to do but doesn't run anything until you execute it on a connection. You create one by calling a terminal method on a [Fragment](./fragments).
+Call `.query()` or `.update()` on a Fragment to get an `Operation<T>` — a database action that produces a value of type `T`. It doesn't run until you call `.transact(tx)` or `.run(conn)`.
 
 ## Queries
 
@@ -60,9 +60,9 @@ Every operation supports these modifiers before execution:
 
 ## Composing Operations
 
-Operations can be composed as values — combined, sequenced, and chained — so that multiple database actions run in a single transaction without manual connection handling. For the full set of combinators (`.with()`, `.then()`, `Operation.sequence()`, `Operation.ifEmpty()`, and more), see [Composing Operations](./composing-operations).
+Operations can be composed as values — combined, sequenced, and chained — so that multiple database actions run in a single transaction without manual connection handling. For the full set of combinators (`.combineWith()`, `.then()`, `Operation.sequence()`, `Operation.ifEmpty()`, and more), see [Composing Operations](./composing-operations).
 
-Here's a quick taste — `.with()` combines two independent operations:
+Here's a quick taste — `.combineWith()` combines two independent operations:
 
 <Snippet file="core/ExecuteComposed" />
 

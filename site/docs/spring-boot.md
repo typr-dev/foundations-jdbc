@@ -129,8 +129,8 @@ public class OrderService {
 
     @Transactional
     public void placeOrder(Order order) {
-        insertOrder.bind(order).transact(tx);
-        updateInventory.bind(order.itemId()).transact(tx);
+        insertOrder.on(order).transact(tx);
+        updateInventory.on(order.itemId()).transact(tx);
         // both share the same transaction — committed together by Spring
     }
 

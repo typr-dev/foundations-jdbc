@@ -173,7 +173,9 @@ def generateKotlinDbProcedure(): String = {
   def outType(o: Int): String = o match {
     case 0 => "Unit"
     case 1 => "O0"
-    case n => s"dev.typr.foundations.Tuple.Tuple$n<${oParams(n).mkString(", ")}>"
+    case 2 => "Pair<O0, O1>"
+    case 3 => "Triple<O0, O1, O2>"
+    case n => "dev.typr.foundations.Tuple.Tuple" + n + "<" + oParams(n).mkString(", ") + ">"
   }
 
   // Def interfaces: 11x11
@@ -233,6 +235,8 @@ def generateKotlinDbProcedure(): String = {
     val castExpr = o match {
       case 0 => "{ }"
       case 1 => "{ it as O0 }"
+      case 2 => "{ val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }"
+      case 3 => "{ val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }"
       case n => s"{ it as $retType }"
     }
 

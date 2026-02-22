@@ -21,7 +21,7 @@ public class QueryAnalysisRoutine {
                 ParamDef.input(PgTypes.text)),
             PgTypes.int4);
 
-        QueryChecker checker = () -> transactor;
+        QueryChecker checker = QueryChecker.create(transactor);
         checker.checkRoutine(addUser);
     }
     //stop

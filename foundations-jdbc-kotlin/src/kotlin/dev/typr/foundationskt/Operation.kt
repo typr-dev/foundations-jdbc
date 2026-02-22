@@ -19,35 +19,35 @@ sealed class Operation<Out> : Analyzable {
         Mapped(this.underlying, this, f)
 
     @Suppress("UNCHECKED_CAST")
-    fun <B> with(other: Operation<B>): Operation<Pair<Out, B>> =
-        With(dev.typr.foundations.Operation.With(underlying as dev.typr.foundations.Operation<Out>, other.underlying as dev.typr.foundations.Operation<B>), this, other)
+    fun <B> combine(other: Operation<B>): Operation<Pair<Out, B>> =
+        Combine(dev.typr.foundations.Operation.Combine(underlying as dev.typr.foundations.Operation<Out>, other.underlying as dev.typr.foundations.Operation<B>), this, other)
 
-    fun <B, R> with(other: Operation<B>, combine: (Out, B) -> R): Operation<R> =
-        with(other).map { pair -> combine(pair.first, pair.second) }
+    fun <B, R> combineWith(other: Operation<B>, combine: (Out, B) -> R): Operation<R> =
+        combine(other).map { pair -> combine(pair.first, pair.second) }
 
-    fun <B, C, R> with(b: Operation<B>, c: Operation<C>, combine: (Out, B, C) -> R): Operation<R> =
-        with(b).with(c).map { pair -> combine(pair.first.first, pair.first.second, pair.second) }
+    fun <B, C, R> combineWith(b: Operation<B>, c: Operation<C>, combine: (Out, B, C) -> R): Operation<R> =
+        combine(b).combine(c).map { pair -> combine(pair.first.first, pair.first.second, pair.second) }
 
-    fun <B, C, D, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, combine: (Out, B, C, D) -> R): Operation<R> =
-        with(b).with(c).with(d).map { pair -> combine(pair.first.first.first, pair.first.first.second, pair.first.second, pair.second) }
+    fun <B, C, D, R> combineWith(b: Operation<B>, c: Operation<C>, d: Operation<D>, combine: (Out, B, C, D) -> R): Operation<R> =
+        combine(b).combine(c).combine(d).map { pair -> combine(pair.first.first.first, pair.first.first.second, pair.first.second, pair.second) }
 
-    fun <B, C, D, E, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, combine: (Out, B, C, D, E) -> R): Operation<R> =
-        with(b).with(c).with(d).with(e).map { pair -> combine(pair.first.first.first.first, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
+    fun <B, C, D, E, R> combineWith(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, combine: (Out, B, C, D, E) -> R): Operation<R> =
+        combine(b).combine(c).combine(d).combine(e).map { pair -> combine(pair.first.first.first.first, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
 
-    fun <B, C, D, E, F, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, combine: (Out, B, C, D, E, F) -> R): Operation<R> =
-        with(b).with(c).with(d).with(e).with(f).map { pair -> combine(pair.first.first.first.first.first, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
+    fun <B, C, D, E, F, R> combineWith(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, combine: (Out, B, C, D, E, F) -> R): Operation<R> =
+        combine(b).combine(c).combine(d).combine(e).combine(f).map { pair -> combine(pair.first.first.first.first.first, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
 
-    fun <B, C, D, E, F, G, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, g: Operation<G>, combine: (Out, B, C, D, E, F, G) -> R): Operation<R> =
-        with(b).with(c).with(d).with(e).with(f).with(g).map { pair -> combine(pair.first.first.first.first.first.first, pair.first.first.first.first.first.second, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
+    fun <B, C, D, E, F, G, R> combineWith(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, g: Operation<G>, combine: (Out, B, C, D, E, F, G) -> R): Operation<R> =
+        combine(b).combine(c).combine(d).combine(e).combine(f).combine(g).map { pair -> combine(pair.first.first.first.first.first.first, pair.first.first.first.first.first.second, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
 
-    fun <B, C, D, E, F, G, H, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, g: Operation<G>, h: Operation<H>, combine: (Out, B, C, D, E, F, G, H) -> R): Operation<R> =
-        with(b).with(c).with(d).with(e).with(f).with(g).with(h).map { pair -> combine(pair.first.first.first.first.first.first.first, pair.first.first.first.first.first.first.second, pair.first.first.first.first.first.second, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
+    fun <B, C, D, E, F, G, H, R> combineWith(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, g: Operation<G>, h: Operation<H>, combine: (Out, B, C, D, E, F, G, H) -> R): Operation<R> =
+        combine(b).combine(c).combine(d).combine(e).combine(f).combine(g).combine(h).map { pair -> combine(pair.first.first.first.first.first.first.first, pair.first.first.first.first.first.first.second, pair.first.first.first.first.first.second, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
 
-    fun <B, C, D, E, F, G, H, I, R> with(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, g: Operation<G>, h: Operation<H>, i: Operation<I>, combine: (Out, B, C, D, E, F, G, H, I) -> R): Operation<R> =
-        with(b).with(c).with(d).with(e).with(f).with(g).with(h).with(i).map { pair -> combine(pair.first.first.first.first.first.first.first.first, pair.first.first.first.first.first.first.first.second, pair.first.first.first.first.first.first.second, pair.first.first.first.first.first.second, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
+    fun <B, C, D, E, F, G, H, I, R> combineWith(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, g: Operation<G>, h: Operation<H>, i: Operation<I>, combine: (Out, B, C, D, E, F, G, H, I) -> R): Operation<R> =
+        combine(b).combine(c).combine(d).combine(e).combine(f).combine(g).combine(h).combine(i).map { pair -> combine(pair.first.first.first.first.first.first.first.first, pair.first.first.first.first.first.first.first.second, pair.first.first.first.first.first.first.second, pair.first.first.first.first.first.second, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
 
     fun <B> thenIgnore(other: Operation<B>): Operation<Out> =
-        with(other).map { pair -> pair.first }
+        combine(other).map { pair -> pair.first }
 
     fun <B> then(template: Template<Out, B>): Operation<B> {
         val javaTemplate = template.underlying
@@ -119,8 +119,8 @@ sealed class Operation<Out> : Analyzable {
         override fun run(conn: Connection): T = value
     }
 
-    class With<A, B>(
-        override val underlying: dev.typr.foundations.Operation.With<A, B>,
+    class Combine<A, B>(
+        override val underlying: dev.typr.foundations.Operation.Combine<A, B>,
         val first: Operation<A>,
         val second: Operation<B>
     ) : Operation<Pair<A, B>>() {
@@ -169,7 +169,7 @@ sealed class Operation<Out> : Analyzable {
             if (operations.isEmpty()) return pure(emptyList())
             var result: Operation<List<T>> = operations.first().map { listOf(it) }
             for (i in 1 until operations.size) {
-                result = result.with(operations[i]).map { pair ->
+                result = result.combine(operations[i]).map { pair ->
                     pair.first + listOf(pair.second)
                 }
             }

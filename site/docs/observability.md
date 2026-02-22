@@ -34,7 +34,7 @@ Give operations a name with `.named()`. The name appears as a SQL comment prefix
 
 <Snippet file="core/OperationNamed" />
 
-For composite operations (e.g. `a.with(b).named("dashboard")`), each leaf query gets a unique suffix: `dashboard#1`, `dashboard#2`, etc. Single queries get no suffix.
+For composite operations (e.g. `a.combine(b).named("dashboard")`), each leaf query gets a unique suffix: `dashboard#1`, `dashboard#2`, etc. Single queries get no suffix.
 
 ## Query Timeouts
 
