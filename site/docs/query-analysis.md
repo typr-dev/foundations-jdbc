@@ -115,9 +115,9 @@ Use `skip()` when a method shouldn't be type-checked at all:
 
 ### `manual()` — provide specific arguments
 
-Use `manual()` when you want a method to be type-checked but the scanner can't construct the right arguments. You provide a variant name and the arguments yourself. In Java, pass a method reference and the arguments; in Kotlin and Scala, call the method directly and pass the result:
+Use `manual()` when you want a method to be type-checked but the scanner can't construct the right arguments. You provide a variant name, call the method yourself, and pass the result:
 
-<Snippet file="analysis/ScannerDirectives" />
+<Snippet file="analysis/ScannerDirectivesManual" />
 
 You can provide multiple manual variants for the same method — each gets its own type check:
 
