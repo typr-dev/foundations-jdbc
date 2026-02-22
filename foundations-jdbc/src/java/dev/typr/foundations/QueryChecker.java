@@ -5,6 +5,10 @@ public interface QueryChecker {
 
   Transactor transactor();
 
+  static QueryChecker create(Transactor transactor) {
+    return () -> transactor;
+  }
+
   default void check(Analyzable analyzable) {
     List<QueryAnalysis> analyses =
         transactor().execute(conn -> QueryAnalyzer.analyze(analyzable, conn));

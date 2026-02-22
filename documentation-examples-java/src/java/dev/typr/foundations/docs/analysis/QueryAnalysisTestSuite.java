@@ -11,7 +11,7 @@ public class QueryAnalysisTestSuite {
     //start
     void allQueriesTypeCheck() {
         var analyzables = AnalyzableScanner.scan("com.myapp.db");
-        QueryChecker checker = () -> transactor;
+        QueryChecker checker = QueryChecker.create(transactor);
         checker.checkAll(analyzables);
     }
     //stop

@@ -29,7 +29,7 @@ public class QueryAnalysisBasic {
                 .value(PgTypes.int4, 1)
                 .query(userRowCodec.all());
 
-        QueryChecker checker = () -> transactor;
+        QueryChecker checker = QueryChecker.create(transactor);
         checker.check(query);
     }
     //stop

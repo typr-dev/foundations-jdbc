@@ -181,6 +181,66 @@ PgTypes.text.unchecked()     // skip all type checking for this column/parameter
 PgTypes.text.nullableOk()    // suppress nullability mismatch warnings
 ```
 
+### AnalyzableScanner
+
+```java
+// Scan a package and return all discovered analyzables
+static List<Analyzable> scan(String packageName)
+static List<Analyzable> scan(String packageName, Transactor transactor)
+static List<Analyzable> scan(String packageName, ScanDirective... directives)
+static List<Analyzable> scan(String packageName, Transactor transactor, ScanDirective... directives)
+
+// Scan with full metadata (class name, field/method name)
+static List<Result> scanDetailed(String packageName)
+static List<Result> scanDetailed(String packageName, Transactor transactor)
+static List<Result> scanDetailed(String packageName, ScanDirective... directives)
+static List<Result> scanDetailed(String packageName, Transactor transactor, ScanDirective... directives)
+
+// Describe an analyzable's operation structure
+static String describe(Analyzable analyzable)
+
+// Result record
+record Result(String className, String fieldName, Analyzable analyzable)
+```
+
+### ScanDirective (Java)
+
+```java
+sealed interface ScanDirective {
+    // Skip a method — pass a method reference
+    static ScanDirective skip(Ref0<?> ref)
+    static <A> ScanDirective skip(Ref1<A, ?> ref)
+
+    // Provide manual invocation — pass a method reference, variant name, and arguments
+    static <R> ScanDirective manual(Ref0<R> ref, String variantName)
+    static <A, R> ScanDirective manual(Ref1<A, R> ref, String variantName, A a)
+    static <A, B, R> ScanDirective manual(Ref2<A, B, R> ref, String variantName, A a, B b)
+
+    // Add an external object to the scan
+    static ScanDirective instance(Object obj)
+    static <T> ScanDirective instance(T obj, BiConsumer<T, InstanceConfig<T>> config)
+}
+```
+
+### ScanDirective (Kotlin)
+
+```kotlin
+// Top-level functions in dev.typr.foundationskt
+fun skip(clazz: Class<*>, methodName: String): ScanDirective
+fun manual(clazz: Class<*>, methodName: String, variantName: String, result: Analyzable): ScanDirective
+fun instance(obj: Any): ScanDirective
+fun <T : Any> instance(obj: T, block: InstanceScope<T>.() -> Unit): ScanDirective
+```
+
+### ScanDirective (Scala)
+
+```scala
+// Methods on AnalyzableScanner object
+def skip(clazz: Class[?], methodName: String): ScanDirective
+def instance(obj: Any): ScanDirective
+def instance[T](obj: T)(config: InstanceScope[T] => Unit): ScanDirective
+```
+
 ### AlignmentError Types
 
 ```java
