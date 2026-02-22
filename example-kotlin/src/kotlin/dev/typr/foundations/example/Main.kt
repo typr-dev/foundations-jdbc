@@ -19,8 +19,9 @@ fun main() {
     println("=== Running query analysis ===")
     val analyzables = AnalyzableScanner.scan("dev.typr.foundations.example")
     val checker = QueryChecker.create(tx)
-    checker.checkAll(analyzables)
-    println("All ${analyzables.size} queries passed analysis.\n")
+    val report = checker.checkAll(analyzables)
+    print(report.summaryColored())
+    report.assertAllSucceeded()
 
     val service = EventService(tx)
 

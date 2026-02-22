@@ -10,6 +10,7 @@ package object foundationssc:
 
   // Analysis types
   type QueryAnalysis = dev.typr.foundations.QueryAnalysis
+  type CheckReport = dev.typr.foundations.CheckReport
   type QueryListener = dev.typr.foundations.QueryListener
   type QueryEvent = dev.typr.foundations.QueryEvent
 
