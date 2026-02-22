@@ -6,34 +6,20 @@ import dev.typr.foundationssc.*
 object ScannerDirectives:
   private val transactor: Transactor = null // placeholder
 
-  case class ReportFilter(category: String, limit: Int)
-
   class ReportRepo:
     def generateReport(onProgress: Runnable): Operation[List[String]] =
       Fragment.of("SELECT name FROM reports").queryAll(PgTypes.text)
-
-    def filteredReport(filter: ReportFilter): Operation[List[String]] =
-      Fragment.of("SELECT name FROM reports WHERE category = ")
-        .value(PgTypes.text, filter.category)
-        .queryAll(PgTypes.text)
 
     def allReports(): Operation[List[String]] =
       Fragment.of("SELECT name FROM reports").queryAll(PgTypes.text)
 
   //start
   def checkWithDirectives(): Unit =
-    val repo = ReportRepo()
-
     val analyzables = AnalyzableScanner.scan(
       "com.myapp.reports",
 
       // Skip a method entirely — it won't be type-checked
-      AnalyzableScanner.skip(classOf[ReportRepo], "generateReport"),
-
-      // Provide specific arguments for a method
-      AnalyzableScanner.manual(
-        classOf[ReportRepo], "filteredReport", "defaults",
-        repo.filteredReport(ReportFilter("all", 100)))
+      AnalyzableScanner.skip(classOf[ReportRepo], "generateReport")
     )
 
     val checker = QueryChecker.create(transactor)
