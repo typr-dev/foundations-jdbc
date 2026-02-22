@@ -2,20 +2,39 @@ package dev.typr.foundations;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.JarURLConnection;
 import java.net.URL;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Discovers all {@link Analyzable} instances in a package via reflection.
  *
  * <p>Scans compiled classes in the given package, instantiates them, and collects all fields
- * that are (or wrap) {@link Analyzable}. Handles Java classes, Kotlin objects ({@code INSTANCE}),
- * and Scala objects ({@code MODULE$}).
+ * and methods that are (or wrap) {@link Analyzable}. Handles Java classes, Kotlin objects
+ * ({@code INSTANCE}), and Scala objects ({@code MODULE$}).
  */
 public final class AnalyzableScanner {
 
@@ -28,8 +47,10 @@ public final class AnalyzableScanner {
 
     private AnalyzableScanner() {}
 
+    // --- scan() overloads ---
+
     public static List<Analyzable> scan(String packageName) {
-        return scan(packageName, null);
+        return scan(packageName, (Transactor) null);
     }
 
     public static List<Analyzable> scan(String packageName, Transactor transactor) {
@@ -38,24 +59,82 @@ public final class AnalyzableScanner {
             .toList();
     }
 
+    public static List<Analyzable> scan(String packageName, ScanDirective... directives) {
+        return scan(packageName, null, directives);
+    }
+
+    public static List<Analyzable> scan(String packageName, Transactor transactor, ScanDirective... directives) {
+        return scanDetailed(packageName, transactor, directives).stream()
+            .map(r -> (Analyzable) new Analyzable.Named(r.className() + "." + r.fieldName(), r.analyzable()))
+            .toList();
+    }
+
+    // --- scanDetailed() overloads ---
+
     public static List<Result> scanDetailed(String packageName) {
-        return scanDetailed(packageName, null);
+        return scanDetailed(packageName, (Transactor) null);
     }
 
     public static List<Result> scanDetailed(String packageName, Transactor transactor) {
         var classes = findClasses(packageName);
         var result = new ArrayList<Result>();
+        var errors = new ArrayList<String>();
 
         for (var clazz : classes) {
             Object instance = instantiate(clazz, transactor);
             if (instance == null) continue;
 
-            // Use the instance's actual runtime class for field scanning.
-            // For Scala objects, clazz is the mirror class (Foo) but the instance
-            // is from Foo$ which has the actual fields.
-            collectAnalyzables(instance, instance.getClass(), clazz.getSimpleName(), result);
+            var fieldNames = new HashSet<String>();
+            collectAnalyzables(instance, instance.getClass(), clazz.getSimpleName(), fieldNames, result);
+            collectMethodAnalyzables(instance, instance.getClass(), clazz.getSimpleName(),
+                fieldNames, List.of(), errors, result);
         }
 
+        if (!errors.isEmpty()) throwScanErrors(errors);
+        result.sort(Comparator.comparing(Result::toString));
+        return result;
+    }
+
+    public static List<Result> scanDetailed(String packageName, ScanDirective... directives) {
+        return scanDetailed(packageName, null, directives);
+    }
+
+    public static List<Result> scanDetailed(String packageName, Transactor transactor, ScanDirective... directives) {
+        var directiveList = List.of(directives);
+        var classes = findClasses(packageName);
+        var result = new ArrayList<Result>();
+        var errors = new ArrayList<String>();
+        var scannedInstances = new HashSet<Object>();
+
+        for (var clazz : classes) {
+            Object instance = instantiate(clazz, transactor);
+            if (instance == null) continue;
+            scannedInstances.add(instance);
+
+            var instanceDirectives = findDirectivesForInstance(instance, directiveList);
+            var fieldNames = new HashSet<String>();
+            collectAnalyzables(instance, instance.getClass(), clazz.getSimpleName(), fieldNames, result);
+            collectMethodAnalyzables(instance, instance.getClass(), clazz.getSimpleName(),
+                fieldNames, instanceDirectives, errors, result);
+        }
+
+        for (var directive : directiveList) {
+            if (directive instanceof ScanDirective.InstanceScan is) {
+                if (scannedInstances.contains(is.instance())) continue;
+                scannedInstances.add(is.instance());
+
+                var inst = is.instance();
+                var clazz = inst.getClass();
+                var simpleName = stripSuffix(clazz.getSimpleName());
+
+                var fieldNames = new HashSet<String>();
+                collectAnalyzables(inst, clazz, simpleName, fieldNames, result);
+                collectMethodAnalyzables(inst, clazz, simpleName,
+                    fieldNames, is.overrides(), errors, result);
+            }
+        }
+
+        if (!errors.isEmpty()) throwScanErrors(errors);
         result.sort(Comparator.comparing(Result::toString));
         return result;
     }
@@ -127,14 +206,15 @@ public final class AnalyzableScanner {
         return s.length() > 80 ? s.substring(0, 77) + "..." : s;
     }
 
-    private static void collectAnalyzables(Object instance, Class<?> clazz, String simpleName, List<Result> result) {
-        // Scala 3 objects compile vals as static fields on the $ class
+    // --- Field scanning ---
+
+    private static void collectAnalyzables(Object instance, Class<?> clazz, String simpleName,
+                                            Set<String> fieldNames, List<Result> result) {
         boolean isScalaObject = clazz.getName().endsWith("$");
 
         for (var field : clazz.getDeclaredFields()) {
             boolean isStatic = Modifier.isStatic(field.getModifiers());
             if (isStatic && !isScalaObject) continue;
-            // Skip MODULE$ itself
             if ("MODULE$".equals(field.getName())) continue;
 
             field.setAccessible(true);
@@ -147,19 +227,194 @@ public final class AnalyzableScanner {
             if (value == null) continue;
 
             if (value instanceof Analyzable a) {
+                fieldNames.add(field.getName());
                 result.add(new Result(simpleName, field.getName(), a));
             } else {
-                // Kotlin/Scala wrappers: try getAnalyzable() or analyzable() via reflection
                 var analyzable = extractAnalyzableViaReflection(value);
                 if (analyzable != null) {
+                    fieldNames.add(field.getName());
                     result.add(new Result(simpleName, field.getName(), analyzable));
                 }
             }
         }
     }
 
-    private static Analyzable extractAnalyzableViaReflection(Object value) {
-        // Kotlin wrapper: val analyzable generates getAnalyzable()
+    // --- Method scanning ---
+
+    private static void collectMethodAnalyzables(
+        Object instance, Class<?> clazz, String simpleName,
+        Set<String> fieldNames, List<ScanDirective> directives, List<String> errors,
+        List<Result> result
+    ) {
+        var consumed = new HashSet<ScanDirective>();
+
+        for (var method : clazz.getDeclaredMethods()) {
+            if (!isAnalyzableMethod(method)) continue;
+
+            var className = clazz.getName();
+            var methodName = method.getName();
+
+            if (method.getParameterCount() == 0 && isGetterForField(methodName, fieldNames)) continue;
+
+            if (isSkipped(className, methodName, directives, consumed)) continue;
+
+            var manuals = findManuals(className, methodName, directives, consumed);
+            if (!manuals.isEmpty()) {
+                for (var manual : manuals) {
+                    result.add(new Result(simpleName, methodName + "[" + manual.variantName() + "]", manual.analyzable()));
+                }
+                continue;
+            }
+
+            if (method.getParameterCount() == 0) {
+                try {
+                    method.setAccessible(true);
+                    var value = method.invoke(instance);
+                    var analyzable = toAnalyzable(value);
+                    if (analyzable != null) {
+                        result.add(new Result(simpleName, methodName, analyzable));
+                    }
+                } catch (Exception e) {
+                    errors.add(formatMethodError(simpleName, methodName, method,
+                        "Failed to invoke no-arg method: " + e.getMessage()));
+                }
+                continue;
+            }
+
+            Object[] args;
+            try {
+                args = constructDummyArgs(method);
+            } catch (Exception e) {
+                errors.add(formatMethodError(simpleName, methodName, method,
+                    "Cannot construct dummy args for parameter types: " + e.getMessage()));
+                continue;
+            }
+
+            try {
+                method.setAccessible(true);
+                var value = method.invoke(instance, args);
+                var analyzable = toAnalyzable(value);
+                if (analyzable != null) {
+                    result.add(new Result(simpleName, methodName, analyzable));
+                }
+            } catch (Exception e) {
+                errors.add(formatMethodError(simpleName, methodName, method,
+                    "Failed to invoke with dummy args: " + e.getMessage()));
+            }
+        }
+    }
+
+    private static String formatMethodError(String simpleName, String methodName,
+                                            Method method, String reason) {
+        var paramTypes = method.getParameterTypes();
+        var params = new StringBuilder();
+        for (int i = 0; i < paramTypes.length; i++) {
+            if (i > 0) params.append(", ");
+            params.append(paramTypes[i].getSimpleName());
+        }
+        return simpleName + "." + methodName + "(" + params + ")\n" +
+            "    " + reason + "\n" +
+            "    \u2192 ScanDirective.skip(" + simpleName + ".class, \"" + methodName + "\")";
+    }
+
+    private static void throwScanErrors(List<String> errors) {
+        var sb = new StringBuilder();
+        sb.append("AnalyzableScanner: ").append(errors.size())
+            .append(" method(s) could not be auto-invoked.\n\n");
+        for (int i = 0; i < errors.size(); i++) {
+            sb.append(i + 1).append(". ").append(errors.get(i));
+            if (i < errors.size() - 1) sb.append("\n\n");
+        }
+        sb.append("\n\nAdd skip() or manual() directives to your scan() call to resolve these.");
+        throw new IllegalStateException(sb.toString());
+    }
+
+    private static boolean isAnalyzableMethod(Method method) {
+        int mods = method.getModifiers();
+        if (!Modifier.isPublic(mods)) return false;
+        if (Modifier.isStatic(mods)) return false;
+        if (method.isSynthetic() || method.isBridge()) return false;
+        if (method.getDeclaringClass() == Object.class) return false;
+        if (method.getParameterCount() > 10) return false;
+
+        var returnType = method.getReturnType();
+        if (Analyzable.class.isAssignableFrom(returnType)) return true;
+
+        try {
+            returnType.getMethod("getAnalyzable");
+            return true;
+        } catch (NoSuchMethodException ignored) {}
+
+        try {
+            returnType.getMethod("analyzable");
+            return true;
+        } catch (NoSuchMethodException ignored) {}
+
+        return false;
+    }
+
+    private static boolean isSkipped(String className, String methodName,
+                                     List<ScanDirective> directives, Set<ScanDirective> consumed) {
+        for (var d : directives) {
+            if (d instanceof ScanDirective.SkipMethod s &&
+                matchesMethod(s.declaringClass(), s.methodName(), className, methodName)) {
+                consumed.add(d);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static List<ScanDirective.ManualMethod> findManuals(String className, String methodName,
+                                                                 List<ScanDirective> directives,
+                                                                 Set<ScanDirective> consumed) {
+        var manuals = new ArrayList<ScanDirective.ManualMethod>();
+        for (var d : directives) {
+            if (d instanceof ScanDirective.ManualMethod m &&
+                matchesMethod(m.declaringClass(), m.methodName(), className, methodName)) {
+                manuals.add(m);
+                consumed.add(d);
+            }
+        }
+        return manuals;
+    }
+
+    private static boolean isGetterForField(String methodName, Set<String> fieldNames) {
+        if (fieldNames.contains(methodName)) return true;
+        if (methodName.startsWith("get") && methodName.length() > 3) {
+            var fieldName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+            return fieldNames.contains(fieldName);
+        }
+        return false;
+    }
+
+    private static boolean matchesMethod(String directiveClass, String directiveMethod,
+                                         String actualClass, String actualMethod) {
+        if (!directiveMethod.equals(actualMethod)) return false;
+        return actualClass.equals(directiveClass) || actualClass.endsWith("$" + directiveClass.substring(directiveClass.lastIndexOf('.') + 1));
+    }
+
+    private static List<ScanDirective> findDirectivesForInstance(Object instance, List<ScanDirective> allDirectives) {
+        var result = new ArrayList<ScanDirective>();
+        for (var d : allDirectives) {
+            if (d instanceof ScanDirective.InstanceScan is && is.instance() == instance) {
+                result.addAll(is.overrides());
+            } else if (!(d instanceof ScanDirective.InstanceScan)) {
+                result.add(d);
+            }
+        }
+        return result;
+    }
+
+    // --- Analyzable extraction ---
+
+    static Analyzable toAnalyzable(Object value) {
+        if (value == null) return null;
+        if (value instanceof Analyzable a) return a;
+        return extractAnalyzableViaReflection(value);
+    }
+
+    static Analyzable extractAnalyzableViaReflection(Object value) {
         try {
             var method = value.getClass().getMethod("getAnalyzable");
             if (Analyzable.class.isAssignableFrom(method.getReturnType())) {
@@ -167,7 +422,6 @@ public final class AnalyzableScanner {
             }
         } catch (Exception ignored) {}
 
-        // Scala wrapper: def analyzable generates analyzable()
         try {
             var method = value.getClass().getMethod("analyzable");
             if (Analyzable.class.isAssignableFrom(method.getReturnType())) {
@@ -177,6 +431,113 @@ public final class AnalyzableScanner {
 
         return null;
     }
+
+    // --- Dummy argument construction ---
+
+    private static Object[] constructDummyArgs(Method method) {
+        var params = method.getParameterTypes();
+        var args = new Object[params.length];
+        for (int i = 0; i < params.length; i++) {
+            args[i] = constructDummy(params[i], new HashSet<>());
+        }
+        return args;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    static Object constructDummy(Class<?> type, Set<Class<?>> visited) {
+        if (type == boolean.class || type == Boolean.class) return false;
+        if (type == byte.class || type == Byte.class) return (byte) 0;
+        if (type == short.class || type == Short.class) return (short) 0;
+        if (type == int.class || type == Integer.class) return 0;
+        if (type == long.class || type == Long.class) return 0L;
+        if (type == float.class || type == Float.class) return 0.0f;
+        if (type == double.class || type == Double.class) return 0.0;
+        if (type == char.class || type == Character.class) return '\0';
+        if (type == String.class) return "";
+        if (type == BigDecimal.class) return BigDecimal.ZERO;
+        if (type == BigInteger.class) return BigInteger.ZERO;
+        if (type == UUID.class) return new UUID(0, 0);
+
+        if (type == LocalDate.class) return LocalDate.of(2000, 1, 1);
+        if (type == LocalTime.class) return LocalTime.MIDNIGHT;
+        if (type == LocalDateTime.class) return LocalDateTime.of(2000, 1, 1, 0, 0);
+        if (type == OffsetDateTime.class) return OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        if (type == OffsetTime.class) return OffsetTime.of(LocalTime.MIDNIGHT, ZoneOffset.UTC);
+        if (type == ZonedDateTime.class) return ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        if (type == Instant.class) return Instant.EPOCH;
+        if (type == Duration.class) return Duration.ZERO;
+        if (type == java.time.Period.class) return java.time.Period.ZERO;
+
+        if (type == Optional.class) return Optional.empty();
+        if (type == List.class) return List.of();
+        if (type == Set.class) return Set.of();
+        if (type == Map.class) return Map.of();
+        if (type == java.util.Collection.class) return List.of();
+
+        if (type.isArray()) return Array.newInstance(type.getComponentType(), 0);
+
+        if (type.isEnum()) {
+            var constants = type.getEnumConstants();
+            if (constants.length > 0) return constants[0];
+            throw new IllegalArgumentException("Empty enum: " + type.getName());
+        }
+
+        if (!visited.add(type)) {
+            throw new IllegalArgumentException("Recursive type: " + type.getName());
+        }
+
+        try {
+            if (type.isRecord()) {
+                return constructDummyRecord(type, visited);
+            }
+            return constructDummyViaConstructor(type, visited);
+        } finally {
+            visited.remove(type);
+        }
+    }
+
+    private static Object constructDummyRecord(Class<?> type, Set<Class<?>> visited) {
+        var components = type.getRecordComponents();
+        var paramTypes = new Class<?>[components.length];
+        var args = new Object[components.length];
+        for (int i = 0; i < components.length; i++) {
+            paramTypes[i] = components[i].getType();
+            args[i] = constructDummy(paramTypes[i], visited);
+        }
+        try {
+            var ctor = type.getDeclaredConstructor(paramTypes);
+            ctor.setAccessible(true);
+            return ctor.newInstance(args);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Cannot construct record: " + type.getName(), e);
+        }
+    }
+
+    private static Object constructDummyViaConstructor(Class<?> type, Set<Class<?>> visited) {
+        if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
+            throw new IllegalArgumentException("Cannot construct abstract type: " + type.getName());
+        }
+
+        var constructors = type.getDeclaredConstructors();
+        List<Constructor<?>> sorted = new ArrayList<>(List.of(constructors));
+        sorted.sort(Comparator.comparingInt(Constructor::getParameterCount));
+
+        for (var ctor : sorted) {
+            try {
+                var paramTypes = ctor.getParameterTypes();
+                var args = new Object[paramTypes.length];
+                for (int i = 0; i < paramTypes.length; i++) {
+                    args[i] = constructDummy(paramTypes[i], visited);
+                }
+                ctor.setAccessible(true);
+                return ctor.newInstance(args);
+            } catch (Exception ignored) {}
+        }
+
+        throw new IllegalArgumentException("No suitable constructor for: " + type.getName());
+    }
+
+    // --- Class instantiation ---
 
     private static Object instantiate(Class<?> clazz, Transactor transactor) {
         try {
@@ -188,7 +549,6 @@ public final class AnalyzableScanner {
 
     private static Object instantiate0(Class<?> clazz, Transactor transactor)
         throws ReflectiveOperationException {
-        // Kotlin object — static INSTANCE field
         try {
             var field = clazz.getDeclaredField("INSTANCE");
             if (Modifier.isStatic(field.getModifiers())) {
@@ -197,7 +557,6 @@ public final class AnalyzableScanner {
             }
         } catch (NoSuchFieldException ignored) {}
 
-        // Scala object — ClassName$ class with MODULE$ field
         try {
             var companionClass = Class.forName(clazz.getName() + "$");
             var field = companionClass.getDeclaredField("MODULE$");
@@ -207,14 +566,12 @@ public final class AnalyzableScanner {
             }
         } catch (ClassNotFoundException | NoSuchFieldException ignored) {}
 
-        // No-arg constructor
         try {
             var ctor = clazz.getDeclaredConstructor();
             ctor.setAccessible(true);
             return ctor.newInstance();
         } catch (NoSuchMethodException ignored) {}
 
-        // Single Transactor constructor
         if (transactor != null) {
             try {
                 var ctor = clazz.getDeclaredConstructor(Transactor.class);
@@ -225,6 +582,8 @@ public final class AnalyzableScanner {
 
         return null;
     }
+
+    // --- Class discovery ---
 
     private static List<Class<?>> findClasses(String packageName) {
         var path = packageName.replace('.', '/');
@@ -265,7 +624,6 @@ public final class AnalyzableScanner {
                 if (!entryName.startsWith(prefix) || !entryName.endsWith(".class")) continue;
 
                 var relative = entryName.substring(prefix.length());
-                // Skip inner/synthetic classes
                 if (relative.contains("$")) continue;
 
                 var className = entryName
@@ -297,5 +655,9 @@ public final class AnalyzableScanner {
                 } catch (ClassNotFoundException ignored) {}
             }
         }
+    }
+
+    private static String stripSuffix(String name) {
+        return name.endsWith("$") ? name.substring(0, name.length() - 1) : name;
     }
 }

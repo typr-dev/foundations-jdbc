@@ -36,19 +36,37 @@ Query Analysis uses JDBC metadata to verify your queries against the actual data
 
 Add a new query anywhere in the package, and it's automatically included in the next test run. No manual list maintenance.
 
-### What the Scanner Finds
+## What the Scanner Discovers
 
-The scanner discovers fields that implement `Analyzable` — this includes `Operation`, `Template`, and `RowTemplate`. It handles all three JVM languages:
+The scanner finds everything that returns an `Analyzable` type — this includes `Operation`, `Template`, and `RowTemplate`. It discovers both **fields** and **methods**:
+
+<Snippet file="analysis/ScannerMethods" />
+
+### Discovery rules
+
+| What | How it's found |
+|------|----------------|
+| **Fields** | Any instance field whose type implements `Analyzable` |
+| **No-arg methods** | Called directly, return value collected |
+| **Methods with parameters** | Dummy arguments constructed automatically, method invoked |
+| **Templates** | Discovered like any other `Analyzable` field or method return |
+| **Private/static methods** | Skipped — only public instance members are scanned |
+
+### How classes are instantiated
+
+The scanner handles all three JVM languages:
 
 | Source | How it's found |
 |--------|----------------|
-| **Java classes** | Instantiated via no-arg constructor. Instance fields are scanned. |
-| **Kotlin objects** | Discovered via `INSTANCE` singleton. All `val` properties are scanned. |
-| **Scala objects** | Discovered via `MODULE$` singleton. All `val` fields are scanned. |
+| **Java classes** | Instantiated via no-arg constructor (or `Transactor` constructor). Fields and methods are scanned. |
+| **Kotlin classes** | Same as Java — instantiated via no-arg constructor. Properties and methods are scanned. |
+| **Kotlin objects** | Discovered via `INSTANCE` singleton. Properties and methods are scanned. |
+| **Scala classes** | Same as Java — instantiated via no-arg constructor. Fields and methods are scanned. |
+| **Scala objects** | Discovered via `MODULE$` singleton. Fields and methods are scanned. |
 
 The scanner recurses into subpackages, so `scan("com.myapp")` finds queries in `com.myapp.users`, `com.myapp.orders`, etc.
 
-Each discovered query is automatically named `ClassName.fieldName` (e.g. `UserRepo.findById`), so error reports pinpoint exactly which query failed.
+Each discovered query is automatically named `ClassName.fieldName` or `ClassName.methodName` (e.g. `UserRepo.findById`), so error reports pinpoint exactly which query failed.
 
 :::tip
 For classes that need a database connection at construction time, pass a `Transactor` to the scanner:
@@ -58,7 +76,67 @@ AnalyzableScanner.scan("com.myapp.db", transactor)
 The scanner will try constructors that accept a `Transactor` parameter.
 :::
 
-### Manual Check
+### How dummy arguments work
+
+When the scanner encounters a method with parameters, it constructs dummy values to invoke the method. The actual argument values typically don't matter — the scanner only needs the method's return value (an `Operation` or `Template`) to extract its SQL and type information. If a method branches on its arguments and returns structurally different operations, use `manual()` directives to provide meaningful values.
+
+The scanner can construct dummies for:
+
+| Type | Dummy value |
+|------|-------------|
+| Primitives (`int`, `boolean`, etc.) | Default values (`0`, `false`, etc.) |
+| `String` | `""` |
+| `BigDecimal`, `BigInteger` | `ZERO` |
+| `UUID` | `new UUID(0, 0)` |
+| `LocalDate`, `Instant`, etc. | Epoch / 2000-01-01 |
+| `Optional`, `List`, `Set`, `Map` | Empty |
+| Arrays | Empty array |
+| Enums | First constant |
+| Records | Recursive construction of components |
+| Classes with constructors | Tries shortest constructor first |
+
+If a parameter type can't be constructed (e.g., an interface like `Runnable`, or an abstract class), the scanner will **fail with an error**. You must handle these methods explicitly using [Scan Directives](#scan-directives) — either `skip()` to exclude them or `manual()` to provide the arguments yourself.
+
+### Getter deduplication
+
+In Kotlin and Scala, properties generate both a backing field and a getter method. The scanner automatically deduplicates these — if a field named `query` exists, a no-arg method named `query()` (Scala-style) or `getQuery()` (Kotlin-style) is treated as a getter and skipped.
+
+Methods with parameters are never treated as getters, even if they share a name with a field.
+
+## Scan Directives
+
+When the scanner encounters a method it can't auto-invoke — for example, a parameter is an interface type, or you need specific argument values — it fails with an error telling you which method and why. **Scan directives** tell the scanner how to handle these methods.
+
+### `skip()` — exclude a method
+
+Use `skip()` when a method shouldn't be type-checked at all:
+
+<Snippet file="analysis/ScannerDirectives" />
+
+### `manual()` — provide specific arguments
+
+Use `manual()` when you want a method to be type-checked but the scanner can't construct the right arguments. You provide a variant name and the arguments yourself. In Java, pass a method reference and the arguments; in Kotlin and Scala, call the method directly and pass the result:
+
+<Snippet file="analysis/ScannerDirectives" />
+
+You can provide multiple manual variants for the same method — each gets its own type check:
+
+```java
+ScanDirective.manual(repo::search, "by-name", new Filter("alice", 10)),
+ScanDirective.manual(repo::search, "all", new Filter("", 100))
+```
+
+Each variant appears in reports as `ClassName.methodName[variantName]`.
+
+### `instance()` — add objects from outside the scan package
+
+Use `instance()` to include objects that live outside the scanned package, or that need special construction:
+
+<Snippet file="analysis/ScannerInstance" />
+
+The `instance()` directive also supports per-instance overrides — you can skip or provide manual entries for specific methods on that instance.
+
+## Manual Check
 
 Some queries can't be discovered by the scanner — for example, queries built dynamically inside methods, or queries in classes that require constructor arguments the scanner can't provide. Use `checker.check()` to verify these individually:
 
