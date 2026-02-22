@@ -1,12 +1,6 @@
 package dev.typr.foundations.example
 
-import dev.typr.foundationskt.DuckDbTypes
-import dev.typr.foundationskt.Fragment
-import dev.typr.foundationskt.Operation
-import dev.typr.foundationskt.RowCodec
-import dev.typr.foundationskt.RowTemplate
-import dev.typr.foundationskt.Template
-import dev.typr.foundationskt.sql
+import dev.typr.foundationskt.*
 import java.time.OffsetDateTime
 import java.util.*
 

@@ -28,6 +28,7 @@ const sidebars = {
         {type: "doc", id: "spring-boot", label: "Spring Boot"},
         {type: "doc", id: "thread-safety", label: "Thread Safety"},
         {type: "doc", id: "structuring-repositories", label: "Structuring Repositories"},
+        {type: "doc", id: "testing", label: "Testing"},
         {type: "doc", id: "observability", label: "Observability"},
         {type: "doc", id: "virtual-threads", label: "Virtual Threads"},
       ],

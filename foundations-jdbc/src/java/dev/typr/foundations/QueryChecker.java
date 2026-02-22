@@ -1,4 +1,5 @@
 package dev.typr.foundations;
+import java.util.ArrayList;
 import java.util.List;
 
 public interface QueryChecker {
@@ -37,32 +38,18 @@ public interface QueryChecker {
     check(fragment, codec.all());
   }
 
-  default void checkAll(List<? extends Analyzable> analyzables) {
-    StringBuilder errors = new StringBuilder();
-    int errorCount = 0;
-
-    for (int i = 0; i < analyzables.size(); i++) {
-      Analyzable a = analyzables.get(i);
+  default CheckReport checkAll(List<? extends Analyzable> analyzables) {
+    List<QueryAnalysis> all = new ArrayList<>();
+    for (Analyzable a : analyzables) {
       List<QueryAnalysis> analyses =
           transactor().execute(conn -> QueryAnalyzer.analyze(a, conn));
-      for (QueryAnalysis analysis : analyses) {
-        if (!analysis.succeeded()) {
-          errorCount++;
-          errors.append("\n\n--- Query ").append(i + 1).append(" ---\n");
-          errors.append(analysis.report());
-        }
-      }
+      all.addAll(analyses);
     }
-
-    if (errorCount > 0) {
-      throw new AssertionError(
-          errorCount + " queries failed type checking:" + errors
-      );
-    }
+    return new CheckReport(List.copyOf(all));
   }
 
-  default void checkAll(Analyzable... analyzables) {
-    checkAll(List.of(analyzables));
+  default CheckReport checkAll(Analyzable... analyzables) {
+    return checkAll(List.of(analyzables));
   }
 
   default void checkRoutine(Procedure<?> procedure) {
