@@ -5,5 +5,6 @@ typealias SqlFunction<T, R> = dev.typr.foundations.SqlFunction<T, R>
 typealias DbJson<T> = dev.typr.foundations.DbJson<T>
 typealias PgText<T> = dev.typr.foundations.PgText<T>
 typealias QueryAnalysis = dev.typr.foundations.QueryAnalysis
+typealias CheckReport = dev.typr.foundations.CheckReport
 typealias QueryListener = dev.typr.foundations.QueryListener
 typealias QueryEvent = dev.typr.foundations.QueryEvent

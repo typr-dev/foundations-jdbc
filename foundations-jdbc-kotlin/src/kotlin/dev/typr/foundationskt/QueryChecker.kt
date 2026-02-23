@@ -7,6 +7,12 @@ class QueryChecker(val underlying: dev.typr.foundations.QueryChecker) {
         underlying.check(analyzable.analyzable)
     }
 
+    fun analyzeAll(analyzables: List<Analyzable>): CheckReport =
+        underlying.analyzeAll(analyzables.map { it.analyzable })
+
+    fun analyzeAll(vararg analyzables: Analyzable): CheckReport =
+        analyzeAll(analyzables.toList())
+
     fun checkAll(analyzables: List<Analyzable>) {
         underlying.checkAll(analyzables.map { it.analyzable })
     }
