@@ -5,9 +5,13 @@ import scala.jdk.CollectionConverters.*
 class QueryChecker(val underlying: dev.typr.foundations.QueryChecker):
   def check(analyzable: Analyzable): Unit =
     underlying.check(analyzable.analyzable)
-  def checkAll(analyzables: List[Analyzable]): CheckReport =
+  def analyzeAll(analyzables: List[Analyzable]): CheckReport =
+    underlying.analyzeAll(analyzables.map(_.analyzable).asJava)
+  def analyzeAll(analyzables: Analyzable*): CheckReport =
+    analyzeAll(analyzables.toList)
+  def checkAll(analyzables: List[Analyzable]): Unit =
     underlying.checkAll(analyzables.map(_.analyzable).asJava)
-  def checkAll(analyzables: Analyzable*): CheckReport =
+  def checkAll(analyzables: Analyzable*): Unit =
     checkAll(analyzables.toList)
   def checkRoutine(procedure: dev.typr.foundations.Procedure[?]): Unit =
     underlying.checkRoutine(procedure)

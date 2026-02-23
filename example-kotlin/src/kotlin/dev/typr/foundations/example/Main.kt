@@ -19,7 +19,7 @@ fun main() {
     println("=== Running query analysis ===")
     val analyzables = AnalyzableScanner.scan("dev.typr.foundations.example")
     val checker = QueryChecker.create(tx)
-    val report = checker.checkAll(analyzables)
+    val report = checker.analyzeAll(analyzables)
     print(report.summaryColored())
     report.assertAllSucceeded()
 
