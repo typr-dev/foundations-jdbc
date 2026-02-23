@@ -85,8 +85,16 @@ companion object {
 fun `all queries type-check`() {
     val analyzables = AnalyzableScanner.scan("com.myapp.db")
     val checker = QueryChecker.create(tx)
-    checker.checkAll(analyzables)
+    checker.checkAll(analyzables)  // throws AssertionError if any query fails
 }
+```
+
+For detailed output showing each query, use `analyzeAll`:
+
+```kotlin
+val report = checker.analyzeAll(analyzables)
+println(report.summaryColored())   // prints each query with ✓/✗
+report.assertAllSucceeded()        // throws if any failed
 ```
 
 Add a new query anywhere in the package, and it's automatically included in the next test run. No manual list maintenance. See [Query Analysis](./query-analysis) for scanner configuration, directives, and the full report format.

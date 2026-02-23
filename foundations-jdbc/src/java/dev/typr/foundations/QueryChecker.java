@@ -38,7 +38,7 @@ public interface QueryChecker {
     check(fragment, codec.all());
   }
 
-  default CheckReport checkAll(List<? extends Analyzable> analyzables) {
+  default CheckReport analyzeAll(List<? extends Analyzable> analyzables) {
     List<QueryAnalysis> all = new ArrayList<>();
     for (Analyzable a : analyzables) {
       List<QueryAnalysis> analyses =
@@ -48,8 +48,16 @@ public interface QueryChecker {
     return new CheckReport(List.copyOf(all));
   }
 
-  default CheckReport checkAll(Analyzable... analyzables) {
-    return checkAll(List.of(analyzables));
+  default CheckReport analyzeAll(Analyzable... analyzables) {
+    return analyzeAll(List.of(analyzables));
+  }
+
+  default void checkAll(List<? extends Analyzable> analyzables) {
+    analyzeAll(analyzables).assertAllSucceeded();
+  }
+
+  default void checkAll(Analyzable... analyzables) {
+    checkAll(List.of(analyzables));
   }
 
   default void checkRoutine(Procedure<?> procedure) {

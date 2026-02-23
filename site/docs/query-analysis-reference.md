@@ -165,8 +165,8 @@ interface QueryChecker {
     void check(Fragment fragment, ResultSetParser<?> parser)
     void check(Fragment fragment, RowCodec<?> codec)
 
-    // Batch check
-    void checkAll(Operation<?>... operations)
+    // Batch check — returns report with per-query results
+    CheckReport checkAll(Analyzable... analyzables)
 
     // Routine analysis
     void checkRoutine(Procedure<?> procedure)
