@@ -103,7 +103,7 @@ const quickstartKotlin = `import dev.typr.foundationskt.*
 import dev.typr.foundationskt.connect.*
 
 fun main() {
-    val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
+    val tx = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build()).transactor()
     val answer: Int = sql { "SELECT 42" }
         .queryExactlyOne(DuckDbTypes.integer)
         .transact(tx)
@@ -119,7 +119,7 @@ function Hero() {
           What if JDBC just worked the way you think it should?
         </h1>
         <p className={styles.heroTagline}>
-          Every type your database has, as a real typed value. Queries that compose. Transactions you control. No annotations, no reflection, no surprises.
+          Every type your database has, as a real typed value. Queries that compose. Transactions you control. No annotations, no runtime reflection, no surprises.
         </p>
         <div className={styles.heroButtons}>
           <Link className={styles.btnPrimary} to="/docs/">
@@ -248,7 +248,7 @@ function Features() {
     },
     {
       title: 'No reflection, no magic',
-      description: 'Zero reflection, zero bytecode generation, zero annotation processing. Works with GraalVM native-image out of the box. You can read every line of what runs.',
+      description: 'Zero runtime reflection, zero bytecode generation, zero annotation processing. Works with GraalVM native-image out of the box. You can read every line of what runs.',
     },
     {
       title: 'Not an ORM',

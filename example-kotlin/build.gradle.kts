@@ -17,6 +17,15 @@ sourceSets {
             setSrcDirs(listOf("src/kotlin"))
         }
     }
+    test {
+        kotlin {
+            setSrcDirs(listOf("test/kotlin"))
+        }
+    }
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 application {
@@ -27,4 +36,8 @@ dependencies {
     implementation(project(":foundations-jdbc"))
     implementation(project(":foundations-jdbc-kotlin"))
     implementation("org.duckdb:duckdb_jdbc:${property("duckdbDriverVersion")}")
+
+    testImplementation("junit:junit:${property("junitVersion")}")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

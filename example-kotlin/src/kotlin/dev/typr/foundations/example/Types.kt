@@ -62,11 +62,6 @@ data class Ticket(
     val seatNumbers: List<Int>
 )
 
-data class EventWithVenue(
-    val event: Event,
-    val venue: Venue
-)
-
 data class EventSummary(
     val eventId: EventId,
     val title: String,
