@@ -229,6 +229,9 @@ object Fragment {
   def insertIntoReturning[Row](table: String, codec: RowCodecNamed[Row], except: String*): RowTemplate.Query[Row, Row] =
     new RowTemplate.Query(dev.typr.foundations.Fragment.insertIntoReturning(table, codec.underlying, except*))
 
+  def insertIntoReturning[In, Out](table: String, writeCodec: RowCodecNamed[In], readCodec: RowCodecNamed[Out]): RowTemplate.Query[In, Out] =
+    new RowTemplate.Query(dev.typr.foundations.Fragment.insertIntoReturning(table, writeCodec.underlying, readCodec.underlying))
+
   def row[Row](codec: RowCodecNamed[Row], row: Row, except: String*): Fragment =
     new Fragment(dev.typr.foundations.Fragment.EMPTY.row(codec.underlying, row, except*))
 }

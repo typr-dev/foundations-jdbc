@@ -219,6 +219,16 @@ public sealed interface Fragment {
         .query(codec.exactlyOne());
   }
 
+  static <In, Out> RowTemplate.Query<In, Out> insertIntoReturning(
+      String table, RowCodecNamed<In> writeCodec, RowCodecNamed<Out> readCodec) {
+    String cols = String.join(", ", writeCodec.columnNames());
+    String returnCols = String.join(", ", readCodec.columnNames());
+    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
+        .paramRow(writeCodec)
+        .append(") RETURNING " + returnCols)
+        .query(readCodec.exactlyOne());
+  }
+
   static Fragment empty() {
     return EMPTY;
   }
