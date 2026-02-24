@@ -26,6 +26,12 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
          * Create a single-column row parser.
          */
         fun <T : Any> of(type: DbType<T>): RowCodec<T> = RowCodec(dev.typr.foundations.RowCodec.of(type.underlying))
+
+        /**
+         * Create a single-column named row codec.
+         */
+        fun <T : Any> ofNamed(name: String, type: DbType<T>): RowCodecNamed<T> =
+            RowCodecNamed(dev.typr.foundations.RowCodec.ofNamed(name, type.underlying))
     }
 
     /**
@@ -140,6 +146,16 @@ class RowCodecNamed<Row : Any>(
 
     val columnList: Fragment
         get() = Fragment(underlying.columnList())
+
+    fun <Row2 : Any> join(other: RowCodecNamed<Row2>): RowCodecNamed<Pair<Row, Row2>> {
+        val javaJoined = underlying.join(other.underlying)
+        val converted = javaJoined.to(Bijection.andToPair<Row, Row2>())
+        return RowCodecNamed(converted)
+    }
+
+    fun <Row2 : Any> to(forward: (Row) -> Row2, backward: (Row2) -> Row): RowCodecNamed<Row2> =
+        RowCodecNamed(underlying.to(dev.typr.foundations.Bijection.of(
+            { forward(it) }, { backward(it) })))
 
     fun jsonObject(): dev.typr.foundations.DbJson<Row> =
         dev.typr.foundations.DbJsonRow.jsonObject(underlying)

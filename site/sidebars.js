@@ -20,6 +20,18 @@ const sidebars = {
     },
     {
       type: "category",
+      label: "Patterns & Techniques",
+      collapsed: false,
+      items: [
+        {type: "doc", id: "templates", label: "Templates"},
+        {type: "doc", id: "composing-operations", label: "Composing Operations"},
+        {type: "doc", id: "structuring-repositories", label: "Structuring Repositories"},
+        {type: "doc", id: "persisted-unpersisted", label: "Persisted vs Unpersisted Types"},
+        {type: "doc", id: "testing", label: "Testing"},
+      ],
+    },
+    {
+      type: "category",
       label: "Going to Production",
       collapsed: false,
       items: [
@@ -27,10 +39,9 @@ const sidebars = {
         {type: "doc", id: "connection-pooling", label: "Connection Pooling"},
         {type: "doc", id: "spring-boot", label: "Spring Boot"},
         {type: "doc", id: "thread-safety", label: "Thread Safety"},
-        {type: "doc", id: "structuring-repositories", label: "Structuring Repositories"},
-        {type: "doc", id: "testing", label: "Testing"},
         {type: "doc", id: "observability", label: "Observability"},
         {type: "doc", id: "virtual-threads", label: "Virtual Threads"},
+        {type: "doc", id: "streaming-inserts", label: "Streaming Inserts"},
       ],
     },
     {
@@ -38,12 +49,10 @@ const sidebars = {
       label: "Advanced",
       collapsed: false,
       items: [
-        {type: "doc", id: "templates", label: "Templates"},
-        {type: "doc", id: "composing-operations", label: "Composing Operations"},
         {type: "doc", id: "strategies", label: "Strategies"},
         {type: "doc", id: "query-analysis-reference", label: "Query Analysis Reference"},
-        {type: "doc", id: "streaming-inserts", label: "Streaming Inserts"},
         {type: "doc", id: "kotlin-interpolation", label: "Kotlin String Interpolation"},
+        {type: "doc", id: "benchmarks", label: "Benchmarks"},
       ],
     },
     {

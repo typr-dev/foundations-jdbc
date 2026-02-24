@@ -74,6 +74,12 @@ class RowCodecNamed[Row](override val underlying: dev.typr.foundations.RowCodecN
 
   def columnList: Fragment = new Fragment(underlying.columnList())
 
+  def join[Row2](other: RowCodecNamed[Row2]): RowCodecNamed[(Row, Row2)] =
+    new RowCodecNamed(underlying.join(other.underlying).to(Bijections.andToTuple[Row, Row2]))
+
+  def to[Row2](forward: Row => Row2, backward: Row2 => Row): RowCodecNamed[Row2] =
+    new RowCodecNamed(underlying.to(dev.typr.foundations.Bijection.of[Row, Row2](r => forward(r), r2 => backward(r2))))
+
   def jsonObject(): dev.typr.foundations.DbJson[Row] =
     dev.typr.foundations.DbJsonRow.jsonObject(underlying)
 }
@@ -91,4 +97,9 @@ object RowCodec {
     */
   def of[T](dbType: DbType[T]): RowCodec[T] =
     new RowCodec(dev.typr.foundations.RowCodec.of(dbType.underlying))
+
+  /** Create a single-column named row codec.
+    */
+  def ofNamed[T](name: String, dbType: DbType[T]): RowCodecNamed[T] =
+    new RowCodecNamed(dev.typr.foundations.RowCodec.ofNamed(name, dbType.underlying))
 }
