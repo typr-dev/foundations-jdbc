@@ -31,6 +31,7 @@ const sidebars = {
         {type: "doc", id: "testing", label: "Testing"},
         {type: "doc", id: "observability", label: "Observability"},
         {type: "doc", id: "virtual-threads", label: "Virtual Threads"},
+        {type: "doc", id: "benchmarks", label: "Benchmarks"},
       ],
     },
     {
