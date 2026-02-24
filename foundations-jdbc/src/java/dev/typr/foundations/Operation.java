@@ -472,7 +472,7 @@ public sealed interface Operation<Out> extends Analyzable
   record Combine<A, B>(Operation<A> first, Operation<B> second) implements Operation<Tuple.Tuple2<A, B>> {
     @Override
     public Tuple.Tuple2<A, B> run(Connection conn) {
-      return new Tuple.Tuple2.Impl<>(first.run(conn), second.run(conn));
+      return Tuple.of(first.run(conn), second.run(conn));
     }
   }
 
