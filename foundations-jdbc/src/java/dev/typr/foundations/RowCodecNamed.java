@@ -92,9 +92,35 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
   }
 
   @Override
-  public <Row2> RowCodec<Row2> to(Bijection<Row, Row2> bijection) {
+  public <Row2> RowCodecNamed<Row2> to(Bijection<Row, Row2> bijection) {
     Function<Object[], Row2> newDecode = values -> bijection.underlying(this.decode().apply(values));
     Function<Row2, Object[]> newEncode = row2 -> this.encode().apply(bijection.from(row2));
     return new RowCodecNamed<>(this.columnNames, this.columns(), newDecode, newEncode);
+  }
+
+  public <Row2> RowCodecNamed<Tuple.Tuple2<Row, Row2>> join(RowCodecNamed<Row2> right) {
+    var allNames = new ArrayList<>(this.columnNames());
+    allNames.addAll(right.columnNames());
+    var allColumns = new ArrayList<>(this.columns());
+    allColumns.addAll(right.columns());
+    var left = this;
+    Function<Object[], Tuple.Tuple2<Row, Row2>> joinDecode =
+        allValues -> {
+          Object[] leftValues = new Object[left.columns().size()];
+          System.arraycopy(allValues, 0, leftValues, 0, leftValues.length);
+          Object[] rightValues = new Object[right.columns().size()];
+          System.arraycopy(allValues, leftValues.length, rightValues, 0, right.columns().size());
+          return Tuple.of(left.decode().apply(leftValues), right.decode().apply(rightValues));
+        };
+    Function<Tuple.Tuple2<Row, Row2>, Object[]> joinEncode =
+        t -> {
+          Object[] leftValues = left.encode().apply(t._1());
+          Object[] rightValues = right.encode().apply(t._2());
+          Object[] allValues = new Object[leftValues.length + rightValues.length];
+          System.arraycopy(leftValues, 0, allValues, 0, leftValues.length);
+          System.arraycopy(rightValues, 0, allValues, leftValues.length, rightValues.length);
+          return allValues;
+        };
+    return new RowCodecNamed<>(allNames, allColumns, joinDecode, joinEncode);
   }
 }

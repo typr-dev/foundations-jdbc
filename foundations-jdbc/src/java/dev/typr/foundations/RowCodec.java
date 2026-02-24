@@ -100,6 +100,18 @@ public sealed class RowCodec<Row> permits RowCodecNamed, RowCodecUnnamed {
         t -> new Object[] {t});
   }
 
+  /**
+   * Create a single-column named row codec.
+   *
+   * @param name the column name
+   * @param type the column type
+   * @return a named row codec that returns the column value directly
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> RowCodecNamed<T> ofNamed(String name, DbType<T> type) {
+    return new RowCodecNamed<>(List.of(name), List.of(type), arr -> (T) arr[0], t -> new Object[] {t});
+  }
+
   public Row readRow(ResultSet rs, int rowNum) throws SqlResultParseException {
     Object[] currentRow = new Object[columns.size()];
     for (int colNum = 0; colNum < columns.size(); colNum++) {
@@ -285,7 +297,7 @@ public sealed class RowCodec<Row> permits RowCodecNamed, RowCodecUnnamed {
           System.arraycopy(allValues, 0, leftValues, 0, leftValues.length);
           Object[] rightValues = new Object[right.columns.size()];
           System.arraycopy(allValues, leftValues.length, rightValues, 0, right.columns.size());
-          return new Tuple.Tuple2.Impl<>(left.decode.apply(leftValues), right.decode.apply(rightValues));
+          return Tuple.of(left.decode.apply(leftValues), right.decode.apply(rightValues));
         };
     Function<Tuple.Tuple2<Row, Row2>, Object[]> joinEncode =
         t -> {
