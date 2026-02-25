@@ -433,6 +433,13 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(personType, new Person("Alice", 30)).noIdentity(),
           new DuckDbTypeAndExample<>(personType, new Person("Bob", 25)).noIdentity(),
 
+          // ==================== LIST of STRUCT Types ====================
+          new DuckDbTypeAndExample<>(
+                  personType.list(),
+                  List.of(new Person("Alice", 30), new Person("Bob", 25)))
+              .noIdentity(),
+          new DuckDbTypeAndExample<>(personType.list(), List.of()).noIdentity(),
+
           // ==================== UNION Types ====================
           new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Num(42))
               .noIdentity()
