@@ -108,17 +108,9 @@ public record DuckDbType<A>(
               return result;
             });
     DuckDbWrite<java.util.List<A>> listWrite =
-        new DuckDbWrite.Instance<>(
-            (ps, idx, str) -> ps.setString(idx, str),
-            list -> {
-              StringBuilder sb = new StringBuilder("[");
-              for (int i = 0; i < list.size(); i++) {
-                if (i > 0) sb.append(", ");
-                stringifier.unsafeEncode(list.get(i), sb, false);
-              }
-              sb.append("]");
-              return sb.toString();
-            });
+        typename instanceof DuckDbTypename.UnionOf
+            ? DuckDbWrite.writeListInline(typename.sqlType(), stringifier)
+            : DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier);
     DuckDbStringifier<java.util.List<A>> listStringifier =
         DuckDbStringifier.instance(
             (list, sb, quoted) -> {

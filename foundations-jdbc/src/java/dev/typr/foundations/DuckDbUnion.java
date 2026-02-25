@@ -99,16 +99,49 @@ public record DuckDbUnion<A>(
     DuckDbStringifier<A> stringifier =
         DuckDbStringifier.instance(
             (value, sb, quoted) -> {
-              throw new UnsupportedOperationException("UNION stringification not yet implemented");
+              TaggedValue<?> tv = writer.write(value);
+              sb.append("union_value(").append(tv.tag()).append(" := ");
+              appendMemberValue(sb, tv);
+              sb.append(")");
+            });
+
+    DuckDbMapSupport<A> unionMapSupport =
+        DuckDbMapSupport.of(
+            raw -> {
+              String inferredTag = inferTag(raw);
+              if (inferredTag != null) {
+                try {
+                  return reader.read(inferredTag, raw);
+                } catch (java.sql.SQLException e) {
+                  throw new DatabaseException(e);
+                }
+              }
+              throw new IllegalArgumentException(
+                  "Cannot determine UNION tag for value: " + raw + " (" + raw.getClass() + ")");
+            },
+            value -> {
+              TaggedValue<?> tv = writer.write(value);
+              return tv.value();
             });
 
     return new DuckDbType<>(typename.asGeneric(), duckDbRead, duckDbWrite, stringifier, json,
-        DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
+        unionMapSupport, AnalysisOptions.EMPTY);
   }
 
   /** Create an optional version of this UNION type. */
   public DuckDbType<java.util.Optional<A>> opt() {
     return asType().opt();
+  }
+
+  @SuppressWarnings("unchecked")
+  private <V> void appendMemberValue(StringBuilder sb, TaggedValue<V> tv) {
+    for (Member<A, ?> member : members) {
+      if (member.tag().equals(tv.tag())) {
+        ((DuckDbType<V>) member.type()).stringifier().unsafeEncode(tv.value(), sb, true);
+        return;
+      }
+    }
+    throw new IllegalStateException("Unknown tag: " + tv.tag());
   }
 
   /** Infer the tag from the Java type of the value. */

@@ -270,11 +270,21 @@ public sealed interface Fragment {
   record Value<A>(A value, DbType<A> type) implements Fragment {
     @Override
     public void render(StringBuilder sb) {
-      sb.append(type.typename().renderPlaceholder());
+      var inline = type.write().inlineSql(value);
+      if (inline.isPresent()) {
+        sb.append(inline.get());
+      } else {
+        sb.append(type.typename().renderPlaceholder());
+      }
     }
 
     @Override
     public void renderInterpolated(StringBuilder sb) {
+      var inline = type.write().inlineSql(value);
+      if (inline.isPresent()) {
+        sb.append(inline.get());
+        return;
+      }
       if (value == null) {
         sb.append("NULL");
         return;
@@ -319,12 +329,16 @@ public sealed interface Fragment {
 
     @Override
     public void set(PreparedStatement stmt, AtomicInteger idx) throws SQLException {
-      type.write().set(stmt, idx.getAndIncrement(), value);
+      if (type.write().inlineSql(value).isEmpty()) {
+        type.write().set(stmt, idx.getAndIncrement(), value);
+      }
     }
 
     @Override
     public void collectParameterTypes(List<DbType<?>> types) {
-      types.add(type);
+      if (type.write().inlineSql(value).isEmpty()) {
+        types.add(type);
+      }
     }
   }
 
