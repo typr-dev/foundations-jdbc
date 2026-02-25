@@ -82,7 +82,10 @@ public final class AnalyzableScanner {
 
         for (var clazz : classes) {
             Object instance = instantiate(clazz, transactor);
-            if (instance == null) continue;
+            if (instance == null) {
+                collectStaticAnalyzables(clazz, result);
+                continue;
+            }
 
             var fieldNames = new HashSet<String>();
             collectAnalyzables(instance, instance.getClass(), clazz.getSimpleName(), fieldNames, result);
@@ -108,7 +111,10 @@ public final class AnalyzableScanner {
 
         for (var clazz : classes) {
             Object instance = instantiate(clazz, transactor);
-            if (instance == null) continue;
+            if (instance == null) {
+                collectStaticAnalyzables(clazz, result);
+                continue;
+            }
             scannedInstances.add(instance);
 
             var instanceDirectives = findDirectivesForInstance(instance, directiveList);
@@ -237,6 +243,90 @@ public final class AnalyzableScanner {
                 }
             }
         }
+    }
+
+    // --- Static field and method scanning (Kotlin file-facade classes) ---
+
+    private static void collectStaticAnalyzables(Class<?> clazz, List<Result> result) {
+        var simpleName = clazz.getSimpleName();
+        if (simpleName.endsWith("Kt")) {
+            simpleName = simpleName.substring(0, simpleName.length() - 2);
+        }
+
+        var fieldNames = new HashSet<String>();
+
+        for (var field : clazz.getDeclaredFields()) {
+            if (!Modifier.isStatic(field.getModifiers())) continue;
+
+            field.setAccessible(true);
+            Object value;
+            try {
+                value = field.get(null);
+            } catch (IllegalAccessException e) {
+                continue;
+            }
+            if (value == null) continue;
+
+            if (value instanceof Analyzable a) {
+                fieldNames.add(field.getName());
+                result.add(new Result(simpleName, field.getName(), a));
+            } else {
+                var analyzable = extractAnalyzableViaReflection(value);
+                if (analyzable != null) {
+                    fieldNames.add(field.getName());
+                    result.add(new Result(simpleName, field.getName(), analyzable));
+                }
+            }
+        }
+
+        // Also scan public static methods (Kotlin top-level functions)
+        for (var method : clazz.getDeclaredMethods()) {
+            if (!isStaticAnalyzableMethod(method)) continue;
+            if (method.getParameterCount() == 0 && isGetterForField(method.getName(), fieldNames)) continue;
+
+            Object[] args;
+            if (method.getParameterCount() == 0) {
+                args = new Object[0];
+            } else {
+                try {
+                    args = constructDummyArgs(method);
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+
+            try {
+                method.setAccessible(true);
+                var value = method.invoke(null, args);
+                var analyzable = toAnalyzable(value);
+                if (analyzable != null) {
+                    result.add(new Result(simpleName, method.getName(), analyzable));
+                }
+            } catch (Exception ignored) {}
+        }
+    }
+
+    private static boolean isStaticAnalyzableMethod(Method method) {
+        int mods = method.getModifiers();
+        if (!Modifier.isPublic(mods)) return false;
+        if (!Modifier.isStatic(mods)) return false;
+        if (method.isSynthetic() || method.isBridge()) return false;
+        if (method.getParameterCount() > 10) return false;
+
+        var returnType = method.getReturnType();
+        if (Analyzable.class.isAssignableFrom(returnType)) return true;
+
+        try {
+            returnType.getMethod("getAnalyzable");
+            return true;
+        } catch (NoSuchMethodException ignored) {}
+
+        try {
+            returnType.getMethod("analyzable");
+            return true;
+        } catch (NoSuchMethodException ignored) {}
+
+        return false;
     }
 
     // --- Method scanning ---
