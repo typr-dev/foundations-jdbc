@@ -15,6 +15,9 @@ allprojects {
 subprojects {
     pluginManager.withPlugin("java-library") {
         apply(plugin = "maven-publish")
+        configure<JavaPluginExtension> {
+            withSourcesJar()
+        }
         configure<PublishingExtension> {
             publications {
                 create<MavenPublication>("maven") {

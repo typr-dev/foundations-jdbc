@@ -14,6 +14,8 @@ class DuckDbType<T>(override val underlying: dev.typr.foundations.DuckDbType<T>)
     fun <V> mapTo(valueType: DuckDbType<V>): DuckDbType<Map<T, V>> =
         DuckDbType(underlying.mapTo(valueType.underlying))
 
+    fun list(): DuckDbType<List<T>> = DuckDbType(underlying.list())
+
     fun unchecked(): DuckDbType<T> = DuckDbType(underlying.unchecked())
     fun nullableOk(): DuckDbType<T> = DuckDbType(underlying.nullableOk())
 }
