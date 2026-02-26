@@ -93,6 +93,45 @@ public record DuckDbType<A>(
         analysisOptions);
   }
 
+  public DuckDbType<java.util.List<A>> list() {
+    DuckDbTypename<java.util.List<A>> listTypename = typename.list();
+    DuckDbRead<java.util.List<A>> listRead =
+        DuckDbRead.of(
+            (rs, idx) -> {
+              java.sql.Array arr = rs.getArray(idx);
+              if (arr == null) return null;
+              Object[] elements = (Object[]) arr.getArray();
+              java.util.List<A> result = new java.util.ArrayList<>(elements.length);
+              for (Object elem : elements) {
+                result.add(mapSupport.fromMap(elem));
+              }
+              return result;
+            });
+    DuckDbWrite<java.util.List<A>> listWrite =
+        typename instanceof DuckDbTypename.UnionOf
+            ? DuckDbWrite.writeListInline(typename.sqlType(), stringifier)
+            : DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier);
+    DuckDbStringifier<java.util.List<A>> listStringifier =
+        DuckDbStringifier.instance(
+            (list, sb, quoted) -> {
+              if (list.isEmpty()) {
+                sb.append("[]");
+                return;
+              }
+              sb.append("[");
+              boolean first = true;
+              for (A elem : list) {
+                if (!first) sb.append(", ");
+                first = false;
+                stringifier.unsafeEncode(elem, sb, true);
+              }
+              sb.append("]");
+            });
+    return new DuckDbType<>(
+        listTypename.as(), listRead, listWrite, listStringifier, duckDbJson.list(),
+        DuckDbMapSupport.cast(), analysisOptions);
+  }
+
   @SuppressWarnings("unchecked")
   public DuckDbType<A[]> array() {
     DuckDbTypename<A[]> arrayTypename = typename.array();

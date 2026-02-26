@@ -15,7 +15,8 @@ import java.util.function.Function;
  * to avoid byte ordering bug in setObject - TIME: use setString to avoid timezone issues with
  * java.sql.Time - INTERVAL: use setString with duration format
  */
-public sealed interface DuckDbWrite<A> extends DbWrite<A> permits DuckDbWrite.Instance {
+public sealed interface DuckDbWrite<A> extends DbWrite<A>
+    permits DuckDbWrite.Instance, DuckDbWrite.InlineInstance {
   void set(PreparedStatement ps, int idx, A a) throws SQLException;
 
   DuckDbWrite<Optional<A>> opt(DuckDbTypename<A> typename);
@@ -198,6 +199,61 @@ public sealed interface DuckDbWrite<A> extends DbWrite<A> permits DuckDbWrite.In
                 new org.duckdb.user.DuckDBMap<>(sqlTypeName, wireMap);
             ps.setObject(idx, duckDbMap);
           }
+        });
+  }
+
+  /**
+   * A write implementation that inlines the value as a SQL expression rather than binding a JDBC
+   * parameter. Used for types like UNION lists where the value cannot be expressed as a JDBC
+   * parameter.
+   */
+  record InlineInstance<A>(Function<A, String> toInlineSql) implements DuckDbWrite<A> {
+    @Override
+    public void set(PreparedStatement ps, int idx, A a) throws SQLException {
+      throw new UnsupportedOperationException(
+          "InlineInstance values are rendered directly in SQL, not bound as parameters");
+    }
+
+    @Override
+    public java.util.Optional<String> inlineSql(A value) {
+      if (value == null) return java.util.Optional.of("NULL");
+      return java.util.Optional.of(toInlineSql.apply(value));
+    }
+
+    @Override
+    public DuckDbWrite<Optional<A>> opt(DuckDbTypename<A> typename) {
+      return new InlineInstance<>(opt -> opt.map(toInlineSql).orElse("NULL"));
+    }
+
+    @Override
+    public <B> DuckDbWrite<B> contramap(Function<B, A> f) {
+      return new InlineInstance<>(f.andThen(toInlineSql));
+    }
+  }
+
+  /**
+   * Write a LIST by inlining the value as a SQL expression. Each element is formatted using the
+   * stringifier and cast to the element type. The entire list is rendered as a SQL array literal.
+   *
+   * <p>Used for element types (e.g., UNION) where DuckDBUserArray can't handle the value format.
+   *
+   * @param elementSqlType the SQL type for each element (e.g., "UNION(num INTEGER, str VARCHAR)")
+   * @param elementStringifier how to format each element as a SQL expression
+   * @param <E> element type
+   * @return writer that inlines the list value in SQL
+   */
+  static <E> DuckDbWrite<java.util.List<E>> writeListInline(
+      String elementSqlType, DuckDbStringifier<E> elementStringifier) {
+    return new InlineInstance<>(
+        list -> {
+          StringBuilder sb = new StringBuilder("[");
+          for (int i = 0; i < list.size(); i++) {
+            if (i > 0) sb.append(", ");
+            elementStringifier.unsafeEncode(list.get(i), sb, false);
+            sb.append("::").append(elementSqlType);
+          }
+          sb.append("]::").append(elementSqlType).append("[]");
+          return sb.toString();
         });
   }
 }

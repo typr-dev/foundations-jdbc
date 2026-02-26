@@ -55,42 +55,52 @@ public record DuckDbStruct<A>(
               throw new SQLException("Expected STRUCT, got: " + obj.getClass());
             });
 
+    DuckDbStringifier<A> stringifier = structStringifier();
+
     DuckDbWrite<A> duckDbWrite =
         new DuckDbWrite.Instance<>(
             (ps, idx, str) -> ps.setString(idx, str),
             value -> {
-              // Write as string literal: {'field1': value1, 'field2': value2}
-              StringBuilder sb = new StringBuilder("{");
-              for (int i = 0; i < fields.size(); i++) {
-                if (i > 0) sb.append(", ");
-                Field<A, ?> field = fields.get(i);
-                sb.append("'").append(field.name()).append("': ");
-                appendFieldValue(sb, value, field);
-              }
-              sb.append("}");
+              StringBuilder sb = new StringBuilder();
+              stringifier.unsafeEncode(value, sb, false);
               return sb.toString();
             });
 
-    DuckDbStringifier<A> stringifier =
-        DuckDbStringifier.instance(
-            (value, sb, quoted) -> {
-              sb.append("{");
-              for (int i = 0; i < fields.size(); i++) {
-                if (i > 0) sb.append(", ");
-                Field<A, ?> field = fields.get(i);
-                sb.append("'").append(field.name()).append("': ");
-                appendFieldValue(sb, value, field);
+    DuckDbMapSupport<A> structMapSupport =
+        DuckDbMapSupport.of(
+            raw -> {
+              if (raw instanceof java.sql.Struct struct) {
+                try {
+                  return reader.read(struct.getAttributes());
+                } catch (java.sql.SQLException e) {
+                  throw new DatabaseException(e);
+                }
               }
-              sb.append("}");
-            });
+              throw new IllegalArgumentException("Expected STRUCT, got: " + raw.getClass());
+            },
+            value -> value);
 
     return new DuckDbType<>(typename.asGeneric(), duckDbRead, duckDbWrite, stringifier, json,
-        DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
+        structMapSupport, AnalysisOptions.EMPTY);
   }
 
   /** Create an optional version of this STRUCT type. */
   public DuckDbType<java.util.Optional<A>> opt() {
     return asType().opt();
+  }
+
+  private DuckDbStringifier<A> structStringifier() {
+    return DuckDbStringifier.instance(
+        (value, sb, quoted) -> {
+          sb.append("{");
+          for (int i = 0; i < fields.size(); i++) {
+            if (i > 0) sb.append(", ");
+            Field<A, ?> field = fields.get(i);
+            sb.append("'").append(field.name()).append("': ");
+            appendFieldValue(sb, value, field);
+          }
+          sb.append("}");
+        });
   }
 
   /** Append a field value in DuckDB literal format using DuckDbStringifier. */

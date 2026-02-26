@@ -13,5 +13,10 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
   def mapTo[V](valueType: DuckDbType[V]): DuckDbType[java.util.Map[T, V]] =
     DuckDbType(underlying.mapTo(valueType.underlying))
 
+  def list: DuckDbType[List[T]] = DuckDbType(underlying.list().transform(
+    jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+    slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+  ))
+
   def unchecked(): DuckDbType[T] = DuckDbType(underlying.unchecked())
   def nullableOk(): DuckDbType[T] = DuckDbType(underlying.nullableOk())
