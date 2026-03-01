@@ -1,0 +1,59 @@
+---
+title: Streaming Reads
+---
+
+import Snippet from '@site/src/components/Snippet';
+
+# Streaming Reads
+
+For large result sets, materializing all rows into a `List` can cause out-of-memory errors. Streaming reads return a `Cursor` — a lazy iterator that fetches rows from the database in batches while the connection stays open.
+
+`streamingQuery` returns an `Operation<Cursor<Row>>`. The cursor is live during the `map` callback, where you process rows incrementally. All the usual combinators (`map`, `combine`, `transact`) work as expected.
+
+## Basic Usage
+
+The simplest pattern: stream rows and materialize them with `toList()`.
+
+<Snippet file="core/StreamingReadBasic" />
+
+| Parameter | Description |
+|-----------|-------------|
+| `codec` / `type` | A `RowCodec` or `DbType` describing the row shape |
+| `fetchSize` | Number of rows the JDBC driver fetches per network round-trip |
+
+## Processing Rows Lazily
+
+The real benefit is processing rows one at a time inside `map`, without ever holding the full result set in memory:
+
+<Snippet file="core/StreamingReadProcess" />
+
+## Combining Cursors
+
+Multiple streaming operations compose with `combine`. Both cursors are open simultaneously on the same connection:
+
+<Snippet file="core/StreamingReadCombine" />
+
+You can also combine streaming operations with regular (non-streaming) operations — just `map` the cursor first:
+
+```java
+streaming.map(Cursor::toList).combine(countOp).transact(tx);
+```
+
+## Cursor Lifecycle
+
+:::danger Don't return a Cursor from transact
+The cursor borrows the connection. When `transact` returns, the connection is closed and the cursor becomes unusable. Always process the cursor inside `map`:
+:::
+
+<Snippet file="core/StreamingReadFootgun" />
+
+## Fetch Size
+
+The `fetchSize` parameter controls how many rows the JDBC driver buffers per network round-trip. A larger fetch size reduces round-trips but uses more memory per batch.
+
+- **PostgreSQL**: requires `autoCommit=false` (the default `Transactor` strategy already sets this). Rows are fetched from the server in batches of `fetchSize`.
+- **MySQL/MariaDB**: use `Integer.MIN_VALUE` for true row-by-row streaming. Note: only one open cursor per connection.
+- **Oracle / SQL Server / DB2**: standard `setFetchSize()` works as expected.
+- **DuckDB**: `setFetchSize()` is ignored — all rows are loaded regardless. The API still works, but there is no memory benefit.
+
+A value between 256–2048 is a reasonable starting point for most databases.

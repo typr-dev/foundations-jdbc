@@ -171,6 +171,14 @@ public sealed interface Fragment {
     return new Operation.UpdateReturningEach<>(this, codec, rows);
   }
 
+  default <T> Operation.Streaming<T> streamingQuery(RowCodec<T> codec, int fetchSize) {
+    return new Operation.Streaming<>(this, codec, fetchSize);
+  }
+
+  default <T> Operation.Streaming<T> streamingQuery(DbType<T> type, int fetchSize) {
+    return new Operation.Streaming<>(this, RowCodec.of(type), fetchSize);
+  }
+
   record Literal(String value) implements Fragment {
     @Override
     public void render(StringBuilder sb) {
