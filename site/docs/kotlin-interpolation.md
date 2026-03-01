@@ -129,7 +129,7 @@ The `sql` function uses a `ThreadLocal<SqlContext>`. When you call `sql { block 
 1. A fresh `SqlContext` is created and stored in the ThreadLocal.
 2. The `block` lambda executes. Each `${DbType.invoke(value)}` call creates a `Fragment` holding the bound parameter. That fragment's `toString()` detects the active context and registers itself, returning a null-character placeholder (`\u0000index\u0000`).
 3. After the block returns the interpolated string, `buildFragment()` splits it on the null-character delimiters, replacing each placeholder with its registered fragment.
-4. The ThreadLocal is cleared in a `finally` block.
+4. The ThreadLocal is restored to the previous context (or cleared if there was none) in a `finally` block.
 
 The result is a `Fragment` with proper SQL and correctly bound parameters — no string concatenation of user values ever occurs.
 
@@ -145,15 +145,20 @@ The result is a `Fragment` with proper SQL and correctly bound parameters — no
 
 **`Fragment.toString()` outside `sql { }`** — When there is no active `SqlContext`, `toString()` simply returns the rendered SQL string. There is no side effect and no registration occurs. This means you can safely log or inspect fragments without triggering any context-related behavior.
 
-**Nested `sql { }` calls** — An inner `sql { }` creates its own `SqlContext`, replacing the outer one on the ThreadLocal for the duration of the inner block. When the inner block completes, the ThreadLocal is cleared. The outer block's context is no longer on the ThreadLocal at that point, but this is safe because the inner call produces a `Fragment`, and that fragment's `toString()` is evaluated by Kotlin's string interpolation, which happens after the inner `sql { }` returns. In practice, nesting works correctly:
+**Nested `sql { }` calls** — `sql { }` blocks can be nested inline. An inner `sql { }` saves the outer context, creates its own, and restores the outer context when it completes. The inner call produces a `Fragment` whose `toString()` then registers it in the restored outer context:
+
+```kotlin
+val frag = sql { "SELECT * FROM t WHERE ${sql { "id = ${PgTypes.int4(1)}" }} AND name = ${PgTypes.text("test")}" }
+// Produces: SELECT * FROM t WHERE id = ? AND name = ?
+```
+
+Sequential composition (building a fragment first, then embedding it) also works:
 
 ```kotlin
 val inner = sql { "id = ${PgTypes.int4(1)}" }
 val outer = sql { "SELECT * FROM t WHERE $inner AND name = ${PgTypes.text("test")}" }
 // Produces: SELECT * FROM t WHERE id = ? AND name = ?
 ```
-
-Note that in this example, `inner` is fully constructed before `outer` starts — there is no true nesting of active contexts. The inner fragment is embedded into the outer one via `toString()`.
 
 **Parameters at boundaries** — Parameters at the very start or end of the SQL string, or consecutive parameters without intervening text, all work correctly:
 
