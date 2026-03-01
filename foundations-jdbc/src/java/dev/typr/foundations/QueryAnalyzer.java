@@ -103,6 +103,7 @@ public final class QueryAnalyzer {
         }
         yield r;
       }
+      case Operation.Streaming<?> s -> List.of(analyzeFragmentAndParserChecked(name, s.query(), s.codec().all(), conn));
       case Operation.Pure<?> ignored -> List.of();
       default -> List.of();
     };

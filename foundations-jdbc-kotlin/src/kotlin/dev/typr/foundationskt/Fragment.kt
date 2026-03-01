@@ -60,6 +60,12 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun <Row : Any> updateReturningEach(parser: RowCodec<Row>, rows: Iterator<Row>): Operation.UpdateReturningEach<Row> =
         Operation.UpdateReturningEach(underlying.updateReturningEach(parser.underlying, rows))
 
+    fun <T : Any> streamingQuery(codec: RowCodec<T>, fetchSize: Int): Operation.Streaming<T> =
+        Operation.Streaming(underlying.streamingQuery(codec.underlying, fetchSize))
+
+    fun <T : Any> streamingQuery(type: DbType<T>, fetchSize: Int): Operation.Streaming<T> =
+        Operation.Streaming(underlying.streamingQuery(type.underlying, fetchSize))
+
     fun append(s: String): Fragment = Fragment(underlying.append(s))
 
     fun <T> value(dbType: DbType<T>, value: T): Fragment = Fragment(underlying.value(dbType.underlying, value))
