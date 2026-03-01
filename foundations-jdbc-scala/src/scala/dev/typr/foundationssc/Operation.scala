@@ -141,6 +141,15 @@ object Operation {
     override def run(conn: Connection): Long = underlying.run(conn)
   }
 
+  class Streaming[Row](val underlying: dev.typr.foundations.Operation.Streaming[Row]) extends Operation[Cursor[Row]] {
+    override def run(conn: Connection): Cursor[Row] = new Cursor(underlying.run(conn))
+  }
+
+  object Streaming {
+    def apply[Row](query: Fragment, codec: RowCodec[Row], fetchSize: Int): Streaming[Row] =
+      new Streaming(new dev.typr.foundations.Operation.Streaming(query.underlying, codec.underlying, fetchSize))
+  }
+
   class Mapped[A, B](val source: Operation[A], val f: A => B) extends Operation[B] {
     val underlying: dev.typr.foundations.Operation[?] = source.underlying
     override def run(conn: Connection): B = f(source.run(conn))

@@ -41,6 +41,7 @@ const sidebars = {
         {type: "doc", id: "thread-safety", label: "Thread Safety"},
         {type: "doc", id: "observability", label: "Observability"},
         {type: "doc", id: "virtual-threads", label: "Virtual Threads"},
+        {type: "doc", id: "streaming-reads", label: "Streaming Reads"},
         {type: "doc", id: "streaming-inserts", label: "Streaming Inserts"},
       ],
     },

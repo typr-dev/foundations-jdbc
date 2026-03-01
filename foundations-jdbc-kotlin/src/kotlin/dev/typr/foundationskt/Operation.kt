@@ -107,6 +107,10 @@ sealed class Operation<Out> : Analyzable {
         override fun run(conn: Connection): Long = underlying.run(conn)
     }
 
+    class Streaming<Row>(override val underlying: dev.typr.foundations.Operation.Streaming<Row>) : Operation<Cursor<Row>>() {
+        override fun run(conn: Connection): Cursor<Row> = Cursor(underlying.run(conn))
+    }
+
     class Mapped<A, B>(
         override val underlying: dev.typr.foundations.Operation<*>,
         val source: Operation<A>,

@@ -23,6 +23,7 @@ public sealed interface Operation<Out> extends Analyzable
         Operation.UpdateReturningEach,
         Operation.UpdateManyTemplate,
         Operation.StreamingCopy,
+        Operation.Streaming,
         Operation.Mapped,
         Operation.Pure,
         Operation.Combine,
@@ -445,6 +446,27 @@ public sealed interface Operation<Out> extends Analyzable
         Fragment syntheticFragment = Fragment.of(copyCommand);
         return Instrumentation.instrumented(conn, syntheticFragment, sql, () ->
             streamingInsert.insert(copyCommand, batchSize, rows, conn, text));
+      } catch (SQLException e) {
+        throw new DatabaseException(e);
+      }
+    }
+  }
+
+  record Streaming<Row>(Fragment query, RowCodec<Row> codec, int fetchSize)
+      implements Operation<Cursor<Row>> {
+    @Override
+    public Cursor<Row> run(Connection conn) {
+      try {
+        String sql = Instrumentation.applyName(query.render(), conn);
+        return Instrumentation.instrumented(conn, query, sql, () -> {
+          PreparedStatement stmt = conn.prepareStatement(sql,
+              ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+          stmt.setFetchSize(fetchSize);
+          Instrumentation.applyTimeout(stmt, conn);
+          query.set(stmt);
+          ResultSet rs = stmt.executeQuery();
+          return new Cursor<>(stmt, rs, codec);
+        });
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }

@@ -69,6 +69,12 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
     new Operation.UpdateReturningEach(underlying.updateReturningEach(parser.underlying, rows.asJava))
   }
 
+  def streamingQuery[T](codec: RowCodec[T], fetchSize: Int): Operation.Streaming[T] =
+    new Operation.Streaming(underlying.streamingQuery(codec.underlying, fetchSize))
+
+  def streamingQuery[T](tpe: DbType[T], fetchSize: Int): Operation.Streaming[T] =
+    new Operation.Streaming(underlying.streamingQuery(tpe.underlying, fetchSize))
+
   def append(s: String): Fragment = new Fragment(underlying.append(s))
 
   def value[T](dbType: DbType[T], value: T): Fragment = new Fragment(underlying.value(dbType.underlying, value))
