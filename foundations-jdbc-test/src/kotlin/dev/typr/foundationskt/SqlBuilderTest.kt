@@ -52,6 +52,27 @@ class SqlBuilderTest {
     }
 
     @Test
+    fun inlineNestedSqlBlocks() {
+        val frag = sql { "SELECT * FROM t WHERE ${sql { "id = ${DuckDbTypes.integer(1)}" }} AND name = ${DuckDbTypes.varchar("test")}" }
+        assertEquals("SELECT * FROM t WHERE id = ?::INTEGER AND name = ?::VARCHAR", frag.render())
+    }
+
+    @Test
+    fun deeplyNestedSqlBlocks() {
+        val frag = sql { "SELECT ${sql { "${sql { "1" }} + ${DuckDbTypes.integer(2)}" }} + ${DuckDbTypes.integer(3)}" }
+        assertEquals("SELECT 1 + ?::INTEGER + ?::INTEGER", frag.render())
+    }
+
+    @Test
+    fun inlineNestedSqlBlocksRuntime() {
+        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
+            val frag = sql { "SELECT ${sql { "${DuckDbTypes.integer(10)} + ${DuckDbTypes.integer(20)}" }} + ${DuckDbTypes.integer(12)} AS answer" }
+            val result = frag.query(RowCodec.of(DuckDbTypes.integer).exactlyOne()).run(conn)
+            assertEquals(42, result)
+        }
+    }
+
+    @Test
     fun toStringOutsideSql() {
         val frag = Fragment.of("SELECT 1")
         assertEquals("SELECT 1", frag.toString())

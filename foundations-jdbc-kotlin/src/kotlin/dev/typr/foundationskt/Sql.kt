@@ -38,11 +38,16 @@ internal object SqlBuilder {
 
 inline fun sql(block: () -> String): Fragment {
     val ctx = SqlContext()
+    val previous = SqlBuilder.threadLocal.get()
     SqlBuilder.threadLocal.set(ctx)
     try {
         val result = block()
         return SqlBuilder.buildFragment(result, ctx)
     } finally {
-        SqlBuilder.threadLocal.remove()
+        if (previous != null) {
+            SqlBuilder.threadLocal.set(previous)
+        } else {
+            SqlBuilder.threadLocal.remove()
+        }
     }
 }
