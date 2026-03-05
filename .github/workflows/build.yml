@@ -2,6 +2,7 @@ name: Build
 
 on:
   push:
+    tags: [ 'v*' ]
     branches: [ 'main' ]
   pull_request:
     branches: [ 'main' ]
@@ -16,18 +17,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: bleep-build/bleep-setup-action@0.0.1
+      - uses: coursier/cache-action@v6
         with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+          extraFiles: bleep.yaml
 
       - name: Compile
-        run: ./gradlew compileJava compileScala compileTestJava
+        run: bleep compile foundations-jdbc foundations-jdbc-hikari foundations-jdbc-spring foundations-jdbc-kotlin foundations-jdbc-scala foundations-jdbc-test
 
   test-duckdb:
     runs-on: ubuntu-latest
@@ -35,18 +31,13 @@ jobs:
     needs: compile
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: bleep-build/bleep-setup-action@0.0.1
+      - uses: coursier/cache-action@v6
         with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+          extraFiles: bleep.yaml
 
       - name: Run DuckDB tests
-        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.DuckDbTypeTest"
+        run: bleep test foundations-jdbc-test -o dev.typr.foundations.DuckDbTypeTest
 
   test-postgres:
     runs-on: ubuntu-latest
@@ -54,18 +45,13 @@ jobs:
     needs: compile
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: bleep-build/bleep-setup-action@0.0.1
+      - uses: coursier/cache-action@v6
         with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+          extraFiles: bleep.yaml
 
       - name: Run PostgreSQL tests
-        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.PgTypeTest" --tests "dev.typr.foundations.PgStructTest" --tests "dev.typr.foundations.PgRecordParserTest"
+        run: bleep test foundations-jdbc-test -o dev.typr.foundations.PgTypeTest -o dev.typr.foundations.PgStructTest -o dev.typr.foundations.PgRecordParserTest
 
   test-mariadb:
     runs-on: ubuntu-latest
@@ -73,18 +59,13 @@ jobs:
     needs: compile
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: bleep-build/bleep-setup-action@0.0.1
+      - uses: coursier/cache-action@v6
         with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+          extraFiles: bleep.yaml
 
       - name: Run MariaDB tests
-        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.MariaTypeTest"
+        run: bleep test foundations-jdbc-test -o dev.typr.foundations.MariaTypeTest
 
   test-sqlserver:
     runs-on: ubuntu-latest
@@ -92,25 +73,13 @@ jobs:
     needs: compile
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: bleep-build/bleep-setup-action@0.0.1
+      - uses: coursier/cache-action@v6
         with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+          extraFiles: bleep.yaml
 
       - name: Run SQL Server tests
-        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.SqlServerTypeTest" --info
-
-      - name: Upload test report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: sqlserver-test-report
-          path: foundations-jdbc-test/build/reports/tests/test/
+        run: bleep test foundations-jdbc-test -o dev.typr.foundations.SqlServerTypeTest
 
   test-oracle:
     runs-on: ubuntu-latest
@@ -118,25 +87,13 @@ jobs:
     needs: compile
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: bleep-build/bleep-setup-action@0.0.1
+      - uses: coursier/cache-action@v6
         with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+          extraFiles: bleep.yaml
 
       - name: Run Oracle tests
-        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.OracleTypeTest" --info
-
-      - name: Upload test report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: oracle-test-report
-          path: foundations-jdbc-test/build/reports/tests/test/
+        run: bleep test foundations-jdbc-test -o dev.typr.foundations.OracleTypeTest
 
   test-db2:
     runs-on: ubuntu-latest
@@ -144,25 +101,13 @@ jobs:
     needs: compile
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: bleep-build/bleep-setup-action@0.0.1
+      - uses: coursier/cache-action@v6
         with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+          extraFiles: bleep.yaml
 
       - name: Run DB2 tests
-        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.Db2TypeTest" --info
-
-      - name: Upload test report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: db2-test-report
-          path: foundations-jdbc-test/build/reports/tests/test/
+        run: bleep test foundations-jdbc-test -o dev.typr.foundations.Db2TypeTest
 
   build-site:
     runs-on: ubuntu-latest
@@ -184,3 +129,25 @@ jobs:
       - name: Build site
         working-directory: site
         run: npm run build
+
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [compile, test-duckdb, test-postgres]
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: bleep-build/bleep-setup-action@0.0.1
+      - uses: coursier/cache-action@v6
+        with:
+          extraFiles: bleep.yaml
+
+      - name: Publish
+        run: bleep --dev publish
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
