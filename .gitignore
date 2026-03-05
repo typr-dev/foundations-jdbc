@@ -14,6 +14,11 @@ out/
 .gradle/
 .kotlin/
 
+# Bleep
+.bleep/builds/
+.bleep/generated-sources/
+.bleep/generated-sources-tmp/
+
 # OS files
 .DS_Store
 

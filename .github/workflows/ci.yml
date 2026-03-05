@@ -16,22 +16,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
+      - uses: bleep-build/bleep-setup-action@0.0.1
+      - uses: coursier/cache-action@v6
         with:
-          distribution: temurin
-          java-version: 21
-
-      - uses: gradle/actions/setup-gradle@v4
+          extraFiles: bleep.yaml
 
       - name: Compile
-        run: ./gradlew compileJava compileScala compileTestJava
+        run: bleep compile foundations-jdbc foundations-jdbc-hikari foundations-jdbc-spring foundations-jdbc-kotlin foundations-jdbc-scala foundations-jdbc-test
 
       - name: Run unit tests
-        run: ./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.DuckDbTypeTest" --tests "dev.typr.foundations.PgRecordParserTest"
+        run: bleep test foundations-jdbc-test -o dev.typr.foundations.DuckDbTypeTest -o dev.typr.foundations.PgRecordParserTest
 
       - name: Compile documentation examples
-        run: ./gradlew :documentation-examples-java:compileJava :documentation-examples-kotlin:compileKotlin :documentation-examples-scala:compileScala
+        run: bleep compile documentation-examples-java documentation-examples-kotlin documentation-examples-scala
 
       - uses: actions/setup-node@v4
         with:
