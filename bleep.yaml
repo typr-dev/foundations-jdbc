@@ -217,6 +217,7 @@ projects:
   foundations-jdbc-scanner-test:
     dependencies:
     - com.github.sbt:junit-interface:0.13.3
+    - net.aichler:jupiter-interface:0.11.1
     - org.postgresql:postgresql:42.7.3
     - org.mariadb.jdbc:mariadb-java-client:3.5.1
     - org.duckdb:duckdb_jdbc:1.1.3
