@@ -1,0 +1,292 @@
+$schema: https://raw.githubusercontent.com/oyvindberg/bleep/master/schema.json
+$version: 1.0.0-M3
+jvm:
+  name: temurin:21
+projects:
+  foundations-jdbc:
+    dependencies:
+    - org.jetbrains:annotations:26.0.1
+    - configuration: provided
+      module: org.postgresql:postgresql:42.7.3
+    - configuration: provided
+      module: org.mariadb.jdbc:mariadb-java-client:3.5.1
+    - configuration: provided
+      module: org.duckdb:duckdb_jdbc:1.1.3
+    - configuration: provided
+      module: com.oracle.database.jdbc:ojdbc11:23.6.0.24.10
+    - configuration: provided
+      module: com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
+    - configuration: provided
+      module: com.ibm.db2:jcc:11.5.9.0
+    java:
+      options: --release 21 -proc:none
+    platform:
+      name: jvm
+    sourcegen:
+    - main: scripts.SourcegenJava
+      project: foundations-jdbc-scripts-sourcegen
+
+  foundations-jdbc-hikari:
+    dependencies:
+    - com.zaxxer:HikariCP:6.2.1
+    dependsOn: foundations-jdbc
+    java:
+      options: --release 21 -proc:none
+    platform:
+      name: jvm
+
+  foundations-jdbc-spring:
+    dependencies:
+    - configuration: provided
+      module: org.springframework:spring-jdbc:6.2.2
+    - configuration: provided
+      module: org.springframework.boot:spring-boot-autoconfigure:3.4.1
+    dependsOn: foundations-jdbc
+    java:
+      options: --release 21 -proc:none
+    platform:
+      name: jvm
+    resources: ./src/resources
+
+  foundations-jdbc-kotlin:
+    dependencies:
+    - configuration: provided
+      module: org.postgresql:postgresql:42.7.3
+    - configuration: provided
+      module: org.mariadb.jdbc:mariadb-java-client:3.5.1
+    - configuration: provided
+      module: org.duckdb:duckdb_jdbc:1.1.3
+    - configuration: provided
+      module: com.oracle.database.jdbc:ojdbc11:23.6.0.24.10
+    - configuration: provided
+      module: com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
+    - configuration: provided
+      module: com.ibm.db2:jcc:11.5.9.0
+    dependsOn: foundations-jdbc
+    extends: template-kotlin
+    sourcegen:
+    - main: scripts.SourcegenKotlin
+      project: foundations-jdbc-scripts-sourcegen
+
+  foundations-jdbc-scala:
+    dependencies:
+    - org.scala-lang:scala3-library_3:3.3.4
+    - configuration: provided
+      module: org.postgresql:postgresql:42.7.3
+    - configuration: provided
+      module: org.mariadb.jdbc:mariadb-java-client:3.5.1
+    - configuration: provided
+      module: org.duckdb:duckdb_jdbc:1.1.3
+    - configuration: provided
+      module: com.oracle.database.jdbc:ojdbc11:23.6.0.24.10
+    - configuration: provided
+      module: com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
+    - configuration: provided
+      module: com.ibm.db2:jcc:11.5.9.0
+    dependsOn: foundations-jdbc
+    extends: template-scala-3
+    sourcegen:
+    - main: scripts.SourcegenScala
+      project: foundations-jdbc-scripts-sourcegen
+
+  foundations-jdbc-test:
+    dependencies:
+    - com.novocode:junit-interface:0.11
+    - junit:junit:4.13.2
+    - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
+    - org.postgresql:postgresql:42.7.3
+    - org.mariadb.jdbc:mariadb-java-client:3.5.1
+    - org.duckdb:duckdb_jdbc:1.1.3
+    - com.oracle.database.jdbc:ojdbc11:23.6.0.24.10
+    - com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
+    - com.ibm.db2:jcc:11.5.9.0
+    - org.springframework.boot:spring-boot-starter-jdbc:3.4.1
+    - org.springframework.boot:spring-boot-starter-test:3.4.1
+    - org.testcontainers:testcontainers:1.20.4
+    - org.testcontainers:postgresql:1.20.4
+    - org.testcontainers:mariadb:1.20.4
+    - org.testcontainers:mssqlserver:1.20.4
+    - org.testcontainers:oracle-free:1.20.4
+    - org.testcontainers:db2:1.20.4
+    dependsOn:
+    - foundations-jdbc-hikari
+    - foundations-jdbc-spring
+    - foundations-jdbc-scala
+    - foundations-jdbc-kotlin
+    extends: template-kotlin
+    isTestProject: true
+    java:
+      options: --release 21 -proc:none
+    resources: ./src/resources
+
+  example-kotlin:
+    dependencies:
+    - org.duckdb:duckdb_jdbc:1.1.3
+    - com.novocode:junit-interface:0.11
+    - junit:junit:4.13.2
+    dependsOn:
+    - foundations-jdbc
+    - foundations-jdbc-kotlin
+    extends: template-kotlin
+
+  example-spring-boot:
+    dependencies:
+    - org.springframework.boot:spring-boot-starter-jdbc:3.4.1
+    - org.duckdb:duckdb_jdbc:1.1.3
+    dependsOn: foundations-jdbc-spring
+    java:
+      options: --release 21
+    platform:
+      name: jvm
+
+  documentation-examples-java:
+    dependencies:
+    - configuration: provided
+      module: org.postgresql:postgresql:42.7.3
+    - configuration: provided
+      module: org.mariadb.jdbc:mariadb-java-client:3.5.1
+    - configuration: provided
+      module: org.duckdb:duckdb_jdbc:1.1.3
+    - configuration: provided
+      module: com.oracle.database.jdbc:ojdbc11:23.6.0.24.10
+    - configuration: provided
+      module: com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
+    - configuration: provided
+      module: com.ibm.db2:jcc:11.5.9.0
+    - configuration: provided
+      module: org.springframework:spring-context:6.2.2
+    - configuration: provided
+      module: org.springframework:spring-tx:6.2.2
+    dependsOn:
+    - foundations-jdbc
+    - foundations-jdbc-hikari
+    java:
+      options: --release 21 -proc:none
+    platform:
+      name: jvm
+
+  documentation-examples-kotlin:
+    dependencies:
+    - configuration: provided
+      module: org.postgresql:postgresql:42.7.3
+    - configuration: provided
+      module: org.mariadb.jdbc:mariadb-java-client:3.5.1
+    - configuration: provided
+      module: org.duckdb:duckdb_jdbc:1.1.3
+    - configuration: provided
+      module: com.oracle.database.jdbc:ojdbc11:23.6.0.24.10
+    - configuration: provided
+      module: com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
+    - configuration: provided
+      module: com.ibm.db2:jcc:11.5.9.0
+    - configuration: provided
+      module: org.springframework:spring-context:6.2.2
+    - configuration: provided
+      module: org.springframework:spring-tx:6.2.2
+    dependsOn:
+    - foundations-jdbc
+    - foundations-jdbc-kotlin
+    - foundations-jdbc-hikari
+    extends: template-kotlin
+
+  documentation-examples-scala:
+    dependencies:
+    - org.scala-lang:scala3-library_3:3.3.4
+    - configuration: provided
+      module: org.postgresql:postgresql:42.7.3
+    - configuration: provided
+      module: org.mariadb.jdbc:mariadb-java-client:3.5.1
+    - configuration: provided
+      module: org.duckdb:duckdb_jdbc:1.1.3
+    - configuration: provided
+      module: com.oracle.database.jdbc:ojdbc11:23.6.0.24.10
+    - configuration: provided
+      module: com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
+    - configuration: provided
+      module: com.ibm.db2:jcc:11.5.9.0
+    - configuration: provided
+      module: org.springframework:spring-context:6.2.2
+    - configuration: provided
+      module: org.springframework:spring-tx:6.2.2
+    dependsOn:
+    - foundations-jdbc
+    - foundations-jdbc-scala
+    - foundations-jdbc-hikari
+    extends: template-scala-3
+
+  foundations-jdbc-scanner-test:
+    dependencies:
+    - com.github.sbt:junit-interface:0.13.3
+    - org.postgresql:postgresql:42.7.3
+    - org.mariadb.jdbc:mariadb-java-client:3.5.1
+    - org.duckdb:duckdb_jdbc:1.1.3
+    - com.oracle.database.jdbc:ojdbc11:23.6.0.24.10
+    - com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
+    - com.ibm.db2:jcc:11.5.9.0
+    dependsOn:
+    - foundations-jdbc
+    - foundations-jdbc-kotlin
+    - foundations-jdbc-scala
+    - documentation-examples-java
+    - documentation-examples-kotlin
+    - documentation-examples-scala
+    isTestProject: true
+    java:
+      options: --release 21 -proc:none
+    platform:
+      name: jvm
+
+  benchmark:
+    dependencies:
+    - org.duckdb:duckdb_jdbc:1.1.3
+    - org.jdbi:jdbi3-core:3.45.4
+    - org.springframework:spring-jdbc:6.2.2
+    - org.hibernate.orm:hibernate-core:6.6.4.Final
+    dependsOn:
+    - foundations-jdbc
+    - foundations-jdbc-kotlin
+    extends: template-kotlin
+
+  foundations-jdbc-scripts:
+    dependencies:
+    - build.bleep::bleep-core:${BLEEP_VERSION}
+    - build.bleep::bleep-plugin-ci-release:${BLEEP_VERSION}
+    - build.bleep::bleep-plugin-dynver:${BLEEP_VERSION}
+    - build.bleep::bleep-plugin-pgp:${BLEEP_VERSION}
+    - build.bleep::bleep-plugin-sonatype:${BLEEP_VERSION}
+    extends: template-scala-3-scripts
+
+  foundations-jdbc-scripts-sourcegen:
+    dependencies: build.bleep::bleep-core:${BLEEP_VERSION}
+    extends: template-scala-3-scripts
+
+scripts:
+  my-publish-local:
+    main: scripts.PublishLocal
+    project: foundations-jdbc-scripts
+  publish:
+    main: scripts.Publish
+    project: foundations-jdbc-scripts
+
+templates:
+  template-common:
+    java:
+      options: -Xlint:deprecation -Xlint:unchecked
+    platform:
+      name: jvm
+  template-scala-3:
+    extends: template-common
+    scala:
+      options: -release 21
+      version: 3.3.4
+  template-scala-3-scripts:
+    extends: template-common
+    scala:
+      options: -release 21 -source 3.4
+      version: 3.7.3
+  template-kotlin:
+    kotlin:
+      version: 2.3.0
+      jvmTarget: "21"
+    platform:
+      name: jvm

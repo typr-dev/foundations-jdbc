@@ -14,74 +14,62 @@ foundations-jdbc is a standalone JDBC wrapper library with perfect type modeling
 
 ## Build System
 
-This project uses **Gradle** as the build tool.
+This project uses **Bleep** as the build tool. The build is defined in `bleep.yaml`.
 
 ### Common Commands
 ```bash
-# Compile all modules
-./gradlew compileJava compileScala compileTestJava
+# Compile all library modules
+bleep compile foundations-jdbc foundations-jdbc-hikari foundations-jdbc-spring foundations-jdbc-kotlin foundations-jdbc-scala
 
-# Run tests (requires databases running)
-./gradlew test
+# Compile tests
+bleep compile foundations-jdbc-test
 
 # Run only embedded tests (no Docker needed)
-./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.DuckDbTypeTest"
-./gradlew :foundations-jdbc-test:test --tests "dev.typr.foundations.PgRecordParserTest"
+bleep test foundations-jdbc-test -o dev.typr.foundations.DuckDbTypeTest
+bleep test foundations-jdbc-test -o dev.typr.foundations.PgRecordParserTest
 
-# Regenerate generated files
-scala-cli scripts/sourcegen-java.sc
-scala-cli scripts/sourcegen-kotlin.sc
-scala-cli scripts/sourcegen-scala.sc
+# Compile documentation examples
+bleep compile documentation-examples-java documentation-examples-kotlin documentation-examples-scala
 ```
 
 ## Module Structure
 
 ```
 foundations-jdbc/              # Core JDBC wrapper (Java 21)
-├── src/java/                  # Hand-written sources
-└── generated-and-checked-in/  # Generated Java files
+└── src/java/                  # Hand-written sources
 
 foundations-jdbc-hikari/        # HikariCP integration
 └── src/java/
 
 foundations-jdbc-kotlin/        # Kotlin wrapper
-├── src/kotlin/                # Hand-written Kotlin sources
-└── generated-and-checked-in/  # Generated Kotlin files
+└── src/kotlin/                # Hand-written Kotlin sources
 
-foundations-jdbc-scala/         # Scala sources (shared)
-├── src/scala/                 # Hand-written Scala sources
-└── generated-and-checked-in/  # Generated Scala files
-
-foundations-jdbc-scala_3/       # Scala 3 build (uses sources from foundations-jdbc-scala/)
+foundations-jdbc-scala/         # Scala 3 sources
+└── src/scala/                 # Hand-written Scala sources
 
 foundations-jdbc-test/          # Integration tests
-└── src/java/
+├── src/java/
+└── src/kotlin/
 
-scripts/
-├── sourcegen-java.sc       # Java code generation
-├── sourcegen-kotlin.sc     # Kotlin code generation
-└── sourcegen-scala.sc      # Scala code generation
+foundations-jdbc-scripts/       # Bleep publish scripts
+└── src/scala/scripts/
+
+foundations-jdbc-scripts-sourcegen/  # Bleep sourcegen scripts
+└── src/scala/scripts/             # SourcegenJava, SourcegenKotlin, SourcegenScala
 ```
 
 ## Source Generation
 
-Three standalone scala-cli scripts generate repetitive code:
+Three BleepCodegenScript classes generate repetitive code on-the-fly during compilation:
 
-- `scripts/sourcegen-java.sc` — Java generated files (Functions, Tuple, RowCodecBuilders, ParamBuilders, SqlTemplate, etc.)
-- `scripts/sourcegen-kotlin.sc` — Kotlin generated files (RowCodecBuilders, RowCodecNamedBuilders, DbProcedure, DbFunction, etc.)
-- `scripts/sourcegen-scala.sc` — Scala generated files (RowCodecBuilders, RowCodecNamedBuilders, DbProcedure, DbFunction, etc.)
+- `SourcegenJava.scala` — Java generated files (Functions, Tuple, RowCodecBuilders, ParamBuilders, Template, etc.)
+- `SourcegenKotlin.scala` — Kotlin generated files (RowCodecBuilders, RowCodecNamedBuilders, DbProcedure, DbFunction, etc.)
+- `SourcegenScala.scala` — Scala generated files (RowCodecBuilders, RowCodecNamedBuilders, DbProcedure, DbFunction, etc.)
 
-Run with:
-```bash
-scala-cli scripts/sourcegen-java.sc
-scala-cli scripts/sourcegen-kotlin.sc
-scala-cli scripts/sourcegen-scala.sc
-```
-
-Output goes to `generated-and-checked-in/` directories in each module.
+Generated files are NOT checked in — they are produced by bleep sourcegen during compilation. The original standalone scripts in `scripts/` are kept as reference but are no longer the primary source of truth.
 
 ## Development Rules
-- Always run `./gradlew compileJava compileScala compileTestJava` before committing
+- Always run `bleep compile foundations-jdbc foundations-jdbc-hikari foundations-jdbc-spring foundations-jdbc-kotlin foundations-jdbc-scala` before committing
 - **NEVER REPORT SUCCESS IF ITS NOT A SUCCESS.**
 - YOU ARE NOT UNDER ANY CIRCUMSTANCE ALLOWED TO CAST TO CHEAT THE TYPE SYSTEM. IF YOU COME ACROSS A SITUATION WHERE YOU HAVE NO OTHER CHOICE, STOP AND ASK USER
 - NEVER EVER PERFORM DESTRUCTIVE GIT ACTIONS IN GIT WHERE CHANGES ARE IRREVOCABLY LOST. GIT CHECKOUT FILE? STASH CHANGES INSTEAD. GIT RESET HARD? A STASH INSTEAD
@@ -115,7 +103,7 @@ Use `//start:snippet-name` and `//stop:snippet-name` markers in source files, th
 
 ## Dependencies
 
-JDBC drivers are `compileOnly` in foundations-jdbc - consumers provide their own driver at runtime.
+JDBC drivers are `provided` in foundations-jdbc - consumers provide their own driver at runtime.
 
 Key dependencies:
 - `org.jetbrains:annotations` - API dependency
