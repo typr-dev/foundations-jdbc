@@ -23,7 +23,7 @@ jobs:
           extraFiles: bleep.yaml
 
       - name: Compile
-        run: bleep compile foundations-jdbc foundations-jdbc-hikari foundations-jdbc-spring foundations-jdbc-kotlin foundations-jdbc-scala foundations-jdbc-test
+        run: bleep compile foundations-jdbc foundations-jdbc-hikari foundations-jdbc-spring foundations-jdbc-kotlin foundations-jdbc-scala foundations-jdbc-test foundations-jdbc-scanner-test
 
       - name: Assert clean repo
         run: git diff --exit-code
