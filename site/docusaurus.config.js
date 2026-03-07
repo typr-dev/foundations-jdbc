@@ -12,6 +12,10 @@ const config = {
   organizationName: 'typr-dev',
   projectName: 'foundations-jdbc',
 
+  customFields: {
+    jdbcVersion: '1.0.0-RC1',
+  },
+
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 

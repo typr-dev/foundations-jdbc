@@ -20,7 +20,7 @@ import TabItem from '@theme/TabItem';
 
 **Gradle:**
 ```kotlin
-implementation("dev.typr:foundations-jdbc-spring:VERSION")
+implementation("dev.typr:foundations-jdbc-spring:1.0.0-RC1")
 implementation("org.springframework.boot:spring-boot-starter-jdbc")
 ```
 
@@ -29,7 +29,7 @@ implementation("org.springframework.boot:spring-boot-starter-jdbc")
 <dependency>
     <groupId>dev.typr</groupId>
     <artifactId>foundations-jdbc-spring</artifactId>
-    <version>VERSION</version>
+    <version>1.0.0-RC1</version>
 </dependency>
 ```
 
@@ -38,8 +38,8 @@ implementation("org.springframework.boot:spring-boot-starter-jdbc")
 
 **Gradle:**
 ```kotlin
-implementation("dev.typr:foundations-jdbc-spring:VERSION")
-implementation("dev.typr:foundations-jdbc-kotlin:VERSION")
+implementation("dev.typr:foundations-jdbc-spring:1.0.0-RC1")
+implementation("dev.typr:foundations-jdbc-kotlin:1.0.0-RC1")
 implementation("org.springframework.boot:spring-boot-starter-jdbc")
 ```
 
@@ -48,12 +48,12 @@ implementation("org.springframework.boot:spring-boot-starter-jdbc")
 <dependency>
     <groupId>dev.typr</groupId>
     <artifactId>foundations-jdbc-spring</artifactId>
-    <version>VERSION</version>
+    <version>1.0.0-RC1</version>
 </dependency>
 <dependency>
     <groupId>dev.typr</groupId>
     <artifactId>foundations-jdbc-kotlin</artifactId>
-    <version>VERSION</version>
+    <version>1.0.0-RC1</version>
 </dependency>
 ```
 
@@ -62,8 +62,8 @@ implementation("org.springframework.boot:spring-boot-starter-jdbc")
 
 **Gradle:**
 ```kotlin
-implementation("dev.typr:foundations-jdbc-spring:VERSION")
-implementation("dev.typr:foundations-jdbc-scala_3:VERSION")
+implementation("dev.typr:foundations-jdbc-spring:1.0.0-RC1")
+implementation("dev.typr:foundations-jdbc-scala_3:1.0.0-RC1")
 implementation("org.springframework.boot:spring-boot-starter-jdbc")
 ```
 
@@ -72,12 +72,12 @@ implementation("org.springframework.boot:spring-boot-starter-jdbc")
 <dependency>
     <groupId>dev.typr</groupId>
     <artifactId>foundations-jdbc-spring</artifactId>
-    <version>VERSION</version>
+    <version>1.0.0-RC1</version>
 </dependency>
 <dependency>
     <groupId>dev.typr</groupId>
     <artifactId>foundations-jdbc-scala_3</artifactId>
-    <version>VERSION</version>
+    <version>1.0.0-RC1</version>
 </dependency>
 ```
 

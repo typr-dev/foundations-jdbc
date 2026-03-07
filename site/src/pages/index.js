@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import CodeBlock from '@theme/CodeBlock';
 import Tabs from '@theme/Tabs';
@@ -135,6 +136,9 @@ function Hero() {
 }
 
 function QuickstartSection() {
+  const { siteConfig } = useDocusaurusContext();
+  const version = siteConfig.customFields.jdbcVersion;
+
   return (
     <section className={styles.section}>
       <div className={styles.container}>
@@ -154,7 +158,7 @@ function QuickstartSection() {
               <TabItem value="gradle" label="Gradle">
                 <CodeBlock language="kotlin" title="build.gradle.kts">
                   {`dependencies {
-    implementation("dev.typr:foundations-jdbc-kotlin:1.0.0-M1")
+    implementation("dev.typr:foundations-jdbc-kotlin:${version}")
     // Add your driver
     runtimeOnly("org.duckdb:duckdb_jdbc:1.1.3")
 }`}
@@ -165,7 +169,7 @@ function QuickstartSection() {
                   {`<dependency>
   <groupId>dev.typr</groupId>
   <artifactId>foundations-jdbc-kotlin</artifactId>
-  <version>1.0.0-M1</version>
+  <version>${version}</version>
 </dependency>
 <dependency>
   <groupId>org.duckdb</groupId>
