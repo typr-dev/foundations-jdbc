@@ -6,6 +6,7 @@ slug: /
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import Snippet from '@site/src/components/Snippet';
+import DependencyTabs from '@site/src/components/DependencyTabs';
 
 # Getting Started
 
@@ -15,59 +16,7 @@ A step-by-step introduction to Foundations JDBC — from setup to executing quer
 
 Pick the one dependency for your language:
 
-<Tabs groupId="lang">
-<TabItem value="java" label="Java">
-
-```kotlin
-// build.gradle.kts
-implementation("dev.typr:foundations-jdbc:1.0.0-M1")
-```
-
-```xml
-<!-- pom.xml -->
-<dependency>
-    <groupId>dev.typr</groupId>
-    <artifactId>foundations-jdbc</artifactId>
-    <version>1.0.0-M1</version>
-</dependency>
-```
-
-</TabItem>
-<TabItem value="kotlin" label="Kotlin">
-
-```kotlin
-// build.gradle.kts
-implementation("dev.typr:foundations-jdbc-kotlin:1.0.0-M1")
-```
-
-```xml
-<!-- pom.xml -->
-<dependency>
-    <groupId>dev.typr</groupId>
-    <artifactId>foundations-jdbc-kotlin</artifactId>
-    <version>1.0.0-M1</version>
-</dependency>
-```
-
-</TabItem>
-<TabItem value="scala" label="Scala">
-
-```kotlin
-// build.gradle.kts
-implementation("dev.typr:foundations-jdbc-scala_3:1.0.0-M1")
-```
-
-```xml
-<!-- pom.xml -->
-<dependency>
-    <groupId>dev.typr</groupId>
-    <artifactId>foundations-jdbc-scala_3</artifactId>
-    <version>1.0.0-M1</version>
-</dependency>
-```
-
-</TabItem>
-</Tabs>
+<DependencyTabs java="foundations-jdbc" kotlin="foundations-jdbc-kotlin" scala="foundations-jdbc-scala_3" />
 
 Each module includes everything you need — the Kotlin and Scala modules depend on the core transitively.
 
