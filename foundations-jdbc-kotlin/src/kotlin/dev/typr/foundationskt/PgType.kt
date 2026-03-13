@@ -3,7 +3,7 @@ package dev.typr.foundationskt
 
 class PgType<T>(override val underlying: dev.typr.foundations.PgType<T>) : DbType<T>(underlying) {
     override fun opt(): PgType<T?> =
-        PgType(underlying.opt().to(Bijection.optionalToNullableUnchecked()))
+        PgType(underlying.opt().to(Bijection.optionalToNullable()))
 
     override fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): PgType<B> =
         PgType(underlying.to(bijection))

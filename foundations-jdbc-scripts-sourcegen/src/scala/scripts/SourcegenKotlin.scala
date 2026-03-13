@@ -249,14 +249,14 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       // Lambda params for Kotlin
       val lambdaParams = if (i == 0) " ->" else s" ${callParams(i)} ->"
   
-      val castExpr = o match {
-        case 0 => "{ }"
-        case 1 => "{ it as O0 }"
-        case 2 => "{ val t = it as dev.typr.foundations.Tuple.Tuple2<O0, O1>; Pair(t._1(), t._2()) }"
-        case 3 => "{ val t = it as dev.typr.foundations.Tuple.Tuple3<O0, O1, O2>; Triple(t._1(), t._2(), t._3()) }"
-        case n => s"{ it as $retType }"
+      val procOpExpr = o match {
+        case 0 => s"ProcedureOp.mapped(javaProc.call($javaCallArgs)) { _ -> }"
+        case 1 => s"ProcedureOp.direct(javaProc.call($javaCallArgs))"
+        case 2 => s"ProcedureOp.mapped(javaProc.call($javaCallArgs)) { t -> Pair(t._1(), t._2()) }"
+        case 3 => s"ProcedureOp.mapped(javaProc.call($javaCallArgs)) { t -> Triple(t._1(), t._2(), t._3()) }"
+        case _ => s"ProcedureOp.direct(javaProc.call($javaCallArgs))"
       }
-  
+
       s"""    class Builder_${i}_${o}$tpDecl internal constructor(
          |        private val underlying: dev.typr.foundations.DbProcedure.Builder_${i}_${o}$javaTpDecl
          |    ) {
@@ -264,8 +264,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
          |        fun build(): Def${i}_${o}$tpDecl {
          |            val javaProc = underlying.build()
          |            return Def${i}_${o} {$lambdaParams
-         |                @Suppress("UNCHECKED_CAST")
-         |                ProcedureOp(javaProc.call($javaCallArgs) as dev.typr.foundations.Operation<Any?>) $castExpr
+         |                $procOpExpr
          |            }
          |        }
          |    }""".stripMargin
@@ -349,8 +348,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
          |        fun build(): Def$i$tpDecl {
          |            val javaFn = underlying.build()
          |            return Def$i {$lambdaParams
-         |                @Suppress("UNCHECKED_CAST")
-         |                ProcedureOp(javaFn.call($javaCallArgs) as dev.typr.foundations.Operation<Any?>) { it as R }
+         |                ProcedureOp.direct(javaFn.call($javaCallArgs))
          |            }
          |        }
          |    }""".stripMargin

@@ -3,7 +3,7 @@ package dev.typr.foundationskt
 
 class DuckDbType<T>(override val underlying: dev.typr.foundations.DuckDbType<T>) : DbType<T>(underlying) {
     override fun opt(): DuckDbType<T?> =
-        DuckDbType(underlying.opt().to(Bijection.optionalToNullableUnchecked()))
+        DuckDbType(underlying.opt().to(Bijection.optionalToNullable()))
 
     override fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): DuckDbType<B> =
         DuckDbType(underlying.to(bijection))

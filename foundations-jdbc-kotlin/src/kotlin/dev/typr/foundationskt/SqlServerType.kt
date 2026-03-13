@@ -3,7 +3,7 @@ package dev.typr.foundationskt
 
 class SqlServerType<T>(override val underlying: dev.typr.foundations.SqlServerType<T>) : DbType<T>(underlying) {
     override fun opt(): SqlServerType<T?> =
-        SqlServerType(underlying.opt().to(Bijection.optionalToNullableUnchecked()))
+        SqlServerType(underlying.opt().to(Bijection.optionalToNullable()))
 
     override fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): SqlServerType<B> =
         SqlServerType(underlying.to(bijection))

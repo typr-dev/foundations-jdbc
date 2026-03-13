@@ -9,14 +9,12 @@ class Bijection<A, B>(val underlying: dev.typr.foundations.Bijection<A, B>) {
     fun inverse(): Bijection<B, A> = Bijection(underlying.inverse())
 
     companion object {
-        internal fun <T : Any> optionalToNullable(): dev.typr.foundations.Bijection<Optional<T>, T?> =
+        @Suppress("UNCHECKED_CAST")
+        internal fun <T> optionalToNullable(): dev.typr.foundations.Bijection<Optional<T>, T?> =
             dev.typr.foundations.Bijection.of(
                 { opt: Optional<T> -> opt.orElse(null) },
-                { nullable: T? -> Optional.ofNullable(nullable) }
+                { nullable: T? -> Optional.ofNullable(nullable) as Optional<T> }
             )
-
-        internal fun <T : Any> nullableToOptional(): dev.typr.foundations.Bijection<T?, Optional<T>> =
-            optionalToNullable<T>().inverse()
 
         internal fun <A, B> andToPair(): dev.typr.foundations.Bijection<Tuple.Tuple2<A, B>, Pair<A, B>> =
             dev.typr.foundations.Bijection.of(
@@ -41,9 +39,5 @@ class Bijection<A, B>(val underlying: dev.typr.foundations.Bijection<A, B>) {
                 { t: Tuple.Tuple2<Optional<A>, Optional<B>> -> Pair(t._1().orElse(null), t._2().orElse(null)) },
                 { pair: Pair<A?, B?> -> Tuple.of(Optional.ofNullable(pair.first), Optional.ofNullable(pair.second)) }
             )
-
-        @Suppress("UNCHECKED_CAST")
-        internal fun <T> optionalToNullableUnchecked(): dev.typr.foundations.Bijection<Optional<T>, T?> =
-            optionalToNullable<Any>() as dev.typr.foundations.Bijection<Optional<T>, T?>
     }
 }
