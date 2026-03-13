@@ -11,8 +11,7 @@ class Transactor(val underlying: dev.typr.foundations.Transactor) {
         this(dev.typr.foundations.Transactor(connect, strategy))
 
     fun <T> execute(operation: Operation<T>): T {
-        @Suppress("UNCHECKED_CAST")
-        return underlying.execute(operation.underlying as dev.typr.foundations.Operation<T>)
+        return underlying.execute(dev.typr.foundations.SqlFunction { conn -> operation.run(conn) })
     }
 
     fun <T> transact(f: (Connection) -> T): T =

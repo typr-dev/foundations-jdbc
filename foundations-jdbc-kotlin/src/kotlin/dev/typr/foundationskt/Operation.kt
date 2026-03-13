@@ -161,8 +161,7 @@ sealed class Operation<Out> : Analyzable {
         val timeout: Duration?,
         val listener: dev.typr.foundations.QueryListener?
     ) : Operation<Out>() {
-        @Suppress("UNCHECKED_CAST")
-        override fun run(conn: Connection): Out = underlying.run(conn) as Out
+        override fun run(conn: Connection): Out = inner.run(conn)
     }
 
     companion object {

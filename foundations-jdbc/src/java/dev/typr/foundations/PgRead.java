@@ -142,7 +142,12 @@ public sealed interface PgRead<A> extends DbRead<A>
 
     @Override
     public PgRead<Optional<B>> opt() {
-      return new Nullable<>((rs, col) -> Optional.ofNullable(read(rs, col)));
+      PgRead<Optional<A>> underlyingOpt = underlying.opt();
+      return new Nullable<>((rs, col) -> {
+        Optional<A> maybeA = underlyingOpt.read(rs, col);
+        if (maybeA.isEmpty()) return Optional.empty();
+        return Optional.of(f.apply(maybeA.get()));
+      });
     }
   }
 

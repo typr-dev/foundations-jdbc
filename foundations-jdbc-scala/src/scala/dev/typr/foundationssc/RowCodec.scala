@@ -74,6 +74,8 @@ class RowCodecNamed[Row](override val underlying: dev.typr.foundations.RowCodecN
 
   def columnList: Fragment = new Fragment(underlying.columnList())
 
+  def columnList(alias: String): Fragment = new Fragment(underlying.columnList(alias))
+
   def join[Row2](other: RowCodecNamed[Row2]): RowCodecNamed[(Row, Row2)] =
     new RowCodecNamed(underlying.join(other.underlying).to(Bijections.andToTuple[Row, Row2]))
 

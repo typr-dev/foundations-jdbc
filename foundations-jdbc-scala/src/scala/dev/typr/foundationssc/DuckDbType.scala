@@ -10,8 +10,10 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
   def transform[B](f: dev.typr.foundations.SqlFunction[T, B], g: java.util.function.Function[B, T]): DuckDbType[B] =
     DuckDbType(underlying.transform(f, g))
 
-  def mapTo[V](valueType: DuckDbType[V]): DuckDbType[java.util.Map[T, V]] =
-    DuckDbType(underlying.mapTo(valueType.underlying))
+  def mapTo[V](valueType: DuckDbType[V]): DuckDbType[Map[T, V]] = DuckDbType(underlying.mapTo(valueType.underlying).transform(
+    jmap => scala.jdk.CollectionConverters.MapHasAsScala(jmap).asScala.toMap,
+    smap => java.util.Map.copyOf(scala.jdk.CollectionConverters.MapHasAsJava(smap).asJava)
+  ))
 
   def list: DuckDbType[List[T]] = DuckDbType(underlying.list().transform(
     jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,

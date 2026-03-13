@@ -112,7 +112,12 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
 
     @Override
     public DuckDbRead<Optional<B>> opt() {
-      return new Nullable<>((rs, col) -> Optional.ofNullable(read(rs, col)));
+      DuckDbRead<Optional<A>> underlyingOpt = underlying.opt();
+      return new Nullable<>((rs, col) -> {
+        Optional<A> maybeA = underlyingOpt.read(rs, col);
+        if (maybeA.isEmpty()) return Optional.empty();
+        return Optional.of(f.apply(maybeA.get()));
+      });
     }
   }
 

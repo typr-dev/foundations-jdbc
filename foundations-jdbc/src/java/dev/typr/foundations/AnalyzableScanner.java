@@ -564,6 +564,35 @@ public final class AnalyzableScanner {
         if (type == Map.class) return Map.of();
         if (type == java.util.Collection.class) return List.of();
 
+        // Scala types — resolved by name to avoid hard dependency on Scala runtime
+        var typeName = type.getName();
+        if (typeName.equals("scala.Option")) {
+            try {
+                return Class.forName("scala.None$").getField("MODULE$").get(null);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Scala Option type found but scala.None$ not on classpath", e);
+            }
+        }
+        if (typeName.equals("scala.collection.immutable.List")
+            || typeName.equals("scala.collection.immutable.Seq")
+            || typeName.equals("scala.collection.Seq")) {
+            try {
+                return Class.forName("scala.collection.immutable.Nil$").getField("MODULE$").get(null);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Scala List type found but scala.Nil$ not on classpath", e);
+            }
+        }
+        if (typeName.equals("scala.collection.immutable.Map")
+            || typeName.equals("scala.collection.Map")) {
+            try {
+                var mapModule = Class.forName("scala.collection.immutable.Map$");
+                var instance = mapModule.getField("MODULE$").get(null);
+                return mapModule.getMethod("empty").invoke(instance);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Scala Map type found but cannot construct empty Map", e);
+            }
+        }
+
         if (type.isArray()) return Array.newInstance(type.getComponentType(), 0);
 
         if (type.isEnum()) {

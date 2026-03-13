@@ -41,6 +41,11 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
     return Fragment.comma(columnNames.stream().map(Fragment::of).toList());
   }
 
+  /** Comma-separated column names prefixed with a table alias, e.g. {@code v.id, v.name, v.capacity}. */
+  public Fragment columnList(String alias) {
+    return Fragment.comma(columnNames.stream().map(name -> Fragment.of(alias + "." + name)).toList());
+  }
+
   @Override
   public RowCodec<Optional<Row>> opt() {
     List<DbType<?>> optColumns = new ArrayList<>(columns().size());

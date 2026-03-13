@@ -147,6 +147,8 @@ class RowCodecNamed<Row : Any>(
     val columnList: Fragment
         get() = Fragment(underlying.columnList())
 
+    fun columnList(alias: String): Fragment = Fragment(underlying.columnList(alias))
+
     fun <Row2 : Any> join(other: RowCodecNamed<Row2>): RowCodecNamed<Pair<Row, Row2>> {
         val javaJoined = underlying.join(other.underlying)
         val converted = javaJoined.to(Bijection.andToPair<Row, Row2>())
