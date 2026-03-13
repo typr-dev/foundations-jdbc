@@ -10,6 +10,10 @@ import Snippet from '@site/src/components/Snippet';
 
 Query Analysis is foundations-jdbc's answer to the question: "How do I know my SQL queries will actually work?" Inspired by [doobie's type checking](https://tpolecat.github.io/doobie/docs/17-Typechecking.html), it verifies that your code's types match what the database expects — before your code ever runs in production.
 
+:::warning Database-specific limitations
+Query Analysis relies on metadata reported by each database's JDBC driver — and not all drivers report equally well. Column type checking works everywhere, but parameter type checking and nullability checking vary. See [Database Behavior](./query-analysis-database-behavior) for the full breakdown.
+:::
+
 ## The Problem
 
 Traditional JDBC gives you no compile-time or test-time feedback about your queries. You write SQL, you guess at types, and you pray. Errors show up as:
@@ -27,6 +31,8 @@ Query Analysis uses JDBC metadata to verify your queries against the actual data
 2. **Column types don't match** — Your RowCodec expects a timestamp but the column is a date
 3. **Nullability is wrong** — The column is nullable but your type isn't Optional
 4. **Counts are off** — Your RowCodec expects 5 columns but the query returns 4
+
+
 
 ## Basic Usage
 
@@ -303,4 +309,5 @@ If any variant has a type error, the analysis report tells you exactly which com
 
 ## Further Reading
 
-See [Query Analysis Reference](./query-analysis-reference) for internals, database support matrix, and API reference.
+- [Query Analysis Reference](./query-analysis-reference) — internals, API reference, and database support matrix
+- [Query Analysis: Database Behavior](./query-analysis-database-behavior) — detailed breakdown of what each database's JDBC driver reports and how it affects analysis

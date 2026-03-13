@@ -52,6 +52,7 @@ const sidebars = {
       items: [
         {type: "doc", id: "strategies", label: "Strategies"},
         {type: "doc", id: "query-analysis-reference", label: "Query Analysis Reference"},
+        {type: "doc", id: "query-analysis-database-behavior", label: "Query Analysis: Database Behavior"},
         {type: "doc", id: "kotlin-interpolation", label: "Kotlin String Interpolation"},
         {type: "doc", id: "benchmarks", label: "Benchmarks"},
       ],

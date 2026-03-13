@@ -52,20 +52,21 @@ QueryAnalyzer.analyzeFragmentAndParser(fragment, resultSetParser, conn);
 
 ## Database Support
 
-Query Analysis works with all supported databases, with some caveats:
+Query Analysis works with all supported databases. The quality of type checking depends on what each database's JDBC driver reports:
 
-| Database | Parameter Metadata | Column Metadata | Nullability |
-|----------|-------------------|-----------------|-------------|
-| PostgreSQL | Full | Full | Reliable |
-| DuckDB | Limited | Full | All nullable* |
-| Oracle | Full | Full | Reliable |
-| SQL Server | Full | Full | Reliable |
-| MariaDB/MySQL | Limited** | Full | Reliable |
-| DB2 | Full | Full | Reliable |
+| Capability | PostgreSQL | MariaDB | DuckDB | SQL Server | Oracle | DB2 |
+|---|---|---|---|---|---|---|
+| Column types | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
+| Column nullability | 🟡 Partial | ✅ Full | ❌ None | 🟡 Partial | 🟡 Partial | ✅ Full |
+| Outer join nullability | ❌ No | ✅ Full | ❌ No | ✅ Full | ✅ Full | ✅ Full |
+| Parameter types | ✅ Full | ❌ None | ❌ None | ✅ Full | ✅ Full | ✅ Full |
 
-\* DuckDB reports all columns as nullable; nullability checks are skipped.
+Key limitations:
+- **DuckDB** reports all columns as nullable and provides no parameter type info — nullability and parameter type checks are skipped.
+- **MariaDB** provides no parameter type metadata — parameter type mismatches are not caught.
+- **PostgreSQL** does not adjust nullability for outer joins — missing `.opt()` on the outer side of a LEFT/RIGHT JOIN is not caught.
 
-\*\* MariaDB/MySQL parameter metadata is not always reliable; parameter type checks may be skipped.
+See [Query Analysis: Database Behavior](./query-analysis-database-behavior) for the full breakdown.
 
 ## Tips
 
