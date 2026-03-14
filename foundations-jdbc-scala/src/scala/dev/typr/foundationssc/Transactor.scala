@@ -26,6 +26,16 @@ class Transactor(val underlying: dev.typr.foundations.Transactor):
 object Transactor:
   def apply(underlying: dev.typr.foundations.Transactor): Transactor = new Transactor(underlying)
   type Strategy = dev.typr.foundations.Transactor.Strategy
+
+  def create(config: connect.DatabaseConfig): Transactor =
+    new Transactor(dev.typr.foundations.Transactor.create(config))
+  def create(config: connect.DatabaseConfig, strategy: Strategy): Transactor =
+    new Transactor(dev.typr.foundations.Transactor.create(config, strategy))
+  def create(config: connect.DatabaseConfig, settings: connect.ConnectionSettings): Transactor =
+    new Transactor(dev.typr.foundations.Transactor.create(config, settings))
+  def create(config: connect.DatabaseConfig, settings: connect.ConnectionSettings, strategy: Strategy): Transactor =
+    new Transactor(dev.typr.foundations.Transactor.create(config, settings, strategy))
+
   def defaultStrategy(): Strategy = dev.typr.foundations.Transactor.defaultStrategy()
   def autoCommitStrategy(): Strategy = dev.typr.foundations.Transactor.autoCommitStrategy()
   def rollbackOnErrorStrategy(): Strategy = dev.typr.foundations.Transactor.rollbackOnErrorStrategy()

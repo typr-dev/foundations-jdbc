@@ -11,10 +11,11 @@ public class OracleTransactor {
     //start
     // Oracle - typed config, no JDBC URL to remember
     Transactor tx =
-        OracleConfig.builder(
-                "localhost", 1521, "xe", "app", "secret")
-            .serviceName("XEPDB1")
-            .transactor();
+        Transactor.create(
+            OracleConfig.builder(
+                    "localhost", 1521, "xe", "app", "secret")
+                .serviceName("XEPDB1")
+                .build());
 
     // Everything inside runs in one transaction
     String getGreeting() {

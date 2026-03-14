@@ -20,7 +20,7 @@ object StreamingInsertMulti:
   val productText: PgText[ProductRow] = PgText.from(productCodec)
 
   def insertProducts(products: Iterator[ProductRow], tx: Transactor): Long =
-    streamingInsert
+    StreamingInsert
       .of("COPY products(name, price, quantity) FROM STDIN", 1000, products, productText)
       .transact(tx)
   //stop

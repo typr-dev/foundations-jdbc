@@ -30,7 +30,7 @@ object QueryAnalysisAll:
   def analyzeComposedOperation(): Unit =
     // Build a composed operation
     val transaction: Operation[?] =
-      insertUser.on("Alice").thenIgnore(allUsers)
+      insertUser.on("Alice").productL(allUsers)
 
     // Analyze every statement in the tree
     val results: List[QueryAnalysis] =

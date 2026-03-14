@@ -60,6 +60,10 @@ public interface QueryChecker {
     checkAll(List.of(analyzables));
   }
 
+  default void checkRoutine(RoutineDef def) {
+    checkRoutine(def.procedure());
+  }
+
   default void checkRoutine(Procedure<?> procedure) {
     RoutineAnalysis analysis =
         transactor().execute(conn -> RoutineAnalyzer.analyzeProcedure(procedure, conn));

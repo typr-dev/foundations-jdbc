@@ -169,7 +169,8 @@ public interface PgTypes {
           PgText.textInteger,
           PgCompositeText.int4,
           PgJson.int4,
-          PgOutParam.readInteger);
+          PgOutParam.readInteger)
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("serial"));
   PgType<Integer[]> int4Array = int4.array(PgRead.readIntegerArray, Integer[]::new);
 
   @SuppressWarnings("unchecked")
@@ -228,7 +229,8 @@ public interface PgTypes {
           PgText.textLong,
           PgCompositeText.int8,
           PgJson.int8,
-          PgOutParam.readLong);
+          PgOutParam.readLong)
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("bigserial"));
   PgType<Long[]> int8Array = int8.array(PgRead.readLongArray, Long[]::new);
 
   @SuppressWarnings("unchecked")
@@ -448,6 +450,8 @@ public interface PgTypes {
           PgJson.int2,
           PgOutParam.readShort);
   PgType<Short> smallint = int2.withTypename(PgTypename.of("smallint"))
+      .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2"));
+  PgType<Short> smallserial = int2.withTypename(PgTypename.of("smallserial"))
       .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2"));
   PgType<Short[]> int2Array = int2.array(PgRead.readShortArray, Short[]::new);
 

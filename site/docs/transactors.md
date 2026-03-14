@@ -12,7 +12,7 @@ By default, each call is wrapped in a transaction: auto-commit off, commit on su
 
 ## Setting Up
 
-Each supported database has a typed config builder — your IDE will autocomplete all available options. Call `.transactor()` at the end of the chain:
+Each supported database has a typed config builder — your IDE will autocomplete all available options. Pass the config to `Transactor.create()`:
 
 <Snippet file="core/TransactorSetup" />
 
@@ -28,8 +28,8 @@ var settings = ConnectionSettings.builder()
     .connectionInitSql("SET search_path TO app")
     .build();
 
-var tx = config.transactor(settings);
-// or: config.transactor(settings, strategy)
+var tx = Transactor.create(config, settings);
+// or: Transactor.create(config, settings, strategy)
 ```
 
 | Setting | Description |
@@ -61,7 +61,7 @@ var tx = ds.transactor();
 
 ## Strategies
 
-The default strategy wraps each call in a transaction. Pass a different built-in strategy to `.transactor()`:
+The default strategy wraps each call in a transaction. Pass a different built-in strategy to `Transactor.create()`:
 
 | Strategy | Behavior |
 |----------|----------|
@@ -71,7 +71,7 @@ The default strategy wraps each call in a transaction. Pass a different built-in
 | `testStrategy()` | begin, **rollback** (not commit), close — keeps test data isolated |
 
 ```java
-var tx = config.transactor(Transactor.testStrategy());
+var tx = Transactor.create(config, Transactor.testStrategy());
 ```
 
 Strategies can be thoroughly customized with composable hooks for transaction lifecycle and observability. See [Strategies](./strategies) for details.

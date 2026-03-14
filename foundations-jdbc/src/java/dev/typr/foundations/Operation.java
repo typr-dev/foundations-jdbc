@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public sealed interface Operation<Out> extends Analyzable
     permits Operation.Query,
         Operation.Update,
+        Operation.Execute,
         Operation.UpdateReturning,
         Operation.UpdateReturningGeneratedKeys,
         Operation.UpdateManyReturning,
@@ -159,7 +160,7 @@ public sealed interface Operation<Out> extends Analyzable
     return combine(b, c, d, e, f, g, h, i).map(t -> combine.apply(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()));
   }
 
-  default <B> Operation<Out> thenIgnore(Operation<B> other) {
+  default <B> Operation<Out> productL(Operation<B> other) {
     return combine(other).map(t -> t._1());
   }
 
@@ -218,7 +219,7 @@ public sealed interface Operation<Out> extends Analyzable
     if (ops.length == 0) return pure(null);
     Operation<Void> result = ((Operation<Object>) ops[0]).voided();
     for (int i = 1; i < ops.length; i++) {
-      result = result.thenIgnore((Operation<Object>) ops[i]);
+      result = result.productL((Operation<Object>) ops[i]);
     }
     return result;
   }
@@ -258,6 +259,25 @@ public sealed interface Operation<Out> extends Analyzable
             Instrumentation.applyTimeout(stmt, conn);
             query.set(stmt);
             return stmt.executeUpdate();
+          }
+        });
+      } catch (SQLException e) {
+        throw new DatabaseException(e);
+      }
+    }
+  }
+
+  record Execute(Fragment query) implements Operation<Void> {
+    @Override
+    public Void run(Connection conn) {
+      try {
+        String sql = Instrumentation.applyName(query.render(), conn);
+        return Instrumentation.instrumented(conn, query, sql, () -> {
+          try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            Instrumentation.applyTimeout(stmt, conn);
+            query.set(stmt);
+            stmt.execute();
+            return null;
           }
         });
       } catch (SQLException e) {
@@ -445,7 +465,7 @@ public sealed interface Operation<Out> extends Analyzable
         String sql = Instrumentation.applyName(copyCommand, conn);
         Fragment syntheticFragment = Fragment.of(copyCommand);
         return Instrumentation.instrumented(conn, syntheticFragment, sql, () ->
-            streamingInsert.insert(copyCommand, batchSize, rows, conn, text));
+            StreamingInsert.insert(copyCommand, batchSize, rows, conn, text));
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }

@@ -1,6 +1,5 @@
 package dev.typr.foundations.connect;
 
-import dev.typr.foundations.Transactor;
 import java.util.Map;
 
 /**
@@ -16,15 +15,7 @@ import java.util.Map;
  *     .sslmode(PgSslMode.REQUIRE)
  *     .build();
  *
- * // Quick shortcut for scripts/tests
- * var tx = config.transactor(Transactor.testStrategy());
- *
- * // Or with connection settings
- * var tx = config.transactor(
- *     ConnectionSettings.builder()
- *         .transactionIsolation(TransactionIsolation.READ_UNCOMMITTED)
- *         .build(),
- *     Transactor.testStrategy());
+ * var tx = Transactor.create(config, Transactor.testStrategy());
  * }</pre>
  */
 public interface DatabaseConfig {
@@ -46,52 +37,4 @@ public interface DatabaseConfig {
    * These are passed to the JDBC driver via DataSource properties or connection URL parameters.
    */
   Map<String, String> driverProperties();
-
-  /**
-   * Create a non-pooled Transactor with the default strategy.
-   *
-   * <p>Shortcut for {@code SimpleDataSource.create(this).transactor()}.
-   *
-   * @return a Transactor using non-pooled connections
-   */
-  default Transactor transactor() {
-    return SimpleDataSource.create(this).transactor();
-  }
-
-  /**
-   * Create a non-pooled Transactor with a custom strategy.
-   *
-   * <p>Shortcut for {@code SimpleDataSource.create(this).transactor(strategy)}.
-   *
-   * @param strategy the transaction strategy
-   * @return a Transactor using non-pooled connections
-   */
-  default Transactor transactor(Transactor.Strategy strategy) {
-    return SimpleDataSource.create(this).transactor(strategy);
-  }
-
-  /**
-   * Create a non-pooled Transactor with connection settings and the default strategy.
-   *
-   * <p>Shortcut for {@code SimpleDataSource.create(this, settings).transactor()}.
-   *
-   * @param settings connection settings
-   * @return a Transactor using non-pooled connections
-   */
-  default Transactor transactor(ConnectionSettings settings) {
-    return SimpleDataSource.create(this, settings).transactor();
-  }
-
-  /**
-   * Create a non-pooled Transactor with connection settings and a custom strategy.
-   *
-   * <p>Shortcut for {@code SimpleDataSource.create(this, settings).transactor(strategy)}.
-   *
-   * @param settings connection settings
-   * @param strategy the transaction strategy
-   * @return a Transactor using non-pooled connections
-   */
-  default Transactor transactor(ConnectionSettings settings, Transactor.Strategy strategy) {
-    return SimpleDataSource.create(this, settings).transactor(strategy);
-  }
 }

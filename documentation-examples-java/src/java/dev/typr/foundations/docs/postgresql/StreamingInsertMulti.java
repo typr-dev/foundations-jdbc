@@ -23,7 +23,7 @@ public class StreamingInsertMulti {
     static PgText<ProductRow> productText = PgText.from(productCodec);
 
     long insertProducts(Iterator<ProductRow> products, Transactor tx) {
-        return streamingInsert
+        return StreamingInsert
             .of("COPY products(name, price, quantity) FROM STDIN", 1000, products, productText)
             .transact(tx);
     }

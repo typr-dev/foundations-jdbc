@@ -776,9 +776,9 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       val tpDecl = typeParamDecl(allTypeParams(i, o))
       val retType = outType(o)
       s"""    /** Procedure definition with $i input(s) and $o output(s). */
-         |    @FunctionalInterface
-         |    public interface Def${i}_${o}$tpDecl {
+         |    public interface Def${i}_${o}$tpDecl extends RoutineDef {
          |        Operation<$retType> call(${ callArgs(i) });
+         |        Procedure<$retType> procedure();
          |    }""".stripMargin
     }
 
@@ -829,17 +829,21 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       val lambdaArgs = if (i == 0) "()" else s"(${callArgNames(i)})"
       val delegateCall = s"delegate.call(${callArgNames(i)})"
 
+      val anonReturn = s"""            return new Def${i}_${o}$tpDecl() {
+             |                @Override public Operation<$retType> call(${ callArgs(i) }) { return $delegateCall; }
+             |                @Override public Procedure<$retType> procedure() { return delegate; }
+             |            };"""
       val buildBody = o match {
         case 0 =>
           s"""            Procedure<Void> delegate = Procedure.buildVoid(name, java.util.List.copyOf(params));
-             |            return $lambdaArgs -> $delegateCall;""".stripMargin
+             |$anonReturn""".stripMargin
         case 1 =>
           s"""            Procedure<O0> delegate = Procedure.buildSingleOut(name, java.util.List.copyOf(params));
-             |            return $lambdaArgs -> $delegateCall;""".stripMargin
+             |$anonReturn""".stripMargin
         case n =>
           val castArgs = 0.until(n).map(k => s"(O$k) values[$k]").mkString(", ")
           s"""            Procedure<$retType> delegate = Procedure.buildMultiOut(name, java.util.List.copyOf(params), values -> Tuple.of($castArgs));
-             |            return $lambdaArgs -> $delegateCall;""".stripMargin
+             |$anonReturn""".stripMargin
       }
 
       s"""    public static final class Builder_${i}_${o}$tpDecl {
@@ -927,9 +931,9 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
     val defs = (0 to maxArity).map { i =>
       val tp = iParams(i) ::: List("R")
       s"""    /** Function definition with $i input(s). */
-         |    @FunctionalInterface
-         |    public interface Def$i${typeParamDecl(tp)} {
+         |    public interface Def$i${typeParamDecl(tp)} extends RoutineDef {
          |        Operation<R> call(${callArgs(i)});
+         |        Procedure<R> procedure();
          |    }""".stripMargin
     }
 
@@ -962,9 +966,13 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
          |            this.returnType = returnType;
          |        }
          |$inMethod
+         |        @SuppressWarnings("unchecked")
          |        public Def$i$tpDecl build() {
          |            Procedure<R> delegate = Procedure.buildFunction(name, java.util.List.copyOf(inParams), returnType);
-         |            return $lambdaArgs -> $delegateCall;
+         |            return new Def$i$tpDecl() {
+         |                @Override public Operation<R> call(${callArgs(i)}) { return $delegateCall; }
+         |                @Override public Procedure<R> procedure() { return delegate; }
+         |            };
          |        }
          |    }""".stripMargin
     }

@@ -1,4 +1,5 @@
 package dev.typr.foundationssc.docs.core
+import dev.typr.foundationssc.Transactor
 import dev.typr.foundationssc.connect.*
 
 @SuppressWarnings(Array("unused"))
@@ -6,45 +7,51 @@ object TransactorSetup:
   //start
   // PostgreSQL
   val pgTx =
-    PostgresConfig.builder(
-        "localhost", 5432, "mydb", "user", "pass")
-      .sslmode(PgSslMode.REQUIRE)
-      .transactor()
+    Transactor.create(
+      PostgresConfig.builder(
+          "localhost", 5432, "mydb", "user", "pass")
+        .sslmode(PgSslMode.REQUIRE)
+        .build())
 
   // DuckDB (in-memory)
   val duckTx =
-    DuckDbConfig.inMemory().transactor()
+    Transactor.create(DuckDbConfig.inMemory().build())
 
   // DuckDB (file-based)
   val duckFileTx =
-    DuckDbConfig.builder("/tmp/analytics.db")
-      .threads(4)
-      .memoryLimit("2GB")
-      .transactor()
+    Transactor.create(
+      DuckDbConfig.builder("/tmp/analytics.db")
+        .threads(4)
+        .memoryLimit("2GB")
+        .build())
 
   // MariaDB / MySQL
   val mariaTx =
-    MariaDbConfig.builder(
-        "localhost", 3306, "mydb", "user", "pass")
-      .transactor()
+    Transactor.create(
+      MariaDbConfig.builder(
+          "localhost", 3306, "mydb", "user", "pass")
+        .build())
 
   // Oracle
   val oracleTx =
-    OracleConfig.builder(
-        "localhost", 1521, "xe", "user", "pass")
-      .serviceName("XEPDB1")
-      .transactor()
+    Transactor.create(
+      OracleConfig.builder(
+          "localhost", 1521, "xe", "user", "pass")
+        .serviceName("XEPDB1")
+        .build())
 
   // SQL Server
   val mssqlTx =
-    SqlServerConfig.builder(
-        "localhost", 1433, "mydb", "user", "pass")
-      .encrypt(SqlServerEncrypt.TRUE)
-      .transactor()
+    Transactor.create(
+      SqlServerConfig.builder(
+          "localhost", 1433, "mydb", "user", "pass")
+        .encrypt(SqlServerEncrypt.TRUE)
+        .build())
 
   // DB2
   val db2Tx =
-    Db2Config.builder(
-        "localhost", 50000, "mydb", "user", "pass")
-      .transactor()
+    Transactor.create(
+      Db2Config.builder(
+          "localhost", 50000, "mydb", "user", "pass")
+        .build())
   //stop

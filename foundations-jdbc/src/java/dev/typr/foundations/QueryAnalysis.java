@@ -233,6 +233,9 @@ public record QueryAnalysis(
     if (name == null || name.isEmpty()) return "";
     String lower = name.toLowerCase().trim();
 
+    // Strip SQL identifier quotes: "\"mood\"" -> "mood"
+    lower = lower.replace("\"", "");
+
     // Strip schema prefix: "typr.address_t" -> "address_t" (Oracle reports UDTs schema-qualified)
     int dotIdx = lower.lastIndexOf('.');
     if (dotIdx >= 0) {

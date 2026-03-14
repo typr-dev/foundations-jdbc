@@ -197,8 +197,9 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
       val tpDecl = typeParamDecl(allTypeParams(i, o))
       val retType = outType(o)
       s"""  /** Procedure definition with $i input(s) and $o output(s). */
-         |  trait Def${i}_${o}$tpDecl {
+         |  trait Def${i}_${o}$tpDecl extends dev.typr.foundations.RoutineDef {
          |    def call(${callParams(i)}): ProcedureOp[$retType]
+         |    def procedure: dev.typr.foundations.Procedure[?]
          |  }""".stripMargin
     }
   
@@ -257,10 +258,11 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
          |  ) {
          |$methodsBlock
          |    def build(): Def${i}_${o}$defTpDecl = {
-         |      val javaProc = underlying.build()
+         |      val javaDef = underlying.build()
          |      new Def${i}_${o}$defTpDecl {
          |        def call($callParamsStr): ProcedureOp[$retType] =
-         |          new ProcedureOp(javaProc.call($javaCallArgs).asInstanceOf[dev.typr.foundations.Operation[Any]], $castExpr)
+         |          new ProcedureOp(javaDef.call($javaCallArgs).asInstanceOf[dev.typr.foundations.Operation[Any]], $castExpr)
+         |        override def procedure: dev.typr.foundations.Procedure[?] = javaDef.procedure()
          |      }
          |    }
          |  }""".stripMargin
@@ -315,8 +317,9 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
     val defs = (0 to maxArity).map { i =>
       val tp = iParams(i) ::: List("R")
       s"""  /** Function definition with $i input(s). */
-         |  trait Def$i${typeParamDecl(tp)} {
+         |  trait Def$i${typeParamDecl(tp)} extends dev.typr.foundations.RoutineDef {
          |    def call(${callParams(i)}): ProcedureOp[R]
+         |    def procedure: dev.typr.foundations.Procedure[?]
          |  }""".stripMargin
     }
   
@@ -341,10 +344,11 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
          |  ) {
          |$inMethod
          |    def build(): Def$i$tpDecl = {
-         |      val javaFn = underlying.build()
+         |      val javaDef = underlying.build()
          |      new Def$i$tpDecl {
          |        def call($callParamsStr): ProcedureOp[R] =
-         |          new ProcedureOp(javaFn.call($javaCallArgs).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[R])
+         |          new ProcedureOp(javaDef.call($javaCallArgs).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[R])
+         |        override def procedure: dev.typr.foundations.Procedure[?] = javaDef.procedure()
          |      }
          |    }
          |  }""".stripMargin

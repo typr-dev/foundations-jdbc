@@ -33,7 +33,7 @@ public class DbJsonRowTest {
     var f = java.io.File.createTempFile("duckdb_test", ".db");
     f.delete(); // DuckDB needs a non-existent path
     f.deleteOnExit();
-    return DuckDbConfig.builder(f.getAbsolutePath()).transactor();
+    return Transactor.create(DuckDbConfig.builder(f.getAbsolutePath()).build());
   }
 
   @Test

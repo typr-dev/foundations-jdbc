@@ -1036,7 +1036,7 @@ public class PgTypeTest {
     A expected = t.example;
     batchInsert(conn, t.type, tableName, expected);
     if (t.streamingWorks) {
-      streamingInsert.insert(
+      StreamingInsert.insert(
           "COPY " + tableName + "(v) FROM STDIN",
           100,
           Arrays.asList(t.example).iterator(),

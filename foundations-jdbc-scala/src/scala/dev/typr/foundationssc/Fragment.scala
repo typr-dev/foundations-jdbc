@@ -46,7 +46,8 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
   def update(): Operation.Update =
     Operation.Update(this)
 
-  def execute(): Operation[Unit] = update().voided
+  def execute(): Operation.Execute =
+    new Operation.Execute(new dev.typr.foundations.Operation.Execute(underlying))
 
   def updateReturning[T](parser: ResultSetParser[T]): Operation.UpdateReturning[T] =
     Operation.UpdateReturning(this, parser)

@@ -8,8 +8,8 @@ class MariaType<T>(override val underlying: dev.typr.foundations.MariaType<T>) :
     override fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): MariaType<B> =
         MariaType(underlying.to(bijection))
 
-    fun <B> transform(f: dev.typr.foundations.SqlFunction<T, B>, g: (B) -> T): MariaType<B> =
-        MariaType(underlying.transform(f, g))
+    fun <B> transform(f: (T) -> B, g: (B) -> T): MariaType<B> =
+        MariaType(underlying.transform(dev.typr.foundations.SqlFunction { f(it) }, g))
 
     fun unchecked(): MariaType<T> = MariaType(underlying.unchecked())
     fun nullableOk(): MariaType<T> = MariaType(underlying.nullableOk())

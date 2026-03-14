@@ -43,7 +43,8 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun update(): Operation.Update =
         Operation.Update(dev.typr.foundations.Operation.Update(underlying))
 
-    fun execute(): Operation<Unit> = update().voided()
+    fun execute(): Operation.Execute =
+        Operation.Execute(dev.typr.foundations.Operation.Execute(underlying))
 
     fun <T> updateReturning(parser: ResultSetParser<T>): Operation.UpdateReturning<T> =
         Operation.UpdateReturning(dev.typr.foundations.Operation.UpdateReturning(underlying, parser.underlying))

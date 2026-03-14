@@ -37,7 +37,7 @@ public class QueryAnalysisAll {
     void analyzeComposedOperation() {
         // Build a composed operation
         Operation<?> transaction =
-            insertUser.on("Alice").thenIgnore(allUsers);
+            insertUser.on("Alice").productL(allUsers);
 
         // Analyze every SQL statement in the tree
         List<QueryAnalysis> results =

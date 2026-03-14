@@ -1,5 +1,8 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.connect.ConnectionSettings;
+import dev.typr.foundations.connect.DatabaseConfig;
+import dev.typr.foundations.connect.SimpleDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -107,6 +110,22 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    */
   public <T> T execute(Strategy override, SqlFunction<Connection, T> operation) {
     return withStrategy(override).execute(operation);
+  }
+
+  public static Transactor create(DatabaseConfig config) {
+    return SimpleDataSource.create(config).transactor();
+  }
+
+  public static Transactor create(DatabaseConfig config, Strategy strategy) {
+    return SimpleDataSource.create(config).transactor(strategy);
+  }
+
+  public static Transactor create(DatabaseConfig config, ConnectionSettings settings) {
+    return SimpleDataSource.create(config, settings).transactor();
+  }
+
+  public static Transactor create(DatabaseConfig config, ConnectionSettings settings, Strategy strategy) {
+    return SimpleDataSource.create(config, settings).transactor(strategy);
   }
 
   /**

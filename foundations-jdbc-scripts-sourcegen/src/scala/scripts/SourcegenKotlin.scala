@@ -203,8 +203,9 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       val tpDecl = typeParamDecl(allTypeParams(i, o))
       val retType = outType(o)
       s"""    /** Procedure definition with $i input(s) and $o output(s). */
-         |    fun interface Def${i}_${o}$tpDecl {
+         |    interface Def${i}_${o}$tpDecl : dev.typr.foundations.RoutineDef {
          |        fun call(${ callParams(i) }): ProcedureOp<$retType>
+         |        override fun procedure(): dev.typr.foundations.Procedure<*>
          |    }""".stripMargin
     }
   
@@ -263,8 +264,10 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
          |$methodsBlock
          |        fun build(): Def${i}_${o}$tpDecl {
          |            val javaProc = underlying.build()
-         |            return Def${i}_${o} {$lambdaParams
-         |                $procOpExpr
+         |            return object : Def${i}_${o}$tpDecl {
+         |                override fun call($callParamsStr): ProcedureOp<$retType> =
+         |                    $procOpExpr
+         |                override fun procedure(): dev.typr.foundations.Procedure<*> = javaProc.procedure()
          |            }
          |        }
          |    }""".stripMargin
@@ -320,8 +323,9 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
     val defs = (0 to maxArity).map { i =>
       val tp = iParams(i) ::: List("R")
       s"""    /** Function definition with $i input(s). */
-         |    fun interface Def$i${typeParamDecl(tp)} {
+         |    interface Def$i${typeParamDecl(tp)} : dev.typr.foundations.RoutineDef {
          |        fun call(${callParams(i)}): ProcedureOp<R>
+         |        override fun procedure(): dev.typr.foundations.Procedure<*>
          |    }""".stripMargin
     }
   
@@ -347,8 +351,10 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
          |$inMethod
          |        fun build(): Def$i$tpDecl {
          |            val javaFn = underlying.build()
-         |            return Def$i {$lambdaParams
-         |                ProcedureOp.direct(javaFn.call($javaCallArgs))
+         |            return object : Def$i$tpDecl {
+         |                override fun call($callParamsStr): ProcedureOp<R> =
+         |                    ProcedureOp.direct(javaFn.call($javaCallArgs))
+         |                override fun procedure(): dev.typr.foundations.Procedure<*> = javaFn.procedure()
          |            }
          |        }
          |    }""".stripMargin

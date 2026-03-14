@@ -32,6 +32,22 @@ class Transactor(val underlying: dev.typr.foundations.Transactor) {
 
     companion object {
         @JvmStatic
+        fun create(config: dev.typr.foundationskt.connect.DatabaseConfig): Transactor =
+            Transactor(dev.typr.foundations.Transactor.create(config))
+
+        @JvmStatic
+        fun create(config: dev.typr.foundationskt.connect.DatabaseConfig, strategy: Strategy): Transactor =
+            Transactor(dev.typr.foundations.Transactor.create(config, strategy))
+
+        @JvmStatic
+        fun create(config: dev.typr.foundationskt.connect.DatabaseConfig, settings: dev.typr.foundationskt.connect.ConnectionSettings): Transactor =
+            Transactor(dev.typr.foundations.Transactor.create(config, settings))
+
+        @JvmStatic
+        fun create(config: dev.typr.foundationskt.connect.DatabaseConfig, settings: dev.typr.foundationskt.connect.ConnectionSettings, strategy: Strategy): Transactor =
+            Transactor(dev.typr.foundations.Transactor.create(config, settings, strategy))
+
+        @JvmStatic
         fun defaultStrategy(): Strategy = dev.typr.foundations.Transactor.defaultStrategy()
 
         @JvmStatic

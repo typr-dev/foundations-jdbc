@@ -36,7 +36,7 @@ public class ErrorMessageTest {
    */
   @Test
   public void testColumnTypeMismatch_messageFormat() {
-    var tx = DuckDbConfig.builder(":memory:").transactor();
+    var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
       tx.execute(conn -> {
@@ -88,7 +88,7 @@ public class ErrorMessageTest {
 
   @Test
   public void testExactlyOne_noRows_messageFormat() {
-    var tx = DuckDbConfig.builder(":memory:").transactor();
+    var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
       tx.execute(conn -> {
@@ -115,7 +115,7 @@ public class ErrorMessageTest {
 
   @Test
   public void testExactlyOne_tooManyRows_messageFormat() {
-    var tx = DuckDbConfig.builder(":memory:").transactor();
+    var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
       tx.execute(conn -> {
@@ -145,7 +145,7 @@ public class ErrorMessageTest {
 
   @Test
   public void testMaxOne_tooManyRows_messageFormat() {
-    var tx = DuckDbConfig.builder(":memory:").transactor();
+    var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
       tx.execute(conn -> {
@@ -280,7 +280,7 @@ public class ErrorMessageTest {
    */
   @Test
   public void printExactErrorMessageForLandingPage() {
-    var tx = DuckDbConfig.builder(":memory:").transactor();
+    var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
       tx.execute(conn -> {

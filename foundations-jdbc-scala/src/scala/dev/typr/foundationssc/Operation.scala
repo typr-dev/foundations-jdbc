@@ -44,7 +44,7 @@ sealed trait Operation[Out] extends Analyzable {
   def combineWith[B, C, D, E, F, G, H, I, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E], f: Operation[F], g: Operation[G], h: Operation[H], i: Operation[I])(combine: (Out, B, C, D, E, F, G, H, I) => R): Operation[R] =
     this.combine(b).combine(c).combine(d).combine(e).combine(f).combine(g).combine(h).combine(i).map(t => combine(t._1._1._1._1._1._1._1._1, t._1._1._1._1._1._1._1._2, t._1._1._1._1._1._1._2, t._1._1._1._1._1._2, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
 
-  def thenIgnore[B](other: Operation[B]): Operation[Out] =
+  def productL[B](other: Operation[B]): Operation[Out] =
     combine(other).map(_._1)
 
   def andThen[B](template: Template[Out, B]): Operation[B] =
@@ -80,7 +80,7 @@ object Operation {
     if (operations.isEmpty) return pure(())
     var result: Operation[Unit] = operations.head.voided
     for (op <- operations.tail) {
-      result = result.thenIgnore(op)
+      result = result.productL(op)
     }
     result
   }
@@ -99,6 +99,10 @@ object Operation {
 
   class Update(val underlying: dev.typr.foundations.Operation.Update) extends Operation[Int] {
     override def run(conn: Connection): Int = underlying.run(conn)
+  }
+
+  class Execute(val underlying: dev.typr.foundations.Operation.Execute) extends Operation[Unit] {
+    override def run(conn: Connection): Unit = { underlying.run(conn); () }
   }
 
   object Update {

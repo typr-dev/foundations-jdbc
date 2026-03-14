@@ -143,9 +143,9 @@ public sealed interface Fragment {
     return new Operation.Update(this);
   }
 
-  /** Same as {@link #update()}, but ignores the number of rows changed. */
-  default Operation<Void> execute() {
-    return update().voided();
+  /** Execute this fragment using {@code stmt.execute()}, which works for all SQL statement types. */
+  default Operation.Execute execute() {
+    return new Operation.Execute(this);
   }
 
   default <T> Operation.UpdateReturning<T> updateReturning(ResultSetParser<T> parser) {
