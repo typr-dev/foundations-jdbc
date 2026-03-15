@@ -201,7 +201,8 @@ public interface OracleTypes {
           OracleRead.readString,
           OracleWrite.writeString,
           OracleJson.text,
-          OracleOutParam.readString);
+          OracleOutParam.readString)
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar2"));
 
   static OracleType<String> char_(int length) {
     return OracleType.of(
@@ -209,7 +210,8 @@ public interface OracleTypes {
         OracleRead.readString,
         OracleWrite.writeString,
         OracleJson.text,
-        OracleOutParam.readString);
+        OracleOutParam.readString)
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar2"));
   }
 
   /**

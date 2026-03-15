@@ -100,6 +100,111 @@ public sealed class RowCodec<Row> permits RowCodecNamed, RowCodecUnnamed {
         t -> new Object[] {t});
   }
 
+  /** Create a multi-column row codec returning a Tuple2. */
+  public static <T0, T1> RowCodec<Tuple.Tuple2<T0, T1>> of(DbType<T0> t0, DbType<T1> t1) {
+    return RowCodecOf.of(t0, t1);
+  }
+
+  /** Create a multi-column row codec returning a Tuple3. */
+  public static <T0, T1, T2> RowCodec<Tuple.Tuple3<T0, T1, T2>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2) {
+    return RowCodecOf.of(t0, t1, t2);
+  }
+
+  /** Create a multi-column row codec returning a Tuple4. */
+  public static <T0, T1, T2, T3> RowCodec<Tuple.Tuple4<T0, T1, T2, T3>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3) {
+    return RowCodecOf.of(t0, t1, t2, t3);
+  }
+
+  /** Create a multi-column row codec returning a Tuple5. */
+  public static <T0, T1, T2, T3, T4> RowCodec<Tuple.Tuple5<T0, T1, T2, T3, T4>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4);
+  }
+
+  /** Create a multi-column row codec returning a Tuple6. */
+  public static <T0, T1, T2, T3, T4, T5> RowCodec<Tuple.Tuple6<T0, T1, T2, T3, T4, T5>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5);
+  }
+
+  /** Create a multi-column row codec returning a Tuple7. */
+  public static <T0, T1, T2, T3, T4, T5, T6> RowCodec<Tuple.Tuple7<T0, T1, T2, T3, T4, T5, T6>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6);
+  }
+
+  /** Create a multi-column row codec returning a Tuple8. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7> RowCodec<Tuple.Tuple8<T0, T1, T2, T3, T4, T5, T6, T7>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7);
+  }
+
+  /** Create a multi-column row codec returning a Tuple9. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8> RowCodec<Tuple.Tuple9<T0, T1, T2, T3, T4, T5, T6, T7, T8>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8);
+  }
+
+  /** Create a multi-column row codec returning a Tuple10. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> RowCodec<Tuple.Tuple10<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9);
+  }
+
+  /** Create a multi-column row codec returning a Tuple11. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> RowCodec<Tuple.Tuple11<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
+  }
+
+  /** Create a multi-column row codec returning a Tuple12. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> RowCodec<Tuple.Tuple12<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10, DbType<T11> t11) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11);
+  }
+
+  /** Create a multi-column row codec returning a Tuple13. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> RowCodec<Tuple.Tuple13<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10, DbType<T11> t11, DbType<T12> t12) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12);
+  }
+
+  /** Create a multi-column row codec returning a Tuple14. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> RowCodec<Tuple.Tuple14<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10, DbType<T11> t11, DbType<T12> t12, DbType<T13> t13) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13);
+  }
+
+  /** Create a multi-column row codec returning a Tuple15. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> RowCodec<Tuple.Tuple15<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10, DbType<T11> t11, DbType<T12> t12, DbType<T13> t13, DbType<T14> t14) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14);
+  }
+
+  /** Create a multi-column row codec returning a Tuple16. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> RowCodec<Tuple.Tuple16<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10, DbType<T11> t11, DbType<T12> t12, DbType<T13> t13, DbType<T14> t14, DbType<T15> t15) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15);
+  }
+
+  /** Create a multi-column row codec returning a Tuple17. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> RowCodec<Tuple.Tuple17<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10, DbType<T11> t11, DbType<T12> t12, DbType<T13> t13, DbType<T14> t14, DbType<T15> t15, DbType<T16> t16) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16);
+  }
+
+  /** Create a multi-column row codec returning a Tuple18. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> RowCodec<Tuple.Tuple18<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10, DbType<T11> t11, DbType<T12> t12, DbType<T13> t13, DbType<T14> t14, DbType<T15> t15, DbType<T16> t16, DbType<T17> t17) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17);
+  }
+
+  /** Create a multi-column row codec returning a Tuple19. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> RowCodec<Tuple.Tuple19<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10, DbType<T11> t11, DbType<T12> t12, DbType<T13> t13, DbType<T14> t14, DbType<T15> t15, DbType<T16> t16, DbType<T17> t17, DbType<T18> t18) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18);
+  }
+
+  /** Create a multi-column row codec returning a Tuple20. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> RowCodec<Tuple.Tuple20<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10, DbType<T11> t11, DbType<T12> t12, DbType<T13> t13, DbType<T14> t14, DbType<T15> t15, DbType<T16> t16, DbType<T17> t17, DbType<T18> t18, DbType<T19> t19) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19);
+  }
+
+  /** Create a multi-column row codec returning a Tuple21. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> RowCodec<Tuple.Tuple21<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10, DbType<T11> t11, DbType<T12> t12, DbType<T13> t13, DbType<T14> t14, DbType<T15> t15, DbType<T16> t16, DbType<T17> t17, DbType<T18> t18, DbType<T19> t19, DbType<T20> t20) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20);
+  }
+
+  /** Create a multi-column row codec returning a Tuple22. */
+  public static <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> RowCodec<Tuple.Tuple22<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>> of(DbType<T0> t0, DbType<T1> t1, DbType<T2> t2, DbType<T3> t3, DbType<T4> t4, DbType<T5> t5, DbType<T6> t6, DbType<T7> t7, DbType<T8> t8, DbType<T9> t9, DbType<T10> t10, DbType<T11> t11, DbType<T12> t12, DbType<T13> t13, DbType<T14> t14, DbType<T15> t15, DbType<T16> t16, DbType<T17> t17, DbType<T18> t18, DbType<T19> t19, DbType<T20> t20, DbType<T21> t21) {
+    return RowCodecOf.of(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21);
+  }
+
   /**
    * Create a single-column named row codec.
    *

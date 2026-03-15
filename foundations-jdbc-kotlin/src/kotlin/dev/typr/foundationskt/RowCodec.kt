@@ -1,5 +1,6 @@
 package dev.typr.foundationskt
 
+import dev.typr.foundations.Tuple
 import java.sql.ResultSet
 import java.util.Optional
 
@@ -26,6 +27,69 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
          * Create a single-column row parser.
          */
         fun <T : Any> of(type: DbType<T>): RowCodec<T> = RowCodec(dev.typr.foundations.RowCodec.of(type.underlying))
+
+        fun <T0, T1> of(t0: DbType<T0>, t1: DbType<T1>): RowCodec<Tuple.Tuple2<T0, T1>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying))
+
+        fun <T0, T1, T2> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>): RowCodec<Tuple.Tuple3<T0, T1, T2>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying))
+
+        fun <T0, T1, T2, T3> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>): RowCodec<Tuple.Tuple4<T0, T1, T2, T3>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying))
+
+        fun <T0, T1, T2, T3, T4> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>): RowCodec<Tuple.Tuple5<T0, T1, T2, T3, T4>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>): RowCodec<Tuple.Tuple6<T0, T1, T2, T3, T4, T5>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>): RowCodec<Tuple.Tuple7<T0, T1, T2, T3, T4, T5, T6>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>): RowCodec<Tuple.Tuple8<T0, T1, T2, T3, T4, T5, T6, T7>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>): RowCodec<Tuple.Tuple9<T0, T1, T2, T3, T4, T5, T6, T7, T8>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>): RowCodec<Tuple.Tuple10<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>): RowCodec<Tuple.Tuple11<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>, t11: DbType<T11>): RowCodec<Tuple.Tuple12<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying, t11.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>, t11: DbType<T11>, t12: DbType<T12>): RowCodec<Tuple.Tuple13<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying, t11.underlying, t12.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>, t11: DbType<T11>, t12: DbType<T12>, t13: DbType<T13>): RowCodec<Tuple.Tuple14<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying, t11.underlying, t12.underlying, t13.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>, t11: DbType<T11>, t12: DbType<T12>, t13: DbType<T13>, t14: DbType<T14>): RowCodec<Tuple.Tuple15<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying, t11.underlying, t12.underlying, t13.underlying, t14.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>, t11: DbType<T11>, t12: DbType<T12>, t13: DbType<T13>, t14: DbType<T14>, t15: DbType<T15>): RowCodec<Tuple.Tuple16<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying, t11.underlying, t12.underlying, t13.underlying, t14.underlying, t15.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>, t11: DbType<T11>, t12: DbType<T12>, t13: DbType<T13>, t14: DbType<T14>, t15: DbType<T15>, t16: DbType<T16>): RowCodec<Tuple.Tuple17<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying, t11.underlying, t12.underlying, t13.underlying, t14.underlying, t15.underlying, t16.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>, t11: DbType<T11>, t12: DbType<T12>, t13: DbType<T13>, t14: DbType<T14>, t15: DbType<T15>, t16: DbType<T16>, t17: DbType<T17>): RowCodec<Tuple.Tuple18<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying, t11.underlying, t12.underlying, t13.underlying, t14.underlying, t15.underlying, t16.underlying, t17.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>, t11: DbType<T11>, t12: DbType<T12>, t13: DbType<T13>, t14: DbType<T14>, t15: DbType<T15>, t16: DbType<T16>, t17: DbType<T17>, t18: DbType<T18>): RowCodec<Tuple.Tuple19<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying, t11.underlying, t12.underlying, t13.underlying, t14.underlying, t15.underlying, t16.underlying, t17.underlying, t18.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>, t11: DbType<T11>, t12: DbType<T12>, t13: DbType<T13>, t14: DbType<T14>, t15: DbType<T15>, t16: DbType<T16>, t17: DbType<T17>, t18: DbType<T18>, t19: DbType<T19>): RowCodec<Tuple.Tuple20<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying, t11.underlying, t12.underlying, t13.underlying, t14.underlying, t15.underlying, t16.underlying, t17.underlying, t18.underlying, t19.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>, t11: DbType<T11>, t12: DbType<T12>, t13: DbType<T13>, t14: DbType<T14>, t15: DbType<T15>, t16: DbType<T16>, t17: DbType<T17>, t18: DbType<T18>, t19: DbType<T19>, t20: DbType<T20>): RowCodec<Tuple.Tuple21<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying, t11.underlying, t12.underlying, t13.underlying, t14.underlying, t15.underlying, t16.underlying, t17.underlying, t18.underlying, t19.underlying, t20.underlying))
+
+        fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>, t4: DbType<T4>, t5: DbType<T5>, t6: DbType<T6>, t7: DbType<T7>, t8: DbType<T8>, t9: DbType<T9>, t10: DbType<T10>, t11: DbType<T11>, t12: DbType<T12>, t13: DbType<T13>, t14: DbType<T14>, t15: DbType<T15>, t16: DbType<T16>, t17: DbType<T17>, t18: DbType<T18>, t19: DbType<T19>, t20: DbType<T20>, t21: DbType<T21>): RowCodec<Tuple.Tuple22<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>> =
+            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying, t4.underlying, t5.underlying, t6.underlying, t7.underlying, t8.underlying, t9.underlying, t10.underlying, t11.underlying, t12.underlying, t13.underlying, t14.underlying, t15.underlying, t16.underlying, t17.underlying, t18.underlying, t19.underlying, t20.underlying, t21.underlying))
 
         /**
          * Create a single-column named row codec.

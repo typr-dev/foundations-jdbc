@@ -695,6 +695,11 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |      import _root_.scala.jdk.CollectionConverters.*
         |      new Operation.UpdateManyTemplate(underlying.onMany(rows.asJava))
         |    }
+        |
+        |  class GeneratedKeys[Row, Out](val underlying: dev.typr.foundations.RowTemplate.GeneratedKeys[Row, Out])
+        |      extends RowTemplate[Row, Out]:
+        |    override def on(input: Row): Operation.UpdateReturningGeneratedKeys[Out] =
+        |      new Operation.UpdateReturningGeneratedKeys(underlying.on(input))
         |""".stripMargin
   }
   

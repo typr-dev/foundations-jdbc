@@ -12,4 +12,7 @@ class RowParamBuilder[Row] private[foundationssc] (
 
   def update(): RowTemplate.Update[Row] = new RowTemplate.Update(underlying.update())
 
+  def generatedKeys[Out](columnNames: Array[String], parser: ResultSetParser[Out]): RowTemplate.GeneratedKeys[Row, Out] =
+    new RowTemplate.GeneratedKeys(underlying.generatedKeys(columnNames, parser.underlying))
+
   def done(): Fragment = new Fragment(underlying.done())

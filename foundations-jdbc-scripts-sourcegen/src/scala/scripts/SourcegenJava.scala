@@ -19,6 +19,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("PgStructBuilders.java"), generatePgStructBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("DuckDbStructBuilders.java"), generateDuckDbStructBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("OracleObjectBuilders.java"), generateOracleObjectBuilders())
+      FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("RowCodecOf.java"), generateRowCodecOf())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("RowCodecBuilders.java"), generateRowCodecBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("RowCodecNamedBuilders.java"), generateNamedRowCodecBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("DbProcedure.java"), generateDbProcedure())
@@ -126,6 +127,38 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
         |            default -> throw new IllegalArgumentException("Unsupported tuple arity: " + values.length);
         |        };
         |    }
+        |}
+        |""".stripMargin
+  }
+
+  val OF_N = 22
+
+  def generateRowCodecOf(): String = {
+    val methods = 2.to(OF_N).map { n =>
+      val range = 0.until(n)
+      val tparamsDecl = range.map(nn => s"T$nn").mkString(", ")
+      val params = range.map(nn => s"DbType<T$nn> t$nn").mkString(", ")
+      val listArgs = range.map(nn => s"t$nn").mkString(", ")
+      val decodeArgs = range.map(nn => s"(T$nn) a[$nn]").mkString(", ")
+      val encodeArgs = range.map(nn => s"r._${nn + 1}()").mkString(", ")
+
+      s"""    @SuppressWarnings("unchecked")
+         |    public static <$tparamsDecl> RowCodec<Tuple.Tuple$n<$tparamsDecl>> of($params) {
+         |        return RowCodec.create(java.util.List.of($listArgs), a -> Tuple.of($decodeArgs), r -> new Object[]{$encodeArgs});
+         |    }""".stripMargin
+    }
+
+    s"""|package dev.typr.foundations;
+        |
+        |/**
+        | * Generated multi-column {@link RowCodec#of} factory methods returning Tuple types.
+        | * <p>
+        | * Use via {@link RowCodec#of(DbType, DbType)} etc.
+        | */
+        |final class RowCodecOf {
+        |    private RowCodecOf() {}
+        |
+        |${methods.mkString("\n\n")}
         |}
         |""".stripMargin
   }

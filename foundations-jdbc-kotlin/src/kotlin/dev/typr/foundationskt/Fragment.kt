@@ -219,6 +219,14 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
                 table, writeCodec.underlying, readCodec.underlying))
 
         @JvmStatic
+        fun <Row : Any, Out> insertIntoGeneratedKeys(
+            table: String, codec: RowCodecNamed<Row>, generatedColumns: Array<String>,
+            parser: ResultSetParser<Out>, vararg except: String
+        ): RowTemplate.GeneratedKeys<Row, Out> =
+            RowTemplate.GeneratedKeys(dev.typr.foundations.Fragment.insertIntoGeneratedKeys(
+                table, codec.underlying, generatedColumns, parser.underlying, *except))
+
+        @JvmStatic
         @JvmName("rowStatic")
         fun <Row : Any> row(codec: RowCodecNamed<Row>, row: Row, vararg except: String): Fragment =
             Fragment(dev.typr.foundations.Fragment.EMPTY.row(codec.underlying, row, *except))

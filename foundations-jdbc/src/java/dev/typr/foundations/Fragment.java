@@ -199,29 +199,16 @@ public sealed interface Fragment {
   }
 
   static <Row> RowTemplate.Update<Row> insertInto(String table, RowCodecNamed<Row> codec, String... except) {
-    Set<String> excludeSet = except.length > 0 ? Set.of(except) : Set.of();
-    List<String> names = codec.columnNames();
-    List<String> included = new ArrayList<>();
-    for (String name : names) {
-      if (!excludeSet.contains(name)) included.add(name);
-    }
-    String cols = String.join(", ", included);
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
+    return of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
         .paramRow(codec, except)
         .append(")")
         .update();
   }
 
+  /** PostgreSQL/DuckDB: INSERT ... RETURNING all columns. */
   static <Row> RowTemplate.Query<Row, Row> insertIntoReturning(String table, RowCodecNamed<Row> codec, String... except) {
-    Set<String> excludeSet = except.length > 0 ? Set.of(except) : Set.of();
-    List<String> names = codec.columnNames();
-    List<String> included = new ArrayList<>();
-    for (String name : names) {
-      if (!excludeSet.contains(name)) included.add(name);
-    }
-    String cols = String.join(", ", included);
-    String allCols = String.join(", ", names);
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
+    String allCols = String.join(", ", codec.columnNames());
+    return of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
         .paramRow(codec, except)
         .append(") RETURNING " + allCols)
         .query(codec.exactlyOne());
@@ -235,6 +222,38 @@ public sealed interface Fragment {
         .paramRow(writeCodec)
         .append(") RETURNING " + returnCols)
         .query(readCodec.exactlyOne());
+  }
+
+  /**
+   * Insert a row and retrieve generated keys via JDBC's {@code getGeneratedKeys()}.
+   * Works on databases that don't support RETURNING clause (Oracle, SQL Server, MariaDB, DB2).
+   * Also works on PostgreSQL and DuckDB, but {@link #insertIntoReturning} is more idiomatic there.
+   *
+   * <p>The {@code generatedColumns} array specifies which columns to retrieve.
+   * Behavior varies by database:
+   * <ul>
+   *   <li><b>Oracle</b>: ROWID is returned by default; specify column names for actual values</li>
+   *   <li><b>SQL Server</b>: supports any columns, returns via OUTPUT INSERTED</li>
+   *   <li><b>MariaDB</b>: only auto-increment columns are returned</li>
+   *   <li><b>PostgreSQL/DuckDB</b>: works but prefer {@link #insertIntoReturning}</li>
+   * </ul>
+   */
+  static <Row, Out> RowTemplate.GeneratedKeys<Row, Out> insertIntoGeneratedKeys(
+      String table, RowCodecNamed<Row> codec, String[] generatedColumns,
+      ResultSetParser<Out> parser, String... except) {
+    RowParamBuilder<Row> rpb = of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
+        .paramRow(codec, except);
+    return rpb.generatedKeys(generatedColumns, parser);
+  }
+
+  private static String columnList(RowCodecNamed<?> codec, String... except) {
+    Set<String> excludeSet = except.length > 0 ? Set.of(except) : Set.of();
+    List<String> names = codec.columnNames();
+    List<String> included = new ArrayList<>();
+    for (String name : names) {
+      if (!excludeSet.contains(name)) included.add(name);
+    }
+    return String.join(", ", included);
   }
 
   static Fragment empty() {

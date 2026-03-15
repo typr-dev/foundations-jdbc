@@ -37,4 +37,21 @@ public sealed interface RowTemplate<Row, Out> extends Template<Row, Out> {
       return new Operation.UpdateManyTemplate<>(fragment, codec, includedIndices, rows);
     }
   }
+
+  record GeneratedKeys<Row, Out>(
+      Fragment fragment, RowCodecNamed<Row> codec, int[] includedIndices,
+      String[] generatedColumns, ResultSetParser<Out> resultParser)
+      implements RowTemplate<Row, Out> {
+    @Override
+    public Operation.UpdateReturningGeneratedKeys<Out> on(Row row) {
+      Object[] encoded = codec.encode().apply(row);
+      Object[] params = new Object[includedIndices.length];
+      for (int i = 0; i < includedIndices.length; i++)
+        params[i] = encoded[includedIndices[i]];
+      return new Operation.UpdateReturningGeneratedKeys<>(
+          fragment.fill(Arrays.asList(params).iterator()),
+          generatedColumns,
+          resultParser);
+    }
+  }
 }

@@ -1,4 +1,5 @@
 package dev.typr.foundations;
+import dev.typr.foundations.connect.DatabaseKind;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -18,14 +19,27 @@ public final class RoutineAnalyzer {
     List<ParamDef> inParams = func.inParams();
     DbType<?> returnType = func.returnType();
 
-    // Build SELECT func_name(null::type1, null::type2, ...) to verify existence + param types
+    DatabaseKind dbKind = DatabaseKind.detect(conn);
+    boolean useDoubleColon = dbKind == DatabaseKind.POSTGRESQL || dbKind == DatabaseKind.DUCKDB;
+
+    // Build SELECT func_name(null::type1, ...) or SELECT func_name(CAST(NULL AS type1), ...)
     StringBuilder sb = new StringBuilder("SELECT ");
     sb.append(name).append('(');
     for (int i = 0; i < inParams.size(); i++) {
       if (i > 0) sb.append(", ");
-      sb.append("null::").append(inParams.get(i).type().typename().sqlType());
+      String sqlType = inParams.get(i).type().typename().sqlType();
+      if (useDoubleColon) {
+        sb.append("null::").append(sqlType);
+      } else {
+        sb.append("CAST(NULL AS ").append(sqlType).append(')');
+      }
     }
     sb.append(')');
+
+    // Oracle and DB2 require FROM DUAL for SELECT without a table
+    if (dbKind == DatabaseKind.ORACLE || dbKind == DatabaseKind.DB2) {
+      sb.append(" FROM DUAL");
+    }
 
     try (PreparedStatement ps = conn.prepareStatement(sb.toString())) {
       var rsmd = ps.getMetaData();
@@ -96,21 +110,12 @@ public final class RoutineAnalyzer {
     }
 
     DatabaseMetaData dbmd = conn.getMetaData();
-    List<ProcedureColumnInfo> metaColumns = new ArrayList<>();
+    DatabaseKind dbKind = DatabaseKind.detect(conn);
+    List<ProcedureColumnInfo> metaColumns = fetchProcedureColumns(dbmd, name);
 
-    try (ResultSet rs = dbmd.getProcedureColumns(null, null, name, null)) {
-      while (rs.next()) {
-        int columnType = rs.getInt("COLUMN_TYPE");
-        if (columnType == DatabaseMetaData.procedureColumnReturn
-            || columnType == DatabaseMetaData.procedureColumnResult) {
-          continue;
-        }
-        String typeName = rs.getString("TYPE_NAME");
-        metaColumns.add(new ProcedureColumnInfo(
-            columnType,
-            typeName != null ? typeName : ""
-        ));
-      }
+    // Oracle stores names uppercase — retry with uppercase if no results found
+    if (metaColumns.isEmpty() && dbKind == DatabaseKind.ORACLE && !name.equals(name.toUpperCase())) {
+      metaColumns = fetchProcedureColumns(dbmd, name.toUpperCase());
     }
 
     if (metaColumns.isEmpty()) {
@@ -167,6 +172,25 @@ public final class RoutineAnalyzer {
         Optional.empty(),
         true
     );
+  }
+
+  private static List<ProcedureColumnInfo> fetchProcedureColumns(DatabaseMetaData dbmd, String name) throws SQLException {
+    List<ProcedureColumnInfo> metaColumns = new ArrayList<>();
+    try (ResultSet rs = dbmd.getProcedureColumns(null, null, name, null)) {
+      while (rs.next()) {
+        int columnType = rs.getInt("COLUMN_TYPE");
+        if (columnType == DatabaseMetaData.procedureColumnReturn
+            || columnType == DatabaseMetaData.procedureColumnResult) {
+          continue;
+        }
+        String typeName = rs.getString("TYPE_NAME");
+        metaColumns.add(new ProcedureColumnInfo(
+            columnType,
+            typeName != null ? typeName : ""
+        ));
+      }
+    }
+    return metaColumns;
   }
 
   private record ProcedureColumnInfo(int columnType, String typeName) {}

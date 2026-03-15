@@ -16,4 +16,10 @@ sealed class RowTemplate<Row : Any, Out> : Template<Row, Out>() {
         fun onMany(rows: Iterator<Row>): Operation.UpdateManyTemplate<Row> =
             Operation.UpdateManyTemplate(underlying.onMany(rows))
     }
+
+    class GeneratedKeys<Row : Any, Out>(override val underlying: dev.typr.foundations.RowTemplate.GeneratedKeys<Row, Out>)
+        : RowTemplate<Row, Out>() {
+        override fun on(row: Row): Operation.UpdateReturningGeneratedKeys<Out> =
+            Operation.UpdateReturningGeneratedKeys(underlying.on(row))
+    }
 }
