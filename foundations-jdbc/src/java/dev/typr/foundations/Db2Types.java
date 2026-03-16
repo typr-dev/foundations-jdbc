@@ -38,7 +38,8 @@ public interface Db2Types {
           Db2Json.int4,
           Db2OutParam.readInteger);
 
-  Db2Type<Integer> int_ = integer.renamed("INT");
+  Db2Type<Integer> int_ =
+      integer.renamed("INT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("integer"));
 
   Db2Type<Long> bigint =
       Db2Type.of(
@@ -58,9 +59,11 @@ public interface Db2Types {
           Db2Json.numeric,
           Db2OutParam.readBigDecimal);
 
-  Db2Type<BigDecimal> numeric = decimal.renamed("NUMERIC");
+  Db2Type<BigDecimal> numeric =
+      decimal.renamed("NUMERIC").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("decimal"));
 
-  Db2Type<BigDecimal> dec = decimal.renamed("DEC");
+  Db2Type<BigDecimal> dec =
+      decimal.renamed("DEC").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("decimal"));
 
   static Db2Type<BigDecimal> decimal(int precision, int scale) {
     return Db2Type.of(
@@ -72,7 +75,9 @@ public interface Db2Types {
   }
 
   static Db2Type<BigDecimal> numeric(int precision, int scale) {
-    return decimal(precision, scale).renamed("NUMERIC");
+    return decimal(precision, scale)
+        .renamed("NUMERIC")
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("decimal"));
   }
 
   // DECFLOAT - DB2-specific decimal floating point
@@ -111,7 +116,8 @@ public interface Db2Types {
           Db2Json.float8,
           Db2OutParam.readDouble);
 
-  Db2Type<Double> float_ = double_.renamed("FLOAT");
+  Db2Type<Double> float_ =
+      double_.renamed("FLOAT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("double"));
 
   // ==================== Boolean Type ====================
 
@@ -134,7 +140,8 @@ public interface Db2Types {
           Db2Json.text,
           Db2OutParam.readString);
 
-  Db2Type<String> character = char_.renamed("CHARACTER");
+  Db2Type<String> character =
+      char_.renamed("CHARACTER").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
 
   static Db2Type<String> char_(int length) {
     return Db2Type.of(
