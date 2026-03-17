@@ -6,11 +6,12 @@ import java.sql.Connection
 
 @SuppressWarnings(Array("unused"))
 object TransactorCustomStrategy:
-  //start
+  // start
   val customStrategy: Transactor.Strategy =
-    Strategy.empty()
+    Strategy
+      .empty()
       .replaceOnBegin(conn => conn.setAutoCommit(false))
       .replaceOnSuccess((conn: Connection) => conn.commit())
       .replaceOnFailure((_, _) => { /* handle error */ })
       .replaceOnComplete((conn: Connection) => conn.close())
-  //stop
+  // stop

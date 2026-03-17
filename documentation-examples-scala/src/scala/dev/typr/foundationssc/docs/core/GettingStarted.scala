@@ -6,13 +6,13 @@ import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object GettingStarted:
-  //start
+  // start
   val tx: Transactor =
-    SimpleDataSource.create(
-        DuckDbConfig.inMemory().build())
+    SimpleDataSource
+      .create(DuckDbConfig.inMemory().build())
       .transactor()
 
   val result: Int = sql"SELECT 42"
     .queryExactlyOne(DuckDbTypes.integer)
     .transact(tx)
-  //stop
+  // stop

@@ -19,9 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Integration tests for SpringTransactor with Spring Boot auto-configuration.
- */
+/** Integration tests for SpringTransactor with Spring Boot auto-configuration. */
 @SpringBootTest
 class SpringTransactorTest {
 
@@ -31,9 +29,8 @@ class SpringTransactorTest {
     @Bean
     DataSource dataSource() {
       return HikariDataSourceFactory.create(
-          DuckDbConfig.inMemory().build(),
-          PoolConfig.builder().maximumPoolSize(3).build()
-      ).asDataSource();
+              DuckDbConfig.inMemory().build(), PoolConfig.builder().maximumPoolSize(3).build())
+          .asDataSource();
     }
 
     @Bean
@@ -52,8 +49,10 @@ class SpringTransactorTest {
     @Transactional(propagation = Propagation.REQUIRED)
     public void insertRequired(int id, String name) throws SQLException {
       Fragment.of("INSERT INTO spring_test VALUES (")
-          .value(DuckDbTypes.integer, id).append(", ")
-          .value(DuckDbTypes.varchar, name).append(")")
+          .value(DuckDbTypes.integer, id)
+          .append(", ")
+          .value(DuckDbTypes.varchar, name)
+          .append(")")
           .update()
           .transact(tx);
     }
@@ -61,8 +60,10 @@ class SpringTransactorTest {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void insertRequiresNew(int id, String name) throws SQLException {
       Fragment.of("INSERT INTO spring_test VALUES (")
-          .value(DuckDbTypes.integer, id).append(", ")
-          .value(DuckDbTypes.varchar, name).append(")")
+          .value(DuckDbTypes.integer, id)
+          .append(", ")
+          .value(DuckDbTypes.varchar, name)
+          .append(")")
           .update()
           .transact(tx);
     }
@@ -70,8 +71,10 @@ class SpringTransactorTest {
     @Transactional(propagation = Propagation.MANDATORY)
     public void insertMandatory(int id, String name) throws SQLException {
       Fragment.of("INSERT INTO spring_test VALUES (")
-          .value(DuckDbTypes.integer, id).append(", ")
-          .value(DuckDbTypes.varchar, name).append(")")
+          .value(DuckDbTypes.integer, id)
+          .append(", ")
+          .value(DuckDbTypes.varchar, name)
+          .append(")")
           .update()
           .transact(tx);
     }
@@ -79,22 +82,21 @@ class SpringTransactorTest {
     @Transactional
     public void insertThenFail(int id, String name) throws SQLException {
       Fragment.of("INSERT INTO spring_test VALUES (")
-          .value(DuckDbTypes.integer, id).append(", ")
-          .value(DuckDbTypes.varchar, name).append(")")
+          .value(DuckDbTypes.integer, id)
+          .append(", ")
+          .value(DuckDbTypes.varchar, name)
+          .append(")")
           .update()
           .transact(tx);
       throw new RuntimeException("Simulated failure");
     }
   }
 
-  @Autowired
-  Transactor tx;
+  @Autowired Transactor tx;
 
-  @Autowired
-  DataSource dataSource;
+  @Autowired DataSource dataSource;
 
-  @Autowired
-  TransactionalService service;
+  @Autowired TransactionalService service;
 
   @BeforeEach
   void setUp() throws SQLException {
@@ -112,14 +114,13 @@ class SpringTransactorTest {
   @Test
   void standaloneTransactionCommits() throws SQLException {
     // Insert data - should auto-commit since we're not in @Transactional
-    Fragment.of("INSERT INTO spring_test VALUES (1, 'standalone')")
-        .update()
-        .transact(tx);
+    Fragment.of("INSERT INTO spring_test VALUES (1, 'standalone')").update().transact(tx);
 
     // Verify it was committed
-    String name = Fragment.of("SELECT name FROM spring_test WHERE id = 1")
-        .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
-        .transact(tx);
+    String name =
+        Fragment.of("SELECT name FROM spring_test WHERE id = 1")
+            .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
+            .transact(tx);
 
     assertEquals("standalone", name);
   }
@@ -128,18 +129,15 @@ class SpringTransactorTest {
   @Transactional
   void joinsExistingSpringTransaction() throws SQLException {
     // Multiple operations in same Spring transaction
-    Fragment.of("INSERT INTO spring_test VALUES (1, 'first')")
-        .update()
-        .transact(tx);
+    Fragment.of("INSERT INTO spring_test VALUES (1, 'first')").update().transact(tx);
 
-    Fragment.of("INSERT INTO spring_test VALUES (2, 'second')")
-        .update()
-        .transact(tx);
+    Fragment.of("INSERT INTO spring_test VALUES (2, 'second')").update().transact(tx);
 
     // Both should be visible within the same transaction
-    List<String> names = Fragment.of("SELECT name FROM spring_test ORDER BY id")
-        .query(RowCodec.of(DuckDbTypes.varchar).all())
-        .transact(tx);
+    List<String> names =
+        Fragment.of("SELECT name FROM spring_test ORDER BY id")
+            .query(RowCodec.of(DuckDbTypes.varchar).all())
+            .transact(tx);
 
     assertEquals(List.of("first", "second"), names);
   }
@@ -147,27 +145,25 @@ class SpringTransactorTest {
   @Test
   void rollsBackOnException() throws SQLException {
     // Insert one row successfully
-    Fragment.of("INSERT INTO spring_test VALUES (1, 'committed')")
-        .update()
-        .transact(tx);
+    Fragment.of("INSERT INTO spring_test VALUES (1, 'committed')").update().transact(tx);
 
     // Try a transaction that will fail
     try {
-      tx.execute(conn -> {
-        Fragment.of("INSERT INTO spring_test VALUES (2, 'will rollback')")
-            .update()
-            .run(conn);
-        throw new SQLException("Simulated failure");
-      });
+      tx.execute(
+          conn -> {
+            Fragment.of("INSERT INTO spring_test VALUES (2, 'will rollback')").update().run(conn);
+            throw new SQLException("Simulated failure");
+          });
       fail("Should have thrown DatabaseException");
     } catch (DatabaseException e) {
       assertEquals("Simulated failure", e.getMessage());
     }
 
     // Verify only the first insert is present
-    Integer count = Fragment.of("SELECT COUNT(*) FROM spring_test")
-        .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
-        .transact(tx);
+    Integer count =
+        Fragment.of("SELECT COUNT(*) FROM spring_test")
+            .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
+            .transact(tx);
 
     assertEquals(1, count, "Failed transaction should have rolled back");
   }
@@ -176,13 +172,12 @@ class SpringTransactorTest {
   void canCreateTransactorManually() throws SQLException {
     Transactor manualTx = SpringTransactor.create(dataSource);
 
-    Fragment.of("INSERT INTO spring_test VALUES (99, 'manual')")
-        .update()
-        .transact(manualTx);
+    Fragment.of("INSERT INTO spring_test VALUES (99, 'manual')").update().transact(manualTx);
 
-    String name = Fragment.of("SELECT name FROM spring_test WHERE id = 99")
-        .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
-        .transact(manualTx);
+    String name =
+        Fragment.of("SELECT name FROM spring_test WHERE id = 99")
+            .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
+            .transact(manualTx);
 
     assertEquals("manual", name);
   }
@@ -192,9 +187,10 @@ class SpringTransactorTest {
     // REQUIRED creates a new transaction when none exists
     service.insertRequired(1, "required");
 
-    String name = Fragment.of("SELECT name FROM spring_test WHERE id = 1")
-        .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
-        .transact(tx);
+    String name =
+        Fragment.of("SELECT name FROM spring_test WHERE id = 1")
+            .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
+            .transact(tx);
 
     assertEquals("required", name);
   }
@@ -206,9 +202,10 @@ class SpringTransactorTest {
     service.insertRequired(1, "first");
     service.insertRequired(2, "second");
 
-    List<String> names = Fragment.of("SELECT name FROM spring_test ORDER BY id")
-        .query(RowCodec.of(DuckDbTypes.varchar).all())
-        .transact(tx);
+    List<String> names =
+        Fragment.of("SELECT name FROM spring_test ORDER BY id")
+            .query(RowCodec.of(DuckDbTypes.varchar).all())
+            .transact(tx);
 
     assertEquals(List.of("first", "second"), names);
   }
@@ -218,9 +215,10 @@ class SpringTransactorTest {
     // REQUIRES_NEW always creates a new transaction
     service.insertRequiresNew(1, "new-tx");
 
-    String name = Fragment.of("SELECT name FROM spring_test WHERE id = 1")
-        .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
-        .transact(tx);
+    String name =
+        Fragment.of("SELECT name FROM spring_test WHERE id = 1")
+            .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
+            .transact(tx);
 
     assertEquals("new-tx", name);
   }
@@ -237,9 +235,10 @@ class SpringTransactorTest {
     // MANDATORY works when transaction exists
     service.insertMandatory(1, "mandatory");
 
-    String name = Fragment.of("SELECT name FROM spring_test WHERE id = 1")
-        .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
-        .transact(tx);
+    String name =
+        Fragment.of("SELECT name FROM spring_test WHERE id = 1")
+            .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
+            .transact(tx);
 
     assertEquals("mandatory", name);
   }
@@ -254,9 +253,10 @@ class SpringTransactorTest {
       assertEquals("Simulated failure", e.getMessage());
     }
 
-    Integer count = Fragment.of("SELECT COUNT(*) FROM spring_test")
-        .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
-        .transact(tx);
+    Integer count =
+        Fragment.of("SELECT COUNT(*) FROM spring_test")
+            .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
+            .transact(tx);
 
     assertEquals(0, count, "Transaction should have rolled back");
   }

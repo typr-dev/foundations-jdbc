@@ -4,8 +4,8 @@ import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object NumericTypes:
-  //start
+  // start
   val intType: PgType[Int] = PgTypes.int4
   val decimalType: PgType[BigDecimal] = PgTypes.numeric
   val moneyType: PgType[Money] = PgTypes.money
-  //stop
+  // stop

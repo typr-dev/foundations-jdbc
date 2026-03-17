@@ -3,13 +3,13 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-
 @SuppressWarnings(Array("unused"))
 object ManualTransaction:
   case class Order(id: Int, userId: Int, product: String)
   case class Dashboard(userCount: Long, recentOrders: List[Order])
 
-  val orderCodec: RowCodec[Order] = RowCodec.builder[Order]()
+  val orderCodec: RowCodec[Order] = RowCodec
+    .builder[Order]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.int4)(_.userId)
     .field(PgTypes.text)(_.product)
@@ -17,7 +17,7 @@ object ManualTransaction:
 
   var tx: Transactor = null // placeholder
 
-  //start
+  // start
   val countUsers: Operation[Long] =
     sql"SELECT count(*) FROM users"
       .query(RowCodec.of(PgTypes.int8).exactlyOne())
@@ -32,4 +32,4 @@ object ManualTransaction:
       val orders = recentOrders.run(conn)
       Dashboard(count, orders)
     }
-  //stop
+  // stop

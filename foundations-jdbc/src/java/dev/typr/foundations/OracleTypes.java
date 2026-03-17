@@ -127,20 +127,20 @@ public interface OracleTypes {
    */
   OracleType<Double> float_ =
       OracleType.of(
-          "FLOAT",
-          OracleRead.readDouble,
-          OracleWrite.writeDouble,
-          OracleJson.float8,
-          OracleOutParam.readDouble)
+              "FLOAT",
+              OracleRead.readDouble,
+              OracleWrite.writeDouble,
+              OracleJson.float8,
+              OracleOutParam.readDouble)
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("number"));
 
   static OracleType<Double> float_(int binaryPrecision) {
     return OracleType.of(
-        OracleTypename.of("FLOAT", binaryPrecision),
-        OracleRead.readDouble,
-        OracleWrite.writeDouble,
-        OracleJson.float8,
-        OracleOutParam.readDouble)
+            OracleTypename.of("FLOAT", binaryPrecision),
+            OracleRead.readDouble,
+            OracleWrite.writeDouble,
+            OracleJson.float8,
+            OracleOutParam.readDouble)
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("number"));
   }
 
@@ -197,20 +197,20 @@ public interface OracleTypes {
   /** CHAR(n) - Fixed-length character string, blank-padded. Max 2000 bytes. */
   OracleType<String> char_ =
       OracleType.of(
-          "CHAR",
-          OracleRead.readString,
-          OracleWrite.writeString,
-          OracleJson.text,
-          OracleOutParam.readString)
+              "CHAR",
+              OracleRead.readString,
+              OracleWrite.writeString,
+              OracleJson.text,
+              OracleOutParam.readString)
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar2"));
 
   static OracleType<String> char_(int length) {
     return OracleType.of(
-        OracleTypename.of("CHAR", length),
-        OracleRead.readString,
-        OracleWrite.writeString,
-        OracleJson.text,
-        OracleOutParam.readString)
+            OracleTypename.of("CHAR", length),
+            OracleRead.readString,
+            OracleWrite.writeString,
+            OracleJson.text,
+            OracleOutParam.readString)
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar2"));
   }
 
@@ -702,7 +702,8 @@ public interface OracleTypes {
               OracleWrite.writeString,
               OracleJson.text,
               OracleOutParam.readString)
-          .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+          .transform(
+              dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 
   // ==================== JSON-Encoded Row Types ====================
 

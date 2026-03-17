@@ -15,21 +15,18 @@ public sealed interface RowTemplate<Row, Out> extends Template<Row, Out> {
     public Operation.Query<Out> on(Row row) {
       Object[] encoded = codec.encode().apply(row);
       Object[] params = new Object[includedIndices.length];
-      for (int i = 0; i < includedIndices.length; i++)
-        params[i] = encoded[includedIndices[i]];
+      for (int i = 0; i < includedIndices.length; i++) params[i] = encoded[includedIndices[i]];
       return new Operation.Query<>(fragment.fill(Arrays.asList(params).iterator()), resultParser);
     }
   }
 
-  record Update<Row>(
-      Fragment fragment, RowCodecNamed<Row> codec, int[] includedIndices)
+  record Update<Row>(Fragment fragment, RowCodecNamed<Row> codec, int[] includedIndices)
       implements RowTemplate<Row, Integer> {
     @Override
     public Operation.Update on(Row row) {
       Object[] encoded = codec.encode().apply(row);
       Object[] params = new Object[includedIndices.length];
-      for (int i = 0; i < includedIndices.length; i++)
-        params[i] = encoded[includedIndices[i]];
+      for (int i = 0; i < includedIndices.length; i++) params[i] = encoded[includedIndices[i]];
       return new Operation.Update(fragment.fill(Arrays.asList(params).iterator()));
     }
 
@@ -39,19 +36,19 @@ public sealed interface RowTemplate<Row, Out> extends Template<Row, Out> {
   }
 
   record GeneratedKeys<Row, Out>(
-      Fragment fragment, RowCodecNamed<Row> codec, int[] includedIndices,
-      String[] generatedColumns, ResultSetParser<Out> resultParser)
+      Fragment fragment,
+      RowCodecNamed<Row> codec,
+      int[] includedIndices,
+      String[] generatedColumns,
+      ResultSetParser<Out> resultParser)
       implements RowTemplate<Row, Out> {
     @Override
     public Operation.UpdateReturningGeneratedKeys<Out> on(Row row) {
       Object[] encoded = codec.encode().apply(row);
       Object[] params = new Object[includedIndices.length];
-      for (int i = 0; i < includedIndices.length; i++)
-        params[i] = encoded[includedIndices[i]];
+      for (int i = 0; i < includedIndices.length; i++) params[i] = encoded[includedIndices[i]];
       return new Operation.UpdateReturningGeneratedKeys<>(
-          fragment.fill(Arrays.asList(params).iterator()),
-          generatedColumns,
-          resultParser);
+          fragment.fill(Arrays.asList(params).iterator()), generatedColumns, resultParser);
     }
   }
 }

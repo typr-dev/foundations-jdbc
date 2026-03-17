@@ -5,10 +5,9 @@ import dev.typr.foundationssc.data.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
-
 @SuppressWarnings(Array("unused"))
 object SpringTransactorExample:
-  //start
+  // start
   @Service
   class OrderService(tx: Transactor):
 
@@ -17,4 +16,4 @@ object SpringTransactorExample:
       sql"SELECT 'Hello from Oracle' FROM dual"
         .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())
         .transact(tx)
-  //stop
+  // stop

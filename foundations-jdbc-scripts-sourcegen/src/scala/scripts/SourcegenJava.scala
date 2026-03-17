@@ -164,7 +164,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
   }
 
   def generateRowCodecBuilders(): String = {
-    val maxArity = N - 1  // N is 100, so 99 fields max (matching Functions.FunctionN)
+    val maxArity = N - 1 // N is 100, so 99 fields max (matching Functions.FunctionN)
 
     val builder0 = s"""|    public static final class Builder0<Row> {
                        |        private final java.util.List<DbType<?>> types = new java.util.ArrayList<>();
@@ -810,7 +810,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       val retType = outType(o)
       s"""    /** Procedure definition with $i input(s) and $o output(s). */
          |    public interface Def${i}_${o}$tpDecl extends RoutineDef {
-         |        Operation<$retType> call(${ callArgs(i) });
+         |        Operation<$retType> call(${callArgs(i)});
          |        Procedure<$retType> procedure();
          |    }""".stripMargin
     }
@@ -863,7 +863,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       val delegateCall = s"delegate.call(${callArgNames(i)})"
 
       val anonReturn = s"""            return new Def${i}_${o}$tpDecl() {
-             |                @Override public Operation<$retType> call(${ callArgs(i) }) { return $delegateCall; }
+             |                @Override public Operation<$retType> call(${callArgs(i)}) { return $delegateCall; }
              |                @Override public Procedure<$retType> procedure() { return delegate; }
              |            };"""
       val buildBody = o match {
@@ -1337,8 +1337,8 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
         var start = 0
         for (i <- params.indices) {
           params.charAt(i) match {
-            case '<' => depth += 1
-            case '>' => depth -= 1
+            case '<'               => depth += 1
+            case '>'               => depth -= 1
             case ',' if depth == 0 =>
               parts += params.substring(start, i).trim
               start = i + 1
@@ -1425,7 +1425,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       // Abort / timeout
       Method("void", "abort", "java.util.concurrent.Executor executor", "SQLException"),
       Method("void", "setNetworkTimeout", "java.util.concurrent.Executor executor, int milliseconds", "SQLException"),
-      Method("int", "getNetworkTimeout", "", "SQLException"),
+      Method("int", "getNetworkTimeout", "", "SQLException")
     )
 
     val delegations = methods.map(_.delegation).mkString("\n\n")

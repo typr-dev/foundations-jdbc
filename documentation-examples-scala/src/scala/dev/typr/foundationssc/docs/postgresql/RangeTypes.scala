@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 @SuppressWarnings(Array("unused"))
 object RangeTypes:
-  //start
+  // start
   val intRangeType: PgType[Range[Integer]] = PgTypes.int4range
   val dateRangeType: PgType[Range[LocalDate]] = PgTypes.daterange
 
@@ -18,4 +18,4 @@ object RangeTypes:
 
   // Check containment
   val contains: Boolean = range.contains(5) // true
-  //stop
+  // stop

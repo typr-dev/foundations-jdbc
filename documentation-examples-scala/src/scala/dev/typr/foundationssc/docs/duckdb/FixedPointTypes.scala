@@ -4,7 +4,7 @@ import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object FixedPointTypes:
-  //start
+  // start
   val decimalType: DuckDbType[BigDecimal] = DuckDbTypes.decimal
-  val precise: DuckDbType[BigDecimal] = DuckDbTypes.decimal(18, 6)  // DECIMAL(18,6)
-  //stop
+  val precise: DuckDbType[BigDecimal] = DuckDbTypes.decimal(18, 6) // DECIMAL(18,6)
+  // stop

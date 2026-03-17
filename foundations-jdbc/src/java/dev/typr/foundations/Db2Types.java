@@ -24,11 +24,7 @@ public interface Db2Types {
 
   Db2Type<Short> smallint =
       Db2Type.of(
-          "SMALLINT",
-          Db2Read.readShort,
-          Db2Write.writeShort,
-          Db2Json.int2,
-          Db2OutParam.readShort);
+          "SMALLINT", Db2Read.readShort, Db2Write.writeShort, Db2Json.int2, Db2OutParam.readShort);
 
   Db2Type<Integer> integer =
       Db2Type.of(
@@ -43,11 +39,7 @@ public interface Db2Types {
 
   Db2Type<Long> bigint =
       Db2Type.of(
-          "BIGINT",
-          Db2Read.readLong,
-          Db2Write.writeLong,
-          Db2Json.int8,
-          Db2OutParam.readLong);
+          "BIGINT", Db2Read.readLong, Db2Write.writeLong, Db2Json.int8, Db2OutParam.readLong);
 
   // ==================== Fixed-Point Types ====================
 
@@ -102,11 +94,7 @@ public interface Db2Types {
 
   Db2Type<Float> real =
       Db2Type.of(
-          "REAL",
-          Db2Read.readFloat,
-          Db2Write.writeFloat,
-          Db2Json.float4,
-          Db2OutParam.readFloat);
+          "REAL", Db2Read.readFloat, Db2Write.writeFloat, Db2Json.float4, Db2OutParam.readFloat);
 
   Db2Type<Double> double_ =
       Db2Type.of(
@@ -134,11 +122,7 @@ public interface Db2Types {
 
   Db2Type<String> char_ =
       Db2Type.of(
-          "CHAR",
-          Db2Read.readString,
-          Db2Write.writeString,
-          Db2Json.text,
-          Db2OutParam.readString);
+          "CHAR", Db2Read.readString, Db2Write.writeString, Db2Json.text, Db2OutParam.readString);
 
   Db2Type<String> character =
       char_.renamed("CHARACTER").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
@@ -172,11 +156,7 @@ public interface Db2Types {
   // CLOB - Character Large Object
   Db2Type<String> clob =
       Db2Type.of(
-          "CLOB",
-          Db2Read.readClob,
-          Db2Write.writeClob,
-          Db2Json.text,
-          Db2OutParam.readString);
+          "CLOB", Db2Read.readClob, Db2Write.writeClob, Db2Json.text, Db2OutParam.readString);
 
   static Db2Type<String> clob(int length) {
     return Db2Type.of(
@@ -303,19 +283,11 @@ public interface Db2Types {
 
   Db2Type<LocalDate> date =
       Db2Type.of(
-          "DATE",
-          Db2Read.readDate,
-          Db2Write.writeDate,
-          Db2Json.date,
-          Db2OutParam.readLocalDate);
+          "DATE", Db2Read.readDate, Db2Write.writeDate, Db2Json.date, Db2OutParam.readLocalDate);
 
   Db2Type<LocalTime> time =
       Db2Type.of(
-          "TIME",
-          Db2Read.readTime,
-          Db2Write.writeTime,
-          Db2Json.time,
-          Db2OutParam.readLocalTime);
+          "TIME", Db2Read.readTime, Db2Write.writeTime, Db2Json.time, Db2OutParam.readLocalTime);
 
   // TIMESTAMP without time zone
   Db2Type<LocalDateTime> timestamp =
@@ -350,11 +322,7 @@ public interface Db2Types {
   // ROWID - DB2 row identifier
   Db2Type<byte[]> rowid =
       Db2Type.of(
-          "ROWID",
-          Db2Read.readRowId,
-          Db2Write.writeRowId,
-          Db2Json.bytea,
-          Db2OutParam.readRowId);
+          "ROWID", Db2Read.readRowId, Db2Write.writeRowId, Db2Json.bytea, Db2OutParam.readRowId);
 
   // Generic object for unknown types
   Db2Type<Object> object =
@@ -379,7 +347,8 @@ public interface Db2Types {
               Db2Write.writeString,
               Db2Json.text,
               Db2OutParam.readString)
-          .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+          .transform(
+              dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 
   // ==================== JSON-Encoded Row Types ====================
   // These types store structured rows as JSON in a CLOB column.

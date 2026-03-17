@@ -3,12 +3,12 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
-
 @SuppressWarnings(Array("unused"))
 object FragmentComposing:
   case class ProductRow(id: Int, name: String, price: BigDecimal)
 
-  val rowCodec: RowCodec[ProductRow] = RowCodec.builder[ProductRow]()
+  val rowCodec: RowCodec[ProductRow] = RowCodec
+    .builder[ProductRow]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.numeric)(_.price)
@@ -17,7 +17,7 @@ object FragmentComposing:
   var tx: Transactor = null // placeholder
   val maxPrice: Option[BigDecimal] = Some(BigDecimal("100"))
 
-  //start
+  // start
   // Build small reusable filters
   def byName(name: String): Fragment =
     sql"name ILIKE ${PgTypes.text(name)}"
@@ -38,4 +38,4 @@ object FragmentComposing:
         .query(rowCodec.all())
         .run(conn)
     }
-  //stop
+  // stop

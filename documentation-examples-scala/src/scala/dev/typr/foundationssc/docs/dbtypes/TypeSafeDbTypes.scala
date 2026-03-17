@@ -2,13 +2,12 @@ package dev.typr.foundationssc.docs.dbtypes
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-
 import org.postgresql.geometric.PGpoint
 import java.time.LocalDate
 
 @SuppressWarnings(Array("unused"))
 object TypeSafeDbTypes:
-  //start
+  // start
   // PostgreSQL types
   val intArray: PgType[Array[Int]] = PgTypes.int4ArrayUnboxed
   val dateRange: PgType[Range[LocalDate]] = PgTypes.daterange
@@ -18,4 +17,4 @@ object TypeSafeDbTypes:
 
   // DuckDB types
   val map: DuckDbType[java.util.Map[String, Int]] = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)
-  //stop
+  // stop

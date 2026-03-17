@@ -38,10 +38,9 @@ public final class OptionallyResolver {
           }
         }
       }
-      case Fragment.Append a -> new Fragment.Append(
-          resolve(a.a(), values), resolve(a.b(), values));
-      case Fragment.Concat c -> new Fragment.Concat(
-          c.frags().stream().map(f -> resolve(f, values)).toList());
+      case Fragment.Append a -> new Fragment.Append(resolve(a.a(), values), resolve(a.b(), values));
+      case Fragment.Concat c ->
+          new Fragment.Concat(c.frags().stream().map(f -> resolve(f, values)).toList());
       default -> fragment;
     };
   }
@@ -88,15 +87,14 @@ public final class OptionallyResolver {
         boolean include = (mask & (1 << i)) != 0;
         yield include ? o.inner() : Fragment.EMPTY;
       }
-      case Fragment.Append a -> new Fragment.Append(
-          replaceOptionally(a.a(), optionals, mask, idx),
-          replaceOptionally(a.b(), optionals, mask, idx));
-      case Fragment.Concat c -> new Fragment.Concat(
-          c.frags().stream()
-              .map(f -> replaceOptionally(f, optionals, mask, idx))
-              .toList());
+      case Fragment.Append a ->
+          new Fragment.Append(
+              replaceOptionally(a.a(), optionals, mask, idx),
+              replaceOptionally(a.b(), optionals, mask, idx));
+      case Fragment.Concat c ->
+          new Fragment.Concat(
+              c.frags().stream().map(f -> replaceOptionally(f, optionals, mask, idx)).toList());
       default -> fragment;
     };
   }
-
 }

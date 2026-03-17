@@ -7,10 +7,11 @@ object StreamingInsertMulti:
 
   case class ProductRow(name: String, price: BigDecimal, quantity: Int)
 
-  //start
+  // start
   // Define a RowCodec for your row type
   val productCodec: RowCodec[ProductRow] =
-    RowCodec.builder[ProductRow]()
+    RowCodec
+      .builder[ProductRow]()
       .field(PgTypes.text)(_.name)
       .field(PgTypes.numeric)(_.price)
       .field(PgTypes.int4)(_.quantity)
@@ -23,4 +24,4 @@ object StreamingInsertMulti:
     StreamingInsert
       .of("COPY products(name, price, quantity) FROM STDIN", 1000, products, productText)
       .transact(tx)
-  //stop
+  // stop

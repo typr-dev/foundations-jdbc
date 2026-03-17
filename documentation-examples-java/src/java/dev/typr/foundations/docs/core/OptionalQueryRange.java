@@ -6,50 +6,49 @@ import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Template;
 import dev.typr.foundations.Transactor;
 import dev.typr.foundations.Tuple;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class OptionalQueryRange {
-    record Product(int id, String name, BigDecimal price) {}
+  record Product(int id, String name, BigDecimal price) {}
 
-    static RowCodec<Product> productCodec =
-        RowCodec.<Product>builder()
-            .field(PgTypes.int4, Product::id)
-            .field(PgTypes.text, Product::name)
-            .field(PgTypes.numeric, Product::price)
-            .build(Product::new);
+  static RowCodec<Product> productCodec =
+      RowCodec.<Product>builder()
+          .field(PgTypes.int4, Product::id)
+          .field(PgTypes.text, Product::name)
+          .field(PgTypes.numeric, Product::price)
+          .build(Product::new);
 
-    Transactor tx = null; // placeholder
+  Transactor tx = null; // placeholder
 
-    //start
-    // When an optional clause needs multiple parameters,
-    // pass a multi-parameter builder.
-    // The grouped parameters are provided or omitted together.
-    Template<Optional<Tuple.Tuple2<BigDecimal, BigDecimal>>, List<Product>>
-        byPriceRange = Fragment.of("""
-                SELECT id, name, price FROM products WHERE 1=1
-                """)
-            .optionally(
-                Fragment.of(" AND price BETWEEN ")
-                    .param(PgTypes.numeric)
-                    .append(" AND ")
-                    .param(PgTypes.numeric))
-            .query(productCodec.all());
+  // start
+  // When an optional clause needs multiple parameters,
+  // pass a multi-parameter builder.
+  // The grouped parameters are provided or omitted together.
+  Template<Optional<Tuple.Tuple2<BigDecimal, BigDecimal>>, List<Product>> byPriceRange =
+      Fragment.of(
+              """
+              SELECT id, name, price FROM products WHERE 1=1
+              """)
+          .optionally(
+              Fragment.of(" AND price BETWEEN ")
+                  .param(PgTypes.numeric)
+                  .append(" AND ")
+                  .param(PgTypes.numeric))
+          .query(productCodec.all());
 
-    // With range
-    List<Product> inRange() {
-        return byPriceRange
-            .on(Optional.of(Tuple.of(
-                new BigDecimal("10"), new BigDecimal("50"))))
-            .transact(tx);
-    }
+  // With range
+  List<Product> inRange() {
+    return byPriceRange
+        .on(Optional.of(Tuple.of(new BigDecimal("10"), new BigDecimal("50"))))
+        .transact(tx);
+  }
 
-    // Without range — returns all products
-    List<Product> all() {
-        return byPriceRange.on(Optional.empty()).transact(tx);
-    }
-    //stop
+  // Without range — returns all products
+  List<Product> all() {
+    return byPriceRange.on(Optional.empty()).transact(tx);
+  }
+  // stop
 }

@@ -5,14 +5,9 @@ import dev.typr.foundations.connect.*;
 
 @SuppressWarnings("unused")
 public class GettingStarted {
-    //start
-    Transactor tx =
-        SingleConnectionDataSource.create(
-                DuckDbConfig.inMemory().build())
-            .transactor();
+  // start
+  Transactor tx = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build()).transactor();
 
-    int result = Fragment.of("SELECT 42")
-        .queryExactlyOne(DuckDbTypes.integer)
-        .transact(tx);
-    //stop
+  int result = Fragment.of("SELECT 42").queryExactlyOne(DuckDbTypes.integer).transact(tx);
+  // stop
 }

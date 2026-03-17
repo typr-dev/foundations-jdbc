@@ -1,4 +1,5 @@
 package dev.typr.foundations;
+
 import dev.typr.foundations.connect.DatabaseKind;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -13,8 +14,8 @@ public final class RoutineAnalyzer {
 
   private RoutineAnalyzer() {}
 
-  public static RoutineAnalysis analyzeFunction(Procedure.FunctionProcedure<?> func, Connection conn)
-      throws SQLException {
+  public static RoutineAnalysis analyzeFunction(
+      Procedure.FunctionProcedure<?> func, Connection conn) throws SQLException {
     String name = func.name();
     List<ParamDef> inParams = func.inParams();
     DbType<?> returnType = func.returnType();
@@ -43,50 +44,45 @@ public final class RoutineAnalyzer {
 
     try (PreparedStatement ps = conn.prepareStatement(sb.toString())) {
       var rsmd = ps.getMetaData();
-      String returnedTypeName = rsmd != null && rsmd.getColumnCount() > 0
-          ? QueryAnalysis.normalizeVendorTypeName(rsmd.getColumnTypeName(1))
-          : "";
+      String returnedTypeName =
+          rsmd != null && rsmd.getColumnCount() > 0
+              ? QueryAnalysis.normalizeVendorTypeName(rsmd.getColumnTypeName(1))
+              : "";
 
       List<RoutineAnalysis.ParamCheck> checks = new ArrayList<>();
       for (int i = 0; i < inParams.size(); i++) {
         ParamDef p = inParams.get(i);
-        checks.add(new RoutineAnalysis.ParamCheck(
-            i + 1,
-            p.type().typename().sqlType(),
-            p.type().typename().sqlType(),
-            "IN",
-            "IN",
-            true,
-            true
-        ));
+        checks.add(
+            new RoutineAnalysis.ParamCheck(
+                i + 1,
+                p.type().typename().sqlType(),
+                p.type().typename().sqlType(),
+                "IN",
+                "IN",
+                true,
+                true));
       }
 
-      boolean returnMatch = !returnedTypeName.isEmpty()
-          && returnType.vendorTypeNames().contains(returnedTypeName);
+      boolean returnMatch =
+          !returnedTypeName.isEmpty() && returnType.vendorTypeNames().contains(returnedTypeName);
 
       return new RoutineAnalysis(
           name,
           RoutineAnalysis.RoutineKind.FUNCTION,
           checks,
-          Optional.of(new RoutineAnalysis.ReturnCheck(
-              returnType.typename().sqlType(),
-              returnedTypeName.isEmpty() ? "(unknown)" : returnedTypeName,
-              returnMatch || returnedTypeName.isEmpty()
-          )),
-          true
-      );
+          Optional.of(
+              new RoutineAnalysis.ReturnCheck(
+                  returnType.typename().sqlType(),
+                  returnedTypeName.isEmpty() ? "(unknown)" : returnedTypeName,
+                  returnMatch || returnedTypeName.isEmpty())),
+          true);
     } catch (SQLException e) {
-      if (e.getMessage() != null && (
-          e.getMessage().contains("does not exist") ||
-          e.getMessage().contains("not found") ||
-          e.getMessage().contains("Unknown function"))) {
+      if (e.getMessage() != null
+          && (e.getMessage().contains("does not exist")
+              || e.getMessage().contains("not found")
+              || e.getMessage().contains("Unknown function"))) {
         return new RoutineAnalysis(
-            name,
-            RoutineAnalysis.RoutineKind.FUNCTION,
-            List.of(),
-            Optional.empty(),
-            false
-        );
+            name, RoutineAnalysis.RoutineKind.FUNCTION, List.of(), Optional.empty(), false);
       }
       throw e;
     }
@@ -114,18 +110,15 @@ public final class RoutineAnalyzer {
     List<ProcedureColumnInfo> metaColumns = fetchProcedureColumns(dbmd, name);
 
     // Oracle stores names uppercase — retry with uppercase if no results found
-    if (metaColumns.isEmpty() && dbKind == DatabaseKind.ORACLE && !name.equals(name.toUpperCase())) {
+    if (metaColumns.isEmpty()
+        && dbKind == DatabaseKind.ORACLE
+        && !name.equals(name.toUpperCase())) {
       metaColumns = fetchProcedureColumns(dbmd, name.toUpperCase());
     }
 
     if (metaColumns.isEmpty()) {
       return new RoutineAnalysis(
-          name,
-          RoutineAnalysis.RoutineKind.PROCEDURE,
-          List.of(),
-          Optional.empty(),
-          false
-      );
+          name, RoutineAnalysis.RoutineKind.PROCEDURE, List.of(), Optional.empty(), false);
     }
 
     List<RoutineAnalysis.ParamCheck> checks = new ArrayList<>();
@@ -143,38 +136,50 @@ public final class RoutineAnalyzer {
         String declaredMode = p.mode().name();
         String expectedMode = columnTypeToMode(mc.columnType());
 
-        boolean typeMatch = p.type().vendorTypeNames().contains(expectedType) || expectedType.isEmpty();
+        boolean typeMatch =
+            p.type().vendorTypeNames().contains(expectedType) || expectedType.isEmpty();
         boolean modeMatch = declaredMode.equals(expectedMode);
 
-        checks.add(new RoutineAnalysis.ParamCheck(
-            i + 1, declaredType, expectedType.isEmpty() ? "(unknown)" : expectedType,
-            declaredMode, expectedMode, typeMatch, modeMatch
-        ));
+        checks.add(
+            new RoutineAnalysis.ParamCheck(
+                i + 1,
+                declaredType,
+                expectedType.isEmpty() ? "(unknown)" : expectedType,
+                declaredMode,
+                expectedMode,
+                typeMatch,
+                modeMatch));
       } else if (i < paramSize) {
         ParamDef p = params.get(i);
-        checks.add(new RoutineAnalysis.ParamCheck(
-            i + 1, p.type().typename().sqlType(), "(missing)",
-            p.mode().name(), "(missing)", false, false
-        ));
+        checks.add(
+            new RoutineAnalysis.ParamCheck(
+                i + 1,
+                p.type().typename().sqlType(),
+                "(missing)",
+                p.mode().name(),
+                "(missing)",
+                false,
+                false));
       } else {
         ProcedureColumnInfo mc = metaColumns.get(i);
-        checks.add(new RoutineAnalysis.ParamCheck(
-            i + 1, "(missing)", QueryAnalysis.normalizeVendorTypeName(mc.typeName()),
-            "(missing)", columnTypeToMode(mc.columnType()), false, false
-        ));
+        checks.add(
+            new RoutineAnalysis.ParamCheck(
+                i + 1,
+                "(missing)",
+                QueryAnalysis.normalizeVendorTypeName(mc.typeName()),
+                "(missing)",
+                columnTypeToMode(mc.columnType()),
+                false,
+                false));
       }
     }
 
     return new RoutineAnalysis(
-        name,
-        RoutineAnalysis.RoutineKind.PROCEDURE,
-        checks,
-        Optional.empty(),
-        true
-    );
+        name, RoutineAnalysis.RoutineKind.PROCEDURE, checks, Optional.empty(), true);
   }
 
-  private static List<ProcedureColumnInfo> fetchProcedureColumns(DatabaseMetaData dbmd, String name) throws SQLException {
+  private static List<ProcedureColumnInfo> fetchProcedureColumns(DatabaseMetaData dbmd, String name)
+      throws SQLException {
     List<ProcedureColumnInfo> metaColumns = new ArrayList<>();
     try (ResultSet rs = dbmd.getProcedureColumns(null, null, name, null)) {
       while (rs.next()) {
@@ -184,10 +189,7 @@ public final class RoutineAnalyzer {
           continue;
         }
         String typeName = rs.getString("TYPE_NAME");
-        metaColumns.add(new ProcedureColumnInfo(
-            columnType,
-            typeName != null ? typeName : ""
-        ));
+        metaColumns.add(new ProcedureColumnInfo(columnType, typeName != null ? typeName : ""));
       }
     }
     return metaColumns;

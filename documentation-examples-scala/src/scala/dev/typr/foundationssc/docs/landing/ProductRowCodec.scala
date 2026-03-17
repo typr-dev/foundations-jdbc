@@ -9,13 +9,15 @@ object ProductRowCodec:
   case class Category(id: Int, name: String)
 
   val categoryRowCodec: RowCodec[Category] =
-    RowCodec.builder[Category]()
+    RowCodec
+      .builder[Category]()
       .field(PgTypes.int4)(_.id)
       .field(PgTypes.text)(_.name)
       .build(Category.apply)
 
-  //start
-  val productCodec: RowCodecNamed[Product] = RowCodec.namedBuilder[Product]()
+  // start
+  val productCodec: RowCodecNamed[Product] = RowCodec
+    .namedBuilder[Product]()
     .field("id", PgTypes.int4)(_.id)
     .field("name", PgTypes.text)(_.name)
     .field("price", PgTypes.numeric)(_.price)
@@ -25,4 +27,4 @@ object ProductRowCodec:
   // Compose codecs for joins
   val joined: RowCodec[(Product, Option[Category])] =
     productCodec.leftJoined(categoryRowCodec)
-  //stop
+  // stop

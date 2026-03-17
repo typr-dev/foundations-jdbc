@@ -5,12 +5,11 @@ import dev.typr.foundations.SqlServerTypes;
 
 @SuppressWarnings("unused")
 public class DomainType {
-    //start
-    // Wrapper type
-    public record OrderId(Integer value) {}
+  // start
+  // Wrapper type
+  public record OrderId(Integer value) {}
 
-    // Create SqlServerType from INT
-    SqlServerType<OrderId> orderIdType =
-        SqlServerTypes.int_.transform(OrderId::new, OrderId::value);
-    //stop
+  // Create SqlServerType from INT
+  SqlServerType<OrderId> orderIdType = SqlServerTypes.int_.transform(OrderId::new, OrderId::value);
+  // stop
 }

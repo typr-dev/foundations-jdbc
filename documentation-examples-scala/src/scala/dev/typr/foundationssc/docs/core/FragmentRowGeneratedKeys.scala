@@ -8,7 +8,8 @@ import java.time.Instant
 object FragmentRowGeneratedKeys:
   case class Product(id: Int, name: String, price: BigDecimal, createdAt: Instant)
 
-  val productCodec: RowCodecNamed[Product] = RowCodec.namedBuilder[Product]()
+  val productCodec: RowCodecNamed[Product] = RowCodec
+    .namedBuilder[Product]()
     .field("id", PgTypes.int4)(_.id)
     .field("name", PgTypes.text)(_.name)
     .field("price", PgTypes.numeric)(_.price)
@@ -17,12 +18,11 @@ object FragmentRowGeneratedKeys:
 
   val conn: Connection = null // placeholder
 
-  //start
+  // start
   // For databases without RETURNING (DB2, Oracle, SQL Server, MariaDB):
   def insertGeneratedKey(product: Product): Int =
-    Fragment.insertIntoGeneratedKeys(
-        "product", productCodec, Array("id"),
-        RowCodec.of(PgTypes.int4).exactlyOne(), "id")
+    Fragment
+      .insertIntoGeneratedKeys("product", productCodec, Array("id"), RowCodec.of(PgTypes.int4).exactlyOne(), "id")
       .on(product)
       .run(conn)
-  //stop
+  // stop

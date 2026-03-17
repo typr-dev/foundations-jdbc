@@ -8,18 +8,20 @@ object ComposingCodecs:
   case class CategoryRow(id: Int, categoryName: String)
 
   val productCodec: RowCodec[ProductRow] =
-    RowCodec.builder[ProductRow]()
+    RowCodec
+      .builder[ProductRow]()
       .field(PgTypes.int4)(_.id)
       .field(PgTypes.text)(_.name)
       .build(ProductRow.apply)
 
   val categoryCodec: RowCodec[CategoryRow] =
-    RowCodec.builder[CategoryRow]()
+    RowCodec
+      .builder[CategoryRow]()
       .field(PgTypes.int4)(_.id)
       .field(PgTypes.text)(_.categoryName)
       .build(CategoryRow.apply)
 
-  //start
+  // start
   // Inner join — both sides always present
   val innerJoined: RowCodec[(ProductRow, CategoryRow)] =
     productCodec.joined(categoryCodec)
@@ -27,4 +29,4 @@ object ComposingCodecs:
   // Left join — right side is Option
   val leftJoined: RowCodec[(ProductRow, Option[CategoryRow])] =
     productCodec.leftJoined(categoryCodec)
-  //stop
+  // stop

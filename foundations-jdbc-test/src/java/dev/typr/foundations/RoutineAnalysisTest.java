@@ -1,10 +1,10 @@
 package dev.typr.foundations;
 
+import static org.junit.Assert.*;
+
 import java.sql.Connection;
 import java.util.List;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class RoutineAnalysisTest {
 
@@ -18,90 +18,113 @@ public class RoutineAnalysisTest {
 
   @Test
   public void testFunctionAnalysis_success() {
-    withConnection(conn -> {
-      conn.createStatement().execute("""
-          CREATE OR REPLACE FUNCTION ra_add(a int4, b int4) RETURNS int4 AS $$
-          BEGIN RETURN a + b; END;
-          $$ LANGUAGE plpgsql
-          """);
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  """
+                  CREATE OR REPLACE FUNCTION ra_add(a int4, b int4) RETURNS int4 AS $$
+                  BEGIN RETURN a + b; END;
+                  $$ LANGUAGE plpgsql
+                  """);
 
-      var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction("ra_add",
-          List.of(ParamDef.input(PgTypes.int4), ParamDef.input(PgTypes.int4)), PgTypes.int4);
+          var func =
+              (Procedure.FunctionProcedure<?>)
+                  Procedure.buildFunction(
+                      "ra_add",
+                      List.of(ParamDef.input(PgTypes.int4), ParamDef.input(PgTypes.int4)),
+                      PgTypes.int4);
 
-      RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
+          RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
-      System.out.println(analysis.report());
+          System.out.println(analysis.report());
 
-      assertTrue("Function analysis should succeed", analysis.succeeded());
-      assertTrue("Function should exist", analysis.routineExists());
-      assertEquals(RoutineAnalysis.RoutineKind.FUNCTION, analysis.kind());
+          assertTrue("Function analysis should succeed", analysis.succeeded());
+          assertTrue("Function should exist", analysis.routineExists());
+          assertEquals(RoutineAnalysis.RoutineKind.FUNCTION, analysis.kind());
 
-      return null;
-    });
+          return null;
+        });
   }
 
   @Test
   public void testFunctionAnalysis_wrongReturnType() {
-    withConnection(conn -> {
-      conn.createStatement().execute("""
-          CREATE OR REPLACE FUNCTION ra_concat(a text, b text) RETURNS text AS $$
-          BEGIN RETURN a || b; END;
-          $$ LANGUAGE plpgsql
-          """);
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  """
+                  CREATE OR REPLACE FUNCTION ra_concat(a text, b text) RETURNS text AS $$
+                  BEGIN RETURN a || b; END;
+                  $$ LANGUAGE plpgsql
+                  """);
 
-      var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction("ra_concat",
-          List.of(ParamDef.input(PgTypes.text), ParamDef.input(PgTypes.text)), PgTypes.int4);
+          var func =
+              (Procedure.FunctionProcedure<?>)
+                  Procedure.buildFunction(
+                      "ra_concat",
+                      List.of(ParamDef.input(PgTypes.text), ParamDef.input(PgTypes.text)),
+                      PgTypes.int4);
 
-      RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
+          RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
-      System.out.println(analysis.report());
+          System.out.println(analysis.report());
 
-      assertFalse("Should fail with wrong return type", analysis.succeeded());
-      assertTrue("Return check should be present", analysis.returnCheck().isPresent());
-      assertFalse("Return type should not match", analysis.returnCheck().get().match());
+          assertFalse("Should fail with wrong return type", analysis.succeeded());
+          assertTrue("Return check should be present", analysis.returnCheck().isPresent());
+          assertFalse("Return type should not match", analysis.returnCheck().get().match());
 
-      return null;
-    });
+          return null;
+        });
   }
 
   @Test
   public void testFunctionAnalysis_noParams() {
-    withConnection(conn -> {
-      conn.createStatement().execute("""
-          CREATE OR REPLACE FUNCTION ra_now() RETURNS timestamptz AS $$
-          BEGIN RETURN now(); END;
-          $$ LANGUAGE plpgsql
-          """);
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  """
+                  CREATE OR REPLACE FUNCTION ra_now() RETURNS timestamptz AS $$
+                  BEGIN RETURN now(); END;
+                  $$ LANGUAGE plpgsql
+                  """);
 
-      var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction("ra_now",
-          List.of(), PgTypes.timestamptz);
+          var func =
+              (Procedure.FunctionProcedure<?>)
+                  Procedure.buildFunction("ra_now", List.of(), PgTypes.timestamptz);
 
-      RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
+          RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
-      System.out.println(analysis.report());
+          System.out.println(analysis.report());
 
-      assertTrue("No-param function should succeed", analysis.succeeded());
-      assertEquals(0, analysis.paramChecks().size());
+          assertTrue("No-param function should succeed", analysis.succeeded());
+          assertEquals(0, analysis.paramChecks().size());
 
-      return null;
-    });
+          return null;
+        });
   }
 
   @Test
   public void testFunctionAnalysis_notFound() {
-    withConnection(conn -> {
-      var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction(
-          "ra_nonexistent_func_xyz", List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
+    withConnection(
+        conn -> {
+          var func =
+              (Procedure.FunctionProcedure<?>)
+                  Procedure.buildFunction(
+                      "ra_nonexistent_func_xyz",
+                      List.of(ParamDef.input(PgTypes.int4)),
+                      PgTypes.int4);
 
-      RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
+          RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
-      System.out.println(analysis.report());
+          System.out.println(analysis.report());
 
-      assertFalse("Missing function should fail", analysis.succeeded());
-      assertFalse("routineExists should be false", analysis.routineExists());
+          assertFalse("Missing function should fail", analysis.succeeded());
+          assertFalse("routineExists should be false", analysis.routineExists());
 
-      return null;
-    });
+          return null;
+        });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -110,43 +133,49 @@ public class RoutineAnalysisTest {
 
   @Test
   public void testProcedureAnalysis_voidProcedure() {
-    withConnection(conn -> {
-      conn.createStatement().execute("""
-          CREATE OR REPLACE PROCEDURE ra_void_proc(a int4, b text) AS $$
-          BEGIN END;
-          $$ LANGUAGE plpgsql
-          """);
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  """
+                  CREATE OR REPLACE PROCEDURE ra_void_proc(a int4, b text) AS $$
+                  BEGIN END;
+                  $$ LANGUAGE plpgsql
+                  """);
 
-      var proc = Procedure.buildVoid("ra_void_proc",
-          List.of(ParamDef.input(PgTypes.int4), ParamDef.input(PgTypes.text)));
+          var proc =
+              Procedure.buildVoid(
+                  "ra_void_proc",
+                  List.of(ParamDef.input(PgTypes.int4), ParamDef.input(PgTypes.text)));
 
-      RoutineAnalysis analysis = RoutineAnalyzer.analyzeProcedure(proc, conn);
+          RoutineAnalysis analysis = RoutineAnalyzer.analyzeProcedure(proc, conn);
 
-      System.out.println(analysis.report());
+          System.out.println(analysis.report());
 
-      assertTrue("Void procedure analysis should succeed", analysis.succeeded());
-      assertTrue("Procedure should exist", analysis.routineExists());
-      assertEquals(RoutineAnalysis.RoutineKind.PROCEDURE, analysis.kind());
+          assertTrue("Void procedure analysis should succeed", analysis.succeeded());
+          assertTrue("Procedure should exist", analysis.routineExists());
+          assertEquals(RoutineAnalysis.RoutineKind.PROCEDURE, analysis.kind());
 
-      return null;
-    });
+          return null;
+        });
   }
 
   @Test
   public void testProcedureAnalysis_notFound() {
-    withConnection(conn -> {
-      var proc = Procedure.buildVoid("ra_nonexistent_proc_xyz",
-          List.of(ParamDef.input(PgTypes.int4)));
+    withConnection(
+        conn -> {
+          var proc =
+              Procedure.buildVoid("ra_nonexistent_proc_xyz", List.of(ParamDef.input(PgTypes.int4)));
 
-      RoutineAnalysis analysis = RoutineAnalyzer.analyzeProcedure(proc, conn);
+          RoutineAnalysis analysis = RoutineAnalyzer.analyzeProcedure(proc, conn);
 
-      System.out.println(analysis.report());
+          System.out.println(analysis.report());
 
-      assertFalse("Missing procedure should fail", analysis.succeeded());
-      assertFalse("routineExists should be false", analysis.routineExists());
+          assertFalse("Missing procedure should fail", analysis.succeeded());
+          assertFalse("routineExists should be false", analysis.routineExists());
 
-      return null;
-    });
+          return null;
+        });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -155,25 +184,29 @@ public class RoutineAnalysisTest {
 
   @Test
   public void testAnalyzeProcedure_dispatchesFunction() {
-    withConnection(conn -> {
-      conn.createStatement().execute("""
-          CREATE OR REPLACE FUNCTION ra_double(x int4) RETURNS int4 AS $$
-          BEGIN RETURN x * 2; END;
-          $$ LANGUAGE plpgsql
-          """);
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  """
+                  CREATE OR REPLACE FUNCTION ra_double(x int4) RETURNS int4 AS $$
+                  BEGIN RETURN x * 2; END;
+                  $$ LANGUAGE plpgsql
+                  """);
 
-      var func = Procedure.buildFunction("ra_double",
-          List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
+          var func =
+              Procedure.buildFunction(
+                  "ra_double", List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
 
-      RoutineAnalysis analysis = RoutineAnalyzer.analyzeProcedure(func, conn);
+          RoutineAnalysis analysis = RoutineAnalyzer.analyzeProcedure(func, conn);
 
-      System.out.println(analysis.report());
+          System.out.println(analysis.report());
 
-      assertTrue("Function via analyzeProcedure should succeed", analysis.succeeded());
-      assertEquals(RoutineAnalysis.RoutineKind.FUNCTION, analysis.kind());
+          assertTrue("Function via analyzeProcedure should succeed", analysis.succeeded());
+          assertEquals(RoutineAnalysis.RoutineKind.FUNCTION, analysis.kind());
 
-      return null;
-    });
+          return null;
+        });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -182,37 +215,45 @@ public class RoutineAnalysisTest {
 
   @Test
   public void testQueryChecker_checkRoutine_success() {
-    withConnection(conn -> {
-      conn.createStatement().execute("""
-          CREATE OR REPLACE FUNCTION ra_square(x int4) RETURNS int4 AS $$
-          BEGIN RETURN x * x; END;
-          $$ LANGUAGE plpgsql
-          """);
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  """
+                  CREATE OR REPLACE FUNCTION ra_square(x int4) RETURNS int4 AS $$
+                  BEGIN RETURN x * x; END;
+                  $$ LANGUAGE plpgsql
+                  """);
 
-      var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction("ra_square",
-          List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
+          var func =
+              (Procedure.FunctionProcedure<?>)
+                  Procedure.buildFunction(
+                      "ra_square", List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
 
-      RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
+          RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
-      assertTrue("checkRoutine should succeed for valid function", analysis.succeeded());
+          assertTrue("checkRoutine should succeed for valid function", analysis.succeeded());
 
-      return null;
-    });
+          return null;
+        });
   }
 
   @Test
   public void testQueryChecker_checkRoutine_failsOnMissing() {
-    withConnection(conn -> {
-      var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction(
-          "ra_does_not_exist_xyz", List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
+    withConnection(
+        conn -> {
+          var func =
+              (Procedure.FunctionProcedure<?>)
+                  Procedure.buildFunction(
+                      "ra_does_not_exist_xyz", List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
 
-      RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
+          RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
-      assertFalse("Missing function should fail", analysis.succeeded());
-      assertFalse("routineExists should be false", analysis.routineExists());
+          assertFalse("Missing function should fail", analysis.succeeded());
+          assertFalse("routineExists should be false", analysis.routineExists());
 
-      return null;
-    });
+          return null;
+        });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -221,32 +262,37 @@ public class RoutineAnalysisTest {
 
   @Test
   public void testReportFormatting() {
-    withConnection(conn -> {
-      conn.createStatement().execute("""
-          CREATE OR REPLACE FUNCTION ra_fmt(x int4) RETURNS text AS $$
-          BEGIN RETURN x::text; END;
-          $$ LANGUAGE plpgsql
-          """);
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  """
+                  CREATE OR REPLACE FUNCTION ra_fmt(x int4) RETURNS text AS $$
+                  BEGIN RETURN x::text; END;
+                  $$ LANGUAGE plpgsql
+                  """);
 
-      var func = (Procedure.FunctionProcedure<?>) Procedure.buildFunction("ra_fmt",
-          List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
+          var func =
+              (Procedure.FunctionProcedure<?>)
+                  Procedure.buildFunction(
+                      "ra_fmt", List.of(ParamDef.input(PgTypes.int4)), PgTypes.int4);
 
-      RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
+          RoutineAnalysis analysis = RoutineAnalyzer.analyzeFunction(func, conn);
 
-      String plain = analysis.report();
-      String colored = analysis.styledReport().render();
+          String plain = analysis.report();
+          String colored = analysis.styledReport().render();
 
-      System.out.println("=== Plain ===");
-      System.out.println(plain);
-      System.out.println("=== Colored ===");
-      System.out.println(colored);
+          System.out.println("=== Plain ===");
+          System.out.println(plain);
+          System.out.println("=== Colored ===");
+          System.out.println(colored);
 
-      assertTrue("Plain report should contain routine name", plain.contains("ra_fmt"));
-      assertTrue("Colored report should contain ANSI codes", colored.contains("\u001b["));
+          assertTrue("Plain report should contain routine name", plain.contains("ra_fmt"));
+          assertTrue("Colored report should contain ANSI codes", colored.contains("\u001b["));
 
-      assertFalse("Wrong return type should fail", analysis.succeeded());
+          assertFalse("Wrong return type should fail", analysis.succeeded());
 
-      return null;
-    });
+          return null;
+        });
   }
 }

@@ -4,7 +4,7 @@ import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object NullableType:
-  //start
+  // start
   val notNull: OracleType[Int] = OracleTypes.numberInt
   val nullable: OracleType[Option[Int]] = OracleTypes.numberInt.opt
-  //stop
+  // stop

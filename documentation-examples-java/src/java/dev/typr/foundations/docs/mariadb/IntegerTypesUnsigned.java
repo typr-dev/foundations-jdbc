@@ -8,9 +8,9 @@ import dev.typr.foundations.data.Uint8;
 
 @SuppressWarnings("unused")
 public class IntegerTypesUnsigned {
-    //start
-    MariaType<Uint1> unsignedTiny = MariaTypes.tinyintUnsigned;
-    MariaType<Uint4> unsignedInt = MariaTypes.intUnsigned;
-    MariaType<Uint8> unsignedBig = MariaTypes.bigintUnsigned;
-    //stop
+  // start
+  MariaType<Uint1> unsignedTiny = MariaTypes.tinyintUnsigned;
+  MariaType<Uint4> unsignedInt = MariaTypes.intUnsigned;
+  MariaType<Uint8> unsignedBig = MariaTypes.bigintUnsigned;
+  // stop
 }

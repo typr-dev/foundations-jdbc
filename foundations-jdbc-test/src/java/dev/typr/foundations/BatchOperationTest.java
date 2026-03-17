@@ -38,8 +38,7 @@ public class BatchOperationTest {
 
       // updateMany
       String t1 = t();
-      conn.createStatement()
-          .execute("CREATE TABLE " + t1 + " (name VARCHAR, quantity INTEGER)");
+      conn.createStatement().execute("CREATE TABLE " + t1 + " (name VARCHAR, quantity INTEGER)");
       assertBatchInsert(conn, ip, t1, 3);
 
       // onMany — all columns
@@ -62,8 +61,7 @@ public class BatchOperationTest {
 
       // updateReturningEach
       String t4 = t();
-      conn.createStatement()
-          .execute("CREATE TABLE " + t4 + " (name VARCHAR, quantity INTEGER)");
+      conn.createStatement().execute("CREATE TABLE " + t4 + " (name VARCHAR, quantity INTEGER)");
       assertReturningEach(conn, ip, t4);
 
       // single .on() then .onMany() on same template
@@ -74,8 +72,7 @@ public class BatchOperationTest {
 
       // empty batch
       String t6 = t();
-      conn.createStatement()
-          .execute("CREATE TABLE " + t6 + " (name VARCHAR, quantity INTEGER)");
+      conn.createStatement().execute("CREATE TABLE " + t6 + " (name VARCHAR, quantity INTEGER)");
       int[] empty =
           Fragment.of("INSERT INTO " + t6 + " (name, quantity) VALUES (?, ?)")
               .updateMany(ip, Collections.<Item>emptyIterator())
@@ -115,10 +112,7 @@ public class BatchOperationTest {
 
               String t3 = t();
               conn.createStatement()
-                  .execute(
-                      "CREATE TABLE "
-                          + t3
-                          + " (id SERIAL, name TEXT, quantity INTEGER)");
+                  .execute("CREATE TABLE " + t3 + " (id SERIAL, name TEXT, quantity INTEGER)");
               assertOnManySkipId(conn, pp, t3);
 
               String t4 = t();
@@ -169,7 +163,8 @@ public class BatchOperationTest {
                   .execute(
                       "CREATE TABLE "
                           + t3
-                          + " (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(200), quantity INT)");
+                          + " (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(200), quantity"
+                          + " INT)");
               assertOnManySkipId(conn, pp, t3);
 
               String t4 = t();
@@ -253,8 +248,7 @@ public class BatchOperationTest {
 
               String t1 = t();
               conn.createStatement()
-                  .execute(
-                      "CREATE TABLE " + t1 + " (name VARCHAR2(200), quantity NUMBER(10))");
+                  .execute("CREATE TABLE " + t1 + " (name VARCHAR2(200), quantity NUMBER(10))");
               assertBatchInsert(conn, ip, t1, 3);
 
               String t2 = t();
@@ -270,7 +264,8 @@ public class BatchOperationTest {
                   .execute(
                       "CREATE TABLE "
                           + t3
-                          + " (id NUMBER(10) GENERATED ALWAYS AS IDENTITY, name VARCHAR2(200), quantity NUMBER(10))");
+                          + " (id NUMBER(10) GENERATED ALWAYS AS IDENTITY, name VARCHAR2(200),"
+                          + " quantity NUMBER(10))");
               assertOnManySkipId(conn, pp, t3);
 
               String t4 = t();
@@ -312,9 +307,7 @@ public class BatchOperationTest {
               String t2 = t();
               conn.createStatement()
                   .execute(
-                      "CREATE TABLE "
-                          + t2
-                          + " (id INTEGER, name VARCHAR(200), quantity INTEGER)");
+                      "CREATE TABLE " + t2 + " (id INTEGER, name VARCHAR(200), quantity INTEGER)");
               assertOnMany(conn, pp, t2, 3);
 
               String t3 = t();
@@ -322,15 +315,14 @@ public class BatchOperationTest {
                   .execute(
                       "CREATE TABLE "
                           + t3
-                          + " (id INTEGER GENERATED ALWAYS AS IDENTITY, name VARCHAR(200), quantity INTEGER)");
+                          + " (id INTEGER GENERATED ALWAYS AS IDENTITY, name VARCHAR(200), quantity"
+                          + " INTEGER)");
               assertOnManySkipId(conn, pp, t3);
 
               String t4 = t();
               conn.createStatement()
                   .execute(
-                      "CREATE TABLE "
-                          + t4
-                          + " (id INTEGER, name VARCHAR(200), quantity INTEGER)");
+                      "CREATE TABLE " + t4 + " (id INTEGER, name VARCHAR(200), quantity INTEGER)");
               assertSingleThenBatch(conn, pp, t4);
 
               return null;
@@ -343,13 +335,15 @@ public class BatchOperationTest {
       List.of(new Item("apple", 10), new Item("banana", 20), new Item("cherry", 30));
 
   private static final List<IdItem> ID_ITEMS =
-      List.of(new IdItem(1, "widget", 100), new IdItem(2, "gadget", 200), new IdItem(3, "doohickey", 300));
+      List.of(
+          new IdItem(1, "widget", 100),
+          new IdItem(2, "gadget", 200),
+          new IdItem(3, "doohickey", 300));
 
   static void assertBatchInsert(
       Connection conn, RowCodecNamed<Item> parser, String table, int expectedCount)
       throws SQLException {
-    Fragment insert =
-        Fragment.of("INSERT INTO " + table + " (name, quantity) VALUES (?, ?)");
+    Fragment insert = Fragment.of("INSERT INTO " + table + " (name, quantity) VALUES (?, ?)");
     int[] counts = insert.updateMany(parser, ITEMS.iterator()).run(conn);
     assertEquals(expectedCount, counts.length);
 
@@ -394,8 +388,8 @@ public class BatchOperationTest {
     assertEquals("doohickey", result.get(2).name());
   }
 
-  static void assertOnManySkipId(
-      Connection conn, RowCodecNamed<IdItem> parser, String table) throws SQLException {
+  static void assertOnManySkipId(Connection conn, RowCodecNamed<IdItem> parser, String table)
+      throws SQLException {
     RowTemplate.Update<IdItem> template =
         Fragment.of("INSERT INTO " + table + " (name, quantity) VALUES (")
             .paramRow(parser, "id")
@@ -423,15 +417,12 @@ public class BatchOperationTest {
     assertEquals("doohickey", result.get(2).name());
   }
 
-  static void assertReturningEach(
-      Connection conn, RowCodecNamed<Item> parser, String table) throws SQLException {
+  static void assertReturningEach(Connection conn, RowCodecNamed<Item> parser, String table)
+      throws SQLException {
     Fragment insert =
         Fragment.of(
-            "INSERT INTO "
-                + table
-                + " (name, quantity) VALUES (?, ?) RETURNING name, quantity");
-    List<Item> returned =
-        insert.updateReturningEach(parser, ITEMS.iterator()).run(conn);
+            "INSERT INTO " + table + " (name, quantity) VALUES (?, ?) RETURNING name, quantity");
+    List<Item> returned = insert.updateReturningEach(parser, ITEMS.iterator()).run(conn);
     assertEquals(3, returned.size());
     assertEquals("apple", returned.get(0).name());
     assertEquals(10, returned.get(0).quantity());
@@ -441,8 +432,8 @@ public class BatchOperationTest {
     assertEquals(30, returned.get(2).quantity());
   }
 
-  static void assertSingleThenBatch(
-      Connection conn, RowCodecNamed<IdItem> parser, String table) throws SQLException {
+  static void assertSingleThenBatch(Connection conn, RowCodecNamed<IdItem> parser, String table)
+      throws SQLException {
     RowTemplate.Update<IdItem> template =
         Fragment.of("INSERT INTO " + table + " (")
             .append(parser.columnList())

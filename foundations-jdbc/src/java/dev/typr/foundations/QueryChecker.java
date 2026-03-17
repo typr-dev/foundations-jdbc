@@ -1,4 +1,5 @@
 package dev.typr.foundations;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,8 @@ public interface QueryChecker {
 
   default void check(Fragment fragment, ResultSetParser<?> parser) {
     QueryAnalysis analysis =
-        transactor().execute(conn -> QueryAnalyzer.analyzeFragmentAndParser(fragment, parser, conn));
+        transactor()
+            .execute(conn -> QueryAnalyzer.analyzeFragmentAndParser(fragment, parser, conn));
     if (!analysis.succeeded()) {
       throw new AssertionError("Query type check failed:\n" + analysis.report());
     }
@@ -41,8 +43,7 @@ public interface QueryChecker {
   default CheckReport analyzeAll(List<? extends Analyzable> analyzables) {
     List<QueryAnalysis> all = new ArrayList<>();
     for (Analyzable a : analyzables) {
-      List<QueryAnalysis> analyses =
-          transactor().execute(conn -> QueryAnalyzer.analyze(a, conn));
+      List<QueryAnalysis> analyses = transactor().execute(conn -> QueryAnalyzer.analyze(a, conn));
       all.addAll(analyses);
     }
     return new CheckReport(List.copyOf(all));

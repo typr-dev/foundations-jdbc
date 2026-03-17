@@ -1,4 +1,5 @@
 package dev.typr.foundations;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -7,10 +8,12 @@ public record RoutineAnalysis(
     RoutineKind kind,
     List<ParamCheck> paramChecks,
     Optional<ReturnCheck> returnCheck,
-    boolean routineExists
-) {
+    boolean routineExists) {
 
-  public enum RoutineKind { FUNCTION, PROCEDURE }
+  public enum RoutineKind {
+    FUNCTION,
+    PROCEDURE
+  }
 
   public record ParamCheck(
       int position,
@@ -19,14 +22,9 @@ public record RoutineAnalysis(
       String declaredMode,
       String expectedMode,
       boolean typeMatch,
-      boolean modeMatch
-  ) {}
+      boolean modeMatch) {}
 
-  public record ReturnCheck(
-      String declaredType,
-      String returnedType,
-      boolean match
-  ) {}
+  public record ReturnCheck(String declaredType, String returnedType, boolean match) {}
 
   public boolean succeeded() {
     if (!routineExists) return false;
@@ -40,12 +38,23 @@ public record RoutineAnalysis(
   public Str styledReport() {
     var b = Str.builder();
     b.newline();
-    b.cyan("╔══════════════════════════════════════════════════════════════════════════════╗").newline();
-    b.cyan("║").bold("  Routine Analysis Report                                                     ").cyan("║").newline();
-    b.cyan("╚══════════════════════════════════════════════════════════════════════════════╝").newline();
+    b.cyan("╔══════════════════════════════════════════════════════════════════════════════╗")
+        .newline();
+    b.cyan("║")
+        .bold("  Routine Analysis Report                                                     ")
+        .cyan("║")
+        .newline();
+    b.cyan("╚══════════════════════════════════════════════════════════════════════════════╝")
+        .newline();
     b.newline();
 
-    b.bold("Routine: ").cyan(routineName).plain(" (").plain(kind.name().toLowerCase()).plain(")").newline().newline();
+    b.bold("Routine: ")
+        .cyan(routineName)
+        .plain(" (")
+        .plain(kind.name().toLowerCase())
+        .plain(")")
+        .newline()
+        .newline();
 
     if (!routineExists) {
       b.boldRed("✗ Routine not found: " + routineName).newline();

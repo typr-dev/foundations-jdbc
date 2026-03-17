@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * JDBC metadata extracted from PreparedStatement. Used to compare what the database expects
- * against what our types claim to provide.
+ * JDBC metadata extracted from PreparedStatement. Used to compare what the database expects against
+ * what our types claim to provide.
  */
 public sealed interface JdbcMeta {
 
@@ -20,14 +20,11 @@ public sealed interface JdbcMeta {
    * @param position 1-indexed position
    * @param jdbcType java.sql.Types constant
    * @param vendorTypeName database-specific type name (e.g., "int4", "varchar")
-   * @param nullable ParameterMetaData.parameterNoNulls, parameterNullable, or parameterNullableUnknown
+   * @param nullable ParameterMetaData.parameterNoNulls, parameterNullable, or
+   *     parameterNullableUnknown
    */
-  record ParameterMeta(
-      int position,
-      int jdbcType,
-      String vendorTypeName,
-      int nullable
-  ) implements JdbcMeta {
+  record ParameterMeta(int position, int jdbcType, String vendorTypeName, int nullable)
+      implements JdbcMeta {
 
     public boolean isNullable() {
       return nullable != ParameterMetaData.parameterNoNulls;
@@ -54,8 +51,8 @@ public sealed interface JdbcMeta {
       String vendorTypeName,
       int nullable,
       String columnName,
-      String columnLabel
-  ) implements JdbcMeta {
+      String columnLabel)
+      implements JdbcMeta {
 
     public boolean isNullable() {
       return nullable != ResultSetMetaData.columnNoNulls;
@@ -71,8 +68,8 @@ public sealed interface JdbcMeta {
   }
 
   /**
-   * Extract parameter metadata from a prepared statement.
-   * Note: Some databases (MySQL/MariaDB) return unreliable parameter metadata.
+   * Extract parameter metadata from a prepared statement. Note: Some databases (MySQL/MariaDB)
+   * return unreliable parameter metadata.
    */
   static List<ParameterMeta> extractParameters(PreparedStatement ps) throws SQLException {
     List<ParameterMeta> result = new ArrayList<>();
@@ -80,12 +77,9 @@ public sealed interface JdbcMeta {
       ParameterMetaData pmd = ps.getParameterMetaData();
       int count = pmd.getParameterCount();
       for (int i = 1; i <= count; i++) {
-        result.add(new ParameterMeta(
-            i,
-            pmd.getParameterType(i),
-            pmd.getParameterTypeName(i),
-            pmd.isNullable(i)
-        ));
+        result.add(
+            new ParameterMeta(
+                i, pmd.getParameterType(i), pmd.getParameterTypeName(i), pmd.isNullable(i)));
       }
     } catch (SQLException e) {
       // Some drivers don't support parameter metadata - return empty list
@@ -94,9 +88,7 @@ public sealed interface JdbcMeta {
     return result;
   }
 
-  /**
-   * Extract column metadata from a prepared statement (without executing).
-   */
+  /** Extract column metadata from a prepared statement (without executing). */
   static List<ColumnMeta> extractColumns(PreparedStatement ps) throws SQLException {
     List<ColumnMeta> result = new ArrayList<>();
     ResultSetMetaData rsmd = ps.getMetaData();
@@ -105,21 +97,19 @@ public sealed interface JdbcMeta {
     }
     int count = rsmd.getColumnCount();
     for (int i = 1; i <= count; i++) {
-      result.add(new ColumnMeta(
-          i,
-          rsmd.getColumnType(i),
-          rsmd.getColumnTypeName(i),
-          rsmd.isNullable(i),
-          rsmd.getColumnName(i),
-          rsmd.getColumnLabel(i)
-      ));
+      result.add(
+          new ColumnMeta(
+              i,
+              rsmd.getColumnType(i),
+              rsmd.getColumnTypeName(i),
+              rsmd.isNullable(i),
+              rsmd.getColumnName(i),
+              rsmd.getColumnLabel(i)));
     }
     return result;
   }
 
-  /**
-   * Convert a java.sql.Types constant to a human-readable name.
-   */
+  /** Convert a java.sql.Types constant to a human-readable name. */
   static String jdbcTypeName(int jdbcType) {
     return switch (jdbcType) {
       case Types.BIT -> "BIT";

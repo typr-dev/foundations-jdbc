@@ -4,11 +4,11 @@ import java.time.Instant
 
 @SuppressWarnings(Array("unused"))
 object ProductRow:
-  //start
+  // start
   case class Product(
-    id: Int,
-    name: String,
-    price: BigDecimal,
-    createdAt: Option[Instant]
+      id: Int,
+      name: String,
+      price: BigDecimal,
+      createdAt: Option[Instant]
   )
-  //stop
+  // stop

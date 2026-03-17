@@ -5,10 +5,11 @@ import java.sql.ResultSetMetaData;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Describes a column parsing error with all relevant context.
- * Can render as styled text (with or without ANSI colors).
+ * Describes a column parsing error with all relevant context. Can render as styled text (with or
+ * without ANSI colors).
  *
  * <p>Usage:
+ *
  * <pre>{@code
  * ColumnParseError error = ColumnParseError.from(rs, row, column, dbType, cause);
  *
@@ -30,8 +31,7 @@ public record ColumnParseError(
     @Nullable Boolean actualNullable,
     @Nullable String valuePreview,
     int row,
-    @Nullable Exception cause
-) {
+    @Nullable Exception cause) {
 
   // ==================== Factory ====================
 
@@ -52,7 +52,8 @@ public record ColumnParseError(
       if (nullable != ResultSetMetaData.columnNullableUnknown) {
         actualNullable = (nullable == ResultSetMetaData.columnNullable);
       }
-    } catch (Exception ignored) {}
+    } catch (Exception ignored) {
+    }
 
     // Try to get value preview
     try {
@@ -72,21 +73,30 @@ public record ColumnParseError(
         } else {
           valuePreview = bytesToHex(bytes, 25);
         }
-      } catch (Exception ignored) {}
+      } catch (Exception ignored) {
+      }
     }
 
     String expectedType = tpe != null ? tpe.typename().sqlType() : null;
     boolean expectedNullable = tpe != null && tpe.isNullable();
 
     return new ColumnParseError(
-        column, columnName, expectedType, expectedNullable,
-        actualType, actualNullable, valuePreview, row, cause);
+        column,
+        columnName,
+        expectedType,
+        expectedNullable,
+        actualType,
+        actualNullable,
+        valuePreview,
+        row,
+        cause);
   }
 
   // ==================== Rendering ====================
 
   /**
    * Detailed multi-line format, similar to Query Analysis output.
+   *
    * <pre>
    * Failed to read column 3 'created_at'
    *    │ Expected: timestamptz
@@ -151,6 +161,7 @@ public record ColumnParseError(
 
   /**
    * Brief single-line format for compact display.
+   *
    * <pre>
    * Column 3 'created_at': expected timestamptz, got TIMESTAMP (value: "2024-01-15...")
    * </pre>
@@ -165,8 +176,7 @@ public record ColumnParseError(
     b.plain(": ");
 
     if (expectedType != null && actualType != null) {
-      b.plain("expected ").green(expectedType)
-       .plain(", got ").red(actualType);
+      b.plain("expected ").green(expectedType).plain(", got ").red(actualType);
     } else if (expectedType != null) {
       b.plain("expected ").green(expectedType);
     } else if (actualType != null) {
@@ -174,9 +184,8 @@ public record ColumnParseError(
     }
 
     if (valuePreview != null && !"null".equals(valuePreview)) {
-      String preview = valuePreview.length() > 20
-          ? valuePreview.substring(0, 20) + "..."
-          : valuePreview;
+      String preview =
+          valuePreview.length() > 20 ? valuePreview.substring(0, 20) + "..." : valuePreview;
       b.plain(" (value: ").yellow("\"" + preview + "\"").plain(")");
     }
 

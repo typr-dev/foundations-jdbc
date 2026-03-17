@@ -120,11 +120,12 @@ public sealed interface MariaRead<A> extends DbRead<A>
     @Override
     public MariaRead<Optional<B>> opt() {
       MariaRead<Optional<A>> underlyingOpt = underlying.opt();
-      return new Nullable<>((rs, col) -> {
-        Optional<A> maybeA = underlyingOpt.read(rs, col);
-        if (maybeA.isEmpty()) return Optional.empty();
-        return Optional.of(f.apply(maybeA.get()));
-      });
+      return new Nullable<>(
+          (rs, col) -> {
+            Optional<A> maybeA = underlyingOpt.read(rs, col);
+            if (maybeA.isEmpty()) return Optional.empty();
+            return Optional.of(f.apply(maybeA.get()));
+          });
     }
   }
 

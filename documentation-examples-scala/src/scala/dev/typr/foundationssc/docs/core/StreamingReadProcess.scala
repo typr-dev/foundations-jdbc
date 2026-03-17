@@ -6,13 +6,16 @@ import dev.typr.foundationssc.Fragment.*
 object StreamingReadProcess:
   var tx: Transactor = null // placeholder
 
-  //start
+  // start
   // Process rows lazily without loading all into memory
   def countExpensiveProducts(): Long =
-    val streaming = Fragment.of("SELECT price FROM products")
+    val streaming = Fragment
+      .of("SELECT price FROM products")
       .streamingQuery(PgTypes.int4, 512)
 
-    streaming.map { cursor =>
-      cursor.count(_ > 100).toLong
-    }.transact(tx)
-  //stop
+    streaming
+      .map { cursor =>
+        cursor.count(_ > 100).toLong
+      }
+      .transact(tx)
+  // stop

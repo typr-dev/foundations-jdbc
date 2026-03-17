@@ -2,11 +2,7 @@ package dev.typr.foundations;
 
 import java.util.Set;
 
-public record AnalysisOptions(
-    Set<String> vendorTypeNames,
-    boolean nullableOk,
-    boolean unchecked
-) {
+public record AnalysisOptions(Set<String> vendorTypeNames, boolean nullableOk, boolean unchecked) {
   public static final AnalysisOptions EMPTY = new AnalysisOptions(Set.of(), false, false);
 
   public AnalysisOptions withNullableOk() {

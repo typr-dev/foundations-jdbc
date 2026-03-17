@@ -124,7 +124,8 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
     return SimpleDataSource.create(config, settings).transactor();
   }
 
-  public static Transactor create(DatabaseConfig config, ConnectionSettings settings, Strategy strategy) {
+  public static Transactor create(
+      DatabaseConfig config, ConnectionSettings settings, Strategy strategy) {
     return SimpleDataSource.create(config, settings).transactor(strategy);
   }
 

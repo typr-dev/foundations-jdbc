@@ -114,11 +114,12 @@ public sealed interface Db2Read<A> extends DbRead<A>
     @Override
     public Db2Read<Optional<B>> opt() {
       Db2Read<Optional<A>> underlyingOpt = underlying.opt();
-      return new Nullable<>((rs, col) -> {
-        Optional<A> maybeA = underlyingOpt.read(rs, col);
-        if (maybeA.isEmpty()) return Optional.empty();
-        return Optional.of(f.apply(maybeA.get()));
-      });
+      return new Nullable<>(
+          (rs, col) -> {
+            Optional<A> maybeA = underlyingOpt.read(rs, col);
+            if (maybeA.isEmpty()) return Optional.empty();
+            return Optional.of(f.apply(maybeA.get()));
+          });
     }
   }
 

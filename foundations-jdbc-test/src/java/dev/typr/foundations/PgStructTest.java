@@ -29,7 +29,8 @@ public class PgStructTest {
   @BeforeClass
   public static void setupSchema() {
     var pg = Containers.postgres();
-    try (Connection conn = DriverManager.getConnection(pg.getJdbcUrl(), pg.getUsername(), pg.getPassword())) {
+    try (Connection conn =
+        DriverManager.getConnection(pg.getJdbcUrl(), pg.getUsername(), pg.getPassword())) {
       conn.setAutoCommit(true);
       try (Statement stmt = conn.createStatement()) {
         stmt.execute("DROP TABLE IF EXISTS composite_test CASCADE");

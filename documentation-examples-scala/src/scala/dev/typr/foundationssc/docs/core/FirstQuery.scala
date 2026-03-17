@@ -5,10 +5,11 @@ import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object FirstQuery:
-  //start
+  // start
   case class City(name: String, population: Int)
 
-  val cityCodec: RowCodecNamed[City] = RowCodec.namedBuilder[City]()
+  val cityCodec: RowCodecNamed[City] = RowCodec
+    .namedBuilder[City]()
     .field("name", DuckDbTypes.varchar)(_.name)
     .field("population", DuckDbTypes.integer)(_.population)
     .build(City.apply)
@@ -16,4 +17,4 @@ object FirstQuery:
   val findCities: Operation[List[City]] =
     sql"SELECT ${cityCodec.columnList} FROM city ORDER BY population DESC"
       .query(cityCodec.all())
-  //stop
+  // stop

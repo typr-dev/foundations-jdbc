@@ -18,7 +18,6 @@ public record MariaType<A>(
     AnalysisOptions analysisOptions)
     implements DbType<A> {
 
-
   @Override
   public java.util.Optional<DbOutParam<A>> outParam() {
     return java.util.Optional.of(mariaOutParam);
@@ -43,8 +42,14 @@ public record MariaType<A>(
     return Set.copyOf(all);
   }
 
-  public MariaType<A> unchecked() { return withAnalysis(analysisOptions.withUnchecked()); }
-  public MariaType<A> nullableOk() { return withAnalysis(analysisOptions.withNullableOk()); }
+  public MariaType<A> unchecked() {
+    return withAnalysis(analysisOptions.withUnchecked());
+  }
+
+  public MariaType<A> nullableOk() {
+    return withAnalysis(analysisOptions.withNullableOk());
+  }
+
   public MariaType<A> withAnalysis(AnalysisOptions opts) {
     return new MariaType<>(typename, read, write, mariaJson, mariaOutParam, opts);
   }
@@ -87,14 +92,22 @@ public record MariaType<A>(
 
   public MariaType<Optional<A>> opt() {
     return new MariaType<>(
-        typename.opt(), read.opt(), write.opt(typename), mariaJson.opt(),
-        mariaOutParam.opt(), analysisOptions);
+        typename.opt(),
+        read.opt(),
+        write.opt(typename),
+        mariaJson.opt(),
+        mariaOutParam.opt(),
+        analysisOptions);
   }
 
   public <B> MariaType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     return new MariaType<>(
-        typename.as(), read.map(f), write.contramap(g), mariaJson.transform(f, g),
-        mariaOutParam.map(f), analysisOptions);
+        typename.as(),
+        read.map(f),
+        write.contramap(g),
+        mariaJson.transform(f, g),
+        mariaOutParam.map(f),
+        analysisOptions);
   }
 
   public <B> MariaType<B> to(Bijection<A, B> bijection) {
@@ -108,13 +121,15 @@ public record MariaType<A>(
   }
 
   public static <A> MariaType<A> of(
-      String tpe, MariaRead<A> r, MariaWrite<A> w, MariaJson<A> j,
-      MariaOutParam<A> cr) {
+      String tpe, MariaRead<A> r, MariaWrite<A> w, MariaJson<A> j, MariaOutParam<A> cr) {
     return new MariaType<>(MariaTypename.of(tpe), r, w, j, cr, AnalysisOptions.EMPTY);
   }
 
   public static <A> MariaType<A> of(
-      MariaTypename<A> typename, MariaRead<A> r, MariaWrite<A> w, MariaJson<A> j,
+      MariaTypename<A> typename,
+      MariaRead<A> r,
+      MariaWrite<A> w,
+      MariaJson<A> j,
       MariaOutParam<A> cr) {
     return new MariaType<>(typename, r, w, j, cr, AnalysisOptions.EMPTY);
   }

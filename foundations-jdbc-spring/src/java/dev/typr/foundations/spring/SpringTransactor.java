@@ -1,6 +1,5 @@
 package dev.typr.foundations.spring;
 
-import dev.typr.foundations.QueryListener;
 import dev.typr.foundations.SqlConsumer;
 import dev.typr.foundations.Transactor;
 import dev.typr.foundations.Transactor.Strategy;

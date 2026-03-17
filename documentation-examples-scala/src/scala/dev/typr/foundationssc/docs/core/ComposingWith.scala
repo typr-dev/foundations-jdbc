@@ -3,16 +3,16 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-
 @SuppressWarnings(Array("unused"))
 object ComposingWith:
-  //start
+  // start
   case class User(id: Int, name: String)
   case class Order(id: Int, userId: Int, product: String)
   case class Dashboard(userCount: Long, recentOrders: List[Order])
   case class Stats(userCount: Long, orderCount: Long, revenue: Long)
 
-  val orderCodec: RowCodec[Order] = RowCodec.builder[Order]()
+  val orderCodec: RowCodec[Order] = RowCodec
+    .builder[Order]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.int4)(_.userId)
     .field(PgTypes.text)(_.product)
@@ -29,7 +29,8 @@ object ComposingWith:
       .query(orderCodec.all())
 
   def dashboard(): Dashboard =
-    countUsers.combineWith(recentOrders)(Dashboard.apply)
+    countUsers
+      .combineWith(recentOrders)(Dashboard.apply)
       .transact(tx)
 
   // Three-way: all run in one transaction
@@ -44,4 +45,4 @@ object ComposingWith:
     countUsers
       .combineWith(countOrders, totalRevenue)(Stats.apply)
       .transact(tx)
-  //stop
+  // stop

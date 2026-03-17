@@ -3,12 +3,11 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
-
 @SuppressWarnings(Array("unused"))
 object ComposingSequence:
   var tx: Transactor = null // placeholder
 
-  //start
+  // start
   val names: List[String] =
     List("Alice", "Bob", "Charlie")
 
@@ -22,4 +21,4 @@ object ComposingSequence:
       }
 
     Operation.sequence(inserts).transact(tx)
-  //stop
+  // stop

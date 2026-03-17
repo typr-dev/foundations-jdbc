@@ -60,11 +60,11 @@ public interface MariaTypes {
 
   MariaType<Integer> int_ =
       MariaType.of(
-          "INT",
-          MariaRead.readInteger,
-          MariaWrite.writeInteger,
-          MariaJson.int4,
-          MariaOutParam.readInteger)
+              "INT",
+              MariaRead.readInteger,
+              MariaWrite.writeInteger,
+              MariaJson.int4,
+              MariaOutParam.readInteger)
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("integer"));
 
   MariaType<Long> bigint =
@@ -107,11 +107,11 @@ public interface MariaTypes {
   // INT UNSIGNED: 0-4294967295, wrapped in Uint4
   MariaType<Uint4> intUnsigned =
       MariaType.of(
-          "INT UNSIGNED",
-          MariaRead.readLong.map(Uint4::new),
-          MariaWrite.writeLong.contramap(Uint4::value),
-          MariaJson.int8.transform(Uint4::new, Uint4::value),
-          MariaOutParam.readLong.map(Uint4::new))
+              "INT UNSIGNED",
+              MariaRead.readLong.map(Uint4::new),
+              MariaWrite.writeLong.contramap(Uint4::value),
+              MariaJson.int8.transform(Uint4::new, Uint4::value),
+              MariaOutParam.readLong.map(Uint4::new))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("integer unsigned"));
 
   // BIGINT UNSIGNED: 0-18446744073709551615, wrapped in Uint8
@@ -410,11 +410,11 @@ public interface MariaTypes {
    */
   static <E extends Enum<E>> MariaType<E> ofEnum(String sqlType, Function<String, E> fromString) {
     return MariaType.<E>of(
-        sqlType,
-        MariaRead.readString.map(fromString::apply),
-        MariaWrite.writeString.contramap(Enum::name),
-        MariaJson.text.transform(fromString::apply, Enum::name),
-        MariaOutParam.readString.map(fromString::apply))
+            sqlType,
+            MariaRead.readString.map(fromString::apply),
+            MariaWrite.writeString.contramap(Enum::name),
+            MariaJson.text.transform(fromString::apply, Enum::name),
+            MariaOutParam.readString.map(fromString::apply))
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
   }
 
@@ -423,11 +423,11 @@ public interface MariaTypes {
   /** MariaSet wrapper for SET columns. */
   MariaType<MariaSet> set =
       MariaType.of(
-          "SET",
-          MariaRead.readString.map(MariaSet::fromString),
-          MariaWrite.writeString.contramap(MariaSet::toCommaSeparated),
-          MariaJson.text.transform(MariaSet::fromString, MariaSet::toCommaSeparated),
-          MariaOutParam.readString.map(MariaSet::fromString))
+              "SET",
+              MariaRead.readString.map(MariaSet::fromString),
+              MariaWrite.writeString.contramap(MariaSet::toCommaSeparated),
+              MariaJson.text.transform(MariaSet::fromString, MariaSet::toCommaSeparated),
+              MariaOutParam.readString.map(MariaSet::fromString))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
 
   // ==================== JSON Type ====================
@@ -445,20 +445,20 @@ public interface MariaTypes {
 
   MariaType<Inet4> inet4 =
       MariaType.of(
-          "INET4",
-          MariaRead.readString.map(Inet4::parse),
-          MariaWrite.writeString.contramap(Inet4::value),
-          MariaJson.text.transform(Inet4::parse, Inet4::value),
-          MariaOutParam.readString.map(Inet4::parse))
+              "INET4",
+              MariaRead.readString.map(Inet4::parse),
+              MariaWrite.writeString.contramap(Inet4::value),
+              MariaJson.text.transform(Inet4::parse, Inet4::value),
+              MariaOutParam.readString.map(Inet4::parse))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
 
   MariaType<Inet6> inet6 =
       MariaType.of(
-          "INET6",
-          MariaRead.readString.map(Inet6::parse),
-          MariaWrite.writeString.contramap(Inet6::value),
-          MariaJson.text.transform(Inet6::parse, Inet6::value),
-          MariaOutParam.readString.map(Inet6::parse))
+              "INET6",
+              MariaRead.readString.map(Inet6::parse),
+              MariaWrite.writeString.contramap(Inet6::value),
+              MariaJson.text.transform(Inet6::parse, Inet6::value),
+              MariaOutParam.readString.map(Inet6::parse))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
 
   // ==================== Spatial Types ====================
@@ -574,7 +574,8 @@ public interface MariaTypes {
               MariaWrite.writeString,
               MariaJson.text,
               MariaOutParam.readString)
-          .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+          .transform(
+              dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 
   // ==================== JSON-Encoded Row Types ====================
 

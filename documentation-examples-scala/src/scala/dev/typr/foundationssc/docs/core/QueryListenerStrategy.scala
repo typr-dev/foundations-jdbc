@@ -7,8 +7,9 @@ import dev.typr.foundations.{QueryListener, QueryEvent}
 @SuppressWarnings(Array("unused"))
 object QueryListenerStrategy:
   val logger: QueryListener = QueryListener.NOOP
-  //start
+  // start
   val strategy: Transactor.Strategy =
-    Transactor.defaultStrategy()
+    Transactor
+      .defaultStrategy()
       .replaceListener(logger)
-  //stop
+  // stop

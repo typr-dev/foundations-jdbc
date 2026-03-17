@@ -3,7 +3,6 @@ package dev.typr.foundations;
 import dev.typr.foundations.data.JsonValue;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -124,8 +123,14 @@ public record DuckDbUnion<A>(
               return tv.value();
             });
 
-    return new DuckDbType<>(typename.asGeneric(), duckDbRead, duckDbWrite, stringifier, json,
-        unionMapSupport, AnalysisOptions.EMPTY);
+    return new DuckDbType<>(
+        typename.asGeneric(),
+        duckDbRead,
+        duckDbWrite,
+        stringifier,
+        json,
+        unionMapSupport,
+        AnalysisOptions.EMPTY);
   }
 
   /** Create an optional version of this UNION type. */

@@ -16,7 +16,6 @@ public record PgType<A>(
     AnalysisOptions analysisOptions)
     implements DbType<A> {
 
-
   @Override
   public Optional<DbOutParam<A>> outParam() {
     return Optional.of(pgOutParam);
@@ -46,8 +45,14 @@ public record PgType<A>(
     return Set.copyOf(all);
   }
 
-  public PgType<A> unchecked() { return withAnalysis(analysisOptions.withUnchecked()); }
-  public PgType<A> nullableOk() { return withAnalysis(analysisOptions.withNullableOk()); }
+  public PgType<A> unchecked() {
+    return withAnalysis(analysisOptions.withUnchecked());
+  }
+
+  public PgType<A> nullableOk() {
+    return withAnalysis(analysisOptions.withNullableOk());
+  }
+
   public PgType<A> withAnalysis(AnalysisOptions opts) {
     return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, opts);
   }
@@ -57,7 +62,8 @@ public record PgType<A>(
   }
 
   public PgType<A> withTypename(PgTypename<A> typename) {
-    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions);
+    return new PgType<>(
+        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions);
   }
 
   public PgType<A> withTypename(String sqlType) {
@@ -73,27 +79,33 @@ public record PgType<A>(
   }
 
   public PgType<A> withRead(PgRead<A> read) {
-    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions);
+    return new PgType<>(
+        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions);
   }
 
   public PgType<A> withWrite(PgWrite<A> write) {
-    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions);
+    return new PgType<>(
+        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions);
   }
 
   public PgType<A> withText(PgText<A> text) {
-    return new PgType<>(typename, read, write, text, pgCompositeText, pgJson, pgOutParam, analysisOptions);
+    return new PgType<>(
+        typename, read, write, text, pgCompositeText, pgJson, pgOutParam, analysisOptions);
   }
 
   public PgType<A> withCompositeText(PgCompositeText<A> compositeText) {
-    return new PgType<>(typename, read, write, pgText, compositeText, pgJson, pgOutParam, analysisOptions);
+    return new PgType<>(
+        typename, read, write, pgText, compositeText, pgJson, pgOutParam, analysisOptions);
   }
 
   public PgType<A> withJson(PgJson<A> json) {
-    return new PgType<>(typename, read, write, pgText, pgCompositeText, json, pgOutParam, analysisOptions);
+    return new PgType<>(
+        typename, read, write, pgText, pgCompositeText, json, pgOutParam, analysisOptions);
   }
 
   public PgType<A> withOutParam(PgOutParam<A> outParam) {
-    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, outParam, analysisOptions);
+    return new PgType<>(
+        typename, read, write, pgText, pgCompositeText, pgJson, outParam, analysisOptions);
   }
 
   @Override
@@ -179,7 +191,12 @@ public record PgType<A>(
   }
 
   public static <A> PgType<A> of(
-      String tpe, PgRead<A> r, PgWrite<A> w, PgText<A> t, PgCompositeText<A> ct, PgJson<A> j,
+      String tpe,
+      PgRead<A> r,
+      PgWrite<A> w,
+      PgText<A> t,
+      PgCompositeText<A> ct,
+      PgJson<A> j,
       PgOutParam<A> cr) {
     return new PgType<>(PgTypename.of(tpe), r, w, t, ct, j, cr, AnalysisOptions.EMPTY);
   }

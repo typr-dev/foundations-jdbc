@@ -1,22 +1,22 @@
 package dev.typr.foundations;
+
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Result of analyzing a query against the database. Contains alignment information
- * for parameters and columns, and provides methods to extract errors and generate reports.
+ * Result of analyzing a query against the database. Contains alignment information for parameters
+ * and columns, and provides methods to extract errors and generate reports.
  *
- * <p>This is the main output of {@link QueryAnalyzer#analyze}.</p>
+ * <p>This is the main output of {@link QueryAnalyzer#analyze}.
  */
 public record QueryAnalysis(
     String sql,
     String queryName,
     List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
     List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
-    boolean parameterMetadataAvailable
-) {
+    boolean parameterMetadataAvailable) {
 
   public QueryAnalysis(
       String sql,
@@ -109,9 +109,14 @@ public record QueryAnalysis(
 
     // Header
     b.newline();
-    b.cyan("╔══════════════════════════════════════════════════════════════════════════════╗").newline();
-    b.cyan("║").bold("  Query Analysis Report                                                       ").cyan("║").newline();
-    b.cyan("╚══════════════════════════════════════════════════════════════════════════════╝").newline();
+    b.cyan("╔══════════════════════════════════════════════════════════════════════════════╗")
+        .newline();
+    b.cyan("║")
+        .bold("  Query Analysis Report                                                       ")
+        .cyan("║")
+        .newline();
+    b.cyan("╚══════════════════════════════════════════════════════════════════════════════╝")
+        .newline();
     b.newline();
 
     // SQL
@@ -157,7 +162,12 @@ public record QueryAnalysis(
     } else {
       b.boldRed("✗ " + errors.size() + " error(s) found:").newline().newline();
       for (int i = 0; i < errors.size(); i++) {
-        b.plain("  ").yellow(String.valueOf(i + 1)).plain(". ").add(errors.get(i).styledMessage()).newline().newline();
+        b.plain("  ")
+            .yellow(String.valueOf(i + 1))
+            .plain(". ")
+            .add(errors.get(i).styledMessage())
+            .newline()
+            .newline();
       }
     }
 
@@ -172,8 +182,8 @@ public record QueryAnalysis(
     return styledReport().render();
   }
 
-  private void checkParameterTypes(int pos, DbType<?> declared, JdbcMeta.ParameterMeta expected,
-      List<AlignmentError> errors) {
+  private void checkParameterTypes(
+      int pos, DbType<?> declared, JdbcMeta.ParameterMeta expected, List<AlignmentError> errors) {
     AnalysisOptions opts = declared.analysisOptions();
     if (opts.unchecked()) return;
 
@@ -182,15 +192,22 @@ public record QueryAnalysis(
 
     Set<String> ours = normalizeVendorTypeNames(declared.vendorTypeNames());
     if (!ours.isEmpty() && !ours.contains(metaName)) {
-      errors.add(new AlignmentError.ParameterTypeMismatch(
-          pos, declared, expected, ours,
-          "The declared type does not match the expected vendor type \"" + metaName + "\""
-      ));
+      errors.add(
+          new AlignmentError.ParameterTypeMismatch(
+              pos,
+              declared,
+              expected,
+              ours,
+              "The declared type does not match the expected vendor type \"" + metaName + "\""));
     }
   }
 
-  private void checkColumnTypes(int pos, DbType<?> declared, JdbcMeta.ColumnMeta returned,
-      List<AlignmentError> errors, boolean nullabilityReliable) {
+  private void checkColumnTypes(
+      int pos,
+      DbType<?> declared,
+      JdbcMeta.ColumnMeta returned,
+      List<AlignmentError> errors,
+      boolean nullabilityReliable) {
     AnalysisOptions opts = declared.analysisOptions();
     if (opts.unchecked()) return;
 
@@ -198,14 +215,14 @@ public record QueryAnalysis(
     if (!metaName.isEmpty() && !"unknown".equals(metaName)) {
       Set<String> ours = normalizeVendorTypeNames(declared.vendorTypeNames());
       if (!ours.isEmpty() && !ours.contains(metaName)) {
-        errors.add(new AlignmentError.ColumnTypeMismatch(
-            pos,
-            returned.displayName(),
-            declared,
-            returned,
-            ours,
-            "The declared type does not match the returned vendor type \"" + metaName + "\""
-        ));
+        errors.add(
+            new AlignmentError.ColumnTypeMismatch(
+                pos,
+                returned.displayName(),
+                declared,
+                returned,
+                ours,
+                "The declared type does not match the returned vendor type \"" + metaName + "\""));
       }
     }
 
@@ -215,9 +232,7 @@ public record QueryAnalysis(
         && returned.isNullabilityKnown()
         && returned.nullable() == ResultSetMetaData.columnNullable
         && !declared.isNullable()) {
-      errors.add(new AlignmentError.NullabilityMismatch(
-          pos, returned.displayName(), declared
-      ));
+      errors.add(new AlignmentError.NullabilityMismatch(pos, returned.displayName(), declared));
     }
   }
 

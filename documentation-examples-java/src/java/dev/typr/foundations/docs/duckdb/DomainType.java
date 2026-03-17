@@ -5,11 +5,12 @@ import dev.typr.foundations.DuckDbTypes;
 
 @SuppressWarnings("unused")
 public class DomainType {
-    //start
-    // Wrapper type
-    public record ProductId(Long value) {}
+  // start
+  // Wrapper type
+  public record ProductId(Long value) {}
 
-    // Create DuckDbType from bigint
-    DuckDbType<ProductId> productIdType = DuckDbTypes.bigint.transform(ProductId::new, ProductId::value);
-    //stop
+  // Create DuckDbType from bigint
+  DuckDbType<ProductId> productIdType =
+      DuckDbTypes.bigint.transform(ProductId::new, ProductId::value);
+  // stop
 }

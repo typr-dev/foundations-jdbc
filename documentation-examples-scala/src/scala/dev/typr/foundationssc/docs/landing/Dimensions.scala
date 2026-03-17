@@ -2,19 +2,20 @@ package dev.typr.foundationssc.docs.landing
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-
-
 @SuppressWarnings(Array("unused"))
 object Dimensions:
-  //start
+  // start
   case class Dim(
-    width: Double, height: Double,
-    depth: Double, unit: String
+      width: Double,
+      height: Double,
+      depth: Double,
+      unit: String
   )
 
   // PgStruct handles PostgreSQL's composite wire format
   val pgStruct: PgStruct[Dim] =
-    PgStruct.builder[Dim]("dimensions")
+    PgStruct
+      .builder[Dim]("dimensions")
       .field("width", PgTypes.float8, _.width)
       .field("height", PgTypes.float8, _.height)
       .field("depth", PgTypes.float8, _.depth)
@@ -22,4 +23,4 @@ object Dimensions:
       .build(Dim.apply)
 
   val pgType: PgType[Dim] = pgStruct.asType()
-  //stop
+  // stop

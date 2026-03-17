@@ -29,7 +29,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
 
   def generateKotlinRowCodecBuilders(): String = {
     val maxArity = N - 1
-  
+
     val builder0 = s"""|    class Builder0<Row : Any> internal constructor() {
                        |        private val types = mutableListOf<dev.typr.foundations.DbType<*>>()
                        |        private val getters = mutableListOf<(Row) -> Any?>()
@@ -41,13 +41,13 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
                        |            return Builder1(types, getters)
                        |        }
                        |    }""".stripMargin
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
       val decodeParams = range.map(i => s"T$i").mkString(", ")
       val decodeArgs = range.map(i => s"arr[$i] as T$i").mkString(", ")
-  
+
       val nextBuilder = if (n < maxArity) {
         val nextTparams = (0 until n).map(i => s"T$i").mkString(", ")
         s"""|
@@ -58,7 +58,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
             |            return Builder${n + 1}(types, getters)
             |        }""".stripMargin
       } else ""
-  
+
       s"""|    class Builder$n<Row : Any, $tparams> internal constructor(
           |        private val types: MutableList<dev.typr.foundations.DbType<*>>,
           |        private val getters: MutableList<(Row) -> Any?>
@@ -75,7 +75,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
           |        }$nextBuilder
           |    }""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationskt
         |
         |/**
@@ -99,10 +99,10 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |}
         |""".stripMargin
   }
-  
+
   def generateKotlinNamedRowCodecBuilders(): String = {
     val maxArity = N - 1
-  
+
     val builder0 = s"""|    class Builder0<Row : Any> internal constructor() {
                        |        private val names = mutableListOf<String>()
                        |        private val types = mutableListOf<dev.typr.foundations.DbType<*>>()
@@ -116,13 +116,13 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
                        |            return Builder1(names, types, getters)
                        |        }
                        |    }""".stripMargin
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
       val decodeParams = range.map(i => s"T$i").mkString(", ")
       val decodeArgs = range.map(i => s"arr[$i] as T$i").mkString(", ")
-  
+
       val nextBuilder = if (n < maxArity) {
         val nextTparams = (0 until n).map(i => s"T$i").mkString(", ")
         s"""|
@@ -134,7 +134,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
             |            return Builder${n + 1}(names, types, getters)
             |        }""".stripMargin
       } else ""
-  
+
       s"""|    class Builder$n<Row : Any, $tparams> internal constructor(
           |        private val names: MutableList<String>,
           |        private val types: MutableList<dev.typr.foundations.DbType<*>>,
@@ -153,7 +153,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
           |        }$nextBuilder
           |    }""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationskt
         |
         |/**
@@ -177,10 +177,10 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |}
         |""".stripMargin
   }
-  
+
   def generateKotlinDbProcedure(): String = {
     val maxArity = PROC_N - 1
-  
+
     def iParams(i: Int) = 0.until(i).map(n => s"I$n").toList
     def oParams(o: Int) = 0.until(o).map(n => s"O$n").toList
     def allTypeParams(i: Int, o: Int) = iParams(i) ++ oParams(o)
@@ -194,7 +194,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       case 3 => "Triple<O0, O1, O2>"
       case n => "dev.typr.foundations.Tuple.Tuple" + n + "<" + oParams(n).mkString(", ") + ">"
     }
-  
+
     // Def interfaces: 11x11
     val defs = for {
       i <- 0 to maxArity
@@ -204,11 +204,11 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       val retType = outType(o)
       s"""    /** Procedure definition with $i input(s) and $o output(s). */
          |    interface Def${i}_${o}$tpDecl : dev.typr.foundations.RoutineDef {
-         |        fun call(${ callParams(i) }): ProcedureOp<$retType>
+         |        fun call(${callParams(i)}): ProcedureOp<$retType>
          |        override fun procedure(): dev.typr.foundations.Procedure<*>
          |    }""".stripMargin
     }
-  
+
     // Builder classes: 11x11
     val builders = for {
       i <- 0 to maxArity
@@ -217,39 +217,39 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       val tp = allTypeParams(i, o)
       val tpDecl = typeParamDecl(tp)
       val javaTpDecl = tpDecl
-  
+
       // in method
       val inMethod = if (i < maxArity) {
         val nextTp = allTypeParams(i + 1, o)
         s"""        fun <I$i> input(type: DbType<I$i>): Builder_${i + 1}_${o}${typeParamDecl(nextTp)} =
            |            Builder_${i + 1}_${o}(underlying.input(type.underlying))""".stripMargin
       } else ""
-  
+
       // out method
       val outMethod = if (o < maxArity) {
         val nextTp = allTypeParams(i, o + 1)
         s"""        fun <O$o> out(type: DbType<O$o>): Builder_${i}_${o + 1}${typeParamDecl(nextTp)} =
            |            Builder_${i}_${o + 1}(underlying.out(type.underlying))""".stripMargin
       } else ""
-  
+
       // inout method
       val inoutMethod = if (i < maxArity && o < maxArity) {
         val inoutTp = iParams(i) ::: List("X") ::: oParams(o) ::: List("X")
         s"""        fun <X> inout(type: DbType<X>): Builder_${i + 1}_${o + 1}${typeParamDecl(inoutTp)} =
            |            Builder_${i + 1}_${o + 1}(underlying.inout(type.underlying))""".stripMargin
       } else ""
-  
+
       val methods = List(inMethod, outMethod, inoutMethod).filter(_.nonEmpty).mkString("\n")
       val methodsBlock = if (methods.nonEmpty) s"$methods\n" else ""
-  
+
       // build method
       val retType = outType(o)
       val callParamsStr = callParams(i)
       val javaCallArgs = if (i == 0) "" else callArgNames(i)
-  
+
       // Lambda params for Kotlin
       val lambdaParams = if (i == 0) " ->" else s" ${callParams(i)} ->"
-  
+
       val procOpExpr = o match {
         case 0 => s"ProcedureOp.mapped(javaProc.call($javaCallArgs)) { _ -> }"
         case 1 => s"ProcedureOp.direct(javaProc.call($javaCallArgs))"
@@ -272,7 +272,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
          |        }
          |    }""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationskt
         |
         |/**
@@ -310,15 +310,15 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |}
         |""".stripMargin
   }
-  
+
   def generateKotlinDbFunction(): String = {
     val maxArity = PROC_N - 1
-  
+
     def iParams(i: Int) = 0.until(i).map(n => s"I$n").toList
     def typeParamDecl(ps: List[String]) = if (ps.isEmpty) "" else s"<${ps.mkString(", ")}>"
     def callParams(i: Int) = 0.until(i).map(n => s"i$n: I$n").mkString(", ")
     def callArgNames(i: Int) = 0.until(i).map(n => s"i$n").mkString(", ")
-  
+
     // Def interfaces: 11 total
     val defs = (0 to maxArity).map { i =>
       val tp = iParams(i) ::: List("R")
@@ -328,23 +328,23 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
          |        override fun procedure(): dev.typr.foundations.Procedure<*>
          |    }""".stripMargin
     }
-  
+
     // Builder classes: 11 total
     val builders = (0 to maxArity).map { i =>
       val tp = iParams(i) ::: List("R")
       val tpDecl = typeParamDecl(tp)
-  
+
       val inMethod = if (i < maxArity) {
         val nextTp = iParams(i + 1) ::: List("R")
         s"""        fun <I$i> input(type: DbType<I$i>): Builder_${i + 1}${typeParamDecl(nextTp)} =
            |            Builder_${i + 1}(underlying.input(type.underlying))
            |""".stripMargin
       } else ""
-  
+
       val callParamsStr = callParams(i)
       val javaCallArgs = if (i == 0) "" else callArgNames(i)
       val lambdaParams = if (i == 0) " ->" else s" ${callParams(i)} ->"
-  
+
       s"""    class Builder_$i$tpDecl internal constructor(
          |        private val underlying: dev.typr.foundations.DbFunction.Builder_$i$tpDecl
          |    ) {
@@ -359,7 +359,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
          |        }
          |    }""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationskt
         |
         |/**
@@ -396,29 +396,29 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |}
         |""".stripMargin
   }
-  
+
   def generateKotlinDuckDbStructBuilders(): String = {
     val maxArity = STRUCT_N - 1
-  
+
     val builder0 = s"""|    class Builder0<A> internal constructor(
                        |        private val underlying: dev.typr.foundations.DuckDbStructBuilders.Builder0<A>
                        |    ) {
                        |        fun <F> field(name: String, type: DuckDbType<F>, getter: (A) -> F): Builder1<A, F> =
                        |            Builder1(underlying.field(name, type.underlying, getter))
                        |    }""".stripMargin
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
       val lambdaParams = range.map(i => s"t$i").mkString(", ")
-  
+
       val nextBuilder = if (n < maxArity) {
         val nextTparams = range.map(i => s"T$i").mkString(", ")
         s"""|
             |        fun <F> field(name: String, type: DuckDbType<F>, getter: (A) -> F): Builder${n + 1}<A, $nextTparams, F> =
             |            Builder${n + 1}(underlying.field(name, type.underlying, getter))""".stripMargin
       } else ""
-  
+
       s"""|    class Builder$n<A, $tparams> internal constructor(
           |        private val underlying: dev.typr.foundations.DuckDbStructBuilders.Builder$n<A, $tparams>
           |    ) {
@@ -427,7 +427,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
           |$nextBuilder
           |    }""".stripMargin
     }
-  
+
     s"""|@file:Suppress("unused")
         |package dev.typr.foundationskt
         |
@@ -445,10 +445,10 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |}
         |""".stripMargin
   }
-  
+
   def generateKotlinPgStructBuilders(): String = {
     val maxArity = STRUCT_N - 1
-  
+
     val builder0 = s"""|    class Builder0<A> internal constructor(
                        |        private val underlying: dev.typr.foundations.PgStructBuilders.Builder0<A>
                        |    ) {
@@ -461,12 +461,12 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
                        |        fun <F> nestedArrayField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> Array<F>, arrayFactory: java.util.function.IntFunction<Array<F>>): Builder1<A, Array<F>> =
                        |            Builder1(underlying.nestedArrayField(name, nestedStruct.underlying, getter, arrayFactory))
                        |    }""".stripMargin
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
       val lambdaParams = range.map(i => s"t$i").mkString(", ")
-  
+
       val nextBuilder = if (n < maxArity) {
         val nextTparams = range.map(i => s"T$i").mkString(", ")
         s"""|
@@ -479,7 +479,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
             |        fun <F> nestedArrayField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> Array<F>, arrayFactory: java.util.function.IntFunction<Array<F>>): Builder${n + 1}<A, $nextTparams, Array<F>> =
             |            Builder${n + 1}(underlying.nestedArrayField(name, nestedStruct.underlying, getter, arrayFactory))""".stripMargin
       } else ""
-  
+
       s"""|    class Builder$n<A, $tparams> internal constructor(
           |        private val underlying: dev.typr.foundations.PgStructBuilders.Builder$n<A, $tparams>
           |    ) {
@@ -488,7 +488,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
           |$nextBuilder
           |    }""".stripMargin
     }
-  
+
     s"""|@file:Suppress("unused")
         |package dev.typr.foundationskt
         |
@@ -506,29 +506,29 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |}
         |""".stripMargin
   }
-  
+
   def generateKotlinOracleObjectBuilders(): String = {
     val maxArity = STRUCT_N - 1
-  
+
     val builder0 = s"""|    class Builder0<A> internal constructor(
                        |        private val underlying: dev.typr.foundations.OracleObjectBuilders.Builder0<A>
                        |    ) {
                        |        fun <F> field(name: String, type: OracleType<F>, getter: (A) -> F): Builder1<A, F> =
                        |            Builder1(underlying.field(name, type.underlying, getter))
                        |    }""".stripMargin
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
       val lambdaParams = range.map(i => s"t$i").mkString(", ")
-  
+
       val nextBuilder = if (n < maxArity) {
         val nextTparams = range.map(i => s"T$i").mkString(", ")
         s"""|
             |        fun <F> field(name: String, type: OracleType<F>, getter: (A) -> F): Builder${n + 1}<A, $nextTparams, F> =
             |            Builder${n + 1}(underlying.field(name, type.underlying, getter))""".stripMargin
       } else ""
-  
+
       s"""|    class Builder$n<A, $tparams> internal constructor(
           |        private val underlying: dev.typr.foundations.OracleObjectBuilders.Builder$n<A, $tparams>
           |    ) {
@@ -537,7 +537,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
           |$nextBuilder
           |    }""".stripMargin
     }
-  
+
     s"""|@file:Suppress("unused")
         |package dev.typr.foundationskt
         |
@@ -555,7 +555,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |}
         |""".stripMargin
   }
-  
+
   def generateKotlinTuple(): String = {
     val classes = 1.to(N).map { n =>
       val range = 0.until(n)
@@ -576,7 +576,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
          |        override fun toString(): String = "Tuple$n($toStringFields)"
          |    }""".stripMargin
     }
-  
+
     val factories = 1.to(N).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
@@ -586,7 +586,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
          |    fun <$tparams> of($params): Tuple$n<$tparams> =
          |        Tuple$n($args)""".stripMargin
     }
-  
+
     s"""|@file:Suppress("unused")
         |package dev.typr.foundationskt
         |
@@ -599,10 +599,10 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |}
         |""".stripMargin
   }
-  
+
   def generateKotlinTemplate(): String = {
     val maxArity = PROC_N - 1 // 10
-  
+
     def inputType(n: Int): String = {
       if (n == 1) "P0"
       else {
@@ -610,21 +610,23 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         s"dev.typr.foundations.Tuple.Tuple$n<$tparams>"
       }
     }
-  
+
     val queryClasses = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"P$i").mkString(", ")
       val allTparams = s"$tparams, Out"
       val stars = range.map(_ => "*").mkString(", ")
       val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-      val transformLines = range.map { i =>
-        s"            val v$i: Any? = _transforms[$i]?.invoke(p$i) ?: p$i"
-      }.mkString("\n")
+      val transformLines = range
+        .map { i =>
+          s"            val v$i: Any? = _transforms[$i]?.invoke(p$i) ?: p$i"
+        }
+        .mkString("\n")
       val valuesList = range.map(i => s"v$i").mkString(", ")
-  
+
       val fromFnParams = range.map(i => s"f$i: (T) -> P$i").mkString(", ")
       val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
-  
+
       if (n == 1) {
         s"""|    class Query1<P0, Out>(
             |        private val _java: dev.typr.foundations.Template.Query1<*, Out>,
@@ -647,7 +649,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       } else {
         val inType = inputType(n)
         val tupleDecompose = range.map(i => s"input._${i + 1}()").mkString(", ")
-  
+
         s"""|    class Query$n<$allTparams>(
             |        private val _java: dev.typr.foundations.Template.Query$n<$stars, Out>,
             |        private val _transforms: List<((Any?) -> Any?)?>
@@ -671,20 +673,22 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
             |    }""".stripMargin
       }
     }
-  
+
     val updateClasses = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"P$i").mkString(", ")
       val stars = range.map(_ => "*").mkString(", ")
       val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-      val transformLines = range.map { i =>
-        s"            val v$i: Any? = _transforms[$i]?.invoke(p$i) ?: p$i"
-      }.mkString("\n")
+      val transformLines = range
+        .map { i =>
+          s"            val v$i: Any? = _transforms[$i]?.invoke(p$i) ?: p$i"
+        }
+        .mkString("\n")
       val valuesList = range.map(i => s"v$i").mkString(", ")
-  
+
       val fromFnParams = range.map(i => s"f$i: (T) -> P$i").mkString(", ")
       val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
-  
+
       if (n == 1) {
         s"""|    class Update1<P0>(
             |        private val _java: dev.typr.foundations.Template.Update1<*>,
@@ -707,7 +711,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       } else {
         val inType = inputType(n)
         val tupleDecompose = range.map(i => s"input._${i + 1}()").mkString(", ")
-  
+
         s"""|    class Update$n<$tparams>(
             |        private val _java: dev.typr.foundations.Template.Update$n<$stars>,
             |        private val _transforms: List<((Any?) -> Any?)?>
@@ -731,7 +735,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
             |    }""".stripMargin
       }
     }
-  
+
     s"""|@file:Suppress("unused")
         |package dev.typr.foundationskt
         |
@@ -758,21 +762,21 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |}
         |""".stripMargin
   }
-  
+
   def generateKotlinParamBuilders(): String = {
     val maxArity = PROC_N - 1 // 10
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"P$i").mkString(", ")
       val stars = range.map(_ => "*").mkString(", ")
-  
+
       val nextParamMethod = if (n < maxArity) {
         s"""|
             |        fun <P$n> param(type: DbType<P$n>): ParamBuilder${n + 1}<$tparams, P$n> =
             |            ParamBuilder${n + 1}(underlying.param(type.underlying), transforms + listOf(null))""".stripMargin
       } else ""
-  
+
       val optionallyMethods = if (n < maxArity) {
         s"""|
             |        fun optionally(inner: Fragment): ParamBuilder${n + 1}<$tparams, Boolean> =
@@ -796,7 +800,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
             |                underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
             |                transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))""".stripMargin
       } else ""
-  
+
       s"""|    class ParamBuilder$n<$tparams>(
           |        internal val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder$n<$stars>,
           |        internal val transforms: List<((Any?) -> Any?)?>
@@ -818,7 +822,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
           |        fun done(): Fragment = Fragment(underlying.done())
           |    }""".stripMargin
     }
-  
+
     s"""|@file:Suppress("unused")
         |package dev.typr.foundationskt
         |
@@ -827,6 +831,6 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |}
         |""".stripMargin
   }
-  
+
   // ─────────────────────────────────────────────────────────────────────────────
 }

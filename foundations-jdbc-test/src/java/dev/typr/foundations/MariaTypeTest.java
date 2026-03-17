@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Test;
 
 /** Tests for MariaDB type codecs. Tests all types defined in MariaTypes. */
@@ -298,8 +297,7 @@ public class MariaTypeTest {
               .noIdentity(), // Edge case: boolean value
 
           // ==================== JSON-Encoded Row Types ====================
-          new MariaTypeAndExample<>(
-                  MariaTypes.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
+          new MariaTypeAndExample<>(MariaTypes.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new MariaTypeAndExample<>(
                   MariaTypes.jsonArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
@@ -437,10 +435,7 @@ public class MariaTypeTest {
                         });
                   } catch (Exception e) {
                     errors.add(
-                        "Analysis FAILED "
-                            + t.type.typename().sqlType()
-                            + ": "
-                            + e.getMessage());
+                        "Analysis FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
                   }
                   if (t.hasIdentity) {
                     try {
@@ -502,8 +497,7 @@ public class MariaTypeTest {
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment =
-          Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
-              .value(t.type, t.example);
+          Fragment.of("SELECT v FROM " + tableName + " WHERE v = ").value(t.type, t.example);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException(
@@ -665,11 +659,7 @@ public class MariaTypeTest {
     String sqlType = t.type.typename().sqlType();
     String procName = uniqueTableName("test_proc");
 
-    var proc =
-        DbProcedure.define(procName)
-            .input(t.type)
-            .out(t.type)
-            .build();
+    var proc = DbProcedure.define(procName).input(t.type).out(t.type).build();
 
     conn.createStatement()
         .execute(
@@ -685,12 +675,7 @@ public class MariaTypeTest {
       A result = proc.call(t.example).run(conn);
 
       System.out.println(
-          "Callable roundtrip "
-              + sqlType
-              + ": "
-              + format(t.example)
-              + " -> "
-              + format(result));
+          "Callable roundtrip " + sqlType + ": " + format(t.example) + " -> " + format(result));
 
       if (t.hasIdentity() && !areEqual(result, t.example)) {
         throw new RuntimeException(

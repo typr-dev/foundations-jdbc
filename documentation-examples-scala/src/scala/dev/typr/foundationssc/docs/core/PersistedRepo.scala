@@ -9,13 +9,15 @@ import dev.typr.foundationssc.docs.core.PersistedTypes.*
 object VenueRepo:
   private val venueIdType = DuckDbTypes.bigint.transform(VenueId.apply, _.value)
 
-  private val venueCodec = RowCodec.namedBuilder[Venue]()
+  private val venueCodec = RowCodec
+    .namedBuilder[Venue]()
     .field("name", DuckDbTypes.varchar)(_.name)
     .field("capacity", DuckDbTypes.integer)(_.capacity)
     .build(Venue.apply)
 
   private val persistedVenueCodec =
-    RowCodec.ofNamed("id", venueIdType)
+    RowCodec
+      .ofNamed("id", venueIdType)
       .join(venueCodec)
       .to(PersistedVenue.apply, pv => (pv.id, pv.venue))
 

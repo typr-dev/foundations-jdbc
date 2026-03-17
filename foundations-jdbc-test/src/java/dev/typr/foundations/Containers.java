@@ -11,8 +11,8 @@ import dev.typr.foundations.hikari.PoolConfig;
 import dev.typr.foundations.hikari.PooledDataSource;
 import java.time.Duration;
 import org.testcontainers.containers.Db2Container;
-import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.oracle.OracleContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -44,7 +44,8 @@ public final class Containers {
     static {
       INSTANCE =
           new PostgreSQLContainer<>(
-                  DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres"))
+                  DockerImageName.parse("pgvector/pgvector:pg16")
+                      .asCompatibleSubstituteFor("postgres"))
               .withDatabaseName("test")
               .withUsername("postgres")
               .withPassword("password")
@@ -148,10 +149,7 @@ public final class Containers {
 
       // Oracle Free has limited connections, use a small pool
       var poolConfig =
-          PoolConfig.builder()
-              .maximumPoolSize(5)
-              .connectionTimeout(Duration.ofMinutes(2))
-              .build();
+          PoolConfig.builder().maximumPoolSize(5).connectionTimeout(Duration.ofMinutes(2)).build();
       POOL = HikariDataSourceFactory.create(CONFIG, poolConfig);
       TRANSACTOR = POOL.transactor(Transactor.testStrategy());
     }

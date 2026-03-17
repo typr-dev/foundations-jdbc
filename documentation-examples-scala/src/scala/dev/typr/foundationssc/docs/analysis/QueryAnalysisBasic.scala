@@ -9,13 +9,14 @@ object QueryAnalysisBasic:
 
   private val transactor: Transactor = null // placeholder
 
-  private val userRowCodec: RowCodec[User] = RowCodec.builder[User]()
+  private val userRowCodec: RowCodec[User] = RowCodec
+    .builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.email)
     .build(User.apply)
 
-  //start
+  // start
   def checkQueryManually(): Unit =
     val query =
       sql"""SELECT id, name, email
@@ -25,4 +26,4 @@ object QueryAnalysisBasic:
 
     val checker = QueryChecker.create(transactor)
     checker.check(query)
-  //stop
+  // stop

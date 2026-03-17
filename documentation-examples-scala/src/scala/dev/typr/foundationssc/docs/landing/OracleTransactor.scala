@@ -6,14 +6,23 @@ import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object OracleTransactor:
-  //start
+  // start
   // Oracle - typed config, no JDBC URL to remember
   val tx =
-    SimpleDataSource.create(
-      OracleConfig.builder(
-        "localhost", 1521, "xe", "app", "secret"
-      ).serviceName("XEPDB1").build()
-    ).transactor()
+    SimpleDataSource
+      .create(
+        OracleConfig
+          .builder(
+            "localhost",
+            1521,
+            "xe",
+            "app",
+            "secret"
+          )
+          .serviceName("XEPDB1")
+          .build()
+      )
+      .transactor()
 
   // Everything inside runs in one transaction
   def getGreeting(): String =
@@ -21,4 +30,4 @@ object OracleTransactor:
       .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())
       .transact(tx)
 
-  //stop
+  // stop

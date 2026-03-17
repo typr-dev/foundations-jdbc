@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Test;
 
 /** Tests for DB2 type codecs. Tests all types defined in Db2Types. */
@@ -164,22 +163,18 @@ public class Db2TypeTest {
                   Db2Types.json,
                   new dev.typr.foundations.data.Json("{\"name\": \"DB2\", \"version\": 11}"))
               .noIdentity(),
-          new Db2TypeAndExample<>(
-                  Db2Types.json, new dev.typr.foundations.data.Json("[1, 2, 3]"))
+          new Db2TypeAndExample<>(Db2Types.json, new dev.typr.foundations.data.Json("[1, 2, 3]"))
               .noIdentity(),
-          new Db2TypeAndExample<>(
-                  Db2Types.json, new dev.typr.foundations.data.Json("{}"))
+          new Db2TypeAndExample<>(Db2Types.json, new dev.typr.foundations.data.Json("{}"))
               .noIdentity(),
 
           // ==================== JSON-Encoded Row Types ====================
-          new Db2TypeAndExample<>(
-                  Db2Types.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
+          new Db2TypeAndExample<>(Db2Types.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new Db2TypeAndExample<>(
                   Db2Types.jsonArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
-          new Db2TypeAndExample<>(
-                  Db2Types.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
+          new Db2TypeAndExample<>(Db2Types.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new Db2TypeAndExample<>(
                   Db2Types.jsonObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
@@ -260,17 +255,15 @@ public class Db2TypeTest {
                         });
                   } catch (Exception e) {
                     String msg = e.getMessage();
-                    if (msg != null && msg.contains("does not support stored procedure OUT parameters")) {
+                    if (msg != null
+                        && msg.contains("does not support stored procedure OUT parameters")) {
                       System.out.println(
                           "Callable roundtrip "
                               + t.type.typename().sqlType()
                               + ": SKIP (not supported)");
                     } else {
                       errors.add(
-                          "Callable test FAILED "
-                              + t.type.typename().sqlType()
-                              + ": "
-                              + msg);
+                          "Callable test FAILED " + t.type.typename().sqlType() + ": " + msg);
                     }
                   }
                   return errors.stream();
@@ -295,10 +288,7 @@ public class Db2TypeTest {
                         });
                   } catch (Exception e) {
                     errors.add(
-                        "Analysis FAILED "
-                            + t.type.typename().sqlType()
-                            + ": "
-                            + e.getMessage());
+                        "Analysis FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
                   }
                   if (t.hasIdentity) {
                     try {
@@ -374,13 +364,11 @@ public class Db2TypeTest {
     } catch (SQLException e) {
       // Table might not exist, ignore
     }
-    conn.createStatement()
-        .execute("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
+    conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment =
-          Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
-              .value(t.type, t.example);
+          Fragment.of("SELECT v FROM " + tableName + " WHERE v = ").value(t.type, t.example);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException(
@@ -615,12 +603,7 @@ public class Db2TypeTest {
       A actual = proc.call(expected).run(conn);
 
       System.out.println(
-          "Callable roundtrip "
-              + sqlType
-              + ": "
-              + format(expected)
-              + " -> "
-              + format(actual));
+          "Callable roundtrip " + sqlType + ": " + format(expected) + " -> " + format(actual));
 
       if (!areEqual(actual, expected)) {
         throw new RuntimeException(

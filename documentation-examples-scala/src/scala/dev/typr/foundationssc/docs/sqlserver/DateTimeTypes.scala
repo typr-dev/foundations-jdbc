@@ -2,15 +2,14 @@ package dev.typr.foundationssc.docs.sqlserver
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-
 import java.time.{LocalDate, LocalDateTime, LocalTime, OffsetDateTime}
 
 @SuppressWarnings(Array("unused"))
 object DateTimeTypes:
-  //start
+  // start
   val dateType: SqlServerType[LocalDate] = SqlServerTypes.date
   val timeType: SqlServerType[LocalTime] = SqlServerTypes.time
-  val time3: SqlServerType[LocalTime] = SqlServerTypes.time(3)  // TIME(3)
+  val time3: SqlServerType[LocalTime] = SqlServerTypes.time(3) // TIME(3)
 
   // Legacy types
   val datetimeType: SqlServerType[LocalDateTime] = SqlServerTypes.datetime
@@ -23,4 +22,4 @@ object DateTimeTypes:
   // Timezone-aware
   val dtoType: SqlServerType[OffsetDateTime] = SqlServerTypes.datetimeoffset
   val dto3: SqlServerType[OffsetDateTime] = SqlServerTypes.datetimeoffset(3)
-  //stop
+  // stop

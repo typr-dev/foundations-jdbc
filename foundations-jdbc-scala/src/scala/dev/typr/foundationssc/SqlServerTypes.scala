@@ -2,8 +2,8 @@ package dev.typr.foundationssc
 
 import dev.typr.foundations.{SqlServerTypes => JavaSqlServerTypes}
 
-/** Scala-friendly SqlServerType instances that use Scala types instead of Java boxed types.
-  * All types from dev.typr.foundations.SqlServerTypes are available here, with primitives and BigDecimal converted to Scala types.
+/** Scala-friendly SqlServerType instances that use Scala types instead of Java boxed types. All types from dev.typr.foundations.SqlServerTypes are available
+  * here, with primitives and BigDecimal converted to Scala types.
   *
   * Extend this class to add your own custom types to a shared set of type definitions.
   */
@@ -94,19 +94,27 @@ class SqlServerTypes {
     SqlServerType(JavaSqlServerTypes.jsonArrayEncoded(parser.underlying))
 
   def jsonArrayEncodedList[Row](parser: RowCodec[Row]): SqlServerType[List[Row]] =
-    SqlServerType(JavaSqlServerTypes.jsonArrayEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    SqlServerType(
+      JavaSqlServerTypes
+        .jsonArrayEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 
   def jsonObjectEncoded[Row](parser: RowCodecNamed[Row]): SqlServerType[Row] =
     SqlServerType(JavaSqlServerTypes.jsonObjectEncoded(parser.underlying))
 
   def jsonObjectEncodedList[Row](parser: RowCodecNamed[Row]): SqlServerType[List[Row]] =
-    SqlServerType(JavaSqlServerTypes.jsonObjectEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    SqlServerType(
+      JavaSqlServerTypes
+        .jsonObjectEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 }
 
 object SqlServerTypes extends SqlServerTypes

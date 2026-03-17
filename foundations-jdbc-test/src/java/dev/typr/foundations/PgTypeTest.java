@@ -348,27 +348,23 @@ public class PgTypeTest {
 
           // ==================== JSON-Encoded Row Types ====================
           // json variants — store structured rows as json columns
-          new PgTypeAndExample<>(
-                  PgTypes.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
+          new PgTypeAndExample<>(PgTypes.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
                   PgTypes.jsonArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
-          new PgTypeAndExample<>(
-                  PgTypes.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
+          new PgTypeAndExample<>(PgTypes.jsonObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
                   PgTypes.jsonObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
           // jsonb variants — store structured rows as jsonb columns
-          new PgTypeAndExample<>(
-                  PgTypes.jsonbArrayEncoded(itemCodec), new Item("Widget", 5))
+          new PgTypeAndExample<>(PgTypes.jsonbArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
                   PgTypes.jsonbArrayEncodedList(itemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
-          new PgTypeAndExample<>(
-                  PgTypes.jsonbObjectEncoded(namedItemCodec), new Item("Widget", 5))
+          new PgTypeAndExample<>(PgTypes.jsonbObjectEncoded(namedItemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
                   PgTypes.jsonbObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
@@ -646,10 +642,7 @@ public class PgTypeTest {
                     return java.util.stream.Stream.<String>empty();
                   } catch (Exception e) {
                     return java.util.stream.Stream.of(
-                        "Call test FAILED "
-                            + t.type.typename().sqlType()
-                            + ": "
-                            + e.getMessage());
+                        "Call test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
                   }
                 })
             .toList();
@@ -674,10 +667,7 @@ public class PgTypeTest {
                     return java.util.stream.Stream.<String>empty();
                   } catch (Exception e) {
                     return java.util.stream.Stream.of(
-                        "Analysis FAILED "
-                            + t.type.typename().sqlType()
-                            + ": "
-                            + e.getMessage());
+                        "Analysis FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
                   }
                 })
             .toList();
@@ -1008,7 +998,8 @@ public class PgTypeTest {
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
-        throw new RuntimeException("Query analysis failed for " + sqlType + ":\n" + analysis.report());
+        throw new RuntimeException(
+            "Query analysis failed for " + sqlType + ":\n" + analysis.report());
       }
     } finally {
       conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
@@ -1099,8 +1090,8 @@ public class PgTypeTest {
                 + " AS $$ BEGIN RETURN p; END; $$ LANGUAGE plpgsql");
 
     try {
-      Procedure<A> proc = Procedure.buildFunction(funcName,
-          java.util.List.of(ParamDef.input(t.type)), t.type);
+      Procedure<A> proc =
+          Procedure.buildFunction(funcName, java.util.List.of(ParamDef.input(t.type)), t.type);
 
       A result = proc.call(t.example).run(conn);
 

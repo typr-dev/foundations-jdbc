@@ -1,7 +1,6 @@
 package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.*;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.Instant;
@@ -9,33 +8,31 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class BatchOperations {
-    record Product(Integer id, String name, BigDecimal price, Instant createdAt) {}
+  record Product(Integer id, String name, BigDecimal price, Instant createdAt) {}
 
-    RowCodecNamed<Product> productCodec =
-        RowCodec.<Product>namedBuilder()
-            .field("id", PgTypes.int4, Product::id)
-            .field("name", PgTypes.text, Product::name)
-            .field("price", PgTypes.numeric, Product::price)
-            .field("created_at", PgTypes.timestamptz, Product::createdAt)
-            .build(Product::new);
+  RowCodecNamed<Product> productCodec =
+      RowCodec.<Product>namedBuilder()
+          .field("id", PgTypes.int4, Product::id)
+          .field("name", PgTypes.text, Product::name)
+          .field("price", PgTypes.numeric, Product::price)
+          .field("created_at", PgTypes.timestamptz, Product::createdAt)
+          .build(Product::new);
 
-    Connection conn = null; // placeholder
+  Connection conn = null; // placeholder
 
-    //start
-    // Batch insert — all columns as parameters
-    RowTemplate.Update<Product> insertAll =
-        Fragment.insertInto("product", productCodec);
+  // start
+  // Batch insert — all columns as parameters
+  RowTemplate.Update<Product> insertAll = Fragment.insertInto("product", productCodec);
 
-    int[] insertProducts(List<Product> products) {
-        return insertAll.onMany(products.iterator()).run(conn);
-    }
+  int[] insertProducts(List<Product> products) {
+    return insertAll.onMany(products.iterator()).run(conn);
+  }
 
-    // Batch insert — skip auto-generated ID column
-    RowTemplate.Update<Product> insertAutoId =
-        Fragment.insertInto("product", productCodec, "id");
+  // Batch insert — skip auto-generated ID column
+  RowTemplate.Update<Product> insertAutoId = Fragment.insertInto("product", productCodec, "id");
 
-    int[] insertProductsAutoId(List<Product> products) {
-        return insertAutoId.onMany(products.iterator()).run(conn);
-    }
-    //stop
+  int[] insertProductsAutoId(List<Product> products) {
+    return insertAutoId.onMany(products.iterator()).run(conn);
+  }
+  // stop
 }

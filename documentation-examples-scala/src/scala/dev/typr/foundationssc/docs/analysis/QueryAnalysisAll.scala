@@ -9,7 +9,8 @@ import java.sql.Connection
 object QueryAnalysisAll:
   case class User(id: Int, name: String)
 
-  val userCodec: RowCodec[User] = RowCodec.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec
+    .builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .build(User.apply)
@@ -26,7 +27,7 @@ object QueryAnalysisAll:
     sql"SELECT id, name FROM users"
       .query(userCodec.all())
 
-  //start
+  // start
   def analyzeComposedOperation(): Unit =
     // Build a composed operation
     val transaction: Operation[?] =
@@ -36,7 +37,5 @@ object QueryAnalysisAll:
     val results: List[QueryAnalysis] =
       QueryAnalyzer.analyze(transaction, conn)
 
-    for analysis <- results do
-      if !analysis.succeeded() then
-        System.err.println(analysis.report())
-  //stop
+    for analysis <- results do if !analysis.succeeded() then System.err.println(analysis.report())
+  // stop

@@ -5,9 +5,9 @@ import dev.typr.foundationssc.*
 object QueryAnalysisTestSuite:
   private val transactor: Transactor = null // placeholder
 
-  //start
+  // start
   def allQueriesTypeCheck(): Unit =
     val analyzables = AnalyzableScanner.scan("com.myapp.db")
     val checker = QueryChecker.create(transactor)
     checker.checkAll(analyzables)
-  //stop
+  // stop

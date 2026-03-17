@@ -3,7 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
-
 import java.sql.Connection
 import java.time.Instant
 
@@ -11,7 +10,8 @@ import java.time.Instant
 object FragmentBuilding:
   case class User(id: Int, name: String, status: String, createdAt: Instant)
 
-  val userCodec: RowCodec[User] = RowCodec.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec
+    .builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.status)
@@ -22,7 +22,7 @@ object FragmentBuilding:
   val userId: Integer = 1
   val cutoffDate: Instant = Instant.now()
 
-  //start
+  // start
   val query: Fragment =
     sql"""SELECT * FROM users
           WHERE id = ${PgTypes.int4(userId)}
@@ -32,4 +32,4 @@ object FragmentBuilding:
   // Parameters are bound, not interpolated
   val users: List[User] =
     query.query(userCodec.all()).run(connection)
-  //stop
+  // stop
