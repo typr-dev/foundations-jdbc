@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.data.Vector;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
@@ -85,6 +86,15 @@ public interface MariaOutParam<A> extends DbOutParam<A> {
           (stmt, i) -> {
             var time = stmt.getObject(i, LocalTime.class);
             return time == null ? null : Duration.ofNanos(time.toNanoOfDay());
+          });
+
+  // VECTOR type - MariaDB 11.7+ connector returns float[] via FloatArrayCodec
+  MariaOutParam<Vector> readVector =
+      of(
+          Types.OTHER,
+          (stmt, i) -> {
+            float[] arr = stmt.getObject(i, float[].class);
+            return arr == null ? null : new Vector(arr);
           });
 
   @SuppressWarnings("unchecked")

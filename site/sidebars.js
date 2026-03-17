@@ -40,6 +40,7 @@ const sidebars = {
         {type: "doc", id: "spring-boot", label: "Spring Boot"},
         {type: "doc", id: "thread-safety", label: "Thread Safety"},
         {type: "doc", id: "observability", label: "Observability"},
+        {type: "doc", id: "opentelemetry", label: "OpenTelemetry"},
         {type: "doc", id: "virtual-threads", label: "Virtual Threads"},
         {type: "doc", id: "streaming-reads", label: "Streaming Reads"},
         {type: "doc", id: "streaming-inserts", label: "Streaming Inserts"},

@@ -3,7 +3,7 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
 import java.time.{LocalDate, LocalTime}
-import java.util.{Map, UUID}
+import java.util.UUID
 
 @SuppressWarnings(Array("unused"))
 object MapTypes:

@@ -317,4 +317,36 @@ public interface MariaJson<A> extends DbJson<A> {
           return new Json(json.encode());
         }
       };
+
+  // VECTOR type - serialize as JSON array of floats
+  MariaJson<dev.typr.foundations.data.Vector> vector =
+      new MariaJson<>() {
+        @Override
+        public JsonValue toJson(dev.typr.foundations.data.Vector value) {
+          List<JsonValue> elements = new ArrayList<>(value.values().length);
+          for (float f : value.values()) {
+            elements.add(JsonValue.JNumber.of((double) f));
+          }
+          return new JsonValue.JArray(elements);
+        }
+
+        @Override
+        public dev.typr.foundations.data.Vector fromJson(JsonValue json) {
+          if (!(json instanceof JsonValue.JArray arr)) {
+            throw new IllegalArgumentException(
+                "Expected JSON array for Vector, got: " + json.getClass().getSimpleName());
+          }
+          float[] values = new float[arr.values().size()];
+          for (int i = 0; i < arr.values().size(); i++) {
+            if (arr.values().get(i) instanceof JsonValue.JNumber n) {
+              values[i] = Float.parseFloat(n.value());
+            } else {
+              throw new IllegalArgumentException(
+                  "Expected number in Vector array, got: "
+                      + arr.values().get(i).getClass().getSimpleName());
+            }
+          }
+          return new dev.typr.foundations.data.Vector(values);
+        }
+      };
 }

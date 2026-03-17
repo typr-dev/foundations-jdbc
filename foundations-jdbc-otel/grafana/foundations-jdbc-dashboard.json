@@ -1,0 +1,199 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_TEMPO",
+      "label": "Tempo / Jaeger",
+      "description": "Trace datasource",
+      "type": "datasource",
+      "pluginId": "tempo"
+    },
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "Metrics datasource",
+      "type": "datasource",
+      "pluginId": "prometheus"
+    }
+  ],
+  "title": "Foundations JDBC",
+  "uid": "foundations-jdbc",
+  "description": "Query latency, error rates, throughput, and connection pool metrics for foundations-jdbc with OpenTelemetry",
+  "tags": ["database", "jdbc", "opentelemetry", "foundations-jdbc"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "db_system",
+        "label": "Database System",
+        "type": "custom",
+        "current": { "text": "All", "value": "$__all" },
+        "options": [
+          { "text": "All", "value": "$__all", "selected": true },
+          { "text": "postgresql", "value": "postgresql" },
+          { "text": "mariadb", "value": "mariadb" },
+          { "text": "duckdb", "value": "duckdb" },
+          { "text": "oracle", "value": "oracle" },
+          { "text": "mssql", "value": "mssql" },
+          { "text": "db2", "value": "db2" }
+        ],
+        "includeAll": true,
+        "multi": true,
+        "query": "postgresql,mariadb,duckdb,oracle,mssql,db2"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "title": "Query Latency (p50 / p95 / p99)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(duration_milliseconds_bucket{span_name=~\".+\", resource_service_name=~\".*\", db_system_name=~\"$db_system\"}[$__rate_interval])) by (le, db_operation_name))",
+          "legendFormat": "p50 {{db_operation_name}}"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(duration_milliseconds_bucket{span_name=~\".+\", resource_service_name=~\".*\", db_system_name=~\"$db_system\"}[$__rate_interval])) by (le, db_operation_name))",
+          "legendFormat": "p95 {{db_operation_name}}"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(duration_milliseconds_bucket{span_name=~\".+\", resource_service_name=~\".*\", db_system_name=~\"$db_system\"}[$__rate_interval])) by (le, db_operation_name))",
+          "legendFormat": "p99 {{db_operation_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": { "drawStyle": "line", "fillOpacity": 10 }
+        }
+      }
+    },
+    {
+      "title": "Error Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum(rate(calls_total{status_code=\"STATUS_CODE_ERROR\", db_system_name=~\"$db_system\"}[$__rate_interval])) by (db_operation_name)",
+          "legendFormat": "errors {{db_operation_name}}"
+        },
+        {
+          "expr": "sum(rate(calls_total{db_system_name=~\"$db_system\"}[$__rate_interval])) by (db_operation_name)",
+          "legendFormat": "total {{db_operation_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": { "drawStyle": "line", "fillOpacity": 10 }
+        }
+      }
+    },
+    {
+      "title": "Throughput by Database System",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum(rate(calls_total{db_system_name=~\"$db_system\"}[$__rate_interval])) by (db_system_name)",
+          "legendFormat": "{{db_system_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": { "drawStyle": "bars", "fillOpacity": 50 }
+        }
+      }
+    },
+    {
+      "title": "Connection Pool Status",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "db_client_connection_count{state=\"used\"}",
+          "legendFormat": "active ({{pool_name}})"
+        },
+        {
+          "expr": "db_client_connection_count{state=\"idle\"}",
+          "legendFormat": "idle ({{pool_name}})"
+        },
+        {
+          "expr": "db_client_connection_pending_requests",
+          "legendFormat": "pending ({{pool_name}})"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "drawStyle": "line", "fillOpacity": 20 }
+        }
+      }
+    },
+    {
+      "title": "Connection Pool Usage %",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 16 },
+      "datasource": { "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "db_client_connection_count{state=\"used\"} / db_client_connection_max * 100",
+          "legendFormat": "{{pool_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "red", "value": 90 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Slow Queries (> 1s)",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 18, "x": 6, "y": 16 },
+      "datasource": { "uid": "${DS_TEMPO}" },
+      "targets": [
+        {
+          "queryType": "search",
+          "search": "{db.system.name=~\"$db_system\"} && duration > 1s",
+          "limit": 20
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "includeByName": {
+              "spanName": true,
+              "duration": true,
+              "db.query.summary": true,
+              "db.system.name": true,
+              "status": true
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

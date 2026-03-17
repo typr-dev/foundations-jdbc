@@ -16,5 +16,5 @@ object TypeSafeDbTypes:
   val json: MariaType[Json] = MariaTypes.json
 
   // DuckDB types
-  val map: DuckDbType[java.util.Map[String, Int]] = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)
+  val map: DuckDbType[Map[String, Int]] = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)
   // stop

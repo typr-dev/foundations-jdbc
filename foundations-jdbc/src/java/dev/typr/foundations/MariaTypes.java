@@ -6,6 +6,7 @@ import dev.typr.foundations.data.Uint1;
 import dev.typr.foundations.data.Uint2;
 import dev.typr.foundations.data.Uint4;
 import dev.typr.foundations.data.Uint8;
+import dev.typr.foundations.data.Vector;
 import dev.typr.foundations.data.maria.Inet4;
 import dev.typr.foundations.data.maria.Inet6;
 import dev.typr.foundations.data.maria.MariaSet;
@@ -564,6 +565,18 @@ public interface MariaTypes {
               },
               Object::toString),
           MariaOutParam.readGeometry(GeometryCollection.class));
+
+  // ==================== Vector Type ====================
+  // MariaDB 11.7+ VECTOR type. The connector's FloatArrayCodec handles float[] natively.
+
+  static MariaType<Vector> vector(int dimension) {
+    return MariaType.of(
+        MariaTypename.of("VECTOR", dimension),
+        MariaRead.readVector,
+        MariaWrite.writeVector,
+        MariaJson.vector,
+        MariaOutParam.readVector);
+  }
 
   // ==================== Unknown Type ====================
   // For columns whose type typr doesn't know how to handle - cast to/from string
