@@ -126,10 +126,18 @@ projects:
     - foundations-jdbc-spring
     - foundations-jdbc-scala
     - foundations-jdbc-kotlin
-    extends: template-kotlin
+    extends: template-common
     isTestProject: true
     java:
       options: --release 21 -proc:none
+    kotlin:
+      version: 2.3.0
+      jvmTarget: "21"
+    sources:
+    - ./src/java
+    - ./src/kotlin
+    testFrameworks:
+    - com.novocode.junit.JUnitFramework
     resources: ./src/resources
 
   example-java-db2:

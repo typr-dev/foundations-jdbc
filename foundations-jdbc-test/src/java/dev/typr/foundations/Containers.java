@@ -71,7 +71,7 @@ public final class Containers {
 
     static {
       INSTANCE =
-          new MariaDBContainer<>(DockerImageName.parse("mariadb:11.4"))
+          new MariaDBContainer<>(DockerImageName.parse("mariadb:11.7"))
               .withDatabaseName("typr")
               .withUsername("typr")
               .withPassword("password");

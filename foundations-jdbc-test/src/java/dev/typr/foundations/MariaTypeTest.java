@@ -17,6 +17,7 @@ import java.time.Year;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.junit.Test;
@@ -324,7 +325,32 @@ public class MariaTypeTest {
           new MariaTypeAndExample<>(MariaTypes.inet6, Inet6.parse("::")), // Edge case: any address
           new MariaTypeAndExample<>(MariaTypes.inet6, Inet6.parse("::1")), // Edge case: localhost
           new MariaTypeAndExample<>(
-              MariaTypes.inet6, Inet6.parse("fe80::1")) // Edge case: link-local
+              MariaTypes.inet6, Inet6.parse("fe80::1")), // Edge case: link-local
+
+          // ==================== UUID Type (MariaDB 10.7+) ====================
+          new MariaTypeAndExample<>(
+              MariaTypes.uuid, UUID.fromString("550e8400-e29b-41d4-a716-446655440000")),
+          new MariaTypeAndExample<>(
+              MariaTypes.uuid,
+              UUID.fromString("00000000-0000-0000-0000-000000000000")), // Edge case: nil UUID
+          new MariaTypeAndExample<>(
+              MariaTypes.uuid,
+              UUID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff")), // Edge case: max UUID
+
+          // ==================== VECTOR Type (MariaDB 11.7+) ====================
+          new MariaTypeAndExample<>(
+                  MariaTypes.vector(3),
+                  new dev.typr.foundations.data.Vector(new float[] {1.0f, 2.0f, 3.0f}))
+              .noJsonRoundtrip(),
+          new MariaTypeAndExample<>(
+                  MariaTypes.vector(1),
+                  new dev.typr.foundations.data.Vector(new float[] {0.0f}))
+              .noJsonRoundtrip(), // Edge case: single dimension
+          new MariaTypeAndExample<>(
+                  MariaTypes.vector(5),
+                  new dev.typr.foundations.data.Vector(
+                      new float[] {-1.5f, 0.0f, 3.14f, -2.71f, 100.0f}))
+              .noJsonRoundtrip() // Edge case: mixed values
           );
 
   static <T> T withConnection(SqlFunction<Connection, T> f) {

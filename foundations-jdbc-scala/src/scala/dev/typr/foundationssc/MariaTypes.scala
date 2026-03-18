@@ -55,6 +55,7 @@ class MariaTypes {
   val json = MariaType(JavaMariaTypes.json)
   val inet4 = MariaType(JavaMariaTypes.inet4)
   val inet6 = MariaType(JavaMariaTypes.inet6)
+  val uuid: MariaType[java.util.UUID] = MariaType(JavaMariaTypes.uuid)
   val geometry = MariaType(JavaMariaTypes.geometry)
   val point = MariaType(JavaMariaTypes.point)
   val linestring = MariaType(JavaMariaTypes.linestring)
@@ -89,6 +90,9 @@ class MariaTypes {
 
   def timestamp(fsp: Int): MariaType[java.time.LocalDateTime] =
     MariaType(JavaMariaTypes.timestamp(fsp))
+
+  def vector(dimension: Int): MariaType[dev.typr.foundations.data.Vector] =
+    MariaType(JavaMariaTypes.vector(dimension))
 
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): MariaType[E] =
     MariaType(JavaMariaTypes.ofEnum(sqlType, fromString))

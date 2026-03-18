@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Year;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Function;
 import org.mariadb.jdbc.type.Geometry;
 import org.mariadb.jdbc.type.GeometryCollection;
@@ -461,6 +462,16 @@ public interface MariaTypes {
               MariaJson.text.transform(Inet6::parse, Inet6::value),
               MariaOutParam.readString.map(Inet6::parse))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
+
+  // ==================== UUID Type ====================
+
+  MariaType<UUID> uuid =
+      MariaType.of(
+          "UUID",
+          MariaRead.readString.map(UUID::fromString),
+          MariaWrite.writeString.contramap(UUID::toString),
+          MariaJson.uuid,
+          MariaOutParam.readString.map(UUID::fromString));
 
   // ==================== Spatial Types ====================
   // Using MariaDB Connector/J types directly.
