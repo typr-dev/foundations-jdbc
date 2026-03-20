@@ -1,10 +1,9 @@
 package dev.typr.foundations.docs.core;
 
+import dev.typr.foundations.DatabaseException;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.ResultSetParser;
 import dev.typr.foundations.RowCodec;
-
-import dev.typr.foundations.DatabaseException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -13,33 +12,31 @@ import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class ResultSetParserUsage {
-    record Person(Integer id, String name, Instant createdAt) {}
+  record Person(Integer id, String name, Instant createdAt) {}
 
-    RowCodec<Person> personCodec =
-        RowCodec.<Person>builder()
-            .field(PgTypes.int4, Person::id)
-            .field(PgTypes.text, Person::name)
-            .field(PgTypes.timestamptz, Person::createdAt)
-            .build(Person::new);
+  RowCodec<Person> personCodec =
+      RowCodec.<Person>builder()
+          .field(PgTypes.int4, Person::id)
+          .field(PgTypes.text, Person::name)
+          .field(PgTypes.timestamptz, Person::createdAt)
+          .build(Person::new);
 
-    ResultSet resultSet = null; // placeholder
+  ResultSet resultSet = null; // placeholder
 
-    //start
-    // Parse a single optional result
-    ResultSetParser<Optional<Person>> singleParser =
-        personCodec.maxOne();
+  // start
+  // Parse a single optional result
+  ResultSetParser<Optional<Person>> singleParser = personCodec.maxOne();
 
-    // Parse all results as a list
-    ResultSetParser<List<Person>> listParser =
-        personCodec.all();
+  // Parse all results as a list
+  ResultSetParser<List<Person>> listParser = personCodec.all();
 
-    // Execute with ResultSet
-    Optional<Person> parse() {
-        try {
-            return singleParser.apply(resultSet);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
+  // Execute with ResultSet
+  Optional<Person> parse() {
+    try {
+      return singleParser.apply(resultSet);
+    } catch (SQLException e) {
+      throw new DatabaseException(e);
     }
-    //stop
+  }
+  // stop
 }

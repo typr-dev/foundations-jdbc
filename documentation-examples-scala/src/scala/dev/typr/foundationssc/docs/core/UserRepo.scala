@@ -8,7 +8,8 @@ import dev.typr.foundationssc.data.*
 object UserRepo:
   case class User(id: Int, name: String)
 
-  val userCodec: RowCodecNamed[User] = RowCodec.namedBuilder[User]()
+  val userCodec: RowCodecNamed[User] = RowCodec
+    .namedBuilder[User]()
     .field("id", PgTypes.int4)(_.id)
     .field("name", PgTypes.text)(_.name)
     .build(User.apply)

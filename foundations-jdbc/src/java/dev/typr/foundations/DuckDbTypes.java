@@ -9,8 +9,8 @@ import dev.typr.foundations.data.Uint8;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.*;
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Function;
 
 /**
@@ -176,10 +176,14 @@ public interface DuckDbTypes {
           DuckDbStringifier.string,
           DuckDbJson.text);
 
-  DuckDbType<String> text = varchar.renamed("TEXT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
-  DuckDbType<String> string = varchar.renamed("STRING").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
-  DuckDbType<String> char_ = varchar.renamed("CHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
-  DuckDbType<String> bpchar = varchar.renamed("BPCHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+  DuckDbType<String> text =
+      varchar.renamed("TEXT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+  DuckDbType<String> string =
+      varchar.renamed("STRING").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+  DuckDbType<String> char_ =
+      varchar.renamed("CHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+  DuckDbType<String> bpchar =
+      varchar.renamed("BPCHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
 
   static DuckDbType<String> varchar(int length) {
     return DuckDbType.of(
@@ -192,11 +196,11 @@ public interface DuckDbTypes {
 
   static DuckDbType<String> char_(int length) {
     return DuckDbType.<String>of(
-        DuckDbTypename.of("CHAR", length),
-        DuckDbRead.readString,
-        DuckDbWrite.writeString,
-        DuckDbStringifier.string,
-        DuckDbJson.text)
+            DuckDbTypename.of("CHAR", length),
+            DuckDbRead.readString,
+            DuckDbWrite.writeString,
+            DuckDbStringifier.string,
+            DuckDbJson.text)
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
   }
 
@@ -331,11 +335,11 @@ public interface DuckDbTypes {
   static <E extends Enum<E>> DuckDbType<E> ofEnum(
       String enumTypeName, Function<String, E> fromString) {
     return DuckDbType.<E>of(
-        enumTypeName,
-        DuckDbRead.readString.map(fromString::apply),
-        DuckDbWrite.writeString.contramap(Enum::name),
-        DuckDbStringifier.string.contramap(Enum::name),
-        DuckDbJson.text.transform(fromString::apply, Enum::name))
+            enumTypeName,
+            DuckDbRead.readString.map(fromString::apply),
+            DuckDbWrite.writeString.contramap(Enum::name),
+            DuckDbStringifier.string.contramap(Enum::name),
+            DuckDbJson.text.transform(fromString::apply, Enum::name))
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("enum"));
   }
 
@@ -491,7 +495,8 @@ public interface DuckDbTypes {
               DuckDbWrite.writeString,
               DuckDbStringifier.string,
               DuckDbJson.text)
-          .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+          .transform(
+              dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 
   /**
    * JSON codec for MAP types with typed keys and values. Uses JSON object format for compatibility
@@ -553,8 +558,8 @@ public interface DuckDbTypes {
   // "Object encoded" means each row becomes a keyed JSON object: {"col1": val1, "col2": val2}
 
   /**
-   * A JSON column type that stores a single row as a positional JSON array.
-   * Each field is encoded by position: {@code [val1, val2, val3]}.
+   * A JSON column type that stores a single row as a positional JSON array. Each field is encoded
+   * by position: {@code [val1, val2, val3]}.
    */
   static <Row> DuckDbType<Row> jsonArrayEncoded(RowCodec<Row> codec) {
     DbJson<Row> rowJson = DbJsonRow.jsonArray(codec);
@@ -564,8 +569,8 @@ public interface DuckDbTypes {
   }
 
   /**
-   * A JSON column type that stores a list of rows, each as a positional JSON array.
-   * The column contains: {@code [[val1, val2], [val3, val4], ...]}.
+   * A JSON column type that stores a list of rows, each as a positional JSON array. The column
+   * contains: {@code [[val1, val2], [val3, val4], ...]}.
    */
   static <Row> DuckDbType<List<Row>> jsonArrayEncodedList(RowCodec<Row> codec) {
     DbJson<List<Row>> rowJson = DbJsonRow.jsonArray(codec).list();
@@ -575,8 +580,8 @@ public interface DuckDbTypes {
   }
 
   /**
-   * A JSON column type that stores a single row as a keyed JSON object.
-   * Each field is encoded with its column name: {@code {"name": val1, "age": val2}}.
+   * A JSON column type that stores a single row as a keyed JSON object. Each field is encoded with
+   * its column name: {@code {"name": val1, "age": val2}}.
    */
   static <Row> DuckDbType<Row> jsonObjectEncoded(RowCodecNamed<Row> codec) {
     DbJson<Row> rowJson = DbJsonRow.jsonObject(codec);
@@ -586,8 +591,8 @@ public interface DuckDbTypes {
   }
 
   /**
-   * A JSON column type that stores a list of rows, each as a keyed JSON object.
-   * The column contains: {@code [{"name": val1, "age": val2}, ...]}.
+   * A JSON column type that stores a list of rows, each as a keyed JSON object. The column
+   * contains: {@code [{"name": val1, "age": val2}, ...]}.
    */
   static <Row> DuckDbType<List<Row>> jsonObjectEncodedList(RowCodecNamed<Row> codec) {
     DbJson<List<Row>> rowJson = DbJsonRow.jsonObject(codec).list();

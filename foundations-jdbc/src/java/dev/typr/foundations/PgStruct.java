@@ -1,9 +1,7 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.data.JsonValue;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -113,8 +111,15 @@ public record PgStruct<A>(
 
     PgOutParam<A> pgOutParam = PgOutParam.pgObject(textValue -> parseFromText(textValue));
 
-    return new PgType<>(typename.asGeneric(), pgRead, pgWrite, pgText, pgCompositeText, json,
-        pgOutParam, AnalysisOptions.EMPTY);
+    return new PgType<>(
+        typename.asGeneric(),
+        pgRead,
+        pgWrite,
+        pgText,
+        pgCompositeText,
+        json,
+        pgOutParam,
+        AnalysisOptions.EMPTY);
   }
 
   /** Create an optional version of this composite type. */
@@ -180,6 +185,7 @@ public record PgStruct<A>(
    * Create a type-safe composite type builder.
    *
    * <p>Usage:
+   *
    * <pre>{@code
    * PgStruct<Address> struct = PgStruct.<Address>builder("address")
    *     .field("street", PgTypes.text, Address::street)

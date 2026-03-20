@@ -7,7 +7,7 @@ import java.util.Iterator;
 import org.postgresql.PGConnection;
 import org.postgresql.util.PSQLException;
 
-public class streamingInsert {
+public class StreamingInsert {
   public static <T> Operation<Long> of(
       String copyCommand, int batchSize, Iterator<T> rows, PgText<T> text) {
     return new Operation.StreamingCopy<>(copyCommand, batchSize, rows, text);

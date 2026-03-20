@@ -43,7 +43,8 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun update(): Operation.Update =
         Operation.Update(dev.typr.foundations.Operation.Update(underlying))
 
-    fun execute(): Operation<Unit> = update().voided()
+    fun execute(): Operation.Execute =
+        Operation.Execute(dev.typr.foundations.Operation.Execute(underlying))
 
     fun <T> updateReturning(parser: ResultSetParser<T>): Operation.UpdateReturning<T> =
         Operation.UpdateReturning(dev.typr.foundations.Operation.UpdateReturning(underlying, parser.underlying))
@@ -216,6 +217,14 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
         ): RowTemplate.Query<In, Out> =
             RowTemplate.Query(dev.typr.foundations.Fragment.insertIntoReturning(
                 table, writeCodec.underlying, readCodec.underlying))
+
+        @JvmStatic
+        fun <Row : Any, Out> insertIntoGeneratedKeys(
+            table: String, codec: RowCodecNamed<Row>, generatedColumns: Array<String>,
+            parser: ResultSetParser<Out>, vararg except: String
+        ): RowTemplate.GeneratedKeys<Row, Out> =
+            RowTemplate.GeneratedKeys(dev.typr.foundations.Fragment.insertIntoGeneratedKeys(
+                table, codec.underlying, generatedColumns, parser.underlying, *except))
 
         @JvmStatic
         @JvmName("rowStatic")

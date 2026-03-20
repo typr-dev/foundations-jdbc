@@ -5,11 +5,11 @@ import dev.typr.foundations.Db2Types;
 
 @SuppressWarnings("unused")
 public class DomainType {
-    //start
-    // Wrapper type
-    public record ProductId(Long value) {}
+  // start
+  // Wrapper type
+  public record ProductId(Long value) {}
 
-    // Create Db2Type from bigint
-    Db2Type<ProductId> productIdType = Db2Types.bigint.transform(ProductId::new, ProductId::value);
-    //stop
+  // Create Db2Type from bigint
+  Db2Type<ProductId> productIdType = Db2Types.bigint.transform(ProductId::new, ProductId::value);
+  // stop
 }

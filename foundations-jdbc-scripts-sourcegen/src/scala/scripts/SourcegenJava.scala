@@ -19,6 +19,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("PgStructBuilders.java"), generatePgStructBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("DuckDbStructBuilders.java"), generateDuckDbStructBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("OracleObjectBuilders.java"), generateOracleObjectBuilders())
+      FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("RowCodecOf.java"), generateRowCodecOf())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("RowCodecBuilders.java"), generateRowCodecBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("RowCodecNamedBuilders.java"), generateNamedRowCodecBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("DbProcedure.java"), generateDbProcedure())
@@ -130,8 +131,40 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
         |""".stripMargin
   }
 
+  val OF_N = 22
+
+  def generateRowCodecOf(): String = {
+    val methods = 2.to(OF_N).map { n =>
+      val range = 0.until(n)
+      val tparamsDecl = range.map(nn => s"T$nn").mkString(", ")
+      val params = range.map(nn => s"DbType<T$nn> t$nn").mkString(", ")
+      val listArgs = range.map(nn => s"t$nn").mkString(", ")
+      val decodeArgs = range.map(nn => s"(T$nn) a[$nn]").mkString(", ")
+      val encodeArgs = range.map(nn => s"r._${nn + 1}()").mkString(", ")
+
+      s"""    @SuppressWarnings("unchecked")
+         |    public static <$tparamsDecl> RowCodec<Tuple.Tuple$n<$tparamsDecl>> of($params) {
+         |        return RowCodec.create(java.util.List.of($listArgs), a -> Tuple.of($decodeArgs), r -> new Object[]{$encodeArgs});
+         |    }""".stripMargin
+    }
+
+    s"""|package dev.typr.foundations;
+        |
+        |/**
+        | * Generated multi-column {@link RowCodec#of} factory methods returning Tuple types.
+        | * <p>
+        | * Use via {@link RowCodec#of(DbType, DbType)} etc.
+        | */
+        |final class RowCodecOf {
+        |    private RowCodecOf() {}
+        |
+        |${methods.mkString("\n\n")}
+        |}
+        |""".stripMargin
+  }
+
   def generateRowCodecBuilders(): String = {
-    val maxArity = N - 1  // N is 100, so 99 fields max (matching Functions.FunctionN)
+    val maxArity = N - 1 // N is 100, so 99 fields max (matching Functions.FunctionN)
 
     val builder0 = s"""|    public static final class Builder0<Row> {
                        |        private final java.util.List<DbType<?>> types = new java.util.ArrayList<>();
@@ -776,9 +809,9 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       val tpDecl = typeParamDecl(allTypeParams(i, o))
       val retType = outType(o)
       s"""    /** Procedure definition with $i input(s) and $o output(s). */
-         |    @FunctionalInterface
-         |    public interface Def${i}_${o}$tpDecl {
-         |        Operation<$retType> call(${ callArgs(i) });
+         |    public interface Def${i}_${o}$tpDecl extends RoutineDef {
+         |        Operation<$retType> call(${callArgs(i)});
+         |        Procedure<$retType> procedure();
          |    }""".stripMargin
     }
 
@@ -829,17 +862,21 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       val lambdaArgs = if (i == 0) "()" else s"(${callArgNames(i)})"
       val delegateCall = s"delegate.call(${callArgNames(i)})"
 
+      val anonReturn = s"""            return new Def${i}_${o}$tpDecl() {
+             |                @Override public Operation<$retType> call(${callArgs(i)}) { return $delegateCall; }
+             |                @Override public Procedure<$retType> procedure() { return delegate; }
+             |            };"""
       val buildBody = o match {
         case 0 =>
           s"""            Procedure<Void> delegate = Procedure.buildVoid(name, java.util.List.copyOf(params));
-             |            return $lambdaArgs -> $delegateCall;""".stripMargin
+             |$anonReturn""".stripMargin
         case 1 =>
           s"""            Procedure<O0> delegate = Procedure.buildSingleOut(name, java.util.List.copyOf(params));
-             |            return $lambdaArgs -> $delegateCall;""".stripMargin
+             |$anonReturn""".stripMargin
         case n =>
           val castArgs = 0.until(n).map(k => s"(O$k) values[$k]").mkString(", ")
           s"""            Procedure<$retType> delegate = Procedure.buildMultiOut(name, java.util.List.copyOf(params), values -> Tuple.of($castArgs));
-             |            return $lambdaArgs -> $delegateCall;""".stripMargin
+             |$anonReturn""".stripMargin
       }
 
       s"""    public static final class Builder_${i}_${o}$tpDecl {
@@ -927,9 +964,9 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
     val defs = (0 to maxArity).map { i =>
       val tp = iParams(i) ::: List("R")
       s"""    /** Function definition with $i input(s). */
-         |    @FunctionalInterface
-         |    public interface Def$i${typeParamDecl(tp)} {
+         |    public interface Def$i${typeParamDecl(tp)} extends RoutineDef {
          |        Operation<R> call(${callArgs(i)});
+         |        Procedure<R> procedure();
          |    }""".stripMargin
     }
 
@@ -962,9 +999,13 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
          |            this.returnType = returnType;
          |        }
          |$inMethod
+         |        @SuppressWarnings("unchecked")
          |        public Def$i$tpDecl build() {
          |            Procedure<R> delegate = Procedure.buildFunction(name, java.util.List.copyOf(inParams), returnType);
-         |            return $lambdaArgs -> $delegateCall;
+         |            return new Def$i$tpDecl() {
+         |                @Override public Operation<R> call(${callArgs(i)}) { return $delegateCall; }
+         |                @Override public Procedure<R> procedure() { return delegate; }
+         |            };
          |        }
          |    }""".stripMargin
     }
@@ -1296,8 +1337,8 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
         var start = 0
         for (i <- params.indices) {
           params.charAt(i) match {
-            case '<' => depth += 1
-            case '>' => depth -= 1
+            case '<'               => depth += 1
+            case '>'               => depth -= 1
             case ',' if depth == 0 =>
               parts += params.substring(start, i).trim
               start = i + 1
@@ -1384,7 +1425,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       // Abort / timeout
       Method("void", "abort", "java.util.concurrent.Executor executor", "SQLException"),
       Method("void", "setNetworkTimeout", "java.util.concurrent.Executor executor, int milliseconds", "SQLException"),
-      Method("int", "getNetworkTimeout", "", "SQLException"),
+      Method("int", "getNetworkTimeout", "", "SQLException")
     )
 
     val delegations = methods.map(_.delegation).mkString("\n\n")

@@ -2,14 +2,13 @@ package dev.typr.foundationssc.docs.duckdb
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.{List, UUID}
 
 @SuppressWarnings(Array("unused"))
 object ListTypes:
-  //start
+  // start
   // Pre-defined list types with optimized native JNI support
   val listInt: DuckDbType[List[Integer]] = DuckDbTypes.listInteger
   val listStr: DuckDbType[List[String]] = DuckDbTypes.listVarchar
@@ -19,4 +18,4 @@ object ListTypes:
   val listUuid: DuckDbType[List[UUID]] = DuckDbTypes.listUuid
   val listDate: DuckDbType[List[LocalDate]] = DuckDbTypes.listDate
   val listDecimal: DuckDbType[List[BigDecimal]] = DuckDbTypes.listDecimal
-  //stop
+  // stop

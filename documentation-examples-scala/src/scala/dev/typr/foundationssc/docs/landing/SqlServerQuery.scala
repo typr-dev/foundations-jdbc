@@ -12,7 +12,7 @@ object SqlServerQuery:
   val maxPrice: Option[BigDecimal] = None
   val conn: Connection = null // placeholder
 
-  //start
+  // start
   // Build small reusable filters - SQL Server example
   val nvarchar = SqlServerTypes.nvarchar
   val decimal = SqlServerTypes.decimal
@@ -34,4 +34,4 @@ object SqlServerQuery:
     sql"SELECT * FROM orders ${Fragment.whereAnd(filters)}"
       .query(orderRowCodec.all())
       .run(conn)
-  //stop
+  // stop

@@ -51,6 +51,7 @@ open class MariaTypes {
     open val json = MariaType(JavaMariaTypes.json)
     open val inet4 = MariaType(JavaMariaTypes.inet4)
     open val inet6 = MariaType(JavaMariaTypes.inet6)
+    open val uuid = MariaType(JavaMariaTypes.uuid)
     open val geometry = MariaType(JavaMariaTypes.geometry)
     open val point = MariaType(JavaMariaTypes.point)
     open val linestring = MariaType(JavaMariaTypes.linestring)
@@ -77,6 +78,8 @@ open class MariaTypes {
     open fun datetime(fsp: Int) = MariaType(JavaMariaTypes.datetime(fsp))
 
     open fun timestamp(fsp: Int) = MariaType(JavaMariaTypes.timestamp(fsp))
+
+    open fun vector(dimension: Int) = MariaType(JavaMariaTypes.vector(dimension))
 
     open fun <E : Enum<E>> ofEnum(sqlType: String, fromString: java.util.function.Function<String, E>) =
         MariaType(JavaMariaTypes.ofEnum(sqlType, fromString))

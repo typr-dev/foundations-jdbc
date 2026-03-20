@@ -5,8 +5,8 @@ import dev.typr.foundations.MariaTypes;
 
 @SuppressWarnings("unused")
 public class FloatingPointTypes {
-    //start
-    MariaType<Float> floatType = MariaTypes.float_;
-    MariaType<Double> doubleType = MariaTypes.double_;
-    //stop
+  // start
+  MariaType<Float> floatType = MariaTypes.float_;
+  MariaType<Double> doubleType = MariaTypes.double_;
+  // stop
 }

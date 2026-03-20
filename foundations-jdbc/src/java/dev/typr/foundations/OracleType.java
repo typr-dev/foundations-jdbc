@@ -18,7 +18,6 @@ public record OracleType<A>(
     AnalysisOptions analysisOptions)
     implements DbType<A> {
 
-
   @Override
   public java.util.Optional<DbOutParam<A>> outParam() {
     return java.util.Optional.of(oracleOutParam);
@@ -43,8 +42,14 @@ public record OracleType<A>(
     return Set.copyOf(all);
   }
 
-  public OracleType<A> unchecked() { return withAnalysis(analysisOptions.withUnchecked()); }
-  public OracleType<A> nullableOk() { return withAnalysis(analysisOptions.withNullableOk()); }
+  public OracleType<A> unchecked() {
+    return withAnalysis(analysisOptions.withUnchecked());
+  }
+
+  public OracleType<A> nullableOk() {
+    return withAnalysis(analysisOptions.withNullableOk());
+  }
+
   public OracleType<A> withAnalysis(AnalysisOptions opts) {
     return new OracleType<>(typename, read, write, oracleJson, oracleOutParam, opts);
   }
@@ -87,8 +92,12 @@ public record OracleType<A>(
 
   public OracleType<Optional<A>> opt() {
     return new OracleType<>(
-        typename.opt(), read.opt(), write.opt(typename), oracleJson.opt(),
-        oracleOutParam.opt(), analysisOptions);
+        typename.opt(),
+        read.opt(),
+        write.opt(typename),
+        oracleJson.opt(),
+        oracleOutParam.opt(),
+        analysisOptions);
   }
 
   @Override
@@ -104,8 +113,12 @@ public record OracleType<A>(
 
   public <B> OracleType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     return new OracleType<>(
-        typename.as(), read.map(f), write.contramap(g), oracleJson.transform(f, g),
-        oracleOutParam.map(f), analysisOptions);
+        typename.as(),
+        read.map(f),
+        write.contramap(g),
+        oracleJson.transform(f, g),
+        oracleOutParam.map(f),
+        analysisOptions);
   }
 
   public static <A> OracleType<A> of(
@@ -114,7 +127,10 @@ public record OracleType<A>(
   }
 
   public static <A> OracleType<A> of(
-      OracleTypename<A> typename, OracleRead<A> r, OracleWrite<A> w, OracleJson<A> j,
+      OracleTypename<A> typename,
+      OracleRead<A> r,
+      OracleWrite<A> w,
+      OracleJson<A> j,
       OracleOutParam<A> cr) {
     return new OracleType<>(typename, r, w, j, cr, AnalysisOptions.EMPTY);
   }

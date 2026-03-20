@@ -12,7 +12,7 @@ Streaming inserts use PostgreSQL's `COPY FROM STDIN` protocol. This feature is n
 
 Streaming inserts use PostgreSQL's COPY protocol to load data significantly faster than individual INSERT statements. Data is text-encoded in batches and streamed directly to the server, bypassing the overhead of prepared statements.
 
-`streamingInsert.of()` returns an `Operation<Long>` that can be transacted like any other operation. The COPY participates in the current transaction, so it can be composed with other operations atomically.
+`StreamingInsert.of()` returns an `Operation<Long>` that can be transacted like any other operation. The COPY participates in the current transaction, so it can be composed with other operations atomically.
 
 ## Single Column
 

@@ -6,8 +6,8 @@ import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class NullableTypes {
-    //start
-    PgType<Integer> notNull = PgTypes.int4;
-    PgType<Optional<Integer>> nullable = PgTypes.int4.opt();  // null values allowed
-    //stop
+  // start
+  PgType<Integer> notNull = PgTypes.int4;
+  PgType<Optional<Integer>> nullable = PgTypes.int4.opt(); // null values allowed
+  // stop
 }

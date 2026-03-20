@@ -6,7 +6,7 @@ import dev.typr.foundations.data.HierarchyId;
 
 @SuppressWarnings("unused")
 public class HierarchyIdType {
-    //start
-    SqlServerType<HierarchyId> hierarchyType = SqlServerTypes.hierarchyid;
-    //stop
+  // start
+  SqlServerType<HierarchyId> hierarchyType = SqlServerTypes.hierarchyid;
+  // stop
 }

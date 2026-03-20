@@ -6,8 +6,8 @@ import dev.typr.foundations.data.PaddedString;
 
 @SuppressWarnings("unused")
 public class PaddedStringTypes {
-    //start
-    OracleType<PaddedString> padded = OracleTypes.charPadded(10);  // CHAR(10)
-    OracleType<PaddedString> npadded = OracleTypes.ncharPadded(10); // NCHAR(10)
-    //stop
+  // start
+  OracleType<PaddedString> padded = OracleTypes.charPadded(10); // CHAR(10)
+  OracleType<PaddedString> npadded = OracleTypes.ncharPadded(10); // NCHAR(10)
+  // stop
 }

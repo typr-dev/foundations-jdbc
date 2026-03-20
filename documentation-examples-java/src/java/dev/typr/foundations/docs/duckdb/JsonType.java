@@ -6,9 +6,9 @@ import dev.typr.foundations.data.Json;
 
 @SuppressWarnings("unused")
 public class JsonType {
-    //start
-    DuckDbType<Json> jsonType = DuckDbTypes.json;
+  // start
+  DuckDbType<Json> jsonType = DuckDbTypes.json;
 
-    Json data = new Json("{\"name\": \"DuckDB\"}");
-    //stop
+  Json data = new Json("{\"name\": \"DuckDB\"}");
+  // stop
 }

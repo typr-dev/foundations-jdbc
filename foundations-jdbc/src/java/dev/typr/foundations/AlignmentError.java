@@ -1,25 +1,20 @@
 package dev.typr.foundations;
+
 import java.util.Set;
 
 /**
- * Errors detected during query analysis. Each error describes a mismatch between
- * what the code declares and what the database expects/provides.
+ * Errors detected during query analysis. Each error describes a mismatch between what the code
+ * declares and what the database expects/provides.
  */
 public sealed interface AlignmentError {
 
-  /**
-   * 1-indexed position of the error (parameter or column number).
-   */
+  /** 1-indexed position of the error (parameter or column number). */
   int position();
 
-  /**
-   * Styled error message with optional ANSI colors.
-   */
+  /** Styled error message with optional ANSI colors. */
   Str styledMessage();
 
-  /**
-   * Human-readable error message (plain text).
-   */
+  /** Human-readable error message (plain text). */
   default String message() {
     return styledMessage().plainText();
   }
@@ -28,10 +23,7 @@ public sealed interface AlignmentError {
   // Parameter errors
   // ─────────────────────────────────────────────────────────────────────────────
 
-  record ExtraParameter(
-      int position,
-      DbType<?> type
-  ) implements AlignmentError {
+  record ExtraParameter(int position, DbType<?> type) implements AlignmentError {
     @Override
     public Str styledMessage() {
       return Str.plain("Parameter ")
@@ -42,10 +34,7 @@ public sealed interface AlignmentError {
     }
   }
 
-  record MissingParameter(
-      int position,
-      JdbcMeta.ParameterMeta meta
-  ) implements AlignmentError {
+  record MissingParameter(int position, JdbcMeta.ParameterMeta meta) implements AlignmentError {
     @Override
     public Str styledMessage() {
       return Str.plain("Parameter ")
@@ -61,8 +50,8 @@ public sealed interface AlignmentError {
       DbType<?> declared,
       JdbcMeta.ParameterMeta expected,
       Set<String> declaredTypeNames,
-      String reason
-  ) implements AlignmentError {
+      String reason)
+      implements AlignmentError {
     @Override
     public Str styledMessage() {
       return Str.plain("Parameter ")
@@ -86,10 +75,7 @@ public sealed interface AlignmentError {
   // Column errors
   // ─────────────────────────────────────────────────────────────────────────────
 
-  record ExtraColumn(
-      int position,
-      DbType<?> type
-  ) implements AlignmentError {
+  record ExtraColumn(int position, DbType<?> type) implements AlignmentError {
     @Override
     public Str styledMessage() {
       return Str.plain("Column ")
@@ -100,10 +86,7 @@ public sealed interface AlignmentError {
     }
   }
 
-  record MissingColumn(
-      int position,
-      JdbcMeta.ColumnMeta meta
-  ) implements AlignmentError {
+  record MissingColumn(int position, JdbcMeta.ColumnMeta meta) implements AlignmentError {
     @Override
     public Str styledMessage() {
       return Str.plain("Column ")
@@ -122,8 +105,8 @@ public sealed interface AlignmentError {
       DbType<?> declared,
       JdbcMeta.ColumnMeta returned,
       Set<String> declaredTypeNames,
-      String reason
-  ) implements AlignmentError {
+      String reason)
+      implements AlignmentError {
     @Override
     public Str styledMessage() {
       return Str.plain("Column ")
@@ -145,11 +128,8 @@ public sealed interface AlignmentError {
     }
   }
 
-  record NullabilityMismatch(
-      int position,
-      String columnName,
-      DbType<?> type
-  ) implements AlignmentError {
+  record NullabilityMismatch(int position, String columnName, DbType<?> type)
+      implements AlignmentError {
     @Override
     public Str styledMessage() {
       return Str.plain("Column ")

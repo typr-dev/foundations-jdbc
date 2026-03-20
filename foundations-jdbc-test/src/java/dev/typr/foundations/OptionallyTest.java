@@ -32,15 +32,18 @@ public class OptionallyTest {
   public void testBooleanOptionally() throws SQLException {
     try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement().execute(
-          "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
-      conn.createStatement().execute(
-          "INSERT INTO " + table + " VALUES ('Widget', 9.99, true), ('Gadget', 19.99, false)");
+      conn.createStatement()
+          .execute(
+              "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
+      conn.createStatement()
+          .execute(
+              "INSERT INTO " + table + " VALUES ('Widget', 9.99, true), ('Gadget', 19.99, false)");
 
-      var template = Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-          .optionally(Fragment.of(" AND active = true"))
-          .append(" ORDER BY name")
-          .query(productCodec.all());
+      var template =
+          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
+              .optionally(Fragment.of(" AND active = true"))
+              .append(" ORDER BY name")
+              .query(productCodec.all());
 
       List<Product> result1 = template.on(true).run(conn);
       assertEquals(1, result1.size());
@@ -55,15 +58,21 @@ public class OptionallyTest {
   public void testSingleParamOptionally() throws SQLException {
     try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement().execute(
-          "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
-      conn.createStatement().execute(
-          "INSERT INTO " + table + " VALUES ('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
+      conn.createStatement()
+          .execute(
+              "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
+      conn.createStatement()
+          .execute(
+              "INSERT INTO "
+                  + table
+                  + " VALUES ('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00,"
+                  + " true)");
 
-      var template = Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-          .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-          .append(" ORDER BY name")
-          .query(productCodec.all());
+      var template =
+          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
+              .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
+              .append(" ORDER BY name")
+              .query(productCodec.all());
 
       List<Product> result1 = template.on(Optional.of("Widget")).run(conn);
       assertEquals(1, result1.size());
@@ -78,25 +87,30 @@ public class OptionallyTest {
   public void testMultipleOptionally() throws SQLException {
     try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement().execute(
-          "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
-      conn.createStatement().execute(
-          "INSERT INTO " + table + " VALUES "
-              + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
+      conn.createStatement()
+          .execute(
+              "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
+      conn.createStatement()
+          .execute(
+              "INSERT INTO "
+                  + table
+                  + " VALUES "
+                  + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
 
-      var template = Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-          .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-          .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimal(10, 2)))
-          .optionally(Fragment.of(" AND active = true"))
-          .append(" ORDER BY name")
-          .query(productCodec.all());
+      var template =
+          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
+              .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
+              .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimal(10, 2)))
+              .optionally(Fragment.of(" AND active = true"))
+              .append(" ORDER BY name")
+              .query(productCodec.all());
 
       List<Product> result1 = template.on(Optional.of("Widget"), Optional.empty(), false).run(conn);
       assertEquals(1, result1.size());
       assertEquals("Widget", result1.getFirst().name());
 
-      List<Product> result2 = template.on(
-          Optional.empty(), Optional.of(new BigDecimal("6.00")), true).run(conn);
+      List<Product> result2 =
+          template.on(Optional.empty(), Optional.of(new BigDecimal("6.00")), true).run(conn);
       assertEquals(1, result2.size());
       assertEquals("Widget", result2.getFirst().name());
 
@@ -109,17 +123,22 @@ public class OptionallyTest {
   public void testMixedParamAndOptionally() throws SQLException {
     try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement().execute(
-          "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
-      conn.createStatement().execute(
-          "INSERT INTO " + table + " VALUES "
-              + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
+      conn.createStatement()
+          .execute(
+              "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
+      conn.createStatement()
+          .execute(
+              "INSERT INTO "
+                  + table
+                  + " VALUES "
+                  + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
 
-      var template = Fragment.of("SELECT name, price, active FROM " + table + " WHERE active = ")
-          .param(DuckDbTypes.boolean_)
-          .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-          .append(" ORDER BY name")
-          .query(productCodec.all());
+      var template =
+          Fragment.of("SELECT name, price, active FROM " + table + " WHERE active = ")
+              .param(DuckDbTypes.boolean_)
+              .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
+              .append(" ORDER BY name")
+              .query(productCodec.all());
 
       List<Product> result1 = template.on(true, Optional.empty()).run(conn);
       assertEquals(2, result1.size());
@@ -134,21 +153,28 @@ public class OptionallyTest {
   public void testTwoParamOptionally() throws SQLException {
     try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement().execute(
-          "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
-      conn.createStatement().execute(
-          "INSERT INTO " + table + " VALUES "
-              + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
+      conn.createStatement()
+          .execute(
+              "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
+      conn.createStatement()
+          .execute(
+              "INSERT INTO "
+                  + table
+                  + " VALUES "
+                  + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
 
       var decType = DuckDbTypes.decimal(10, 2);
-      var template = Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-          .optionally(
-              Fragment.of(" AND price BETWEEN ").param(decType).append(" AND ").param(decType))
-          .append(" ORDER BY name")
-          .query(productCodec.all());
+      var template =
+          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
+              .optionally(
+                  Fragment.of(" AND price BETWEEN ").param(decType).append(" AND ").param(decType))
+              .append(" ORDER BY name")
+              .query(productCodec.all());
 
-      List<Product> result1 = template.on(
-          Optional.of(Tuple.of(new BigDecimal("5.00"), new BigDecimal("10.00")))).run(conn);
+      List<Product> result1 =
+          template
+              .on(Optional.of(Tuple.of(new BigDecimal("5.00"), new BigDecimal("10.00"))))
+              .run(conn);
       assertEquals(2, result1.size());
       assertEquals("Wand", result1.get(0).name());
       assertEquals("Widget", result1.get(1).name());
@@ -162,15 +188,17 @@ public class OptionallyTest {
   public void testAnalysisVariants() throws SQLException {
     try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement().execute(
-          "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
+      conn.createStatement()
+          .execute(
+              "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
 
-      var template = Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-          .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-          .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimal(10, 2)))
-          .optionally(Fragment.of(" AND active = true"))
-          .append(" ORDER BY name")
-          .query(productCodec.all());
+      var template =
+          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
+              .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
+              .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimal(10, 2)))
+              .optionally(Fragment.of(" AND active = true"))
+              .append(" ORDER BY name")
+              .query(productCodec.all());
 
       List<Fragment> variants = OptionallyResolver.analysisVariants(template.fragment());
       assertEquals(8, variants.size());
@@ -187,13 +215,15 @@ public class OptionallyTest {
   public void testAnalysisWithOptionallyProducesCorrectVariantCount() throws SQLException {
     try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement().execute(
-          "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
+      conn.createStatement()
+          .execute(
+              "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
 
-      var template = Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-          .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-          .append(" ORDER BY name")
-          .query(productCodec.all());
+      var template =
+          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
+              .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
+              .append(" ORDER BY name")
+              .query(productCodec.all());
 
       List<QueryAnalysis> analyses = QueryAnalyzer.analyze(template, conn);
       assertEquals(2, analyses.size());
@@ -204,9 +234,10 @@ public class OptionallyTest {
 
   @Test
   public void testOptionallyRendering() {
-    var fragment = Fragment.of("SELECT * FROM t WHERE 1=1")
-        .optionally(Fragment.of(" AND active = true"))
-        .done();
+    var fragment =
+        Fragment.of("SELECT * FROM t WHERE 1=1")
+            .optionally(Fragment.of(" AND active = true"))
+            .done();
 
     String rendered = fragment.render();
     assertTrue(rendered.contains("AND active = true"));
@@ -216,8 +247,13 @@ public class OptionallyTest {
   public void testCountParams() {
     assertEquals(0, Fragment.countParams(Fragment.of("hello")));
     assertEquals(1, Fragment.countParams(Fragment.of(" x = ").param(DuckDbTypes.integer).done()));
-    assertEquals(2, Fragment.countParams(
-        Fragment.of(" BETWEEN ").param(DuckDbTypes.integer)
-            .append(" AND ").param(DuckDbTypes.integer).done()));
+    assertEquals(
+        2,
+        Fragment.countParams(
+            Fragment.of(" BETWEEN ")
+                .param(DuckDbTypes.integer)
+                .append(" AND ")
+                .param(DuckDbTypes.integer)
+                .done()));
   }
 }

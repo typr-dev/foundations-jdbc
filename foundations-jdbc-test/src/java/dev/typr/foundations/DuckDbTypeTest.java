@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Test;
 
 /**
@@ -102,8 +101,7 @@ public class DuckDbTypeTest {
 
   DuckDbType<IntOrString> intOrStringType = intOrStringUnion.asType();
 
-  record DuckDbTypeAndExample<A>(
-      DuckDbType<A> type, A example, boolean hasIdentity) {
+  record DuckDbTypeAndExample<A>(DuckDbType<A> type, A example, boolean hasIdentity) {
     public DuckDbTypeAndExample(DuckDbType<A> type, A example) {
       this(type, example, true);
     }
@@ -208,7 +206,7 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {0x01, 0x02, 0x03, 0x04, 0x05}),
           new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {}),
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.blob, new byte[] {(byte) 0xFF, 0x00, 0x7F, (byte) 0x80}),
+              DuckDbTypes.blob, new byte[] {(byte) 0xFF, 0x00, 0x7F, (byte) 0x80}),
           new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {0x00}),
 
           // ==================== Date/Time Types ====================
@@ -435,16 +433,13 @@ public class DuckDbTypeTest {
 
           // ==================== LIST of STRUCT Types ====================
           new DuckDbTypeAndExample<>(
-                  personType.list(),
-                  List.of(new Person("Alice", 30), new Person("Bob", 25)))
+                  personType.list(), List.of(new Person("Alice", 30), new Person("Bob", 25)))
               .noIdentity(),
           new DuckDbTypeAndExample<>(personType.list(), List.of()).noIdentity(),
 
           // ==================== UNION Types ====================
-          new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Num(42))
-              .noIdentity(),
-          new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Str("hello"))
-              .noIdentity(),
+          new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Num(42)).noIdentity(),
+          new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Str("hello")).noIdentity(),
 
           // ==================== LIST of UNION Types ====================
           new DuckDbTypeAndExample<>(
@@ -543,10 +538,7 @@ public class DuckDbTypeTest {
                         });
                   } catch (Exception e) {
                     errors.add(
-                        "Analysis FAILED "
-                            + t.type.typename().sqlType()
-                            + ": "
-                            + e.getMessage());
+                        "Analysis FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
                   }
                   if (t.hasIdentity) {
                     try {
@@ -640,8 +632,8 @@ public class DuckDbTypeTest {
     }
   }
 
-
-  static <A> void testQueryAnalysis(Connection conn, DuckDbTypeAndExample<A> t) throws SQLException {
+  static <A> void testQueryAnalysis(Connection conn, DuckDbTypeAndExample<A> t)
+      throws SQLException {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("qa");
     conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
@@ -650,24 +642,28 @@ public class DuckDbTypeTest {
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
-        throw new RuntimeException("Query analysis failed for " + sqlType + ":\n" + analysis.report());
+        throw new RuntimeException(
+            "Query analysis failed for " + sqlType + ":\n" + analysis.report());
       }
     } finally {
       conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
     }
   }
 
-  static <A> void testQueryAnalysisWithParam(Connection conn, DuckDbTypeAndExample<A> t) throws SQLException {
+  static <A> void testQueryAnalysisWithParam(Connection conn, DuckDbTypeAndExample<A> t)
+      throws SQLException {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("qap");
-    conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
+    conn.createStatement()
+        .execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
-      Fragment fragment = Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
-          .value(t.type, t.example);
+      Fragment fragment =
+          Fragment.of("SELECT v FROM " + tableName + " WHERE v = ").value(t.type, t.example);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
-        throw new RuntimeException("Param analysis failed for " + sqlType + ":\n" + analysis.report());
+        throw new RuntimeException(
+            "Param analysis failed for " + sqlType + ":\n" + analysis.report());
       }
     } finally {
       conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
@@ -811,53 +807,57 @@ public class DuckDbTypeTest {
   public void testListOfUnion() {
     DuckDbType<List<IntOrString>> listOfUnionType = intOrStringType.list();
 
-    withConnection(conn -> {
-      var stmt = conn.createStatement();
-      String tableName = uniqueTableName("union_list_test");
-      stmt.execute("CREATE TEMPORARY TABLE " + tableName + " (v UNION(num INTEGER, str VARCHAR)[])");
+    withConnection(
+        conn -> {
+          var stmt = conn.createStatement();
+          String tableName = uniqueTableName("union_list_test");
+          stmt.execute(
+              "CREATE TEMPORARY TABLE " + tableName + " (v UNION(num INTEGER, str VARCHAR)[])");
 
-      List<IntOrString> mixed = List.of(new IntOrString.Num(42), new IntOrString.Str("hello"));
-      List<IntOrString> allNums = List.of(new IntOrString.Num(1), new IntOrString.Num(2), new IntOrString.Num(3));
-      List<IntOrString> allStrs = List.of(new IntOrString.Str("a"), new IntOrString.Str("b"));
-      List<IntOrString> empty = List.of();
+          List<IntOrString> mixed = List.of(new IntOrString.Num(42), new IntOrString.Str("hello"));
+          List<IntOrString> allNums =
+              List.of(new IntOrString.Num(1), new IntOrString.Num(2), new IntOrString.Num(3));
+          List<IntOrString> allStrs = List.of(new IntOrString.Str("a"), new IntOrString.Str("b"));
+          List<IntOrString> empty = List.of();
 
-      batchInsert(conn, listOfUnionType, tableName, mixed);
-      batchInsert(conn, listOfUnionType, tableName, allNums);
-      batchInsert(conn, listOfUnionType, tableName, allStrs);
-      batchInsert(conn, listOfUnionType, tableName, empty);
+          batchInsert(conn, listOfUnionType, tableName, mixed);
+          batchInsert(conn, listOfUnionType, tableName, allNums);
+          batchInsert(conn, listOfUnionType, tableName, allStrs);
+          batchInsert(conn, listOfUnionType, tableName, empty);
 
-      var rs = stmt.executeQuery("SELECT v FROM " + tableName + " ORDER BY rowid");
+          var rs = stmt.executeQuery("SELECT v FROM " + tableName + " ORDER BY rowid");
 
-      // Row 1: mixed [Num(42), Str("hello")]
-      if (!rs.next()) throw new RuntimeException("Expected row 1");
-      List<IntOrString> row1 = listOfUnionType.read().read(rs, 1);
-      assertEquals(row1.size(), 2, "row1 size");
-      assertEquals(row1.get(0), new IntOrString.Num(42), "row1[0]");
-      assertEquals(row1.get(1), new IntOrString.Str("hello"), "row1[1]");
+          // Row 1: mixed [Num(42), Str("hello")]
+          if (!rs.next()) throw new RuntimeException("Expected row 1");
+          List<IntOrString> row1 = listOfUnionType.read().read(rs, 1);
+          assertEquals(row1.size(), 2, "row1 size");
+          assertEquals(row1.get(0), new IntOrString.Num(42), "row1[0]");
+          assertEquals(row1.get(1), new IntOrString.Str("hello"), "row1[1]");
 
-      // Row 2: all nums [Num(1), Num(2), Num(3)]
-      if (!rs.next()) throw new RuntimeException("Expected row 2");
-      List<IntOrString> row2 = listOfUnionType.read().read(rs, 1);
-      assertEquals(row2.size(), 3, "row2 size");
-      assertEquals(row2.get(0), new IntOrString.Num(1), "row2[0]");
-      assertEquals(row2.get(1), new IntOrString.Num(2), "row2[1]");
-      assertEquals(row2.get(2), new IntOrString.Num(3), "row2[2]");
+          // Row 2: all nums [Num(1), Num(2), Num(3)]
+          if (!rs.next()) throw new RuntimeException("Expected row 2");
+          List<IntOrString> row2 = listOfUnionType.read().read(rs, 1);
+          assertEquals(row2.size(), 3, "row2 size");
+          assertEquals(row2.get(0), new IntOrString.Num(1), "row2[0]");
+          assertEquals(row2.get(1), new IntOrString.Num(2), "row2[1]");
+          assertEquals(row2.get(2), new IntOrString.Num(3), "row2[2]");
 
-      // Row 3: all strings [Str("a"), Str("b")]
-      if (!rs.next()) throw new RuntimeException("Expected row 3");
-      List<IntOrString> row3 = listOfUnionType.read().read(rs, 1);
-      assertEquals(row3.size(), 2, "row3 size");
-      assertEquals(row3.get(0), new IntOrString.Str("a"), "row3[0]");
-      assertEquals(row3.get(1), new IntOrString.Str("b"), "row3[1]");
+          // Row 3: all strings [Str("a"), Str("b")]
+          if (!rs.next()) throw new RuntimeException("Expected row 3");
+          List<IntOrString> row3 = listOfUnionType.read().read(rs, 1);
+          assertEquals(row3.size(), 2, "row3 size");
+          assertEquals(row3.get(0), new IntOrString.Str("a"), "row3[0]");
+          assertEquals(row3.get(1), new IntOrString.Str("b"), "row3[1]");
 
-      // Row 4: empty list
-      if (!rs.next()) throw new RuntimeException("Expected row 4");
-      List<IntOrString> row4 = listOfUnionType.read().read(rs, 1);
-      assertEquals(row4.size(), 0, "row4 size");
+          // Row 4: empty list
+          if (!rs.next()) throw new RuntimeException("Expected row 4");
+          List<IntOrString> row4 = listOfUnionType.read().read(rs, 1);
+          assertEquals(row4.size(), 0, "row4 size");
 
-      System.out.println("List of UNION write+read test passed: mixed, all-num, all-str, empty");
-      return null;
-    });
+          System.out.println(
+              "List of UNION write+read test passed: mixed, all-num, all-str, empty");
+          return null;
+        });
   }
 
   @Test
@@ -866,15 +866,15 @@ public class DuckDbTypeTest {
     DuckDbJson<List<IntOrString>> jsonCodec = listOfUnionType.duckDbJson();
 
     // Mixed types
-    List<IntOrString> mixed = List.of(
-        new IntOrString.Num(42), new IntOrString.Str("hello"), new IntOrString.Num(7));
+    List<IntOrString> mixed =
+        List.of(new IntOrString.Num(42), new IntOrString.Str("hello"), new IntOrString.Num(7));
     JsonValue jsonMixed = jsonCodec.toJson(mixed);
     List<IntOrString> decodedMixed = jsonCodec.fromJson(JsonValue.parse(jsonMixed.encode()));
     assertEquals(decodedMixed, mixed, "mixed JSON roundtrip");
 
     // All nums
-    List<IntOrString> allNums = List.of(
-        new IntOrString.Num(1), new IntOrString.Num(2), new IntOrString.Num(3));
+    List<IntOrString> allNums =
+        List.of(new IntOrString.Num(1), new IntOrString.Num(2), new IntOrString.Num(3));
     JsonValue jsonNums = jsonCodec.toJson(allNums);
     List<IntOrString> decodedNums = jsonCodec.fromJson(JsonValue.parse(jsonNums.encode()));
     assertEquals(decodedNums, allNums, "all-nums JSON roundtrip");

@@ -7,10 +7,10 @@ import java.time.Duration
 
 @SuppressWarnings(Array("unused"))
 object OperationNamed:
-  //start
+  // start
   val users: Operation[List[String]] =
     sql"SELECT name FROM users"
       .queryAll(PgTypes.text)
       .named("load-users")
       .timeout(Duration.ofSeconds(5))
-  //stop
+  // stop

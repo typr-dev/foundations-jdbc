@@ -1,8 +1,5 @@
 package dev.typr.foundations.connect;
 
-import dev.typr.foundations.Transactor;
-import dev.typr.foundations.connect.DatabaseConfig;
-import dev.typr.foundations.connect.DatabaseKind;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -1564,26 +1561,6 @@ public final class MariaDbConfig implements DatabaseConfig {
     public Builder property(String key, String value) {
       this.extraProperties.put(key, value);
       return this;
-    }
-
-    /** Shortcut for {@code build().transactor()}. */
-    public Transactor transactor() {
-      return build().transactor();
-    }
-
-    /** Shortcut for {@code build().transactor(strategy)}. */
-    public Transactor transactor(Transactor.Strategy strategy) {
-      return build().transactor(strategy);
-    }
-
-    /** Shortcut for {@code build().transactor(settings)}. */
-    public Transactor transactor(ConnectionSettings settings) {
-      return build().transactor(settings);
-    }
-
-    /** Shortcut for {@code build().transactor(settings, strategy)}. */
-    public Transactor transactor(ConnectionSettings settings, Transactor.Strategy strategy) {
-      return build().transactor(settings, strategy);
     }
 
     /**

@@ -30,7 +30,11 @@ object Procedure {
   def buildSingleOut[O](name: String, params: java.util.List[dev.typr.foundations.ParamDef]): dev.typr.foundations.Procedure[O] =
     dev.typr.foundations.Procedure.buildSingleOut(name, params)
 
-  def buildMultiOut[O](name: String, params: java.util.List[dev.typr.foundations.ParamDef], assembler: java.util.function.Function[Array[AnyRef], O]): dev.typr.foundations.Procedure[O] =
+  def buildMultiOut[O](
+      name: String,
+      params: java.util.List[dev.typr.foundations.ParamDef],
+      assembler: java.util.function.Function[Array[AnyRef], O]
+  ): dev.typr.foundations.Procedure[O] =
     dev.typr.foundations.Procedure.buildMultiOut(name, params, assembler)
 
   def buildFunction[R](name: String, inParams: java.util.List[dev.typr.foundations.ParamDef], returnType: DbType[R]): dev.typr.foundations.Procedure[R] =

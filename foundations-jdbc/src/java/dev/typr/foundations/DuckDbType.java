@@ -43,8 +43,14 @@ public record DuckDbType<A>(
     return Set.copyOf(all);
   }
 
-  public DuckDbType<A> unchecked() { return withAnalysis(analysisOptions.withUnchecked()); }
-  public DuckDbType<A> nullableOk() { return withAnalysis(analysisOptions.withNullableOk()); }
+  public DuckDbType<A> unchecked() {
+    return withAnalysis(analysisOptions.withUnchecked());
+  }
+
+  public DuckDbType<A> nullableOk() {
+    return withAnalysis(analysisOptions.withNullableOk());
+  }
+
   public DuckDbType<A> withAnalysis(AnalysisOptions opts) {
     return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, opts);
   }
@@ -54,7 +60,8 @@ public record DuckDbType<A>(
   }
 
   public DuckDbType<A> withTypename(DuckDbTypename<A> typename) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
+    return new DuckDbType<>(
+        typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withTypename(String sqlType) {
@@ -70,15 +77,18 @@ public record DuckDbType<A>(
   }
 
   public DuckDbType<A> withRead(DuckDbRead<A> read) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
+    return new DuckDbType<>(
+        typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withWrite(DuckDbWrite<A> write) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
+    return new DuckDbType<>(
+        typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withStringifier(DuckDbStringifier<A> stringifier) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
+    return new DuckDbType<>(
+        typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions);
   }
 
   public DuckDbType<A> withJson(DuckDbJson<A> json) {
@@ -88,7 +98,11 @@ public record DuckDbType<A>(
   @Override
   public DuckDbType<Optional<A>> opt() {
     return new DuckDbType<>(
-        typename.opt(), read.opt(), write.opt(typename), stringifier.opt(), duckDbJson.opt(),
+        typename.opt(),
+        read.opt(),
+        write.opt(typename),
+        stringifier.opt(),
+        duckDbJson.opt(),
         DuckDbMapSupport.cast(),
         analysisOptions);
   }
@@ -128,8 +142,13 @@ public record DuckDbType<A>(
               sb.append("]");
             });
     return new DuckDbType<>(
-        listTypename.as(), listRead, listWrite, listStringifier, duckDbJson.list(),
-        DuckDbMapSupport.cast(), analysisOptions);
+        listTypename.as(),
+        listRead,
+        listWrite,
+        listStringifier,
+        duckDbJson.list(),
+        DuckDbMapSupport.cast(),
+        analysisOptions);
   }
 
   @SuppressWarnings("unchecked")
@@ -182,8 +201,14 @@ public record DuckDbType<A>(
             return (A[]) list.toArray();
           }
         };
-    return new DuckDbType<>(arrayTypename, arrayRead, arrayWrite, arrayStringifier, arrayJson,
-        DuckDbMapSupport.cast(), analysisOptions);
+    return new DuckDbType<>(
+        arrayTypename,
+        arrayRead,
+        arrayWrite,
+        arrayStringifier,
+        arrayJson,
+        DuckDbMapSupport.cast(),
+        analysisOptions);
   }
 
   public <V> DuckDbType<java.util.Map<A, V>> mapTo(DuckDbType<V> valueType) {
@@ -212,9 +237,13 @@ public record DuckDbType<A>(
               sb.append("}");
             });
     return new DuckDbType<>(
-        mapTypename, mapRead, mapWrite, mapStringifier,
+        mapTypename,
+        mapRead,
+        mapWrite,
+        mapStringifier,
         DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbMapSupport.cast(), analysisOptions);
+        DuckDbMapSupport.cast(),
+        analysisOptions);
   }
 
   public DuckDbType<java.util.List<A>> listNative(
@@ -238,8 +267,14 @@ public record DuckDbType<A>(
               }
               sb.append("]");
             });
-    return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list(),
-        DuckDbMapSupport.cast(), analysisOptions);
+    return new DuckDbType<>(
+        listTypename,
+        listRead,
+        listWrite,
+        listStringifier,
+        duckDbJson.list(),
+        DuckDbMapSupport.cast(),
+        analysisOptions);
   }
 
   public DuckDbType<java.util.List<A>> listViaSqlLiteral(
@@ -264,8 +299,14 @@ public record DuckDbType<A>(
               }
               sb.append("]");
             });
-    return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list(),
-        DuckDbMapSupport.cast(), analysisOptions);
+    return new DuckDbType<>(
+        listTypename,
+        listRead,
+        listWrite,
+        listStringifier,
+        duckDbJson.list(),
+        DuckDbMapSupport.cast(),
+        analysisOptions);
   }
 
   public <W> DuckDbType<java.util.List<A>> listViaSqlLiteral(
@@ -292,8 +333,14 @@ public record DuckDbType<A>(
               }
               sb.append("]");
             });
-    return new DuckDbType<>(listTypename, listRead, listWrite, listStringifier, duckDbJson.list(),
-        DuckDbMapSupport.cast(), analysisOptions);
+    return new DuckDbType<>(
+        listTypename,
+        listRead,
+        listWrite,
+        listStringifier,
+        duckDbJson.list(),
+        DuckDbMapSupport.cast(),
+        analysisOptions);
   }
 
   public DuckDbType<java.util.List<A>> arrayNative(
@@ -318,8 +365,13 @@ public record DuckDbType<A>(
               sb.append("]");
             });
     return new DuckDbType<>(
-        arrayTypename, arrayRead, arrayWrite, arrayStringifier, duckDbJson.list(),
-        DuckDbMapSupport.cast(), analysisOptions);
+        arrayTypename,
+        arrayRead,
+        arrayWrite,
+        arrayStringifier,
+        duckDbJson.list(),
+        DuckDbMapSupport.cast(),
+        analysisOptions);
   }
 
   public DuckDbType<java.util.List<A>> arrayViaSqlLiteral(
@@ -345,8 +397,13 @@ public record DuckDbType<A>(
               sb.append("]");
             });
     return new DuckDbType<>(
-        arrayTypename, arrayRead, arrayWrite, arrayStringifier, duckDbJson.list(),
-        DuckDbMapSupport.cast(), analysisOptions);
+        arrayTypename,
+        arrayRead,
+        arrayWrite,
+        arrayStringifier,
+        duckDbJson.list(),
+        DuckDbMapSupport.cast(),
+        analysisOptions);
   }
 
   public <V> DuckDbType<java.util.Map<A, V>> mapToNative(
@@ -375,9 +432,13 @@ public record DuckDbType<A>(
               sb.append("}");
             });
     return new DuckDbType<>(
-        mapTypename, mapRead, mapWrite, mapStringifier,
+        mapTypename,
+        mapRead,
+        mapWrite,
+        mapStringifier,
         DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbMapSupport.cast(), analysisOptions);
+        DuckDbMapSupport.cast(),
+        analysisOptions);
   }
 
   public <V> DuckDbType<java.util.Map<A, V>> mapToViaSqlLiteral(
@@ -411,9 +472,13 @@ public record DuckDbType<A>(
               sb.append("}");
             });
     return new DuckDbType<>(
-        mapTypename, mapRead, mapWrite, mapStringifier,
+        mapTypename,
+        mapRead,
+        mapWrite,
+        mapStringifier,
         DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbMapSupport.cast(), analysisOptions);
+        DuckDbMapSupport.cast(),
+        analysisOptions);
   }
 
   public <B> DuckDbType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
@@ -449,8 +514,8 @@ public record DuckDbType<A>(
 
   public static <A> DuckDbType<A> of(
       String tpe, DuckDbRead<A> r, DuckDbWrite<A> w, DuckDbStringifier<A> s, DuckDbJson<A> j) {
-    return new DuckDbType<>(DuckDbTypename.of(tpe), r, w, s, j,
-        DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
+    return new DuckDbType<>(
+        DuckDbTypename.of(tpe), r, w, s, j, DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
   }
 
   public static <A> DuckDbType<A> of(
@@ -459,7 +524,6 @@ public record DuckDbType<A>(
       DuckDbWrite<A> w,
       DuckDbStringifier<A> s,
       DuckDbJson<A> j) {
-    return new DuckDbType<>(typename, r, w, s, j,
-        DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
+    return new DuckDbType<>(typename, r, w, s, j, DuckDbMapSupport.cast(), AnalysisOptions.EMPTY);
   }
 }

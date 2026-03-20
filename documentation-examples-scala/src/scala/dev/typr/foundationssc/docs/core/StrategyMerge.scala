@@ -7,7 +7,7 @@ import dev.typr.foundations.{QueryListener, QueryEvent}
 @SuppressWarnings(Array("unused"))
 object StrategyMerge:
   val logger: QueryListener = QueryListener.NOOP
-  //start
+  // start
   val base: Transactor.Strategy = Transactor.defaultStrategy()
   val withLogging: Transactor.Strategy = base.mergeListener(logger)
-  //stop
+  // stop

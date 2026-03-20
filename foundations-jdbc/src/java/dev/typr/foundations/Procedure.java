@@ -32,11 +32,14 @@ public sealed interface Procedure<Out>
 
   /** Build a procedure with a single OUT/INOUT param. */
   static <O> Procedure<O> buildSingleOut(String name, List<ParamDef> params) {
-    return new OutProcedure<>(name, params, values -> {
-      @SuppressWarnings("unchecked")
-      O result = (O) values[0];
-      return result;
-    });
+    return new OutProcedure<>(
+        name,
+        params,
+        values -> {
+          @SuppressWarnings("unchecked")
+          O result = (O) values[0];
+          return result;
+        });
   }
 
   /** Build a procedure with multiple OUT/INOUT params. */
@@ -59,31 +62,35 @@ public sealed interface Procedure<Out>
   record VoidProcedure(String name, List<ParamDef> params) implements Procedure<Void> {
     @Override
     public Operation<Void> call(Object... inValues) {
-      return new ProcedureCall<>(name, params, inValues, stmt -> null);
+      return new ProcedureCall<>(name, params, inValues, stmt -> null, null);
     }
   }
 
   /** A procedure call with OUT/INOUT params, read via DbOutParam. */
-  record OutProcedure<Out>(
-      String name, List<ParamDef> params, Function<Object[], Out> assembler)
+  record OutProcedure<Out>(String name, List<ParamDef> params, Function<Object[], Out> assembler)
       implements Procedure<Out> {
     @Override
     public Operation<Out> call(Object... inValues) {
-      return new ProcedureCall<>(name, params, inValues, stmt -> {
-        int outCount = 0;
-        for (ParamDef p : params) {
-          if (p.isOutput()) outCount++;
-        }
-        Object[] values = new Object[outCount];
-        int outIndex = 0;
-        for (int i = 0; i < params.size(); i++) {
-          ParamDef p = params.get(i);
-          if (p.isOutput()) {
-            values[outIndex++] = p.outParam().read(stmt, i + 1);
-          }
-        }
-        return assembler.apply(values);
-      });
+      return new ProcedureCall<>(
+          name,
+          params,
+          inValues,
+          stmt -> {
+            int outCount = 0;
+            for (ParamDef p : params) {
+              if (p.isOutput()) outCount++;
+            }
+            Object[] values = new Object[outCount];
+            int outIndex = 0;
+            for (int i = 0; i < params.size(); i++) {
+              ParamDef p = params.get(i);
+              if (p.isOutput()) {
+                values[outIndex++] = p.outParam().read(stmt, i + 1);
+              }
+            }
+            return assembler.apply(values);
+          },
+          assembler);
     }
   }
 
@@ -108,52 +115,124 @@ public sealed interface Procedure<Out>
       String name,
       List<ParamDef> params,
       Object[] inValues,
-      SqlFunction<CallableStatement, Out> reader)
+      SqlFunction<CallableStatement, Out> reader,
+      @org.jetbrains.annotations.Nullable Function<Object[], Out> assembler)
       implements Operation<Out> {
 
     @Override
     public Out run(Connection conn) {
       try {
-        StringBuilder sb = new StringBuilder("{call ");
-        sb.append(name);
-        sb.append('(');
-        for (int i = 0; i < params.size(); i++) {
-          if (i > 0) sb.append(", ");
-          sb.append('?');
+        boolean isPostgres = conn.getMetaData().getDatabaseProductName().startsWith("PostgreSQL");
+        if (isPostgres) {
+          return runPostgres(conn);
         }
-        sb.append(")}");
-
-        String sql = Instrumentation.applyName(sb.toString(), conn);
-        Fragment syntheticFragment = Fragment.of(sb.toString());
-        return Instrumentation.instrumented(conn, syntheticFragment, sql, () -> {
-          try (CallableStatement stmt = conn.prepareCall(sql)) {
-            Instrumentation.applyTimeout(stmt, conn);
-            int valueIndex = 0;
-            for (int i = 0; i < params.size(); i++) {
-              ParamDef p = params.get(i);
-              int pos = i + 1;
-              if (p.isInput()) {
-                @SuppressWarnings("unchecked")
-                DbType<Object> type = (DbType<Object>) p.type();
-                type.write().set(stmt, pos, inValues[valueIndex++]);
-              }
-              if (p.isOutput()) {
-                p.outParam().register(stmt, pos);
-              }
-            }
-            stmt.execute();
-            return reader.apply(stmt);
-          }
-        });
+        return runCallable(conn);
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }
     }
+
+    private Out runPostgres(Connection conn) throws SQLException {
+      StringBuilder sb = new StringBuilder("CALL ");
+      sb.append(name);
+      sb.append('(');
+      for (int i = 0; i < params.size(); i++) {
+        if (i > 0) sb.append(", ");
+        sb.append('?');
+      }
+      sb.append(')');
+
+      String sql = Instrumentation.applyName(sb.toString(), conn);
+      Fragment syntheticFragment = Fragment.of(sb.toString());
+      return Instrumentation.instrumented(
+          conn,
+          syntheticFragment,
+          sql,
+          () -> {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+              Instrumentation.applyTimeout(stmt, conn);
+              int valueIndex = 0;
+              for (int i = 0; i < params.size(); i++) {
+                ParamDef p = params.get(i);
+                int pos = i + 1;
+                if (p.isInput()) {
+                  @SuppressWarnings("unchecked")
+                  DbType<Object> type = (DbType<Object>) p.type();
+                  type.write().set(stmt, pos, inValues[valueIndex++]);
+                }
+                if (p.isOutput()) {
+                  stmt.setNull(pos, java.sql.Types.NULL);
+                }
+              }
+              boolean hasResultSet = stmt.execute();
+              if (assembler != null && hasResultSet) {
+                try (ResultSet rs = stmt.getResultSet()) {
+                  if (rs.next()) {
+                    int outCount = 0;
+                    for (ParamDef p : params) {
+                      if (p.isOutput()) outCount++;
+                    }
+                    Object[] values = new Object[outCount];
+                    int outIdx = 0;
+                    int rsCol = 1;
+                    for (ParamDef p : params) {
+                      if (p.isOutput()) {
+                        values[outIdx++] = p.type().read().read(rs, rsCol++);
+                      }
+                    }
+                    return assembler.apply(values);
+                  }
+                }
+              }
+              @SuppressWarnings("unchecked")
+              Out voidResult = (Out) (Object) null;
+              return voidResult;
+            }
+          });
+    }
+
+    private Out runCallable(Connection conn) throws SQLException {
+      StringBuilder sb = new StringBuilder("{call ");
+      sb.append(name);
+      sb.append('(');
+      for (int i = 0; i < params.size(); i++) {
+        if (i > 0) sb.append(", ");
+        sb.append('?');
+      }
+      sb.append(")}");
+
+      String sql = Instrumentation.applyName(sb.toString(), conn);
+      Fragment syntheticFragment = Fragment.of(sb.toString());
+      return Instrumentation.instrumented(
+          conn,
+          syntheticFragment,
+          sql,
+          () -> {
+            try (CallableStatement stmt = conn.prepareCall(sql)) {
+              Instrumentation.applyTimeout(stmt, conn);
+              int valueIndex = 0;
+              for (int i = 0; i < params.size(); i++) {
+                ParamDef p = params.get(i);
+                int pos = i + 1;
+                if (p.isInput()) {
+                  @SuppressWarnings("unchecked")
+                  DbType<Object> type = (DbType<Object>) p.type();
+                  type.write().set(stmt, pos, inValues[valueIndex++]);
+                }
+                if (p.isOutput()) {
+                  p.outParam().register(stmt, pos);
+                }
+              }
+              stmt.execute();
+              return reader.apply(stmt);
+            }
+          });
+    }
   }
 
   /**
-   * Operation for function calls using SELECT and PreparedStatement.
-   * SQL: {@code SELECT func_name(?, ?, ...)}
+   * Operation for function calls using SELECT and PreparedStatement. SQL: {@code SELECT
+   * func_name(?, ?, ...)}
    */
   record FunctionCall<R>(
       String name, List<ParamDef> inParams, DbType<R> returnType, Object[] inValues)
@@ -173,22 +252,26 @@ public sealed interface Procedure<Out>
 
         String sql = Instrumentation.applyName(sb.toString(), conn);
         Fragment syntheticFragment = Fragment.of(sb.toString());
-        return Instrumentation.instrumented(conn, syntheticFragment, sql, () -> {
-          try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            Instrumentation.applyTimeout(stmt, conn);
-            for (int i = 0; i < inParams.size(); i++) {
-              @SuppressWarnings("unchecked")
-              DbType<Object> type = (DbType<Object>) inParams.get(i).type();
-              type.write().set(stmt, i + 1, inValues[i]);
-            }
-            try (ResultSet rs = stmt.executeQuery()) {
-              if (!rs.next()) {
-                throw new SQLException("Function " + name + " returned no rows");
+        return Instrumentation.instrumented(
+            conn,
+            syntheticFragment,
+            sql,
+            () -> {
+              try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                Instrumentation.applyTimeout(stmt, conn);
+                for (int i = 0; i < inParams.size(); i++) {
+                  @SuppressWarnings("unchecked")
+                  DbType<Object> type = (DbType<Object>) inParams.get(i).type();
+                  type.write().set(stmt, i + 1, inValues[i]);
+                }
+                try (ResultSet rs = stmt.executeQuery()) {
+                  if (!rs.next()) {
+                    throw new SQLException("Function " + name + " returned no rows");
+                  }
+                  return returnType.read().read(rs, 1);
+                }
               }
-              return returnType.read().read(rs, 1);
-            }
-          }
-        });
+            });
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }

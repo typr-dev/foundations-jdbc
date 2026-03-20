@@ -1,4 +1,5 @@
 package dev.typr.foundations;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -12,7 +13,8 @@ public final class QueryAnalyzer {
   public static List<QueryAnalysis> analyze(Analyzable analyzable, Connection conn) {
     try {
       return switch (analyzable) {
-        case Analyzable.Named(var defaultName, var inner) -> applyDefaultName(defaultName, analyze(inner, conn));
+        case Analyzable.Named(var defaultName, var inner) ->
+            applyDefaultName(defaultName, analyze(inner, conn));
         case Operation<?> op -> analyzeChecked(op, conn);
         case Template<?, ?> t -> analyzeChecked(t, conn);
       };
@@ -21,11 +23,19 @@ public final class QueryAnalyzer {
     }
   }
 
-  private static List<QueryAnalysis> applyDefaultName(String defaultName, List<QueryAnalysis> results) {
+  private static List<QueryAnalysis> applyDefaultName(
+      String defaultName, List<QueryAnalysis> results) {
     return results.stream()
-        .map(r -> r.queryName() == null
-            ? new QueryAnalysis(r.sql(), defaultName, r.parameterAlignment(), r.columnAlignment(), r.parameterMetadataAvailable())
-            : r)
+        .map(
+            r ->
+                r.queryName() == null
+                    ? new QueryAnalysis(
+                        r.sql(),
+                        defaultName,
+                        r.parameterAlignment(),
+                        r.columnAlignment(),
+                        r.parameterMetadataAvailable())
+                    : r)
         .toList();
   }
 
@@ -69,10 +79,13 @@ public final class QueryAnalyzer {
   private static List<QueryAnalysis> analyzeNamed(String name, Operation<?> op, Connection conn)
       throws SQLException {
     return switch (op) {
-      case Operation.Query<?> q -> List.of(analyzeFragmentAndParserChecked(name, q.query(), q.parser(), conn));
-      case Operation.UpdateReturning<?> ur -> List.of(analyzeFragmentAndParserChecked(name, ur.query(), ur.parser(), conn));
+      case Operation.Query<?> q ->
+          List.of(analyzeFragmentAndParserChecked(name, q.query(), q.parser(), conn));
+      case Operation.UpdateReturning<?> ur ->
+          List.of(analyzeFragmentAndParserChecked(name, ur.query(), ur.parser(), conn));
       case Operation.Update u -> List.of(analyzeUpdate(name, u, conn));
-      case Operation.Configured<?> c -> analyzeNamed(name != null ? name : c.name(), c.inner(), conn);
+      case Operation.Configured<?> c ->
+          analyzeNamed(name != null ? name : c.name(), c.inner(), conn);
       case Operation.Mapped<?, ?> m -> analyzeNamed(name, m.source(), conn);
       case Operation.Combine<?, ?> w -> {
         var r = new ArrayList<>(analyzeNamed(null, w.first(), conn));
@@ -96,23 +109,25 @@ public final class QueryAnalyzer {
           List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> paramAlignment =
               Alignment.align(paramTypes, paramMeta);
           ResultSetParser<?> templateParser = extractResultSetParser(t.continuation());
-          List<DbType<?>> columnTypes = templateParser != null ? extractColumnTypes(templateParser) : List.of();
+          List<DbType<?>> columnTypes =
+              templateParser != null ? extractColumnTypes(templateParser) : List.of();
           List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> colAlignment =
               Alignment.align(columnTypes, colMeta);
           r.add(new QueryAnalysis(sql, null, paramAlignment, colAlignment, paramMetaAvailable));
         }
         yield r;
       }
-      case Operation.Streaming<?> s -> List.of(analyzeFragmentAndParserChecked(name, s.query(), s.codec().all(), conn));
+      case Operation.Streaming<?> s ->
+          List.of(analyzeFragmentAndParserChecked(name, s.query(), s.codec().all(), conn));
+      case Operation.Execute e ->
+          List.of(analyzeUpdate(name, new Operation.Update(e.query()), conn));
       case Operation.Pure<?> ignored -> List.of();
       default -> List.of();
     };
   }
 
   public static QueryAnalysis analyzeFragmentAndParser(
-      Fragment fragment,
-      ResultSetParser<?> parser,
-      Connection conn) {
+      Fragment fragment, ResultSetParser<?> parser, Connection conn) {
     try {
       return analyzeFragmentAndParserChecked(null, fragment, parser, conn);
     } catch (SQLException e) {
@@ -121,17 +136,13 @@ public final class QueryAnalyzer {
   }
 
   private static QueryAnalysis analyzeFragmentAndParserChecked(
-      Fragment fragment,
-      ResultSetParser<?> parser,
-      Connection conn) throws SQLException {
+      Fragment fragment, ResultSetParser<?> parser, Connection conn) throws SQLException {
     return analyzeFragmentAndParserChecked(null, fragment, parser, conn);
   }
 
   private static QueryAnalysis analyzeFragmentAndParserChecked(
-      String name,
-      Fragment fragment,
-      ResultSetParser<?> parser,
-      Connection conn) throws SQLException {
+      String name, Fragment fragment, ResultSetParser<?> parser, Connection conn)
+      throws SQLException {
 
     String sql = fragment.render();
     List<DbType<?>> paramTypes = fragment.parameterTypes();

@@ -2,7 +2,6 @@ package dev.typr.foundationssc.docs.landing
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 
-
 @SuppressWarnings(Array("unused"))
 object JsonCodecs:
   var tx: Transactor = null
@@ -10,13 +9,14 @@ object JsonCodecs:
   case class OrderLine(product: String, qty: Int, price: BigDecimal)
 
   val lineCodec: RowCodec[OrderLine] =
-    RowCodec.builder[OrderLine]()
+    RowCodec
+      .builder[OrderLine]()
       .field(DuckDbTypes.varchar)(_.product)
       .field(DuckDbTypes.integer)(_.qty)
       .field(DuckDbTypes.decimal(10, 2))(_.price)
       .build(OrderLine.apply)
 
-  //start
+  // start
   // RowCodec → JSON column type, zero extra code
   val linesType: DuckDbType[List[OrderLine]] =
     DuckDbTypes.jsonArrayEncodedList(lineCodec)
@@ -29,4 +29,4 @@ object JsonCodecs:
               ${DuckDbTypes.integer(customerId)}"""
       .query(RowCodec.of(linesType).exactlyOne())
       .transact(tx)
-  //stop
+  // stop

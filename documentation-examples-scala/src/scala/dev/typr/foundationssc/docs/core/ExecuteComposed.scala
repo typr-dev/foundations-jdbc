@@ -3,13 +3,13 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-
 @SuppressWarnings(Array("unused"))
 object ExecuteComposed:
   case class Order(id: Int, userId: Int, product: String)
   case class Dashboard(userCount: Long, recentOrders: List[Order])
 
-  val orderCodec: RowCodec[Order] = RowCodec.builder[Order]()
+  val orderCodec: RowCodec[Order] = RowCodec
+    .builder[Order]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.int4)(_.userId)
     .field(PgTypes.text)(_.product)
@@ -24,9 +24,10 @@ object ExecuteComposed:
     sql"SELECT * FROM orders ORDER BY id DESC LIMIT 10"
       .query(orderCodec.all())
 
-  //start
+  // start
   def dashboard(): Dashboard = tx.transact { conn =>
-    countUsers.combineWith(recentOrders)(Dashboard.apply)
+    countUsers
+      .combineWith(recentOrders)(Dashboard.apply)
       .run(conn)
   }
-  //stop
+  // stop

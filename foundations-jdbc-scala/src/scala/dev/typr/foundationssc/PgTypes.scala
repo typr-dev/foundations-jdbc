@@ -3,8 +3,8 @@ package dev.typr.foundationssc
 import dev.typr.foundations.{PgTypes => JavaPgTypes}
 import scala.jdk.CollectionConverters.*
 
-/** Scala-friendly PgType instances that use Scala types instead of Java boxed types.
-  * All types from dev.typr.foundations.PgTypes are available here, with primitives and BigDecimal converted to Scala types.
+/** Scala-friendly PgType instances that use Scala types instead of Java boxed types. All types from dev.typr.foundations.PgTypes are available here, with
+  * primitives and BigDecimal converted to Scala types.
   *
   * Extend this class to add your own custom types to a shared set of type definitions.
   */
@@ -25,35 +25,49 @@ class PgTypes {
   val hstore: PgType[Map[String, String]] = PgType(JavaPgTypes.hstore.transform(javaMap => javaMap.asScala.toMap, scalaMap => scalaMap.asJava))
 
   // Array types - convert Java boxed arrays to Scala native arrays
-  val boolArray: PgType[Array[Boolean]] = PgType(JavaPgTypes.boolArray.transform(
-    arr => arr.map(_.booleanValue()),
-    arr => arr.map(java.lang.Boolean.valueOf)
-  ))
-  val int2Array: PgType[Array[Short]] = PgType(JavaPgTypes.int2Array.transform(
-    arr => arr.map(_.shortValue()),
-    arr => arr.map(java.lang.Short.valueOf)
-  ))
+  val boolArray: PgType[Array[Boolean]] = PgType(
+    JavaPgTypes.boolArray.transform(
+      arr => arr.map(_.booleanValue()),
+      arr => arr.map(java.lang.Boolean.valueOf)
+    )
+  )
+  val int2Array: PgType[Array[Short]] = PgType(
+    JavaPgTypes.int2Array.transform(
+      arr => arr.map(_.shortValue()),
+      arr => arr.map(java.lang.Short.valueOf)
+    )
+  )
   val smallintArray: PgType[Array[Short]] = int2Array
-  val int4Array: PgType[Array[Int]] = PgType(JavaPgTypes.int4Array.transform(
-    arr => arr.map(_.intValue()),
-    arr => arr.map(java.lang.Integer.valueOf)
-  ))
-  val int8Array: PgType[Array[Long]] = PgType(JavaPgTypes.int8Array.transform(
-    arr => arr.map(_.longValue()),
-    arr => arr.map(java.lang.Long.valueOf)
-  ))
-  val float4Array: PgType[Array[Float]] = PgType(JavaPgTypes.float4Array.transform(
-    arr => arr.map(_.floatValue()),
-    arr => arr.map(java.lang.Float.valueOf)
-  ))
-  val float8Array: PgType[Array[Double]] = PgType(JavaPgTypes.float8Array.transform(
-    arr => arr.map(_.doubleValue()),
-    arr => arr.map(java.lang.Double.valueOf)
-  ))
-  val numericArray: PgType[Array[BigDecimal]] = PgType(JavaPgTypes.numericArray.transform(
-    arr => arr.map(BigDecimal(_)),
-    arr => arr.map(_.bigDecimal)
-  ))
+  val int4Array: PgType[Array[Int]] = PgType(
+    JavaPgTypes.int4Array.transform(
+      arr => arr.map(_.intValue()),
+      arr => arr.map(java.lang.Integer.valueOf)
+    )
+  )
+  val int8Array: PgType[Array[Long]] = PgType(
+    JavaPgTypes.int8Array.transform(
+      arr => arr.map(_.longValue()),
+      arr => arr.map(java.lang.Long.valueOf)
+    )
+  )
+  val float4Array: PgType[Array[Float]] = PgType(
+    JavaPgTypes.float4Array.transform(
+      arr => arr.map(_.floatValue()),
+      arr => arr.map(java.lang.Float.valueOf)
+    )
+  )
+  val float8Array: PgType[Array[Double]] = PgType(
+    JavaPgTypes.float8Array.transform(
+      arr => arr.map(_.doubleValue()),
+      arr => arr.map(java.lang.Double.valueOf)
+    )
+  )
+  val numericArray: PgType[Array[BigDecimal]] = PgType(
+    JavaPgTypes.numericArray.transform(
+      arr => arr.map(BigDecimal(_)),
+      arr => arr.map(_.bigDecimal)
+    )
+  )
 
   // Forward all other types directly from Java
   val aclitem = PgType(JavaPgTypes.aclitem)
@@ -175,7 +189,12 @@ class PgTypes {
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): PgType[E] =
     PgType(JavaPgTypes.ofEnum(sqlType, fromString))
 
-  def ofPgObject[T](sqlType: String, constructor: dev.typr.foundations.SqlFunction[String, T], extractor: java.util.function.Function[T, String], json: dev.typr.foundations.PgJson[T]): PgType[T] =
+  def ofPgObject[T](
+      sqlType: String,
+      constructor: dev.typr.foundations.SqlFunction[String, T],
+      extractor: java.util.function.Function[T, String],
+      json: dev.typr.foundations.PgJson[T]
+  ): PgType[T] =
     PgType(JavaPgTypes.ofPgObject(sqlType, constructor, extractor, json))
 
   def record(sqlType: String): PgType[dev.typr.foundations.data.Record] =
@@ -196,19 +215,27 @@ class PgTypes {
     PgType(JavaPgTypes.jsonArrayEncoded(parser.underlying))
 
   def jsonArrayEncodedList[Row](parser: RowCodec[Row]): PgType[List[Row]] =
-    PgType(JavaPgTypes.jsonArrayEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    PgType(
+      JavaPgTypes
+        .jsonArrayEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 
   def jsonObjectEncoded[Row](parser: RowCodecNamed[Row]): PgType[Row] =
     PgType(JavaPgTypes.jsonObjectEncoded(parser.underlying))
 
   def jsonObjectEncodedList[Row](parser: RowCodecNamed[Row]): PgType[List[Row]] =
-    PgType(JavaPgTypes.jsonObjectEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    PgType(
+      JavaPgTypes
+        .jsonObjectEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 
   // JSON-encoded row types (jsonb)
 
@@ -216,19 +243,27 @@ class PgTypes {
     PgType(JavaPgTypes.jsonbArrayEncoded(parser.underlying))
 
   def jsonbArrayEncodedList[Row](parser: RowCodec[Row]): PgType[List[Row]] =
-    PgType(JavaPgTypes.jsonbArrayEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    PgType(
+      JavaPgTypes
+        .jsonbArrayEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 
   def jsonbObjectEncoded[Row](parser: RowCodecNamed[Row]): PgType[Row] =
     PgType(JavaPgTypes.jsonbObjectEncoded(parser.underlying))
 
   def jsonbObjectEncodedList[Row](parser: RowCodecNamed[Row]): PgType[List[Row]] =
-    PgType(JavaPgTypes.jsonbObjectEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    PgType(
+      JavaPgTypes
+        .jsonbObjectEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 }
 
 object PgTypes extends PgTypes

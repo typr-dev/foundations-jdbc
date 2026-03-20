@@ -5,8 +5,8 @@ import dev.typr.foundations.DuckDbTypes;
 
 @SuppressWarnings("unused")
 public class StringTypes {
-    //start
-    DuckDbType<String> varcharType = DuckDbTypes.varchar;
-    DuckDbType<String> charType = DuckDbTypes.char_(10);
-    //stop
+  // start
+  DuckDbType<String> varcharType = DuckDbTypes.varchar;
+  DuckDbType<String> charType = DuckDbTypes.char_(10);
+  // stop
 }

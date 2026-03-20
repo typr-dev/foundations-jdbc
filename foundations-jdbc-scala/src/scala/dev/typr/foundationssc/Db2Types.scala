@@ -2,8 +2,8 @@ package dev.typr.foundationssc
 
 import dev.typr.foundations.{Db2Types => JavaDb2Types}
 
-/** Scala-friendly Db2Type instances that use Scala types instead of Java boxed types.
-  * All types from dev.typr.foundations.Db2Types are available here, with primitives and BigDecimal converted to Scala types.
+/** Scala-friendly Db2Type instances that use Scala types instead of Java boxed types. All types from dev.typr.foundations.Db2Types are available here, with
+  * primitives and BigDecimal converted to Scala types.
   *
   * Extend this class to add your own custom types to a shared set of type definitions.
   */
@@ -91,19 +91,27 @@ class Db2Types {
     Db2Type(JavaDb2Types.jsonArrayEncoded(parser.underlying))
 
   def jsonArrayEncodedList[Row](parser: RowCodec[Row]): Db2Type[List[Row]] =
-    Db2Type(JavaDb2Types.jsonArrayEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    Db2Type(
+      JavaDb2Types
+        .jsonArrayEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 
   def jsonObjectEncoded[Row](parser: RowCodecNamed[Row]): Db2Type[Row] =
     Db2Type(JavaDb2Types.jsonObjectEncoded(parser.underlying))
 
   def jsonObjectEncodedList[Row](parser: RowCodecNamed[Row]): Db2Type[List[Row]] =
-    Db2Type(JavaDb2Types.jsonObjectEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    Db2Type(
+      JavaDb2Types
+        .jsonObjectEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 }
 
 object Db2Types extends Db2Types

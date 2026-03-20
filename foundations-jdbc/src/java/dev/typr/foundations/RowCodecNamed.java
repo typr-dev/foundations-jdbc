@@ -8,9 +8,8 @@ import java.util.function.Function;
 /**
  * A {@link RowCodec} that carries column names alongside the types.
  *
- * <p>This enables convenience methods that require column names, such as
- * {@link Fragment#row(RowCodecNamed, Object, String...)} and
- * {@link DbJsonRow#jsonObject(RowCodecNamed)}.
+ * <p>This enables convenience methods that require column names, such as {@link
+ * Fragment#row(RowCodecNamed, Object, String...)} and {@link DbJsonRow#jsonObject(RowCodecNamed)}.
  *
  * <p>Create via {@link RowCodec#namedBuilder()} or {@link RowCodec#createNamed}.
  */
@@ -25,8 +24,11 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
     super(columns, decode, encode);
     if (columnNames.size() != columns.size()) {
       throw new IllegalArgumentException(
-          "Column name count (" + columnNames.size()
-              + ") doesn't match column type count (" + columns.size() + ")");
+          "Column name count ("
+              + columnNames.size()
+              + ") doesn't match column type count ("
+              + columns.size()
+              + ")");
     }
     this.columnNames = List.copyOf(columnNames);
   }
@@ -39,6 +41,15 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
   /** Comma-separated column names as a Fragment, useful for SQL SELECT lists. */
   public Fragment columnList() {
     return Fragment.comma(columnNames.stream().map(Fragment::of).toList());
+  }
+
+  /**
+   * Comma-separated column names prefixed with a table alias, e.g. {@code v.id, v.name,
+   * v.capacity}.
+   */
+  public Fragment columnList(String alias) {
+    return Fragment.comma(
+        columnNames.stream().map(name -> Fragment.of(alias + "." + name)).toList());
   }
 
   @Override
@@ -93,7 +104,8 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
 
   @Override
   public <Row2> RowCodecNamed<Row2> to(Bijection<Row, Row2> bijection) {
-    Function<Object[], Row2> newDecode = values -> bijection.underlying(this.decode().apply(values));
+    Function<Object[], Row2> newDecode =
+        values -> bijection.underlying(this.decode().apply(values));
     Function<Row2, Object[]> newEncode = row2 -> this.encode().apply(bijection.from(row2));
     return new RowCodecNamed<>(this.columnNames, this.columns(), newDecode, newEncode);
   }

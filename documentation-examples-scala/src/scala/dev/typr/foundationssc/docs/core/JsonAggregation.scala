@@ -2,7 +2,6 @@ package dev.typr.foundationssc.docs.core
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 
-
 @SuppressWarnings(Array("unused"))
 object JsonAggregation:
   var tx: Transactor = null
@@ -10,7 +9,8 @@ object JsonAggregation:
   case class OrderLine(product: String, qty: Int, price: BigDecimal)
 
   val lineCodec: RowCodec[OrderLine] =
-    RowCodec.builder[OrderLine]()
+    RowCodec
+      .builder[OrderLine]()
       .field(DuckDbTypes.varchar)(_.product)
       .field(DuckDbTypes.integer)(_.qty)
       .field(DuckDbTypes.decimal(10, 2))(_.price)
@@ -20,7 +20,7 @@ object JsonAggregation:
   val linesType: DuckDbType[List[OrderLine]] =
     DuckDbTypes.jsonArrayEncodedList(lineCodec)
 
-  //start
+  // start
   // Aggregate child rows as JSON in a single query
   def getOrderLines(customerId: Int): List[OrderLine] =
     sql"""SELECT json_group_array(
@@ -30,4 +30,4 @@ object JsonAggregation:
               ${DuckDbTypes.integer(customerId)}"""
       .query(RowCodec.of(linesType).exactlyOne())
       .transact(tx)
-  //stop
+  // stop

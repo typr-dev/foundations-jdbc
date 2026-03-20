@@ -2,8 +2,8 @@ package dev.typr.foundationssc
 
 import dev.typr.foundations.{OracleTypes => JavaOracleTypes}
 
-/** Scala-friendly OracleType instances that use Scala types instead of Java boxed types.
-  * All types from dev.typr.foundations.OracleTypes are available here, with primitives and BigDecimal converted to Scala types.
+/** Scala-friendly OracleType instances that use Scala types instead of Java boxed types. All types from dev.typr.foundations.OracleTypes are available here,
+  * with primitives and BigDecimal converted to Scala types.
   *
   * Extend this class to add your own custom types to a shared set of type definitions.
   */
@@ -123,19 +123,27 @@ class OracleTypes {
     OracleType(JavaOracleTypes.jsonArrayEncoded(parser.underlying))
 
   def jsonArrayEncodedList[Row](parser: RowCodec[Row]): OracleType[List[Row]] =
-    OracleType(JavaOracleTypes.jsonArrayEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    OracleType(
+      JavaOracleTypes
+        .jsonArrayEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 
   def jsonObjectEncoded[Row](parser: RowCodecNamed[Row]): OracleType[Row] =
     OracleType(JavaOracleTypes.jsonObjectEncoded(parser.underlying))
 
   def jsonObjectEncodedList[Row](parser: RowCodecNamed[Row]): OracleType[List[Row]] =
-    OracleType(JavaOracleTypes.jsonObjectEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    OracleType(
+      JavaOracleTypes
+        .jsonObjectEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 }
 
 object OracleTypes extends OracleTypes

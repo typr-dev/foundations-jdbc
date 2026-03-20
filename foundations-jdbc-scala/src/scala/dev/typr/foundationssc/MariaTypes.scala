@@ -2,8 +2,8 @@ package dev.typr.foundationssc
 
 import dev.typr.foundations.{MariaTypes => JavaMariaTypes}
 
-/** Scala-friendly MariaType instances that use Scala types instead of Java boxed types.
-  * All types from dev.typr.foundations.MariaTypes are available here, with primitives and BigDecimal converted to Scala types.
+/** Scala-friendly MariaType instances that use Scala types instead of Java boxed types. All types from dev.typr.foundations.MariaTypes are available here, with
+  * primitives and BigDecimal converted to Scala types.
   *
   * Extend this class to add your own custom types to a shared set of type definitions.
   */
@@ -55,6 +55,7 @@ class MariaTypes {
   val json = MariaType(JavaMariaTypes.json)
   val inet4 = MariaType(JavaMariaTypes.inet4)
   val inet6 = MariaType(JavaMariaTypes.inet6)
+  val uuid: MariaType[java.util.UUID] = MariaType(JavaMariaTypes.uuid)
   val geometry = MariaType(JavaMariaTypes.geometry)
   val point = MariaType(JavaMariaTypes.point)
   val linestring = MariaType(JavaMariaTypes.linestring)
@@ -90,6 +91,9 @@ class MariaTypes {
   def timestamp(fsp: Int): MariaType[java.time.LocalDateTime] =
     MariaType(JavaMariaTypes.timestamp(fsp))
 
+  def vector(dimension: Int): MariaType[dev.typr.foundations.data.Vector] =
+    MariaType(JavaMariaTypes.vector(dimension))
+
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): MariaType[E] =
     MariaType(JavaMariaTypes.ofEnum(sqlType, fromString))
 
@@ -99,19 +103,27 @@ class MariaTypes {
     MariaType(JavaMariaTypes.jsonArrayEncoded(parser.underlying))
 
   def jsonArrayEncodedList[Row](parser: RowCodec[Row]): MariaType[List[Row]] =
-    MariaType(JavaMariaTypes.jsonArrayEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    MariaType(
+      JavaMariaTypes
+        .jsonArrayEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 
   def jsonObjectEncoded[Row](parser: RowCodecNamed[Row]): MariaType[Row] =
     MariaType(JavaMariaTypes.jsonObjectEncoded(parser.underlying))
 
   def jsonObjectEncodedList[Row](parser: RowCodecNamed[Row]): MariaType[List[Row]] =
-    MariaType(JavaMariaTypes.jsonObjectEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    MariaType(
+      JavaMariaTypes
+        .jsonObjectEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 }
 
 object MariaTypes extends MariaTypes

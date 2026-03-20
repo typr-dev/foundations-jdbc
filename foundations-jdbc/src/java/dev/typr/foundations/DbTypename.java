@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-
 /**
  * Common interface for database type names. Implemented by both PgTypename (PostgreSQL) and
  * MariaTypename (MariaDB).
@@ -10,8 +9,8 @@ public interface DbTypename<A> {
   String sqlType();
 
   /**
-   * Render the SQL placeholder for this type. PostgreSQL and DuckDB override to return
-   * {@code ?::typename}, others return plain {@code ?}.
+   * Render the SQL placeholder for this type. PostgreSQL and DuckDB override to return {@code
+   * ?::typename}, others return plain {@code ?}.
    */
   default String renderPlaceholder() {
     return "?";

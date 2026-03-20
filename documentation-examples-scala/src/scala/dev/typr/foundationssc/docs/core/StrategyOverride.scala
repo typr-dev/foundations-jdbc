@@ -8,6 +8,6 @@ import dev.typr.foundations.QueryListener
 object StrategyOverride:
   val tx: Transactor = null // placeholder
   val logger: QueryListener = QueryListener.NOOP
-  //start
+  // start
   val txWithLogging: Transactor = tx.mergeListener(logger)
-  //stop
+  // stop

@@ -5,8 +5,8 @@ import dev.typr.foundations.DuckDbTypes;
 
 @SuppressWarnings("unused")
 public class BitStringType {
-    //start
-    DuckDbType<String> bitType = DuckDbTypes.bit;
-    DuckDbType<String> bit8 = DuckDbTypes.bit(8);  // BIT(8)
-    //stop
+  // start
+  DuckDbType<String> bitType = DuckDbTypes.bit;
+  DuckDbType<String> bit8 = DuckDbTypes.bit(8); // BIT(8)
+  // stop
 }

@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.data.Vector;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.ResultSet;
@@ -119,7 +120,13 @@ public sealed interface MariaRead<A> extends DbRead<A>
 
     @Override
     public MariaRead<Optional<B>> opt() {
-      return new Nullable<>((rs, col) -> Optional.ofNullable(read(rs, col)));
+      MariaRead<Optional<A>> underlyingOpt = underlying.opt();
+      return new Nullable<>(
+          (rs, col) -> {
+            Optional<A> maybeA = underlyingOpt.read(rs, col);
+            if (maybeA.isEmpty()) return Optional.empty();
+            return Optional.of(f.apply(maybeA.get()));
+          });
     }
   }
 
@@ -311,4 +318,8 @@ public sealed interface MariaRead<A> extends DbRead<A>
             throw new SQLException(
                 "Cannot convert " + obj.getClass() + " to Boolean for BIT(1) type");
           });
+
+  // VECTOR type - MariaDB 11.7+ connector returns float[] via FloatArrayCodec
+  MariaRead<Vector> readVector =
+      of((rs, idx) -> new Vector(rs.getObject(idx, float[].class)));
 }

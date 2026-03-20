@@ -2,8 +2,8 @@ package dev.typr.foundationssc
 
 import dev.typr.foundations.{DuckDbTypes => JavaDuckDbTypes}
 
-/** Scala-friendly DuckDbType instances that use Scala types instead of Java boxed types.
-  * All types from dev.typr.foundations.DuckDbTypes are available here, with primitives and BigDecimal converted to Scala types.
+/** Scala-friendly DuckDbType instances that use Scala types instead of Java boxed types. All types from dev.typr.foundations.DuckDbTypes are available here,
+  * with primitives and BigDecimal converted to Scala types.
   *
   * Extend this class to add your own custom types to a shared set of type definitions.
   */
@@ -17,44 +17,59 @@ class DuckDbTypes {
   val double_ : DuckDbType[Double] = DuckDbType(JavaDuckDbTypes.double_.transform(d => d, d => d))
   val boolean_ : DuckDbType[Boolean] = DuckDbType(JavaDuckDbTypes.boolean_.transform(b => b, b => b))
 
-
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
   val decimal: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.decimal.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
   val numeric: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.numeric.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Array types - convert Java boxed arrays to Scala native arrays
-  val tinyintArray: DuckDbType[Array[Byte]] = DuckDbType(JavaDuckDbTypes.tinyintArray.transform(
-    arr => arr.map(_.byteValue()),
-    arr => arr.map(java.lang.Byte.valueOf)
-  ))
-  val smallintArray: DuckDbType[Array[Short]] = DuckDbType(JavaDuckDbTypes.smallintArray.transform(
-    arr => arr.map(_.shortValue()),
-    arr => arr.map(java.lang.Short.valueOf)
-  ))
-  val integerArray: DuckDbType[Array[Int]] = DuckDbType(JavaDuckDbTypes.integerArray.transform(
-    arr => arr.map(_.intValue()),
-    arr => arr.map(java.lang.Integer.valueOf)
-  ))
-  val bigintArray: DuckDbType[Array[Long]] = DuckDbType(JavaDuckDbTypes.bigintArray.transform(
-    arr => arr.map(_.longValue()),
-    arr => arr.map(java.lang.Long.valueOf)
-  ))
-  val floatArray: DuckDbType[Array[Float]] = DuckDbType(JavaDuckDbTypes.floatArray.transform(
-    arr => arr.map(_.floatValue()),
-    arr => arr.map(java.lang.Float.valueOf)
-  ))
-  val doubleArray: DuckDbType[Array[Double]] = DuckDbType(JavaDuckDbTypes.doubleArray.transform(
-    arr => arr.map(_.doubleValue()),
-    arr => arr.map(java.lang.Double.valueOf)
-  ))
-  val booleanArray: DuckDbType[Array[Boolean]] = DuckDbType(JavaDuckDbTypes.booleanArray.transform(
-    arr => arr.map(_.booleanValue()),
-    arr => arr.map(java.lang.Boolean.valueOf)
-  ))
-  val decimalArray: DuckDbType[Array[BigDecimal]] = DuckDbType(JavaDuckDbTypes.decimalArray.transform(
-    arr => arr.map(BigDecimal(_)),
-    arr => arr.map(_.bigDecimal)
-  ))
+  val tinyintArray: DuckDbType[Array[Byte]] = DuckDbType(
+    JavaDuckDbTypes.tinyintArray.transform(
+      arr => arr.map(_.byteValue()),
+      arr => arr.map(java.lang.Byte.valueOf)
+    )
+  )
+  val smallintArray: DuckDbType[Array[Short]] = DuckDbType(
+    JavaDuckDbTypes.smallintArray.transform(
+      arr => arr.map(_.shortValue()),
+      arr => arr.map(java.lang.Short.valueOf)
+    )
+  )
+  val integerArray: DuckDbType[Array[Int]] = DuckDbType(
+    JavaDuckDbTypes.integerArray.transform(
+      arr => arr.map(_.intValue()),
+      arr => arr.map(java.lang.Integer.valueOf)
+    )
+  )
+  val bigintArray: DuckDbType[Array[Long]] = DuckDbType(
+    JavaDuckDbTypes.bigintArray.transform(
+      arr => arr.map(_.longValue()),
+      arr => arr.map(java.lang.Long.valueOf)
+    )
+  )
+  val floatArray: DuckDbType[Array[Float]] = DuckDbType(
+    JavaDuckDbTypes.floatArray.transform(
+      arr => arr.map(_.floatValue()),
+      arr => arr.map(java.lang.Float.valueOf)
+    )
+  )
+  val doubleArray: DuckDbType[Array[Double]] = DuckDbType(
+    JavaDuckDbTypes.doubleArray.transform(
+      arr => arr.map(_.doubleValue()),
+      arr => arr.map(java.lang.Double.valueOf)
+    )
+  )
+  val booleanArray: DuckDbType[Array[Boolean]] = DuckDbType(
+    JavaDuckDbTypes.booleanArray.transform(
+      arr => arr.map(_.booleanValue()),
+      arr => arr.map(java.lang.Boolean.valueOf)
+    )
+  )
+  val decimalArray: DuckDbType[Array[BigDecimal]] = DuckDbType(
+    JavaDuckDbTypes.decimalArray.transform(
+      arr => arr.map(BigDecimal(_)),
+      arr => arr.map(_.bigDecimal)
+    )
+  )
 
   // Forward all other types directly from Java
   val hugeint = DuckDbType(JavaDuckDbTypes.hugeint)
@@ -145,10 +160,14 @@ class DuckDbTypes {
 
   /** A JSON column type that stores a list of rows, each as a positional JSON array. */
   def jsonArrayEncodedList[Row](parser: RowCodec[Row]): DuckDbType[List[Row]] =
-    DuckDbType(JavaDuckDbTypes.jsonArrayEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    DuckDbType(
+      JavaDuckDbTypes
+        .jsonArrayEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 
   /** A JSON column type that stores a single row as a keyed JSON object: {"col": val, ...}. */
   def jsonObjectEncoded[Row](parser: RowCodecNamed[Row]): DuckDbType[Row] =
@@ -156,10 +175,14 @@ class DuckDbTypes {
 
   /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
   def jsonObjectEncodedList[Row](parser: RowCodecNamed[Row]): DuckDbType[List[Row]] =
-    DuckDbType(JavaDuckDbTypes.jsonObjectEncodedList(parser.underlying).transform(
-      jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-      slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
-    ))
+    DuckDbType(
+      JavaDuckDbTypes
+        .jsonObjectEncodedList(parser.underlying)
+        .transform(
+          jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+          slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        )
+    )
 }
 
 object DuckDbTypes extends DuckDbTypes

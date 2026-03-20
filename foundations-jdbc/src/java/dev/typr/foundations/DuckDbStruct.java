@@ -80,8 +80,14 @@ public record DuckDbStruct<A>(
             },
             value -> value);
 
-    return new DuckDbType<>(typename.asGeneric(), duckDbRead, duckDbWrite, stringifier, json,
-        structMapSupport, AnalysisOptions.EMPTY);
+    return new DuckDbType<>(
+        typename.asGeneric(),
+        duckDbRead,
+        duckDbWrite,
+        stringifier,
+        json,
+        structMapSupport,
+        AnalysisOptions.EMPTY);
   }
 
   /** Create an optional version of this STRUCT type. */

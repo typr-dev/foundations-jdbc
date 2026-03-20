@@ -6,11 +6,11 @@ import dev.typr.foundations.data.maria.MariaSet;
 
 @SuppressWarnings("unused")
 public class SetType {
-    //start
-    MariaType<MariaSet> setType = MariaTypes.set;
+  // start
+  MariaType<MariaSet> setType = MariaTypes.set;
 
-    // Create and use sets
-    MariaSet values = MariaSet.of("read", "write");
-    String csv = values.toCommaSeparated();
-    //stop
+  // Create and use sets
+  MariaSet values = MariaSet.of("read", "write");
+  String csv = values.toCommaSeparated();
+  // stop
 }

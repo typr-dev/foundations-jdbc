@@ -46,7 +46,8 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
   def update(): Operation.Update =
     Operation.Update(this)
 
-  def execute(): Operation[Unit] = update().voided
+  def execute(): Operation.Execute =
+    new Operation.Execute(new dev.typr.foundations.Operation.Execute(underlying))
 
   def updateReturning[T](parser: ResultSetParser[T]): Operation.UpdateReturning[T] =
     Operation.UpdateReturning(this, parser)
@@ -102,17 +103,20 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
   def optionally[A](builder: ParamBuilders.ParamBuilder1[A]): ParamBuilders.ParamBuilder1[Option[A]] =
     new ParamBuilders.ParamBuilder1(
       underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder1[A]]),
-      List(Some(OptionallyTransforms.optionToOptional)))
+      List(Some(OptionallyTransforms.optionToOptional))
+    )
 
   def optionally[A, B](builder: ParamBuilders.ParamBuilder2[A, B]): ParamBuilders.ParamBuilder1[Option[(A, B)]] =
     new ParamBuilders.ParamBuilder1(
       underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder2[A, B]]),
-      List(Some(OptionallyTransforms.optionTupleToOptionalTuple2)))
+      List(Some(OptionallyTransforms.optionTupleToOptionalTuple2))
+    )
 
   def optionally[A, B, C](builder: ParamBuilders.ParamBuilder3[A, B, C]): ParamBuilders.ParamBuilder1[Option[(A, B, C)]] =
     new ParamBuilders.ParamBuilder1(
       underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
-      List(Some(OptionallyTransforms.optionTupleToOptionalTuple3)))
+      List(Some(OptionallyTransforms.optionTupleToOptionalTuple3))
+    )
 }
 
 object Fragment {
@@ -132,11 +136,9 @@ object Fragment {
   def encode[A](dbType: DbType[A], value: A): Fragment =
     new Fragment(dev.typr.foundations.Fragment.encode(dbType.underlying, value))
 
-  /** Extension to allow `dbType(value)` syntax for creating Fragment values.
-    * Example: `PgTypes.bool(true)` instead of `Fragment.encode(PgTypes.bool, true)`.
+  /** Extension to allow `dbType(value)` syntax for creating Fragment values. Example: `PgTypes.bool(true)` instead of `Fragment.encode(PgTypes.bool, true)`.
     */
-  extension [A](dbType: DbType[A])
-    def apply(value: A): Fragment = Fragment.encode(dbType, value)
+  extension [A](dbType: DbType[A]) def apply(value: A): Fragment = Fragment.encode(dbType, value)
 
   def and(fragments: Fragment*): Fragment =
     new Fragment(dev.typr.foundations.Fragment.and(fragments.map(_.underlying)*))
@@ -218,7 +220,7 @@ object Fragment {
       frags.result() match {
         case Nil           => Fragment.empty()
         case single :: Nil => new Fragment(single)
-        case multiple =>
+        case multiple      =>
           val javaList = new java.util.ArrayList[dev.typr.foundations.Fragment](multiple.size)
           multiple.foreach(javaList.add)
           new Fragment(new dev.typr.foundations.Fragment.Concat(javaList))
@@ -238,6 +240,15 @@ object Fragment {
   def insertIntoReturning[In, Out](table: String, writeCodec: RowCodecNamed[In], readCodec: RowCodecNamed[Out]): RowTemplate.Query[In, Out] =
     new RowTemplate.Query(dev.typr.foundations.Fragment.insertIntoReturning(table, writeCodec.underlying, readCodec.underlying))
 
+  def insertIntoGeneratedKeys[Row, Out](
+      table: String,
+      codec: RowCodecNamed[Row],
+      generatedColumns: Array[String],
+      parser: ResultSetParser[Out],
+      except: String*
+  ): RowTemplate.GeneratedKeys[Row, Out] =
+    new RowTemplate.GeneratedKeys(dev.typr.foundations.Fragment.insertIntoGeneratedKeys(table, codec.underlying, generatedColumns, parser.underlying, except*))
+
   def row[Row](codec: RowCodecNamed[Row], row: Row, except: String*): Fragment =
     new Fragment(dev.typr.foundations.Fragment.EMPTY.row(codec.underlying, row, except*))
 }
@@ -250,14 +261,18 @@ private[foundationssc] object OptionallyTransforms:
 
   val optionTupleToOptionalTuple2: AnyRef => AnyRef = { v =>
     import _root_.scala.jdk.OptionConverters.*
-    v.asInstanceOf[Option[(?, ?)]].map { case (a, b) =>
-      dev.typr.foundations.Tuple.of(a.asInstanceOf[AnyRef], b.asInstanceOf[AnyRef])
-    }.toJava
+    v.asInstanceOf[Option[(?, ?)]]
+      .map { case (a, b) =>
+        dev.typr.foundations.Tuple.of(a.asInstanceOf[AnyRef], b.asInstanceOf[AnyRef])
+      }
+      .toJava
   }
 
   val optionTupleToOptionalTuple3: AnyRef => AnyRef = { v =>
     import _root_.scala.jdk.OptionConverters.*
-    v.asInstanceOf[Option[(?, ?, ?)]].map { case (a, b, c) =>
-      dev.typr.foundations.Tuple.of(a.asInstanceOf[AnyRef], b.asInstanceOf[AnyRef], c.asInstanceOf[AnyRef])
-    }.toJava
+    v.asInstanceOf[Option[(?, ?, ?)]]
+      .map { case (a, b, c) =>
+        dev.typr.foundations.Tuple.of(a.asInstanceOf[AnyRef], b.asInstanceOf[AnyRef], c.asInstanceOf[AnyRef])
+      }
+      .toJava
   }

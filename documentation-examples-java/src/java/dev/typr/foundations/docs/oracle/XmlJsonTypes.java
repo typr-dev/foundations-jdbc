@@ -6,10 +6,10 @@ import dev.typr.foundations.data.Json;
 
 @SuppressWarnings("unused")
 public class XmlJsonTypes {
-    //start
-    OracleType<String> xmlType = OracleTypes.xmlType;
-    OracleType<Json> jsonType = OracleTypes.json;
+  // start
+  OracleType<String> xmlType = OracleTypes.xmlType;
+  OracleType<Json> jsonType = OracleTypes.json;
 
-    Json data = new Json("{\"name\": \"Oracle\"}");
-    //stop
+  Json data = new Json("{\"name\": \"Oracle\"}");
+  // stop
 }

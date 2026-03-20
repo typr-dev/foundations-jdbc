@@ -35,6 +35,17 @@ projects:
     platform:
       name: jvm
 
+  foundations-jdbc-otel:
+    dependencies:
+    - io.opentelemetry:opentelemetry-api:1.45.0
+    - configuration: provided
+      module: com.zaxxer:HikariCP:6.2.1
+    dependsOn: foundations-jdbc
+    java:
+      options: --release 21 -proc:none
+    platform:
+      name: jvm
+
   foundations-jdbc-spring:
     dependencies:
     - configuration: provided
@@ -108,16 +119,35 @@ projects:
     - org.testcontainers:mssqlserver:1.20.4
     - org.testcontainers:oracle-free:1.20.4
     - org.testcontainers:db2:1.20.4
+    - io.opentelemetry:opentelemetry-api:1.45.0
     dependsOn:
     - foundations-jdbc-hikari
+    - foundations-jdbc-otel
     - foundations-jdbc-spring
     - foundations-jdbc-scala
     - foundations-jdbc-kotlin
-    extends: template-kotlin
+    extends: template-common
     isTestProject: true
     java:
       options: --release 21 -proc:none
+    kotlin:
+      version: 2.3.0
+      jvmTarget: "21"
+    sources:
+    - ./src/java
+    - ./src/kotlin
+    testFrameworks:
+    - com.novocode.junit.JUnitFramework
     resources: ./src/resources
+
+  example-java-db2:
+    dependencies:
+    - com.ibm.db2:jcc:11.5.9.0
+    dependsOn: foundations-jdbc
+    java:
+      options: --release 21 -proc:none
+    platform:
+      name: jvm
 
   example-kotlin:
     dependencies:
@@ -160,6 +190,7 @@ projects:
     dependsOn:
     - foundations-jdbc
     - foundations-jdbc-hikari
+    - foundations-jdbc-otel
     java:
       options: --release 21 -proc:none
     platform:
@@ -187,6 +218,7 @@ projects:
     - foundations-jdbc
     - foundations-jdbc-kotlin
     - foundations-jdbc-hikari
+    - foundations-jdbc-otel
     extends: template-kotlin
 
   documentation-examples-scala:
@@ -212,6 +244,7 @@ projects:
     - foundations-jdbc
     - foundations-jdbc-scala
     - foundations-jdbc-hikari
+    - foundations-jdbc-otel
     extends: template-scala-3
 
   foundations-jdbc-scanner-test:
@@ -224,8 +257,10 @@ projects:
     - com.oracle.database.jdbc:ojdbc11:23.6.0.24.10
     - com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
     - com.ibm.db2:jcc:11.5.9.0
+    - io.opentelemetry:opentelemetry-api:1.45.0
     dependsOn:
     - foundations-jdbc
+    - foundations-jdbc-otel
     - foundations-jdbc-kotlin
     - foundations-jdbc-scala
     - documentation-examples-java

@@ -49,13 +49,11 @@ final class Instrumentation {
     try {
       T result = action.run();
       long elapsed = System.nanoTime() - start;
-      listener.afterQuery(
-          new QueryEvent(name, sql, fragment, Duration.ofNanos(elapsed), null));
+      listener.afterQuery(new QueryEvent(name, sql, fragment, Duration.ofNanos(elapsed), null));
       return result;
     } catch (SQLException | RuntimeException e) {
       long elapsed = System.nanoTime() - start;
-      listener.failedQuery(
-          new QueryEvent(name, sql, fragment, Duration.ofNanos(elapsed), e));
+      listener.failedQuery(new QueryEvent(name, sql, fragment, Duration.ofNanos(elapsed), e));
       throw e;
     }
   }

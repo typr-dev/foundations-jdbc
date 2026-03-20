@@ -4,7 +4,7 @@ import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object FixedPointTypes:
-  //start
+  // start
   val decimalType: MariaType[BigDecimal] = MariaTypes.decimal
   val preciseDecimal: MariaType[BigDecimal] = MariaTypes.decimal(10, 2)
-  //stop
+  // stop

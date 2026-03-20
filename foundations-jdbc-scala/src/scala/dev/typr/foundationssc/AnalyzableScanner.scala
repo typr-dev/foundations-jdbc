@@ -27,7 +27,11 @@ object AnalyzableScanner:
   def scanDetailed(packageName: String, directives: dev.typr.foundations.ScanDirective*): List[dev.typr.foundations.AnalyzableScanner.Result] =
     dev.typr.foundations.AnalyzableScanner.scanDetailed(packageName, directives*).asScala.toList
 
-  def scanDetailed(packageName: String, transactor: Transactor, directives: dev.typr.foundations.ScanDirective*): List[dev.typr.foundations.AnalyzableScanner.Result] =
+  def scanDetailed(
+      packageName: String,
+      transactor: Transactor,
+      directives: dev.typr.foundations.ScanDirective*
+  ): List[dev.typr.foundations.AnalyzableScanner.Result] =
     dev.typr.foundations.AnalyzableScanner.scanDetailed(packageName, transactor.underlying, directives*).asScala.toList
 
   def describe(analyzable: Analyzable): String =

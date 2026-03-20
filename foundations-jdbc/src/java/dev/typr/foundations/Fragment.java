@@ -37,9 +37,9 @@ public sealed interface Fragment {
   void set(PreparedStatement stmt, AtomicInteger idx) throws SQLException;
 
   /**
-   * Extract all parameter types from this fragment.
-   * Traverses the fragment tree and collects DbType instances from all Value nodes.
-   * The types are returned in the order they appear in the SQL (left to right).
+   * Extract all parameter types from this fragment. Traverses the fragment tree and collects DbType
+   * instances from all Value nodes. The types are returned in the order they appear in the SQL
+   * (left to right).
    *
    * <p>Used by query analysis to compare declared types against JDBC metadata.
    *
@@ -52,8 +52,8 @@ public sealed interface Fragment {
   }
 
   /**
-   * Collect parameter types into the provided list.
-   * Called by parameterTypes() to traverse the fragment tree.
+   * Collect parameter types into the provided list. Called by parameterTypes() to traverse the
+   * fragment tree.
    */
   void collectParameterTypes(List<DbType<?>> types);
 
@@ -63,8 +63,9 @@ public sealed interface Fragment {
       case Param<?> p -> new Value<>(values.next(), (DbType<Object>) p.type());
       case Append a -> new Append(a.a().fill(values), a.b().fill(values));
       case Concat c -> new Concat(c.frags().stream().map(f -> f.fill(values)).toList());
-      case Optionally ignored -> throw new UnsupportedOperationException(
-          "Optionally nodes must be resolved via OptionallyResolver.resolve(), not fill()");
+      case Optionally ignored ->
+          throw new UnsupportedOperationException(
+              "Optionally nodes must be resolved via OptionallyResolver.resolve(), not fill()");
       default -> this;
     };
   }
@@ -74,15 +75,16 @@ public sealed interface Fragment {
       case Param<?> p -> 1;
       case Append a -> countParams(a.a()) + countParams(a.b());
       case Concat c -> c.frags().stream().mapToInt(Fragment::countParams).sum();
-      case Optionally o -> throw new IllegalArgumentException("Cannot count params of nested Optionally");
+      case Optionally o ->
+          throw new IllegalArgumentException("Cannot count params of nested Optionally");
       default -> 0;
     };
   }
 
   /**
    * Collect the JDBC parameter positions (1-based) of all {@link Param} nodes in this fragment.
-   * Used by batch operations to set parameters directly on the PreparedStatement without
-   * rebuilding the fragment tree for each row.
+   * Used by batch operations to set parameters directly on the PreparedStatement without rebuilding
+   * the fragment tree for each row.
    *
    * @return array of 1-based JDBC parameter positions for Param nodes
    */
@@ -143,9 +145,11 @@ public sealed interface Fragment {
     return new Operation.Update(this);
   }
 
-  /** Same as {@link #update()}, but ignores the number of rows changed. */
-  default Operation<Void> execute() {
-    return update().voided();
+  /**
+   * Execute this fragment using {@code stmt.execute()}, which works for all SQL statement types.
+   */
+  default Operation.Execute execute() {
+    return new Operation.Execute(this);
   }
 
   default <T> Operation.UpdateReturning<T> updateReturning(ResultSetParser<T> parser) {
@@ -198,30 +202,19 @@ public sealed interface Fragment {
     return new Literal(value);
   }
 
-  static <Row> RowTemplate.Update<Row> insertInto(String table, RowCodecNamed<Row> codec, String... except) {
-    Set<String> excludeSet = except.length > 0 ? Set.of(except) : Set.of();
-    List<String> names = codec.columnNames();
-    List<String> included = new ArrayList<>();
-    for (String name : names) {
-      if (!excludeSet.contains(name)) included.add(name);
-    }
-    String cols = String.join(", ", included);
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
+  static <Row> RowTemplate.Update<Row> insertInto(
+      String table, RowCodecNamed<Row> codec, String... except) {
+    return of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
         .paramRow(codec, except)
         .append(")")
         .update();
   }
 
-  static <Row> RowTemplate.Query<Row, Row> insertIntoReturning(String table, RowCodecNamed<Row> codec, String... except) {
-    Set<String> excludeSet = except.length > 0 ? Set.of(except) : Set.of();
-    List<String> names = codec.columnNames();
-    List<String> included = new ArrayList<>();
-    for (String name : names) {
-      if (!excludeSet.contains(name)) included.add(name);
-    }
-    String cols = String.join(", ", included);
-    String allCols = String.join(", ", names);
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
+  /** PostgreSQL/DuckDB: INSERT ... RETURNING all columns. */
+  static <Row> RowTemplate.Query<Row, Row> insertIntoReturning(
+      String table, RowCodecNamed<Row> codec, String... except) {
+    String allCols = String.join(", ", codec.columnNames());
+    return of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
         .paramRow(codec, except)
         .append(") RETURNING " + allCols)
         .query(codec.exactlyOne());
@@ -235,6 +228,43 @@ public sealed interface Fragment {
         .paramRow(writeCodec)
         .append(") RETURNING " + returnCols)
         .query(readCodec.exactlyOne());
+  }
+
+  /**
+   * Insert a row and retrieve generated keys via JDBC's {@code getGeneratedKeys()}. Works on
+   * databases that don't support RETURNING clause (Oracle, SQL Server, MariaDB, DB2). Also works on
+   * PostgreSQL and DuckDB, but {@link #insertIntoReturning} is more idiomatic there.
+   *
+   * <p>The {@code generatedColumns} array specifies which columns to retrieve. Behavior varies by
+   * database:
+   *
+   * <ul>
+   *   <li><b>Oracle</b>: ROWID is returned by default; specify column names for actual values
+   *   <li><b>SQL Server</b>: supports any columns, returns via OUTPUT INSERTED
+   *   <li><b>MariaDB</b>: only auto-increment columns are returned
+   *   <li><b>PostgreSQL/DuckDB</b>: works but prefer {@link #insertIntoReturning}
+   * </ul>
+   */
+  static <Row, Out> RowTemplate.GeneratedKeys<Row, Out> insertIntoGeneratedKeys(
+      String table,
+      RowCodecNamed<Row> codec,
+      String[] generatedColumns,
+      ResultSetParser<Out> parser,
+      String... except) {
+    RowParamBuilder<Row> rpb =
+        of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
+            .paramRow(codec, except);
+    return rpb.generatedKeys(generatedColumns, parser);
+  }
+
+  private static String columnList(RowCodecNamed<?> codec, String... except) {
+    Set<String> excludeSet = except.length > 0 ? Set.of(except) : Set.of();
+    List<String> names = codec.columnNames();
+    List<String> included = new ArrayList<>();
+    for (String name : names) {
+      if (!excludeSet.contains(name)) included.add(name);
+    }
+    return String.join(", ", included);
   }
 
   static Fragment empty() {
@@ -563,27 +593,37 @@ public sealed interface Fragment {
 
   default ParamBuilders.ParamBuilder1<Boolean> optionally(Fragment inner) {
     int n = countParams(inner);
-    if (n != 0) throw new IllegalArgumentException(
-        "optionally(Fragment) requires 0 inner params, got " + n + ". Use optionally(ParamBuilder) for parameterized fragments.");
+    if (n != 0)
+      throw new IllegalArgumentException(
+          "optionally(Fragment) requires 0 inner params, got "
+              + n
+              + ". Use optionally(ParamBuilder) for parameterized fragments.");
     return new ParamBuilders.ParamBuilder1<>(append(new Optionally(inner, 0)), null);
   }
 
   @SuppressWarnings("unchecked")
-  default <A> ParamBuilders.ParamBuilder1<java.util.Optional<A>> optionally(ParamBuilders.ParamBuilder1<A> builder) {
+  default <A> ParamBuilders.ParamBuilder1<java.util.Optional<A>> optionally(
+      ParamBuilders.ParamBuilder1<A> builder) {
     Fragment inner = builder.done();
-    return new ParamBuilders.ParamBuilder1<>(append(new Optionally(inner, countParams(inner))), null);
+    return new ParamBuilders.ParamBuilder1<>(
+        append(new Optionally(inner, countParams(inner))), null);
   }
 
   @SuppressWarnings("unchecked")
-  default <A, B> ParamBuilders.ParamBuilder1<java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilders.ParamBuilder2<A, B> builder) {
+  default <A, B> ParamBuilders.ParamBuilder1<java.util.Optional<Tuple.Tuple2<A, B>>> optionally(
+      ParamBuilders.ParamBuilder2<A, B> builder) {
     Fragment inner = builder.done();
-    return new ParamBuilders.ParamBuilder1<>(append(new Optionally(inner, countParams(inner))), null);
+    return new ParamBuilders.ParamBuilder1<>(
+        append(new Optionally(inner, countParams(inner))), null);
   }
 
   @SuppressWarnings("unchecked")
-  default <A, B, C> ParamBuilders.ParamBuilder1<java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilders.ParamBuilder3<A, B, C> builder) {
+  default <A, B, C>
+      ParamBuilders.ParamBuilder1<java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(
+          ParamBuilders.ParamBuilder3<A, B, C> builder) {
     Fragment inner = builder.done();
-    return new ParamBuilders.ParamBuilder1<>(append(new Optionally(inner, countParams(inner))), null);
+    return new ParamBuilders.ParamBuilder1<>(
+        append(new Optionally(inner, countParams(inner))), null);
   }
 
   default <Row> RowParamBuilder<Row> paramRow(RowCodecNamed<Row> codec, String... except) {

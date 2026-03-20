@@ -3,13 +3,16 @@ import dev.typr.foundationssc.*
 
 @SuppressWarnings(Array("unused"))
 object NamedJsonObject:
-  //start
+  // start
   case class OrderLine(
-    product: String, qty: Int, price: BigDecimal
+      product: String,
+      qty: Int,
+      price: BigDecimal
   )
 
   val lineCodec: RowCodecNamed[OrderLine] =
-    RowCodec.namedBuilder[OrderLine]()
+    RowCodec
+      .namedBuilder[OrderLine]()
       .field("product", DuckDbTypes.varchar)(_.product)
       .field("qty", DuckDbTypes.integer)(_.qty)
       .field("price", DuckDbTypes.decimal(10, 2))(_.price)
@@ -22,4 +25,4 @@ object NamedJsonObject:
   // Stores rows as named JSON objects — keys from the codec
   val objectType: DuckDbType[List[OrderLine]] =
     DuckDbTypes.jsonObjectEncodedList(lineCodec)
-  //stop
+  // stop

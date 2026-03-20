@@ -8,12 +8,12 @@ import org.mariadb.jdbc.type.Polygon;
 
 @SuppressWarnings("unused")
 public class SpatialTypes {
-    //start
-    MariaType<Point> pointType = MariaTypes.point;
-    MariaType<Polygon> polygonType = MariaTypes.polygon;
-    MariaType<GeometryCollection> gcType = MariaTypes.geometrycollection;
+  // start
+  MariaType<Point> pointType = MariaTypes.point;
+  MariaType<Polygon> polygonType = MariaTypes.polygon;
+  MariaType<GeometryCollection> gcType = MariaTypes.geometrycollection;
 
-    // Create a point
-    Point p = new Point(1.0, 2.0);
-    //stop
+  // Create a point
+  Point p = new Point(1.0, 2.0);
+  // stop
 }

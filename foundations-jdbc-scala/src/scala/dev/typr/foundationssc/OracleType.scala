@@ -7,8 +7,8 @@ class OracleType[T](override val underlying: dev.typr.foundations.OracleType[T])
   override def to[B](bijection: dev.typr.foundations.Bijection[T, B]): OracleType[B] =
     OracleType(underlying.to(bijection))
 
-  def transform[B](f: dev.typr.foundations.SqlFunction[T, B], g: java.util.function.Function[B, T]): OracleType[B] =
-    OracleType(underlying.transform(f, g))
+  def transform[B](f: T => B, g: B => T): OracleType[B] =
+    OracleType(underlying.transform(v => f(v), v => g(v)))
 
   def unchecked(): OracleType[T] = OracleType(underlying.unchecked())
   def nullableOk(): OracleType[T] = OracleType(underlying.nullableOk())

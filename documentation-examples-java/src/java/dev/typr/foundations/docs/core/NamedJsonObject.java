@@ -1,29 +1,27 @@
 package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.*;
-
 import java.math.BigDecimal;
 import java.util.List;
 
 @SuppressWarnings("unused")
 public class NamedJsonObject {
-    //start
-    record OrderLine(String product, int qty, BigDecimal price) {}
+  // start
+  record OrderLine(String product, int qty, BigDecimal price) {}
 
-    static final RowCodecNamed<OrderLine> lineCodec =
-        RowCodec.<OrderLine>namedBuilder()
-            .field("product", DuckDbTypes.varchar, OrderLine::product)
-            .field("qty", DuckDbTypes.integer, OrderLine::qty)
-            .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
-            .build(OrderLine::new);
+  static final RowCodecNamed<OrderLine> lineCodec =
+      RowCodec.<OrderLine>namedBuilder()
+          .field("product", DuckDbTypes.varchar, OrderLine::product)
+          .field("qty", DuckDbTypes.integer, OrderLine::qty)
+          .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
+          .build(OrderLine::new);
 
-    // Stores rows as positional JSON arrays: [["Widget", 3, 9.99], ...]
-    static final DuckDbType<List<OrderLine>> arrayType =
-        DuckDbTypes.jsonArrayEncodedList(lineCodec);
+  // Stores rows as positional JSON arrays: [["Widget", 3, 9.99], ...]
+  static final DuckDbType<List<OrderLine>> arrayType = DuckDbTypes.jsonArrayEncodedList(lineCodec);
 
-    // Stores rows as named JSON objects: [{"product": "Widget", "qty": 3, "price": 9.99}, ...]
-    // Column names come from the codec — no redundant list to maintain
-    static final DuckDbType<List<OrderLine>> objectType =
-        DuckDbTypes.jsonObjectEncodedList(lineCodec);
-    //stop
+  // Stores rows as named JSON objects: [{"product": "Widget", "qty": 3, "price": 9.99}, ...]
+  // Column names come from the codec — no redundant list to maintain
+  static final DuckDbType<List<OrderLine>> objectType =
+      DuckDbTypes.jsonObjectEncodedList(lineCodec);
+  // stop
 }

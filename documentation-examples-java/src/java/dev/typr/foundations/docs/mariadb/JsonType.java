@@ -6,9 +6,9 @@ import dev.typr.foundations.data.Json;
 
 @SuppressWarnings("unused")
 public class JsonType {
-    //start
-    MariaType<Json> jsonType = MariaTypes.json;
+  // start
+  MariaType<Json> jsonType = MariaTypes.json;
 
-    Json data = new Json("{\"name\": \"John\", \"age\": 30}");
-    //stop
+  Json data = new Json("{\"name\": \"John\", \"age\": 30}");
+  // stop
 }

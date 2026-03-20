@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.data.Vector;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
@@ -7,8 +8,8 @@ import java.sql.Types;
 import java.time.*;
 
 /**
- * OUT/INOUT parameter codecs for MariaDB types.
- * Each instance handles both registration and reading.
+ * OUT/INOUT parameter codecs for MariaDB types. Each instance handles both registration and
+ * reading.
  */
 public interface MariaOutParam<A> extends DbOutParam<A> {
 
@@ -19,10 +20,13 @@ public interface MariaOutParam<A> extends DbOutParam<A> {
 
   private static <A> MariaOutParam<A> of(int jdbcType, ReadFn<A> reader) {
     return new MariaOutParam<>() {
-      @Override public void register(CallableStatement stmt, int index) throws SQLException {
+      @Override
+      public void register(CallableStatement stmt, int index) throws SQLException {
         stmt.registerOutParameter(index, jdbcType);
       }
-      @Override public A read(CallableStatement stmt, int index) throws SQLException {
+
+      @Override
+      public A read(CallableStatement stmt, int index) throws SQLException {
         return reader.read(stmt, index);
       }
     };
@@ -41,53 +45,81 @@ public interface MariaOutParam<A> extends DbOutParam<A> {
   MariaOutParam<byte[]> readByteArray = of(Types.VARBINARY, CallableStatement::getBytes);
 
   // Date/time types
-  MariaOutParam<LocalDate> readLocalDate = of(Types.DATE, (stmt, i) -> {
-    var date = stmt.getDate(i);
-    return date == null ? null : date.toLocalDate();
-  });
+  MariaOutParam<LocalDate> readLocalDate =
+      of(
+          Types.DATE,
+          (stmt, i) -> {
+            var date = stmt.getDate(i);
+            return date == null ? null : date.toLocalDate();
+          });
 
-  MariaOutParam<LocalTime> readLocalTime = of(Types.TIME, (stmt, i) -> stmt.getObject(i, LocalTime.class));
+  MariaOutParam<LocalTime> readLocalTime =
+      of(Types.TIME, (stmt, i) -> stmt.getObject(i, LocalTime.class));
 
-  MariaOutParam<LocalDateTime> readLocalDateTime = of(Types.TIMESTAMP, (stmt, i) -> {
-    var ts = stmt.getTimestamp(i);
-    return ts == null ? null : ts.toLocalDateTime();
-  });
+  MariaOutParam<LocalDateTime> readLocalDateTime =
+      of(
+          Types.TIMESTAMP,
+          (stmt, i) -> {
+            var ts = stmt.getTimestamp(i);
+            return ts == null ? null : ts.toLocalDateTime();
+          });
 
-  MariaOutParam<Instant> readInstant = of(Types.TIMESTAMP, (stmt, i) -> {
-    var ts = stmt.getTimestamp(i);
-    return ts == null ? null : ts.toInstant();
-  });
+  MariaOutParam<Instant> readInstant =
+      of(
+          Types.TIMESTAMP,
+          (stmt, i) -> {
+            var ts = stmt.getTimestamp(i);
+            return ts == null ? null : ts.toInstant();
+          });
 
-  MariaOutParam<Year> readYear = of(Types.DATE, (stmt, i) -> {
-    var date = stmt.getDate(i);
-    return date == null ? null : Year.of(date.toLocalDate().getYear());
-  });
+  MariaOutParam<Year> readYear =
+      of(
+          Types.DATE,
+          (stmt, i) -> {
+            var date = stmt.getDate(i);
+            return date == null ? null : Year.of(date.toLocalDate().getYear());
+          });
 
-  MariaOutParam<Duration> readDuration = of(Types.TIME, (stmt, i) -> {
-    var time = stmt.getObject(i, LocalTime.class);
-    return time == null ? null : Duration.ofNanos(time.toNanoOfDay());
-  });
+  MariaOutParam<Duration> readDuration =
+      of(
+          Types.TIME,
+          (stmt, i) -> {
+            var time = stmt.getObject(i, LocalTime.class);
+            return time == null ? null : Duration.ofNanos(time.toNanoOfDay());
+          });
+
+  // VECTOR type - MariaDB 11.7+ connector returns float[] via FloatArrayCodec
+  MariaOutParam<Vector> readVector =
+      of(
+          Types.OTHER,
+          (stmt, i) -> {
+            float[] arr = stmt.getObject(i, float[].class);
+            return arr == null ? null : new Vector(arr);
+          });
 
   @SuppressWarnings("unchecked")
   static <A> MariaOutParam<A> readGeometry(Class<A> cls) {
-    return of(Types.OTHER, (stmt, i) -> {
-      var obj = stmt.getObject(i);
-      if (obj == null) return null;
-      if (cls.isInstance(obj)) return cls.cast(obj);
-      return (A) obj;
-    });
+    return of(
+        Types.OTHER,
+        (stmt, i) -> {
+          var obj = stmt.getObject(i);
+          if (obj == null) return null;
+          if (cls.isInstance(obj)) return cls.cast(obj);
+          return (A) obj;
+        });
   }
 
-  /**
-   * Create an optional version of this OUT parameter codec.
-   */
+  /** Create an optional version of this OUT parameter codec. */
   default MariaOutParam<java.util.Optional<A>> opt() {
     var self = this;
     return new MariaOutParam<>() {
-      @Override public void register(CallableStatement stmt, int index) throws SQLException {
+      @Override
+      public void register(CallableStatement stmt, int index) throws SQLException {
         self.register(stmt, index);
       }
-      @Override public java.util.Optional<A> read(CallableStatement stmt, int index) throws SQLException {
+
+      @Override
+      public java.util.Optional<A> read(CallableStatement stmt, int index) throws SQLException {
         A value = self.read(stmt, index);
         if (stmt.wasNull()) return java.util.Optional.empty();
         return java.util.Optional.ofNullable(value);
@@ -95,32 +127,36 @@ public interface MariaOutParam<A> extends DbOutParam<A> {
     };
   }
 
-  /**
-   * Map the result of this OUT parameter codec.
-   */
+  /** Map the result of this OUT parameter codec. */
   default <B> MariaOutParam<B> map(SqlFunction<A, B> f) {
     var self = this;
     return new MariaOutParam<>() {
-      @Override public void register(CallableStatement stmt, int index) throws SQLException {
+      @Override
+      public void register(CallableStatement stmt, int index) throws SQLException {
         self.register(stmt, index);
       }
-      @Override public B read(CallableStatement stmt, int index) throws SQLException {
+
+      @Override
+      public B read(CallableStatement stmt, int index) throws SQLException {
         A value = self.read(stmt, index);
         return value == null ? null : f.apply(value);
       }
     };
   }
 
-  /**
-   * An OUT parameter codec that always throws - for types that don't support OUT parameters.
-   */
+  /** An OUT parameter codec that always throws - for types that don't support OUT parameters. */
   static <T> MariaOutParam<T> notSupported(String typeName) {
     return new MariaOutParam<>() {
-      @Override public void register(CallableStatement stmt, int index) throws SQLException {
-        throw new SQLException("Type " + typeName + " does not support stored procedure OUT parameters");
+      @Override
+      public void register(CallableStatement stmt, int index) throws SQLException {
+        throw new SQLException(
+            "Type " + typeName + " does not support stored procedure OUT parameters");
       }
-      @Override public T read(CallableStatement stmt, int index) throws SQLException {
-        throw new SQLException("Type " + typeName + " does not support stored procedure OUT parameters");
+
+      @Override
+      public T read(CallableStatement stmt, int index) throws SQLException {
+        throw new SQLException(
+            "Type " + typeName + " does not support stored procedure OUT parameters");
       }
     };
   }

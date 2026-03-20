@@ -16,7 +16,7 @@ object ScannerInstance:
     def generateReport(callback: Runnable): Operation[List[String]] =
       Fragment.of("SELECT name FROM items").queryAll(PgTypes.text)
 
-  //start
+  // start
   def checkWithExternalObjects(): Unit =
     val external = ExternalRepo()
 
@@ -34,4 +34,4 @@ object ScannerInstance:
 
     val checker = QueryChecker.create(transactor)
     checker.checkAll(analyzables)
-  //stop
+  // stop

@@ -6,13 +6,13 @@ import dev.typr.foundations.Transactor;
 
 @SuppressWarnings("unused")
 public class QueryAnalysisTestSuite {
-    private final Transactor transactor = null; // placeholder
+  private final Transactor transactor = null; // placeholder
 
-    //start
-    void allQueriesTypeCheck() {
-        var analyzables = AnalyzableScanner.scan("com.myapp.db");
-        QueryChecker checker = QueryChecker.create(transactor);
-        checker.checkAll(analyzables);
-    }
-    //stop
+  // start
+  void allQueriesTypeCheck() {
+    var analyzables = AnalyzableScanner.scan("com.myapp.db");
+    QueryChecker checker = QueryChecker.create(transactor);
+    checker.checkAll(analyzables);
+  }
+  // stop
 }

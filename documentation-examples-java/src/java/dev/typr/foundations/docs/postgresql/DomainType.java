@@ -5,11 +5,11 @@ import dev.typr.foundations.PgTypes;
 
 @SuppressWarnings("unused")
 public class DomainType {
-    //start
-    // Wrapper type
-    public record Email(String value) {}
+  // start
+  // Wrapper type
+  public record Email(String value) {}
 
-    // Create PgType from text
-    PgType<Email> emailType = PgTypes.text.transform(Email::new, Email::value);
-    //stop
+  // Create PgType from text
+  PgType<Email> emailType = PgTypes.text.transform(Email::new, Email::value);
+  // stop
 }

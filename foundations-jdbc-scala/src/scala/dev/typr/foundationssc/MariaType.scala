@@ -7,8 +7,8 @@ class MariaType[T](override val underlying: dev.typr.foundations.MariaType[T]) e
   override def to[B](bijection: dev.typr.foundations.Bijection[T, B]): MariaType[B] =
     MariaType(underlying.to(bijection))
 
-  def transform[B](f: dev.typr.foundations.SqlFunction[T, B], g: java.util.function.Function[B, T]): MariaType[B] =
-    MariaType(underlying.transform(f, g))
+  def transform[B](f: T => B, g: B => T): MariaType[B] =
+    MariaType(underlying.transform(v => f(v), v => g(v)))
 
   def unchecked(): MariaType[T] = MariaType(underlying.unchecked())
   def nullableOk(): MariaType[T] = MariaType(underlying.nullableOk())

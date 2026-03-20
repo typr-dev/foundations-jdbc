@@ -3,7 +3,6 @@ package dev.typr.foundationssc.docs.test
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-
 object ExportTest:
   // Test if types are accessible
   val t: PgType[Int] = PgTypes.int4

@@ -29,7 +29,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
 
   def generateScalaRowCodecBuilders(): String = {
     val maxArity = N - 1
-  
+
     val builder0 = s"""|  class Builder0[Row] private[foundationssc] () {
                        |    private val types = scala.collection.mutable.ListBuffer[DbType[?]]()
                        |    private val getters = scala.collection.mutable.ListBuffer[Row => Any]()
@@ -40,13 +40,13 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
                        |      new Builder1(types, getters)
                        |    }
                        |  }""".stripMargin
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
       val decodeParams = range.map(i => s"T$i").mkString(", ")
       val decodeArgs = range.map(i => s"arr($i).asInstanceOf[T$i]").mkString(", ")
-  
+
       val nextBuilder = if (n < maxArity) {
         val nextTparams = (0 until n).map(i => s"T$i").mkString(", ")
         s"""|
@@ -56,7 +56,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
             |      new Builder${n + 1}(types, getters)
             |    }""".stripMargin
       } else ""
-  
+
       s"""|  class Builder$n[Row, $tparams] private[foundationssc] (
           |    private val types: scala.collection.mutable.ListBuffer[DbType[?]],
           |    private val getters: scala.collection.mutable.ListBuffer[Row => Any]
@@ -72,7 +72,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
           |    }$nextBuilder
           |  }""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationssc
         |
         |import scala.jdk.CollectionConverters.*
@@ -97,10 +97,10 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |}
         |""".stripMargin
   }
-  
+
   def generateScalaNamedRowCodecBuilders(): String = {
     val maxArity = N - 1
-  
+
     val builder0 = s"""|  class Builder0[Row] private[foundationssc] () {
                        |    private val names = scala.collection.mutable.ListBuffer[String]()
                        |    private val types = scala.collection.mutable.ListBuffer[DbType[?]]()
@@ -113,13 +113,13 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
                        |      new Builder1(names, types, getters)
                        |    }
                        |  }""".stripMargin
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
       val decodeParams = range.map(i => s"T$i").mkString(", ")
       val decodeArgs = range.map(i => s"arr($i).asInstanceOf[T$i]").mkString(", ")
-  
+
       val nextBuilder = if (n < maxArity) {
         val nextTparams = (0 until n).map(i => s"T$i").mkString(", ")
         s"""|
@@ -130,7 +130,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
             |      new Builder${n + 1}(names, types, getters)
             |    }""".stripMargin
       } else ""
-  
+
       s"""|  class Builder$n[Row, $tparams] private[foundationssc] (
           |    private val names: scala.collection.mutable.ListBuffer[String],
           |    private val types: scala.collection.mutable.ListBuffer[DbType[?]],
@@ -148,7 +148,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
           |    }$nextBuilder
           |  }""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationssc
         |
         |import scala.jdk.CollectionConverters.*
@@ -173,10 +173,10 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |}
         |""".stripMargin
   }
-  
+
   def generateScalaDbProcedure(): String = {
     val maxArity = PROC_N - 1
-  
+
     def iParams(i: Int) = 0.until(i).map(n => s"I$n").toList
     def oParams(o: Int) = 0.until(o).map(n => s"O$n").toList
     def allTypeParams(i: Int, o: Int) = iParams(i) ++ oParams(o)
@@ -188,7 +188,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
       case 1 => "O0"
       case n => "(" + oParams(n).mkString(", ") + ")"
     }
-  
+
     // Def traits: 11x11
     val defs = for {
       i <- 0 to maxArity
@@ -197,11 +197,12 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
       val tpDecl = typeParamDecl(allTypeParams(i, o))
       val retType = outType(o)
       s"""  /** Procedure definition with $i input(s) and $o output(s). */
-         |  trait Def${i}_${o}$tpDecl {
+         |  trait Def${i}_${o}$tpDecl extends dev.typr.foundations.RoutineDef {
          |    def call(${callParams(i)}): ProcedureOp[$retType]
+         |    def procedure: dev.typr.foundations.Procedure[?]
          |  }""".stripMargin
     }
-  
+
     // Builder classes: 11x11
     val builders = for {
       i <- 0 to maxArity
@@ -210,62 +211,63 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
       val tp = allTypeParams(i, o)
       val tpDecl = typeParamDecl(tp)
       val javaTpDecl = if (tp.isEmpty) "" else s"[${tp.mkString(", ")}]"
-  
+
       // in method
       val inMethod = if (i < maxArity) {
         val nextTp = allTypeParams(i + 1, o)
         s"""    def input[I$i](tpe: DbType[I$i]): Builder_${i + 1}_${o}${typeParamDecl(nextTp)} =
            |      new Builder_${i + 1}_${o}(underlying.input(tpe.underlying))""".stripMargin
       } else ""
-  
+
       // out method
       val outMethod = if (o < maxArity) {
         val nextTp = allTypeParams(i, o + 1)
         s"""    def out[O$o](tpe: DbType[O$o]): Builder_${i}_${o + 1}${typeParamDecl(nextTp)} =
            |      new Builder_${i}_${o + 1}(underlying.out(tpe.underlying))""".stripMargin
       } else ""
-  
+
       // inout method
       val inoutMethod = if (i < maxArity && o < maxArity) {
         val inoutTp = iParams(i) ::: List("X") ::: oParams(o) ::: List("X")
         s"""    def inout[X](tpe: DbType[X]): Builder_${i + 1}_${o + 1}${typeParamDecl(inoutTp)} =
            |      new Builder_${i + 1}_${o + 1}(underlying.inout(tpe.underlying))""".stripMargin
       } else ""
-  
+
       val methods = List(inMethod, outMethod, inoutMethod).filter(_.nonEmpty).mkString("\n")
       val methodsBlock = if (methods.nonEmpty) s"$methods\n" else ""
-  
+
       // build method
       val retType = outType(o)
       val defTpDecl = typeParamDecl(allTypeParams(i, o))
       val callParamsStr = callParams(i)
       val callArgNamesStr = callArgNames(i)
-  
+
       val castExpr = o match {
         case 0 => "_ => ()"
         case 1 => "_.asInstanceOf[O0]"
         case n =>
           val javaTupleType = s"dev.typr.foundations.Tuple.Tuple$n[${oParams(n).mkString(", ")}]"
-          val accessors = 0.until(n).map(i => s"t._${i+1}()").mkString(", ")
+          val accessors = 0.until(n).map(i => s"t._${i + 1}()").mkString(", ")
           s"{ r => val t = r.asInstanceOf[$javaTupleType]; ($accessors) }"
       }
-  
+
       val javaCallArgs = if (i == 0) "" else callArgNamesStr
-  
+
       s"""  class Builder_${i}_${o}$tpDecl private[foundationssc] (
          |    private val underlying: dev.typr.foundations.DbProcedure.Builder_${i}_${o}$javaTpDecl
          |  ) {
          |$methodsBlock
          |    def build(): Def${i}_${o}$defTpDecl = {
-         |      val javaProc = underlying.build()
+         |      val javaDef = underlying.build()
          |      new Def${i}_${o}$defTpDecl {
          |        def call($callParamsStr): ProcedureOp[$retType] =
-         |          new ProcedureOp(javaProc.call($javaCallArgs).asInstanceOf[dev.typr.foundations.Operation[Any]], $castExpr)
+         |          new ProcedureOp(javaDef.call($javaCallArgs).asInstanceOf[dev.typr.foundations.Operation[Any]], $castExpr)
+         |        override def procedure: dev.typr.foundations.Procedure[?] = javaDef.procedure()
          |      }
          |    }
          |  }""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationssc
         |
         |/** Type-safe stored procedure definitions with fully typed inputs and outputs.
@@ -302,54 +304,56 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |}
         |""".stripMargin
   }
-  
+
   def generateScalaDbFunction(): String = {
     val maxArity = PROC_N - 1
-  
+
     def iParams(i: Int) = 0.until(i).map(n => s"I$n").toList
     def typeParamDecl(ps: List[String]) = if (ps.isEmpty) "" else s"[${ps.mkString(", ")}]"
     def callParams(i: Int) = 0.until(i).map(n => s"i$n: I$n").mkString(", ")
     def callArgNames(i: Int) = 0.until(i).map(n => s"i$n").mkString(", ")
-  
+
     // Def traits: 11 total
     val defs = (0 to maxArity).map { i =>
       val tp = iParams(i) ::: List("R")
       s"""  /** Function definition with $i input(s). */
-         |  trait Def$i${typeParamDecl(tp)} {
+         |  trait Def$i${typeParamDecl(tp)} extends dev.typr.foundations.RoutineDef {
          |    def call(${callParams(i)}): ProcedureOp[R]
+         |    def procedure: dev.typr.foundations.Procedure[?]
          |  }""".stripMargin
     }
-  
+
     // Builder classes: 11 total
     val builders = (0 to maxArity).map { i =>
       val tp = iParams(i) ::: List("R")
       val tpDecl = typeParamDecl(tp)
       val javaTpDecl = typeParamDecl(tp)
-  
+
       val inMethod = if (i < maxArity) {
         val nextTp = iParams(i + 1) ::: List("R")
         s"""    def input[I$i](tpe: DbType[I$i]): Builder_${i + 1}${typeParamDecl(nextTp)} =
            |      new Builder_${i + 1}(underlying.input(tpe.underlying))
            |""".stripMargin
       } else ""
-  
+
       val callParamsStr = callParams(i)
       val javaCallArgs = if (i == 0) "" else callArgNames(i)
-  
+
       s"""  class Builder_$i$tpDecl private[foundationssc] (
          |    private val underlying: dev.typr.foundations.DbFunction.Builder_$i$javaTpDecl
          |  ) {
          |$inMethod
          |    def build(): Def$i$tpDecl = {
-         |      val javaFn = underlying.build()
+         |      val javaDef = underlying.build()
          |      new Def$i$tpDecl {
          |        def call($callParamsStr): ProcedureOp[R] =
-         |          new ProcedureOp(javaFn.call($javaCallArgs).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[R])
+         |          new ProcedureOp(javaDef.call($javaCallArgs).asInstanceOf[dev.typr.foundations.Operation[Any]], _.asInstanceOf[R])
+         |        override def procedure: dev.typr.foundations.Procedure[?] = javaDef.procedure()
          |      }
          |    }
          |  }""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationssc
         |
         |/** Type-safe stored function definitions with fully typed inputs.
@@ -385,10 +389,10 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |}
         |""".stripMargin
   }
-  
+
   def generateScalaPgStructBuilders(): String = {
     val maxArity = STRUCT_N - 1
-  
+
     val builder0 = s"""|  class Builder0[A] private[foundationssc] (
                        |    private val underlying: dev.typr.foundations.PgStructBuilders.Builder0[A]
                        |  ):
@@ -396,12 +400,12 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
                        |      Builder1(underlying.field(name, tpe.underlying, a => getter(a)))
                        |    def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder1[A, F] =
                        |      Builder1(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))""".stripMargin
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
       val lambdaParams = range.map(i => s"t$i").mkString(", ")
-  
+
       val nextBuilder = if (n < maxArity) {
         val nextTparams = range.map(i => s"T$i").mkString(", ")
         s"""|
@@ -410,7 +414,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
             |    def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder${n + 1}[A, $nextTparams, F] =
             |      Builder${n + 1}(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))""".stripMargin
       } else ""
-  
+
       s"""|  class Builder$n[A, $tparams] private[foundationssc] (
           |    private val underlying: dev.typr.foundations.PgStructBuilders.Builder$n[A, $tparams]
           |  ):
@@ -418,7 +422,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
           |      PgStruct(underlying.build(($lambdaParams) => decode($lambdaParams)))
           |$nextBuilder""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationssc
         |
         |class PgStruct[A](val underlying: dev.typr.foundations.PgStruct[A]):
@@ -433,28 +437,28 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |${builders.mkString("\n\n")}
         |""".stripMargin
   }
-  
+
   def generateScalaDuckDbStructBuilders(): String = {
     val maxArity = STRUCT_N - 1
-  
+
     val builder0 = s"""|  class Builder0[A] private[foundationssc] (
                        |    private val underlying: dev.typr.foundations.DuckDbStructBuilders.Builder0[A]
                        |  ):
                        |    def field[F](name: String, tpe: DuckDbType[F], getter: A => F): Builder1[A, F] =
                        |      Builder1(underlying.field(name, tpe.underlying, a => getter(a)))""".stripMargin
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
       val lambdaParams = range.map(i => s"t$i").mkString(", ")
-  
+
       val nextBuilder = if (n < maxArity) {
         val nextTparams = range.map(i => s"T$i").mkString(", ")
         s"""|
             |    def field[F](name: String, tpe: DuckDbType[F], getter: A => F): Builder${n + 1}[A, $nextTparams, F] =
             |      Builder${n + 1}(underlying.field(name, tpe.underlying, a => getter(a)))""".stripMargin
       } else ""
-  
+
       s"""|  class Builder$n[A, $tparams] private[foundationssc] (
           |    private val underlying: dev.typr.foundations.DuckDbStructBuilders.Builder$n[A, $tparams]
           |  ):
@@ -462,7 +466,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
           |      DuckDbStruct(underlying.build(($lambdaParams) => decode($lambdaParams)))
           |$nextBuilder""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationssc
         |
         |class DuckDbStruct[A](val underlying: dev.typr.foundations.DuckDbStruct[A]):
@@ -477,28 +481,28 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |${builders.mkString("\n\n")}
         |""".stripMargin
   }
-  
+
   def generateScalaOracleObjectBuilders(): String = {
     val maxArity = STRUCT_N - 1
-  
+
     val builder0 = s"""|  class Builder0[A] private[foundationssc] (
                        |    private val underlying: dev.typr.foundations.OracleObjectBuilders.Builder0[A]
                        |  ):
                        |    def field[F](name: String, tpe: OracleType[F], getter: A => F): Builder1[A, F] =
                        |      Builder1(underlying.field(name, tpe.underlying, a => getter(a)))""".stripMargin
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
       val lambdaParams = range.map(i => s"t$i").mkString(", ")
-  
+
       val nextBuilder = if (n < maxArity) {
         val nextTparams = range.map(i => s"T$i").mkString(", ")
         s"""|
             |    def field[F](name: String, tpe: OracleType[F], getter: A => F): Builder${n + 1}[A, $nextTparams, F] =
             |      Builder${n + 1}(underlying.field(name, tpe.underlying, a => getter(a)))""".stripMargin
       } else ""
-  
+
       s"""|  class Builder$n[A, $tparams] private[foundationssc] (
           |    private val underlying: dev.typr.foundations.OracleObjectBuilders.Builder$n[A, $tparams]
           |  ):
@@ -506,7 +510,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
           |      OracleObject(underlying.build(($lambdaParams) => decode($lambdaParams)))
           |$nextBuilder""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationssc
         |
         |class OracleObject[A](val underlying: dev.typr.foundations.OracleObject[A]):
@@ -521,14 +525,14 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |${builders.mkString("\n\n")}
         |""".stripMargin
   }
-  
+
   def generateScalaTuple(): String = {
     val typeAliases = 1.to(N).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
       s"  type Tuple$n[$tparams] = dev.typr.foundations.Tuple.Tuple$n[$tparams]"
     }
-  
+
     val factories = 1.to(N).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"T$i").mkString(", ")
@@ -536,7 +540,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
       val args = range.map(i => s"v$i").mkString(", ")
       s"  def of[$tparams]($params): dev.typr.foundations.Tuple.Tuple$n[$tparams] =\n    dev.typr.foundations.Tuple.of($args)"
     }
-  
+
     s"""|package dev.typr.foundationssc
         |
         |type Tuple = dev.typr.foundations.Tuple
@@ -547,24 +551,26 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |${factories.mkString("\n\n")}
         |""".stripMargin
   }
-  
+
   def generateScalaTemplate(): String = {
     val maxArity = PROC_N - 1 // 10
-  
+
     val queryClasses = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"P$i").mkString(", ")
       val allTparams = s"$tparams, Out"
       val wildcards = range.map(_ => "?").mkString(", ")
       val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-      val transformLines = range.map { i =>
-        s"      val v$i: AnyRef = _transforms($i).map(_(p$i.asInstanceOf[AnyRef])).getOrElse(p$i.asInstanceOf[AnyRef])"
-      }.mkString("\n")
+      val transformLines = range
+        .map { i =>
+          s"      val v$i: AnyRef = _transforms($i).map(_(p$i.asInstanceOf[AnyRef])).getOrElse(p$i.asInstanceOf[AnyRef])"
+        }
+        .mkString("\n")
       val valuesList = range.map(i => s"v$i").mkString(", ")
-  
+
       val fromFnParams = range.map(i => s"f$i: T => P$i").mkString(", ")
       val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
-  
+
       if (n == 1) {
         s"""|  class Query1[P0, Out](
             |    private val _java: dev.typr.foundations.Template.Query1[?, Out],
@@ -582,7 +588,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
       } else {
         val tupleType = s"(${range.map(i => s"P$i").mkString(", ")})"
         val tupleDecompose = range.map(i => s"input._${i + 1}").mkString(", ")
-  
+
         s"""|  class Query$n[$allTparams](
             |    private val _java: dev.typr.foundations.Template.Query$n[$wildcards, Out],
             |    private val _transforms: List[Option[AnyRef => AnyRef]]
@@ -600,20 +606,22 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
             |      new From(_java, (t: T) => on($fromApplyArgs))""".stripMargin
       }
     }
-  
+
     val updateClasses = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"P$i").mkString(", ")
       val wildcards = range.map(_ => "?").mkString(", ")
       val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-      val transformLines = range.map { i =>
-        s"      val v$i: AnyRef = _transforms($i).map(_(p$i.asInstanceOf[AnyRef])).getOrElse(p$i.asInstanceOf[AnyRef])"
-      }.mkString("\n")
+      val transformLines = range
+        .map { i =>
+          s"      val v$i: AnyRef = _transforms($i).map(_(p$i.asInstanceOf[AnyRef])).getOrElse(p$i.asInstanceOf[AnyRef])"
+        }
+        .mkString("\n")
       val valuesList = range.map(i => s"v$i").mkString(", ")
-  
+
       val fromFnParams = range.map(i => s"f$i: T => P$i").mkString(", ")
       val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
-  
+
       if (n == 1) {
         s"""|  class Update1[P0](
             |    private val _java: dev.typr.foundations.Template.Update1[?],
@@ -631,7 +639,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
       } else {
         val tupleType = s"(${range.map(i => s"P$i").mkString(", ")})"
         val tupleDecompose = range.map(i => s"input._${i + 1}").mkString(", ")
-  
+
         s"""|  class Update$n[$tparams](
             |    private val _java: dev.typr.foundations.Template.Update$n[$wildcards],
             |    private val _transforms: List[Option[AnyRef => AnyRef]]
@@ -649,7 +657,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
             |      new From(_java, (t: T) => on($fromApplyArgs))""".stripMargin
       }
     }
-  
+
     s"""|package dev.typr.foundationssc
         |
         |sealed trait Template[In, Out] extends Analyzable:
@@ -691,23 +699,28 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |      import _root_.scala.jdk.CollectionConverters.*
         |      new Operation.UpdateManyTemplate(underlying.onMany(rows.asJava))
         |    }
+        |
+        |  class GeneratedKeys[Row, Out](val underlying: dev.typr.foundations.RowTemplate.GeneratedKeys[Row, Out])
+        |      extends RowTemplate[Row, Out]:
+        |    override def on(input: Row): Operation.UpdateReturningGeneratedKeys[Out] =
+        |      new Operation.UpdateReturningGeneratedKeys(underlying.on(input))
         |""".stripMargin
   }
-  
+
   def generateScalaParamBuilders(): String = {
     val maxArity = PROC_N - 1 // 10
-  
+
     val builders = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"P$i").mkString(", ")
       val wildcards = range.map(_ => "?").mkString(", ")
-  
+
       val nextParamMethod = if (n < maxArity) {
         s"""|
             |    def param[P$n](tpe: DbType[P$n]): ParamBuilder${n + 1}[$tparams, P$n] =
             |      new ParamBuilder${n + 1}(underlying.param(tpe.underlying), transforms :+ None)""".stripMargin
       } else ""
-  
+
       val optionallyMethods = if (n < maxArity) {
         s"""|
             |    def optionally(inner: Fragment): ParamBuilder${n + 1}[$tparams, Boolean] =
@@ -728,7 +741,7 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
             |        underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
             |        transforms :+ Some(OptionallyTransforms.optionTupleToOptionalTuple3))""".stripMargin
       } else ""
-  
+
       s"""|  class ParamBuilder$n[$tparams] private[foundationssc] (
           |    private[foundationssc] val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder$n[$wildcards],
           |    private[foundationssc] val transforms: List[Option[AnyRef => AnyRef]]
@@ -749,13 +762,13 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
           |
           |    def done(): Fragment = new Fragment(underlying.done())""".stripMargin
     }
-  
+
     s"""|package dev.typr.foundationssc
         |
         |object ParamBuilders:
         |${builders.mkString("\n\n")}
         |""".stripMargin
   }
-  
+
   // ─────────────────────────────────────────────────────────────────────────────
 }

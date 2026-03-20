@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A styled string that can render with or without ANSI colors.
- * Inspired by Li Haoyi's fansi library.
+ * A styled string that can render with or without ANSI colors. Inspired by Li Haoyi's fansi
+ * library.
  *
  * <p>Usage:
+ *
  * <pre>{@code
  * Str message = Str.plain("Column ")
  *     .add(Str.yellow("3"))
@@ -174,15 +175,41 @@ public final class Str {
       return this;
     }
 
-    public Builder red(String text) { return styled(text, Style.RED); }
-    public Builder green(String text) { return styled(text, Style.GREEN); }
-    public Builder yellow(String text) { return styled(text, Style.YELLOW); }
-    public Builder blue(String text) { return styled(text, Style.BLUE); }
-    public Builder cyan(String text) { return styled(text, Style.CYAN); }
-    public Builder gray(String text) { return styled(text, Style.GRAY); }
-    public Builder bold(String text) { return styled(text, Style.BOLD); }
-    public Builder boldRed(String text) { return styled(text, Style.BOLD_RED); }
-    public Builder boldGreen(String text) { return styled(text, Style.BOLD_GREEN); }
+    public Builder red(String text) {
+      return styled(text, Style.RED);
+    }
+
+    public Builder green(String text) {
+      return styled(text, Style.GREEN);
+    }
+
+    public Builder yellow(String text) {
+      return styled(text, Style.YELLOW);
+    }
+
+    public Builder blue(String text) {
+      return styled(text, Style.BLUE);
+    }
+
+    public Builder cyan(String text) {
+      return styled(text, Style.CYAN);
+    }
+
+    public Builder gray(String text) {
+      return styled(text, Style.GRAY);
+    }
+
+    public Builder bold(String text) {
+      return styled(text, Style.BOLD);
+    }
+
+    public Builder boldRed(String text) {
+      return styled(text, Style.BOLD_RED);
+    }
+
+    public Builder boldGreen(String text) {
+      return styled(text, Style.BOLD_GREEN);
+    }
 
     public Builder newline() {
       segments.add(new Segment("\n", Style.NONE));

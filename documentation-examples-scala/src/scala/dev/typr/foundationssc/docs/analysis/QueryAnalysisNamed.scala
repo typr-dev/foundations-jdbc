@@ -12,13 +12,14 @@ object QueryAnalysisNamed:
   private val connection: Connection = null // placeholder
   private val userId = 1
 
-  private val userRowCodec: RowCodec[User] = RowCodec.builder[User]()
+  private val userRowCodec: RowCodec[User] = RowCodec
+    .builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.email)
     .build(User.apply)
 
-  //start
+  // start
   def analyzeNamedQuery(): Unit =
     val query =
       sql"""SELECT id, name, email
@@ -31,6 +32,5 @@ object QueryAnalysisNamed:
     val analysis =
       QueryAnalyzer.analyze(query, connection).head
 
-    if !analysis.succeeded() then
-      throw AssertionError(analysis.report())
-  //stop
+    if !analysis.succeeded() then throw AssertionError(analysis.report())
+  // stop

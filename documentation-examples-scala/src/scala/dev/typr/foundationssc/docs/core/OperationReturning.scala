@@ -6,12 +6,13 @@ import dev.typr.foundationssc.Fragment.sql
 object OperationReturning:
   case class User(id: Int, name: String)
 
-  val userCodec: RowCodec[User] = RowCodec.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec
+    .builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .build(User.apply)
 
-  //start
+  // start
   // INSERT ... RETURNING id, name
   val insertedUsers: Operation[List[User]] =
     sql"INSERT INTO users (name) VALUES ('alice') RETURNING id, name"
@@ -25,4 +26,4 @@ object OperationReturning:
   val generatedId: Operation[Int] =
     sql"INSERT INTO users (name) VALUES ('alice')"
       .updateReturningGeneratedKeys(Array("id"), RowCodec.of(PgTypes.int4).exactlyOne())
-  //stop
+  // stop

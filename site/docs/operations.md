@@ -46,6 +46,10 @@ For multiple operations in a single transaction, call `.run(conn)` on each one i
 
 <Snippet file="core/ManualTransaction" />
 
+For void operations — DDL, schema setup, or any connection-consuming function that doesn't return a value — use `executeVoid`:
+
+<Snippet file="core/ExecuteVoid" />
+
 ## Operation Modifiers
 
 Every operation supports these modifiers before execution:

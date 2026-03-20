@@ -64,3 +64,7 @@ For strategy merging and per-transaction overrides, see [Transactors — Strateg
 ### Micrometer Integration
 
 <Snippet file="core/QueryListenerMetrics" />
+
+## OpenTelemetry
+
+For production-grade tracing and metrics, see the dedicated [OpenTelemetry](./opentelemetry) module. It provides `OtelQueryListener` (automatic span creation with semantic conventions), `PoolMetrics` (HikariCP gauges), and a Grafana dashboard template.

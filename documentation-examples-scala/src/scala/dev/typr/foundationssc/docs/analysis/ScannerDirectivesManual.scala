@@ -10,14 +10,15 @@ object ScannerDirectivesManual:
 
   class ReportRepo:
     def filteredReport(filter: ReportFilter): Operation[List[String]] =
-      Fragment.of("SELECT name FROM reports WHERE category = ")
+      Fragment
+        .of("SELECT name FROM reports WHERE category = ")
         .value(PgTypes.text, filter.category)
         .queryAll(PgTypes.text)
 
     def allReports(): Operation[List[String]] =
       Fragment.of("SELECT name FROM reports").queryAll(PgTypes.text)
 
-  //start
+  // start
   def checkWithManualDirective(): Unit =
     val repo = ReportRepo()
 
@@ -25,11 +26,9 @@ object ScannerDirectivesManual:
       "com.myapp.reports",
 
       // Provide specific arguments for a method
-      AnalyzableScanner.manual(
-        classOf[ReportRepo], "filteredReport", "defaults",
-        repo.filteredReport(ReportFilter("all", 100)))
+      AnalyzableScanner.manual(classOf[ReportRepo], "filteredReport", "defaults", repo.filteredReport(ReportFilter("all", 100)))
     )
 
     val checker = QueryChecker.create(transactor)
     checker.checkAll(analyzables)
-  //stop
+  // stop

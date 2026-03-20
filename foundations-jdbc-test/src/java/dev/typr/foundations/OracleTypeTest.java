@@ -431,8 +431,7 @@ public class OracleTypeTest {
 
           // TIMESTAMP WITH LOCAL TIME ZONE
           new OracleTypeAndExample<>(
-              OracleTypes.timestampWithLocalTimeZone,
-              Instant.parse("2024-06-15T11:30:45Z")),
+              OracleTypes.timestampWithLocalTimeZone, Instant.parse("2024-06-15T11:30:45Z")),
 
           // INTERVAL YEAR TO MONTH - Now using OracleIntervalYM class (parses both Oracle and
           // ISO-8601 formats)
@@ -640,17 +639,13 @@ public class OracleTypeTest {
           new OracleTypeAndExample<AllTypesStruct>(
                   OracleObject.<AllTypesStruct>builder("TEST_ALLTYPES")
                       .field("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
-                      .field(
-                          "NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
+                      .field("NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
                       .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
                       .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
                       .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
-                      .field(
-                          "NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
-                      .field(
-                          "NUMBER_LONG_FIELD", OracleTypes.numberLong, s -> s.numberLongField)
-                      .field(
-                          "BINARY_FLOAT_FIELD", OracleTypes.binaryFloat, s -> s.binaryFloatField)
+                      .field("NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
+                      .field("NUMBER_LONG_FIELD", OracleTypes.numberLong, s -> s.numberLongField)
+                      .field("BINARY_FLOAT_FIELD", OracleTypes.binaryFloat, s -> s.binaryFloatField)
                       .field(
                           "BINARY_DOUBLE_FIELD", OracleTypes.binaryDouble, s -> s.binaryDoubleField)
                       .field("DATE_FIELD", OracleTypes.date, s -> s.dateField)
@@ -726,15 +721,13 @@ public class OracleTypeTest {
           // TEST_ALLTYPES_OPT - comprehensive struct with all nullable fields
           new OracleTypeAndExample<AllTypesStructOptional>(
                   OracleObject.<AllTypesStructOptional>builder("TEST_ALLTYPES_OPT")
-                      .field(
-                          "VARCHAR_FIELD", OracleTypes.varchar2(100).opt(), s -> s.varcharField)
+                      .field("VARCHAR_FIELD", OracleTypes.varchar2(100).opt(), s -> s.varcharField)
                       .field(
                           "NVARCHAR_FIELD", OracleTypes.nvarchar2(100).opt(), s -> s.nvarcharField)
                       .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
                       .field("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
                       .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
-                      .field(
-                          "NUMBER_INT_FIELD", OracleTypes.numberInt.opt(), s -> s.numberIntField)
+                      .field("NUMBER_INT_FIELD", OracleTypes.numberInt.opt(), s -> s.numberIntField)
                       .field(
                           "NUMBER_LONG_FIELD", OracleTypes.numberLong.opt(), s -> s.numberLongField)
                       .field(
@@ -746,8 +739,7 @@ public class OracleTypeTest {
                           OracleTypes.binaryDouble.opt(),
                           s -> s.binaryDoubleField)
                       .field("DATE_FIELD", OracleTypes.date.opt(), s -> s.dateField)
-                      .field(
-                          "TIMESTAMP_FIELD", OracleTypes.timestamp.opt(), s -> s.timestampField)
+                      .field("TIMESTAMP_FIELD", OracleTypes.timestamp.opt(), s -> s.timestampField)
                       .field(
                           "TIMESTAMP_TZ_FIELD",
                           OracleTypes.timestampWithTimeZone.opt(),
@@ -764,8 +756,7 @@ public class OracleTypeTest {
                           "INTERVAL_DS_FIELD",
                           OracleTypes.intervalDayToSecond.opt(),
                           s -> s.intervalDsField)
-                      .field(
-                          "NESTED_OBJECT_FIELD", addressType().opt(), s -> s.nestedObjectField)
+                      .field("NESTED_OBJECT_FIELD", addressType().opt(), s -> s.nestedObjectField)
                       .field(
                           "VARRAY_FIELD",
                           OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)).opt(),
@@ -829,17 +820,13 @@ public class OracleTypeTest {
           new OracleTypeAndExample<>(
                   OracleObject.<AllTypesStructNoLobs>builder("TEST_ALLTYPES_NOLOBS")
                       .field("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
-                      .field(
-                          "NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
+                      .field("NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
                       .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
                       .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
                       .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
-                      .field(
-                          "NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
-                      .field(
-                          "NUMBER_LONG_FIELD", OracleTypes.numberLong, s -> s.numberLongField)
-                      .field(
-                          "BINARY_FLOAT_FIELD", OracleTypes.binaryFloat, s -> s.binaryFloatField)
+                      .field("NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
+                      .field("NUMBER_LONG_FIELD", OracleTypes.numberLong, s -> s.numberLongField)
+                      .field("BINARY_FLOAT_FIELD", OracleTypes.binaryFloat, s -> s.binaryFloatField)
                       .field(
                           "BINARY_DOUBLE_FIELD", OracleTypes.binaryDouble, s -> s.binaryDoubleField)
                       .field("DATE_FIELD", OracleTypes.date, s -> s.dateField)
@@ -913,15 +900,13 @@ public class OracleTypeTest {
           // TEST_ALLTYPES_NOLOBS_OPT - standalone struct without LOBs, optional fields
           new OracleTypeAndExample<>(
                   OracleObject.<AllTypesStructNoLobsOptional>builder("TEST_ALLTYPES_NOLOBS_OPT")
-                      .field(
-                          "VARCHAR_FIELD", OracleTypes.varchar2(100).opt(), s -> s.varcharField)
+                      .field("VARCHAR_FIELD", OracleTypes.varchar2(100).opt(), s -> s.varcharField)
                       .field(
                           "NVARCHAR_FIELD", OracleTypes.nvarchar2(100).opt(), s -> s.nvarcharField)
                       .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
                       .field("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
                       .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
-                      .field(
-                          "NUMBER_INT_FIELD", OracleTypes.numberInt.opt(), s -> s.numberIntField)
+                      .field("NUMBER_INT_FIELD", OracleTypes.numberInt.opt(), s -> s.numberIntField)
                       .field(
                           "NUMBER_LONG_FIELD", OracleTypes.numberLong.opt(), s -> s.numberLongField)
                       .field(
@@ -933,8 +918,7 @@ public class OracleTypeTest {
                           OracleTypes.binaryDouble.opt(),
                           s -> s.binaryDoubleField)
                       .field("DATE_FIELD", OracleTypes.date.opt(), s -> s.dateField)
-                      .field(
-                          "TIMESTAMP_FIELD", OracleTypes.timestamp.opt(), s -> s.timestampField)
+                      .field("TIMESTAMP_FIELD", OracleTypes.timestamp.opt(), s -> s.timestampField)
                       .field(
                           "TIMESTAMP_TZ_FIELD",
                           OracleTypes.timestampWithTimeZone.opt(),
@@ -951,8 +935,7 @@ public class OracleTypeTest {
                           "INTERVAL_DS_FIELD",
                           OracleTypes.intervalDayToSecond.opt(),
                           s -> s.intervalDsField)
-                      .field(
-                          "NESTED_OBJECT_FIELD", addressType().opt(), s -> s.nestedObjectField)
+                      .field("NESTED_OBJECT_FIELD", addressType().opt(), s -> s.nestedObjectField)
                       .field(
                           "VARRAY_FIELD",
                           OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)).opt(),
@@ -1010,15 +993,12 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES_NOLOBS_ARR",
                       10,
                       OracleObject.<AllTypesStructNoLobs>builder("TEST_ALLTYPES_NOLOBS")
-                          .field(
-                              "VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
-                          .field(
-                              "NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
+                          .field("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
+                          .field("NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
                           .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
                           .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
-                          .field(
-                              "NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
+                          .field("NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
                           .field(
                               "NUMBER_LONG_FIELD", OracleTypes.numberLong, s -> s.numberLongField)
                           .field(
@@ -1030,8 +1010,7 @@ public class OracleTypeTest {
                               OracleTypes.binaryDouble,
                               s -> s.binaryDoubleField)
                           .field("DATE_FIELD", OracleTypes.date, s -> s.dateField)
-                          .field(
-                              "TIMESTAMP_FIELD", OracleTypes.timestamp, s -> s.timestampField)
+                          .field("TIMESTAMP_FIELD", OracleTypes.timestamp, s -> s.timestampField)
                           .field(
                               "TIMESTAMP_TZ_FIELD",
                               OracleTypes.timestampWithTimeZone,
@@ -1048,8 +1027,7 @@ public class OracleTypeTest {
                               "INTERVAL_DS_FIELD",
                               OracleTypes.intervalDayToSecond,
                               s -> s.intervalDsField)
-                          .field(
-                              "NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
+                          .field("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
                           .field(
                               "VARRAY_FIELD",
                               OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
@@ -1137,10 +1115,8 @@ public class OracleTypeTest {
                               OracleTypes.nvarchar2(100).opt(),
                               s -> s.nvarcharField)
                           .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
-                          .field(
-                              "NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
-                          .field(
-                              "NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
+                          .field("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
+                          .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
                           .field(
                               "NUMBER_INT_FIELD",
                               OracleTypes.numberInt.opt(),
@@ -1419,10 +1395,7 @@ public class OracleTypeTest {
                     return Stream.<String>empty();
                   } catch (Exception e) {
                     return Stream.of(
-                        "Analysis FAILED "
-                            + t.type.typename().sqlType()
-                            + ": "
-                            + e.getMessage());
+                        "Analysis FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
                   }
                 })
             .toList();
@@ -1808,10 +1781,12 @@ public class OracleTypeTest {
       boolean match;
       String baseType = paramType.toUpperCase();
       if ((baseType.equals("CHAR") || baseType.equals("NCHAR"))
-          && result instanceof String resultStr && expected instanceof String expectedStr) {
+          && result instanceof String resultStr
+          && expected instanceof String expectedStr) {
         match = resultStr.stripTrailing().equals(expectedStr.stripTrailing());
       } else if (baseType.equals("TIMESTAMP")
-          && result instanceof LocalDateTime resultLdt && expected instanceof LocalDateTime expectedLdt) {
+          && result instanceof LocalDateTime resultLdt
+          && expected instanceof LocalDateTime expectedLdt) {
         // Unconstrained TIMESTAMP defaults to precision 6; Oracle rounds (not truncates)
         match = java.time.Duration.between(resultLdt, expectedLdt).abs().toNanos() < 1000;
       } else {
@@ -1831,7 +1806,9 @@ public class OracleTypeTest {
       System.out.println("Callable roundtrip " + sqlType + ": PASSED");
     } catch (DatabaseException e) {
       if (e.sqlException().getMessage() != null
-          && e.sqlException().getMessage().contains("does not support stored procedure OUT parameters")) {
+          && e.sqlException()
+              .getMessage()
+              .contains("does not support stored procedure OUT parameters")) {
         System.out.println("Callable roundtrip SKIPPED " + sqlType + " (not supported)");
         return;
       }
@@ -1868,7 +1845,8 @@ public class OracleTypeTest {
       return ((BigDecimal) actual).compareTo((BigDecimal) expected) == 0;
     }
 
-    // For OffsetDateTime, compare by instant (TIMESTAMP WITH LOCAL TIME ZONE converts to session tz)
+    // For OffsetDateTime, compare by instant (TIMESTAMP WITH LOCAL TIME ZONE converts to session
+    // tz)
     if (expected instanceof OffsetDateTime && actual instanceof OffsetDateTime) {
       return ((OffsetDateTime) actual).toInstant().equals(((OffsetDateTime) expected).toInstant());
     }
