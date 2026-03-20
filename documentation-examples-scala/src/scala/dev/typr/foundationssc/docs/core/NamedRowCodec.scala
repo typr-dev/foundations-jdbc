@@ -7,14 +7,17 @@ import java.time.Instant
 
 @SuppressWarnings(Array("unused"))
 object NamedRowCodec:
-  //start
+  // start
   case class Product(
-    id: Int, name: String,
-    price: BigDecimal, createdAt: Instant
+      id: Int,
+      name: String,
+      price: BigDecimal,
+      createdAt: Instant
   )
 
   val productCodec: RowCodecNamed[Product] =
-    RowCodec.namedBuilder[Product]()
+    RowCodec
+      .namedBuilder[Product]()
       .field("id", PgTypes.int4)(_.id)
       .field("name", PgTypes.text)(_.name)
       .field("price", PgTypes.numeric)(_.price)
@@ -24,4 +27,4 @@ object NamedRowCodec:
   // Column list — no hand-written strings to keep in sync
   val allProducts =
     sql"SELECT ${productCodec.columnList} FROM product"
-  //stop
+  // stop

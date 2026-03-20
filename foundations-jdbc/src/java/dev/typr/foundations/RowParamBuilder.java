@@ -27,6 +27,12 @@ public final class RowParamBuilder<Row> {
     return new RowTemplate.Update<>(fragment, codec, includedIndices);
   }
 
+  public <Out> RowTemplate.GeneratedKeys<Row, Out> generatedKeys(
+      String[] generatedColumns, ResultSetParser<Out> resultParser) {
+    return new RowTemplate.GeneratedKeys<>(
+        fragment.append(")"), codec, includedIndices, generatedColumns, resultParser);
+  }
+
   public Fragment done() {
     return fragment;
   }

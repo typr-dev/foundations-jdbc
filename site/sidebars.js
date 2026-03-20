@@ -40,6 +40,7 @@ const sidebars = {
         {type: "doc", id: "spring-boot", label: "Spring Boot"},
         {type: "doc", id: "thread-safety", label: "Thread Safety"},
         {type: "doc", id: "observability", label: "Observability"},
+        {type: "doc", id: "opentelemetry", label: "OpenTelemetry"},
         {type: "doc", id: "virtual-threads", label: "Virtual Threads"},
         {type: "doc", id: "streaming-reads", label: "Streaming Reads"},
         {type: "doc", id: "streaming-inserts", label: "Streaming Inserts"},
@@ -52,6 +53,7 @@ const sidebars = {
       items: [
         {type: "doc", id: "strategies", label: "Strategies"},
         {type: "doc", id: "query-analysis-reference", label: "Query Analysis Reference"},
+        {type: "doc", id: "query-analysis-database-behavior", label: "Query Analysis: Database Behavior"},
         {type: "doc", id: "kotlin-interpolation", label: "Kotlin String Interpolation"},
         {type: "doc", id: "benchmarks", label: "Benchmarks"},
       ],

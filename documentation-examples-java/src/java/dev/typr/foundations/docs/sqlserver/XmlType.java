@@ -6,7 +6,7 @@ import dev.typr.foundations.data.Xml;
 
 @SuppressWarnings("unused")
 public class XmlType {
-    //start
-    SqlServerType<Xml> xmlType = SqlServerTypes.xml;
-    //stop
+  // start
+  SqlServerType<Xml> xmlType = SqlServerTypes.xml;
+  // stop
 }

@@ -5,9 +5,9 @@ import dev.typr.foundations.OracleTypes;
 
 @SuppressWarnings("unused")
 public class RowIdTypes {
-    //start
-    OracleType<String> rowidType = OracleTypes.rowId;
-    OracleType<String> urowidType = OracleTypes.uRowId;
-    OracleType<String> urowid1000 = OracleTypes.uRowId(1000);
-    //stop
+  // start
+  OracleType<String> rowidType = OracleTypes.rowId;
+  OracleType<String> urowidType = OracleTypes.uRowId;
+  OracleType<String> urowid1000 = OracleTypes.uRowId(1000);
+  // stop
 }

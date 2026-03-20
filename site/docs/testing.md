@@ -51,7 +51,7 @@ class MyRepoTest {
     fun `find user by id`() {
         val insertAndFind = sql { "INSERT INTO users VALUES (1, 'Alice')" }
             .execute()
-            .thenIgnore(UserRepo.findById.on(1))
+            .productL(UserRepo.findById.on(1))
 
         val user = insertAndFind.transact(tx)
         assertEquals("Alice", user?.name)

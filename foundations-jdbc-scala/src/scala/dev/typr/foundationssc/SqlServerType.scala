@@ -7,8 +7,8 @@ class SqlServerType[T](override val underlying: dev.typr.foundations.SqlServerTy
   override def to[B](bijection: dev.typr.foundations.Bijection[T, B]): SqlServerType[B] =
     SqlServerType(underlying.to(bijection))
 
-  def transform[B](f: dev.typr.foundations.SqlFunction[T, B], g: java.util.function.Function[B, T]): SqlServerType[B] =
-    SqlServerType(underlying.transform(f, g))
+  def transform[B](f: T => B, g: B => T): SqlServerType[B] =
+    SqlServerType(underlying.transform(v => f(v), v => g(v)))
 
   def unchecked(): SqlServerType[T] = SqlServerType(underlying.unchecked())
   def nullableOk(): SqlServerType[T] = SqlServerType(underlying.nullableOk())

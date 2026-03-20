@@ -21,7 +21,7 @@ class StreamingInsertMulti {
     val productText: PgText<ProductRow> = PgText.from(productCodec.underlying)
 
     fun insertProducts(products: Iterator<ProductRow>, tx: Transactor): Long {
-        return streamingInsert
+        return StreamingInsert
             .of("COPY products(name, price, quantity) FROM STDIN", 1000, products, productText)
             .transact(tx)
     }

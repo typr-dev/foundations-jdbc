@@ -5,7 +5,7 @@ import dev.typr.foundations.PgTypes;
 
 @SuppressWarnings("unused")
 public class BoolType {
-    //start
-    PgType<Boolean> boolType = PgTypes.bool;
-    //stop
+  // start
+  PgType<Boolean> boolType = PgTypes.bool;
+  // stop
 }

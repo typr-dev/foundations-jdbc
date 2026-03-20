@@ -5,24 +5,17 @@ import java.sql.Connection
 /** Kotlin wrapper for dev.typr.foundations.Procedure with Unit instead of Void. */
 class Procedure<Out> internal constructor(
     @JvmField val javaProcedure: dev.typr.foundations.Procedure<*>,
-    private val mapResult: (Any?) -> Out
+    private val doCall: (Array<out Any?>) -> ProcedureOp<Out>
 ) {
 
-    fun call(vararg inValues: Any?): ProcedureOp<Out> {
-        @Suppress("UNCHECKED_CAST")
-        val javaOp = (javaProcedure as dev.typr.foundations.Procedure<Any?>)
-            .call(*inValues)
-        return ProcedureOp(javaOp, mapResult)
-    }
+    fun call(vararg inValues: Any?): ProcedureOp<Out> = doCall(inValues)
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         internal fun fromVoid(jp: dev.typr.foundations.Procedure<Void>): Procedure<Unit> =
-            Procedure(jp) { }
+            Procedure(jp) { args -> ProcedureOp.mapped(jp.call(*args)) { _ -> } }
 
-        @Suppress("UNCHECKED_CAST")
         internal fun <Out> fromJava(jp: dev.typr.foundations.Procedure<Out>): Procedure<Out> =
-            Procedure(jp) { it as Out }
+            Procedure(jp) { args -> ProcedureOp.direct(jp.call(*args)) }
 
         fun buildVoid(name: String, params: List<dev.typr.foundations.ParamDef>): Procedure<Unit> =
             fromVoid(dev.typr.foundations.Procedure.buildVoid(name, params))
@@ -40,12 +33,20 @@ class Procedure<Out> internal constructor(
 
 /** Operation returned by [Procedure.call] -- wraps a Java Operation with result conversion. */
 class ProcedureOp<Out> internal constructor(
-    private val javaOp: dev.typr.foundations.Operation<Any?>,
-    private val mapResult: (Any?) -> Out
+    private val runImpl: (Connection) -> Out,
+    private val transactImpl: (dev.typr.foundations.Transactor) -> Out
 ) {
 
-    fun run(conn: Connection): Out = mapResult(javaOp.run(conn))
+    fun run(conn: Connection): Out = runImpl(conn)
 
     fun transact(transactor: Transactor): Out =
-        mapResult(javaOp.transact(transactor.underlying))
+        transactImpl(transactor.underlying)
+
+    internal companion object {
+        fun <T> direct(javaOp: dev.typr.foundations.Operation<T>): ProcedureOp<T> =
+            ProcedureOp({ conn -> javaOp.run(conn) }, { tx -> javaOp.transact(tx) })
+
+        fun <T, R> mapped(javaOp: dev.typr.foundations.Operation<T>, f: (T) -> R): ProcedureOp<R> =
+            ProcedureOp({ conn -> f(javaOp.run(conn)) }, { tx -> f(javaOp.transact(tx)) })
+    }
 }

@@ -3,12 +3,12 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-
 @SuppressWarnings(Array("unused"))
 object OptionalQueryMulti:
   case class User(id: Int, name: String, email: String)
 
-  val userCodec: RowCodec[User] = RowCodec.builder[User]()
+  val userCodec: RowCodec[User] = RowCodec
+    .builder[User]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.text)(_.email)
@@ -17,16 +17,13 @@ object OptionalQueryMulti:
   var tx: Transactor = null // placeholder
   var checker: QueryChecker = null // placeholder
 
-  //start
+  // start
   // Multiple optional filters - each independently present or absent
   val search: Template.Query3[Option[String], Option[String], Boolean, List[User]] =
     sql"SELECT id, name, email FROM users WHERE 1=1"
-      .optionally(
-        sql" AND name ILIKE ".param(PgTypes.text))
-      .optionally(
-        sql" AND email ILIKE ".param(PgTypes.text))
-      .optionally(
-        sql" AND active = TRUE")
+      .optionally(sql" AND name ILIKE ".param(PgTypes.text))
+      .optionally(sql" AND email ILIKE ".param(PgTypes.text))
+      .optionally(sql" AND active = TRUE")
       .append(" ORDER BY name")
       .query(userCodec.all())
 
@@ -37,4 +34,4 @@ object OptionalQueryMulti:
   // Query analysis expands all 2^3 = 8 combinations automatically
   def verifyAllVariants(): Unit =
     checker.check(search)
-  //stop
+  // stop

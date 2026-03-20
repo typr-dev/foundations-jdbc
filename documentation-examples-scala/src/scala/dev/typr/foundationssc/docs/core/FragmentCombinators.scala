@@ -8,7 +8,7 @@ import java.sql.Connection
 object FragmentCombinators:
   var conn: Connection = null // placeholder
 
-  //start
+  // start
   // Dynamic UPDATE — only set the fields that changed
   def updateUser(userId: Int, newName: Option[String], newEmail: Option[String]): Unit =
     val sets = List(
@@ -20,4 +20,4 @@ object FragmentCombinators:
       sql"UPDATE users ${Fragment.set(sets)} WHERE id = ${PgTypes.int4(userId)}"
         .update()
         .run(conn)
-  //stop
+  // stop

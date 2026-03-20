@@ -5,7 +5,7 @@ import dev.typr.foundations.PgTypes;
 
 @SuppressWarnings("unused")
 public class BinaryTypes {
-    //start
-    PgType<byte[]> bytesType = PgTypes.bytea;
-    //stop
+  // start
+  PgType<byte[]> bytesType = PgTypes.bytea;
+  // stop
 }

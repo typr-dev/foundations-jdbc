@@ -10,6 +10,6 @@ object projectsToPublish {
       case "foundations-jdbc-spring" => true
       case "foundations-jdbc-kotlin" => true
       case "foundations-jdbc-scala"  => true
-      case _                        => false
+      case _                         => false
     }
 }

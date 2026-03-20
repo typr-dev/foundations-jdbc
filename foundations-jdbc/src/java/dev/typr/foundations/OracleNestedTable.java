@@ -86,7 +86,8 @@ public class OracleNestedTable {
 
     OracleOutParam<List<T>> outParam = OracleOutParam.oracleArray(nestedTableTypeName, elementType);
 
-    return new OracleType<>(OracleTypename.of(nestedTableTypeName), read, write, json, outParam, AnalysisOptions.EMPTY);
+    return new OracleType<>(
+        OracleTypename.of(nestedTableTypeName), read, write, json, outParam, AnalysisOptions.EMPTY);
   }
 
   /** Generate JSON codec for nested table type. */

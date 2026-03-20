@@ -31,7 +31,7 @@ class QueryAnalysisAll {
         // Build a composed operation
         val transaction: Operation<*> =
             insertUser.on("Alice")
-                .thenIgnore(allUsers)
+                .productL(allUsers)
 
         // Analyze every SQL statement in the tree — one call
         val results: List<QueryAnalysis> =

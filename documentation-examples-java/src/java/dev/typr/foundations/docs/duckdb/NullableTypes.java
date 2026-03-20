@@ -6,8 +6,8 @@ import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class NullableTypes {
-    //start
-    DuckDbType<Integer> notNull = DuckDbTypes.integer;
-    DuckDbType<Optional<Integer>> nullable = DuckDbTypes.integer.opt();
-    //stop
+  // start
+  DuckDbType<Integer> notNull = DuckDbTypes.integer;
+  DuckDbType<Optional<Integer>> nullable = DuckDbTypes.integer.opt();
+  // stop
 }

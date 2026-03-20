@@ -4,10 +4,10 @@ import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object PersistedTypes:
-  //start
+  // start
   case class VenueId(value: Long)
   val venueIdType: DuckDbType[VenueId] = DuckDbTypes.bigint.transform(VenueId.apply, _.value)
 
   case class Venue(name: String, capacity: Int)
   case class PersistedVenue(id: VenueId, venue: Venue)
-  //stop
+  // stop

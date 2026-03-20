@@ -18,7 +18,6 @@ public record SqlServerType<A>(
     AnalysisOptions analysisOptions)
     implements DbType<A> {
 
-
   @Override
   public java.util.Optional<DbOutParam<A>> outParam() {
     return java.util.Optional.of(sqlServerOutParam);
@@ -43,14 +42,21 @@ public record SqlServerType<A>(
     return Set.copyOf(all);
   }
 
-  public SqlServerType<A> unchecked() { return withAnalysis(analysisOptions.withUnchecked()); }
-  public SqlServerType<A> nullableOk() { return withAnalysis(analysisOptions.withNullableOk()); }
+  public SqlServerType<A> unchecked() {
+    return withAnalysis(analysisOptions.withUnchecked());
+  }
+
+  public SqlServerType<A> nullableOk() {
+    return withAnalysis(analysisOptions.withNullableOk());
+  }
+
   public SqlServerType<A> withAnalysis(AnalysisOptions opts) {
     return new SqlServerType<>(typename, read, write, sqlServerJson, sqlServerOutParam, opts);
   }
 
   public SqlServerType<A> withTypename(SqlServerTypename<A> typename) {
-    return new SqlServerType<>(typename, read, write, sqlServerJson, sqlServerOutParam, analysisOptions);
+    return new SqlServerType<>(
+        typename, read, write, sqlServerJson, sqlServerOutParam, analysisOptions);
   }
 
   public SqlServerType<A> withTypename(String sqlType) {
@@ -66,11 +72,13 @@ public record SqlServerType<A>(
   }
 
   public SqlServerType<A> withRead(SqlServerRead<A> read) {
-    return new SqlServerType<>(typename, read, write, sqlServerJson, sqlServerOutParam, analysisOptions);
+    return new SqlServerType<>(
+        typename, read, write, sqlServerJson, sqlServerOutParam, analysisOptions);
   }
 
   public SqlServerType<A> withWrite(SqlServerWrite<A> write) {
-    return new SqlServerType<>(typename, read, write, sqlServerJson, sqlServerOutParam, analysisOptions);
+    return new SqlServerType<>(
+        typename, read, write, sqlServerJson, sqlServerOutParam, analysisOptions);
   }
 
   public SqlServerType<A> withJson(SqlServerJson<A> json) {
@@ -83,14 +91,22 @@ public record SqlServerType<A>(
 
   public SqlServerType<Optional<A>> opt() {
     return new SqlServerType<>(
-        typename.opt(), read.opt(), write.opt(typename), sqlServerJson.opt(),
-        sqlServerOutParam.opt(), analysisOptions);
+        typename.opt(),
+        read.opt(),
+        write.opt(typename),
+        sqlServerJson.opt(),
+        sqlServerOutParam.opt(),
+        analysisOptions);
   }
 
   public <B> SqlServerType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
     return new SqlServerType<>(
-        typename.as(), read.map(f), write.contramap(g), sqlServerJson.transform(f, g),
-        sqlServerOutParam.map(f), analysisOptions);
+        typename.as(),
+        read.map(f),
+        write.contramap(g),
+        sqlServerJson.transform(f, g),
+        sqlServerOutParam.map(f),
+        analysisOptions);
   }
 
   public <B> SqlServerType<B> to(Bijection<A, B> bijection) {
@@ -104,13 +120,19 @@ public record SqlServerType<A>(
   }
 
   public static <A> SqlServerType<A> of(
-      String tpe, SqlServerRead<A> r, SqlServerWrite<A> w, SqlServerJson<A> j,
+      String tpe,
+      SqlServerRead<A> r,
+      SqlServerWrite<A> w,
+      SqlServerJson<A> j,
       SqlServerOutParam<A> cr) {
     return new SqlServerType<>(SqlServerTypename.of(tpe), r, w, j, cr, AnalysisOptions.EMPTY);
   }
 
   public static <A> SqlServerType<A> of(
-      SqlServerTypename<A> typename, SqlServerRead<A> r, SqlServerWrite<A> w, SqlServerJson<A> j,
+      SqlServerTypename<A> typename,
+      SqlServerRead<A> r,
+      SqlServerWrite<A> w,
+      SqlServerJson<A> j,
       SqlServerOutParam<A> cr) {
     return new SqlServerType<>(typename, r, w, j, cr, AnalysisOptions.EMPTY);
   }

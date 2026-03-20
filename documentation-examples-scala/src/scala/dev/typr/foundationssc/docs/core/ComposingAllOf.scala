@@ -3,12 +3,11 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
-
 @SuppressWarnings(Array("unused"))
 object ComposingAllOf:
   var tx: Transactor = null // placeholder
 
-  //start
+  // start
   // Run multiple writes in one transaction
   val insertUser: Operation[Int] =
     sql"INSERT INTO users(name) VALUES(${PgTypes.text("Alice")})"
@@ -21,7 +20,11 @@ object ComposingAllOf:
       .update()
 
   def createUserWithAudit(): Unit =
-    Operation.allOf(
-      insertUser, insertAudit, updateStats
-    ).transact(tx)
-  //stop
+    Operation
+      .allOf(
+        insertUser,
+        insertAudit,
+        updateStats
+      )
+      .transact(tx)
+  // stop

@@ -51,11 +51,11 @@ public interface DbType<A> {
   // ─────────────────────────────────────────────────────────────────────────────
 
   /**
-   * Vendor-specific type names this type recognizes (case-insensitive).
-   * Used by query analysis to match against database metadata.
+   * Vendor-specific type names this type recognizes (case-insensitive). Used by query analysis to
+   * match against database metadata.
    *
-   * <p>The default returns a singleton set of the typename's sqlType() in lowercase.
-   * Concrete types override to combine typename().sqlType() with any aliases from analysisOptions().
+   * <p>The default returns a singleton set of the typename's sqlType() in lowercase. Concrete types
+   * override to combine typename().sqlType() with any aliases from analysisOptions().
    *
    * @return set of vendor type names (lowercase)
    */
@@ -71,8 +71,8 @@ public interface DbType<A> {
   AnalysisOptions analysisOptions();
 
   /**
-   * Whether this type allows null values. Types created with .opt() return true.
-   * Used by query analysis to detect nullability mismatches.
+   * Whether this type allows null values. Types created with .opt() return true. Used by query
+   * analysis to detect nullability mismatches.
    *
    * @return true if this type handles null values (is Optional)
    */
@@ -80,7 +80,10 @@ public interface DbType<A> {
     return false;
   }
 
-  /** Encode a value into a SQL fragment using this type. Shorthand for {@code Fragment.encode(this, value)}. */
+  /**
+   * Encode a value into a SQL fragment using this type. Shorthand for {@code Fragment.encode(this,
+   * value)}.
+   */
   default Fragment apply(A value) {
     return Fragment.encode(this, value);
   }

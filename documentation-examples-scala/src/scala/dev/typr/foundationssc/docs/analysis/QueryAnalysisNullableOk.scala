@@ -9,15 +9,18 @@ import java.sql.Connection
 object QueryAnalysisNullableOk:
   private val connection: Connection = null // placeholder
 
-  //start
+  // start
   case class OrderRow(
-    userId: Int, userName: String, orderTotal: BigDecimal
+      userId: Int,
+      userName: String,
+      orderTotal: BigDecimal
   )
 
   // LEFT JOIN makes o.total nullable in the result set,
   // but .nullableOk() tells analysis we'll handle it
   val orderCodec: RowCodec[OrderRow] =
-    RowCodec.builder[OrderRow]()
+    RowCodec
+      .builder[OrderRow]()
       .field(PgTypes.int4)(_.userId)
       .field(PgTypes.text)(_.userName)
       .field(PgTypes.numeric.nullableOk())(_.orderTotal)
@@ -32,6 +35,5 @@ object QueryAnalysisNullableOk:
 
     val analysis: QueryAnalysis =
       QueryAnalyzer.analyze(query, connection).head
-    if !analysis.succeeded() then
-      throw AssertionError(analysis.report())
-  //stop
+    if !analysis.succeeded() then throw AssertionError(analysis.report())
+  // stop

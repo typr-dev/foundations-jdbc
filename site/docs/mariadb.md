@@ -140,6 +140,22 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 
 <Snippet file="mariadb/NetworkTypes" />
 
+## UUID Type (MariaDB 10.7+)
+
+| MariaDB Type | Java Type | Description |
+|--------------|-----------|-------------|
+| `UUID` | `java.util.UUID` | 128-bit UUID |
+
+<Snippet file="mariadb/UuidType" />
+
+## VECTOR Type (MariaDB 11.7+)
+
+| MariaDB Type | Java Type | Description |
+|--------------|-----------|-------------|
+| `VECTOR(n)` | `Vector` | Fixed-dimension float vector for embeddings |
+
+<Snippet file="mariadb/VectorType" />
+
 ## Spatial Types
 
 MariaDB spatial types use the MariaDB Connector/J geometry classes:

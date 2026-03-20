@@ -14,41 +14,41 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class App {
 
-    public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(App.class, args);
+  }
 
-    @Bean
-    DataSource dataSource() {
-        return SingleConnectionDataSource.create(DuckDbConfig.inMemory().build());
-    }
+  @Bean
+  DataSource dataSource() {
+    return SingleConnectionDataSource.create(DuckDbConfig.inMemory().build());
+  }
 
-    @Bean
-    CommandLineRunner demo(TodoRepository todos, Transactor tx) {
-        return args -> {
-            todos.createSchema();
+  @Bean
+  CommandLineRunner demo(TodoRepository todos, Transactor tx) {
+    return args -> {
+      todos.createSchema();
 
-            var buy = todos.create("Buy milk");
-            var write = todos.create("Write code");
-            var read = todos.create("Read the docs");
-            System.out.println("Created: " + buy);
-            System.out.println("Created: " + write);
-            System.out.println("Created: " + read);
+      var buy = todos.create("Buy milk");
+      var write = todos.create("Write code");
+      var read = todos.create("Read the docs");
+      System.out.println("Created: " + buy);
+      System.out.println("Created: " + write);
+      System.out.println("Created: " + read);
 
-            var completed = todos.createAndComplete("Walk the dog");
-            System.out.println("Created and completed: " + completed);
+      var completed = todos.createAndComplete("Walk the dog");
+      System.out.println("Created and completed: " + completed);
 
-            System.out.println("\nAll todos:");
-            for (var todo : todos.findAll()) {
-                var mark = todo.done() ? "x" : " ";
-                System.out.printf("  [%s] #%d %s%n", mark, todo.id(), todo.title());
-            }
+      System.out.println("\nAll todos:");
+      for (var todo : todos.findAll()) {
+        var mark = todo.done() ? "x" : " ";
+        System.out.printf("  [%s] #%d %s%n", mark, todo.id(), todo.title());
+      }
 
-            System.out.println("\nQuery analysis:");
-            var analyzables = AnalyzableScanner.scan("dev.typr.foundations.example");
-            QueryChecker checker = () -> tx;
-            checker.checkAll(analyzables);
-            System.out.println("  All " + analyzables.size() + " queries passed analysis.");
-        };
-    }
+      System.out.println("\nQuery analysis:");
+      var analyzables = AnalyzableScanner.scan("dev.typr.foundations.example");
+      QueryChecker checker = () -> tx;
+      checker.checkAll(analyzables);
+      System.out.println("  All " + analyzables.size() + " queries passed analysis.");
+    };
+  }
 }

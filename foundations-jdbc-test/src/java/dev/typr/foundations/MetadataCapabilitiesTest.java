@@ -1,5 +1,7 @@
 package dev.typr.foundations;
 
+import static org.junit.Assert.*;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ParameterMetaData;
@@ -10,16 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
- * Tests what JDBC metadata each database actually provides.
- * Used to verify the Database Support table in the query analysis docs.
+ * Tests what JDBC metadata each database actually provides. Used to verify the Database Support
+ * table in the query analysis docs.
  *
- * <p>Each test creates a table with nullable and non-nullable columns,
- * then checks what ParameterMetaData and ResultSetMetaData report.
+ * <p>Each test creates a table with nullable and non-nullable columns, then checks what
+ * ParameterMetaData and ResultSetMetaData report.
  *
  * <p>Summary of findings:
+ *
  * <pre>
  * Database      | Param Types | Param Nullability | Col Types | Col Nullability
  * --------------|-------------|-------------------|-----------|----------------
@@ -30,17 +31,14 @@ import static org.junit.Assert.*;
  * MariaDB/MySQL | None*       | None*             | Yes       | Reliable
  * DB2           | Yes         | All nullable**    | Yes       | Reliable
  * </pre>
- * *  MariaDB throws exception on getParameterMetaData()
- * ** DB2 reports all parameters as nullable regardless of column constraints
+ *
+ * * MariaDB throws exception on getParameterMetaData() ** DB2 reports all parameters as nullable
+ * regardless of column constraints
  */
 public class MetadataCapabilitiesTest {
 
   record MetaReport(
-      String database,
-      boolean paramMetaFailed,
-      List<ParamInfo> params,
-      List<ColInfo> columns
-  ) {
+      String database, boolean paramMetaFailed, List<ParamInfo> params, List<ColInfo> columns) {
     void print() {
       System.out.println("\n=== " + database + " ===");
       if (paramMetaFailed) {
@@ -48,16 +46,30 @@ public class MetadataCapabilitiesTest {
       } else {
         System.out.println("Parameters:");
         for (ParamInfo p : params) {
-          System.out.println("  param[" + p.position + "]: type=" + p.typeName
-              + " jdbcType=" + JdbcMeta.jdbcTypeName(p.jdbcType)
-              + " nullable=" + nullableStr(p.nullable, true));
+          System.out.println(
+              "  param["
+                  + p.position
+                  + "]: type="
+                  + p.typeName
+                  + " jdbcType="
+                  + JdbcMeta.jdbcTypeName(p.jdbcType)
+                  + " nullable="
+                  + nullableStr(p.nullable, true));
         }
       }
       System.out.println("Columns:");
       for (ColInfo c : columns) {
-        System.out.println("  col[" + c.position + "] " + c.name + ": type=" + c.typeName
-            + " jdbcType=" + JdbcMeta.jdbcTypeName(c.jdbcType)
-            + " nullable=" + nullableStr(c.nullable, false));
+        System.out.println(
+            "  col["
+                + c.position
+                + "] "
+                + c.name
+                + ": type="
+                + c.typeName
+                + " jdbcType="
+                + JdbcMeta.jdbcTypeName(c.jdbcType)
+                + " nullable="
+                + nullableStr(c.nullable, false));
       }
     }
 
@@ -81,12 +93,14 @@ public class MetadataCapabilitiesTest {
   }
 
   record ParamInfo(int position, String typeName, int jdbcType, int nullable) {}
+
   record ColInfo(int position, String name, String typeName, int jdbcType, int nullable) {}
 
   private static MetaReport probe(String database, Connection conn) throws SQLException {
     String createTable;
     if (database.equals("SQL Server")) {
-      createTable = """
+      createTable =
+          """
           CREATE TABLE meta_test (
               id INT NOT NULL,
               name NVARCHAR(100) NOT NULL,
@@ -95,7 +109,8 @@ public class MetadataCapabilitiesTest {
           )
           """;
     } else if (database.equals("Oracle")) {
-      createTable = """
+      createTable =
+          """
           CREATE TABLE meta_test (
               id NUMBER(10) NOT NULL,
               name VARCHAR2(100) NOT NULL,
@@ -104,7 +119,8 @@ public class MetadataCapabilitiesTest {
           )
           """;
     } else {
-      createTable = """
+      createTable =
+          """
           CREATE TABLE meta_test (
               id INTEGER NOT NULL,
               name VARCHAR(100) NOT NULL,
@@ -127,12 +143,9 @@ public class MetadataCapabilitiesTest {
         ParameterMetaData pmd = ps.getParameterMetaData();
         int paramCount = pmd.getParameterCount();
         for (int i = 1; i <= paramCount; i++) {
-          params.add(new ParamInfo(
-              i,
-              pmd.getParameterTypeName(i),
-              pmd.getParameterType(i),
-              pmd.isNullable(i)
-          ));
+          params.add(
+              new ParamInfo(
+                  i, pmd.getParameterTypeName(i), pmd.getParameterType(i), pmd.isNullable(i)));
         }
       } catch (SQLException e) {
         paramMetaFailed = true;
@@ -142,13 +155,13 @@ public class MetadataCapabilitiesTest {
       if (rsmd != null) {
         int colCount = rsmd.getColumnCount();
         for (int i = 1; i <= colCount; i++) {
-          columns.add(new ColInfo(
-              i,
-              rsmd.getColumnName(i),
-              rsmd.getColumnTypeName(i),
-              rsmd.getColumnType(i),
-              rsmd.isNullable(i)
-          ));
+          columns.add(
+              new ColInfo(
+                  i,
+                  rsmd.getColumnName(i),
+                  rsmd.getColumnTypeName(i),
+                  rsmd.getColumnType(i),
+                  rsmd.isNullable(i)));
         }
       }
     }
@@ -167,14 +180,20 @@ public class MetadataCapabilitiesTest {
     ColInfo emailCol = report.columns.get(2);
     ColInfo ageCol = report.columns.get(3);
 
-    assertEquals("id (NOT NULL) should be columnNoNulls",
-        ResultSetMetaData.columnNoNulls, idCol.nullable);
-    assertEquals("name (NOT NULL) should be columnNoNulls",
-        ResultSetMetaData.columnNoNulls, nameCol.nullable);
-    assertEquals("email (nullable) should be columnNullable",
-        ResultSetMetaData.columnNullable, emailCol.nullable);
-    assertEquals("age (nullable) should be columnNullable",
-        ResultSetMetaData.columnNullable, ageCol.nullable);
+    assertEquals(
+        "id (NOT NULL) should be columnNoNulls", ResultSetMetaData.columnNoNulls, idCol.nullable);
+    assertEquals(
+        "name (NOT NULL) should be columnNoNulls",
+        ResultSetMetaData.columnNoNulls,
+        nameCol.nullable);
+    assertEquals(
+        "email (nullable) should be columnNullable",
+        ResultSetMetaData.columnNullable,
+        emailCol.nullable);
+    assertEquals(
+        "age (nullable) should be columnNullable",
+        ResultSetMetaData.columnNullable,
+        ageCol.nullable);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -191,8 +210,10 @@ public class MetadataCapabilitiesTest {
       assertEquals("DuckDB reports parameter count", 2, report.params.size());
       for (ParamInfo p : report.params) {
         assertNull("DuckDB param type name is null", p.typeName);
-        assertEquals("DuckDB param nullability is unknown",
-            ParameterMetaData.parameterNullableUnknown, p.nullable);
+        assertEquals(
+            "DuckDB param nullability is unknown",
+            ParameterMetaData.parameterNullableUnknown,
+            p.nullable);
       }
 
       // DuckDB column metadata: types are available
@@ -203,8 +224,10 @@ public class MetadataCapabilitiesTest {
 
       // DuckDB nullability: all columns reported as nullable (even NOT NULL ones)
       for (ColInfo c : report.columns) {
-        assertEquals("DuckDB reports all columns as nullable: " + c.name,
-            ResultSetMetaData.columnNullable, c.nullable);
+        assertEquals(
+            "DuckDB reports all columns as nullable: " + c.name,
+            ResultSetMetaData.columnNullable,
+            c.nullable);
       }
     }
   }
@@ -215,21 +238,25 @@ public class MetadataCapabilitiesTest {
 
   @Test
   public void postgresMetadata() throws SQLException {
-    Containers.postgresTransactor().executeVoid(conn -> {
-      MetaReport report = probe("PostgreSQL", conn);
+    Containers.postgresTransactor()
+        .executeVoid(
+            conn -> {
+              MetaReport report = probe("PostgreSQL", conn);
 
-      // PostgreSQL parameter metadata: type names available, nullability unknown
-      assertFalse("PG should not throw on getParameterMetaData", report.paramMetaFailed);
-      assertEquals("PG should report 2 parameters", 2, report.params.size());
-      for (ParamInfo p : report.params) {
-        assertNotNull("PG param type name should not be null", p.typeName);
-        assertEquals("PG param nullability is always unknown",
-            ParameterMetaData.parameterNullableUnknown, p.nullable);
-      }
+              // PostgreSQL parameter metadata: type names available, nullability unknown
+              assertFalse("PG should not throw on getParameterMetaData", report.paramMetaFailed);
+              assertEquals("PG should report 2 parameters", 2, report.params.size());
+              for (ParamInfo p : report.params) {
+                assertNotNull("PG param type name should not be null", p.typeName);
+                assertEquals(
+                    "PG param nullability is always unknown",
+                    ParameterMetaData.parameterNullableUnknown,
+                    p.nullable);
+              }
 
-      // PostgreSQL column metadata: types and nullability are reliable
-      assertColumnNullabilityReliable(report);
-    });
+              // PostgreSQL column metadata: types and nullability are reliable
+              assertColumnNullabilityReliable(report);
+            });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -238,15 +265,17 @@ public class MetadataCapabilitiesTest {
 
   @Test
   public void mariadbMetadata() throws SQLException {
-    Containers.mariadbTransactor().executeVoid(conn -> {
-      MetaReport report = probe("MariaDB", conn);
+    Containers.mariadbTransactor()
+        .executeVoid(
+            conn -> {
+              MetaReport report = probe("MariaDB", conn);
 
-      // MariaDB parameter metadata: throws exception (not supported)
-      assertTrue("MariaDB should throw on getParameterMetaData", report.paramMetaFailed);
+              // MariaDB parameter metadata: throws exception (not supported)
+              assertTrue("MariaDB should throw on getParameterMetaData", report.paramMetaFailed);
 
-      // MariaDB column metadata: types and nullability are reliable
-      assertColumnNullabilityReliable(report);
-    });
+              // MariaDB column metadata: types and nullability are reliable
+              assertColumnNullabilityReliable(report);
+            });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -255,21 +284,25 @@ public class MetadataCapabilitiesTest {
 
   @Test
   public void sqlserverMetadata() throws SQLException {
-    Containers.sqlserverTransactor().executeVoid(conn -> {
-      MetaReport report = probe("SQL Server", conn);
+    Containers.sqlserverTransactor()
+        .executeVoid(
+            conn -> {
+              MetaReport report = probe("SQL Server", conn);
 
-      // SQL Server parameter metadata: type names available, nullability unknown
-      assertFalse("MSSQL should not throw on getParameterMetaData", report.paramMetaFailed);
-      assertEquals("MSSQL should report 2 parameters", 2, report.params.size());
-      for (ParamInfo p : report.params) {
-        assertNotNull("MSSQL param type name should not be null", p.typeName);
-        assertEquals("MSSQL param nullability is unknown",
-            ParameterMetaData.parameterNullableUnknown, p.nullable);
-      }
+              // SQL Server parameter metadata: type names available, nullability unknown
+              assertFalse("MSSQL should not throw on getParameterMetaData", report.paramMetaFailed);
+              assertEquals("MSSQL should report 2 parameters", 2, report.params.size());
+              for (ParamInfo p : report.params) {
+                assertNotNull("MSSQL param type name should not be null", p.typeName);
+                assertEquals(
+                    "MSSQL param nullability is unknown",
+                    ParameterMetaData.parameterNullableUnknown,
+                    p.nullable);
+              }
 
-      // SQL Server column metadata: types and nullability are reliable
-      assertColumnNullabilityReliable(report);
-    });
+              // SQL Server column metadata: types and nullability are reliable
+              assertColumnNullabilityReliable(report);
+            });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -278,21 +311,26 @@ public class MetadataCapabilitiesTest {
 
   @Test
   public void oracleMetadata() throws SQLException {
-    Containers.oracleTransactor().executeVoid(conn -> {
-      MetaReport report = probe("Oracle", conn);
+    Containers.oracleTransactor()
+        .executeVoid(
+            conn -> {
+              MetaReport report = probe("Oracle", conn);
 
-      // Oracle parameter metadata: type names AND nullability available
-      assertFalse("Oracle should not throw on getParameterMetaData", report.paramMetaFailed);
-      assertEquals("Oracle should report 2 parameters", 2, report.params.size());
-      for (ParamInfo p : report.params) {
-        assertNotNull("Oracle param type name should not be null", p.typeName);
-        assertNotEquals("Oracle param nullability is known",
-            ParameterMetaData.parameterNullableUnknown, p.nullable);
-      }
+              // Oracle parameter metadata: type names AND nullability available
+              assertFalse(
+                  "Oracle should not throw on getParameterMetaData", report.paramMetaFailed);
+              assertEquals("Oracle should report 2 parameters", 2, report.params.size());
+              for (ParamInfo p : report.params) {
+                assertNotNull("Oracle param type name should not be null", p.typeName);
+                assertNotEquals(
+                    "Oracle param nullability is known",
+                    ParameterMetaData.parameterNullableUnknown,
+                    p.nullable);
+              }
 
-      // Oracle column metadata: types and nullability are reliable
-      assertColumnNullabilityReliable(report);
-    });
+              // Oracle column metadata: types and nullability are reliable
+              assertColumnNullabilityReliable(report);
+            });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -301,21 +339,25 @@ public class MetadataCapabilitiesTest {
 
   @Test
   public void db2Metadata() throws SQLException {
-    Containers.db2Transactor().executeVoid(conn -> {
-      MetaReport report = probe("DB2", conn);
+    Containers.db2Transactor()
+        .executeVoid(
+            conn -> {
+              MetaReport report = probe("DB2", conn);
 
-      // DB2 parameter metadata: type names available, but nullability unreliable
-      // (reports all as NULLABLE regardless of column constraints)
-      assertFalse("DB2 should not throw on getParameterMetaData", report.paramMetaFailed);
-      assertEquals("DB2 should report 2 parameters", 2, report.params.size());
-      for (ParamInfo p : report.params) {
-        assertNotNull("DB2 param type name should not be null", p.typeName);
-        assertEquals("DB2 param nullability is always NULLABLE (unreliable)",
-            ParameterMetaData.parameterNullable, p.nullable);
-      }
+              // DB2 parameter metadata: type names available, but nullability unreliable
+              // (reports all as NULLABLE regardless of column constraints)
+              assertFalse("DB2 should not throw on getParameterMetaData", report.paramMetaFailed);
+              assertEquals("DB2 should report 2 parameters", 2, report.params.size());
+              for (ParamInfo p : report.params) {
+                assertNotNull("DB2 param type name should not be null", p.typeName);
+                assertEquals(
+                    "DB2 param nullability is always NULLABLE (unreliable)",
+                    ParameterMetaData.parameterNullable,
+                    p.nullable);
+              }
 
-      // DB2 column metadata: types and nullability are reliable
-      assertColumnNullabilityReliable(report);
-    });
+              // DB2 column metadata: types and nullability are reliable
+              assertColumnNullabilityReliable(report);
+            });
   }
 }

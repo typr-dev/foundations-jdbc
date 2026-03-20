@@ -8,8 +8,9 @@ import org.junit.Test;
 /**
  * Tests for error messages produced by the library.
  *
- * <p>These tests verify that error messages are helpful and match what's
- * documented on the landing page. If a test fails, either:
+ * <p>These tests verify that error messages are helpful and match what's documented on the landing
+ * page. If a test fails, either:
+ *
  * <ol>
  *   <li>Fix the error message in the library code, or
  *   <li>Update the landing page to match actual behavior
@@ -27,6 +28,7 @@ public class ErrorMessageTest {
    * Verifies the Query Analysis-aligned error format for column parse errors.
    *
    * <p>Format matches Query Analysis style:
+   *
    * <pre>
    * Column 2: parse error
    *    │ Expected type: INTEGER
@@ -36,26 +38,24 @@ public class ErrorMessageTest {
    */
   @Test
   public void testColumnTypeMismatch_messageFormat() {
-    var tx = DuckDbConfig.builder(":memory:").transactor();
+    var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
-      tx.execute(conn -> {
-        Fragment.of("CREATE TABLE test_err (id INTEGER, name VARCHAR)")
-            .update()
-            .run(conn);
-        Fragment.of("INSERT INTO test_err VALUES (1, 'hello')")
-            .update()
-            .run(conn);
+      tx.execute(
+          conn -> {
+            Fragment.of("CREATE TABLE test_err (id INTEGER, name VARCHAR)").update().run(conn);
+            Fragment.of("INSERT INTO test_err VALUES (1, 'hello')").update().run(conn);
 
-        // Try to read the VARCHAR column as INTEGER - should fail
-        return Fragment.of("SELECT id, name FROM test_err")
-            .query(RowCodec.<Integer>builder()
-                .field(DuckDbTypes.integer, x -> x)
-                .field(DuckDbTypes.integer, x -> x)  // Wrong type for 'name'!
-                .build((id, name) -> id)
-                .all())
-            .run(conn);
-      });
+            // Try to read the VARCHAR column as INTEGER - should fail
+            return Fragment.of("SELECT id, name FROM test_err")
+                .query(
+                    RowCodec.<Integer>builder()
+                        .field(DuckDbTypes.integer, x -> x)
+                        .field(DuckDbTypes.integer, x -> x) // Wrong type for 'name'!
+                        .build((id, name) -> id)
+                        .all())
+                .run(conn);
+          });
       fail("Expected SQLException for type mismatch");
     } catch (Exception e) {
       String fullChain = getFullExceptionChain(e);
@@ -65,41 +65,42 @@ public class ErrorMessageTest {
       System.out.println("====================================");
 
       // Verify Query Analysis-aligned format
-      assertTrue("Should have 'Failed to read column' header",
+      assertTrue(
+          "Should have 'Failed to read column' header",
           fullChain.contains("Failed to read column"));
-      assertTrue("Should include column name from metadata",
-          fullChain.contains("'name'"));
-      assertTrue("Should have box-drawing characters for structure",
+      assertTrue("Should include column name from metadata", fullChain.contains("'name'"));
+      assertTrue(
+          "Should have box-drawing characters for structure",
           fullChain.contains("│") && fullChain.contains("└"));
-      assertTrue("Should show expected type",
-          fullChain.contains("Expected:"));
-      assertTrue("Should show actual type with nullability from metadata",
-          fullChain.contains("Actual:") && fullChain.contains("VARCHAR") &&
-          fullChain.contains("nullable"));
-      assertTrue("Should show the actual value",
+      assertTrue("Should show expected type", fullChain.contains("Expected:"));
+      assertTrue(
+          "Should show actual type with nullability from metadata",
+          fullChain.contains("Actual:")
+              && fullChain.contains("VARCHAR")
+              && fullChain.contains("nullable"));
+      assertTrue(
+          "Should show the actual value",
           fullChain.contains("Value:") && fullChain.contains("\"hello\""));
-      assertTrue("Should show row number",
-          fullChain.contains("Row:"));
-      assertTrue("Should include cause exception type and message",
-          fullChain.contains("NumberFormatException") &&
-          fullChain.contains("For input string"));
+      assertTrue("Should show row number", fullChain.contains("Row:"));
+      assertTrue(
+          "Should include cause exception type and message",
+          fullChain.contains("NumberFormatException") && fullChain.contains("For input string"));
     }
   }
 
   @Test
   public void testExactlyOne_noRows_messageFormat() {
-    var tx = DuckDbConfig.builder(":memory:").transactor();
+    var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
-      tx.execute(conn -> {
-        Fragment.of("CREATE TABLE empty_table (id INTEGER)")
-            .update()
-            .run(conn);
+      tx.execute(
+          conn -> {
+            Fragment.of("CREATE TABLE empty_table (id INTEGER)").update().run(conn);
 
-        return Fragment.of("SELECT id FROM empty_table")
-            .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
-            .run(conn);
-      });
+            return Fragment.of("SELECT id FROM empty_table")
+                .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
+                .run(conn);
+          });
       fail("Expected SQLException for no rows");
     } catch (Exception e) {
       String message = getRootCause(e).getMessage();
@@ -115,21 +116,18 @@ public class ErrorMessageTest {
 
   @Test
   public void testExactlyOne_tooManyRows_messageFormat() {
-    var tx = DuckDbConfig.builder(":memory:").transactor();
+    var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
-      tx.execute(conn -> {
-        Fragment.of("CREATE TABLE multi_table (id INTEGER)")
-            .update()
-            .run(conn);
-        Fragment.of("INSERT INTO multi_table VALUES (1), (2)")
-            .update()
-            .run(conn);
+      tx.execute(
+          conn -> {
+            Fragment.of("CREATE TABLE multi_table (id INTEGER)").update().run(conn);
+            Fragment.of("INSERT INTO multi_table VALUES (1), (2)").update().run(conn);
 
-        return Fragment.of("SELECT id FROM multi_table")
-            .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
-            .run(conn);
-      });
+            return Fragment.of("SELECT id FROM multi_table")
+                .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
+                .run(conn);
+          });
       fail("Expected SQLException for too many rows");
     } catch (Exception e) {
       String message = getRootCause(e).getMessage();
@@ -145,21 +143,18 @@ public class ErrorMessageTest {
 
   @Test
   public void testMaxOne_tooManyRows_messageFormat() {
-    var tx = DuckDbConfig.builder(":memory:").transactor();
+    var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
-      tx.execute(conn -> {
-        Fragment.of("CREATE TABLE multi_table2 (id INTEGER)")
-            .update()
-            .run(conn);
-        Fragment.of("INSERT INTO multi_table2 VALUES (1), (2)")
-            .update()
-            .run(conn);
+      tx.execute(
+          conn -> {
+            Fragment.of("CREATE TABLE multi_table2 (id INTEGER)").update().run(conn);
+            Fragment.of("INSERT INTO multi_table2 VALUES (1), (2)").update().run(conn);
 
-        return Fragment.of("SELECT id FROM multi_table2")
-            .query(RowCodec.of(DuckDbTypes.integer).maxOne())
-            .run(conn);
-      });
+            return Fragment.of("SELECT id FROM multi_table2")
+                .query(RowCodec.of(DuckDbTypes.integer).maxOne())
+                .run(conn);
+          });
       fail("Expected SQLException for too many rows");
     } catch (Exception e) {
       String message = getRootCause(e).getMessage();
@@ -179,7 +174,7 @@ public class ErrorMessageTest {
   @Test
   public void testUnsignedIntOverflow_messageFormat() {
     try {
-      new dev.typr.foundations.data.Uint1((short) 256);  // Max is 255
+      new dev.typr.foundations.data.Uint1((short) 256); // Max is 255
       fail("Expected IllegalArgumentException for overflow");
     } catch (IllegalArgumentException e) {
       System.out.println("=== Actual unsigned int overflow message ===");
@@ -211,8 +206,8 @@ public class ErrorMessageTest {
   // ==========================================================================
 
   /**
-   * This test documents the gap between landing page claims and reality.
-   * Run this test to see what messages the library actually produces.
+   * This test documents the gap between landing page claims and reality. Run this test to see what
+   * messages the library actually produces.
    */
   @Test
   public void documentErrorMessageGap() {
@@ -275,34 +270,38 @@ public class ErrorMessageTest {
   // ==========================================================================
 
   /**
-   * Print the EXACT output that matches the landing page.
-   * Run this test to verify landing page accuracy.
+   * Print the EXACT output that matches the landing page. Run this test to verify landing page
+   * accuracy.
    */
   @Test
   public void printExactErrorMessageForLandingPage() {
-    var tx = DuckDbConfig.builder(":memory:").transactor();
+    var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
-      tx.execute(conn -> {
-        // Create table - simulate the landing page scenario
-        Fragment.of("CREATE TABLE users (id INTEGER, name VARCHAR, created_at VARCHAR)")
-            .update()
-            .run(conn);
-        Fragment.of("INSERT INTO users VALUES (1, 'Alice', '2024-01-15 10:30:00')")
-            .update()
-            .run(conn);
+      tx.execute(
+          conn -> {
+            // Create table - simulate the landing page scenario
+            Fragment.of("CREATE TABLE users (id INTEGER, name VARCHAR, created_at VARCHAR)")
+                .update()
+                .run(conn);
+            Fragment.of("INSERT INTO users VALUES (1, 'Alice', '2024-01-15 10:30:00')")
+                .update()
+                .run(conn);
 
-        // Try to read VARCHAR 'created_at' as timestamptz - this will fail
-        record UserRow(Integer id, String name, java.time.OffsetDateTime createdAt) {}
-        return Fragment.of("SELECT id, name, created_at FROM users")
-            .query(RowCodec.<UserRow>builder()
-                .field(DuckDbTypes.integer, UserRow::id)
-                .field(DuckDbTypes.varchar, UserRow::name)
-                .field(DuckDbTypes.timestamptz, UserRow::createdAt)  // Wrong! created_at is VARCHAR
-                .build(UserRow::new)
-                .all())
-            .run(conn);
-      });
+            // Try to read VARCHAR 'created_at' as timestamptz - this will fail
+            record UserRow(Integer id, String name, java.time.OffsetDateTime createdAt) {}
+            return Fragment.of("SELECT id, name, created_at FROM users")
+                .query(
+                    RowCodec.<UserRow>builder()
+                        .field(DuckDbTypes.integer, UserRow::id)
+                        .field(DuckDbTypes.varchar, UserRow::name)
+                        .field(
+                            DuckDbTypes.timestamptz,
+                            UserRow::createdAt) // Wrong! created_at is VARCHAR
+                        .build(UserRow::new)
+                        .all())
+                .run(conn);
+          });
       fail("Expected DatabaseException wrapping SqlResultParseException");
     } catch (DatabaseException de) {
       assertTrue(de.getCause() instanceof RowCodec.SqlResultParseException);

@@ -5,9 +5,9 @@ import dev.typr.foundations.Transactor;
 
 @SuppressWarnings("unused")
 public class StrategyOverride {
-    Transactor tx = null; // placeholder
-    QueryListener logger = QueryListener.NOOP; // placeholder
-    //start
-    Transactor txWithLogging = tx.mergeListener(logger);
-    //stop
+  Transactor tx = null; // placeholder
+  QueryListener logger = QueryListener.NOOP; // placeholder
+  // start
+  Transactor txWithLogging = tx.mergeListener(logger);
+  // stop
 }

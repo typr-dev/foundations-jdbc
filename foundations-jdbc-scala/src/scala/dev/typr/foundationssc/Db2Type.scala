@@ -7,8 +7,8 @@ class Db2Type[T](override val underlying: dev.typr.foundations.Db2Type[T]) exten
   override def to[B](bijection: dev.typr.foundations.Bijection[T, B]): Db2Type[B] =
     Db2Type(underlying.to(bijection))
 
-  def transform[B](f: dev.typr.foundations.SqlFunction[T, B], g: java.util.function.Function[B, T]): Db2Type[B] =
-    Db2Type(underlying.transform(f, g))
+  def transform[B](f: T => B, g: B => T): Db2Type[B] =
+    Db2Type(underlying.transform(v => f(v), v => g(v)))
 
   def unchecked(): Db2Type[T] = Db2Type(underlying.unchecked())
   def nullableOk(): Db2Type[T] = Db2Type(underlying.nullableOk())

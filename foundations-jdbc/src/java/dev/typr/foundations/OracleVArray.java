@@ -96,7 +96,8 @@ public class OracleVArray {
 
     OracleOutParam<List<T>> outParam = OracleOutParam.oracleArray(varrayTypeName, elementType);
 
-    return new OracleType<>(OracleTypename.of(varrayTypeName), read, write, json, outParam, AnalysisOptions.EMPTY);
+    return new OracleType<>(
+        OracleTypename.of(varrayTypeName), read, write, json, outParam, AnalysisOptions.EMPTY);
   }
 
   /** Generate JSON codec for list type. */

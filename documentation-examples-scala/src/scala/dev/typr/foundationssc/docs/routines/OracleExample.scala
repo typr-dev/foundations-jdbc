@@ -3,16 +3,18 @@ import dev.typr.foundationssc.*
 
 @SuppressWarnings(Array("unused"))
 object OracleExample:
-  //start
+  // start
   // Works with any database — just use the right types
   val applyDiscount =
-    DbProcedure.define("apply_discount")
-      .input(OracleTypes.number)         // amount IN
-      .inout(OracleTypes.varchar2)    // status INOUT
+    DbProcedure
+      .define("apply_discount")
+      .input(OracleTypes.number) // amount IN
+      .inout(OracleTypes.varchar2) // status INOUT
       .build()
 
   val getBalance =
-    DbFunction.define("get_balance", OracleTypes.number)
-      .input(OracleTypes.varchar2)       // account_id
+    DbFunction
+      .define("get_balance", OracleTypes.number)
+      .input(OracleTypes.varchar2) // account_id
       .build()
-  //stop
+  // stop

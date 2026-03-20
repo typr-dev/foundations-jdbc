@@ -2,11 +2,9 @@ package dev.typr.foundationssc.docs.mariadb
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-
-
 @SuppressWarnings(Array("unused"))
 object BooleanType:
-  //start
+  // start
   val boolType: MariaType[Boolean] = MariaTypes.bool
   val bitBool: MariaType[Boolean] = MariaTypes.bit1
-  //stop
+  // stop

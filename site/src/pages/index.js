@@ -573,7 +573,11 @@ function QueryAnalysisSection() {
             </p>
           </div>
         </div>
-        <div style={{textAlign: 'center', marginTop: '1.5rem'}}>
+        <p style={{textAlign: 'center', marginTop: '1.5rem', color: 'var(--ifm-color-emphasis-600)', fontSize: '0.9rem'}}>
+          The depth of analysis depends on what each database's JDBC driver reports.{' '}
+          <Link to="/docs/query-analysis-database-behavior">See database-specific behavior</Link>.
+        </p>
+        <div style={{textAlign: 'center', marginTop: '0.75rem'}}>
           <Link className={styles.btnSecondary} to="/docs/query-analysis">
             Learn more about Query Analysis →
           </Link>

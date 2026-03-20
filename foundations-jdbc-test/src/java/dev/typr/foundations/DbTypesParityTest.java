@@ -9,28 +9,27 @@ import java.util.*;
 import org.junit.Test;
 
 /**
- * Ensures that Scala and Kotlin type facades expose the same fields as the Java interfaces.
- * This prevents forgetting to forward a type when adding new types to the Java interface.
+ * Ensures that Scala and Kotlin type facades expose the same fields as the Java interfaces. This
+ * prevents forgetting to forward a type when adding new types to the Java interface.
  */
 public class DbTypesParityTest {
 
   // Fields that are intentionally excluded from parity checks
-  private static final Set<String> EXCLUDED_FIELDS = Set.of(
-      // Scala/Kotlin internal fields
-      "MODULE$",
-      "$VALUES",
-      "Companion",
-      // Static method helpers that don't need forwarding
-      "mapJson"
-  );
+  private static final Set<String> EXCLUDED_FIELDS =
+      Set.of(
+          // Scala/Kotlin internal fields
+          "MODULE$",
+          "$VALUES",
+          "Companion",
+          // Static method helpers that don't need forwarding
+          "mapJson");
 
   @Test
   public void pgTypesFieldsParity() {
     assertFieldsParity(
         PgTypes.class,
         dev.typr.foundationssc.PgTypes$.class,
-        dev.typr.foundationskt.PgTypes.Companion.getClass()
-    );
+        dev.typr.foundationskt.PgTypes.Companion.getClass());
   }
 
   @Test
@@ -38,8 +37,7 @@ public class DbTypesParityTest {
     assertFieldsParity(
         MariaTypes.class,
         dev.typr.foundationssc.MariaTypes$.class,
-        dev.typr.foundationskt.MariaTypes.Companion.getClass()
-    );
+        dev.typr.foundationskt.MariaTypes.Companion.getClass());
   }
 
   @Test
@@ -47,8 +45,7 @@ public class DbTypesParityTest {
     assertFieldsParity(
         DuckDbTypes.class,
         dev.typr.foundationssc.DuckDbTypes$.class,
-        dev.typr.foundationskt.DuckDbTypes.Companion.getClass()
-    );
+        dev.typr.foundationskt.DuckDbTypes.Companion.getClass());
   }
 
   @Test
@@ -56,8 +53,7 @@ public class DbTypesParityTest {
     assertFieldsParity(
         OracleTypes.class,
         dev.typr.foundationssc.OracleTypes$.class,
-        dev.typr.foundationskt.OracleTypes.Companion.getClass()
-    );
+        dev.typr.foundationskt.OracleTypes.Companion.getClass());
   }
 
   @Test
@@ -65,8 +61,7 @@ public class DbTypesParityTest {
     assertFieldsParity(
         SqlServerTypes.class,
         dev.typr.foundationssc.SqlServerTypes$.class,
-        dev.typr.foundationskt.SqlServerTypes.Companion.getClass()
-    );
+        dev.typr.foundationskt.SqlServerTypes.Companion.getClass());
   }
 
   @Test
@@ -74,11 +69,11 @@ public class DbTypesParityTest {
     assertFieldsParity(
         Db2Types.class,
         dev.typr.foundationssc.Db2Types$.class,
-        dev.typr.foundationskt.Db2Types.Companion.getClass()
-    );
+        dev.typr.foundationskt.Db2Types.Companion.getClass());
   }
 
-  private void assertFieldsParity(Class<?> javaInterface, Class<?> scalaObject, Class<?> kotlinCompanion) {
+  private void assertFieldsParity(
+      Class<?> javaInterface, Class<?> scalaObject, Class<?> kotlinCompanion) {
     Set<String> javaFields = getJavaInterfaceFields(javaInterface);
     Set<String> scalaFields = getScalaObjectFields(scalaObject);
     Set<String> kotlinFields = getKotlinCompanionFields(kotlinCompanion);
@@ -87,16 +82,26 @@ public class DbTypesParityTest {
     Set<String> missingInScala = new TreeSet<>(javaFields);
     missingInScala.removeAll(scalaFields);
     if (!missingInScala.isEmpty()) {
-      fail("Scala " + scalaObject.getSimpleName() + " is missing fields from Java "
-          + javaInterface.getSimpleName() + ": " + missingInScala);
+      fail(
+          "Scala "
+              + scalaObject.getSimpleName()
+              + " is missing fields from Java "
+              + javaInterface.getSimpleName()
+              + ": "
+              + missingInScala);
     }
 
     // Check Kotlin has all Java fields
     Set<String> missingInKotlin = new TreeSet<>(javaFields);
     missingInKotlin.removeAll(kotlinFields);
     if (!missingInKotlin.isEmpty()) {
-      fail("Kotlin " + kotlinCompanion.getSimpleName() + " is missing fields from Java "
-          + javaInterface.getSimpleName() + ": " + missingInKotlin);
+      fail(
+          "Kotlin "
+              + kotlinCompanion.getSimpleName()
+              + " is missing fields from Java "
+              + javaInterface.getSimpleName()
+              + ": "
+              + missingInKotlin);
     }
   }
 

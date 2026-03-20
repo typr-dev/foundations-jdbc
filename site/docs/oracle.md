@@ -125,34 +125,46 @@ For CHAR columns preserving padding:
 
 ## OBJECT Types
 
-Oracle OBJECT types (user-defined types) are supported via generated code:
+Oracle OBJECT types (`CREATE TYPE ... AS OBJECT`) map to Java records via the builder API.
+Objects can be nested — an OBJECT attribute can reference another OBJECT type.
 
-```java
-// Generated code creates OracleType for your OBJECT type
-// Example for ADDRESS_T type:
-OracleType<AddressT> addressType = AddressT.oracleType;
+<Snippet file="oracle/ObjectTypes" />
 
-// Insert using the generated type
-AddressT addr = new AddressT("123 Main St", "City", "12345");
-```
+## VARRAYs
 
-## Nested Tables and VARRAYs
+VARRAYs are fixed-maximum-size ordered collections (`CREATE TYPE ... AS VARRAY(n) OF ...`).
+Mapped to `List<T>` in Java. The max size is enforced on write.
 
-Oracle collection types are fully supported:
+<Snippet file="oracle/VArrayTypes" />
 
-```java
-// Nested tables - generated as List<Element>
-OracleType<List<String>> stringTable = // generated
+## Nested Tables
 
-// VARRAYs - generated as arrays
-OracleType<String[]> stringVarray = // generated
-```
+Nested tables are unbounded collections (`CREATE TYPE ... AS TABLE OF ...`).
+Like VARRAYs, they map to `List<T>` but have no size limit.
+Nested tables can hold OBJECT types for complex hierarchical data.
+
+<Snippet file="oracle/NestedTableTypes" />
 
 ## Nullable Types
 
 Any type can be made nullable using `.opt()`:
 
 <Snippet file="oracle/NullableType" />
+
+### Oracle Nullability Behavior
+
+Oracle treats empty strings as NULL — `INSERT INTO t (col) VALUES ('')` stores NULL.
+This means `VARCHAR2` columns are effectively always nullable from Oracle's perspective,
+even if the column has a `NOT NULL` constraint (an empty string insert will fail with a
+constraint violation, not store an empty string).
+
+When using query analysis, Oracle may report all `VARCHAR2`/`CHAR` columns as nullable.
+Use `.nullableOk()` on the type if you want to suppress nullability warnings for columns
+you know are `NOT NULL` in the schema:
+
+```java
+OracleType<String> name = OracleTypes.varchar2(100).nullableOk();
+```
 
 ## Custom Domain Types
 

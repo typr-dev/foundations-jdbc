@@ -11,8 +11,7 @@ class Transactor(val underlying: dev.typr.foundations.Transactor) {
         this(dev.typr.foundations.Transactor(connect, strategy))
 
     fun <T> execute(operation: Operation<T>): T {
-        @Suppress("UNCHECKED_CAST")
-        return underlying.execute(operation.underlying as dev.typr.foundations.Operation<T>)
+        return underlying.execute(dev.typr.foundations.SqlFunction { conn -> operation.run(conn) })
     }
 
     fun <T> transact(f: (Connection) -> T): T =
@@ -32,6 +31,22 @@ class Transactor(val underlying: dev.typr.foundations.Transactor) {
         withStrategy(override).transact(f)
 
     companion object {
+        @JvmStatic
+        fun create(config: dev.typr.foundationskt.connect.DatabaseConfig): Transactor =
+            Transactor(dev.typr.foundations.Transactor.create(config))
+
+        @JvmStatic
+        fun create(config: dev.typr.foundationskt.connect.DatabaseConfig, strategy: Strategy): Transactor =
+            Transactor(dev.typr.foundations.Transactor.create(config, strategy))
+
+        @JvmStatic
+        fun create(config: dev.typr.foundationskt.connect.DatabaseConfig, settings: dev.typr.foundationskt.connect.ConnectionSettings): Transactor =
+            Transactor(dev.typr.foundations.Transactor.create(config, settings))
+
+        @JvmStatic
+        fun create(config: dev.typr.foundationskt.connect.DatabaseConfig, settings: dev.typr.foundationskt.connect.ConnectionSettings, strategy: Strategy): Transactor =
+            Transactor(dev.typr.foundations.Transactor.create(config, settings, strategy))
+
         @JvmStatic
         fun defaultStrategy(): Strategy = dev.typr.foundations.Transactor.defaultStrategy()
 

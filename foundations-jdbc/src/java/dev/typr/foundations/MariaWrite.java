@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.data.Vector;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.PreparedStatement;
@@ -67,4 +68,8 @@ public sealed interface MariaWrite<A> extends DbWrite<A> permits MariaWrite.Inst
   MariaWrite<BigDecimal> writeBigDecimal = primitive(PreparedStatement::setBigDecimal);
   MariaWrite<BigInteger> writeBigInteger = writeBigDecimal.contramap(bi -> new BigDecimal(bi));
   MariaWrite<byte[]> writeByteArray = primitive(PreparedStatement::setBytes);
+
+  // VECTOR type - MariaDB 11.7+ connector encodes float[] via FloatArrayCodec
+  MariaWrite<Vector> writeVector =
+      MariaWrite.<float[]>passObjectToJdbc().contramap(Vector::values);
 }

@@ -7,16 +7,16 @@ import dev.typr.foundations.data.OracleIntervalYM;
 
 @SuppressWarnings("unused")
 public class IntervalTypes {
-    //start
-    OracleType<OracleIntervalYM> ymType = OracleTypes.intervalYearToMonth;
-    OracleType<OracleIntervalYM> ym4 = OracleTypes.intervalYearToMonth(4);
+  // start
+  OracleType<OracleIntervalYM> ymType = OracleTypes.intervalYearToMonth;
+  OracleType<OracleIntervalYM> ym4 = OracleTypes.intervalYearToMonth(4);
 
-    OracleType<OracleIntervalDS> dsType = OracleTypes.intervalDayToSecond;
-    OracleType<OracleIntervalDS> ds96 = OracleTypes.intervalDayToSecond(9, 6);
+  OracleType<OracleIntervalDS> dsType = OracleTypes.intervalDayToSecond;
+  OracleType<OracleIntervalDS> ds96 = OracleTypes.intervalDayToSecond(9, 6);
 
-    // Create and use intervals
-    OracleIntervalYM interval = OracleIntervalYM.parse("+02-05");  // 2 years, 5 months
-    String oracle = interval.toOracleFormat();  // "+02-05"
-    String iso = interval.toIso8601();          // "P2Y5M"
-    //stop
+  // Create and use intervals
+  OracleIntervalYM interval = OracleIntervalYM.parse("+02-05"); // 2 years, 5 months
+  String oracle = interval.toOracleFormat(); // "+02-05"
+  String iso = interval.toIso8601(); // "P2Y5M"
+  // stop
 }

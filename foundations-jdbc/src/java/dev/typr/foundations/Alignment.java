@@ -4,38 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents the alignment of two values at the same position.
- * Similar to Haskell/Scala's Ior (inclusive or) type.
+ * Represents the alignment of two values at the same position. Similar to Haskell/Scala's Ior
+ * (inclusive or) type.
  *
  * <ul>
- *   <li>{@link Both} - both values present (the happy path)</li>
- *   <li>{@link LeftOnly} - only the left value present (extra in code)</li>
- *   <li>{@link RightOnly} - only the right value present (missing in code)</li>
+ *   <li>{@link Both} - both values present (the happy path)
+ *   <li>{@link LeftOnly} - only the left value present (extra in code)
+ *   <li>{@link RightOnly} - only the right value present (missing in code)
  * </ul>
  */
 public sealed interface Alignment<L, R> {
 
-  /**
-   * Both values are present at this position.
-   */
+  /** Both values are present at this position. */
   record Both<L, R>(L left, R right) implements Alignment<L, R> {}
 
-  /**
-   * Only the left value is present (the right side is missing).
-   */
+  /** Only the left value is present (the right side is missing). */
   record LeftOnly<L, R>(L left) implements Alignment<L, R> {}
 
-  /**
-   * Only the right value is present (the left side is missing).
-   */
+  /** Only the right value is present (the left side is missing). */
   record RightOnly<L, R>(R right) implements Alignment<L, R> {}
 
   /**
    * Align two lists by position. Produces:
+   *
    * <ul>
-   *   <li>{@link Both} for positions where both lists have elements</li>
-   *   <li>{@link LeftOnly} for positions where only the first list has elements</li>
-   *   <li>{@link RightOnly} for positions where only the second list has elements</li>
+   *   <li>{@link Both} for positions where both lists have elements
+   *   <li>{@link LeftOnly} for positions where only the first list has elements
+   *   <li>{@link RightOnly} for positions where only the second list has elements
    * </ul>
    *
    * @param left the first list (typically our types)

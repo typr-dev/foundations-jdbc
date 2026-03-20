@@ -163,13 +163,14 @@ public interface PgTypes {
       int2vector.array(PgRead.pgObjectArray(Int2Vector::new, Int2Vector.class), Int2Vector[]::new);
   PgType<Integer> int4 =
       PgType.of(
-          "int4",
-          PgRead.readInteger,
-          PgWrite.writeInteger,
-          PgText.textInteger,
-          PgCompositeText.int4,
-          PgJson.int4,
-          PgOutParam.readInteger);
+              "int4",
+              PgRead.readInteger,
+              PgWrite.writeInteger,
+              PgText.textInteger,
+              PgCompositeText.int4,
+              PgJson.int4,
+              PgOutParam.readInteger)
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("serial"));
   PgType<Integer[]> int4Array = int4.array(PgRead.readIntegerArray, Integer[]::new);
 
   @SuppressWarnings("unchecked")
@@ -222,13 +223,14 @@ public interface PgTypes {
   PgType<LocalTime[]> timeArray = time.array(PgRead.readLocalTimeArray, LocalTime[]::new);
   PgType<Long> int8 =
       PgType.of(
-          "int8",
-          PgRead.readLong,
-          PgWrite.writeLong,
-          PgText.textLong,
-          PgCompositeText.int8,
-          PgJson.int8,
-          PgOutParam.readLong);
+              "int8",
+              PgRead.readLong,
+              PgWrite.writeLong,
+              PgText.textLong,
+              PgCompositeText.int8,
+              PgJson.int8,
+              PgOutParam.readLong)
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("bigserial"));
   PgType<Long[]> int8Array = int8.array(PgRead.readLongArray, Long[]::new);
 
   @SuppressWarnings("unchecked")
@@ -447,8 +449,12 @@ public interface PgTypes {
           PgCompositeText.int2,
           PgJson.int2,
           PgOutParam.readShort);
-  PgType<Short> smallint = int2.withTypename(PgTypename.of("smallint"))
-      .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2"));
+  PgType<Short> smallint =
+      int2.withTypename(PgTypename.of("smallint"))
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2"));
+  PgType<Short> smallserial =
+      int2.withTypename(PgTypename.of("smallserial"))
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2"));
   PgType<Short[]> int2Array = int2.array(PgRead.readShortArray, Short[]::new);
 
   @SuppressWarnings("unchecked")
@@ -462,10 +468,14 @@ public interface PgTypes {
           PgJson.shortArrayUnboxed,
           PgOutParam.readShortArrayUnboxed);
 
-  PgType<Short[]> smallintArray = int2Array.renamed("smallint")
-      .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2[]"));
-  PgType<short[]> smallintArrayUnboxed = int2ArrayUnboxed.renamed("smallint")
-      .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2[]"));
+  PgType<Short[]> smallintArray =
+      int2Array
+          .renamed("smallint")
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2[]"));
+  PgType<short[]> smallintArrayUnboxed =
+      int2ArrayUnboxed
+          .renamed("smallint")
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2[]"));
   PgType<String> bpchar =
       PgType.of(
           "bpchar",

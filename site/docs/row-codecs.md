@@ -53,6 +53,8 @@ Row codecs compose for joins. Given a `productCodec` and a `categoryCodec`, comb
 
 The result type is `Tuple2<A, B>` in Java (with `._1()` and `._2()` accessors), `Pair<A, B>` in Kotlin, and a tuple `(A, B)` in Scala. Left join wraps the right side in `Optional` (or nullable in Kotlin, `Option` in Scala).
 
+The same `Tuple` types appear whenever the library needs to return multiple values without a dedicated record type — `RowCodec.of(type1, type2, ...)` for multi-column ad-hoc queries, `.combine()` for composed operations, and `.joined()` for joins all return `TupleN`. Accessors are 1-based: `._1()`, `._2()`, `._3()`, etc.
+
 This is why row codecs use index-based reading rather than column names. When you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
 
 ## Data-Driven Inserts
@@ -60,6 +62,14 @@ This is why row codecs use index-based reading rather than column names. When yo
 `Fragment.insertIntoReturning()` generates a complete INSERT statement from a named codec — column list, parameter placeholders, and RETURNING clause. Pass column names to `except` to skip columns with database defaults:
 
 <Snippet file="core/FragmentRow" />
+
+## Generated Keys Inserts
+
+For databases that don't support `RETURNING` (DB2, Oracle, SQL Server, MariaDB), use `Fragment.insertIntoGeneratedKeys()`. It works like `insertIntoReturning` but uses JDBC's `getGeneratedKeys()` API to read back the generated columns:
+
+<Snippet file="core/FragmentRowGeneratedKeys" />
+
+Pass the generated column names as the third argument, and the same column names to `except` so they're excluded from the INSERT's column list and VALUES clause.
 
 ## Positional Codecs
 

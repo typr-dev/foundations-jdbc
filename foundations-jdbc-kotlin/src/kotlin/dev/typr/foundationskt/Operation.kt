@@ -46,7 +46,7 @@ sealed class Operation<Out> : Analyzable {
     fun <B, C, D, E, F, G, H, I, R> combineWith(b: Operation<B>, c: Operation<C>, d: Operation<D>, e: Operation<E>, f: Operation<F>, g: Operation<G>, h: Operation<H>, i: Operation<I>, combine: (Out, B, C, D, E, F, G, H, I) -> R): Operation<R> =
         combine(b).combine(c).combine(d).combine(e).combine(f).combine(g).combine(h).combine(i).map { pair -> combine(pair.first.first.first.first.first.first.first.first, pair.first.first.first.first.first.first.first.second, pair.first.first.first.first.first.first.second, pair.first.first.first.first.first.second, pair.first.first.first.first.second, pair.first.first.first.second, pair.first.first.second, pair.first.second, pair.second) }
 
-    fun <B> thenIgnore(other: Operation<B>): Operation<Out> =
+    fun <B> productL(other: Operation<B>): Operation<Out> =
         combine(other).map { pair -> pair.first }
 
     fun <B> then(template: Template<Out, B>): Operation<B> {
@@ -77,6 +77,10 @@ sealed class Operation<Out> : Analyzable {
 
     class Update(override val underlying: dev.typr.foundations.Operation.Update) : Operation<Int>() {
         override fun run(conn: Connection): Int = underlying.run(conn)
+    }
+
+    class Execute(override val underlying: dev.typr.foundations.Operation.Execute) : Operation<Unit>() {
+        override fun run(conn: Connection) { underlying.run(conn) }
     }
 
     class UpdateReturning<Out>(override val underlying: dev.typr.foundations.Operation.UpdateReturning<Out>) : Operation<Out>() {
@@ -161,8 +165,7 @@ sealed class Operation<Out> : Analyzable {
         val timeout: Duration?,
         val listener: dev.typr.foundations.QueryListener?
     ) : Operation<Out>() {
-        @Suppress("UNCHECKED_CAST")
-        override fun run(conn: Connection): Out = underlying.run(conn) as Out
+        override fun run(conn: Connection): Out = inner.run(conn)
     }
 
     companion object {
@@ -184,7 +187,7 @@ sealed class Operation<Out> : Analyzable {
             if (operations.isEmpty()) return pure(Unit)
             var result: Operation<Unit> = operations[0].voided()
             for (i in 1 until operations.size) {
-                result = result.thenIgnore(operations[i])
+                result = result.productL(operations[i])
             }
             return result
         }

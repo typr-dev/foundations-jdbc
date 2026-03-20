@@ -2,7 +2,6 @@ package dev.typr.foundationssc.docs.core
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-
 import java.sql.ResultSet
 import java.time.Instant
 
@@ -10,7 +9,8 @@ import java.time.Instant
 object ResultSetParserUsage:
   case class Person(id: Int, name: String, createdAt: Instant)
 
-  val personCodec: RowCodec[Person] = RowCodec.builder[Person]()
+  val personCodec: RowCodec[Person] = RowCodec
+    .builder[Person]()
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .field(PgTypes.timestamptz)(_.createdAt)
@@ -18,7 +18,7 @@ object ResultSetParserUsage:
 
   var resultSet: ResultSet = null // placeholder
 
-  //start
+  // start
   // Parse at most one result - returns Option[Person]
   val singleParser: ResultSetParser[Option[Person]] = personCodec.maxOne()
 
@@ -28,4 +28,4 @@ object ResultSetParserUsage:
   // Execute with ResultSet
   def parse(): Option[Person] =
     singleParser.apply(resultSet)
-  //stop
+  // stop

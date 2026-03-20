@@ -13,7 +13,7 @@ object ScannerDirectives:
     def allReports(): Operation[List[String]] =
       Fragment.of("SELECT name FROM reports").queryAll(PgTypes.text)
 
-  //start
+  // start
   def checkWithDirectives(): Unit =
     val analyzables = AnalyzableScanner.scan(
       "com.myapp.reports",
@@ -24,4 +24,4 @@ object ScannerDirectives:
 
     val checker = QueryChecker.create(transactor)
     checker.checkAll(analyzables)
-  //stop
+  // stop

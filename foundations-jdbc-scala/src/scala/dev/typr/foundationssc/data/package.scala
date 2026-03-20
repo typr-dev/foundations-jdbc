@@ -33,15 +33,30 @@ package object data:
       dev.typr.foundations.data.Range.empty()
     def int4(from: dev.typr.foundations.data.RangeBound[Integer], to: dev.typr.foundations.data.RangeBound[Integer]): dev.typr.foundations.data.Range[Integer] =
       dev.typr.foundations.data.Range.int4(from, to)
-    def int8(from: dev.typr.foundations.data.RangeBound[java.lang.Long], to: dev.typr.foundations.data.RangeBound[java.lang.Long]): dev.typr.foundations.data.Range[java.lang.Long] =
+    def int8(
+        from: dev.typr.foundations.data.RangeBound[java.lang.Long],
+        to: dev.typr.foundations.data.RangeBound[java.lang.Long]
+    ): dev.typr.foundations.data.Range[java.lang.Long] =
       dev.typr.foundations.data.Range.int8(from, to)
-    def date(from: dev.typr.foundations.data.RangeBound[java.time.LocalDate], to: dev.typr.foundations.data.RangeBound[java.time.LocalDate]): dev.typr.foundations.data.Range[java.time.LocalDate] =
+    def date(
+        from: dev.typr.foundations.data.RangeBound[java.time.LocalDate],
+        to: dev.typr.foundations.data.RangeBound[java.time.LocalDate]
+    ): dev.typr.foundations.data.Range[java.time.LocalDate] =
       dev.typr.foundations.data.Range.date(from, to)
-    def numeric(from: dev.typr.foundations.data.RangeBound[java.math.BigDecimal], to: dev.typr.foundations.data.RangeBound[java.math.BigDecimal]): dev.typr.foundations.data.Range[java.math.BigDecimal] =
+    def numeric(
+        from: dev.typr.foundations.data.RangeBound[java.math.BigDecimal],
+        to: dev.typr.foundations.data.RangeBound[java.math.BigDecimal]
+    ): dev.typr.foundations.data.Range[java.math.BigDecimal] =
       dev.typr.foundations.data.Range.numeric(from, to)
-    def timestamp(from: dev.typr.foundations.data.RangeBound[java.time.LocalDateTime], to: dev.typr.foundations.data.RangeBound[java.time.LocalDateTime]): dev.typr.foundations.data.Range[java.time.LocalDateTime] =
+    def timestamp(
+        from: dev.typr.foundations.data.RangeBound[java.time.LocalDateTime],
+        to: dev.typr.foundations.data.RangeBound[java.time.LocalDateTime]
+    ): dev.typr.foundations.data.Range[java.time.LocalDateTime] =
       dev.typr.foundations.data.Range.timestamp(from, to)
-    def timestamptz(from: dev.typr.foundations.data.RangeBound[java.time.Instant], to: dev.typr.foundations.data.RangeBound[java.time.Instant]): dev.typr.foundations.data.Range[java.time.Instant] =
+    def timestamptz(
+        from: dev.typr.foundations.data.RangeBound[java.time.Instant],
+        to: dev.typr.foundations.data.RangeBound[java.time.Instant]
+    ): dev.typr.foundations.data.Range[java.time.Instant] =
       dev.typr.foundations.data.Range.timestamptz(from, to)
   type RangeBound[T <: Comparable[? >: T]] = dev.typr.foundations.data.RangeBound[T]
   object RangeBound:

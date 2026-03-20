@@ -6,8 +6,8 @@ import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class NullableType {
-    //start
-    Db2Type<Integer> notNull = Db2Types.integer;
-    Db2Type<Optional<Integer>> nullable = Db2Types.integer.opt();
-    //stop
+  // start
+  Db2Type<Integer> notNull = Db2Types.integer;
+  Db2Type<Optional<Integer>> nullable = Db2Types.integer.opt();
+  // stop
 }

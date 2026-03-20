@@ -6,7 +6,6 @@ import java.time.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Test;
 
 /**
@@ -335,10 +334,7 @@ public class SqlServerTypeTest {
                               + ": not supported for OUT params");
                     } else {
                       errors.add(
-                          "Callable test FAILED "
-                              + t.type.typename().sqlType()
-                              + ": "
-                              + msg);
+                          "Callable test FAILED " + t.type.typename().sqlType() + ": " + msg);
                     }
                   }
                   return errors.stream();
@@ -363,10 +359,7 @@ public class SqlServerTypeTest {
                         });
                   } catch (Exception e) {
                     errors.add(
-                        "Analysis FAILED "
-                            + t.type.typename().sqlType()
-                            + ": "
-                            + e.getMessage());
+                        "Analysis FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
                   }
                   if (t.hasIdentity) {
                     try {
@@ -425,13 +418,11 @@ public class SqlServerTypeTest {
       throws SQLException {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("#qap");
-    conn.createStatement()
-        .execute("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
+    conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment =
-          Fragment.of("SELECT v FROM " + tableName + " WHERE v = ")
-              .value(t.type, t.example);
+          Fragment.of("SELECT v FROM " + tableName + " WHERE v = ").value(t.type, t.example);
       QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
       if (!analysis.succeeded()) {
         throw new RuntimeException(

@@ -7,11 +7,11 @@ import dev.typr.foundations.data.Jsonb;
 
 @SuppressWarnings("unused")
 public class JsonTypes {
-    //start
-    PgType<Json> jsonType = PgTypes.json;
-    PgType<Jsonb> jsonbType = PgTypes.jsonb;
+  // start
+  PgType<Json> jsonType = PgTypes.json;
+  PgType<Jsonb> jsonbType = PgTypes.jsonb;
 
-    // Parse and use JSON
-    Json data = new Json("{\"name\": \"John\"}");
-    //stop
+  // Parse and use JSON
+  Json data = new Json("{\"name\": \"John\"}");
+  // stop
 }

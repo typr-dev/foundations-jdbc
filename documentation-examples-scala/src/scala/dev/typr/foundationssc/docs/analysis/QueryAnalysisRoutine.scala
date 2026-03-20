@@ -5,7 +5,7 @@ import dev.typr.foundationssc.*
 object QueryAnalysisRoutine:
   private val transactor: Transactor = null // placeholder
 
-  //start
+  // start
   // Verify a stored function matches the database
   def checkStoredFunction(): Unit =
     val addUser = Procedure.buildFunction(
@@ -20,4 +20,4 @@ object QueryAnalysisRoutine:
     val checker: QueryChecker =
       QueryChecker.create(transactor)
     checker.checkRoutine(addUser)
-  //stop
+  // stop

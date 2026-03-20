@@ -3,12 +3,11 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-
 @SuppressWarnings(Array("unused"))
 object TemplateFrom:
   var tx: Transactor = null // placeholder
 
-  //start
+  // start
   // A case class gives names to each template parameter
   case class InsertUser(name: String, email: String)
 
@@ -24,6 +23,7 @@ object TemplateFrom:
 
   // Callers pass the case class
   def createUser(): Int =
-    insertUser.on(InsertUser("Alice", "alice@example.com"))
+    insertUser
+      .on(InsertUser("Alice", "alice@example.com"))
       .transact(tx)
-  //stop
+  // stop

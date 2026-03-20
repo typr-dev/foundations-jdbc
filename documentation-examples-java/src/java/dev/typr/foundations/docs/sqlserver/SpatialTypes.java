@@ -7,8 +7,8 @@ import dev.typr.foundations.SqlServerTypes;
 
 @SuppressWarnings("unused")
 public class SpatialTypes {
-    //start
-    SqlServerType<Geography> geoType = SqlServerTypes.geography;
-    SqlServerType<Geometry> geomType = SqlServerTypes.geometry;
-    //stop
+  // start
+  SqlServerType<Geography> geoType = SqlServerTypes.geography;
+  SqlServerType<Geometry> geomType = SqlServerTypes.geometry;
+  // stop
 }

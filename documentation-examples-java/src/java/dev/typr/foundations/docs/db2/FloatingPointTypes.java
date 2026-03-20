@@ -5,8 +5,8 @@ import dev.typr.foundations.Db2Types;
 
 @SuppressWarnings("unused")
 public class FloatingPointTypes {
-    //start
-    Db2Type<Float> realType = Db2Types.real;
-    Db2Type<Double> doubleType = Db2Types.double_;
-    //stop
+  // start
+  Db2Type<Float> realType = Db2Types.real;
+  Db2Type<Double> doubleType = Db2Types.double_;
+  // stop
 }

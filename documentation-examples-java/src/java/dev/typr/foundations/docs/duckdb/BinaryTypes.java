@@ -5,7 +5,7 @@ import dev.typr.foundations.DuckDbTypes;
 
 @SuppressWarnings("unused")
 public class BinaryTypes {
-    //start
-    DuckDbType<byte[]> blobType = DuckDbTypes.blob;
-    //stop
+  // start
+  DuckDbType<byte[]> blobType = DuckDbTypes.blob;
+  // stop
 }

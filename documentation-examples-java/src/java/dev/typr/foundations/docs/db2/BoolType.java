@@ -5,7 +5,7 @@ import dev.typr.foundations.Db2Types;
 
 @SuppressWarnings("unused")
 public class BoolType {
-    //start
-    Db2Type<Boolean> boolType = Db2Types.boolean_;
-    //stop
+  // start
+  Db2Type<Boolean> boolType = Db2Types.boolean_;
+  // stop
 }

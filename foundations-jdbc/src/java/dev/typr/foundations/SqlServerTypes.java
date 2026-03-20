@@ -27,7 +27,8 @@ public interface SqlServerTypes {
           "TINYINT",
           SqlServerRead.readUint1,
           SqlServerWrite.writeUint1,
-          SqlServerJson.int2.transform(dev.typr.foundations.data.Uint1::new, u -> (short) u.value()),
+          SqlServerJson.int2.transform(
+              dev.typr.foundations.data.Uint1::new, u -> (short) u.value()),
           SqlServerOutParam.readShort.map(dev.typr.foundations.data.Uint1::new));
 
   SqlServerType<Short> smallint =
@@ -362,7 +363,8 @@ public interface SqlServerTypes {
           "NVARCHAR(MAX)", // JSON is stored as NVARCHAR(MAX)
           SqlServerRead.readJson,
           SqlServerWrite.writeJson,
-          SqlServerJson.text.transform(dev.typr.foundations.data.Json::new, dev.typr.foundations.data.Json::value),
+          SqlServerJson.text.transform(
+              dev.typr.foundations.data.Json::new, dev.typr.foundations.data.Json::value),
           SqlServerOutParam.readString.map(dev.typr.foundations.data.Json::new));
 
   // VECTOR - SQL Server 2025 (stored as binary for now)
@@ -435,7 +437,8 @@ public interface SqlServerTypes {
               SqlServerWrite.writeString,
               SqlServerJson.text,
               SqlServerOutParam.readString)
-          .transform(dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
+          .transform(
+              dev.typr.foundations.data.Unknown::new, dev.typr.foundations.data.Unknown::value);
 
   // ==================== JSON-Encoded Row Types ====================
 

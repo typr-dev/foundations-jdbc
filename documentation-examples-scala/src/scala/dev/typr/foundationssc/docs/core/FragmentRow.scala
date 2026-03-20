@@ -9,7 +9,8 @@ import java.time.Instant
 object FragmentRow:
   case class Product(id: Int, name: String, price: BigDecimal, createdAt: Instant)
 
-  val productCodec: RowCodecNamed[Product] = RowCodec.namedBuilder[Product]()
+  val productCodec: RowCodecNamed[Product] = RowCodec
+    .namedBuilder[Product]()
     .field("id", PgTypes.int4)(_.id)
     .field("name", PgTypes.text)(_.name)
     .field("price", PgTypes.numeric)(_.price)
@@ -18,15 +19,17 @@ object FragmentRow:
 
   val conn: Connection = null // placeholder
 
-  //start
+  // start
   def insert(product: Product): Product =
-    Fragment.insertIntoReturning("product", productCodec)
+    Fragment
+      .insertIntoReturning("product", productCodec)
       .on(product)
       .run(conn)
 
   // Skip columns with database defaults — pass column names to except
   def insertWithDefault(product: Product): Product =
-    Fragment.insertIntoReturning("product", productCodec, "id")
+    Fragment
+      .insertIntoReturning("product", productCodec, "id")
       .on(product)
       .run(conn)
-  //stop
+  // stop
