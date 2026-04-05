@@ -54,14 +54,15 @@ public final class Containers {
       Runtime.getRuntime().addShutdownHook(new Thread(INSTANCE::stop));
 
       TRANSACTOR =
-          PostgresConfig.builder(
-                  INSTANCE.getHost(),
-                  INSTANCE.getMappedPort(5432),
-                  INSTANCE.getDatabaseName(),
-                  INSTANCE.getUsername(),
-                  INSTANCE.getPassword())
-              .build()
-              .transactor(Transactor.testStrategy());
+          Transactor.create(
+              PostgresConfig.builder(
+                      INSTANCE.getHost(),
+                      INSTANCE.getMappedPort(5432),
+                      INSTANCE.getDatabaseName(),
+                      INSTANCE.getUsername(),
+                      INSTANCE.getPassword())
+                  .build(),
+              Transactor.testStrategy());
     }
   }
 
@@ -79,14 +80,15 @@ public final class Containers {
       Runtime.getRuntime().addShutdownHook(new Thread(INSTANCE::stop));
 
       TRANSACTOR =
-          MariaDbConfig.builder(
-                  INSTANCE.getHost(),
-                  INSTANCE.getMappedPort(3306),
-                  INSTANCE.getDatabaseName(),
-                  INSTANCE.getUsername(),
-                  INSTANCE.getPassword())
-              .build()
-              .transactor(Transactor.testStrategy());
+          Transactor.create(
+              MariaDbConfig.builder(
+                      INSTANCE.getHost(),
+                      INSTANCE.getMappedPort(3306),
+                      INSTANCE.getDatabaseName(),
+                      INSTANCE.getUsername(),
+                      INSTANCE.getPassword())
+                  .build(),
+              Transactor.testStrategy());
     }
   }
 
@@ -104,16 +106,17 @@ public final class Containers {
       Runtime.getRuntime().addShutdownHook(new Thread(INSTANCE::stop));
 
       TRANSACTOR =
-          SqlServerConfig.builder(
-                  INSTANCE.getHost(),
-                  INSTANCE.getMappedPort(1433),
-                  "master",
-                  INSTANCE.getUsername(),
-                  INSTANCE.getPassword())
-              .encrypt(SqlServerEncrypt.FALSE)
-              .trustServerCertificate(true)
-              .build()
-              .transactor(Transactor.testStrategy());
+          Transactor.create(
+              SqlServerConfig.builder(
+                      INSTANCE.getHost(),
+                      INSTANCE.getMappedPort(1433),
+                      "master",
+                      INSTANCE.getUsername(),
+                      INSTANCE.getPassword())
+                  .encrypt(SqlServerEncrypt.FALSE)
+                  .trustServerCertificate(true)
+                  .build(),
+              Transactor.testStrategy());
     }
   }
 
@@ -171,14 +174,15 @@ public final class Containers {
       Runtime.getRuntime().addShutdownHook(new Thread(INSTANCE::stop));
 
       TRANSACTOR =
-          Db2Config.builder(
-                  INSTANCE.getHost(),
-                  INSTANCE.getMappedPort(50000),
-                  INSTANCE.getDatabaseName(),
-                  INSTANCE.getUsername(),
-                  INSTANCE.getPassword())
-              .build()
-              .transactor(Transactor.testStrategy());
+          Transactor.create(
+              Db2Config.builder(
+                      INSTANCE.getHost(),
+                      INSTANCE.getMappedPort(50000),
+                      INSTANCE.getDatabaseName(),
+                      INSTANCE.getUsername(),
+                      INSTANCE.getPassword())
+                  .build(),
+              Transactor.testStrategy());
     }
   }
 

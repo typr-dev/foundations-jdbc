@@ -51,9 +51,6 @@ foundations-jdbc-test/          # Integration tests
 ├── src/java/
 └── src/kotlin/
 
-foundations-jdbc-scripts/       # Bleep publish scripts
-└── src/scala/scripts/
-
 foundations-jdbc-scripts-sourcegen/  # Bleep sourcegen scripts
 └── src/scala/scripts/             # SourcegenJava, SourcegenKotlin, SourcegenScala
 ```
