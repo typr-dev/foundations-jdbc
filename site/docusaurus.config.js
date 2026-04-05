@@ -33,7 +33,7 @@ const config = {
           sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/typr-dev/foundations-jdbc/tree/main/site/',
         },
-        blog: false,
+        blog: {},
         theme: {
           customCss: './src/css/custom.css',
         },
