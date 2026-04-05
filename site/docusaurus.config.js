@@ -13,7 +13,7 @@ const config = {
   projectName: 'foundations-jdbc',
 
   customFields: {
-    jdbcVersion: '1.0.0-RC1',
+    jdbcVersion: '1.0.0-RC2',
   },
 
   onBrokenLinks: 'throw',
