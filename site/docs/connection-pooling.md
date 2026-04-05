@@ -37,5 +37,5 @@ var ds = HikariDataSourceFactory.create(
 Add the dependency:
 
 ```kotlin
-implementation("dev.typr:foundations-jdbc-hikari:1.0.0-RC1")
+implementation("dev.typr:foundations-jdbc-hikari:1.0.0-RC2")
 ```
