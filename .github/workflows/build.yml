@@ -148,7 +148,7 @@ jobs:
           extraFiles: bleep.yaml
 
       - name: Publish
-        run: bleep publish
+        run: bleep publish sonatype --assert-release foundations-jdbc foundations-jdbc-hikari foundations-jdbc-otel foundations-jdbc-spring foundations-jdbc-kotlin foundations-jdbc-scala
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
