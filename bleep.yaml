@@ -1,9 +1,10 @@
 $schema: https://raw.githubusercontent.com/oyvindberg/bleep/master/schema.json
-$version: 1.0.0-M3
+$version: 1.0.0-M7
 jvm:
   name: temurin:21
 projects:
   foundations-jdbc:
+    extends: template-publish
     dependencies:
     - org.jetbrains:annotations:26.0.1
     - configuration: provided
@@ -27,6 +28,7 @@ projects:
       project: foundations-jdbc-scripts-sourcegen
 
   foundations-jdbc-hikari:
+    extends: template-publish
     dependencies:
     - com.zaxxer:HikariCP:6.2.1
     dependsOn: foundations-jdbc
@@ -36,6 +38,7 @@ projects:
       name: jvm
 
   foundations-jdbc-otel:
+    extends: template-publish
     dependencies:
     - io.opentelemetry:opentelemetry-api:1.45.0
     - configuration: provided
@@ -47,6 +50,7 @@ projects:
       name: jvm
 
   foundations-jdbc-spring:
+    extends: template-publish
     dependencies:
     - configuration: provided
       module: org.springframework:spring-jdbc:6.2.2
@@ -74,7 +78,9 @@ projects:
     - configuration: provided
       module: com.ibm.db2:jcc:11.5.9.0
     dependsOn: foundations-jdbc
-    extends: template-kotlin
+    extends:
+    - template-kotlin
+    - template-publish
     sourcegen:
     - main: scripts.SourcegenKotlin
       project: foundations-jdbc-scripts-sourcegen
@@ -95,7 +101,9 @@ projects:
     - configuration: provided
       module: com.ibm.db2:jcc:11.5.9.0
     dependsOn: foundations-jdbc
-    extends: template-scala-3
+    extends:
+    - template-scala-3
+    - template-publish
     sourcegen:
     - main: scripts.SourcegenScala
       project: foundations-jdbc-scripts-sourcegen
@@ -283,26 +291,11 @@ projects:
     - foundations-jdbc-kotlin
     extends: template-kotlin
 
-  foundations-jdbc-scripts:
-    dependencies:
-    - build.bleep::bleep-core:${BLEEP_VERSION}
-    - build.bleep::bleep-plugin-ci-release:${BLEEP_VERSION}
-    - build.bleep::bleep-plugin-dynver:${BLEEP_VERSION}
-    - build.bleep::bleep-plugin-pgp:${BLEEP_VERSION}
-    - build.bleep::bleep-plugin-sonatype:${BLEEP_VERSION}
-    extends: template-scala-3-scripts
 
   foundations-jdbc-scripts-sourcegen:
     dependencies: build.bleep::bleep-core:${BLEEP_VERSION}
     extends: template-scala-3-scripts
 
-scripts:
-  my-publish-local:
-    main: scripts.PublishLocal
-    project: foundations-jdbc-scripts
-  publish:
-    main: scripts.Publish
-    project: foundations-jdbc-scripts
 
 templates:
   template-common:
@@ -310,6 +303,19 @@ templates:
       options: -Xlint:deprecation -Xlint:unchecked
     platform:
       name: jvm
+  template-publish:
+    publish:
+      groupId: dev.typr.foundations
+      url: https://github.com/typr-dev/foundations-jdbc
+      description: Type-safe JDBC wrapper for JVM languages
+      developers:
+        - id: oyvindberg
+          name: Øyvind Raddum Berg
+          url: https://github.com/oyvindberg
+      licenses:
+        - name: MIT
+          url: http://opensource.org/licenses/MIT
+          distribution: repo
   template-scala-3:
     extends: template-common
     scala:
@@ -319,7 +325,7 @@ templates:
     extends: template-common
     scala:
       options: -release 21 -source 3.4
-      version: 3.7.3
+      version: 3.8.3
   template-kotlin:
     kotlin:
       version: 2.3.0
