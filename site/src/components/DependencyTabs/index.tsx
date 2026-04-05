@@ -25,11 +25,11 @@ export default function DependencyTabs({ java, kotlin, scala }: DependencyTabsPr
       {items.map(({ value, label, artifactId }) => (
         <TabItem key={value} value={value} label={label}>
           <CodeBlock language="kotlin" title="build.gradle.kts">
-            {`implementation("dev.typr:${artifactId}:${version}")`}
+            {`implementation("dev.typr.foundations:${artifactId}:${version}")`}
           </CodeBlock>
           <CodeBlock language="xml" title="pom.xml">
             {`<dependency>
-    <groupId>dev.typr</groupId>
+    <groupId>dev.typr.foundations</groupId>
     <artifactId>${artifactId}</artifactId>
     <version>${version}</version>
 </dependency>`}

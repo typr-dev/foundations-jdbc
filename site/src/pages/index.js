@@ -158,7 +158,7 @@ function QuickstartSection() {
               <TabItem value="gradle" label="Gradle">
                 <CodeBlock language="kotlin" title="build.gradle.kts">
                   {`dependencies {
-    implementation("dev.typr:foundations-jdbc-kotlin:${version}")
+    implementation("dev.typr.foundations:foundations-jdbc-kotlin:${version}")
     // Add your driver
     runtimeOnly("org.duckdb:duckdb_jdbc:1.1.3")
 }`}
@@ -167,7 +167,7 @@ function QuickstartSection() {
               <TabItem value="maven" label="Maven">
                 <CodeBlock language="xml" title="pom.xml">
                   {`<dependency>
-  <groupId>dev.typr</groupId>
+  <groupId>dev.typr.foundations</groupId>
   <artifactId>foundations-jdbc-kotlin</artifactId>
   <version>${version}</version>
 </dependency>
