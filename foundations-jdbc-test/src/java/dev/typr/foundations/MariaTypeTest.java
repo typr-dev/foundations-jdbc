@@ -25,6 +25,10 @@ import org.junit.Test;
 /** Tests for MariaDB type codecs. Tests all types defined in MariaTypes. */
 public class MariaTypeTest {
 
+  public static void main(String[] args) throws Exception {
+    new MariaTypeTest().test();
+  }
+
   private static final AtomicInteger tableCounter = new AtomicInteger(0);
 
   private static String uniqueTableName(String prefix) {
@@ -359,15 +363,10 @@ public class MariaTypeTest {
 
   @Test
   public void test() {
-    System.out.println("Testing MariaDB type codecs...\n");
-
     // Test JSON roundtrip first (no database connection needed) - parallel
-    System.out.println("=== JSON Roundtrip Tests (parallel) ===");
     All.parallelStream().forEach(MariaTypeTest::testJsonRoundtrip);
-    System.out.println();
 
     // Run native type and JSON DB tests in parallel
-    System.out.println("=== Native Type + JSON DB Roundtrip Tests (parallel) ===");
     var failures =
         All.parallelStream()
             .flatMap(
@@ -415,7 +414,6 @@ public class MariaTypeTest {
             .toList();
 
     // Callable roundtrip tests - test stored procedure IN/OUT parameter roundtrip
-    System.out.println("\n=== Callable Roundtrip Tests (parallel) ===");
     var callFailures =
         All.stream()
             .collect(
@@ -450,7 +448,6 @@ public class MariaTypeTest {
             .toList();
 
     // Query analysis tests - deduplicated by SQL type, run in parallel
-    System.out.println("\n=== Query Analysis Tests (parallel) ===");
     var analysisFailures =
         All.stream()
             .collect(Collectors.toMap(t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
@@ -554,16 +551,6 @@ public class MariaTypeTest {
       String encoded = jsonValue.encode();
       JsonValue parsed = JsonValue.parse(encoded);
       A decoded = jsonCodec.fromJson(parsed);
-
-      System.out.println(
-          "JSON roundtrip "
-              + t.type.typename().sqlType()
-              + ": "
-              + format(original)
-              + " -> "
-              + encoded
-              + " -> "
-              + format(decoded));
 
       if (t.hasIdentity && !areEqual(decoded, original)) {
         throw new RuntimeException(
@@ -709,9 +696,6 @@ public class MariaTypeTest {
 
     try {
       A result = proc.call(t.example).run(conn);
-
-      System.out.println(
-          "Callable roundtrip " + sqlType + ": " + format(t.example) + " -> " + format(result));
 
       if (t.hasIdentity() && !areEqual(result, t.example)) {
         throw new RuntimeException(
