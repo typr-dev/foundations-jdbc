@@ -236,7 +236,7 @@ function ProblemSection() {
                 <strong>Nullability is invisible</strong> — A nullable column and a non-nullable column have the same Java type. Nothing in the API tells you which columns can be null.
               </li>
               <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.08)', borderLeft: '3px solid #ef4444'}}>
-                <strong>Type fidelity is lost</strong> — ORMs map database types to a handful of Java primitives. Your <code>NUMERIC(38,18)</code> loses precision through <code>double</code>. Read a value, write it back — it's not the same value anymore.
+                <strong>Type fidelity is lost</strong> — Your DuckDB <code>STRUCT</code> becomes a shapeless <code>Object</code>. Your PostgreSQL <code>int4range</code> becomes a string you have to parse yourself. The database has real types — your library just ignores them.
               </li>
               <li style={{padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.08)', borderLeft: '3px solid #ef4444'}}>
                 <strong>DB-specific features are second-class</strong> — Libraries target the lowest common denominator. PostgreSQL arrays, Oracle <code>MULTISET</code>, MariaDB unsigned types — all require escape hatches.

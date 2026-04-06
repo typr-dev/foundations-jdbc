@@ -25,7 +25,7 @@ Every JVM developer who writes SQL has hit the same walls.
 
 **Nullability is invisible.** A nullable column and a non-nullable column have the same Java type. You find out which is which when `NullPointerException` fires at 2 AM.
 
-**Type fidelity is lost.** ORMs map database types to a handful of Java primitives. Your `NUMERIC(38,18)` loses precision through `double`. Read a value, write it back — it's not the same value anymore.
+**Type fidelity is lost.** Your DuckDB `STRUCT` becomes a shapeless `Object`. Your PostgreSQL `int4range` becomes a string you have to parse yourself. The database has real types — your library just ignores them.
 
 **Database-specific features are second-class.** PostgreSQL arrays, Oracle `MULTISET`, DuckDB `STRUCT`, MariaDB unsigned types — every interesting database feature requires escape hatches and manual JDBC gymnastics.
 
