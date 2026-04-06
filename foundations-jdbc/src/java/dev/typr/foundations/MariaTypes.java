@@ -582,11 +582,12 @@ public interface MariaTypes {
 
   static MariaType<Vector> vector(int dimension) {
     return MariaType.of(
-        MariaTypename.of("VECTOR", dimension),
-        MariaRead.readVector,
-        MariaWrite.writeVector,
-        MariaJson.vector,
-        MariaOutParam.readVector);
+            MariaTypename.of("VECTOR", dimension),
+            MariaRead.readVector,
+            MariaWrite.writeVector,
+            MariaJson.vector,
+            MariaOutParam.readVector)
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varbinary"));
   }
 
   // ==================== Unknown Type ====================
