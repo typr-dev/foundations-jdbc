@@ -121,12 +121,12 @@ projects:
     - com.ibm.db2:jcc:11.5.9.0
     - org.springframework.boot:spring-boot-starter-jdbc:3.4.1
     - org.springframework.boot:spring-boot-starter-test:3.4.1
-    - org.testcontainers:testcontainers:1.21.4
-    - org.testcontainers:postgresql:1.21.4
-    - org.testcontainers:mariadb:1.21.4
-    - org.testcontainers:mssqlserver:1.21.4
-    - org.testcontainers:oracle-free:1.21.4
-    - org.testcontainers:db2:1.21.4
+    - org.testcontainers:testcontainers:2.0.4
+    - org.testcontainers:testcontainers-postgresql:2.0.4
+    - org.testcontainers:testcontainers-mariadb:2.0.4
+    - org.testcontainers:testcontainers-mssqlserver:2.0.4
+    - org.testcontainers:testcontainers-oracle-free:2.0.4
+    - org.testcontainers:testcontainers-db2:2.0.4
     - io.opentelemetry:opentelemetry-api:1.45.0
     dependsOn:
     - foundations-jdbc-hikari
