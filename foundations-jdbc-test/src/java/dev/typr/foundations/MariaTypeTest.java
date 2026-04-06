@@ -494,13 +494,9 @@ public class MariaTypeTest {
     allFailures.addAll(callFailures);
     allFailures.addAll(analysisFailures);
 
-    if (allFailures.isEmpty()) {
-      System.out.println("\n===== All tests passed! =====");
-    } else {
-      System.out.println("\n===== " + allFailures.size() + " FAILURES =====");
-      allFailures.forEach(System.out::println);
-      System.out.println("===== END FAILURES =====");
-      throw new RuntimeException(allFailures.size() + " tests failed");
+    if (!allFailures.isEmpty()) {
+      throw new RuntimeException(
+          allFailures.size() + " tests failed:\n" + String.join("\n", allFailures));
     }
   }
 
