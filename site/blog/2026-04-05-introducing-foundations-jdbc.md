@@ -266,10 +266,12 @@ Same concepts. Same capabilities. Each language's idioms respected.
 
 Head to the [Getting Started guide](/docs/) for setup instructions and your first query. Source code on [GitHub](https://github.com/typr-dev/foundations-jdbc).
 
-## One More Thing
+## What's Next
 
-We've been working on something that fundamentally changes what's possible with PostgreSQL on the JVM. It bypasses JDBC entirely, speaks the PostgreSQL wire protocol directly, and unlocks a class of optimizations that no connection pool or driver can offer today.
+Two things are coming that will change how you use Foundations JDBC.
 
-It's not ready to announce yet. But when it ships, the same Fragments, RowCodecs, and Operations you write today will run on it without changing a line of code.
+**World-class codegen with a SQL DSL.** Generate all the RowCodecs, type definitions, and repository scaffolding directly from your database schema. Write queries in a type-safe SQL DSL that composes like the language it's embedded in.
+
+**A native PostgreSQL driver for the JVM.** We've been working on something that fundamentally changes what's possible with PostgreSQL on the JVM. It bypasses JDBC entirely, speaks the PostgreSQL wire protocol directly, and unlocks a class of optimizations that no connection pool or driver can offer today. The same Fragments, RowCodecs, and Operations you write today will run on it without changing a line of code.
 
 Stay tuned.
