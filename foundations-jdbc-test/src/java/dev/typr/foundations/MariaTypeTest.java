@@ -382,11 +382,13 @@ public class MariaTypeTest {
                           return null;
                         });
                   } catch (Exception e) {
-                    errors.add(
+                    var msg =
                         "Native test FAILED "
                             + t.type.typename().sqlType()
                             + ": "
-                            + e.getMessage());
+                            + e.getMessage();
+                    System.err.println(msg);
+                    errors.add(msg);
                   }
 
                   // JSON DB roundtrip test
@@ -398,11 +400,13 @@ public class MariaTypeTest {
                             return null;
                           });
                     } catch (Exception e) {
-                      errors.add(
+                      var msg =
                           "JSON DB test FAILED "
                               + t.type.typename().sqlType()
                               + ": "
-                              + e.getMessage());
+                              + e.getMessage();
+                      System.err.println(msg);
+                      errors.add(msg);
                     }
                   }
 
@@ -434,11 +438,13 @@ public class MariaTypeTest {
                             .contains("does not support stored procedure OUT parameters")) {
                       return java.util.stream.Stream.empty();
                     }
-                    return java.util.stream.Stream.of(
+                    var msg =
                         "Callable test FAILED "
                             + t.type.typename().sqlType()
                             + ": "
-                            + e.getMessage());
+                            + e.getMessage();
+                    System.err.println(msg);
+                    return java.util.stream.Stream.of(msg);
                   }
                 })
             .toList();
@@ -460,8 +466,10 @@ public class MariaTypeTest {
                           return null;
                         });
                   } catch (Exception e) {
-                    errors.add(
-                        "Analysis FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+                    var msg =
+                        "Analysis FAILED " + t.type.typename().sqlType() + ": " + e.getMessage();
+                    System.err.println(msg);
+                    errors.add(msg);
                   }
                   if (t.hasIdentity) {
                     try {
@@ -471,11 +479,13 @@ public class MariaTypeTest {
                             return null;
                           });
                     } catch (Exception e) {
-                      errors.add(
+                      var msg =
                           "Param analysis FAILED "
                               + t.type.typename().sqlType()
                               + ": "
-                              + e.getMessage());
+                              + e.getMessage();
+                      System.err.println(msg);
+                      errors.add(msg);
                     }
                   }
                   return errors.stream();
@@ -487,14 +497,14 @@ public class MariaTypeTest {
     allFailures.addAll(callFailures);
     allFailures.addAll(analysisFailures);
 
-    System.out.println("\n=====================================");
     if (allFailures.isEmpty()) {
-      System.out.println("All tests passed!");
+      System.out.println("\n===== All tests passed! =====");
     } else {
+      System.out.println("\n===== " + allFailures.size() + " FAILURES =====");
       allFailures.forEach(System.out::println);
+      System.out.println("===== END FAILURES =====");
       throw new RuntimeException(allFailures.size() + " tests failed");
     }
-    System.out.println("=====================================");
   }
 
   static <A> void testQueryAnalysis(Connection conn, MariaTypeAndExample<A> t) throws SQLException {
