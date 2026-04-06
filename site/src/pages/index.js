@@ -100,6 +100,19 @@ const schemaSql = `CREATE TABLE product (
 );`;
 
 
+const quickstartJava = `import dev.typr.foundations.*;
+import dev.typr.foundations.connect.*;
+
+public class Main {
+    public static void main(String[] args) {
+        var tx = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build()).transactor();
+        int answer = Fragment.of("SELECT 42")
+            .queryExactlyOne(DuckDbTypes.integer)
+            .transact(tx);
+        System.out.println("Result: " + answer);
+    }
+}`;
+
 const quickstartKotlin = `import dev.typr.foundationskt.*
 import dev.typr.foundationskt.connect.*
 
@@ -111,11 +124,22 @@ fun main() {
     println("Result: $answer")
 }`;
 
+const quickstartScala = `import dev.typr.foundationssc.*
+import dev.typr.foundationssc.Fragment.sql
+import dev.typr.foundationssc.connect.*
+
+@main def run(): Unit =
+  val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
+  val answer: Int = sql"SELECT 42"
+    .queryExactlyOne(DuckDbTypes.integer)
+    .transact(tx)
+  println(s"Result: $$answer")`;
+
 function Hero() {
   return (
     <header className={styles.hero}>
       <div className={styles.heroInner}>
-        <p className={styles.heroLabel}>A functional JDBC library for the JVM</p>
+        <p className={styles.heroLabel}>A JDBC library for the JVM</p>
         <h1 className={styles.heroTitle}>
           What if JDBC just worked the way you think it should?
         </h1>
@@ -139,6 +163,12 @@ function QuickstartSection() {
   const { siteConfig } = useDocusaurusContext();
   const version = siteConfig.customFields.jdbcVersion;
 
+  const langConfigs = {
+    java: { code: quickstartJava, title: 'Main.java', lang: 'java', artifact: 'foundations-jdbc' },
+    kotlin: { code: quickstartKotlin, title: 'Main.kt', lang: 'kotlin', artifact: 'foundations-jdbc-kotlin' },
+    scala: { code: quickstartScala, title: 'Main.scala', lang: 'scala', artifact: 'foundations-jdbc-scala_3' },
+  };
+
   return (
     <section className={styles.section}>
       <div className={styles.container}>
@@ -147,40 +177,40 @@ function QuickstartSection() {
           DuckDB runs in-memory — no database server needed.
           A <code>Fragment</code> is a typed SQL building block.
         </p>
-        <div className={styles.quickstartGrid}>
-          <div className={styles.quickstartCode}>
-            <CodeBlock language="kotlin" title="Main.kt">
-              {quickstartKotlin}
-            </CodeBlock>
-          </div>
-          <div className={styles.quickstartSide}>
-            <Tabs>
-              <TabItem value="gradle" label="Gradle">
-                <CodeBlock language="kotlin" title="build.gradle.kts">
-                  {`dependencies {
-    implementation("dev.typr.foundations:foundations-jdbc-kotlin:${version}")
-    // Add your driver
-    runtimeOnly("org.duckdb:duckdb_jdbc:1.1.3")
-}`}
-                </CodeBlock>
-              </TabItem>
-              <TabItem value="maven" label="Maven">
-                <CodeBlock language="xml" title="pom.xml">
-                  {`<dependency>
-  <groupId>dev.typr.foundations</groupId>
-  <artifactId>foundations-jdbc-kotlin</artifactId>
-  <version>${version}</version>
-</dependency>
-<dependency>
-  <groupId>org.duckdb</groupId>
-  <artifactId>duckdb_jdbc</artifactId>
-  <version>1.1.3</version>
-</dependency>`}
-                </CodeBlock>
-              </TabItem>
-            </Tabs>
-          </div>
-        </div>
+        <Tabs groupId="language">
+          {Object.entries(langConfigs).map(([key, cfg]) => (
+            <TabItem key={key} value={key} label={key.charAt(0).toUpperCase() + key.slice(1)}>
+              <div className={styles.quickstartGrid}>
+                <div className={styles.quickstartCode}>
+                  <CodeBlock language={cfg.lang} title={cfg.title}>
+                    {cfg.code}
+                  </CodeBlock>
+                </div>
+                <div className={styles.quickstartSide}>
+                  <Tabs>
+                    <TabItem value="gradle" label="Gradle">
+                      <CodeBlock language="kotlin" title="build.gradle.kts">
+                        {`dependencies {\n    implementation("dev.typr.foundations:${cfg.artifact}:${version}")\n    // Add your driver\n    runtimeOnly("org.duckdb:duckdb_jdbc:1.1.3")\n}`}
+                      </CodeBlock>
+                    </TabItem>
+                    <TabItem value="maven" label="Maven">
+                      <CodeBlock language="xml" title="pom.xml">
+                        {`<dependency>\n  <groupId>dev.typr.foundations</groupId>\n  <artifactId>${cfg.artifact}</artifactId>\n  <version>${version}</version>\n</dependency>\n<dependency>\n  <groupId>org.duckdb</groupId>\n  <artifactId>duckdb_jdbc</artifactId>\n  <version>1.1.3</version>\n</dependency>`}
+                      </CodeBlock>
+                    </TabItem>
+                    {key === 'scala' && (
+                      <TabItem value="sbt" label="sbt">
+                        <CodeBlock language="scala" title="build.sbt">
+                          {`libraryDependencies ++= Seq(\n  "dev.typr.foundations" % "${cfg.artifact}" % "${version}",\n  "org.duckdb" % "duckdb_jdbc" % "1.1.3" % Runtime\n)`}
+                        </CodeBlock>
+                      </TabItem>
+                    )}
+                  </Tabs>
+                </div>
+              </div>
+            </TabItem>
+          ))}
+        </Tabs>
       </div>
     </section>
   );
@@ -704,7 +734,7 @@ function ComparisonSection() {
               </tr>
               <tr>
                 <td>Code generation</td>
-                <td>Optional (Typr)</td>
+                <td style={cellStyle('yellow')}>Coming soon</td>
                 <td>Reverse engineering<sup>4</sup></td>
                 <td style={cellStyle('red')}>Not supported</td>
                 <td style={cellStyle('red')}>Not supported</td>
@@ -733,17 +763,32 @@ function CTA() {
       <div className={styles.container}>
         <h2 className={styles.sectionTitle}>Ready to try it?</h2>
         <p className={styles.sectionSubtitle}>
-          Foundations works great on its own. For larger codebases,{' '}
-          <Link to="https://typr.dev" style={{color: '#60a5fa', fontWeight: 600}}>Typr</Link>{' '}
-          can generate all the code you see above from your database schema.
+          Foundations JDBC is open source, MIT-licensed, and ready to use today.
         </p>
         <div className={styles.heroButtons}>
           <Link className={styles.btnPrimary} to="/docs/">
-            Get started with Foundations
+            Get Started
           </Link>
-          <Link className={styles.btnPrimary} to="https://typr.dev">
-            Explore Typr
+          <Link className={styles.btnSecondary} to="https://github.com/typr-dev/foundations-jdbc">
+            GitHub
           </Link>
+        </div>
+        <div style={{marginTop: '3rem', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto'}}>
+          <h3 style={{color: '#f8fafc', fontSize: '1.3rem', marginBottom: '1.5rem', textAlign: 'center'}}>Coming soon</h3>
+          <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+            <div style={{background: 'rgba(96, 165, 250, 0.08)', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '12px', padding: '1.25rem 1.5rem'}}>
+              <strong style={{color: '#60a5fa', fontSize: '1rem'}}>World-class codegen with a SQL DSL</strong>
+              <p style={{color: '#94a3b8', margin: '0.5rem 0 0', fontSize: '0.95rem', lineHeight: 1.6}}>
+                Generate all the RowCodecs, type definitions, and repository scaffolding you see above — directly from your database schema. Write queries in a type-safe SQL DSL that composes like the language it's embedded in.
+              </p>
+            </div>
+            <div style={{background: 'rgba(96, 165, 250, 0.08)', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '12px', padding: '1.25rem 1.5rem'}}>
+              <strong style={{color: '#60a5fa', fontSize: '1rem'}}>A native PostgreSQL driver for the JVM</strong>
+              <p style={{color: '#94a3b8', margin: '0.5rem 0 0', fontSize: '0.95rem', lineHeight: 1.6}}>
+                We've been working on something that fundamentally changes what's possible with PostgreSQL on the JVM. It bypasses JDBC entirely, speaks the PostgreSQL wire protocol directly, and unlocks a class of optimizations that no connection pool or driver can offer today. The same Fragments, RowCodecs, and Operations you write today will run on it without changing a line of code.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -752,7 +797,7 @@ function CTA() {
 
 export default function Home() {
   return (
-    <Layout title="A functional JDBC library for the JVM" description="Functional programming meets JDBC. Composable queries, full type safety, and every data structure your database actually has — for Java, Kotlin, and Scala.">
+    <Layout title="A JDBC library for the JVM" description="Composable queries, full type safety, and every data structure your database actually has — for Java, Kotlin, and Scala.">
       <Hero />
       <main>
         <QuickstartSection />
