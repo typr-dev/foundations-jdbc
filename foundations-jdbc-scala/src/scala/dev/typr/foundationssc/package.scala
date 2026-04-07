@@ -4,15 +4,37 @@ package dev.typr
 // See: https://github.com/gradle/gradle/issues/29286
 // For Java classes with static methods, use fully qualified names (e.g., Fragment.of).
 package object foundationssc:
-  // Core types
+  // Functional interfaces
   type SqlFunction[T, R] = dev.typr.foundations.SqlFunction[T, R]
-  type DbJson[T] = dev.typr.foundations.DbJson[T]
+  type SqlConsumer[T] = dev.typr.foundations.SqlConsumer[T]
+  type SqlSupplier[T] = dev.typr.foundations.SqlSupplier[T]
+  type SqlBiConsumer[T, U] = dev.typr.foundations.SqlBiConsumer[T, U]
+  type SqlBiFunction[T, U, R] = dev.typr.foundations.SqlBiFunction[T, U, R]
 
   // Analysis types
   type QueryAnalysis = dev.typr.foundations.QueryAnalysis
   type CheckReport = dev.typr.foundations.CheckReport
   type QueryListener = dev.typr.foundations.QueryListener
   type QueryEvent = dev.typr.foundations.QueryEvent
+
+  // Codec internals (needed for struct/array construction)
+  type DbJson[T] = dev.typr.foundations.DbJson[T]
+  type DbJsonRow = dev.typr.foundations.DbJsonRow
+  type PgRead[T] = dev.typr.foundations.PgRead[T]
+  type PgWrite[T] = dev.typr.foundations.PgWrite[T]
+  type PgCompositeText[T] = dev.typr.foundations.PgCompositeText[T]
+
+  // Struct / composite type builders (types only — use Java class directly for static methods)
+  type PgStruct[T] = dev.typr.foundations.PgStruct[T]
+  type DuckDbStruct[T] = dev.typr.foundations.DuckDbStruct[T]
+  type DuckDbUnion[T] = dev.typr.foundations.DuckDbUnion[T]
+  type OracleObject[T] = dev.typr.foundations.OracleObject[T]
+
+  // Exceptions
+  type DatabaseException = dev.typr.foundations.DatabaseException
+
+  // Row codec subtypes
+  type RowCodecNamed[T] = dev.typr.foundations.RowCodecNamed[T]
 
   // Extension methods for Scala-friendly DbJson combinators
   extension [A](codec: dev.typr.foundations.DbJson[A])

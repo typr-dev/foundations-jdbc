@@ -458,8 +458,9 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
                        |        fun <F> nestedField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> F): Builder1<A, F> =
                        |            Builder1(underlying.nestedField(name, nestedStruct.underlying, getter))
                        |
-                       |        fun <F> nestedArrayField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> Array<F>, arrayFactory: java.util.function.IntFunction<Array<F>>): Builder1<A, Array<F>> =
-                       |            Builder1(underlying.nestedArrayField(name, nestedStruct.underlying, getter, arrayFactory))
+                       |        @Suppress("UNCHECKED_CAST")
+                       |        fun <F> nestedArrayField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> Array<F>, arrayFactory: (Int) -> Array<F?>): Builder1<A, Array<F>> =
+                       |            Builder1(underlying.nestedArrayField(name, nestedStruct.underlying, getter, java.util.function.IntFunction { arrayFactory(it) as Array<F> }))
                        |    }""".stripMargin
 
     val builders = 1.to(maxArity).map { n =>
@@ -476,8 +477,9 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
             |        fun <F> nestedField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> F): Builder${n + 1}<A, $nextTparams, F> =
             |            Builder${n + 1}(underlying.nestedField(name, nestedStruct.underlying, getter))
             |
-            |        fun <F> nestedArrayField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> Array<F>, arrayFactory: java.util.function.IntFunction<Array<F>>): Builder${n + 1}<A, $nextTparams, Array<F>> =
-            |            Builder${n + 1}(underlying.nestedArrayField(name, nestedStruct.underlying, getter, arrayFactory))""".stripMargin
+            |        @Suppress("UNCHECKED_CAST")
+            |        fun <F> nestedArrayField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> Array<F>, arrayFactory: (Int) -> Array<F?>): Builder${n + 1}<A, $nextTparams, Array<F>> =
+            |            Builder${n + 1}(underlying.nestedArrayField(name, nestedStruct.underlying, getter, java.util.function.IntFunction { arrayFactory(it) as Array<F> }))""".stripMargin
       } else ""
 
       s"""|    class Builder$n<A, $tparams> internal constructor(
@@ -494,6 +496,14 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |
         |class PgStruct<T>(val underlying: dev.typr.foundations.PgStruct<T>) {
         |    fun asType(): PgType<T> = PgType(underlying.asType())
+        |
+        |    fun asArrayType(arrayFactory: (Int) -> Array<T?>): PgType<Array<T>> {
+        |        val javaType = underlying.asType()
+        |        return PgType(javaType.array(
+        |            dev.typr.foundations.PgRead.readCompositeArray(javaType.pgCompositeText(), java.util.function.IntFunction { arrayFactory(it) }),
+        |            java.util.function.IntFunction { arrayFactory(it) }
+        |        ))
+        |    }
         |
         |    companion object {
         |        fun <A> builder(name: String): Builder0<A> =

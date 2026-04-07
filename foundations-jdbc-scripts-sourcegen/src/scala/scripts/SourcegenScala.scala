@@ -428,6 +428,14 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |class PgStruct[A](val underlying: dev.typr.foundations.PgStruct[A]):
         |  def asType(): PgType[A] = PgType(underlying.asType())
         |
+        |  def asArrayType(arrayFactory: Int => Array[?]): PgType[Array[A]] =
+        |    val javaType = underlying.asType()
+        |    val f = ((size: Int) => arrayFactory(size)).asInstanceOf[java.util.function.IntFunction[Array[Object & A]]]
+        |    PgType(javaType.array(
+        |      dev.typr.foundations.PgRead.readCompositeArray(javaType.pgCompositeText(), f),
+        |      f
+        |    ).asInstanceOf[dev.typr.foundations.PgType[Array[A]]])
+        |
         |object PgStruct:
         |  def builder[A](typeName: String): Builder0[A] =
         |    Builder0(dev.typr.foundations.PgStructBuilders.builder(typeName))
