@@ -154,17 +154,21 @@ public record DuckDbType<A>(
   @SuppressWarnings("unchecked")
   public DuckDbType<A[]> array() {
     DuckDbTypename<A[]> arrayTypename = typename.array();
+    DuckDbRead<A> elementRead = read;
     DuckDbRead<A[]> arrayRead =
         DuckDbRead.of(
             (rs, idx) -> {
               java.sql.Array arr = rs.getArray(idx);
               if (arr == null) return null;
-              Object[] elements = (Object[]) arr.getArray();
-              A[] result = (A[]) new Object[elements.length];
-              for (int i = 0; i < elements.length; i++) {
-                result[i] = (A) elements[i];
+              try (var arrayRs = arr.getResultSet()) {
+                var list = new java.util.ArrayList<A>();
+                while (arrayRs.next()) {
+                  list.add(elementRead.read(arrayRs, 2)); // column 2 is the value
+                }
+                @SuppressWarnings("unchecked")
+                A[] result = list.toArray((A[]) new Object[list.size()]);
+                return result;
               }
-              return result;
             });
     DuckDbWrite<A[]> arrayWrite =
         DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier)
