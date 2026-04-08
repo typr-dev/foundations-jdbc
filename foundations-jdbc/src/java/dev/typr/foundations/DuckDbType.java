@@ -16,8 +16,18 @@ public record DuckDbType<A>(
     DuckDbStringifier<A> stringifier,
     DuckDbJson<A> duckDbJson,
     DuckDbMapSupport<A> mapSupport,
-    AnalysisOptions analysisOptions)
+    AnalysisOptions analysisOptions,
+    DuckDbArrayCodec<A> arrayCodec)
     implements DbType<A> {
+
+  /** Convenience constructor — derives arrayCodec from read + stringifier. */
+  public DuckDbType(
+      DuckDbTypename<A> typename, DuckDbRead<A> read, DuckDbWrite<A> write,
+      DuckDbStringifier<A> stringifier, DuckDbJson<A> duckDbJson,
+      DuckDbMapSupport<A> mapSupport, AnalysisOptions analysisOptions) {
+    this(typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions,
+        DuckDbArrayCodec.fromReadAndStringifier(read, stringifier));
+  }
 
 
   @Override
@@ -53,7 +63,7 @@ public record DuckDbType<A>(
   }
 
   public DuckDbType<A> withAnalysis(AnalysisOptions opts) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, opts);
+    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, opts, arrayCodec);
   }
 
   public Fragment.Value<A> encode(A value) {
@@ -154,8 +164,11 @@ public record DuckDbType<A>(
 
   @SuppressWarnings("unchecked")
   public DuckDbType<A[]> array() {
+    if (typename instanceof DuckDbTypename.ListOf || typename instanceof DuckDbTypename.ArrayOf) {
+      throw new IllegalStateException("Nested arrays are not supported. Cannot call .array() on " + typename.sqlType());
+    }
     DuckDbTypename<A[]> arrayTypename = typename.array();
-    DuckDbRead<A> elementRead = read;
+    DuckDbArrayCodec<A> codec = arrayCodec;
     DuckDbRead<A[]> arrayRead =
         DuckDbRead.of(
             (rs, idx) -> {
@@ -165,13 +178,23 @@ public record DuckDbType<A>(
               @SuppressWarnings("unchecked")
               A[] result = (A[]) new Object[elements.length];
               for (int i = 0; i < elements.length; i++) {
-                result[i] = elementRead.fromJdbcValue(elements[i]);
+                result[i] = codec.fromElement().apply(elements[i]);
               }
               return result;
             });
     DuckDbWrite<A[]> arrayWrite =
-        DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier)
-            .contramap(arr -> java.util.Arrays.asList(arr));
+        DuckDbWrite.primitive(
+            (ps, idx, arr) -> {
+              if (arr == null) {
+                ps.setNull(idx, java.sql.Types.ARRAY);
+              } else {
+                String[] strings = new String[arr.length];
+                for (int i = 0; i < arr.length; i++) {
+                  strings[i] = codec.toElement().apply(arr[i]);
+                }
+                ps.setObject(idx, new org.duckdb.user.DuckDBUserArray(typename.sqlType(), strings));
+              }
+            });
     DuckDbStringifier<A[]> arrayStringifier =
         DuckDbStringifier.instance(
             (arr, sb, quoted) -> {
@@ -485,22 +508,19 @@ public record DuckDbType<A>(
   }
 
   public <B> DuckDbType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
+    Function<A, B> fUnchecked = a -> {
+      try { return f.apply(a); }
+      catch (java.sql.SQLException e) { throw new DatabaseException(e); }
+    };
     return new DuckDbType<>(
         typename.as(),
         read.map(f),
         write.contramap(g),
         stringifier.contramap(g),
         duckDbJson.transform(f, g),
-        mapSupport.transform(
-            a -> {
-              try {
-                return f.apply(a);
-              } catch (java.sql.SQLException e) {
-                throw new DatabaseException(e);
-              }
-            },
-            g),
-        analysisOptions);
+        mapSupport.transform(fUnchecked, g),
+        analysisOptions,
+        arrayCodec.map(fUnchecked, g));
   }
 
   @Override
@@ -512,7 +532,8 @@ public record DuckDbType<A>(
         stringifier.contramap(bijection::from),
         duckDbJson.transform(bijection::underlying, bijection::from),
         mapSupport.transform(bijection::underlying, bijection::from),
-        analysisOptions);
+        analysisOptions,
+        arrayCodec.map(bijection::underlying, bijection::from));
   }
 
   public static <A> DuckDbType<A> of(

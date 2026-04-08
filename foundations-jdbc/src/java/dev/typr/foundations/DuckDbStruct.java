@@ -85,6 +85,14 @@ public record DuckDbStruct<A>(
             },
             value -> value);
 
+    DuckDbArrayCodec<A> structArrayCodec = new DuckDbArrayCodec<>(
+        structConverter,
+        value -> {
+          StringBuilder sb = new StringBuilder();
+          stringifier.unsafeEncode(value, sb, false);
+          return sb.toString();
+        });
+
     return new DuckDbType<>(
         typename.asGeneric(),
         duckDbRead,
@@ -92,7 +100,8 @@ public record DuckDbStruct<A>(
         stringifier,
         json,
         structMapSupport,
-        AnalysisOptions.EMPTY);
+        AnalysisOptions.EMPTY,
+        structArrayCodec);
   }
 
   /** Create an optional version of this STRUCT type. */
