@@ -466,7 +466,22 @@ public class DuckDbTypeTest {
           // Prove that LIST (unlike ARRAY) accepts variable lengths
           new DuckDbTypeAndExample<>(DuckDbTypes.listInteger, List.of()).noIdentity(),
           new DuckDbTypeAndExample<>(DuckDbTypes.listInteger, List.of(1, 2)).noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listInteger, List.of(1, 2, 3, 4, 5)).noIdentity());
+          new DuckDbTypeAndExample<>(DuckDbTypes.listInteger, List.of(1, 2, 3, 4, 5)).noIdentity(),
+
+          // ==================== Array Types (Java T[] via .array()) ====================
+          // These use DuckDB LIST columns but map to Java arrays
+          new DuckDbTypeAndExample<>(DuckDbTypes.tinyintArray, new Byte[] {1, 2, 3}).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.smallintArray, new Short[] {100, 200}).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.integerArray, new Integer[] {1, 2, 3, 4, 5}).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.bigintArray, new Long[] {100L, 200L, 300L}).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.floatArray, new Float[] {1.5f, 2.5f}).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.doubleArray, new Double[] {1.1, 2.2, 3.3}).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.booleanArray, new Boolean[] {true, false, true}).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.varcharArray, new String[] {"hello", "world"}).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.decimalArray, new BigDecimal[] {new BigDecimal("1.23"), new BigDecimal("4.56")}).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.dateArray, new LocalDate[] {LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31)}).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.timeArray, new LocalTime[] {LocalTime.of(10, 30), LocalTime.of(14, 45)}).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.integerArray, new Integer[] {}).noIdentity());
 
   // Connection helper for DuckDB - uses in-memory database
   static <T> T withConnection(SqlFunction<Connection, T> f) {
@@ -589,8 +604,8 @@ public class DuckDbTypeTest {
     if (allFailures.isEmpty()) {
       System.out.println("All tests passed!");
     } else {
-      allFailures.forEach(System.out::println);
-      throw new RuntimeException(allFailures.size() + " tests failed");
+      allFailures.forEach(f -> System.err.println("FAILURE: " + f));
+      throw new RuntimeException(allFailures.size() + " tests failed:\n" + String.join("\n", allFailures));
     }
     System.out.println("=====================================");
   }
@@ -749,8 +764,12 @@ public class DuckDbTypeTest {
     if (expected instanceof byte[]) {
       return Arrays.equals((byte[]) actual, (byte[]) expected);
     }
-    if (expected instanceof Object[]) {
-      return Arrays.deepEquals((Object[]) actual, (Object[]) expected);
+    if (expected instanceof Object[] expArr && actual instanceof Object[] actArr) {
+      if (expArr.length != actArr.length) return false;
+      for (int i = 0; i < expArr.length; i++) {
+        if (!areEqual(actArr[i], expArr[i])) return false;
+      }
+      return true;
     }
     // BigDecimal: compare by value, not scale
     if (expected instanceof BigDecimal && actual instanceof BigDecimal) {

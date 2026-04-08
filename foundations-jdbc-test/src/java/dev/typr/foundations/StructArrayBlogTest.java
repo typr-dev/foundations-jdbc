@@ -24,27 +24,23 @@ public class StructArrayBlogTest {
   //  SHARED DOMAIN TYPES
   // ======================================================================
 
+  //start:blog-domain-types
   record Address(String street, String city, String state, String zip) {}
-
   record LineItem(String productName, int quantity, BigDecimal unitPrice) {}
+  record Skill(String name, int level) {}
+  record Employee(String name, String role, Skill[] skills) {}
+  record Department(String name, Employee[] members) {}
+  //stop:blog-domain-types
 
   record Customer(int id, String name, String email, Address shippingAddress) {}
-
   record Product(int id, String name, BigDecimal price, String[] tags) {}
-
   record Order(int id, int customerId, LineItem[] items) {}
-
-  // Deep nesting: Department → Employee[] → Skill (struct inside array inside struct)
-  record Skill(String name, int level) {}
-
-  record Employee(String name, String role, Skill[] skills) {}
-
-  record Department(String name, Employee[] members) {}
 
   // ======================================================================
   //  POSTGRESQL TYPES
   // ======================================================================
 
+  //start:blog-pg-structs
   static final PgStruct<Address> pgAddress =
       PgStructBuilders.<Address>builder("address")
           .field("street", PgTypes.text, Address::street)
@@ -68,8 +64,9 @@ public class StructArrayBlogTest {
       pgLineItemType.array(
           PgRead.readCompositeArray(pgLineItemType.pgCompositeText(), LineItem[]::new),
           LineItem[]::new);
+  //stop:blog-pg-structs
 
-  // Deep nesting PG types
+  //start:blog-pg-deep-nesting
   static final PgStruct<Skill> pgSkill =
       PgStructBuilders.<Skill>builder("skill")
           .field("name", PgTypes.text, Skill::name)
@@ -90,6 +87,7 @@ public class StructArrayBlogTest {
           .build(Department::new);
 
   static final PgType<Department> pgDepartmentType = pgDepartment.asType();
+  //stop:blog-pg-deep-nesting
 
   static final RowCodecNamed<Customer> pgCustomerCodec =
       RowCodec.<Customer>namedBuilder()
@@ -118,6 +116,7 @@ public class StructArrayBlogTest {
   //  DUCKDB TYPES
   // ======================================================================
 
+  //start:blog-duckdb-structs
   static final DuckDbStruct<Address> duckAddress =
       DuckDbStruct.<Address>builder("address")
           .field("street", DuckDbTypes.varchar, Address::street)
@@ -145,11 +144,13 @@ public class StructArrayBlogTest {
           .build(Skill::new);
 
   static final DuckDbType<Skill> duckSkillType = duckSkill.asType();
+  //stop:blog-duckdb-structs
 
   // ======================================================================
   //  ORACLE TYPES
   // ======================================================================
 
+  //start:blog-oracle-types
   record OracleAddress(String street, String city) {}
 
   record OracleLineItem(Long productId, Integer quantity) {}
@@ -196,6 +197,7 @@ public class StructArrayBlogTest {
 
   static final OracleType<List<OracleEmployee>> oracleEmployeesType =
       OracleNestedTable.of("BLOG_EMPLOYEES_T", oracleEmployeeType);
+  //stop:blog-oracle-types
 
   // ======================================================================
   //  TEST ENTRY

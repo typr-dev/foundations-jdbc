@@ -19,6 +19,7 @@ type Lang = 'java' | 'kotlin' | 'scala';
 interface SnippetProps {
   file: string;
   lang?: Lang;
+  hideFullFile?: boolean;
 }
 
 function buildPath(file: string, lang: Lang): string {
@@ -41,7 +42,7 @@ function getSnippetCode(path: string, showFull: boolean): string {
   return showFull ? fileData.fullContent : fileData.snippet;
 }
 
-export default function Snippet({ file, lang }: SnippetProps): JSX.Element {
+export default function Snippet({ file, lang, hideFullFile }: SnippetProps): JSX.Element {
   const [showFullFile, setShowFullFile] = useState(false);
 
   const langConfig: Record<Lang, string> = {
@@ -80,14 +81,16 @@ export default function Snippet({ file, lang }: SnippetProps): JSX.Element {
     <div className={styles.snippetContainer}>
       <div className={styles.tabsWrapper}>
         {content}
-        <label className={styles.checkbox}>
-          <input
-            type="checkbox"
-            checked={showFullFile}
-            onChange={(e) => setShowFullFile(e.target.checked)}
-          />
-          <span>Show entire file</span>
-        </label>
+        {!hideFullFile && (
+          <label className={styles.checkbox}>
+            <input
+              type="checkbox"
+              checked={showFullFile}
+              onChange={(e) => setShowFullFile(e.target.checked)}
+            />
+            <span>Show entire file</span>
+          </label>
+        )}
       </div>
     </div>
   );
