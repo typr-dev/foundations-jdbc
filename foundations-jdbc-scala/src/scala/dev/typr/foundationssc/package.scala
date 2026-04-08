@@ -24,17 +24,8 @@ package object foundationssc:
   type PgWrite[T] = dev.typr.foundations.PgWrite[T]
   type PgCompositeText[T] = dev.typr.foundations.PgCompositeText[T]
 
-  // Struct / composite type builders (types only — use Java class directly for static methods)
-  type PgStruct[T] = dev.typr.foundations.PgStruct[T]
-  type DuckDbStruct[T] = dev.typr.foundations.DuckDbStruct[T]
-  type DuckDbUnion[T] = dev.typr.foundations.DuckDbUnion[T]
-  type OracleObject[T] = dev.typr.foundations.OracleObject[T]
-
   // Exceptions
   type DatabaseException = dev.typr.foundations.DatabaseException
-
-  // Row codec subtypes
-  type RowCodecNamed[T] = dev.typr.foundations.RowCodecNamed[T]
 
   // Extension methods for Scala-friendly DbJson combinators
   extension [A](codec: dev.typr.foundations.DbJson[A])

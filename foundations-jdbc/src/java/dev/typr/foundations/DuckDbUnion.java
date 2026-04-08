@@ -128,7 +128,8 @@ public record DuckDbUnion<A>(
         stringifier,
         json,
         unionMapSupport,
-        AnalysisOptions.EMPTY);
+        AnalysisOptions.EMPTY,
+        java.util.Optional.empty()); // UNION[] not supported: array elements lose tag info
   }
 
   /** Create an optional version of this UNION type. */

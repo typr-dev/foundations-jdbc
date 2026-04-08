@@ -69,7 +69,7 @@ open class DuckDbTypes {
     open val decimalArray = DuckDbType(JavaDuckDbTypes.decimalArray)
     open val booleanArray = DuckDbType(JavaDuckDbTypes.booleanArray)
     open val varcharArray = DuckDbType(JavaDuckDbTypes.varcharArray)
-    open val blobArray = DuckDbType(JavaDuckDbTypes.blobArray)
+    // blobArray removed: BLOB[] not supported (binary can't be serialized in DuckDBUserArray)
     open val dateArray = DuckDbType(JavaDuckDbTypes.dateArray)
     open val timeArray = DuckDbType(JavaDuckDbTypes.timeArray)
     open val timestampArray = DuckDbType(JavaDuckDbTypes.timestampArray)

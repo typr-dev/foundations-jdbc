@@ -212,7 +212,8 @@ public interface DuckDbTypes {
           DuckDbRead.readByteArray,
           DuckDbWrite.writeByteArray,
           DuckDbStringifier.blob,
-          DuckDbJson.blob);
+          DuckDbJson.blob)
+          .noArraySupport(); // BLOB[] not supported: binary can't be serialized in DuckDBUserArray
 
   DuckDbType<byte[]> bytea = blob.renamed("BYTEA");
   DuckDbType<byte[]> binary = blob.renamed("BINARY");
@@ -388,7 +389,8 @@ public interface DuckDbTypes {
   DuckDbType<String[]> varcharArray = varchar.array();
 
   /** BLOB[] - array of blob values */
-  DuckDbType<byte[][]> blobArray = blob.array();
+  // BLOB[] not supported: DuckDBUserArray can't serialize binary data
+  // DuckDbType<byte[][]> blobArray = blob.array();
 
   /** DATE[] - array of date values */
   DuckDbType<LocalDate[]> dateArray = date.array();

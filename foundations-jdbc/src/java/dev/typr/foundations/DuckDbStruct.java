@@ -101,7 +101,7 @@ public record DuckDbStruct<A>(
         json,
         structMapSupport,
         AnalysisOptions.EMPTY,
-        structArrayCodec);
+        java.util.Optional.of(structArrayCodec));
   }
 
   /** Create an optional version of this STRUCT type. */
