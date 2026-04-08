@@ -16,6 +16,15 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
     permits DuckDbRead.NonNullable, DuckDbRead.Nullable, DuckDbRead.Mapped {
   A read(ResultSet rs, int col) throws SQLException;
 
+  /**
+   * Convert a raw JDBC value (from Array.getArray() elements, Struct.getAttributes(), etc.)
+   * to the typed value. For scalars this is a cast. For transformed types, it composes.
+   */
+  @SuppressWarnings("unchecked")
+  default A fromJdbcValue(Object obj) {
+    return (A) obj;
+  }
+
   <B> DuckDbRead<B> map(SqlFunction<A, B> f);
 
   /** Derive a DuckDbRead which allows nullable values */
@@ -43,9 +52,22 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
 
   final class NonNullable<A> implements DuckDbRead<A> {
     final RawRead<Optional<A>> readNullable;
+    private final java.util.function.Function<Object, A> jdbcValueConverter;
 
     public NonNullable(RawRead<Optional<A>> readNullable) {
+      this(readNullable, null);
+    }
+
+    public NonNullable(RawRead<Optional<A>> readNullable, java.util.function.Function<Object, A> jdbcValueConverter) {
       this.readNullable = readNullable;
+      this.jdbcValueConverter = jdbcValueConverter;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public A fromJdbcValue(Object obj) {
+      if (jdbcValueConverter != null) return jdbcValueConverter.apply(obj);
+      return (A) obj;
     }
 
     @Override
@@ -57,11 +79,18 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
 
     @Override
     public <B> NonNullable<B> map(SqlFunction<A, B> f) {
+      java.util.function.Function<Object, A> parentConverter = this.jdbcValueConverter;
       return new NonNullable<>(
           (rs, col) -> {
             Optional<A> maybeA = readNullable.apply(rs, col);
             if (maybeA.isEmpty()) return Optional.empty();
             return Optional.of(f.apply(maybeA.get()));
+          },
+          obj -> {
+            try {
+              A base = parentConverter != null ? parentConverter.apply(obj) : NonNullable.this.fromJdbcValue(obj);
+              return f.apply(base);
+            } catch (SQLException e) { throw new DatabaseException(e); }
           });
     }
 
@@ -103,6 +132,15 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
     @Override
     public B read(ResultSet rs, int col) throws SQLException {
       return f.apply(underlying.read(rs, col));
+    }
+
+    @Override
+    public B fromJdbcValue(Object obj) {
+      try {
+        return f.apply(underlying.fromJdbcValue(obj));
+      } catch (java.sql.SQLException e) {
+        throw new DatabaseException(e);
+      }
     }
 
     @Override

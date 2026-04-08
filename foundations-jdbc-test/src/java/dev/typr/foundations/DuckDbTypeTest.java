@@ -101,13 +101,17 @@ public class DuckDbTypeTest {
 
   DuckDbType<IntOrString> intOrStringType = intOrStringUnion.asType();
 
-  record DuckDbTypeAndExample<A>(DuckDbType<A> type, A example, boolean hasIdentity) {
+  record DuckDbTypeAndExample<A>(DuckDbType<A> type, A example, boolean hasIdentity, boolean supportsArray) {
     public DuckDbTypeAndExample(DuckDbType<A> type, A example) {
-      this(type, example, true);
+      this(type, example, true, true);
     }
 
     public DuckDbTypeAndExample<A> noIdentity() {
-      return new DuckDbTypeAndExample<>(type, example, false);
+      return new DuckDbTypeAndExample<>(type, example, false, supportsArray);
+    }
+
+    public DuckDbTypeAndExample<A> noArray() {
+      return new DuckDbTypeAndExample<>(type, example, hasIdentity, false);
     }
   }
 
@@ -497,10 +501,9 @@ public class DuckDbTypeTest {
     System.out.println("Testing DuckDB type codecs...\n");
 
     // Derive array tests from every scalar type
-    // Derive array tests: wrap every type (scalar, struct, union, map) in a single-element array
+    // Derive array tests: wrap every type with supportsArray=true in a single-element array
     var arrayExamples = All.stream()
-        .filter(t -> !(t.example instanceof Object[])) // skip types already arrays
-        .filter(t -> !(t.example instanceof byte[]))   // skip blob (byte[] ambiguous with array)
+        .filter(t -> t.supportsArray)
         .collect(Collectors.toMap(
             t -> t.type.typename().sqlType(),
             t -> t,

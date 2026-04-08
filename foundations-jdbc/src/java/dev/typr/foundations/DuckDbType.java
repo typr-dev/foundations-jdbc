@@ -19,6 +19,7 @@ public record DuckDbType<A>(
     AnalysisOptions analysisOptions)
     implements DbType<A> {
 
+
   @Override
   public Optional<DbOutParam<A>> outParam() {
     return Optional.empty();
@@ -160,15 +161,13 @@ public record DuckDbType<A>(
             (rs, idx) -> {
               java.sql.Array arr = rs.getArray(idx);
               if (arr == null) return null;
-              try (var arrayRs = arr.getResultSet()) {
-                var list = new java.util.ArrayList<A>();
-                while (arrayRs.next()) {
-                  list.add(elementRead.read(arrayRs, 2)); // column 2 is the value
-                }
-                @SuppressWarnings("unchecked")
-                A[] result = list.toArray((A[]) new Object[list.size()]);
-                return result;
+              Object[] elements = (Object[]) arr.getArray();
+              @SuppressWarnings("unchecked")
+              A[] result = (A[]) new Object[elements.length];
+              for (int i = 0; i < elements.length; i++) {
+                result[i] = elementRead.fromJdbcValue(elements[i]);
               }
+              return result;
             });
     DuckDbWrite<A[]> arrayWrite =
         DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier)
