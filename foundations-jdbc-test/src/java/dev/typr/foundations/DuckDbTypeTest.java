@@ -207,11 +207,12 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(DuckDbTypes.char_(10), "hello"),
 
           // ==================== Binary Types ====================
-          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {0x01, 0x02, 0x03, 0x04, 0x05}),
-          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {}),
+          // BLOB[] not supported: DuckDBUserArray can't serialize binary data
+          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {0x01, 0x02, 0x03, 0x04, 0x05}).noArray(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {}).noArray(),
           new DuckDbTypeAndExample<>(
-              DuckDbTypes.blob, new byte[] {(byte) 0xFF, 0x00, 0x7F, (byte) 0x80}),
-          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {0x00}),
+              DuckDbTypes.blob, new byte[] {(byte) 0xFF, 0x00, 0x7F, (byte) 0x80}).noArray(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {0x00}).noArray(),
 
           // ==================== Date/Time Types ====================
           new DuckDbTypeAndExample<>(DuckDbTypes.date, LocalDate.of(2024, 6, 15)),
@@ -295,32 +296,32 @@ public class DuckDbTypeTest {
 
           // ==================== MAP Types ====================
           // MAP types use the mapTo() combinator. They don't support direct equality in WHERE
-          // clauses.
+          // clauses. MAP[] not supported: DuckDBUserArray string format rejected by DuckDB.
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.integer), java.util.Map.of("a", 1, "b", 2))
-              .noIdentity(),
+              .noIdentity().noArray(),
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.varchar),
                   java.util.Map.of("key1", "value1", "key2", "value2"))
-              .noIdentity(),
+              .noIdentity().noArray(),
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.integer.mapTo(DuckDbTypes.varchar),
                   java.util.Map.of(1, "one", 2, "two"))
-              .noIdentity(),
+              .noIdentity().noArray(),
           // MAP with UUID keys
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.uuid.mapTo(DuckDbTypes.varchar),
                   java.util.Map.of(
                       UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), "value1",
                       UUID.fromString("123e4567-e89b-12d3-a456-426614174000"), "value2"))
-              .noIdentity(),
+              .noIdentity().noArray(),
           // MAP with TIME values
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.time),
                   java.util.Map.of(
                       "morning", LocalTime.of(8, 15, 0),
                       "afternoon", LocalTime.of(14, 30, 45)))
-              .noIdentity(),
+              .noIdentity().noArray(),
           // MAP with UUID keys and TIME values
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.uuid.mapTo(DuckDbTypes.time),
@@ -329,67 +330,67 @@ public class DuckDbTypeTest {
                       LocalTime.of(14, 30, 45),
                       UUID.fromString("123e4567-e89b-12d3-a456-426614174000"),
                       LocalTime.of(8, 15, 0)))
-              .noIdentity(),
+              .noIdentity().noArray(),
           // More MAP type combinations
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.bigint),
                   java.util.Map.of("count", 100L, "total", 999999999999L))
-              .noIdentity(),
+              .noIdentity().noArray(),
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.double_),
                   java.util.Map.of("pi", 3.14159, "e", 2.71828))
-              .noIdentity(),
+              .noIdentity().noArray(),
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.boolean_),
                   java.util.Map.of("active", true, "verified", false))
-              .noIdentity(),
+              .noIdentity().noArray(),
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.integer.mapTo(DuckDbTypes.integer),
                   java.util.Map.of(1, 100, 2, 200, 3, 300))
-              .noIdentity(),
+              .noIdentity().noArray(),
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.date),
                   java.util.Map.of(
                       "start", LocalDate.of(2024, 1, 1), "end", LocalDate.of(2024, 12, 31)))
-              .noIdentity(),
+              .noIdentity().noArray(),
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.uuid),
                   java.util.Map.of(
                       "user1", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
                       "user2", UUID.fromString("123e4567-e89b-12d3-a456-426614174000")))
-              .noIdentity(),
+              .noIdentity().noArray(),
           // MAP with transformped key type (UserId wrapping Integer)
           new DuckDbTypeAndExample<>(
                   userIdType.mapTo(DuckDbTypes.varchar),
                   java.util.Map.of(new UserId(1), "admin", new UserId(2), "user"))
-              .noIdentity(),
+              .noIdentity().noArray(),
           // MAP with transformped value type (ProductCode wrapping String)
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.integer.mapTo(productCodeType),
                   java.util.Map.of(1, new ProductCode("PROD-001"), 2, new ProductCode("PROD-002")))
-              .noIdentity(),
+              .noIdentity().noArray(),
           // MAP with transformped key AND value types
           new DuckDbTypeAndExample<>(
                   userIdType.mapTo(productCodeType),
                   java.util.Map.of(
                       new UserId(100), new ProductCode("SKU-A"),
                       new UserId(200), new ProductCode("SKU-B")))
-              .noIdentity(),
+              .noIdentity().noArray(),
           // MAP with Long keys
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.bigint.mapTo(DuckDbTypes.varchar),
                   java.util.Map.of(9999999999L, "large-key", 1L, "small-key"))
-              .noIdentity(),
+              .noIdentity().noArray(),
           // MAP with Double keys
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.double_.mapTo(DuckDbTypes.varchar),
                   java.util.Map.of(3.14, "pi", 2.71, "e"))
-              .noIdentity(),
+              .noIdentity().noArray(),
           // Config type directly (transformped from MAP(VARCHAR, INTEGER))
           // This tests that transform works correctly with map types
           new DuckDbTypeAndExample<>(
                   configType, new Config(java.util.Map.of("max_conn", 100, "min_conn", 5)))
-              .noIdentity(),
+              .noIdentity().noArray(),
 
           // ==================== LIST Types with complex element types ====================
           // String-converted types (~33% overhead at 100k rows, but required for correctness)
@@ -442,8 +443,9 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(personType.list(), List.of()).noIdentity(),
 
           // ==================== UNION Types ====================
-          new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Num(42)).noIdentity(),
-          new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Str("hello")).noIdentity(),
+          // UNION[] not supported: array elements returned as String, tag inference fails
+          new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Num(42)).noIdentity().noArray(),
+          new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Str("hello")).noIdentity().noArray(),
 
           // ==================== LIST of UNION Types ====================
           new DuckDbTypeAndExample<>(

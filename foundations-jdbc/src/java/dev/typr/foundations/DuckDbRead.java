@@ -180,7 +180,7 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
   }
 
   // Basic type readers
-  DuckDbRead<String> readString = of(ResultSet::getString);
+  DuckDbRead<String> readString = of(ResultSet::getString, obj -> obj.toString());
   DuckDbRead<Boolean> readBoolean = of(ResultSet::getBoolean);
   DuckDbRead<Byte> readByte = of(ResultSet::getByte);
   DuckDbRead<Short> readShort = of(ResultSet::getShort);
@@ -252,44 +252,38 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
           });
 
   // Interval - DuckDB returns as string in "HH:MM:SS" or "HH:MM:SS.micros" format
+  private static Duration parseDuckDbInterval(String s) {
+    String[] parts = s.split(":");
+    if (parts.length >= 3) {
+      long hours = Long.parseLong(parts[0]);
+      long minutes = Long.parseLong(parts[1]);
+      String secPart = parts[2];
+      int dotIdx = secPart.indexOf('.');
+      long seconds;
+      long nanos = 0;
+      if (dotIdx >= 0) {
+        seconds = Long.parseLong(secPart.substring(0, dotIdx));
+        String fracStr = secPart.substring(dotIdx + 1);
+        while (fracStr.length() < 9) fracStr += "0";
+        if (fracStr.length() > 9) fracStr = fracStr.substring(0, 9);
+        nanos = Long.parseLong(fracStr);
+      } else {
+        seconds = Long.parseLong(secPart);
+      }
+      return Duration.ofHours(hours).plusMinutes(minutes).plusSeconds(seconds).plusNanos(nanos);
+    }
+    return Duration.parse(s);
+  }
+
   DuckDbRead<Duration> readDuration =
       of(
           (rs, idx) -> {
             String s = rs.getString(idx);
             if (s == null) return null;
-            // DuckDB interval format: "HH:MM:SS" or "HH:MM:SS.micros" for time intervals
-            // Parse manually since Duration.parse expects PT format
-            try {
-              String[] parts = s.split(":");
-              if (parts.length >= 3) {
-                long hours = Long.parseLong(parts[0]);
-                long minutes = Long.parseLong(parts[1]);
-                // Handle seconds with potential fractional part
-                String secPart = parts[2];
-                int dotIdx = secPart.indexOf('.');
-                long seconds;
-                long nanos = 0;
-                if (dotIdx >= 0) {
-                  seconds = Long.parseLong(secPart.substring(0, dotIdx));
-                  String fracStr = secPart.substring(dotIdx + 1);
-                  // Pad or truncate to 9 digits for nanoseconds
-                  while (fracStr.length() < 9) fracStr += "0";
-                  if (fracStr.length() > 9) fracStr = fracStr.substring(0, 9);
-                  nanos = Long.parseLong(fracStr);
-                } else {
-                  seconds = Long.parseLong(secPart);
-                }
-                return Duration.ofHours(hours)
-                    .plusMinutes(minutes)
-                    .plusSeconds(seconds)
-                    .plusNanos(nanos);
-              }
-              // Fallback to ISO 8601 parse
-              return Duration.parse(s);
-            } catch (Exception e) {
-              throw new SQLException("Cannot parse interval: " + s, e);
-            }
-          });
+            try { return parseDuckDbInterval(s); }
+            catch (Exception e) { throw new SQLException("Cannot parse interval: " + s, e); }
+          },
+          obj -> parseDuckDbInterval(obj.toString()));
 
   // BLOB - DuckDB returns as byte[] or DuckDBBlobResult
   DuckDbRead<byte[]> readBlob =
