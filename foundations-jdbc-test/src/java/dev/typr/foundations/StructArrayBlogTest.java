@@ -60,10 +60,7 @@ public class StructArrayBlogTest {
 
   static final PgType<LineItem> pgLineItemType = pgLineItem.asType();
 
-  static final PgType<LineItem[]> pgLineItemArrayType =
-      pgLineItemType.array(
-          PgRead.readCompositeArray(pgLineItemType.pgCompositeText(), LineItem[]::new),
-          LineItem[]::new);
+  static final PgType<LineItem[]> pgLineItemArrayType = pgLineItemType.array();
   //stop:blog-pg-structs
 
   //start:blog-pg-deep-nesting
@@ -102,7 +99,7 @@ public class StructArrayBlogTest {
           .field("id", PgTypes.int4, Product::id)
           .field("name", PgTypes.text, Product::name)
           .field("price", PgTypes.numeric, Product::price)
-          .field("tags", PgTypes.textArray, Product::tags)
+          .field("tags", PgTypes.text.array(), Product::tags)
           .build(Product::new);
 
   static final RowCodecNamed<Order> pgOrderCodec =
@@ -392,7 +389,7 @@ public class StructArrayBlogTest {
           var ids = new Integer[] {1, 3, 5};
           var products =
               Fragment.of("SELECT id, name, price, tags FROM products WHERE id = ANY(")
-                  .value(PgTypes.int4Array, ids)
+                  .value(PgTypes.int4.array(), ids)
                   .append(")")
                   .query(pgProductCodec.all())
                   .run(conn);
@@ -495,9 +492,9 @@ public class StructArrayBlogTest {
               };
           int n =
               Fragment.of("INSERT INTO products (name, price) SELECT * FROM unnest(")
-                  .value(PgTypes.textArray, names)
+                  .value(PgTypes.text.array(), names)
                   .append(", ")
-                  .value(PgTypes.numericArray, prices)
+                  .value(PgTypes.numeric.array(), prices)
                   .append(")")
                   .update()
                   .run(conn);

@@ -119,7 +119,14 @@ public record PgStruct<A>(
         pgCompositeText,
         json,
         pgOutParam,
-        AnalysisOptions.EMPTY);
+        AnalysisOptions.EMPTY,
+        java.util.Optional.of(PgArrayCodec.of(obj -> {
+          try {
+            return parseFromText(obj.toString());
+          } catch (java.sql.SQLException e) {
+            throw new DatabaseException(e);
+          }
+        })));
   }
 
   /** Create an optional version of this composite type. */

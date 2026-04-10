@@ -607,17 +607,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
                        |        }
                        |
                        |        public <F> Builder1<A, F[]> nestedArrayField(String name, PgStruct<F> nestedStruct, java.util.function.Function<A, F[]> getter, java.util.function.IntFunction<F[]> arrayFactory) {
-                       |            PgType<F> elementType = nestedStruct.asType();
-                       |            PgType<F[]> arrayType = new PgType<>(
-                       |                elementType.typename().array(),
-                       |                PgRead.of((rs, idx) -> { throw new UnsupportedOperationException("Direct JDBC read not supported for nested arrays"); }),
-                       |                elementType.write().array(elementType.typename()),
-                       |                elementType.pgText().array(),
-                       |                elementType.pgCompositeText().array(arrayFactory),
-                       |                elementType.pgJson().array(arrayFactory),
-                       |                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
-                       |                AnalysisOptions.EMPTY);
-                       |            return field(name, arrayType, getter);
+                       |            return field(name, nestedStruct.asType().array(), getter);
                        |        }
                        |
                        |        public <F> Builder1<A, java.util.Optional<F>> optField(String name, PgType<F> type, java.util.function.Function<A, java.util.Optional<F>> getter) {
@@ -648,17 +638,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
             |        }
             |
             |        public <F> Builder${n + 1}<A, $nextTparams, F[]> nestedArrayField(String name, PgStruct<F> nestedStruct, java.util.function.Function<A, F[]> getter, java.util.function.IntFunction<F[]> arrayFactory) {
-            |            PgType<F> elementType = nestedStruct.asType();
-            |            PgType<F[]> arrayType = new PgType<>(
-            |                elementType.typename().array(),
-            |                PgRead.of((rs, idx) -> { throw new UnsupportedOperationException("Direct JDBC read not supported for nested arrays"); }),
-            |                elementType.write().array(elementType.typename()),
-            |                elementType.pgText().array(),
-            |                elementType.pgCompositeText().array(arrayFactory),
-            |                elementType.pgJson().array(arrayFactory),
-            |                PgOutParam.parsedArray(arrayFactory, elementType.pgCompositeText()::decode),
-            |                AnalysisOptions.EMPTY);
-            |            return field(name, arrayType, getter);
+            |            return field(name, nestedStruct.asType().array(), getter);
             |        }
             |
             |        public <F> Builder${n + 1}<A, $nextTparams, java.util.Optional<F>> optField(String name, PgType<F> type, java.util.function.Function<A, java.util.Optional<F>> getter) {

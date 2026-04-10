@@ -15,6 +15,6 @@ class PgLineItemCodec {
         .build(::LineItem)
 
     val lineItemType: PgType<LineItem> = lineItemStruct.asType()
-    val lineItemArrayType: PgType<Array<LineItem>> = lineItemStruct.asArrayType { arrayOfNulls<LineItem>(it) }
+    val lineItemArrayType: PgType<Array<LineItem>> = lineItemStruct.asArrayType()
     //stop
 }

@@ -11,7 +11,7 @@ class TagType {
     value class Tag(val value: String)
 
     val tagType: PgType<Tag> = PgTypes.text.transform(::Tag, Tag::value)
-    val tagArrayType: PgType<Array<Tag>> = PgTypes.textArray.transform(
+    val tagArrayType: PgType<Array<Tag>> = PgTypes.text.array().transform(
         { strings -> Array(strings.size) { Tag(strings[it]) } },
         { tags -> Array(tags.size) { tags[it].value } }
     )

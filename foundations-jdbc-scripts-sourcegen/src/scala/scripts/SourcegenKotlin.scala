@@ -497,12 +497,8 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |class PgStruct<T>(val underlying: dev.typr.foundations.PgStruct<T>) {
         |    fun asType(): PgType<T> = PgType(underlying.asType())
         |
-        |    fun asArrayType(arrayFactory: (Int) -> Array<T?>): PgType<Array<T>> {
-        |        val javaType = underlying.asType()
-        |        return PgType(javaType.array(
-        |            dev.typr.foundations.PgRead.readCompositeArray(javaType.pgCompositeText(), java.util.function.IntFunction { arrayFactory(it) }),
-        |            java.util.function.IntFunction { arrayFactory(it) }
-        |        ))
+        |    fun asArrayType(): PgType<Array<T>> {
+        |        return PgType(underlying.asType().array())
         |    }
         |
         |    companion object {

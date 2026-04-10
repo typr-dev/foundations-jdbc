@@ -11,6 +11,8 @@ class PgType<T>(override val underlying: dev.typr.foundations.PgType<T>) : DbTyp
     fun <B> transform(f: (T) -> B, g: (B) -> T): PgType<B> =
         PgType(underlying.transform(dev.typr.foundations.SqlFunction { f(it) }, g))
 
+    fun array(): PgType<Array<T>> = PgType(underlying.array())
+
     fun pgText(): dev.typr.foundations.PgText<T> = underlying.pgText()
 
     fun unchecked(): PgType<T> = PgType(underlying.unchecked())
