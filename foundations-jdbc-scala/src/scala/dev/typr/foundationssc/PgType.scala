@@ -1,5 +1,17 @@
 package dev.typr.foundationssc
 
+import dev.typr.foundations.{
+  AnalysisOptions,
+  PgArrayCodec,
+  PgCompositeText,
+  PgJson,
+  PgOutParam,
+  PgRead,
+  PgText,
+  PgTypename,
+  PgWrite
+}
+
 class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends DbType[T](underlying):
   override def opt: PgType[Option[T]] =
     PgType(underlying.opt().to(Bijections.optionalToOption))
@@ -10,9 +22,25 @@ class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends
   def transform[B](f: T => B, g: B => T): PgType[B] =
     PgType(underlying.transform(v => f(v), v => g(v)))
 
-  def array(): PgType[Array[T]] = PgType(underlying.array().asInstanceOf[dev.typr.foundations.PgType[Array[T]]])
+  def array(): PgType[Array[T]] = PgType(ArrayCoerce(underlying.array()))
 
-  def pgText(): dev.typr.foundations.PgText[T] = underlying.pgText()
+  def encode(value: T): dev.typr.foundations.Fragment.Value[T] = underlying.encode(value)
+
+  def pgText(): PgText[T] = underlying.pgText()
+
+  def withTypename(typename: PgTypename[T]): PgType[T] = PgType(underlying.withTypename(typename))
+  def withTypename(sqlType: String): PgType[T] = PgType(underlying.withTypename(sqlType))
+  def renamed(value: String): PgType[T] = PgType(underlying.renamed(value))
+  def renamedDropPrecision(value: String): PgType[T] = PgType(underlying.renamedDropPrecision(value))
+
+  def withRead(read: PgRead[T]): PgType[T] = PgType(underlying.withRead(read))
+  def withWrite(write: PgWrite[T]): PgType[T] = PgType(underlying.withWrite(write))
+  def withText(text: PgText[T]): PgType[T] = PgType(underlying.withText(text))
+  def withCompositeText(compositeText: PgCompositeText[T]): PgType[T] = PgType(underlying.withCompositeText(compositeText))
+  def withJson(json: PgJson[T]): PgType[T] = PgType(underlying.withJson(json))
+  def withOutParam(outParam: PgOutParam[T]): PgType[T] = PgType(underlying.withOutParam(outParam))
+  def withArrayCodec(codec: PgArrayCodec[T]): PgType[T] = PgType(underlying.withArrayCodec(codec))
+  def withAnalysis(opts: AnalysisOptions): PgType[T] = PgType(underlying.withAnalysis(opts))
 
   def unchecked(): PgType[T] = PgType(underlying.unchecked())
   def nullableOk(): PgType[T] = PgType(underlying.nullableOk())

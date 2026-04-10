@@ -132,7 +132,7 @@ public interface OracleTypes {
               OracleWrite.writeDouble,
               OracleJson.float8,
               OracleOutParam.readDouble)
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("number"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("number")));
 
   static OracleType<Double> float_(int binaryPrecision) {
     return OracleType.of(
@@ -141,7 +141,7 @@ public interface OracleTypes {
             OracleWrite.writeDouble,
             OracleJson.float8,
             OracleOutParam.readDouble)
-        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("number"));
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("number")));
   }
 
   /** INTEGER - Equivalent to NUMBER(38,0). Used for ANSI compatibility. */
@@ -202,7 +202,7 @@ public interface OracleTypes {
               OracleWrite.writeString,
               OracleJson.text,
               OracleOutParam.readString)
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar2"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("varchar2")));
 
   static OracleType<String> char_(int length) {
     return OracleType.of(
@@ -211,7 +211,7 @@ public interface OracleTypes {
             OracleWrite.writeString,
             OracleJson.text,
             OracleOutParam.readString)
-        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar2"));
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("varchar2")));
   }
 
   /**
@@ -508,7 +508,7 @@ public interface OracleTypes {
               OracleWrite.writeIntervalYearToMonth(),
               OracleJson.intervalYearToMonth,
               OracleOutParam.readString.map(OracleIntervalYM::parse))
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("intervalym"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("intervalym")));
 
   static OracleType<OracleIntervalYM> intervalYearToMonth(int yearPrecision) {
     return OracleType.of(
@@ -517,7 +517,7 @@ public interface OracleTypes {
             OracleWrite.writeIntervalYearToMonth(),
             OracleJson.intervalYearToMonth,
             OracleOutParam.readString.map(OracleIntervalYM::parse))
-        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("intervalym"));
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("intervalym")));
   }
 
   /**
@@ -532,7 +532,7 @@ public interface OracleTypes {
               OracleWrite.writeIntervalDayToSecond(),
               OracleJson.intervalDayToSecond,
               OracleOutParam.readString.map(OracleIntervalDS::parse))
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("intervalds"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("intervalds")));
 
   static OracleType<OracleIntervalDS> intervalDayToSecond(
       int dayPrecision, int fractionalSecondsPrecision) {
@@ -543,7 +543,7 @@ public interface OracleTypes {
             OracleWrite.writeIntervalDayToSecond(),
             OracleJson.intervalDayToSecond,
             OracleOutParam.readString.map(OracleIntervalDS::parse))
-        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("intervalds"));
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("intervalds")));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

@@ -125,5 +125,15 @@ open class DuckDbTypes {
     open fun <Row : Any> jsonObjectEncodedList(parser: RowCodecNamed<Row>) =
         DuckDbType<List<Row>>(JavaDuckDbTypes.jsonObjectEncodedList(parser.underlying))
 
+    /** JSON codec for Map<K, V> that serializes as a JSON object. */
+    open fun <K, V> mapJson(
+        keyJson: dev.typr.foundations.DuckDbJson<K>,
+        valueJson: dev.typr.foundations.DuckDbJson<V>
+    ): dev.typr.foundations.DuckDbJson<Map<K, V>> =
+        JavaDuckDbTypes.mapJson(keyJson, valueJson).transform(
+            dev.typr.foundations.SqlFunction { jmap -> jmap.toMap() },
+            { kmap -> kmap.toMap(java.util.HashMap()) }
+        )
+
     companion object : DuckDbTypes()
 }

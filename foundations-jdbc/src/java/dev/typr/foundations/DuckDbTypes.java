@@ -177,13 +177,13 @@ public interface DuckDbTypes {
           DuckDbJson.text);
 
   DuckDbType<String> text =
-      varchar.renamed("TEXT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+      varchar.renamed("TEXT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
   DuckDbType<String> string =
-      varchar.renamed("STRING").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+      varchar.renamed("STRING").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
   DuckDbType<String> char_ =
-      varchar.renamed("CHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+      varchar.renamed("CHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
   DuckDbType<String> bpchar =
-      varchar.renamed("BPCHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+      varchar.renamed("BPCHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
 
   static DuckDbType<String> varchar(int length) {
     return DuckDbType.of(
@@ -201,7 +201,7 @@ public interface DuckDbTypes {
             DuckDbWrite.writeString,
             DuckDbStringifier.string,
             DuckDbJson.text)
-        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varchar"));
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
   }
 
   // ==================== Binary Types ====================
@@ -341,7 +341,7 @@ public interface DuckDbTypes {
             DuckDbWrite.writeString.contramap(Enum::name),
             DuckDbStringifier.string.contramap(Enum::name),
             DuckDbJson.text.transform(fromString::apply, Enum::name))
-        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("enum"));
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("enum")));
   }
 
   // ==================== Array Types ====================

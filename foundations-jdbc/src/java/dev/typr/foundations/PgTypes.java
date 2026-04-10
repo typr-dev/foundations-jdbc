@@ -154,7 +154,7 @@ public interface PgTypes {
               PgJson.int4,
               PgOutParam.readInteger,
               PgArrayCodec.cast())
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("serial"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("serial")));
 
   @SuppressWarnings("unchecked")
   PgType<int[]> int4ArrayUnboxed =
@@ -215,7 +215,7 @@ public interface PgTypes {
               PgJson.int8,
               PgOutParam.readLong,
               PgArrayCodec.cast())
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("bigserial"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("bigserial")));
 
   @SuppressWarnings("unchecked")
   PgType<long[]> int8ArrayUnboxed =
@@ -394,10 +394,10 @@ public interface PgTypes {
           PgArrayCodec.cast());
   PgType<Short> smallint =
       int2.withTypename(PgTypename.of("smallint"))
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("int2")));
   PgType<Short> smallserial =
       int2.withTypename(PgTypename.of("smallserial"))
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("int2")));
 
   @SuppressWarnings("unchecked")
   PgType<short[]> int2ArrayUnboxed =
@@ -410,10 +410,12 @@ public interface PgTypes {
           PgJson.shortArrayUnboxed,
           PgOutParam.readShortArrayUnboxed);
 
+  @SuppressWarnings("unchecked")
   PgType<short[]> smallintArrayUnboxed =
       int2ArrayUnboxed
           .renamed("smallint")
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("int2[]"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(
+              (PgTypename<short[]>) (PgTypename<?>) PgTypename.of("int2").array()));
   PgType<String> bpchar =
       PgType.of(
           "bpchar",

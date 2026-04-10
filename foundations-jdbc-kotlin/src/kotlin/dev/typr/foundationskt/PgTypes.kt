@@ -91,10 +91,34 @@ open class PgTypes {
     open val smallserial: PgType<Short> = PgType(JavaPgTypes.smallserial.transform(SqlFunction { it }, { it }))
 
     // Parameterized methods
+    open fun bit(n: Int) = PgType(JavaPgTypes.bit(n))
+
     open fun bpchar(length: Int) = PgType(JavaPgTypes.bpchar(length))
+
+    open fun record(sqlType: String) = PgType(JavaPgTypes.record(sqlType))
 
     open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: (String) -> E) =
         PgType(JavaPgTypes.ofEnum(enumTypeName) { fromString(it) })
+
+    open fun <T> ofPgObject(
+        sqlType: String,
+        constructor: dev.typr.foundations.SqlFunction<String, T>,
+        extractor: java.util.function.Function<T, String>,
+        json: dev.typr.foundations.PgJson<T>
+    ) = PgType(JavaPgTypes.ofPgObject(sqlType, constructor, extractor, json))
+
+    open fun <T : org.postgresql.util.PGobject> pgObject(
+        sqlType: String,
+        clazz: Class<T>,
+        json: dev.typr.foundations.PgJson<T>
+    ) = PgType(JavaPgTypes.pgObject(sqlType, clazz, json))
+
+    open fun <T : Comparable<T>> rangeType(
+        sqlType: String,
+        valueParser: dev.typr.foundations.SqlFunction<String, T>,
+        rangeFactory: java.util.function.BiFunction<dev.typr.foundations.data.RangeBound<T>, dev.typr.foundations.data.RangeBound<T>, dev.typr.foundations.data.Range<T>>,
+        json: dev.typr.foundations.PgJson<dev.typr.foundations.data.Range<T>>
+    ) = PgType(JavaPgTypes.rangeType(sqlType, valueParser, rangeFactory, json))
 
     // JSON-encoded row types (json)
 

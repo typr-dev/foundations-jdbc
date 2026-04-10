@@ -7,11 +7,9 @@ import java.util.UUID;
 @SuppressWarnings("unused")
 public class ArrayTypes {
   // start
-  DuckDbType<Integer[]> intArray = DuckDbTypes.integerArray;
-  DuckDbType<String[]> strArray = DuckDbTypes.varcharArray;
-  DuckDbType<UUID[]> uuidArray = DuckDbTypes.uuidArray;
-
-  // Create array for any type
-  // DuckDbType<MyType[]> customArray = myType.array();
+  // Any type can be made into an array with .array()
+  DuckDbType<Integer[]> intArray = DuckDbTypes.integer.array();
+  DuckDbType<String[]> strArray = DuckDbTypes.varchar.array();
+  DuckDbType<UUID[]> uuidArray = DuckDbTypes.uuid.array();
   // stop
 }

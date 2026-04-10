@@ -183,6 +183,16 @@ class DuckDbTypes {
           slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
         )
     )
+
+  /** JSON codec for Map[K, V] that serializes as a JSON object. */
+  def mapJson[K, V](
+      keyJson: dev.typr.foundations.DuckDbJson[K],
+      valueJson: dev.typr.foundations.DuckDbJson[V]
+  ): dev.typr.foundations.DuckDbJson[Map[K, V]] =
+    JavaDuckDbTypes.mapJson(keyJson, valueJson).transform(
+      jmap => scala.jdk.CollectionConverters.MapHasAsScala(jmap).asScala.toMap,
+      smap => java.util.Map.copyOf(scala.jdk.CollectionConverters.MapHasAsJava(smap).asJava)
+    )
 }
 
 object DuckDbTypes extends DuckDbTypes

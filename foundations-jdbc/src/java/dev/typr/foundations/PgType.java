@@ -40,9 +40,9 @@ public record PgType<A>(
   @Override
   public Set<String> vendorTypeNames() {
     var aliases = analysisOptions.vendorTypeNames();
-    if (aliases.isEmpty()) return Set.of(typename.sqlType().toLowerCase());
-    var all = new java.util.HashSet<>(aliases);
+    var all = new java.util.HashSet<String>();
     all.add(typename.sqlType().toLowerCase());
+    for (var alias : aliases) all.add(alias.sqlType().toLowerCase());
     return Set.copyOf(all);
   }
 
@@ -155,7 +155,7 @@ public record PgType<A>(
         pgCompositeText.array(arrayFactory, codec.compositeTextDelimiter()),
         pgJson.array(arrayFactory),
         PgOutParam.parsedArray(arrayFactory, pgCompositeText::decode),
-        analysisOptions,
+        analysisOptions.arrayForms(),
         Optional.empty());
   }
 

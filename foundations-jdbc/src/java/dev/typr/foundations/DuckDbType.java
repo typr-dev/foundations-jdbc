@@ -40,9 +40,9 @@ public record DuckDbType<A>(
   @Override
   public Set<String> vendorTypeNames() {
     var aliases = analysisOptions.vendorTypeNames();
-    if (aliases.isEmpty()) return Set.of(typename.sqlType().toLowerCase());
-    var all = new java.util.HashSet<>(aliases);
+    var all = new java.util.HashSet<String>();
     all.add(typename.sqlType().toLowerCase());
+    for (var alias : aliases) all.add(alias.sqlType().toLowerCase());
     return Set.copyOf(all);
   }
 
@@ -234,7 +234,8 @@ public record DuckDbType<A>(
         arrayStringifier,
         arrayJson,
         DuckDbMapSupport.cast(),
-        analysisOptions, java.util.Optional.empty());
+        analysisOptions.arrayForms(),
+        java.util.Optional.empty());
   }
 
   public <V> DuckDbType<java.util.Map<A, V>> mapTo(DuckDbType<V> valueType) {

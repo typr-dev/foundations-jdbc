@@ -103,8 +103,26 @@ class PgTypes {
   def record(sqlType: String): PgType[dev.typr.foundations.data.Record] =
     PgType(JavaPgTypes.record(sqlType))
 
+  def bit(n: Int): PgType[dev.typr.foundations.data.Bit] =
+    PgType(JavaPgTypes.bit(n))
+
   def bpchar(precision: Int): PgType[String] =
     PgType(JavaPgTypes.bpchar(precision))
+
+  def pgObject[T <: org.postgresql.util.PGobject](
+      sqlType: String,
+      clazz: Class[T],
+      json: dev.typr.foundations.PgJson[T]
+  ): PgType[T] =
+    PgType(JavaPgTypes.pgObject(sqlType, clazz, json))
+
+  def rangeType[T <: Comparable[? >: T]](
+      sqlType: String,
+      valueParser: dev.typr.foundations.SqlFunction[String, T],
+      rangeFactory: java.util.function.BiFunction[dev.typr.foundations.data.RangeBound[T], dev.typr.foundations.data.RangeBound[T], dev.typr.foundations.data.Range[T]],
+      json: dev.typr.foundations.PgJson[dev.typr.foundations.data.Range[T]]
+  ): PgType[dev.typr.foundations.data.Range[T]] =
+    PgType(JavaPgTypes.rangeType(sqlType, valueParser, rangeFactory, json))
 
   // JSON-encoded row types (json)
 

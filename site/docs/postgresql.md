@@ -81,17 +81,19 @@ Foundations JDBC provides comprehensive support for all PostgreSQL data types, i
 
 ## Array Types
 
-Any PostgreSQL type can be used as an array. Foundations JDBC supports both boxed and unboxed array variants:
+Any PostgreSQL type can be used as an array — call `.array()` on the element type. Unboxed primitive array variants are also available for performance:
 
 | PostgreSQL Type | Java Type (Boxed) | Java Type (Unboxed) |
 |-----------------|-------------------|---------------------|
-| `int4[]` | `Integer[]` | `int[]` |
-| `int8[]` | `Long[]` | `long[]` |
-| `float4[]` | `Float[]` | `float[]` |
-| `float8[]` | `Double[]` | `double[]` |
-| `bool[]` | `Boolean[]` | `boolean[]` |
-| `text[]` | `String[]` | - |
-| `uuid[]` | `UUID[]` | - |
+| `int4[]` | `Integer[]` via `int4.array()` | `int[]` via `int4ArrayUnboxed` |
+| `int8[]` | `Long[]` via `int8.array()` | `long[]` via `int8ArrayUnboxed` |
+| `float4[]` | `Float[]` via `float4.array()` | `float[]` via `float4ArrayUnboxed` |
+| `float8[]` | `Double[]` via `float8.array()` | `double[]` via `float8ArrayUnboxed` |
+| `bool[]` | `Boolean[]` via `bool.array()` | `boolean[]` via `boolArrayUnboxed` |
+| `text[]` | `String[]` via `text.array()` | - |
+| `uuid[]` | `UUID[]` via `uuid.array()` | - |
+
+This works for all types — `numeric.array()`, `timestamptz.array()`, `jsonb.array()`, custom enum types, composite types, etc.
 
 <Snippet file="postgresql/ArrayTypes" />
 
