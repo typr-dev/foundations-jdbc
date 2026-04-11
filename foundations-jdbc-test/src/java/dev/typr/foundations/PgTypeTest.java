@@ -82,19 +82,44 @@ public class PgTypeTest {
     }
   }
 
-  /** Auto-generate array test entries (empty + singleton) for every element type with PgArrayCodec. */
+  /** Auto-generate a singleton array test entry for one element entry. */
   @SuppressWarnings("unchecked")
-  static <A> List<PgTypeAndExample<?>> arrayEntries(PgTypeAndExample<A> elem) {
-    if (elem.type().pgArrayCodec().isEmpty()) return List.of();
-    if (elem.type().typename().sqlType().contains("[]")) return List.of();
+  static <A> PgTypeAndExample<A[]> singletonArrayEntry(PgTypeAndExample<A> elem) {
     A example = elem.example();
     A[] singleton = (A[]) java.lang.reflect.Array.newInstance(example.getClass(), 1);
     singleton[0] = example;
-    A[] empty = (A[]) java.lang.reflect.Array.newInstance(example.getClass(), 0);
-    var arrayType = elem.type().array();
-    return List.of(
-        new PgTypeAndExample<>(arrayType, singleton, elem.hasIdentity(), elem.streamingWorks(), elem.compositeTextWorks()),
-        new PgTypeAndExample<>(arrayType, empty, elem.hasIdentity(), elem.streamingWorks(), elem.compositeTextWorks()));
+    return new PgTypeAndExample<>(
+        elem.type().array(), singleton,
+        elem.hasIdentity(), elem.streamingWorks(), elem.compositeTextWorks());
+  }
+
+  /** Auto-generate an empty array test entry for a type (once per type). */
+  @SuppressWarnings("unchecked")
+  static <A> PgTypeAndExample<A[]> emptyArrayEntry(PgTypeAndExample<A> elem) {
+    A[] empty = (A[]) java.lang.reflect.Array.newInstance(elem.example().getClass(), 0);
+    return new PgTypeAndExample<>(
+        elem.type().array(), empty,
+        elem.hasIdentity(), elem.streamingWorks(), elem.compositeTextWorks());
+  }
+
+  /** Auto-generate a multi-element array test entry combining all examples for a type. */
+  @SuppressWarnings("unchecked")
+  static <A> PgTypeAndExample<A[]> multiArrayEntry(List<PgTypeAndExample<A>> sameTypeEntries) {
+    var first = sameTypeEntries.get(0);
+    Class<?> elementClass = first.example().getClass();
+    A[] values = (A[]) java.lang.reflect.Array.newInstance(elementClass, sameTypeEntries.size());
+    for (int i = 0; i < sameTypeEntries.size(); i++) {
+      values[i] = sameTypeEntries.get(i).example();
+    }
+    return new PgTypeAndExample<>(
+        first.type().array(), values,
+        first.hasIdentity(), first.streamingWorks(), first.compositeTextWorks());
+  }
+
+  /** Should we auto-generate array test entries for this scalar entry? */
+  static boolean hasArraySupport(PgTypeAndExample<?> elem) {
+    return elem.type().pgArrayCodec().isPresent()
+        && !elem.type().typename().sqlType().contains("[]");
   }
 
   List<PgTypeAndExample<?>> Elements =
@@ -348,13 +373,53 @@ public class PgTypeTest {
                   new RangeBound.Open<>(Instant.parse("2024-12-31T23:59:59Z")))),
           new PgTypeAndExample<>(PgTypes.tstzrange, Range.empty()));
 
-  /** All test entries: element types + auto-generated array entries (singleton + empty per element). */
+  /**
+   * All test entries: element types + auto-generated array entries.
+   *
+   * <p>For each scalar entry with array support, we generate a singleton array test (per entry)
+   * so every edge-case value flows through the array codec. For each unique scalar type, we also
+   * generate one multi-element array (combining all the type's edge-case examples, exercising
+   * element separators) and one empty array.
+   */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  List<PgTypeAndExample<?>> All = java.util.stream.Stream.concat(
-      Elements.stream(),
-      Elements.stream()
-          .flatMap(t -> ((List<PgTypeAndExample<?>>) (List) arrayEntries(t)).stream()))
-      .toList();
+  List<PgTypeAndExample<?>> All = buildAll();
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private List<PgTypeAndExample<?>> buildAll() {
+    var out = new java.util.ArrayList<PgTypeAndExample<?>>(Elements);
+
+    // Per-entry singleton array tests (edge-case values through the array codec)
+    for (var e : Elements) {
+      if (hasArraySupport(e)) {
+        out.add(singletonArrayEntry((PgTypeAndExample) e));
+      }
+    }
+
+    // Group entries for per-type array tests (multi + empty).
+    // Key by (sqlType, example class) so transformed types (e.g. jsonArrayEncoded<Item>)
+    // don't collide with their base type (json<Json>) even though both have sqlType="json".
+    var byType = new java.util.LinkedHashMap<String, List<PgTypeAndExample<?>>>();
+    for (var e : Elements) {
+      if (hasArraySupport(e)) {
+        String key = e.type().typename().sqlType() + "#" + e.example().getClass().getName();
+        byType.computeIfAbsent(key, k -> new java.util.ArrayList<>()).add(e);
+      }
+    }
+    for (var group : byType.values()) {
+      var first = (PgTypeAndExample) group.get(0);
+      // Skip multi-element test for types with non-standard array delimiter (geometric types
+      // use ';'). COPY/text escaping for those has quoting quirks — singleton tests still
+      // cover element encoding, and multi-element adds little for types where the only
+      // difference is the delimiter character.
+      char delim = ((PgType<?>) first.type()).arrayDelimiter();
+      if (delim == ',' && group.size() > 1) {
+        out.add(multiArrayEntry((List) group));
+      }
+      out.add(emptyArrayEntry(first));
+    }
+
+    return List.copyOf(out);
+  }
 
   static <T> void withConnection(SqlFunction<Connection, T> f) {
     Containers.postgresTransactor().execute(f);
@@ -451,6 +516,7 @@ public class PgTypeTest {
         });
 
     // Stored procedure roundtrip tests - deduplicate by SQL type, run in parallel
+    // Tests function return, OUT param, and INOUT param paths.
     System.out.println("\n=== Call Roundtrip Tests (parallel) ===");
     var callFailures =
         All.stream()
@@ -461,17 +527,38 @@ public class PgTypeTest {
             .parallelStream()
             .flatMap(
                 t -> {
+                  var errors = new ArrayList<String>();
                   try {
                     withConnection(
                         conn -> {
                           testCallRoundtrip(conn, t);
                           return null;
                         });
-                    return java.util.stream.Stream.<String>empty();
                   } catch (Exception e) {
-                    return java.util.stream.Stream.of(
+                    errors.add(
                         "Call test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
                   }
+                  try {
+                    withConnection(
+                        conn -> {
+                          testCallOutParam(conn, t);
+                          return null;
+                        });
+                  } catch (Exception e) {
+                    errors.add(
+                        "Call OUT test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+                  }
+                  try {
+                    withConnection(
+                        conn -> {
+                          testCallInOutParam(conn, t);
+                          return null;
+                        });
+                  } catch (Exception e) {
+                    errors.add(
+                        "Call INOUT test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+                  }
+                  return errors.stream();
                 })
             .toList();
 
@@ -554,13 +641,13 @@ public class PgTypeTest {
       conn.createStatement()
           .execute("CREATE TYPE " + compositeTypeName + " AS (wrapped_value " + sqlType + ")");
 
-      // Build PgStruct for this wrapper
-      PgStruct<SingleFieldWrapper<A>> wrapperStruct =
-          PgStruct.<SingleFieldWrapper<A>>builder(compositeTypeName)
-              .field("wrapped_value", t.type, SingleFieldWrapper::value)
-              .build(SingleFieldWrapper::new);
-
-      PgType<SingleFieldWrapper<A>> wrapperType = wrapperStruct.asType();
+      // Build composite PgType for this wrapper
+      PgType<SingleFieldWrapper<A>> wrapperType =
+          PgTypes.compositeOf(
+              compositeTypeName,
+              RowCodec.<SingleFieldWrapper<A>>namedBuilder()
+                  .field("wrapped_value", t.type, SingleFieldWrapper::value)
+                  .build(SingleFieldWrapper::new));
       String tableName = "test_composite_rt_" + uniqueId;
 
       // Create temp table
@@ -646,23 +733,26 @@ public class PgTypeTest {
                 + ")");
 
     try {
-      PgStruct<ComprehensiveComposite> struct =
-          PgStruct.<ComprehensiveComposite>builder(typeName)
-              .field("text_field", PgTypes.text, ComprehensiveComposite::textField)
-              .field("int4_field", PgTypes.int4, ComprehensiveComposite::int4Field)
-              .field("int8_field", PgTypes.int8, ComprehensiveComposite::int8Field)
-              .field("int2_field", PgTypes.int2, ComprehensiveComposite::int2Field)
-              .field("float8_field", PgTypes.float8, ComprehensiveComposite::float8Field)
-              .field("float4_field", PgTypes.float4, ComprehensiveComposite::float4Field)
-              .field("bool_field", PgTypes.bool, ComprehensiveComposite::boolField)
-              .field("numeric_field", PgTypes.numeric, ComprehensiveComposite::numericField)
-              .field("uuid_field", PgTypes.uuid, ComprehensiveComposite::uuidField)
-              .field("date_field", PgTypes.date, ComprehensiveComposite::dateField)
-              .field("time_field", PgTypes.time, ComprehensiveComposite::timeField)
-              .field("timestamp_field", PgTypes.timestamp, ComprehensiveComposite::timestampField)
-              .build(ComprehensiveComposite::new);
-
-      PgType<ComprehensiveComposite> compositeType = struct.asType();
+      PgType<ComprehensiveComposite> compositeType =
+          PgTypes.compositeOf(
+              typeName,
+              RowCodec.<ComprehensiveComposite>namedBuilder()
+                  .field("text_field", PgTypes.text, ComprehensiveComposite::textField)
+                  .field("int4_field", PgTypes.int4, ComprehensiveComposite::int4Field)
+                  .field("int8_field", PgTypes.int8, ComprehensiveComposite::int8Field)
+                  .field("int2_field", PgTypes.int2, ComprehensiveComposite::int2Field)
+                  .field("float8_field", PgTypes.float8, ComprehensiveComposite::float8Field)
+                  .field("float4_field", PgTypes.float4, ComprehensiveComposite::float4Field)
+                  .field("bool_field", PgTypes.bool, ComprehensiveComposite::boolField)
+                  .field("numeric_field", PgTypes.numeric, ComprehensiveComposite::numericField)
+                  .field("uuid_field", PgTypes.uuid, ComprehensiveComposite::uuidField)
+                  .field("date_field", PgTypes.date, ComprehensiveComposite::dateField)
+                  .field("time_field", PgTypes.time, ComprehensiveComposite::timeField)
+                  .field(
+                      "timestamp_field",
+                      PgTypes.timestamp,
+                      ComprehensiveComposite::timestampField)
+                  .build(ComprehensiveComposite::new));
 
       conn.createStatement().execute("CREATE TEMP TABLE test_comp (v " + typeName + ")");
 
@@ -935,6 +1025,100 @@ public class PgTypeTest {
       }
     } finally {
       conn.createStatement().execute("DROP FUNCTION IF EXISTS " + funcName);
+    }
+  }
+
+  private static String safeName(String sqlType) {
+    return sqlType
+        .replace("(", "_")
+        .replace(")", "_")
+        .replace(",", "_")
+        .replace(" ", "_")
+        .replace("[", "_arr_")
+        .replace("]", "")
+        .replace("\"", "");
+  }
+
+  /**
+   * Test type as a procedure OUT parameter. Creates {@code CREATE PROCEDURE
+   * foo(IN i T, OUT o T) AS $$ BEGIN o := i; END; $$} and verifies the OUT value matches input.
+   */
+  @SuppressWarnings("unchecked")
+  static <A> void testCallOutParam(Connection conn, PgTypeAndExample<A> t) throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    int uniqueId = tableCounter.incrementAndGet();
+    String procName = "out_" + safeName(sqlType) + "_" + uniqueId;
+
+    conn.createStatement()
+        .execute(
+            "CREATE OR REPLACE PROCEDURE "
+                + procName
+                + "(IN i "
+                + sqlType
+                + ", OUT o "
+                + sqlType
+                + ") AS $$ BEGIN o := i; END; $$ LANGUAGE plpgsql");
+
+    try {
+      Procedure<A> proc =
+          Procedure.buildSingleOut(
+              procName,
+              java.util.List.of(ParamDef.input(t.type), ParamDef.of(t.type, ParamDef.Mode.OUT)));
+
+      A result = proc.call(t.example).run(conn);
+
+      if (!areEqual(result, t.example)) {
+        throw new RuntimeException(
+            "OUT param roundtrip failed for "
+                + sqlType
+                + ": expected '"
+                + format(t.example)
+                + "' but got '"
+                + format(result)
+                + "'");
+      }
+    } finally {
+      conn.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName + "(" + sqlType + "," + sqlType + ")");
+    }
+  }
+
+  /**
+   * Test type as a procedure INOUT parameter. Creates {@code CREATE PROCEDURE foo(INOUT p T) AS
+   * $$ BEGIN END; $$} which passes the value through unchanged, and verifies roundtrip.
+   */
+  @SuppressWarnings("unchecked")
+  static <A> void testCallInOutParam(Connection conn, PgTypeAndExample<A> t) throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    int uniqueId = tableCounter.incrementAndGet();
+    String procName = "inout_" + safeName(sqlType) + "_" + uniqueId;
+
+    conn.createStatement()
+        .execute(
+            "CREATE OR REPLACE PROCEDURE "
+                + procName
+                + "(INOUT p "
+                + sqlType
+                + ") AS $$ BEGIN END; $$ LANGUAGE plpgsql");
+
+    try {
+      Procedure<A> proc =
+          Procedure.buildSingleOut(
+              procName, java.util.List.of(ParamDef.of(t.type, ParamDef.Mode.INOUT)));
+
+      A result = proc.call(t.example).run(conn);
+
+      if (!areEqual(result, t.example)) {
+        throw new RuntimeException(
+            "INOUT param roundtrip failed for "
+                + sqlType
+                + ": expected '"
+                + format(t.example)
+                + "' but got '"
+                + format(result)
+                + "'");
+      }
+    } finally {
+      conn.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName + "(" + sqlType + ")");
     }
   }
 

@@ -41,49 +41,53 @@ public class StructArrayBlogTest {
   // ======================================================================
 
   //start:blog-pg-structs
-  static final PgStruct<Address> pgAddress =
-      PgStructBuilders.<Address>builder("address")
-          .field("street", PgTypes.text, Address::street)
-          .field("city", PgTypes.text, Address::city)
-          .field("state", PgTypes.text, Address::state)
-          .field("zip", PgTypes.text, Address::zip)
-          .build(Address::new);
+  static final PgType<Address> pgAddressType =
+      PgTypes.compositeOf(
+          "address",
+          RowCodec.<Address>namedBuilder()
+              .field("street", PgTypes.text, Address::street)
+              .field("city", PgTypes.text, Address::city)
+              .field("state", PgTypes.text, Address::state)
+              .field("zip", PgTypes.text, Address::zip)
+              .build(Address::new));
 
-  static final PgType<Address> pgAddressType = pgAddress.asType();
-
-  static final PgStruct<LineItem> pgLineItem =
-      PgStructBuilders.<LineItem>builder("line_item")
-          .field("product_name", PgTypes.text, LineItem::productName)
-          .field("quantity", PgTypes.int4, LineItem::quantity)
-          .field("unit_price", PgTypes.numeric, LineItem::unitPrice)
-          .build(LineItem::new);
-
-  static final PgType<LineItem> pgLineItemType = pgLineItem.asType();
+  static final PgType<LineItem> pgLineItemType =
+      PgTypes.compositeOf(
+          "line_item",
+          RowCodec.<LineItem>namedBuilder()
+              .field("product_name", PgTypes.text, LineItem::productName)
+              .field("quantity", PgTypes.int4, LineItem::quantity)
+              .field("unit_price", PgTypes.numeric, LineItem::unitPrice)
+              .build(LineItem::new));
 
   static final PgType<LineItem[]> pgLineItemArrayType = pgLineItemType.array();
   //stop:blog-pg-structs
 
   //start:blog-pg-deep-nesting
-  static final PgStruct<Skill> pgSkill =
-      PgStructBuilders.<Skill>builder("skill")
-          .field("name", PgTypes.text, Skill::name)
-          .field("level", PgTypes.int4, Skill::level)
-          .build(Skill::new);
+  static final PgType<Skill> pgSkillType =
+      PgTypes.compositeOf(
+          "skill",
+          RowCodec.<Skill>namedBuilder()
+              .field("name", PgTypes.text, Skill::name)
+              .field("level", PgTypes.int4, Skill::level)
+              .build(Skill::new));
 
-  static final PgStruct<Employee> pgEmployee =
-      PgStructBuilders.<Employee>builder("employee")
-          .field("name", PgTypes.text, Employee::name)
-          .field("role", PgTypes.text, Employee::role)
-          .nestedArrayField("skills", pgSkill, Employee::skills, Skill[]::new)
-          .build(Employee::new);
+  static final PgType<Employee> pgEmployeeType =
+      PgTypes.compositeOf(
+          "employee",
+          RowCodec.<Employee>namedBuilder()
+              .field("name", PgTypes.text, Employee::name)
+              .field("role", PgTypes.text, Employee::role)
+              .field("skills", pgSkillType.array(), Employee::skills)
+              .build(Employee::new));
 
-  static final PgStruct<Department> pgDepartment =
-      PgStructBuilders.<Department>builder("department")
-          .field("name", PgTypes.text, Department::name)
-          .nestedArrayField("members", pgEmployee, Department::members, Employee[]::new)
-          .build(Department::new);
-
-  static final PgType<Department> pgDepartmentType = pgDepartment.asType();
+  static final PgType<Department> pgDepartmentType =
+      PgTypes.compositeOf(
+          "department",
+          RowCodec.<Department>namedBuilder()
+              .field("name", PgTypes.text, Department::name)
+              .field("members", pgEmployeeType.array(), Department::members)
+              .build(Department::new));
   //stop:blog-pg-deep-nesting
 
   static final RowCodecNamed<Customer> pgCustomerCodec =

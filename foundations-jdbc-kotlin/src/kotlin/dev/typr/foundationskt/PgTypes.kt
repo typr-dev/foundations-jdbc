@@ -120,6 +120,14 @@ open class PgTypes {
         json: dev.typr.foundations.PgJson<dev.typr.foundations.data.Range<T>>
     ) = PgType(JavaPgTypes.rangeType(sqlType, valueParser, rangeFactory, json))
 
+    /** Build an ad-hoc composite PgType from a RowCodec. Read-only, for row constructors. */
+    open fun <Row : Any> compositeOf(codec: RowCodecNamed<Row>) =
+        PgType(JavaPgTypes.compositeOf(codec.underlying))
+
+    /** Build a named composite PgType from a RowCodec. Read-write, for CREATE TYPE declarations. */
+    open fun <Row : Any> compositeOf(sqlType: String, codec: RowCodecNamed<Row>) =
+        PgType(JavaPgTypes.compositeOf(sqlType, codec.underlying))
+
     // JSON-encoded row types (json)
 
     open fun <Row : Any> jsonArrayEncoded(parser: RowCodec<Row>) =

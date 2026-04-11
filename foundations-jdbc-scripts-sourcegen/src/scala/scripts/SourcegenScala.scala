@@ -18,7 +18,6 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("RowCodecNamedBuilders.scala"), generateScalaNamedRowCodecBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("DbProcedure.scala"), generateScalaDbProcedure())
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("DbFunction.scala"), generateScalaDbFunction())
-      FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("PgStruct.scala"), generateScalaPgStructBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("DuckDbStruct.scala"), generateScalaDuckDbStructBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("OracleObject.scala"), generateScalaOracleObjectBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("Tuple.scala"), generateScalaTuple())
@@ -390,56 +389,6 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |""".stripMargin
   }
 
-  def generateScalaPgStructBuilders(): String = {
-    val maxArity = STRUCT_N - 1
-
-    val builder0 = s"""|  class Builder0[A] private[foundationssc] (
-                       |    private val underlying: dev.typr.foundations.PgStructBuilders.Builder0[A]
-                       |  ):
-                       |    def field[F](name: String, tpe: PgType[F], getter: A => F): Builder1[A, F] =
-                       |      Builder1(underlying.field(name, tpe.underlying, a => getter(a)))
-                       |    def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder1[A, F] =
-                       |      Builder1(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))""".stripMargin
-
-    val builders = 1.to(maxArity).map { n =>
-      val range = 0.until(n)
-      val tparams = range.map(i => s"T$i").mkString(", ")
-      val lambdaParams = range.map(i => s"t$i").mkString(", ")
-
-      val nextBuilder = if (n < maxArity) {
-        val nextTparams = range.map(i => s"T$i").mkString(", ")
-        s"""|
-            |    def field[F](name: String, tpe: PgType[F], getter: A => F): Builder${n + 1}[A, $nextTparams, F] =
-            |      Builder${n + 1}(underlying.field(name, tpe.underlying, a => getter(a)))
-            |    def nestedField[F](name: String, nestedStruct: PgStruct[F], getter: A => F): Builder${n + 1}[A, $nextTparams, F] =
-            |      Builder${n + 1}(underlying.nestedField(name, nestedStruct.underlying, a => getter(a)))""".stripMargin
-      } else ""
-
-      s"""|  class Builder$n[A, $tparams] private[foundationssc] (
-          |    private val underlying: dev.typr.foundations.PgStructBuilders.Builder$n[A, $tparams]
-          |  ):
-          |    def build(decode: ($tparams) => A): PgStruct[A] =
-          |      PgStruct(underlying.build(($lambdaParams) => decode($lambdaParams)))
-          |$nextBuilder""".stripMargin
-    }
-
-    s"""|package dev.typr.foundationssc
-        |
-        |class PgStruct[A](val underlying: dev.typr.foundations.PgStruct[A]):
-        |  def asType(): PgType[A] = PgType(underlying.asType())
-        |
-        |  def asArrayType(): PgType[Array[A]] =
-        |    PgType(underlying.asType().array().asInstanceOf[dev.typr.foundations.PgType[Array[A]]])
-        |
-        |object PgStruct:
-        |  def builder[A](typeName: String): Builder0[A] =
-        |    Builder0(dev.typr.foundations.PgStructBuilders.builder(typeName))
-        |
-        |$builder0
-        |
-        |${builders.mkString("\n\n")}
-        |""".stripMargin
-  }
 
   def generateScalaDuckDbStructBuilders(): String = {
     val maxArity = STRUCT_N - 1

@@ -14,43 +14,29 @@ import java.util.function.Function;
  */
 public sealed interface PgArrayCodec<A> {
 
-  char compositeTextDelimiter();
-
   <B> PgArrayCodec<B> map(Function<A, B> f);
 
-  PgArrayCodec<A> withDelimiter(char delimiter);
-
-  record OfElement<A>(Function<Object, A> converter, char compositeTextDelimiter) implements PgArrayCodec<A> {
+  record OfElement<A>(Function<Object, A> converter) implements PgArrayCodec<A> {
     @Override
     public <B> PgArrayCodec<B> map(Function<A, B> f) {
-      return new OfElement<>(obj -> f.apply(converter.apply(obj)), compositeTextDelimiter);
-    }
-
-    @Override
-    public PgArrayCodec<A> withDelimiter(char delimiter) {
-      return new OfElement<>(converter, delimiter);
+      return new OfElement<>(obj -> f.apply(converter.apply(obj)));
     }
   }
 
-  record OfText<A>(char compositeTextDelimiter) implements PgArrayCodec<A> {
+  record OfText<A>() implements PgArrayCodec<A> {
     @Override
     public <B> PgArrayCodec<B> map(Function<A, B> f) {
-      return new OfText<>(compositeTextDelimiter);
-    }
-
-    @Override
-    public PgArrayCodec<A> withDelimiter(char delimiter) {
-      return new OfText<>(delimiter);
+      return new OfText<>();
     }
   }
 
   @SuppressWarnings("unchecked")
   static <A> PgArrayCodec<A> cast() {
-    return new OfElement<>(obj -> (A) obj, ',');
+    return new OfElement<>(obj -> (A) obj);
   }
 
   static <A> PgArrayCodec<A> of(Function<Object, A> converter) {
-    return new OfElement<>(converter, ',');
+    return new OfElement<>(converter);
   }
 
   static <A> PgArrayCodec<A> pgObject(SqlFunction<String, A> constructor) {
@@ -60,14 +46,14 @@ public sealed interface PgArrayCodec<A> {
       } catch (java.sql.SQLException e) {
         throw new DatabaseException(e);
       }
-    }, ',');
+    });
   }
 
   static <A> PgArrayCodec<A> fromString(Function<String, A> constructor) {
-    return new OfElement<>(obj -> constructor.apply((String) obj), ',');
+    return new OfElement<>(obj -> constructor.apply((String) obj));
   }
 
   static <A> PgArrayCodec<A> textParsed() {
-    return new OfText<>(',');
+    return new OfText<>();
   }
 }

@@ -13,7 +13,8 @@ public record PgType<A>(
     PgJson<A> pgJson,
     PgOutParam<A> pgOutParam,
     AnalysisOptions analysisOptions,
-    Optional<PgArrayCodec<A>> pgArrayCodec)
+    Optional<PgArrayCodec<A>> pgArrayCodec,
+    char arrayDelimiter)
     implements DbType<A> {
 
 
@@ -55,7 +56,7 @@ public record PgType<A>(
   }
 
   public PgType<A> withAnalysis(AnalysisOptions opts) {
-    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, opts, pgArrayCodec);
+    return new PgType<>(typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, opts, pgArrayCodec, arrayDelimiter);
   }
 
   public Fragment.Value<A> encode(A value) {
@@ -64,7 +65,7 @@ public record PgType<A>(
 
   public PgType<A> withTypename(PgTypename<A> typename) {
     return new PgType<>(
-        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions, pgArrayCodec);
+        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions, pgArrayCodec, arrayDelimiter);
   }
 
   public PgType<A> withTypename(String sqlType) {
@@ -81,37 +82,45 @@ public record PgType<A>(
 
   public PgType<A> withRead(PgRead<A> read) {
     return new PgType<>(
-        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions, pgArrayCodec);
+        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions, pgArrayCodec, arrayDelimiter);
   }
 
   public PgType<A> withWrite(PgWrite<A> write) {
     return new PgType<>(
-        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions, pgArrayCodec);
+        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions, pgArrayCodec, arrayDelimiter);
   }
 
   public PgType<A> withText(PgText<A> text) {
     return new PgType<>(
-        typename, read, write, text, pgCompositeText, pgJson, pgOutParam, analysisOptions, pgArrayCodec);
+        typename, read, write, text, pgCompositeText, pgJson, pgOutParam, analysisOptions, pgArrayCodec, arrayDelimiter);
   }
 
   public PgType<A> withCompositeText(PgCompositeText<A> compositeText) {
     return new PgType<>(
-        typename, read, write, pgText, compositeText, pgJson, pgOutParam, analysisOptions, pgArrayCodec);
+        typename, read, write, pgText, compositeText, pgJson, pgOutParam, analysisOptions, pgArrayCodec, arrayDelimiter);
   }
 
   public PgType<A> withJson(PgJson<A> json) {
     return new PgType<>(
-        typename, read, write, pgText, pgCompositeText, json, pgOutParam, analysisOptions, pgArrayCodec);
+        typename, read, write, pgText, pgCompositeText, json, pgOutParam, analysisOptions, pgArrayCodec, arrayDelimiter);
   }
 
   public PgType<A> withOutParam(PgOutParam<A> outParam) {
     return new PgType<>(
-        typename, read, write, pgText, pgCompositeText, pgJson, outParam, analysisOptions, pgArrayCodec);
+        typename, read, write, pgText, pgCompositeText, pgJson, outParam, analysisOptions, pgArrayCodec, arrayDelimiter);
   }
 
   public PgType<A> withArrayCodec(PgArrayCodec<A> codec) {
     return new PgType<>(
-        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions, Optional.of(codec));
+        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions, Optional.of(codec), arrayDelimiter);
+  }
+
+  /** Set the array element delimiter used when this type is wrapped in a PG array
+   *  (typdelim). Default is ','; geometric types (box, circle, line, lseg, path, point,
+   *  polygon) use ';'. */
+  public PgType<A> withArrayDelimiter(char delimiter) {
+    return new PgType<>(
+        typename, read, write, pgText, pgCompositeText, pgJson, pgOutParam, analysisOptions, pgArrayCodec, delimiter);
   }
 
   @Override
@@ -125,7 +134,8 @@ public record PgType<A>(
         pgJson.opt(),
         pgOutParam.opt(),
         analysisOptions,
-        Optional.empty());
+        Optional.empty(),
+        arrayDelimiter);
   }
 
   @SuppressWarnings("unchecked")
@@ -139,10 +149,22 @@ public record PgType<A>(
             java.sql.Array arr = rs.getArray(idx);
             if (arr == null) return null;
             Object[] elements = (Object[]) arr.getArray();
-            A[] result = arrayFactory.apply(elements.length);
+            // Decode elements first, then build a properly-typed array via reflection
+            // based on the first non-null element's class. Avoids ClassCastException when
+            // the result flows into a concrete typed field (e.g. LineItem[] in a record).
+            Class<?> elementClass = null;
+            Object[] decoded = new Object[elements.length];
             for (int i = 0; i < elements.length; i++) {
-              result[i] = e.converter().apply(elements[i]);
+              decoded[i] = e.converter().apply(elements[i]);
+              if (elementClass == null && decoded[i] != null) elementClass = decoded[i].getClass();
             }
+            A[] result;
+            if (elementClass != null) {
+              result = (A[]) java.lang.reflect.Array.newInstance(elementClass, decoded.length);
+            } else {
+              result = arrayFactory.apply(decoded.length);
+            }
+            for (int i = 0; i < decoded.length; i++) result[i] = (A) decoded[i];
             return result;
           });
       case PgArrayCodec.OfText<A> ignored -> PgRead.readCompositeArray(pgCompositeText, arrayFactory);
@@ -151,12 +173,13 @@ public record PgType<A>(
         typename.array(),
         arrayRead,
         write.array(typename),
-        pgText.array(),
-        pgCompositeText.array(arrayFactory, codec.compositeTextDelimiter()),
+        pgText.array(arrayDelimiter),
+        pgCompositeText.array(arrayFactory, arrayDelimiter),
         pgJson.array(arrayFactory),
         PgOutParam.parsedArray(arrayFactory, pgCompositeText::decode),
         analysisOptions.arrayForms(),
-        Optional.empty());
+        Optional.empty(),
+        ',');
   }
 
   public <B> PgType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
@@ -183,7 +206,8 @@ public record PgType<A>(
           } catch (java.sql.SQLException e) {
             throw new DatabaseException(e);
           }
-        })));
+        })),
+        arrayDelimiter);
   }
 
   public <B> PgType<B> to(Bijection<A, B> bijection) {
@@ -196,52 +220,8 @@ public record PgType<A>(
         pgJson.transform(bijection::underlying, bijection::from),
         pgOutParam.map(bijection::underlying),
         analysisOptions,
-        pgArrayCodec.map(codec -> codec.map(bijection::underlying)));
+        pgArrayCodec.map(codec -> codec.map(bijection::underlying)),
+        arrayDelimiter);
   }
 
-  public static <A> PgType<A> of(
-      String tpe,
-      PgRead<A> r,
-      PgWrite<A> w,
-      PgText<A> t,
-      PgCompositeText<A> ct,
-      PgJson<A> j,
-      PgOutParam<A> cr,
-      PgArrayCodec<A> arrayCodec) {
-    return new PgType<>(PgTypename.of(tpe), r, w, t, ct, j, cr, AnalysisOptions.EMPTY, Optional.of(arrayCodec));
-  }
-
-  public static <A> PgType<A> of(
-      PgTypename<A> typename,
-      PgRead<A> r,
-      PgWrite<A> w,
-      PgText<A> t,
-      PgCompositeText<A> ct,
-      PgJson<A> j,
-      PgOutParam<A> cr,
-      PgArrayCodec<A> arrayCodec) {
-    return new PgType<>(typename, r, w, t, ct, j, cr, AnalysisOptions.EMPTY, Optional.of(arrayCodec));
-  }
-
-  public static <A> PgType<A> noArraySupport(
-      String tpe,
-      PgRead<A> r,
-      PgWrite<A> w,
-      PgText<A> t,
-      PgCompositeText<A> ct,
-      PgJson<A> j,
-      PgOutParam<A> cr) {
-    return new PgType<>(PgTypename.of(tpe), r, w, t, ct, j, cr, AnalysisOptions.EMPTY, Optional.empty());
-  }
-
-  public static <A> PgType<A> noArraySupport(
-      PgTypename<A> typename,
-      PgRead<A> r,
-      PgWrite<A> w,
-      PgText<A> t,
-      PgCompositeText<A> ct,
-      PgJson<A> j,
-      PgOutParam<A> cr) {
-    return new PgType<>(typename, r, w, t, ct, j, cr, AnalysisOptions.EMPTY, Optional.empty());
-  }
 }

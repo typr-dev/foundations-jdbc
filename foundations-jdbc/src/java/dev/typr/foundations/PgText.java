@@ -42,6 +42,15 @@ public abstract class PgText<A> implements DbText<A> {
   }
 
   public PgText<A[]> array() {
+    return array(',');
+  }
+
+  /**
+   * Internal: array encoding with a specific delimiter. The delimiter is a property of the
+   * element type (geometric types use ';', everything else ','). Users should call {@link
+   * #array()} which uses the correct delimiter via {@link PgType#array()}.
+   */
+  PgText<A[]> array(char delimiter) {
     var self = this;
     return PgText.instance(
         (as, sb) -> {
@@ -49,7 +58,7 @@ public abstract class PgText<A> implements DbText<A> {
           sb.append("{");
           for (var a : as) {
             if (first) first = false;
-            else sb.append(',');
+            else sb.append(delimiter);
             self.unsafeArrayEncode(a, sb);
           }
           sb.append('}');

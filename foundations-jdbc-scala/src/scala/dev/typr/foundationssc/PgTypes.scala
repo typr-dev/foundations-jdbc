@@ -124,6 +124,14 @@ class PgTypes {
   ): PgType[dev.typr.foundations.data.Range[T]] =
     PgType(JavaPgTypes.rangeType(sqlType, valueParser, rangeFactory, json))
 
+  /** Build an ad-hoc composite PgType from a RowCodec. Read-only, for row constructors. */
+  def compositeOf[Row](codec: RowCodecNamed[Row]): PgType[Row] =
+    PgType(JavaPgTypes.compositeOf(codec.underlying))
+
+  /** Build a named composite PgType from a RowCodec. Read-write, for CREATE TYPE declarations. */
+  def compositeOf[Row](sqlType: String, codec: RowCodecNamed[Row]): PgType[Row] =
+    PgType(JavaPgTypes.compositeOf(sqlType, codec.underlying))
+
   // JSON-encoded row types (json)
 
   def jsonArrayEncoded[Row](parser: RowCodec[Row]): PgType[Row] =
