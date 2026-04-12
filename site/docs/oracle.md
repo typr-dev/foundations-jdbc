@@ -123,12 +123,20 @@ For CHAR columns preserving padding:
 
 <Snippet file="oracle/XmlJsonTypes" />
 
-## OBJECT Types
+## Object Types
 
-Oracle OBJECT types (`CREATE TYPE ... AS OBJECT`) map to Java records via the builder API.
-Objects can be nested — an OBJECT attribute can reference another OBJECT type.
+Oracle OBJECT types are built from a `RowCodecNamed` via `compositeOf`:
 
-<Snippet file="oracle/ObjectTypes" />
+```java
+OracleType<Address> addressType = OracleTypes.compositeOf("ADDRESS_T",
+    RowCodec.<Address>namedBuilder()
+        .field("STREET", OracleTypes.varchar2(200), Address::street)
+        .field("CITY", OracleTypes.varchar2(100), Address::city)
+        .field("ZIP", OracleTypes.varchar2(10), Address::zip)
+        .build(Address::new));
+```
+
+The returned `OracleType` can be used with `OracleVArray` and `OracleNestedTable` for collection columns.
 
 ## VARRAYs
 

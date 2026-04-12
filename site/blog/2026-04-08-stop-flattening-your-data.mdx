@@ -74,9 +74,20 @@ With Foundations JDBC, PostgreSQL's composite text format arrives as typed Kotli
 
 <Snippet file="blog/struct/PgLineItemCodec" lang="kotlin" hideFullFile />
 
-Then query and read — three objects, each self-contained:
+Then build the codec and query — three objects, each self-contained:
 
 ```kotlin
+data class Order(val id: Int, val name: String, val email: String,
+                 val items: Array<LineItem>, val discount: String?)
+
+val orderCodec = RowCodec.namedBuilder<Order>()
+    .field("id", PgTypes.int4, Order::id)
+    .field("name", PgTypes.text, Order::name)
+    .field("email", PgTypes.text, Order::email)
+    .field("items", lineItemType.array(), Order::items)
+    .field("discount", PgTypes.text.opt(), Order::discount)
+    .build(::Order)
+
 val orders = sql { """
     SELECT o.id, c.name, c.email,
            ARRAY(SELECT (ol.product_name, ol.quantity, ol.unit_price)
@@ -133,7 +144,7 @@ Two rows. Five employees. Eleven skills. All in the right places. The code:
 
 <Snippet file="blog/struct/PgDeepNesting" lang="kotlin" hideFullFile />
 
-`nestedArrayField` handles recursive parsing of PostgreSQL's composite text format. No JSON. No intermediate deserialization. The data arrives as typed records all the way down.
+`.field()` with `.array()` handles recursive parsing of PostgreSQL's composite text format. No JSON. No intermediate deserialization. The data arrives as typed records all the way down.
 
 ## Array Parameters — The Everyday Win
 

@@ -97,6 +97,28 @@ This works for all types — `numeric.array()`, `timestamptz.array()`, `jsonb.ar
 
 <Snippet file="postgresql/ArrayTypes" />
 
+## Composite Types
+
+PostgreSQL composite types (row constructors and `CREATE TYPE` declarations) are built from a `RowCodecNamed` via `compositeOf`:
+
+```java
+// Ad-hoc composite — for row constructors like (a, b, c) in SQL
+PgType<LineItem> lineItemType = PgTypes.compositeOf(
+    RowCodec.<LineItem>namedBuilder()
+        .field("product_name", PgTypes.text, LineItem::productName)
+        .field("quantity", PgTypes.int4, LineItem::quantity)
+        .field("unit_price", PgTypes.numeric, LineItem::unitPrice)
+        .build(LineItem::new));
+
+// Named composite — for CREATE TYPE declarations (supports writes)
+PgType<Address> addressType = PgTypes.compositeOf("address", addressCodec);
+
+// Array of composites — works like any other type
+PgType<LineItem[]> lineItemArrayType = lineItemType.array();
+```
+
+The same `RowCodecNamed` codec can be reused for flat row queries, composite types, JSON-encoded columns, and query analysis.
+
 ## Range Types
 
 PostgreSQL's range types represent intervals of values with inclusive/exclusive bounds:
