@@ -153,18 +153,20 @@ public class StructArrayBlogTest {
   record OracleLineItem(Long productId, Integer quantity) {}
 
   static final OracleType<OracleAddress> oracleAddressType =
-      OracleObject.<OracleAddress>builder("BLOG_ADDRESS_T")
-          .field("STREET", OracleTypes.varchar2(100), OracleAddress::street)
-          .field("CITY", OracleTypes.varchar2(50), OracleAddress::city)
-          .build(OracleAddress::new)
-          .asType();
+      OracleTypes.compositeOf(
+          "BLOG_ADDRESS_T",
+          RowCodec.<OracleAddress>namedBuilder()
+              .field("STREET", OracleTypes.varchar2(100), OracleAddress::street)
+              .field("CITY", OracleTypes.varchar2(50), OracleAddress::city)
+              .build(OracleAddress::new));
 
   static final OracleType<OracleLineItem> oracleLineItemType =
-      OracleObject.<OracleLineItem>builder("BLOG_LINE_ITEM_T")
-          .field("PRODUCT_ID", OracleTypes.numberLong, OracleLineItem::productId)
-          .field("QUANTITY", OracleTypes.numberInt, OracleLineItem::quantity)
-          .build(OracleLineItem::new)
-          .asType();
+      OracleTypes.compositeOf(
+          "BLOG_LINE_ITEM_T",
+          RowCodec.<OracleLineItem>namedBuilder()
+              .field("PRODUCT_ID", OracleTypes.numberLong, OracleLineItem::productId)
+              .field("QUANTITY", OracleTypes.numberInt, OracleLineItem::quantity)
+              .build(OracleLineItem::new));
 
   static final OracleType<List<OracleLineItem>> oracleLineItemsType =
       OracleNestedTable.of("BLOG_LINE_ITEMS_T", oracleLineItemType);
@@ -175,22 +177,24 @@ public class StructArrayBlogTest {
   record OracleEmployee(String name, String role, List<OracleSkill> skills) {}
 
   static final OracleType<OracleSkill> oracleSkillType =
-      OracleObject.<OracleSkill>builder("BLOG_SKILL_T")
-          .field("NAME", OracleTypes.varchar2(50), OracleSkill::name)
-          .field("LEVEL_NUM", OracleTypes.numberInt, OracleSkill::level)
-          .build(OracleSkill::new)
-          .asType();
+      OracleTypes.compositeOf(
+          "BLOG_SKILL_T",
+          RowCodec.<OracleSkill>namedBuilder()
+              .field("NAME", OracleTypes.varchar2(50), OracleSkill::name)
+              .field("LEVEL_NUM", OracleTypes.numberInt, OracleSkill::level)
+              .build(OracleSkill::new));
 
   static final OracleType<List<OracleSkill>> oracleSkillsType =
       OracleVArray.of("BLOG_SKILLS_T", 20, oracleSkillType);
 
   static final OracleType<OracleEmployee> oracleEmployeeType =
-      OracleObject.<OracleEmployee>builder("BLOG_EMPLOYEE_T")
-          .field("NAME", OracleTypes.varchar2(100), OracleEmployee::name)
-          .field("ROLE_NAME", OracleTypes.varchar2(50), OracleEmployee::role)
-          .field("SKILLS", oracleSkillsType, OracleEmployee::skills)
-          .build(OracleEmployee::new)
-          .asType();
+      OracleTypes.compositeOf(
+          "BLOG_EMPLOYEE_T",
+          RowCodec.<OracleEmployee>namedBuilder()
+              .field("NAME", OracleTypes.varchar2(100), OracleEmployee::name)
+              .field("ROLE_NAME", OracleTypes.varchar2(50), OracleEmployee::role)
+              .field("SKILLS", oracleSkillsType, OracleEmployee::skills)
+              .build(OracleEmployee::new));
 
   static final OracleType<List<OracleEmployee>> oracleEmployeesType =
       OracleNestedTable.of("BLOG_EMPLOYEES_T", oracleEmployeeType);

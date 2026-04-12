@@ -16,8 +16,6 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
 
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("Functions.java"), generateFunctions())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("Tuple.java"), generateTuples())
-
-      FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("OracleObjectBuilders.java"), generateOracleObjectBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("RowCodecOf.java"), generateRowCodecOf())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("RowCodecBuilders.java"), generateRowCodecBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("RowCodecNamedBuilders.java"), generateNamedRowCodecBuilders())
@@ -341,102 +339,6 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
   }
 
   def generateOracleObjectBuilders(): String = {
-    val maxArity = STRUCT_N - 1
-
-    val builder0 = s"""|    public static final class Builder0<A> {
-                       |        private final String objectTypeName;
-                       |        private final java.util.List<OracleObject.Attribute<A, ?>> attributes = new java.util.ArrayList<>();
-                       |
-                       |        Builder0(String objectTypeName) {
-                       |            this.objectTypeName = objectTypeName;
-                       |        }
-                       |
-                       |        public <F> Builder1<A, F> field(String name, OracleType<F> type, java.util.function.Function<A, F> getter) {
-                       |            attributes.add(new OracleObject.Attribute<>(name, type, getter));
-                       |            return new Builder1<>(objectTypeName, attributes);
-                       |        }
-                       |    }""".stripMargin
-
-    val builders = 1.to(maxArity).map { n =>
-      val range = 0.until(n)
-      val tparams = range.map(i => s"T$i").mkString(", ")
-      val functionType = if (n == 1) s"java.util.function.Function<T0, A>" else s"Functions.Function$n<$tparams, A>"
-      val decodeArgs = range.map(i => s"(T$i) arr[$i]").mkString(", ")
-
-      val nextBuilder = if (n < maxArity) {
-        val nextTparams = (0 until n).map(i => s"T$i").mkString(", ")
-        s"""|
-            |        public <F> Builder${n + 1}<A, $nextTparams, F> field(String name, OracleType<F> type, java.util.function.Function<A, F> getter) {
-            |            attributes.add(new OracleObject.Attribute<>(name, type, getter));
-            |            return new Builder${n + 1}<>(objectTypeName, attributes);
-            |        }""".stripMargin
-      } else ""
-
-      s"""|    public static final class Builder$n<A, $tparams> {
-          |        private final String objectTypeName;
-          |        private final java.util.List<OracleObject.Attribute<A, ?>> attributes;
-          |
-          |        Builder$n(String objectTypeName, java.util.List<OracleObject.Attribute<A, ?>> attributes) {
-          |            this.objectTypeName = objectTypeName;
-          |            this.attributes = attributes;
-          |        }
-          |
-          |        @SuppressWarnings("unchecked")
-          |        public OracleObject<A> build($functionType decode) {
-          |            return OracleObjectBuilders.buildObject(objectTypeName, attributes, arr -> {
-          |                try {
-          |                    return decode.apply($decodeArgs);
-          |                } catch (ClassCastException e) {
-          |                    throw new java.sql.SQLException("Type mismatch reading OBJECT attribute", e);
-          |                }
-          |            });
-          |        }$nextBuilder
-          |    }""".stripMargin
-    }
-
-    s"""|package dev.typr.foundations;
-        |
-        |import java.util.List;
-        |
-        |/**
-        | * Type-safe builders for Oracle OBJECT types.
-        | * <p>
-        | * Usage:
-        | * <pre>{@code
-        | * OracleObject<Address> obj = OracleObjectBuilders.<Address>builder("ADDRESS_T")
-        | *     .field("STREET", OracleTypes.varchar2, Address::street)
-        | *     .field("CITY", OracleTypes.varchar2, Address::city)
-        | *     .build(Address::new);  // No casts needed!
-        | * }</pre>
-        | */
-        |public final class OracleObjectBuilders {
-        |    private OracleObjectBuilders() {}
-        |
-        |    public static <A> Builder0<A> builder(String objectTypeName) {
-        |        return new Builder0<>(objectTypeName);
-        |    }
-        |
-        |$builder0
-        |
-        |${builders.mkString("\n\n")}
-        |
-        |    @SuppressWarnings("unchecked")
-        |    static <A> OracleObject<A> buildObject(String objectTypeName, java.util.List<OracleObject.Attribute<A, ?>> attributes, OracleObject.ObjectReader<A> reader) {
-        |        OracleObject.ObjectWriter<A> writer = value -> {
-        |            Object[] result = new Object[attributes.size()];
-        |            for (int i = 0; i < attributes.size(); i++) {
-        |                OracleObject.Attribute<A, Object> attr = (OracleObject.Attribute<A, Object>) attributes.get(i);
-        |                result[i] = attr.getter().apply(value);
-        |            }
-        |            return result;
-        |        };
-        |
-        |        OracleTypename.ObjectOf<A> typename = OracleTypename.objectOf(objectTypeName);
-        |        return new OracleObject<>(typename, List.copyOf(attributes), reader, writer);
-        |    }
-        |}
-        |""".stripMargin
-  }
 
 
   // ─────────────────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 package dev.typr.foundationssc.docs.oracle
-import dev.typr.foundations.{OracleNestedTable, OracleObject, OracleType, OracleTypes}
+import dev.typr.foundations.{OracleNestedTable, OracleType, OracleTypes, RowCodec}
 
 @SuppressWarnings(Array("unused"))
 object NestedTableTypes:
@@ -12,13 +12,14 @@ object NestedTableTypes:
   case class OrderItem(productName: String, quantity: Integer, unitPrice: java.math.BigDecimal)
 
   val orderItemType: OracleType[OrderItem] =
-    OracleObject
-      .builder[OrderItem]("ORDER_ITEM_T")
-      .field("PRODUCT_NAME", OracleTypes.varchar2(100), (o: OrderItem) => o.productName)
-      .field("QUANTITY", OracleTypes.numberAsInt(10), (o: OrderItem) => o.quantity)
-      .field("UNIT_PRICE", OracleTypes.number(12, 2), (o: OrderItem) => o.unitPrice)
-      .build((name: String, qty: Integer, price: java.math.BigDecimal) => OrderItem(name, qty, price))
-      .asType()
+    OracleTypes.compositeOf(
+      "ORDER_ITEM_T",
+      RowCodec
+        .namedBuilder[OrderItem]()
+        .field("PRODUCT_NAME", OracleTypes.varchar2(100), (o: OrderItem) => o.productName)
+        .field("QUANTITY", OracleTypes.numberAsInt(10), (o: OrderItem) => o.quantity)
+        .field("UNIT_PRICE", OracleTypes.number(12, 2), (o: OrderItem) => o.unitPrice)
+        .build((name: String, qty: Integer, price: java.math.BigDecimal) => OrderItem(name, qty, price)))
 
   // CREATE TYPE order_items_t AS TABLE OF order_item_t;
   val orderItems: OracleType[java.util.List[OrderItem]] =
