@@ -19,7 +19,6 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("DbProcedure.scala"), generateScalaDbProcedure())
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("DbFunction.scala"), generateScalaDbFunction())
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("DuckDbStruct.scala"), generateScalaDuckDbStructBuilders())
-      FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("OracleObject.scala"), generateScalaOracleObjectBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("Tuple.scala"), generateScalaTuple())
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("Template.scala"), generateScalaTemplate())
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("ParamBuilders.scala"), generateScalaParamBuilders())
@@ -427,50 +426,6 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |object DuckDbStruct:
         |  def builder[A](structName: String): Builder0[A] =
         |    Builder0(dev.typr.foundations.DuckDbStructBuilders.builder(structName))
-        |
-        |$builder0
-        |
-        |${builders.mkString("\n\n")}
-        |""".stripMargin
-  }
-
-  def generateScalaOracleObjectBuilders(): String = {
-    val maxArity = STRUCT_N - 1
-
-    val builder0 = s"""|  class Builder0[A] private[foundationssc] (
-                       |    private val underlying: dev.typr.foundations.OracleObjectBuilders.Builder0[A]
-                       |  ):
-                       |    def field[F](name: String, tpe: OracleType[F], getter: A => F): Builder1[A, F] =
-                       |      Builder1(underlying.field(name, tpe.underlying, a => getter(a)))""".stripMargin
-
-    val builders = 1.to(maxArity).map { n =>
-      val range = 0.until(n)
-      val tparams = range.map(i => s"T$i").mkString(", ")
-      val lambdaParams = range.map(i => s"t$i").mkString(", ")
-
-      val nextBuilder = if (n < maxArity) {
-        val nextTparams = range.map(i => s"T$i").mkString(", ")
-        s"""|
-            |    def field[F](name: String, tpe: OracleType[F], getter: A => F): Builder${n + 1}[A, $nextTparams, F] =
-            |      Builder${n + 1}(underlying.field(name, tpe.underlying, a => getter(a)))""".stripMargin
-      } else ""
-
-      s"""|  class Builder$n[A, $tparams] private[foundationssc] (
-          |    private val underlying: dev.typr.foundations.OracleObjectBuilders.Builder$n[A, $tparams]
-          |  ):
-          |    def build(decode: ($tparams) => A): OracleObject[A] =
-          |      OracleObject(underlying.build(($lambdaParams) => decode($lambdaParams)))
-          |$nextBuilder""".stripMargin
-    }
-
-    s"""|package dev.typr.foundationssc
-        |
-        |class OracleObject[A](val underlying: dev.typr.foundations.OracleObject[A]):
-        |  def asType(): OracleType[A] = OracleType(underlying.asType())
-        |
-        |object OracleObject:
-        |  def builder[A](objectTypeName: String): Builder0[A] =
-        |    Builder0(dev.typr.foundations.OracleObjectBuilders.builder(objectTypeName))
         |
         |$builder0
         |

@@ -8,11 +8,17 @@ import dev.typr.foundations.data.OracleIntervalDS;
 import dev.typr.foundations.data.OracleIntervalYM;
 import dev.typr.foundations.data.PaddedString;
 import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import oracle.sql.STRUCT;
+import oracle.sql.StructDescriptor;
 
 /**
  * Oracle type definitions for the typr-runtime-java library.
@@ -737,5 +743,171 @@ public interface OracleTypes {
     return json.transform(
         j -> rowJson.fromJson(JsonValue.parse(j.value())),
         list -> new Json(rowJson.toJson(list).encode()));
+  }
+
+  // ==================== Composite (OBJECT) Types ====================
+
+  /**
+   * Build a named Oracle OBJECT type from a {@link RowCodecNamed}. Use for Oracle composite types
+   * declared with {@code CREATE TYPE ... AS OBJECT}.
+   *
+   * <p>Usage:
+   *
+   * <pre>{@code
+   * OracleType<Address> addressType = OracleTypes.compositeOf("ADDRESS_T",
+   *     RowCodec.<Address>namedBuilder()
+   *         .field("STREET", OracleTypes.varchar2(100), Address::street)
+   *         .field("CITY", OracleTypes.varchar2(50), Address::city)
+   *         .build(Address::new));
+   * }</pre>
+   */
+  static <Row> OracleType<Row> compositeOf(String objectTypeName, RowCodecNamed<Row> codec) {
+    var columns = codec.columns();
+    var names = codec.columnNames();
+    var oracleColumns = new java.util.ArrayList<OracleType<?>>(columns.size());
+    for (int i = 0; i < columns.size(); i++) {
+      var col = columns.get(i);
+      if (!(col instanceof OracleType<?> ot)) {
+        throw new IllegalArgumentException(
+            "compositeOf requires all fields to be OracleType, got: "
+                + col.getClass().getSimpleName()
+                + " at field '"
+                + names.get(i)
+                + "'");
+      }
+      oracleColumns.add(ot);
+    }
+
+    var decode = codec.decode();
+    var encode = codec.encode();
+
+    OracleTypename.ObjectOf<Row> typename = OracleTypename.objectOf(objectTypeName);
+
+    OracleRead<Row> read =
+        new OracleRead.NonNullable<>(
+            (rs, idx) -> rs.getObject(idx),
+            obj -> {
+              if (!(obj instanceof STRUCT struct)) {
+                throw new SQLException(
+                    "Expected STRUCT, got: "
+                        + (obj == null ? "null" : obj.getClass().getName()));
+              }
+              try {
+                Object[] rawAttrs = struct.getAttributes();
+                Object[] typedAttrs = new Object[oracleColumns.size()];
+                for (int i = 0; i < oracleColumns.size(); i++) {
+                  typedAttrs[i] = oracleColumns.get(i).read().fromOracleValue(rawAttrs[i]);
+                }
+                return decode.apply(typedAttrs);
+              } catch (Exception e) {
+                throw new SQLException("Failed to read Oracle STRUCT: " + e.getMessage(), e);
+              }
+            });
+
+    OracleWrite<Row> write =
+        OracleWrite.structured(
+            (value, conn) -> {
+              try {
+                StructDescriptor desc =
+                    StructDescriptor.createDescriptor(objectTypeName, conn);
+                Object[] rawValues = encode.apply(value);
+                Object[] oracleValues = new Object[rawValues.length];
+                for (int i = 0; i < rawValues.length; i++) {
+                  oracleValues[i] =
+                      compositeFieldToOracleValue(oracleColumns.get(i), rawValues[i], conn);
+                }
+                return new STRUCT(desc, conn, oracleValues);
+              } catch (Exception e) {
+                throw new SQLException(
+                    "Failed to create Oracle STRUCT: " + e.getMessage(), e);
+              }
+            },
+            objectTypeName,
+            Types.STRUCT);
+
+    OracleJson<Row> oracleJson =
+        new OracleJson<>() {
+          @Override
+          public JsonValue toJson(Row value) {
+            if (value == null) return JsonValue.JNull.INSTANCE;
+            Object[] fieldValues = encode.apply(value);
+            Map<String, JsonValue> fields = new LinkedHashMap<>();
+            for (int i = 0; i < fieldValues.length; i++) {
+              fields.put(
+                  names.get(i),
+                  compositeFieldToJson(oracleColumns.get(i), fieldValues[i]));
+            }
+            return new JsonValue.JObject(fields);
+          }
+
+          @Override
+          public Row fromJson(JsonValue jsonValue) {
+            if (jsonValue instanceof JsonValue.JNull) return null;
+            if (!(jsonValue instanceof JsonValue.JObject obj)) {
+              throw new IllegalArgumentException(
+                  "Expected JSON object for OBJECT type, got: "
+                      + jsonValue.getClass().getSimpleName());
+            }
+            Object[] attrValues = new Object[oracleColumns.size()];
+            for (int i = 0; i < oracleColumns.size(); i++) {
+              JsonValue fieldJson = obj.get(names.get(i));
+              attrValues[i] = oracleColumns.get(i).oracleJson().fromJson(fieldJson);
+            }
+            return decode.apply(attrValues);
+          }
+        };
+
+    OracleOutParam<Row> outParam = compositeOutParam(objectTypeName, oracleColumns, decode);
+
+    return new OracleType<>(
+        typename.asGeneric(), read, write, oracleJson, outParam, AnalysisOptions.EMPTY);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <F> Object compositeFieldToOracleValue(
+      OracleType<F> column, Object value, java.sql.Connection conn) throws SQLException {
+    if (value == null) return null;
+    return column.write().toOracleValue((F) value, conn);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <F> JsonValue compositeFieldToJson(OracleType<F> column, Object value) {
+    if (value == null) return JsonValue.JNull.INSTANCE;
+    return column.oracleJson().toJson((F) value);
+  }
+
+  private static <Row> OracleOutParam<Row> compositeOutParam(
+      String typeName,
+      java.util.ArrayList<OracleType<?>> oracleColumns,
+      Function<Object[], Row> decode) {
+    return new OracleOutParam<>() {
+      @Override
+      public void register(java.sql.CallableStatement stmt, int index) throws SQLException {
+        stmt.registerOutParameter(index, Types.STRUCT, typeName);
+      }
+
+      @Override
+      public Row read(java.sql.CallableStatement stmt, int index) throws SQLException {
+        Object obj = stmt.getObject(index);
+        if (obj == null) return null;
+        if (!(obj instanceof STRUCT struct)) {
+          throw new SQLException(
+              "Expected STRUCT for " + typeName + ", got: " + obj.getClass().getName());
+        }
+        try {
+          Object[] rawAttrs = struct.getAttributes();
+          Object[] typedAttrs = new Object[oracleColumns.size()];
+          for (int i = 0; i < oracleColumns.size(); i++) {
+            typedAttrs[i] = oracleColumns.get(i).read().fromOracleValue(rawAttrs[i]);
+          }
+          return decode.apply(typedAttrs);
+        } catch (SQLException e) {
+          throw e;
+        } catch (Exception e) {
+          throw new SQLException(
+              "Failed to read Oracle STRUCT OUT param: " + e.getMessage(), e);
+        }
+      }
+    };
   }
 }

@@ -120,8 +120,8 @@ public interface OracleOutParam<A> extends DbOutParam<A> {
   /** OUT param codec for Oracle named STRUCT (OBJECT) types. */
   static <A> OracleOutParam<A> struct(
       String typeName,
-      OracleObject.ObjectReader<A> reader,
-      List<OracleObject.Attribute<A, ?>> attributes) {
+      List<OracleType<?>> oracleColumns,
+      java.util.function.Function<Object[], A> decode) {
     return new OracleOutParam<>() {
       @Override
       public void register(CallableStatement stmt, int index) throws SQLException {
@@ -138,11 +138,11 @@ public interface OracleOutParam<A> extends DbOutParam<A> {
         }
         try {
           Object[] rawAttrs = struct.getAttributes();
-          Object[] typedAttrs = new Object[attributes.size()];
-          for (int i = 0; i < attributes.size(); i++) {
-            typedAttrs[i] = attributes.get(i).type().read().fromOracleValue(rawAttrs[i]);
+          Object[] typedAttrs = new Object[oracleColumns.size()];
+          for (int i = 0; i < oracleColumns.size(); i++) {
+            typedAttrs[i] = oracleColumns.get(i).read().fromOracleValue(rawAttrs[i]);
           }
-          return reader.read(typedAttrs);
+          return decode.apply(typedAttrs);
         } catch (SQLException e) {
           throw e;
         } catch (Exception e) {

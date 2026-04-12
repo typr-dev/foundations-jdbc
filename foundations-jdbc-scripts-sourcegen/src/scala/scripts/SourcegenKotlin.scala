@@ -19,7 +19,6 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("DbProcedure.kt"), generateKotlinDbProcedure())
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("DbFunction.kt"), generateKotlinDbFunction())
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("DuckDbStruct.kt"), generateKotlinDuckDbStructBuilders())
-      FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("OracleObject.kt"), generateKotlinOracleObjectBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("Tuple.kt"), generateKotlinTuple())
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("Template.kt"), generateKotlinTemplate())
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("ParamBuilders.kt"), generateKotlinParamBuilders())
@@ -436,55 +435,6 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |    companion object {
         |        fun <A> builder(name: String): Builder0<A> =
         |            Builder0(dev.typr.foundations.DuckDbStructBuilders.builder(name))
-        |    }
-        |
-        |$builder0
-        |
-        |${builders.mkString("\n\n")}
-        |}
-        |""".stripMargin
-  }
-
-  def generateKotlinOracleObjectBuilders(): String = {
-    val maxArity = STRUCT_N - 1
-
-    val builder0 = s"""|    class Builder0<A> internal constructor(
-                       |        private val underlying: dev.typr.foundations.OracleObjectBuilders.Builder0<A>
-                       |    ) {
-                       |        fun <F> field(name: String, type: OracleType<F>, getter: (A) -> F): Builder1<A, F> =
-                       |            Builder1(underlying.field(name, type.underlying, getter))
-                       |    }""".stripMargin
-
-    val builders = 1.to(maxArity).map { n =>
-      val range = 0.until(n)
-      val tparams = range.map(i => s"T$i").mkString(", ")
-      val lambdaParams = range.map(i => s"t$i").mkString(", ")
-
-      val nextBuilder = if (n < maxArity) {
-        val nextTparams = range.map(i => s"T$i").mkString(", ")
-        s"""|
-            |        fun <F> field(name: String, type: OracleType<F>, getter: (A) -> F): Builder${n + 1}<A, $nextTparams, F> =
-            |            Builder${n + 1}(underlying.field(name, type.underlying, getter))""".stripMargin
-      } else ""
-
-      s"""|    class Builder$n<A, $tparams> internal constructor(
-          |        private val underlying: dev.typr.foundations.OracleObjectBuilders.Builder$n<A, $tparams>
-          |    ) {
-          |        fun build(decode: ($tparams) -> A): OracleObject<A> =
-          |            OracleObject(underlying.build { $lambdaParams -> decode($lambdaParams) })
-          |$nextBuilder
-          |    }""".stripMargin
-    }
-
-    s"""|@file:Suppress("unused")
-        |package dev.typr.foundationskt
-        |
-        |class OracleObject<T>(val underlying: dev.typr.foundations.OracleObject<T>) {
-        |    fun asType(): OracleType<T> = OracleType(underlying.asType())
-        |
-        |    companion object {
-        |        fun <A> builder(name: String): Builder0<A> =
-        |            Builder0(dev.typr.foundations.OracleObjectBuilders.builder(name))
         |    }
         |
         |$builder0

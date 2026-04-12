@@ -1,9 +1,9 @@
 package dev.typr.foundationskt.docs.oracle
 
 import dev.typr.foundations.OracleNestedTable
-import dev.typr.foundations.OracleObject
 import dev.typr.foundations.OracleType
 import dev.typr.foundations.OracleTypes
+import dev.typr.foundations.RowCodec
 import java.math.BigDecimal
 
 @Suppress("unused")
@@ -17,12 +17,13 @@ class NestedTableTypes {
     data class OrderItem(val productName: String, val quantity: Int, val unitPrice: BigDecimal)
 
     val orderItemType: OracleType<OrderItem> =
-        OracleObject.builder<OrderItem>("ORDER_ITEM_T")
-            .field("PRODUCT_NAME", OracleTypes.varchar2(100), OrderItem::productName)
-            .field("QUANTITY", OracleTypes.numberAsInt(10), OrderItem::quantity)
-            .field("UNIT_PRICE", OracleTypes.number(12, 2), OrderItem::unitPrice)
-            .build(::OrderItem)
-            .asType()
+        OracleTypes.compositeOf(
+            "ORDER_ITEM_T",
+            RowCodec.namedBuilder<OrderItem>()
+                .field("PRODUCT_NAME", OracleTypes.varchar2(100), OrderItem::productName)
+                .field("QUANTITY", OracleTypes.numberAsInt(10), OrderItem::quantity)
+                .field("UNIT_PRICE", OracleTypes.number(12, 2), OrderItem::unitPrice)
+                .build(::OrderItem))
 
     // CREATE TYPE order_items_t AS TABLE OF order_item_t;
     val orderItems: OracleType<List<OrderItem>> =
