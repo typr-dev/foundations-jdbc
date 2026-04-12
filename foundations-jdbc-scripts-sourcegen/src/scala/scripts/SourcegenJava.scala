@@ -338,9 +338,6 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
         |""".stripMargin
   }
 
-  def generateOracleObjectBuilders(): String = {
-
-
   // ─────────────────────────────────────────────────────────────────────────────
   // DbProcedure / DbFunction generators (max 10 inputs, max 10 outputs)
   // ─────────────────────────────────────────────────────────────────────────────
