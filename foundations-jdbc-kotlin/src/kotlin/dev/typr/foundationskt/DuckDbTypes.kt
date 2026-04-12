@@ -107,6 +107,11 @@ open class DuckDbTypes {
     open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: java.util.function.Function<String, E>) =
         DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, fromString))
 
+    // Composite (STRUCT) types
+
+    open fun <Row : Any> compositeOf(structName: String, codec: RowCodecNamed<Row>) =
+        DuckDbType(JavaDuckDbTypes.compositeOf(structName, codec.underlying))
+
     // JSON-encoded row types
 
     /** A JSON column type that stores a single row as a positional JSON array: [val1, val2, val3]. */

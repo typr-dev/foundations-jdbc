@@ -54,13 +54,12 @@ public class DuckDbTypeTest {
   record Person(String name, int age) {}
 
   // Type-safe builder: field types are tracked, no casts needed in build()
-  DuckDbStruct<Person> personStruct =
-      DuckDbStruct.<Person>builder("Person")
-          .field("name", DuckDbTypes.varchar, Person::name)
-          .field("age", DuckDbTypes.integer, Person::age)
-          .build(Person::new);
-
-  DuckDbType<Person> personType = personStruct.asType();
+  DuckDbType<Person> personType =
+      DuckDbTypes.compositeOf("Person",
+          RowCodec.<Person>namedBuilder()
+              .field("name", DuckDbTypes.varchar, Person::name)
+              .field("age", DuckDbTypes.integer, Person::age)
+              .build(Person::new));
 
   // Parsers for JSON-encoded row type testing
   static RowCodec<Person> personCodec =

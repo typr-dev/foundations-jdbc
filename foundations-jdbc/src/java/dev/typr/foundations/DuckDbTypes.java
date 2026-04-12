@@ -550,6 +550,151 @@ public interface DuckDbTypes {
     };
   }
 
+  // ==================== Composite (STRUCT) Types ====================
+
+  /**
+   * Build a named STRUCT DuckDbType from a {@link RowCodecNamed}. Use for DuckDB STRUCT types.
+   * Supports read, write, stringification, JSON encoding, and {@code .array()}/{@code .list()}.
+   *
+   * <p>Usage:
+   * <pre>{@code
+   * DuckDbType<Point> pointType = DuckDbTypes.compositeOf("point",
+   *     RowCodec.<Point>namedBuilder()
+   *         .field("x", DuckDbTypes.double_, Point::x)
+   *         .field("y", DuckDbTypes.double_, Point::y)
+   *         .build(Point::new));
+   * }</pre>
+   *
+   * @param structName the STRUCT type name (used in typename metadata)
+   * @param codec the named row codec defining the fields
+   * @param <Row> the Java type representing this STRUCT
+   * @return a DuckDbType for the STRUCT
+   */
+  static <Row> DuckDbType<Row> compositeOf(String structName, RowCodecNamed<Row> codec) {
+    var columns = codec.columns();
+    var names = codec.columnNames();
+    var duckColumns = new java.util.ArrayList<DuckDbType<?>>(columns.size());
+    var typenameFields = new java.util.ArrayList<DuckDbTypename.StructOf.StructField>(columns.size());
+    for (int i = 0; i < columns.size(); i++) {
+      var col = columns.get(i);
+      if (!(col instanceof DuckDbType<?> duck)) {
+        throw new IllegalArgumentException(
+            "compositeOf requires all fields to be DuckDbType, got: "
+                + col.getClass().getSimpleName()
+                + " at field '" + names.get(i) + "'");
+      }
+      duckColumns.add(duck);
+      typenameFields.add(new DuckDbTypename.StructOf.StructField(names.get(i), duck.typename()));
+    }
+
+    DuckDbTypename.StructOf<Row> typename = new DuckDbTypename.StructOf<>(structName, typenameFields);
+    var decode = codec.decode();
+    var encode = codec.encode();
+
+    java.util.function.Function<Object, Row> structConverter = obj -> {
+      if (obj instanceof java.sql.Struct struct) {
+        try {
+          return decode.apply(struct.getAttributes());
+        } catch (java.sql.SQLException e) {
+          throw new DatabaseException(e);
+        }
+      }
+      throw new IllegalArgumentException("Expected STRUCT, got: " + obj.getClass());
+    };
+
+    DuckDbRead<Row> duckDbRead =
+        new DuckDbRead.NonNullable<>(
+            (rs, idx) -> {
+              Object obj = rs.getObject(idx);
+              if (obj == null) return java.util.Optional.empty();
+              return java.util.Optional.of(structConverter.apply(obj));
+            },
+            structConverter);
+
+    DuckDbStringifier<Row> stringifier = DuckDbStringifier.instance(
+        (value, sb, quoted) -> {
+          Object[] fieldValues = encode.apply(value);
+          sb.append("{");
+          for (int i = 0; i < duckColumns.size(); i++) {
+            if (i > 0) sb.append(", ");
+            sb.append("'").append(names.get(i)).append("': ");
+            encodeStructField(duckColumns.get(i), fieldValues[i], sb);
+          }
+          sb.append("}");
+        });
+
+    DuckDbWrite<Row> duckDbWrite =
+        new DuckDbWrite.Instance<>(
+            (ps, idx, str) -> ps.setString(idx, str),
+            value -> {
+              StringBuilder sb = new StringBuilder();
+              stringifier.unsafeEncode(value, sb, false);
+              return sb.toString();
+            });
+
+    DuckDbMapSupport<Row> structMapSupport = DuckDbMapSupport.of(structConverter, value -> value);
+
+    DuckDbArrayCodec<Row> structArrayCodec = new DuckDbArrayCodec<>(
+        structConverter,
+        value -> {
+          StringBuilder sb = new StringBuilder();
+          stringifier.unsafeEncode(value, sb, false);
+          return sb.toString();
+        });
+
+    DuckDbJson<Row> duckDbJson = new DuckDbJson<>() {
+      @Override
+      public dev.typr.foundations.data.JsonValue toJson(Row value) {
+        Object[] fieldValues = encode.apply(value);
+        var jsonFields = new java.util.LinkedHashMap<String, dev.typr.foundations.data.JsonValue>();
+        for (int i = 0; i < fieldValues.length; i++) {
+          jsonFields.put(names.get(i), structFieldToJson(duckColumns.get(i), fieldValues[i]));
+        }
+        return new dev.typr.foundations.data.JsonValue.JObject(jsonFields);
+      }
+
+      @Override
+      public Row fromJson(dev.typr.foundations.data.JsonValue jsonValue) {
+        if (jsonValue instanceof dev.typr.foundations.data.JsonValue.JObject obj) {
+          Object[] fieldValues = new Object[duckColumns.size()];
+          for (int i = 0; i < duckColumns.size(); i++) {
+            dev.typr.foundations.data.JsonValue fieldJson = obj.fields().get(names.get(i));
+            fieldValues[i] = (fieldJson == null || fieldJson instanceof dev.typr.foundations.data.JsonValue.JNull)
+                ? null
+                : duckColumns.get(i).duckDbJson().fromJson(fieldJson);
+          }
+          return decode.apply(fieldValues);
+        }
+        throw new IllegalArgumentException("Expected JSON object");
+      }
+    };
+
+    return new DuckDbType<>(
+        typename.asGeneric(),
+        duckDbRead,
+        duckDbWrite,
+        stringifier,
+        duckDbJson,
+        structMapSupport,
+        AnalysisOptions.EMPTY,
+        java.util.Optional.of(structArrayCodec));
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <F> void encodeStructField(DuckDbType<F> column, Object value, StringBuilder sb) {
+    if (value == null) {
+      sb.append("NULL");
+      return;
+    }
+    column.stringifier().unsafeEncode((F) value, sb, true);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <F> dev.typr.foundations.data.JsonValue structFieldToJson(DuckDbType<F> column, Object value) {
+    if (value == null) return dev.typr.foundations.data.JsonValue.JNull.INSTANCE;
+    return column.duckDbJson().toJson((F) value);
+  }
+
   // ==================== JSON-Encoded Row Types ====================
   //
   // These methods create JSON column types from a RowCodec. The row's fields are serialized

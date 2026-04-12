@@ -16,15 +16,14 @@ val ticketTierType: DuckDbType<TicketTier> = DuckDbTypes.ofEnum("ticket_tier", T
 
 // ─── Struct type ────────────────────────────────────────────────────
 
-val addressStruct: DuckDbStruct<Address> = DuckDbStruct.builder<Address>("address")
-    .field("street", DuckDbTypes.varchar, Address::street)
-    .field("city", DuckDbTypes.varchar, Address::city)
-    .field("state", DuckDbTypes.varchar, Address::state)
-    .field("zip",   DuckDbTypes.varchar, Address::zip)
-    .field("country", DuckDbTypes.varchar, Address::country)
-    .build(::Address)
-
-val addressType: DuckDbType<Address> = addressStruct.asType()
+val addressType: DuckDbType<Address> = DuckDbTypes.compositeOf("address",
+    RowCodec.namedBuilder<Address>()
+        .field("street", DuckDbTypes.varchar, Address::street)
+        .field("city", DuckDbTypes.varchar, Address::city)
+        .field("state", DuckDbTypes.varchar, Address::state)
+        .field("zip", DuckDbTypes.varchar, Address::zip)
+        .field("country", DuckDbTypes.varchar, Address::country)
+        .build(::Address))
 
 // ─── Row codecs ─────────────────────────────────────────────────────
 
