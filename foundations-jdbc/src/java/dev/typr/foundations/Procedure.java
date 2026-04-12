@@ -159,8 +159,8 @@ public sealed interface Procedure<Out>
                   @SuppressWarnings("unchecked")
                   DbType<Object> type = (DbType<Object>) p.type();
                   type.write().set(stmt, pos, inValues[valueIndex++]);
-                }
-                if (p.isOutput()) {
+                } else if (p.isOutput()) {
+                  // Pure OUT only — don't overwrite INOUT which was already set as input
                   stmt.setNull(pos, java.sql.Types.NULL);
                 }
               }

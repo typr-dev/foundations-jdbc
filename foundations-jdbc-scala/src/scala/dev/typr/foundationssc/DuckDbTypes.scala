@@ -110,7 +110,7 @@ class DuckDbTypes {
   val uintegerArray = DuckDbType(JavaDuckDbTypes.uintegerArray)
   val ubigintArray = DuckDbType(JavaDuckDbTypes.ubigintArray)
   val varcharArray = DuckDbType(JavaDuckDbTypes.varcharArray)
-  val blobArray = DuckDbType(JavaDuckDbTypes.blobArray)
+  // blobArray removed: BLOB[] not supported (binary can't be serialized in DuckDBUserArray)
   val dateArray = DuckDbType(JavaDuckDbTypes.dateArray)
   val timeArray = DuckDbType(JavaDuckDbTypes.timeArray)
   val timestampArray = DuckDbType(JavaDuckDbTypes.timestampArray)
@@ -182,6 +182,16 @@ class DuckDbTypes {
           jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
           slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
         )
+    )
+
+  /** JSON codec for Map[K, V] that serializes as a JSON object. */
+  def mapJson[K, V](
+      keyJson: dev.typr.foundations.DuckDbJson[K],
+      valueJson: dev.typr.foundations.DuckDbJson[V]
+  ): dev.typr.foundations.DuckDbJson[Map[K, V]] =
+    JavaDuckDbTypes.mapJson(keyJson, valueJson).transform(
+      jmap => scala.jdk.CollectionConverters.MapHasAsScala(jmap).asScala.toMap,
+      smap => java.util.Map.copyOf(scala.jdk.CollectionConverters.MapHasAsJava(smap).asJava)
     )
 }
 

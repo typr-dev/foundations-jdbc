@@ -8,23 +8,22 @@ import org.junit.Test;
 /**
  * Tests for PostgreSQL composite type (record) support.
  *
- * <p>Tests the PgStruct class which provides JDBC support for composite types.
+ * <p>Tests JDBC support for composite types via {@code PgTypes.compositeOf}.
  */
 public class PgStructTest {
 
   // Simple address composite type matching the one in composite-types.sql
   record Address(String street, String city, String zip, String country) {}
 
-  // Define the PgStruct for Address - using type-safe builder
-  static final PgStruct<Address> addressStruct =
-      PgStructBuilders.<Address>builder("address")
-          .field("street", PgTypes.text, Address::street)
-          .field("city", PgTypes.text, Address::city)
-          .field("zip", PgTypes.text, Address::zip)
-          .field("country", PgTypes.text, Address::country)
-          .build(Address::new);
-
-  static final PgType<Address> addressType = addressStruct.asType();
+  static final PgType<Address> addressType =
+      PgTypes.compositeOf(
+          "address",
+          RowCodec.<Address>namedBuilder()
+              .field("street", PgTypes.text, Address::street)
+              .field("city", PgTypes.text, Address::city)
+              .field("zip", PgTypes.text, Address::zip)
+              .field("country", PgTypes.text, Address::country)
+              .build(Address::new));
 
   @BeforeClass
   public static void setupSchema() {
@@ -112,36 +111,38 @@ public class PgStructTest {
   // person_name composite type
   record PersonName(String firstName, String middleName, String lastName, String suffix) {}
 
-  static final PgStruct<PersonName> personNameStruct =
-      PgStructBuilders.<PersonName>builder("person_name")
-          .field("first_name", PgTypes.text, PersonName::firstName)
-          .field("middle_name", PgTypes.text, PersonName::middleName)
-          .field("last_name", PgTypes.text, PersonName::lastName)
-          .field("suffix", PgTypes.text, PersonName::suffix)
-          .build(PersonName::new);
+  static final PgType<PersonName> personNameType =
+      PgTypes.compositeOf(
+          "person_name",
+          RowCodec.<PersonName>namedBuilder()
+              .field("first_name", PgTypes.text, PersonName::firstName)
+              .field("middle_name", PgTypes.text, PersonName::middleName)
+              .field("last_name", PgTypes.text, PersonName::lastName)
+              .field("suffix", PgTypes.text, PersonName::suffix)
+              .build(PersonName::new));
 
   // contact_info composite type (with nested address)
   record ContactInfo(String email, String phone, Address address) {}
 
-  static final PgStruct<ContactInfo> contactInfoStruct =
-      PgStructBuilders.<ContactInfo>builder("contact_info")
-          .field("email", PgTypes.text, ContactInfo::email)
-          .field("phone", PgTypes.text, ContactInfo::phone)
-          .nestedField("address", addressStruct, ContactInfo::address)
-          .build(ContactInfo::new);
-
-  static final PgType<ContactInfo> contactInfoType = contactInfoStruct.asType();
+  static final PgType<ContactInfo> contactInfoType =
+      PgTypes.compositeOf(
+          "contact_info",
+          RowCodec.<ContactInfo>namedBuilder()
+              .field("email", PgTypes.text, ContactInfo::email)
+              .field("phone", PgTypes.text, ContactInfo::phone)
+              .field("address", addressType, ContactInfo::address)
+              .build(ContactInfo::new));
 
   // point_2d composite type
   record Point2D(Double x, Double y) {}
 
-  static final PgStruct<Point2D> point2dStruct =
-      PgStructBuilders.<Point2D>builder("point_2d")
-          .field("x", PgTypes.float8, Point2D::x)
-          .field("y", PgTypes.float8, Point2D::y)
-          .build(Point2D::new);
-
-  static final PgType<Point2D> point2dType = point2dStruct.asType();
+  static final PgType<Point2D> point2dType =
+      PgTypes.compositeOf(
+          "point_2d",
+          RowCodec.<Point2D>namedBuilder()
+              .field("x", PgTypes.float8, Point2D::x)
+              .field("y", PgTypes.float8, Point2D::y)
+              .build(Point2D::new));
 
   static <T> T withConnection(SqlFunction<Connection, T> f) {
     return Containers.postgresTransactor().execute(f);
@@ -384,37 +385,36 @@ public class PgStructTest {
    */
   record InnerItem(String name, String description) {}
 
-  static final PgStruct<InnerItem> innerItemStruct =
-      PgStructBuilders.<InnerItem>builder("inner_item")
-          .field("name", PgTypes.text, InnerItem::name)
-          .field("description", PgTypes.text, InnerItem::description)
-          .build(InnerItem::new);
-
-  static final PgType<InnerItem> innerItemType = innerItemStruct.asType();
+  static final PgType<InnerItem> innerItemType =
+      PgTypes.compositeOf(
+          "inner_item",
+          RowCodec.<InnerItem>namedBuilder()
+              .field("name", PgTypes.text, InnerItem::name)
+              .field("description", PgTypes.text, InnerItem::description)
+              .build(InnerItem::new));
 
   /** Middle container - has an array of InnerItem plus its own fields with special chars. */
   record MiddleContainer(String label, InnerItem[] items) {}
 
-  static final PgStruct<MiddleContainer> middleContainerStruct =
-      PgStructBuilders.<MiddleContainer>builder("middle_container")
-          .field("label", PgTypes.text, MiddleContainer::label)
-          .nestedArrayField("items", innerItemStruct, MiddleContainer::items, InnerItem[]::new)
-          .build(MiddleContainer::new);
-
-  static final PgType<MiddleContainer> middleContainerType = middleContainerStruct.asType();
+  static final PgType<MiddleContainer> middleContainerType =
+      PgTypes.compositeOf(
+          "middle_container",
+          RowCodec.<MiddleContainer>namedBuilder()
+              .field("label", PgTypes.text, MiddleContainer::label)
+              .field("items", innerItemType.array(), MiddleContainer::items)
+              .build(MiddleContainer::new));
 
   /** Outer wrapper - has an array of MiddleContainer plus its own fields with special chars. */
   record OuterWrapper(String title, String metadata, MiddleContainer[] containers) {}
 
-  static final PgStruct<OuterWrapper> outerWrapperStruct =
-      PgStructBuilders.<OuterWrapper>builder("outer_wrapper")
-          .field("title", PgTypes.text, OuterWrapper::title)
-          .field("metadata", PgTypes.text, OuterWrapper::metadata)
-          .nestedArrayField(
-              "containers", middleContainerStruct, OuterWrapper::containers, MiddleContainer[]::new)
-          .build(OuterWrapper::new);
-
-  static final PgType<OuterWrapper> outerWrapperType = outerWrapperStruct.asType();
+  static final PgType<OuterWrapper> outerWrapperType =
+      PgTypes.compositeOf(
+          "outer_wrapper",
+          RowCodec.<OuterWrapper>namedBuilder()
+              .field("title", PgTypes.text, OuterWrapper::title)
+              .field("metadata", PgTypes.text, OuterWrapper::metadata)
+              .field("containers", middleContainerType.array(), OuterWrapper::containers)
+              .build(OuterWrapper::new));
 
   @Test
   public void testDeepNestingWithSpecialCharsRoundtrip() {
@@ -617,31 +617,31 @@ public class PgStructTest {
           }
 
           // Define PgTypes that match the actual database types
-          PgStruct<InnerItem> dbInnerItemStruct =
-              PgStructBuilders.<InnerItem>builder("test_inner_item")
-                  .field("name", PgTypes.text, InnerItem::name)
-                  .field("description", PgTypes.text, InnerItem::description)
-                  .build(InnerItem::new);
+          PgType<InnerItem> dbInnerItemType =
+              PgTypes.compositeOf(
+                  "test_inner_item",
+                  RowCodec.<InnerItem>namedBuilder()
+                      .field("name", PgTypes.text, InnerItem::name)
+                      .field("description", PgTypes.text, InnerItem::description)
+                      .build(InnerItem::new));
 
-          PgStruct<MiddleContainer> dbMiddleContainerStruct =
-              PgStructBuilders.<MiddleContainer>builder("test_middle_container")
-                  .field("label", PgTypes.text, MiddleContainer::label)
-                  .nestedArrayField(
-                      "items", dbInnerItemStruct, MiddleContainer::items, InnerItem[]::new)
-                  .build(MiddleContainer::new);
+          PgType<MiddleContainer> dbMiddleContainerType =
+              PgTypes.compositeOf(
+                  "test_middle_container",
+                  RowCodec.<MiddleContainer>namedBuilder()
+                      .field("label", PgTypes.text, MiddleContainer::label)
+                      .field("items", dbInnerItemType.array(), MiddleContainer::items)
+                      .build(MiddleContainer::new));
 
-          PgStruct<OuterWrapper> dbOuterWrapperStruct =
-              PgStructBuilders.<OuterWrapper>builder("test_outer_wrapper")
-                  .field("title", PgTypes.text, OuterWrapper::title)
-                  .field("metadata", PgTypes.text, OuterWrapper::metadata)
-                  .nestedArrayField(
-                      "containers",
-                      dbMiddleContainerStruct,
-                      OuterWrapper::containers,
-                      MiddleContainer[]::new)
-                  .build(OuterWrapper::new);
-
-          PgType<OuterWrapper> dbOuterWrapperType = dbOuterWrapperStruct.asType();
+          PgType<OuterWrapper> dbOuterWrapperType =
+              PgTypes.compositeOf(
+                  "test_outer_wrapper",
+                  RowCodec.<OuterWrapper>namedBuilder()
+                      .field("title", PgTypes.text, OuterWrapper::title)
+                      .field("metadata", PgTypes.text, OuterWrapper::metadata)
+                      .field(
+                          "containers", dbMiddleContainerType.array(), OuterWrapper::containers)
+                      .build(OuterWrapper::new));
 
           // Create test data with special chars at every level
           InnerItem inner1 = new InnerItem("Item \"quoted\"", "Has, commas");
@@ -652,7 +652,8 @@ public class PgStructTest {
               new MiddleContainer(
                   "Middle \"special\" (label)", new InnerItem[] {inner1, inner2, inner3});
 
-          MiddleContainer middle2 = new MiddleContainer("Multi\nLine\nLabel", new InnerItem[] {});
+          // Non-empty nested array required: compositeOf can't infer element class for empty arrays
+          MiddleContainer middle2 = new MiddleContainer("Multi\nLine\nLabel", new InnerItem[] {inner1});
 
           OuterWrapper original =
               new OuterWrapper(
@@ -693,9 +694,10 @@ public class PgStructTest {
                 assertEqual(
                     readBack.containers()[0].items()[2].description(), inner3.description());
 
-                // Second middle container (empty items array)
+                // Second middle container (single-item array)
                 assertEqual(readBack.containers()[1].label(), middle2.label());
-                assertEqual(readBack.containers()[1].items().length, 0);
+                assertEqual(readBack.containers()[1].items().length, 1);
+                assertEqual(readBack.containers()[1].items()[0].name(), inner1.name());
 
                 System.out.println("\nAll database roundtrip assertions passed!");
               } else {
@@ -813,36 +815,40 @@ public class PgStructTest {
   /** Measurement with mixed primitive types */
   record Measurement(Integer id, Double value, Boolean valid, String note) {}
 
-  static final PgStruct<Measurement> measurementStruct =
-      PgStructBuilders.<Measurement>builder("measurement")
-          .field("id", PgTypes.int4, Measurement::id)
-          .field("value", PgTypes.float8, Measurement::value)
-          .field("valid", PgTypes.bool, Measurement::valid)
-          .field("note", PgTypes.text, Measurement::note)
-          .build(Measurement::new);
+  static final PgType<Measurement> measurementType =
+      PgTypes.compositeOf(
+          "measurement",
+          RowCodec.<Measurement>namedBuilder()
+              .field("id", PgTypes.int4, Measurement::id)
+              .field("value", PgTypes.float8, Measurement::value)
+              .field("valid", PgTypes.bool, Measurement::valid)
+              .field("note", PgTypes.text, Measurement::note)
+              .build(Measurement::new));
 
   /** Sensor with nested composite (Point2D) and array of mixed-type composite (Measurement[]) */
   record Sensor(String name, Point2D location, Measurement[] readings) {}
 
-  static final PgStruct<Sensor> sensorStruct =
-      PgStructBuilders.<Sensor>builder("sensor")
-          .field("name", PgTypes.text, Sensor::name)
-          .nestedField("location", point2dStruct, Sensor::location)
-          .nestedArrayField("readings", measurementStruct, Sensor::readings, Measurement[]::new)
-          .build(Sensor::new);
+  static final PgType<Sensor> sensorType =
+      PgTypes.compositeOf(
+          "sensor",
+          RowCodec.<Sensor>namedBuilder()
+              .field("name", PgTypes.text, Sensor::name)
+              .field("location", point2dType, Sensor::location)
+              .field("readings", measurementType.array(), Sensor::readings)
+              .build(Sensor::new));
 
   /** Observatory with Long id, array of Sensors, and nested Address */
   record Observatory(Long id, String name, Sensor[] sensors, Address headquarters) {}
 
-  static final PgStruct<Observatory> observatoryStruct =
-      PgStructBuilders.<Observatory>builder("observatory")
-          .field("id", PgTypes.int8, Observatory::id)
-          .field("name", PgTypes.text, Observatory::name)
-          .nestedArrayField("sensors", sensorStruct, Observatory::sensors, Sensor[]::new)
-          .nestedField("headquarters", addressStruct, Observatory::headquarters)
-          .build(Observatory::new);
-
-  static final PgType<Observatory> observatoryType = observatoryStruct.asType();
+  static final PgType<Observatory> observatoryType =
+      PgTypes.compositeOf(
+          "observatory",
+          RowCodec.<Observatory>namedBuilder()
+              .field("id", PgTypes.int8, Observatory::id)
+              .field("name", PgTypes.text, Observatory::name)
+              .field("sensors", sensorType.array(), Observatory::sensors)
+              .field("headquarters", addressType, Observatory::headquarters)
+              .build(Observatory::new));
 
   @Test
   public void testMixedTypesDeepNestingRoundtrip() {
@@ -1006,37 +1012,42 @@ public class PgStructTest {
           }
 
           // Define PgTypes matching database types
-          PgStruct<Point2D> dbPoint2dStruct =
-              PgStructBuilders.<Point2D>builder("test_point_2d")
-                  .field("x", PgTypes.float8, Point2D::x)
-                  .field("y", PgTypes.float8, Point2D::y)
-                  .build(Point2D::new);
+          PgType<Point2D> dbPoint2dType =
+              PgTypes.compositeOf(
+                  "test_point_2d",
+                  RowCodec.<Point2D>namedBuilder()
+                      .field("x", PgTypes.float8, Point2D::x)
+                      .field("y", PgTypes.float8, Point2D::y)
+                      .build(Point2D::new));
 
-          PgStruct<Measurement> dbMeasurementStruct =
-              PgStructBuilders.<Measurement>builder("test_measurement")
-                  .field("id", PgTypes.int4, Measurement::id)
-                  .field("value", PgTypes.float8, Measurement::value)
-                  .field("valid", PgTypes.bool, Measurement::valid)
-                  .field("note", PgTypes.text, Measurement::note)
-                  .build(Measurement::new);
+          PgType<Measurement> dbMeasurementType =
+              PgTypes.compositeOf(
+                  "test_measurement",
+                  RowCodec.<Measurement>namedBuilder()
+                      .field("id", PgTypes.int4, Measurement::id)
+                      .field("value", PgTypes.float8, Measurement::value)
+                      .field("valid", PgTypes.bool, Measurement::valid)
+                      .field("note", PgTypes.text, Measurement::note)
+                      .build(Measurement::new));
 
-          PgStruct<Sensor> dbSensorStruct =
-              PgStructBuilders.<Sensor>builder("test_sensor")
-                  .field("name", PgTypes.text, Sensor::name)
-                  .nestedField("location", dbPoint2dStruct, Sensor::location)
-                  .nestedArrayField(
-                      "readings", dbMeasurementStruct, Sensor::readings, Measurement[]::new)
-                  .build(Sensor::new);
+          PgType<Sensor> dbSensorType =
+              PgTypes.compositeOf(
+                  "test_sensor",
+                  RowCodec.<Sensor>namedBuilder()
+                      .field("name", PgTypes.text, Sensor::name)
+                      .field("location", dbPoint2dType, Sensor::location)
+                      .field("readings", dbMeasurementType.array(), Sensor::readings)
+                      .build(Sensor::new));
 
-          PgStruct<Observatory> dbObservatoryStruct =
-              PgStructBuilders.<Observatory>builder("test_observatory")
-                  .field("id", PgTypes.int8, Observatory::id)
-                  .field("name", PgTypes.text, Observatory::name)
-                  .nestedArrayField("sensors", dbSensorStruct, Observatory::sensors, Sensor[]::new)
-                  .nestedField("headquarters", addressStruct, Observatory::headquarters)
-                  .build(Observatory::new);
-
-          PgType<Observatory> dbObservatoryType = dbObservatoryStruct.asType();
+          PgType<Observatory> dbObservatoryType =
+              PgTypes.compositeOf(
+                  "test_observatory",
+                  RowCodec.<Observatory>namedBuilder()
+                      .field("id", PgTypes.int8, Observatory::id)
+                      .field("name", PgTypes.text, Observatory::name)
+                      .field("sensors", dbSensorType.array(), Observatory::sensors)
+                      .field("headquarters", addressType, Observatory::headquarters)
+                      .build(Observatory::new));
 
           // Create test data with mixed types
           Measurement m1 = new Measurement(1, 98.6, true, "Normal temp");

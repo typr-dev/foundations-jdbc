@@ -16,6 +16,15 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
     permits DuckDbRead.NonNullable, DuckDbRead.Nullable, DuckDbRead.Mapped {
   A read(ResultSet rs, int col) throws SQLException;
 
+  /**
+   * Convert a raw JDBC value (from Array.getArray() elements, Struct.getAttributes(), etc.)
+   * to the typed value. For scalars this is a cast. For transformed types, it composes.
+   */
+  @SuppressWarnings("unchecked")
+  default A fromJdbcValue(Object obj) {
+    return (A) obj;
+  }
+
   <B> DuckDbRead<B> map(SqlFunction<A, B> f);
 
   /** Derive a DuckDbRead which allows nullable values */
@@ -41,11 +50,35 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
     return new NonNullable<>(readNullableA);
   }
 
+  /** Create with a custom fromJdbcValue converter for array element reading. */
+  static <A> NonNullable<A> of(RawRead<A> f, java.util.function.Function<Object, A> fromJdbcValue) {
+    RawRead<Optional<A>> readNullableA =
+        (rs, col) -> {
+          var a = f.apply(rs, col);
+          if (rs.wasNull()) return Optional.empty();
+          else return Optional.of(a);
+        };
+    return new NonNullable<>(readNullableA, fromJdbcValue);
+  }
+
   final class NonNullable<A> implements DuckDbRead<A> {
     final RawRead<Optional<A>> readNullable;
+    private final java.util.function.Function<Object, A> jdbcValueConverter;
 
     public NonNullable(RawRead<Optional<A>> readNullable) {
+      this(readNullable, null);
+    }
+
+    public NonNullable(RawRead<Optional<A>> readNullable, java.util.function.Function<Object, A> jdbcValueConverter) {
       this.readNullable = readNullable;
+      this.jdbcValueConverter = jdbcValueConverter;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public A fromJdbcValue(Object obj) {
+      if (jdbcValueConverter != null) return jdbcValueConverter.apply(obj);
+      return (A) obj;
     }
 
     @Override
@@ -57,11 +90,18 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
 
     @Override
     public <B> NonNullable<B> map(SqlFunction<A, B> f) {
+      java.util.function.Function<Object, A> parentConverter = this.jdbcValueConverter;
       return new NonNullable<>(
           (rs, col) -> {
             Optional<A> maybeA = readNullable.apply(rs, col);
             if (maybeA.isEmpty()) return Optional.empty();
             return Optional.of(f.apply(maybeA.get()));
+          },
+          obj -> {
+            try {
+              A base = parentConverter != null ? parentConverter.apply(obj) : NonNullable.this.fromJdbcValue(obj);
+              return f.apply(base);
+            } catch (SQLException e) { throw new DatabaseException(e); }
           });
     }
 
@@ -106,6 +146,15 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
     }
 
     @Override
+    public B fromJdbcValue(Object obj) {
+      try {
+        return f.apply(underlying.fromJdbcValue(obj));
+      } catch (java.sql.SQLException e) {
+        throw new DatabaseException(e);
+      }
+    }
+
+    @Override
     public <C> DuckDbRead<C> map(SqlFunction<B, C> g) {
       return new Mapped<>(this, g);
     }
@@ -131,7 +180,7 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
   }
 
   // Basic type readers
-  DuckDbRead<String> readString = of(ResultSet::getString);
+  DuckDbRead<String> readString = of(ResultSet::getString, obj -> obj.toString());
   DuckDbRead<Boolean> readBoolean = of(ResultSet::getBoolean);
   DuckDbRead<Byte> readByte = of(ResultSet::getByte);
   DuckDbRead<Short> readShort = of(ResultSet::getShort);
@@ -140,7 +189,14 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
   DuckDbRead<Float> readFloat = of(ResultSet::getFloat);
   DuckDbRead<Double> readDouble = of(ResultSet::getDouble);
   DuckDbRead<BigDecimal> readBigDecimal = of(ResultSet::getBigDecimal);
-  DuckDbRead<byte[]> readByteArray = of(ResultSet::getBytes);
+    DuckDbRead<byte[]> readByteArray = of(ResultSet::getBytes, obj -> {
+    if (obj instanceof byte[] bytes) return bytes;
+    if (obj instanceof java.sql.Blob blob) {
+      try { return blob.getBytes(1, (int) blob.length()); }
+      catch (java.sql.SQLException e) { throw new DatabaseException(e); }
+    }
+    throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to byte[]");
+  });
 
   // BigInteger for HUGEINT/UHUGEINT - DuckDB JDBC returns BigInteger directly
   DuckDbRead<BigInteger> readBigInteger = castJdbcObjectTo(BigInteger.class);
@@ -154,82 +210,96 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
           (rs, idx) -> {
             Object obj = rs.getObject(idx);
             if (obj == null) return null;
-            if (obj instanceof LocalDateTime) return (LocalDateTime) obj;
-            if (obj instanceof java.sql.Timestamp)
-              return ((java.sql.Timestamp) obj).toLocalDateTime();
+            if (obj instanceof LocalDateTime ldt) return ldt;
+            if (obj instanceof java.sql.Timestamp ts) return ts.toLocalDateTime();
             throw new SQLException("Cannot convert " + obj.getClass() + " to LocalDateTime");
+          },
+          obj -> {
+            if (obj instanceof LocalDateTime ldt) return ldt;
+            if (obj instanceof java.sql.Timestamp ts) return ts.toLocalDateTime();
+            throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to LocalDateTime");
           });
+
   DuckDbRead<OffsetDateTime> readOffsetDateTime =
       of(
           (rs, idx) -> {
             Object obj = rs.getObject(idx);
             if (obj == null) return null;
-            if (obj instanceof OffsetDateTime) return (OffsetDateTime) obj;
-            if (obj instanceof java.sql.Timestamp) {
-              // DuckDB TIMESTAMPTZ is stored as UTC, returned as Timestamp
-              return ((java.sql.Timestamp) obj).toLocalDateTime().atOffset(ZoneOffset.UTC);
-            }
+            if (obj instanceof OffsetDateTime odt) return odt;
+            if (obj instanceof java.sql.Timestamp ts)
+              return ts.toLocalDateTime().atOffset(ZoneOffset.UTC);
             throw new SQLException("Cannot convert " + obj.getClass() + " to OffsetDateTime");
+          },
+          obj -> {
+            if (obj instanceof OffsetDateTime odt) return odt;
+            if (obj instanceof java.sql.Timestamp ts) return ts.toLocalDateTime().atOffset(ZoneOffset.UTC);
+            throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to OffsetDateTime");
           });
 
-  // UUID - DuckDB has native UUID support
   DuckDbRead<UUID> readUuid =
       of(
           (rs, idx) -> {
             Object obj = rs.getObject(idx);
             if (obj == null) return null;
-            if (obj instanceof UUID) return (UUID) obj;
-            if (obj instanceof String) return UUID.fromString((String) obj);
+            if (obj instanceof UUID u) return u;
+            if (obj instanceof String s) return UUID.fromString(s);
             throw new SQLException("Cannot convert " + obj.getClass() + " to UUID");
+          },
+          obj -> {
+            if (obj instanceof UUID u) return u;
+            if (obj instanceof String s) return UUID.fromString(s);
+            throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to UUID");
           });
 
   // Interval - DuckDB returns as string in "HH:MM:SS" or "HH:MM:SS.micros" format
+  private static Duration parseDuckDbInterval(String s) {
+    String[] parts = s.split(":");
+    if (parts.length >= 3) {
+      long hours = Long.parseLong(parts[0]);
+      long minutes = Long.parseLong(parts[1]);
+      String secPart = parts[2];
+      int dotIdx = secPart.indexOf('.');
+      long seconds;
+      long nanos = 0;
+      if (dotIdx >= 0) {
+        seconds = Long.parseLong(secPart.substring(0, dotIdx));
+        String fracStr = secPart.substring(dotIdx + 1);
+        while (fracStr.length() < 9) fracStr += "0";
+        if (fracStr.length() > 9) fracStr = fracStr.substring(0, 9);
+        nanos = Long.parseLong(fracStr);
+      } else {
+        seconds = Long.parseLong(secPart);
+      }
+      return Duration.ofHours(hours).plusMinutes(minutes).plusSeconds(seconds).plusNanos(nanos);
+    }
+    return Duration.parse(s);
+  }
+
   DuckDbRead<Duration> readDuration =
       of(
           (rs, idx) -> {
             String s = rs.getString(idx);
             if (s == null) return null;
-            // DuckDB interval format: "HH:MM:SS" or "HH:MM:SS.micros" for time intervals
-            // Parse manually since Duration.parse expects PT format
-            try {
-              String[] parts = s.split(":");
-              if (parts.length >= 3) {
-                long hours = Long.parseLong(parts[0]);
-                long minutes = Long.parseLong(parts[1]);
-                // Handle seconds with potential fractional part
-                String secPart = parts[2];
-                int dotIdx = secPart.indexOf('.');
-                long seconds;
-                long nanos = 0;
-                if (dotIdx >= 0) {
-                  seconds = Long.parseLong(secPart.substring(0, dotIdx));
-                  String fracStr = secPart.substring(dotIdx + 1);
-                  // Pad or truncate to 9 digits for nanoseconds
-                  while (fracStr.length() < 9) fracStr += "0";
-                  if (fracStr.length() > 9) fracStr = fracStr.substring(0, 9);
-                  nanos = Long.parseLong(fracStr);
-                } else {
-                  seconds = Long.parseLong(secPart);
-                }
-                return Duration.ofHours(hours)
-                    .plusMinutes(minutes)
-                    .plusSeconds(seconds)
-                    .plusNanos(nanos);
-              }
-              // Fallback to ISO 8601 parse
-              return Duration.parse(s);
-            } catch (Exception e) {
-              throw new SQLException("Cannot parse interval: " + s, e);
-            }
-          });
+            try { return parseDuckDbInterval(s); }
+            catch (Exception e) { throw new SQLException("Cannot parse interval: " + s, e); }
+          },
+          obj -> parseDuckDbInterval(obj.toString()));
 
-  // BLOB - DuckDB returns as byte[]
+  // BLOB - DuckDB returns as byte[] or DuckDBBlobResult
   DuckDbRead<byte[]> readBlob =
       of(
           (rs, idx) -> {
             java.sql.Blob blob = rs.getBlob(idx);
             if (blob == null) return null;
             return blob.getBytes(1, (int) blob.length());
+          },
+          obj -> {
+            if (obj instanceof byte[] bytes) return bytes;
+            if (obj instanceof java.sql.Blob blob) {
+              try { return blob.getBytes(1, (int) blob.length()); }
+              catch (java.sql.SQLException e) { throw new DatabaseException(e); }
+            }
+            throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to byte[]");
           });
 
   // BIT type - DuckDB returns as String of 0s and 1s

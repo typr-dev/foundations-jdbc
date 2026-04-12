@@ -67,7 +67,7 @@ public interface MariaTypes {
               MariaWrite.writeInteger,
               MariaJson.int4,
               MariaOutParam.readInteger)
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("integer"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("integer")));
 
   MariaType<Long> bigint =
       MariaType.of(
@@ -114,7 +114,7 @@ public interface MariaTypes {
               MariaWrite.writeLong.contramap(Uint4::value),
               MariaJson.int8.transform(Uint4::new, Uint4::value),
               MariaOutParam.readLong.map(Uint4::new))
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("integer unsigned"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("integer unsigned")));
 
   // BIGINT UNSIGNED: 0-18446744073709551615, wrapped in Uint8
   MariaType<Uint8> bigintUnsigned =
@@ -137,7 +137,7 @@ public interface MariaTypes {
           MariaOutParam.readBigDecimal);
 
   MariaType<BigDecimal> numeric =
-      decimal.renamed("NUMERIC").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("decimal"));
+      decimal.renamed("NUMERIC").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("decimal")));
 
   static MariaType<BigDecimal> decimal(int precision, int scale) {
     return MariaType.of(
@@ -417,7 +417,7 @@ public interface MariaTypes {
             MariaWrite.writeString.contramap(Enum::name),
             MariaJson.text.transform(fromString::apply, Enum::name),
             MariaOutParam.readString.map(fromString::apply))
-        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("char")));
   }
 
   // ==================== SET Type ====================
@@ -430,7 +430,7 @@ public interface MariaTypes {
               MariaWrite.writeString.contramap(MariaSet::toCommaSeparated),
               MariaJson.text.transform(MariaSet::fromString, MariaSet::toCommaSeparated),
               MariaOutParam.readString.map(MariaSet::fromString))
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("char")));
 
   // ==================== JSON Type ====================
 
@@ -452,7 +452,7 @@ public interface MariaTypes {
               MariaWrite.writeString.contramap(Inet4::value),
               MariaJson.text.transform(Inet4::parse, Inet4::value),
               MariaOutParam.readString.map(Inet4::parse))
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("char")));
 
   MariaType<Inet6> inet6 =
       MariaType.of(
@@ -461,7 +461,7 @@ public interface MariaTypes {
               MariaWrite.writeString.contramap(Inet6::value),
               MariaJson.text.transform(Inet6::parse, Inet6::value),
               MariaOutParam.readString.map(Inet6::parse))
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("char")));
 
   // ==================== UUID Type ====================
 
@@ -587,7 +587,7 @@ public interface MariaTypes {
             MariaWrite.writeVector,
             MariaJson.vector,
             MariaOutParam.readVector)
-        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("varbinary"));
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("varbinary")));
   }
 
   // ==================== Unknown Type ====================

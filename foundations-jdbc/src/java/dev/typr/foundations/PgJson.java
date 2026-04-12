@@ -144,6 +144,7 @@ public interface PgJson<A> extends DbJson<A> {
         }
       };
 
+
   PgJson<Float> float4 =
       new PgJson<>() {
         @Override

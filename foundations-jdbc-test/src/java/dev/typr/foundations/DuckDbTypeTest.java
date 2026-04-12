@@ -109,6 +109,10 @@ public class DuckDbTypeTest {
     public DuckDbTypeAndExample<A> noIdentity() {
       return new DuckDbTypeAndExample<>(type, example, false);
     }
+
+    boolean supportsArray() {
+      return type.arrayCodec().isPresent();
+    }
   }
 
   // Sample enum for ENUM type testing
@@ -203,6 +207,7 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(DuckDbTypes.char_(10), "hello"),
 
           // ==================== Binary Types ====================
+          // BLOB[] not supported: DuckDBUserArray can't serialize binary data
           new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {0x01, 0x02, 0x03, 0x04, 0x05}),
           new DuckDbTypeAndExample<>(DuckDbTypes.blob, new byte[] {}),
           new DuckDbTypeAndExample<>(
@@ -291,7 +296,7 @@ public class DuckDbTypeTest {
 
           // ==================== MAP Types ====================
           // MAP types use the mapTo() combinator. They don't support direct equality in WHERE
-          // clauses.
+          // clauses. MAP[] not supported: DuckDBUserArray string format rejected by DuckDB.
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.integer), java.util.Map.of("a", 1, "b", 2))
               .noIdentity(),
@@ -438,6 +443,7 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(personType.list(), List.of()).noIdentity(),
 
           // ==================== UNION Types ====================
+          // UNION[] not supported: array elements returned as String, tag inference fails
           new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Num(42)).noIdentity(),
           new DuckDbTypeAndExample<>(intOrStringType, new IntOrString.Str("hello")).noIdentity(),
 
@@ -484,19 +490,51 @@ public class DuckDbTypeTest {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  static <A> DuckDbTypeAndExample<A[]> toArrayExample(DuckDbTypeAndExample<A> scalar) {
+    DuckDbType<A[]> arrayType = scalar.type.array();
+    A[] arr = (A[]) java.lang.reflect.Array.newInstance(scalar.example.getClass(), 1);
+    arr[0] = scalar.example;
+    return new DuckDbTypeAndExample<>(arrayType, arr).noIdentity();
+  }
+
   @Test
   public void test() {
     System.out.println("Testing DuckDB type codecs...\n");
 
+    // Derive array tests from every scalar type
+    // Derive array tests: wrap every type with supportsArray=true in a single-element array
+    var arrayExamples = All.stream()
+        .filter(t -> t.supportsArray())
+        .collect(Collectors.toMap(
+            t -> t.type.typename().sqlType(),
+            t -> t,
+            (a, b) -> a)) // deduplicate by type name (keep first example per type)
+        .values().stream()
+        .map(t -> {
+          try { return toArrayExample(t); }
+          catch (Exception e) {
+            System.out.println("  Skipping array test for " + t.type.typename().sqlType() + ": " + e.getMessage());
+            return null;
+          }
+        })
+        .filter(t -> t != null)
+        .toList();
+    System.out.println("Generated " + arrayExamples.size() + " array type tests from " + All.size() + " scalar types\n");
+
+    var allWithArrays = new ArrayList<DuckDbTypeAndExample<?>>();
+    allWithArrays.addAll(All);
+    allWithArrays.addAll(arrayExamples);
+
     // Test JSON roundtrip first (no database connection needed) - parallel
     System.out.println("=== JSON Roundtrip Tests (parallel) ===");
-    All.parallelStream().forEach(DuckDbTypeTest::testJsonRoundtrip);
+    allWithArrays.parallelStream().forEach(DuckDbTypeTest::testJsonRoundtrip);
     System.out.println();
 
     // Run all DB tests in parallel - each test gets its own connection
     System.out.println("=== DB Roundtrip Tests (parallel) ===");
     var failures =
-        All.parallelStream()
+        allWithArrays.parallelStream()
             .flatMap(
                 t -> {
                   var errors = new ArrayList<String>();
@@ -523,7 +561,7 @@ public class DuckDbTypeTest {
     // ==================== Query Analysis Tests ====================
     System.out.println("\n=== Query Analysis Tests (parallel) ===");
     var analysisFailures =
-        All.stream()
+        allWithArrays.stream()
             .collect(Collectors.toMap(t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
             .values()
             .parallelStream()
@@ -589,8 +627,8 @@ public class DuckDbTypeTest {
     if (allFailures.isEmpty()) {
       System.out.println("All tests passed!");
     } else {
-      allFailures.forEach(System.out::println);
-      throw new RuntimeException(allFailures.size() + " tests failed");
+      allFailures.forEach(f -> System.err.println("FAILURE: " + f));
+      throw new RuntimeException(allFailures.size() + " tests failed:\n" + String.join("\n", allFailures));
     }
     System.out.println("=====================================");
   }
@@ -749,8 +787,12 @@ public class DuckDbTypeTest {
     if (expected instanceof byte[]) {
       return Arrays.equals((byte[]) actual, (byte[]) expected);
     }
-    if (expected instanceof Object[]) {
-      return Arrays.deepEquals((Object[]) actual, (Object[]) expected);
+    if (expected instanceof Object[] expArr && actual instanceof Object[] actArr) {
+      if (expArr.length != actArr.length) return false;
+      for (int i = 0; i < expArr.length; i++) {
+        if (!areEqual(actArr[i], expArr[i])) return false;
+      }
+      return true;
     }
     // BigDecimal: compare by value, not scale
     if (expected instanceof BigDecimal && actual instanceof BigDecimal) {

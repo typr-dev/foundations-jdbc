@@ -71,26 +71,24 @@ public record DuckDbUnion<A>(
 
   /** Create a DuckDbType for this UNION. */
   public DuckDbType<A> asType() {
+    java.util.function.Function<Object, A> unionFromJdbc = obj -> {
+      String inferredTag = inferTag(obj);
+      if (inferredTag != null) {
+        try { return reader.read(inferredTag, obj); }
+        catch (java.sql.SQLException e) { throw new DatabaseException(e); }
+      }
+      throw new IllegalArgumentException(
+          "Cannot determine UNION tag for value: " + obj + " (" + obj.getClass() + ")");
+    };
+
     DuckDbRead<A> duckDbRead =
         DuckDbRead.of(
             (rs, idx) -> {
               Object obj = rs.getObject(idx);
               if (obj == null) return null;
-
-              // DuckDB JDBC returns the actual value, not a wrapper.
-              // We need to query the tag separately.
-              // Unfortunately, we can't get the tag from the ResultSet directly.
-              // The tag is part of the column metadata or needs to be queried via union_tag().
-
-              // Strategy: infer tag from Java type
-              String inferredTag = inferTag(obj);
-              if (inferredTag != null) {
-                return reader.read(inferredTag, obj);
-              }
-
-              throw new SQLException(
-                  "Cannot determine UNION tag for value: " + obj + " (" + obj.getClass() + ")");
-            });
+              return unionFromJdbc.apply(obj);
+            },
+            unionFromJdbc);
 
     DuckDbWrite<A> duckDbWrite =
         new DuckDbWrite.Instance<>(DuckDbUnion::setTaggedValue, writer::write);
@@ -130,7 +128,8 @@ public record DuckDbUnion<A>(
         stringifier,
         json,
         unionMapSupport,
-        AnalysisOptions.EMPTY);
+        AnalysisOptions.EMPTY,
+        java.util.Optional.empty()); // UNION[] not supported: array elements lose tag info
   }
 
   /** Create an optional version of this UNION type. */

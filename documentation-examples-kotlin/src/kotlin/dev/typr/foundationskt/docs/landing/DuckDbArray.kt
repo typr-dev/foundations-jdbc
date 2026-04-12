@@ -11,7 +11,7 @@ class DuckDbArray {
     // DuckDB arrays are first-class typed values
     fun getTagSets(): List<Array<String>> =
         sql { "SELECT tags FROM posts WHERE published = true" }
-            .query(RowCodec.of(DuckDbTypes.varcharArray).all())
+            .query(RowCodec.of(DuckDbTypes.varchar.array()).all())
             .transact(tx)
     //stop
 }

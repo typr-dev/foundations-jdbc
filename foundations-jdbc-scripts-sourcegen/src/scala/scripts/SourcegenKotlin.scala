@@ -19,7 +19,6 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("DbProcedure.kt"), generateKotlinDbProcedure())
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("DbFunction.kt"), generateKotlinDbFunction())
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("DuckDbStruct.kt"), generateKotlinDuckDbStructBuilders())
-      FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("PgStruct.kt"), generateKotlinPgStructBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("OracleObject.kt"), generateKotlinOracleObjectBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("Tuple.kt"), generateKotlinTuple())
       FileUtils.writeString(started.logger, Some("SourcegenKotlin"), outputDir.resolve("Template.kt"), generateKotlinTemplate())
@@ -437,67 +436,6 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |    companion object {
         |        fun <A> builder(name: String): Builder0<A> =
         |            Builder0(dev.typr.foundations.DuckDbStructBuilders.builder(name))
-        |    }
-        |
-        |$builder0
-        |
-        |${builders.mkString("\n\n")}
-        |}
-        |""".stripMargin
-  }
-
-  def generateKotlinPgStructBuilders(): String = {
-    val maxArity = STRUCT_N - 1
-
-    val builder0 = s"""|    class Builder0<A> internal constructor(
-                       |        private val underlying: dev.typr.foundations.PgStructBuilders.Builder0<A>
-                       |    ) {
-                       |        fun <F> field(name: String, type: PgType<F>, getter: (A) -> F): Builder1<A, F> =
-                       |            Builder1(underlying.field(name, type.underlying, getter))
-                       |
-                       |        fun <F> nestedField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> F): Builder1<A, F> =
-                       |            Builder1(underlying.nestedField(name, nestedStruct.underlying, getter))
-                       |
-                       |        fun <F> nestedArrayField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> Array<F>, arrayFactory: java.util.function.IntFunction<Array<F>>): Builder1<A, Array<F>> =
-                       |            Builder1(underlying.nestedArrayField(name, nestedStruct.underlying, getter, arrayFactory))
-                       |    }""".stripMargin
-
-    val builders = 1.to(maxArity).map { n =>
-      val range = 0.until(n)
-      val tparams = range.map(i => s"T$i").mkString(", ")
-      val lambdaParams = range.map(i => s"t$i").mkString(", ")
-
-      val nextBuilder = if (n < maxArity) {
-        val nextTparams = range.map(i => s"T$i").mkString(", ")
-        s"""|
-            |        fun <F> field(name: String, type: PgType<F>, getter: (A) -> F): Builder${n + 1}<A, $nextTparams, F> =
-            |            Builder${n + 1}(underlying.field(name, type.underlying, getter))
-            |
-            |        fun <F> nestedField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> F): Builder${n + 1}<A, $nextTparams, F> =
-            |            Builder${n + 1}(underlying.nestedField(name, nestedStruct.underlying, getter))
-            |
-            |        fun <F> nestedArrayField(name: String, nestedStruct: PgStruct<F>, getter: (A) -> Array<F>, arrayFactory: java.util.function.IntFunction<Array<F>>): Builder${n + 1}<A, $nextTparams, Array<F>> =
-            |            Builder${n + 1}(underlying.nestedArrayField(name, nestedStruct.underlying, getter, arrayFactory))""".stripMargin
-      } else ""
-
-      s"""|    class Builder$n<A, $tparams> internal constructor(
-          |        private val underlying: dev.typr.foundations.PgStructBuilders.Builder$n<A, $tparams>
-          |    ) {
-          |        fun build(decode: ($tparams) -> A): PgStruct<A> =
-          |            PgStruct(underlying.build { $lambdaParams -> decode($lambdaParams) })
-          |$nextBuilder
-          |    }""".stripMargin
-    }
-
-    s"""|@file:Suppress("unused")
-        |package dev.typr.foundationskt
-        |
-        |class PgStruct<T>(val underlying: dev.typr.foundations.PgStruct<T>) {
-        |    fun asType(): PgType<T> = PgType(underlying.asType())
-        |
-        |    companion object {
-        |        fun <A> builder(name: String): Builder0<A> =
-        |            Builder0(dev.typr.foundations.PgStructBuilders.builder(name))
         |    }
         |
         |$builder0

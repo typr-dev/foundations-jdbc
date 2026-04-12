@@ -69,7 +69,7 @@ open class DuckDbTypes {
     open val decimalArray = DuckDbType(JavaDuckDbTypes.decimalArray)
     open val booleanArray = DuckDbType(JavaDuckDbTypes.booleanArray)
     open val varcharArray = DuckDbType(JavaDuckDbTypes.varcharArray)
-    open val blobArray = DuckDbType(JavaDuckDbTypes.blobArray)
+    // blobArray removed: BLOB[] not supported (binary can't be serialized in DuckDBUserArray)
     open val dateArray = DuckDbType(JavaDuckDbTypes.dateArray)
     open val timeArray = DuckDbType(JavaDuckDbTypes.timeArray)
     open val timestampArray = DuckDbType(JavaDuckDbTypes.timestampArray)
@@ -124,6 +124,16 @@ open class DuckDbTypes {
     /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
     open fun <Row : Any> jsonObjectEncodedList(parser: RowCodecNamed<Row>) =
         DuckDbType<List<Row>>(JavaDuckDbTypes.jsonObjectEncodedList(parser.underlying))
+
+    /** JSON codec for Map<K, V> that serializes as a JSON object. */
+    open fun <K, V> mapJson(
+        keyJson: dev.typr.foundations.DuckDbJson<K>,
+        valueJson: dev.typr.foundations.DuckDbJson<V>
+    ): dev.typr.foundations.DuckDbJson<Map<K, V>> =
+        JavaDuckDbTypes.mapJson(keyJson, valueJson).transform(
+            dev.typr.foundations.SqlFunction { jmap -> jmap.toMap() },
+            { kmap -> kmap.toMap(java.util.HashMap()) }
+        )
 
     companion object : DuckDbTypes()
 }
