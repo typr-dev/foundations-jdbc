@@ -14,11 +14,15 @@ interface FileData {
 
 const allSnippets: Record<string, FileData> = snippetsData as Record<string, FileData>;
 
+type Lang = 'java' | 'kotlin' | 'scala';
+
 interface SnippetProps {
   file: string;
+  lang?: Lang;
+  hideFullFile?: boolean;
 }
 
-function buildPath(file: string, lang: 'java' | 'kotlin' | 'scala'): string {
+function buildPath(file: string, lang: Lang): string {
   const ext = lang === 'java' ? '.java' : lang === 'kotlin' ? '.kt' : '.scala';
   const pkg = lang === 'java' ? 'foundations' : lang === 'kotlin' ? 'foundationskt' : 'foundationssc';
   return `documentation-examples-${lang}/src/${lang}/dev/typr/${pkg}/docs/${file}${ext}`;
@@ -38,41 +42,55 @@ function getSnippetCode(path: string, showFull: boolean): string {
   return showFull ? fileData.fullContent : fileData.snippet;
 }
 
-export default function Snippet({ file }: SnippetProps): JSX.Element {
+export default function Snippet({ file, lang, hideFullFile }: SnippetProps): JSX.Element {
   const [showFullFile, setShowFullFile] = useState(false);
 
-  const javaPath = buildPath(file, 'java');
-  const kotlinPath = buildPath(file, 'kotlin');
-  const scalaPath = buildPath(file, 'scala');
+  const langConfig: Record<Lang, string> = {
+    java: 'java', kotlin: 'kotlin', scala: 'scala'
+  };
+
+  const langs: Lang[] = lang ? [lang] : ['kotlin', 'java', 'scala'];
+
+  const codeBlocks = langs.map(l => ({
+    lang: l,
+    path: buildPath(file, l),
+    syntax: langConfig[l],
+  }));
+
+  const content = (
+    <>
+      {langs.length === 1 ? (
+        <CodeBlock language={codeBlocks[0].syntax}>
+          {getSnippetCode(codeBlocks[0].path, showFullFile)}
+        </CodeBlock>
+      ) : (
+        <Tabs groupId="language">
+          {codeBlocks.map(({ lang: l, path, syntax }) => (
+            <TabItem key={l} value={l} label={l.charAt(0).toUpperCase() + l.slice(1)}>
+              <CodeBlock language={syntax}>
+                {getSnippetCode(path, showFullFile)}
+              </CodeBlock>
+            </TabItem>
+          ))}
+        </Tabs>
+      )}
+    </>
+  );
 
   return (
     <div className={styles.snippetContainer}>
       <div className={styles.tabsWrapper}>
-        <Tabs groupId="language">
-          <TabItem value="kotlin" label="Kotlin">
-            <CodeBlock language="kotlin">
-              {getSnippetCode(kotlinPath, showFullFile)}
-            </CodeBlock>
-          </TabItem>
-          <TabItem value="java" label="Java">
-            <CodeBlock language="java">
-              {getSnippetCode(javaPath, showFullFile)}
-            </CodeBlock>
-          </TabItem>
-          <TabItem value="scala" label="Scala">
-            <CodeBlock language="scala">
-              {getSnippetCode(scalaPath, showFullFile)}
-            </CodeBlock>
-          </TabItem>
-        </Tabs>
-        <label className={styles.checkbox}>
-          <input
-            type="checkbox"
-            checked={showFullFile}
-            onChange={(e) => setShowFullFile(e.target.checked)}
-          />
-          <span>Show entire file</span>
-        </label>
+        {content}
+        {!hideFullFile && (
+          <label className={styles.checkbox}>
+            <input
+              type="checkbox"
+              checked={showFullFile}
+              onChange={(e) => setShowFullFile(e.target.checked)}
+            />
+            <span>Show entire file</span>
+          </label>
+        )}
       </div>
     </div>
   );

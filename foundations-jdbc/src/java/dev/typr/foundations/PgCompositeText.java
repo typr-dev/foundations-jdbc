@@ -43,15 +43,11 @@ public abstract class PgCompositeText<A> {
   }
 
   /**
-   * Create an array version of this codec with a custom delimiter.
-   *
-   * <p>PostgreSQL uses semicolon (;) as the delimiter for geometric type arrays (box[], circle[],
-   * line[], lseg[], path[], point[], polygon[]) because their elements contain commas.
-   *
-   * @param arrayFactory factory to create arrays of the element type
-   * @param delimiter the array element delimiter character
+   * Internal: array encoding with a specific delimiter. The delimiter is a property of the
+   * element type (geometric types use ';', everything else ','). Only {@link PgType#array()}
+   * should call this, passing the delimiter from the type's {@link PgArrayCodec}.
    */
-  public PgCompositeText<A[]> array(IntFunction<A[]> arrayFactory, char delimiter) {
+  PgCompositeText<A[]> array(IntFunction<A[]> arrayFactory, char delimiter) {
     var self = this;
     return new PgCompositeText<>() {
       @Override
@@ -62,13 +58,26 @@ public abstract class PgCompositeText<A> {
       }
 
       @Override
+      @SuppressWarnings("unchecked")
       public A[] decode(String text) {
         List<String> elements = PgRecordParser.parseArray(text, delimiter);
-        A[] result = arrayFactory.apply(elements.size());
-        for (int i = 0; i < elements.size(); i++) {
-          String elem = elements.get(i);
-          result[i] = elem == null ? null : self.decode(elem);
+        // Decode to a temporary list so we can infer element class for reflective array creation.
+        // Without this, arrayFactory would create Object[] which fails runtime CHECKCAST when the
+        // result flows into a concrete typed field (e.g. Skill[] in a record constructor).
+        List<A> decoded = new java.util.ArrayList<>(elements.size());
+        Class<?> elementClass = null;
+        for (String elem : elements) {
+          A v = elem == null ? null : self.decode(elem);
+          decoded.add(v);
+          if (elementClass == null && v != null) elementClass = v.getClass();
         }
+        A[] result;
+        if (elementClass != null) {
+          result = (A[]) java.lang.reflect.Array.newInstance(elementClass, decoded.size());
+        } else {
+          result = arrayFactory.apply(decoded.size());
+        }
+        for (int i = 0; i < decoded.size(); i++) result[i] = decoded.get(i);
         return result;
       }
     };

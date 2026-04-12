@@ -82,272 +82,198 @@ public class PgTypeTest {
     }
   }
 
-  List<PgTypeAndExample<?>> All =
+  /** Auto-generate a singleton array test entry for one element entry. */
+  @SuppressWarnings("unchecked")
+  static <A> PgTypeAndExample<A[]> singletonArrayEntry(PgTypeAndExample<A> elem) {
+    A example = elem.example();
+    A[] singleton = (A[]) java.lang.reflect.Array.newInstance(example.getClass(), 1);
+    singleton[0] = example;
+    return new PgTypeAndExample<>(
+        elem.type().array(), singleton,
+        elem.hasIdentity(), elem.streamingWorks(), elem.compositeTextWorks());
+  }
+
+  /** Auto-generate an empty array test entry for a type (once per type). */
+  @SuppressWarnings("unchecked")
+  static <A> PgTypeAndExample<A[]> emptyArrayEntry(PgTypeAndExample<A> elem) {
+    A[] empty = (A[]) java.lang.reflect.Array.newInstance(elem.example().getClass(), 0);
+    return new PgTypeAndExample<>(
+        elem.type().array(), empty,
+        elem.hasIdentity(), elem.streamingWorks(), elem.compositeTextWorks());
+  }
+
+  /** Auto-generate a multi-element array test entry combining all examples for a type. */
+  @SuppressWarnings("unchecked")
+  static <A> PgTypeAndExample<A[]> multiArrayEntry(List<PgTypeAndExample<A>> sameTypeEntries) {
+    var first = sameTypeEntries.get(0);
+    Class<?> elementClass = first.example().getClass();
+    A[] values = (A[]) java.lang.reflect.Array.newInstance(elementClass, sameTypeEntries.size());
+    for (int i = 0; i < sameTypeEntries.size(); i++) {
+      values[i] = sameTypeEntries.get(i).example();
+    }
+    return new PgTypeAndExample<>(
+        first.type().array(), values,
+        first.hasIdentity(), first.streamingWorks(), first.compositeTextWorks());
+  }
+
+  /** Should we auto-generate array test entries for this scalar entry? */
+  static boolean hasArraySupport(PgTypeAndExample<?> elem) {
+    return elem.type().pgArrayCodec().isPresent()
+        && !elem.type().typename().sqlType().contains("[]");
+  }
+
+  List<PgTypeAndExample<?>> Elements =
       List.<PgTypeAndExample<?>>of(
           // ==================== ACL Item Types ====================
           new PgTypeAndExample<>(PgTypes.aclitem, new AclItem("postgres=r*w/postgres")),
-          new PgTypeAndExample<>(
-              PgTypes.aclitemArray, new AclItem[] {new AclItem("postgres=r*w/postgres")}),
 
           // ==================== Boolean Types ====================
           new PgTypeAndExample<>(PgTypes.bool, true),
-          new PgTypeAndExample<>(PgTypes.bool, false), // Edge case: false value
-          new PgTypeAndExample<>(PgTypes.boolArray, new Boolean[] {true, false}),
-          new PgTypeAndExample<>(PgTypes.boolArray, new Boolean[] {}), // Edge case: empty array
+          new PgTypeAndExample<>(PgTypes.bool, false),
           new PgTypeAndExample<>(PgTypes.boolArrayUnboxed, new boolean[] {true, false}),
-          new PgTypeAndExample<>(
-              PgTypes.boolArrayUnboxed, new boolean[] {}), // Edge case: empty array
+          new PgTypeAndExample<>(PgTypes.boolArrayUnboxed, new boolean[] {}),
 
           // ==================== Bit String Types ====================
           new PgTypeAndExample<>(PgTypes.bit, new Bit("1")),
           new PgTypeAndExample<>(PgTypes.bit, new Bit("0")),
-          new PgTypeAndExample<>(PgTypes.bitArray, new Bit[] {new Bit("1"), new Bit("0")}),
-          new PgTypeAndExample<>(PgTypes.bitArray, new Bit[] {}),
           new PgTypeAndExample<>(PgTypes.bit(8), new Bit("10110011")),
           new PgTypeAndExample<>(PgTypes.bit(8), new Bit("00000000")),
-          new PgTypeAndExample<>(PgTypes.bitArray(8), new Bit[] {new Bit("10110011")}),
           new PgTypeAndExample<>(PgTypes.varbit, new Varbit("1")),
           new PgTypeAndExample<>(PgTypes.varbit, new Varbit("101")),
           new PgTypeAndExample<>(PgTypes.varbit, new Varbit("00000000")),
-          new PgTypeAndExample<>(
-              PgTypes.varbitArray, new Varbit[] {new Varbit("101"), new Varbit("110")}),
-          new PgTypeAndExample<>(PgTypes.varbitArray, new Varbit[] {}),
 
           // ==================== Geometric Types ====================
           new PgTypeAndExample<>(PgTypes.box, new PGbox(42, 42, 42, 42)).noIdentity(),
-          new PgTypeAndExample<>(PgTypes.box, new PGbox(-100, -50, 100, 50))
-              .noIdentity(), // Edge case: negative coords
-          new PgTypeAndExample<>(PgTypes.boxArray, new PGbox[] {new PGbox(42, 42, 42, 42)})
+          new PgTypeAndExample<>(PgTypes.box, new PGbox(-100, -50, 100, 50)).noIdentity(),
+          new PgTypeAndExample<>(PgTypes.circle, new PGcircle(new PGpoint(0.01, 42.34), 101.2))
               .noIdentity(),
-          new PgTypeAndExample<>(PgTypes.circle, new PGcircle(new PGpoint(0.01, 42.34), 101.2)),
-          new PgTypeAndExample<>(PgTypes.circle, new PGcircle(new PGpoint(0, 0), 0))
-              .noIdentity(), // Edge case: zero radius
-          new PgTypeAndExample<>(
-                  PgTypes.circleArray,
-                  new PGcircle[] {new PGcircle(new PGpoint(0.01, 42.34), 101.2)})
-              .noIdentity(),
+          new PgTypeAndExample<>(PgTypes.circle, new PGcircle(new PGpoint(0, 0), 0)).noIdentity(),
           new PgTypeAndExample<>(PgTypes.line, new PGline(1.1, 2.2, 3.3)).noIdentity(),
-          new PgTypeAndExample<>(PgTypes.lineArray, new PGline[] {new PGline(1.1, 2.2, 3.3)})
-              .noIdentity(),
           new PgTypeAndExample<>(PgTypes.lseg, new PGlseg(1.1, 2.2, 3.3, 4.4)).noIdentity(),
-          new PgTypeAndExample<>(PgTypes.lsegArray, new PGlseg[] {new PGlseg(1.1, 2.2, 3.3, 4.4)})
-              .noIdentity(),
           new PgTypeAndExample<>(
                   PgTypes.path,
                   new PGpath(new PGpoint[] {new PGpoint(1.1, 2.2), new PGpoint(3.3, 4.4)}, true))
               .noIdentity(),
-          new PgTypeAndExample<>(
-                  PgTypes.pathArray,
-                  new PGpath[] {
-                    new PGpath(new PGpoint[] {new PGpoint(1.1, 2.2), new PGpoint(3.3, 4.4)}, true)
-                  })
-              .noIdentity(),
           new PgTypeAndExample<>(PgTypes.point, new PGpoint(1.1, 2.2)).noIdentity(),
-          new PgTypeAndExample<>(PgTypes.point, new PGpoint(0, 0))
-              .noIdentity(), // Edge case: origin
-          new PgTypeAndExample<>(PgTypes.pointArray, new PGpoint[] {new PGpoint(1.1, 2.2)})
-              .noIdentity(),
+          new PgTypeAndExample<>(PgTypes.point, new PGpoint(0, 0)).noIdentity(),
           new PgTypeAndExample<>(
                   PgTypes.polygon,
                   new PGpolygon(new PGpoint[] {new PGpoint(1.1, 2.2), new PGpoint(3.3, 4.4)}))
-              .noIdentity(),
-          new PgTypeAndExample<>(
-                  PgTypes.polygonArray,
-                  new PGpolygon[] {
-                    new PGpolygon(new PGpoint[] {new PGpoint(1.1, 2.2), new PGpoint(3.3, 4.4)})
-                  })
               .noIdentity(),
 
           // ==================== Character Types ====================
           new PgTypeAndExample<>(PgTypes.bpchar(5), "377  "),
           new PgTypeAndExample<>(PgTypes.bpchar, "377"),
-          new PgTypeAndExample<>(PgTypes.bpchar, ""), // Edge case: empty string
-          new PgTypeAndExample<>(PgTypes.bpcharArray(5), new String[] {"377  "}),
-          new PgTypeAndExample<>(PgTypes.bpcharArray, new String[] {"10101"}),
+          new PgTypeAndExample<>(PgTypes.bpchar, ""),
           new PgTypeAndExample<>(PgTypes.text, ",.;{}[]-//#®✅"),
-          new PgTypeAndExample<>(PgTypes.text, ""), // Edge case: empty string
-          new PgTypeAndExample<>(
-              PgTypes.text, "Line1\nLine2\tTabbed"), // Edge case: whitespace chars
-          new PgTypeAndExample<>(PgTypes.text, "Quote\"Test'Single"), // Edge case: quotes
-          new PgTypeAndExample<>(PgTypes.text, "Emoji: 😀🎉🚀"), // Edge case: emoji
-          new PgTypeAndExample<>(PgTypes.textArray, new String[] {",.;{}[]-//#®✅"}),
-          new PgTypeAndExample<>(
-              PgTypes.textArray, new String[] {"a", "b", "c"}), // Edge case: multiple elements
-          new PgTypeAndExample<>(PgTypes.textArray, new String[] {}), // Edge case: empty array
+          new PgTypeAndExample<>(PgTypes.text, ""),
+          new PgTypeAndExample<>(PgTypes.text, "Line1\nLine2\tTabbed"),
+          new PgTypeAndExample<>(PgTypes.text, "Quote\"Test'Single"),
+          new PgTypeAndExample<>(PgTypes.text, "Emoji: 😀🎉🚀"),
 
           // ==================== Binary Types ====================
           new PgTypeAndExample<>(PgTypes.bytea, new byte[] {-1, 1, 127}),
-          new PgTypeAndExample<>(PgTypes.bytea, new byte[] {}), // Edge case: empty byte array
-          new PgTypeAndExample<>(PgTypes.bytea, new byte[] {0, 0, 0}), // Edge case: all zeros
+          new PgTypeAndExample<>(PgTypes.bytea, new byte[] {}),
+          new PgTypeAndExample<>(PgTypes.bytea, new byte[] {0, 0, 0}),
           new PgTypeAndExample<>(
-              PgTypes.bytea,
-              new byte[] {(byte) 0xFF, (byte) 0xFE, (byte) 0xFD}), // Edge case: high bytes
+              PgTypes.bytea, new byte[] {(byte) 0xFF, (byte) 0xFE, (byte) 0xFD}),
 
           // ==================== Date/Time Types ====================
           new PgTypeAndExample<>(PgTypes.date, LocalDate.now()),
-          new PgTypeAndExample<>(PgTypes.date, LocalDate.of(1970, 1, 1)), // Edge case: epoch
-          new PgTypeAndExample<>(PgTypes.date, LocalDate.of(2099, 12, 31)), // Edge case: far future
-          new PgTypeAndExample<>(PgTypes.dateArray, new LocalDate[] {LocalDate.now()}),
+          new PgTypeAndExample<>(PgTypes.date, LocalDate.of(1970, 1, 1)),
+          new PgTypeAndExample<>(PgTypes.date, LocalDate.of(2099, 12, 31)),
           new PgTypeAndExample<>(PgTypes.time, nowTime()),
-          new PgTypeAndExample<>(PgTypes.time, LocalTime.of(0, 0, 0)), // Edge case: midnight
-          new PgTypeAndExample<>(
-              PgTypes.time, LocalTime.of(23, 59, 59, 999999000)), // Edge case: end of day
-          new PgTypeAndExample<>(PgTypes.timeArray, new LocalTime[] {nowTime()}),
+          new PgTypeAndExample<>(PgTypes.time, LocalTime.of(0, 0, 0)),
+          new PgTypeAndExample<>(PgTypes.time, LocalTime.of(23, 59, 59, 999999000)),
           new PgTypeAndExample<>(PgTypes.timestamp, nowDateTime()),
-          new PgTypeAndExample<>(
-              PgTypes.timestamp, LocalDateTime.of(1970, 1, 1, 0, 0, 0)), // Edge case: epoch
-          new PgTypeAndExample<>(PgTypes.timestampArray, new LocalDateTime[] {nowDateTime()}),
+          new PgTypeAndExample<>(PgTypes.timestamp, LocalDateTime.of(1970, 1, 1, 0, 0, 0)),
           new PgTypeAndExample<>(PgTypes.timestamptz, nowInstant()),
-          new PgTypeAndExample<>(PgTypes.timestamptz, Instant.EPOCH), // Edge case: epoch
-          new PgTypeAndExample<>(PgTypes.timestamptzArray, new Instant[] {nowInstant()}),
+          new PgTypeAndExample<>(PgTypes.timestamptz, Instant.EPOCH),
           new PgTypeAndExample<>(PgTypes.timetz, nowOffsetTime()),
-          new PgTypeAndExample<>(PgTypes.timetzArray, new OffsetTime[] {nowOffsetTime()}),
           new PgTypeAndExample<>(PgTypes.interval, new PGInterval(1, 2, 3, 4, 5, 6.666)),
-          new PgTypeAndExample<>(PgTypes.interval, new PGInterval(0, 0, 0, 0, 0, 0))
-              .noIdentity(), // Edge case: zero interval
-          new PgTypeAndExample<>(
-                  PgTypes.intervalArray, new PGInterval[] {new PGInterval(1, 2, 3, 4, 5, 6.666)})
-              .noIdentity(),
+          new PgTypeAndExample<>(PgTypes.interval, new PGInterval(0, 0, 0, 0, 0, 0)).noIdentity(),
 
           // ==================== Numeric Types ====================
           new PgTypeAndExample<>(PgTypes.int2, (short) 42),
-          new PgTypeAndExample<>(PgTypes.int2, Short.MIN_VALUE), // Edge case: min value
-          new PgTypeAndExample<>(PgTypes.int2, Short.MAX_VALUE), // Edge case: max value
-          new PgTypeAndExample<>(PgTypes.int2, (short) 0), // Edge case: zero
-          new PgTypeAndExample<>(PgTypes.int2Array, new Short[] {42}),
+          new PgTypeAndExample<>(PgTypes.int2, Short.MIN_VALUE),
+          new PgTypeAndExample<>(PgTypes.int2, Short.MAX_VALUE),
+          new PgTypeAndExample<>(PgTypes.int2, (short) 0),
           new PgTypeAndExample<>(PgTypes.int2ArrayUnboxed, new short[] {42}),
-          new PgTypeAndExample<>(
-              PgTypes.int2ArrayUnboxed, new short[] {}), // Edge case: empty array
+          new PgTypeAndExample<>(PgTypes.int2ArrayUnboxed, new short[] {}),
           new PgTypeAndExample<>(PgTypes.int4, 42),
-          new PgTypeAndExample<>(PgTypes.int4, Integer.MIN_VALUE), // Edge case: min value
-          new PgTypeAndExample<>(PgTypes.int4, Integer.MAX_VALUE), // Edge case: max value
-          new PgTypeAndExample<>(PgTypes.int4, 0), // Edge case: zero
-          new PgTypeAndExample<>(PgTypes.int4Array, new Integer[] {42}),
+          new PgTypeAndExample<>(PgTypes.int4, Integer.MIN_VALUE),
+          new PgTypeAndExample<>(PgTypes.int4, Integer.MAX_VALUE),
+          new PgTypeAndExample<>(PgTypes.int4, 0),
           new PgTypeAndExample<>(PgTypes.int4ArrayUnboxed, new int[] {42}),
-          new PgTypeAndExample<>(PgTypes.int4ArrayUnboxed, new int[] {}), // Edge case: empty array
+          new PgTypeAndExample<>(PgTypes.int4ArrayUnboxed, new int[] {}),
           new PgTypeAndExample<>(PgTypes.int8, 42L),
-          new PgTypeAndExample<>(PgTypes.int8, Long.MIN_VALUE), // Edge case: min value
-          new PgTypeAndExample<>(PgTypes.int8, Long.MAX_VALUE), // Edge case: max value
-          new PgTypeAndExample<>(PgTypes.int8, 0L), // Edge case: zero
-          new PgTypeAndExample<>(PgTypes.int8Array, new Long[] {42L}),
+          new PgTypeAndExample<>(PgTypes.int8, Long.MIN_VALUE),
+          new PgTypeAndExample<>(PgTypes.int8, Long.MAX_VALUE),
+          new PgTypeAndExample<>(PgTypes.int8, 0L),
           new PgTypeAndExample<>(PgTypes.int8ArrayUnboxed, new long[] {42L}),
-          new PgTypeAndExample<>(PgTypes.int8ArrayUnboxed, new long[] {}), // Edge case: empty array
+          new PgTypeAndExample<>(PgTypes.int8ArrayUnboxed, new long[] {}),
           new PgTypeAndExample<>(PgTypes.float4, 42.42f),
-          new PgTypeAndExample<>(PgTypes.float4, 0.0f), // Edge case: zero
-          new PgTypeAndExample<>(PgTypes.float4, 1.0E-38f), // Edge case: small positive
-          new PgTypeAndExample<>(PgTypes.float4Array, new Float[] {42.42f}),
+          new PgTypeAndExample<>(PgTypes.float4, 0.0f),
+          new PgTypeAndExample<>(PgTypes.float4, 1.0E-38f),
           new PgTypeAndExample<>(PgTypes.float4ArrayUnboxed, new float[] {42.42f}),
-          new PgTypeAndExample<>(
-              PgTypes.float4ArrayUnboxed, new float[] {}), // Edge case: empty array
+          new PgTypeAndExample<>(PgTypes.float4ArrayUnboxed, new float[] {}),
           new PgTypeAndExample<>(PgTypes.float8, 42.42),
-          new PgTypeAndExample<>(PgTypes.float8, 0.0), // Edge case: zero
-          new PgTypeAndExample<>(PgTypes.float8, Double.MAX_VALUE), // Edge case: max value
-          new PgTypeAndExample<>(PgTypes.float8Array, new Double[] {42.42}),
+          new PgTypeAndExample<>(PgTypes.float8, 0.0),
+          new PgTypeAndExample<>(PgTypes.float8, Double.MAX_VALUE),
           new PgTypeAndExample<>(PgTypes.float8ArrayUnboxed, new double[] {42.42}),
-          new PgTypeAndExample<>(
-              PgTypes.float8ArrayUnboxed, new double[] {}), // Edge case: empty array
+          new PgTypeAndExample<>(PgTypes.float8ArrayUnboxed, new double[] {}),
           new PgTypeAndExample<>(PgTypes.numeric, new BigDecimal("0.002")),
-          new PgTypeAndExample<>(PgTypes.numeric, BigDecimal.ZERO), // Edge case: zero
-          new PgTypeAndExample<>(
-              PgTypes.numeric,
-              new BigDecimal("-99999999999999.999999999999")), // Edge case: large negative
-          new PgTypeAndExample<>(
-              PgTypes.numeric,
-              new BigDecimal("99999999999999.999999999999")), // Edge case: large positive
-          new PgTypeAndExample<>(PgTypes.numericArray, new BigDecimal[] {new BigDecimal("0.002")}),
+          new PgTypeAndExample<>(PgTypes.numeric, BigDecimal.ZERO),
+          new PgTypeAndExample<>(PgTypes.numeric, new BigDecimal("-99999999999999.999999999999")),
+          new PgTypeAndExample<>(PgTypes.numeric, new BigDecimal("99999999999999.999999999999")),
           new PgTypeAndExample<>(PgTypes.smallint, (short) 42),
-          new PgTypeAndExample<>(PgTypes.smallintArray, new Short[] {42}),
           new PgTypeAndExample<>(PgTypes.smallintArrayUnboxed, new short[] {42}),
           new PgTypeAndExample<>(PgTypes.money, new Money("42.22")),
-          new PgTypeAndExample<>(PgTypes.money, new Money("0.00")), // Edge case: zero
-          new PgTypeAndExample<>(PgTypes.money, new Money("-999.99")), // Edge case: negative
-          new PgTypeAndExample<>(PgTypes.moneyArray, new Money[] {new Money("42.22")}),
+          new PgTypeAndExample<>(PgTypes.money, new Money("0.00")),
+          new PgTypeAndExample<>(PgTypes.money, new Money("-999.99")),
 
           // ==================== Vector Types ====================
           new PgTypeAndExample<>(PgTypes.int2vector, new Int2Vector(new short[] {1, 2, 3})),
-          new PgTypeAndExample<>(
-              PgTypes.int2vectorArray, new Int2Vector[] {new Int2Vector(new short[] {1, 2, 3})}),
           new PgTypeAndExample<>(PgTypes.oidvector, new OidVector(new int[] {1, 2, 3})),
-          new PgTypeAndExample<>(
-              PgTypes.oidvectorArray, new OidVector[] {new OidVector(new int[] {1, 2, 3})}),
           new PgTypeAndExample<>(PgTypes.vector, new Vector(new float[] {1.0f, 2.0f, 3.0f})),
-          new PgTypeAndExample<>(
-              PgTypes.vector, new Vector(new float[] {0.0f, 0.0f, 0.0f})), // Edge case: zero vector
-          new PgTypeAndExample<>(
-              PgTypes.vectorArray, new Vector[] {new Vector(new float[] {1.0f, 2.0f, 3.0f})}),
+          new PgTypeAndExample<>(PgTypes.vector, new Vector(new float[] {0.0f, 0.0f, 0.0f})),
 
           // ==================== Identifier Types ====================
           new PgTypeAndExample<>(PgTypes.name, "my_table_name"),
-          new PgTypeAndExample<>(PgTypes.name, "a"), // Edge case: short name
+          new PgTypeAndExample<>(PgTypes.name, "a"),
           new PgTypeAndExample<>(
-              PgTypes.name,
-              "this_is_a_very_long_identifier_name_close_to_63_chars_limit"), // Edge case: long
-          // name
-          new PgTypeAndExample<>(PgTypes.nameArray, new String[] {"my_table", "my_column"}),
-          new PgTypeAndExample<>(PgTypes.nameArray, new String[] {}), // Edge case: empty array
+              PgTypes.name, "this_is_a_very_long_identifier_name_close_to_63_chars_limit"),
 
           // ==================== Network Types ====================
           new PgTypeAndExample<>(PgTypes.inet, new Inet("10.1.0.0")),
-          new PgTypeAndExample<>(
-              PgTypes.inet, new Inet("192.168.1.1")), // Edge case: common private IP
-          new PgTypeAndExample<>(PgTypes.inet, new Inet("255.255.255.255")), // Edge case: broadcast
-          new PgTypeAndExample<>(PgTypes.inet, new Inet("0.0.0.0")), // Edge case: any address
-          new PgTypeAndExample<>(PgTypes.inetArray, new Inet[] {new Inet("10.1.0.0")}),
-
-          // CIDR - network addresses
+          new PgTypeAndExample<>(PgTypes.inet, new Inet("192.168.1.1")),
+          new PgTypeAndExample<>(PgTypes.inet, new Inet("255.255.255.255")),
+          new PgTypeAndExample<>(PgTypes.inet, new Inet("0.0.0.0")),
           new PgTypeAndExample<>(PgTypes.cidr, new Cidr("192.168.1.0/24")),
-          new PgTypeAndExample<>(PgTypes.cidr, new Cidr("10.0.0.0/8")), // Edge case: Class A
-          new PgTypeAndExample<>(
-              PgTypes.cidr, new Cidr("172.16.0.0/12")), // Edge case: Class B private
-          new PgTypeAndExample<>(PgTypes.cidrArray, new Cidr[] {new Cidr("192.168.1.0/24")}),
-
-          // MAC addresses (6-byte format)
+          new PgTypeAndExample<>(PgTypes.cidr, new Cidr("10.0.0.0/8")),
+          new PgTypeAndExample<>(PgTypes.cidr, new Cidr("172.16.0.0/12")),
           new PgTypeAndExample<>(PgTypes.macaddr, new MacAddr("08:00:2b:01:02:03")),
-          new PgTypeAndExample<>(
-              PgTypes.macaddr, new MacAddr("00:00:00:00:00:00")), // Edge case: all zeros
-          new PgTypeAndExample<>(
-              PgTypes.macaddr, new MacAddr("ff:ff:ff:ff:ff:ff")), // Edge case: broadcast
-          new PgTypeAndExample<>(
-              PgTypes.macaddrArray, new MacAddr[] {new MacAddr("08:00:2b:01:02:03")}),
-
-          // MAC addresses (8-byte format, EUI-64)
+          new PgTypeAndExample<>(PgTypes.macaddr, new MacAddr("00:00:00:00:00:00")),
+          new PgTypeAndExample<>(PgTypes.macaddr, new MacAddr("ff:ff:ff:ff:ff:ff")),
           new PgTypeAndExample<>(PgTypes.macaddr8, new MacAddr8("08:00:2b:01:02:03:04:05")),
-          new PgTypeAndExample<>(
-              PgTypes.macaddr8, new MacAddr8("00:00:00:00:00:00:00:00")), // Edge case: all zeros
-          new PgTypeAndExample<>(
-              PgTypes.macaddr8, new MacAddr8("ff:ff:ff:ff:ff:ff:ff:ff")), // Edge case: all ones
-          new PgTypeAndExample<>(
-              PgTypes.macaddr8Array, new MacAddr8[] {new MacAddr8("08:00:2b:01:02:03:04:05")}),
+          new PgTypeAndExample<>(PgTypes.macaddr8, new MacAddr8("00:00:00:00:00:00:00:00")),
+          new PgTypeAndExample<>(PgTypes.macaddr8, new MacAddr8("ff:ff:ff:ff:ff:ff:ff:ff")),
 
           // ==================== Key-Value Types ====================
           new PgTypeAndExample<>(PgTypes.hstore, Map.of(",.;{}[]-//#®✅", ",.;{}[]-//#®✅")),
-          new PgTypeAndExample<>(PgTypes.hstore, Map.of()), // Edge case: empty map
-          new PgTypeAndExample<>(
-              PgTypes.hstore,
-              Map.of("key1", "value1", "key2", "value2")), // Edge case: multiple entries
+          new PgTypeAndExample<>(PgTypes.hstore, Map.of()),
+          new PgTypeAndExample<>(PgTypes.hstore, Map.of("key1", "value1", "key2", "value2")),
 
           // ==================== JSON Types ====================
           new PgTypeAndExample<>(PgTypes.json, new Json("{\"A\": 42}")).noIdentity(),
-          new PgTypeAndExample<>(PgTypes.json, new Json("{}"))
-              .noIdentity(), // Edge case: empty object
-          new PgTypeAndExample<>(PgTypes.json, new Json("[]"))
-              .noIdentity(), // Edge case: empty array
-          new PgTypeAndExample<>(PgTypes.json, new Json("null")).noIdentity(), // Edge case: null
-          new PgTypeAndExample<>(PgTypes.json, new Json("\"string\""))
-              .noIdentity(), // Edge case: string value
-          new PgTypeAndExample<>(PgTypes.jsonArray, new Json[] {new Json("{\"A\": 42}")})
-              .noIdentity()
-              .noStreaming(),
-          new PgTypeAndExample<>(PgTypes.jsonb, new Jsonb("{\"A\": 42}"))
-              .noIdentity(), // Whitespace normalized
-          new PgTypeAndExample<>(PgTypes.jsonb, new Jsonb("{}"))
-              .noIdentity(), // Edge case: empty object
-          new PgTypeAndExample<>(PgTypes.jsonbArray, new Jsonb[] {new Jsonb("{\"A\": 42}")})
-              .noIdentity()
-              .noStreaming(),
+          new PgTypeAndExample<>(PgTypes.json, new Json("{}")).noIdentity(),
+          new PgTypeAndExample<>(PgTypes.json, new Json("[]")).noIdentity(),
+          new PgTypeAndExample<>(PgTypes.json, new Json("null")).noIdentity(),
+          new PgTypeAndExample<>(PgTypes.json, new Json("\"string\"")).noIdentity(),
+          new PgTypeAndExample<>(PgTypes.jsonb, new Jsonb("{\"A\": 42}")).noIdentity(),
+          new PgTypeAndExample<>(PgTypes.jsonb, new Jsonb("{}")).noIdentity(),
 
           // ==================== JSON-Encoded Row Types ====================
-          // json variants — store structured rows as json columns
           new PgTypeAndExample<>(PgTypes.jsonArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
@@ -358,7 +284,6 @@ public class PgTypeTest {
           new PgTypeAndExample<>(
                   PgTypes.jsonObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
-          // jsonb variants — store structured rows as jsonb columns
           new PgTypeAndExample<>(PgTypes.jsonbArrayEncoded(itemCodec), new Item("Widget", 5))
               .noIdentity(),
           new PgTypeAndExample<>(
@@ -370,81 +295,42 @@ public class PgTypeTest {
                   PgTypes.jsonbObjectEncodedList(namedItemCodec), List.of(new Item("Widget", 5)))
               .noIdentity(),
 
-          // ==================== Record Types ====================
-          // TODO: Record JSON roundtrip needs special handling - PostgreSQL returns composite types
-          // as JSON objects
-          // with field names (e.g., {"r":1,"i":2}), but Record stores tuple format "(1,2)".
-          // We'll implement something clever later using json_populate_record or similar.
-          // new PgTypeAndExample<>(PgTypes.record("complex"), new Record("(1,2)")),
-          // new PgTypeAndExample<>(PgTypes.recordArray("complex"), new Record[]{new
-          // Record("(1,2)")}),
-
           // ==================== Reg* Types ====================
           new PgTypeAndExample<>(PgTypes.regconfig, new Regconfig("danish")),
-          new PgTypeAndExample<>(
-              PgTypes.regconfig, new Regconfig("english")), // Edge case: common config
-          new PgTypeAndExample<>(PgTypes.regconfigArray, new Regconfig[] {new Regconfig("danish")}),
+          new PgTypeAndExample<>(PgTypes.regconfig, new Regconfig("english")),
           new PgTypeAndExample<>(PgTypes.regdictionary, new Regdictionary("english_stem")),
-          new PgTypeAndExample<>(
-              PgTypes.regdictionaryArray, new Regdictionary[] {new Regdictionary("english_stem")}),
           new PgTypeAndExample<>(PgTypes.regnamespace, new Regnamespace("public")),
-          new PgTypeAndExample<>(
-              PgTypes.regnamespace, new Regnamespace("pg_catalog")), // Edge case: system namespace
-          new PgTypeAndExample<>(
-              PgTypes.regnamespaceArray, new Regnamespace[] {new Regnamespace("public")}),
+          new PgTypeAndExample<>(PgTypes.regnamespace, new Regnamespace("pg_catalog")),
           new PgTypeAndExample<>(PgTypes.regoperator, new Regoperator("-(bigint,bigint)")),
-          new PgTypeAndExample<>(
-              PgTypes.regoperatorArray, new Regoperator[] {new Regoperator("-(bigint,bigint)")}),
           new PgTypeAndExample<>(PgTypes.regprocedure, new Regprocedure("sum(integer)")),
-          new PgTypeAndExample<>(
-              PgTypes.regprocedureArray, new Regprocedure[] {new Regprocedure("sum(integer)")}),
           new PgTypeAndExample<>(PgTypes.regrole, new Regrole("pg_monitor")),
-          new PgTypeAndExample<>(PgTypes.regroleArray, new Regrole[] {new Regrole("pg_monitor")}),
           new PgTypeAndExample<>(PgTypes.regtype, new Regtype("integer")),
-          new PgTypeAndExample<>(PgTypes.regtype, new Regtype("text")), // Edge case: different type
-          new PgTypeAndExample<>(PgTypes.regtypeArray, new Regtype[] {new Regtype("integer")}),
+          new PgTypeAndExample<>(PgTypes.regtype, new Regtype("text")),
 
-          // ==================== Transaction ID Types ====================
+          // ==================== Misc Types ====================
+          new PgTypeAndExample<>(PgTypes.oid, new Oid(42)),
           new PgTypeAndExample<>(PgTypes.xid, new Xid("1")),
-          new PgTypeAndExample<>(PgTypes.xidArray, new Xid[] {new Xid("1")}),
-
-          // ==================== UUID Types ====================
           new PgTypeAndExample<>(PgTypes.uuid, UUID.randomUUID()),
-          new PgTypeAndExample<>(PgTypes.uuid, new UUID(0, 0)), // Edge case: nil UUID
-          new PgTypeAndExample<>(PgTypes.uuid, new UUID(-1, -1)), // Edge case: max UUID
-          new PgTypeAndExample<>(PgTypes.uuidArray, new UUID[] {UUID.randomUUID()}),
-          new PgTypeAndExample<>(PgTypes.uuidArray, new UUID[] {}), // Edge case: empty array
-
-          // ==================== XML Types ====================
+          new PgTypeAndExample<>(PgTypes.uuid, new UUID(0, 0)),
+          new PgTypeAndExample<>(PgTypes.uuid, new UUID(-1, -1)),
           new PgTypeAndExample<>(PgTypes.xml, new Xml("<a>42</a>")).noIdentity(),
           new PgTypeAndExample<>(
                   PgTypes.xml, new Xml("<root><child attr=\"value\">text</child></root>"))
-              .noIdentity(), // Edge case: nested
-          new PgTypeAndExample<>(PgTypes.xmlArray, new Xml[] {new Xml("<a>42</a>")}).noIdentity(),
+              .noIdentity(),
 
           // ==================== Range Types ====================
-          // int4range - uses Range.int4() which normalizes to [) form
           new PgTypeAndExample<>(
               PgTypes.int4range, Range.int4(new RangeBound.Closed<>(1), new RangeBound.Open<>(10))),
           new PgTypeAndExample<>(
               PgTypes.int4range,
-              Range.int4(
-                  new RangeBound.Closed<>(0), new RangeBound.Closed<>(100))), // [0,100] -> [0,101)
+              Range.int4(new RangeBound.Closed<>(0), new RangeBound.Closed<>(100))),
           new PgTypeAndExample<>(
-              PgTypes.int4range,
-              Range.int4(RangeBound.infinite(), new RangeBound.Open<>(10))), // unbounded lower
+              PgTypes.int4range, Range.int4(RangeBound.infinite(), new RangeBound.Open<>(10))),
           new PgTypeAndExample<>(
-              PgTypes.int4range,
-              Range.int4(new RangeBound.Closed<>(1), RangeBound.infinite())), // unbounded upper
+              PgTypes.int4range, Range.int4(new RangeBound.Closed<>(1), RangeBound.infinite())),
           new PgTypeAndExample<>(
-              PgTypes.int4range,
-              Range.int4(RangeBound.infinite(), RangeBound.infinite())), // fully unbounded
-          new PgTypeAndExample<>(PgTypes.int4range, Range.empty()), // empty range
-          new PgTypeAndExample<>(
-              PgTypes.int4rangeArray,
-              new Range[] {Range.int4(new RangeBound.Closed<>(1), new RangeBound.Open<>(10))}),
-
-          // int8range - uses Range.int8() which normalizes to [) form
+              PgTypes.int4range, Range.int4(RangeBound.infinite(), RangeBound.infinite())),
+          new PgTypeAndExample<>(PgTypes.int4range, Range.empty()),
           new PgTypeAndExample<>(
               PgTypes.int8range,
               Range.int8(new RangeBound.Closed<>(1L), new RangeBound.Open<>(1000000L))),
@@ -454,11 +340,6 @@ public class PgTypeTest {
                   new RangeBound.Closed<>(Long.MIN_VALUE + 1),
                   new RangeBound.Open<>(Long.MAX_VALUE))),
           new PgTypeAndExample<>(PgTypes.int8range, Range.empty()),
-          new PgTypeAndExample<>(
-              PgTypes.int8rangeArray,
-              new Range[] {Range.int8(new RangeBound.Closed<>(1L), new RangeBound.Open<>(100L))}),
-
-          // numrange - uses Range.numeric() which does NOT normalize (continuous type)
           new PgTypeAndExample<>(
               PgTypes.numrange,
               Range.numeric(
@@ -471,34 +352,14 @@ public class PgTypeTest {
                   new RangeBound.Closed<>(new BigDecimal("99.99")))),
           new PgTypeAndExample<>(PgTypes.numrange, Range.empty()),
           new PgTypeAndExample<>(
-              PgTypes.numrangeArray,
-              new Range[] {
-                Range.numeric(
-                    new RangeBound.Closed<>(BigDecimal.ONE), new RangeBound.Open<>(BigDecimal.TEN))
-              }),
-
-          // daterange - uses Range.date() which normalizes to [) form
-          new PgTypeAndExample<>(
               PgTypes.daterange,
               Range.date(
                   new RangeBound.Closed<>(LocalDate.of(2024, 1, 1)),
                   new RangeBound.Open<>(LocalDate.of(2024, 12, 31)))),
           new PgTypeAndExample<>(
               PgTypes.daterange,
-              Range.date(
-                  RangeBound.infinite(),
-                  new RangeBound.Closed<>(
-                      LocalDate.now()))), // unbounded lower, (,today] -> (,tomorrow)
+              Range.date(RangeBound.infinite(), new RangeBound.Closed<>(LocalDate.now()))),
           new PgTypeAndExample<>(PgTypes.daterange, Range.empty()),
-          new PgTypeAndExample<>(
-              PgTypes.daterangeArray,
-              new Range[] {
-                Range.date(
-                    new RangeBound.Closed<>(LocalDate.of(2024, 1, 1)),
-                    new RangeBound.Open<>(LocalDate.of(2024, 6, 30)))
-              }),
-
-          // tsrange (timestamp without timezone) - uses Range.timestamp() which does NOT normalize
           new PgTypeAndExample<>(
               PgTypes.tsrange,
               Range.timestamp(
@@ -506,27 +367,59 @@ public class PgTypeTest {
                   new RangeBound.Open<>(LocalDateTime.of(2024, 12, 31, 23, 59, 59)))),
           new PgTypeAndExample<>(PgTypes.tsrange, Range.empty()),
           new PgTypeAndExample<>(
-              PgTypes.tsrangeArray,
-              new Range[] {
-                Range.timestamp(
-                    new RangeBound.Closed<>(LocalDateTime.of(2024, 1, 1, 0, 0)),
-                    new RangeBound.Open<>(LocalDateTime.of(2024, 6, 30, 23, 59)))
-              }),
-
-          // tstzrange (timestamp with timezone) - uses Range.timestamptz() which does NOT normalize
-          new PgTypeAndExample<>(
               PgTypes.tstzrange,
               Range.timestamptz(
                   new RangeBound.Closed<>(Instant.parse("2024-01-01T00:00:00Z")),
                   new RangeBound.Open<>(Instant.parse("2024-12-31T23:59:59Z")))),
-          new PgTypeAndExample<>(PgTypes.tstzrange, Range.empty()),
-          new PgTypeAndExample<>(
-              PgTypes.tstzrangeArray,
-              new Range[] {
-                Range.timestamptz(
-                    new RangeBound.Closed<>(Instant.parse("2024-01-01T00:00:00Z")),
-                    new RangeBound.Open<>(Instant.parse("2024-06-30T23:59:59Z")))
-              }));
+          new PgTypeAndExample<>(PgTypes.tstzrange, Range.empty()));
+
+  /**
+   * All test entries: element types + auto-generated array entries.
+   *
+   * <p>For each scalar entry with array support, we generate a singleton array test (per entry)
+   * so every edge-case value flows through the array codec. For each unique scalar type, we also
+   * generate one multi-element array (combining all the type's edge-case examples, exercising
+   * element separators) and one empty array.
+   */
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  List<PgTypeAndExample<?>> All = buildAll();
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private List<PgTypeAndExample<?>> buildAll() {
+    var out = new java.util.ArrayList<PgTypeAndExample<?>>(Elements);
+
+    // Per-entry singleton array tests (edge-case values through the array codec)
+    for (var e : Elements) {
+      if (hasArraySupport(e)) {
+        out.add(singletonArrayEntry((PgTypeAndExample) e));
+      }
+    }
+
+    // Group entries for per-type array tests (multi + empty).
+    // Key by (sqlType, example class) so transformed types (e.g. jsonArrayEncoded<Item>)
+    // don't collide with their base type (json<Json>) even though both have sqlType="json".
+    var byType = new java.util.LinkedHashMap<String, List<PgTypeAndExample<?>>>();
+    for (var e : Elements) {
+      if (hasArraySupport(e)) {
+        String key = e.type().typename().sqlType() + "#" + e.example().getClass().getName();
+        byType.computeIfAbsent(key, k -> new java.util.ArrayList<>()).add(e);
+      }
+    }
+    for (var group : byType.values()) {
+      var first = (PgTypeAndExample) group.get(0);
+      // Skip multi-element test for types with non-standard array delimiter (geometric types
+      // use ';'). COPY/text escaping for those has quoting quirks — singleton tests still
+      // cover element encoding, and multi-element adds little for types where the only
+      // difference is the delimiter character.
+      char delim = ((PgType<?>) first.type()).arrayDelimiter();
+      if (delim == ',' && group.size() > 1) {
+        out.add(multiArrayEntry((List) group));
+      }
+      out.add(emptyArrayEntry(first));
+    }
+
+    return List.copyOf(out);
+  }
 
   static <T> void withConnection(SqlFunction<Connection, T> f) {
     Containers.postgresTransactor().execute(f);
@@ -623,6 +516,7 @@ public class PgTypeTest {
         });
 
     // Stored procedure roundtrip tests - deduplicate by SQL type, run in parallel
+    // Tests function return, OUT param, and INOUT param paths.
     System.out.println("\n=== Call Roundtrip Tests (parallel) ===");
     var callFailures =
         All.stream()
@@ -633,17 +527,38 @@ public class PgTypeTest {
             .parallelStream()
             .flatMap(
                 t -> {
+                  var errors = new ArrayList<String>();
                   try {
                     withConnection(
                         conn -> {
                           testCallRoundtrip(conn, t);
                           return null;
                         });
-                    return java.util.stream.Stream.<String>empty();
                   } catch (Exception e) {
-                    return java.util.stream.Stream.of(
+                    errors.add(
                         "Call test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
                   }
+                  try {
+                    withConnection(
+                        conn -> {
+                          testCallOutParam(conn, t);
+                          return null;
+                        });
+                  } catch (Exception e) {
+                    errors.add(
+                        "Call OUT test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+                  }
+                  try {
+                    withConnection(
+                        conn -> {
+                          testCallInOutParam(conn, t);
+                          return null;
+                        });
+                  } catch (Exception e) {
+                    errors.add(
+                        "Call INOUT test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+                  }
+                  return errors.stream();
                 })
             .toList();
 
@@ -726,13 +641,13 @@ public class PgTypeTest {
       conn.createStatement()
           .execute("CREATE TYPE " + compositeTypeName + " AS (wrapped_value " + sqlType + ")");
 
-      // Build PgStruct for this wrapper
-      PgStruct<SingleFieldWrapper<A>> wrapperStruct =
-          PgStruct.<SingleFieldWrapper<A>>builder(compositeTypeName)
-              .field("wrapped_value", t.type, SingleFieldWrapper::value)
-              .build(SingleFieldWrapper::new);
-
-      PgType<SingleFieldWrapper<A>> wrapperType = wrapperStruct.asType();
+      // Build composite PgType for this wrapper
+      PgType<SingleFieldWrapper<A>> wrapperType =
+          PgTypes.compositeOf(
+              compositeTypeName,
+              RowCodec.<SingleFieldWrapper<A>>namedBuilder()
+                  .field("wrapped_value", t.type, SingleFieldWrapper::value)
+                  .build(SingleFieldWrapper::new));
       String tableName = "test_composite_rt_" + uniqueId;
 
       // Create temp table
@@ -818,23 +733,26 @@ public class PgTypeTest {
                 + ")");
 
     try {
-      PgStruct<ComprehensiveComposite> struct =
-          PgStruct.<ComprehensiveComposite>builder(typeName)
-              .field("text_field", PgTypes.text, ComprehensiveComposite::textField)
-              .field("int4_field", PgTypes.int4, ComprehensiveComposite::int4Field)
-              .field("int8_field", PgTypes.int8, ComprehensiveComposite::int8Field)
-              .field("int2_field", PgTypes.int2, ComprehensiveComposite::int2Field)
-              .field("float8_field", PgTypes.float8, ComprehensiveComposite::float8Field)
-              .field("float4_field", PgTypes.float4, ComprehensiveComposite::float4Field)
-              .field("bool_field", PgTypes.bool, ComprehensiveComposite::boolField)
-              .field("numeric_field", PgTypes.numeric, ComprehensiveComposite::numericField)
-              .field("uuid_field", PgTypes.uuid, ComprehensiveComposite::uuidField)
-              .field("date_field", PgTypes.date, ComprehensiveComposite::dateField)
-              .field("time_field", PgTypes.time, ComprehensiveComposite::timeField)
-              .field("timestamp_field", PgTypes.timestamp, ComprehensiveComposite::timestampField)
-              .build(ComprehensiveComposite::new);
-
-      PgType<ComprehensiveComposite> compositeType = struct.asType();
+      PgType<ComprehensiveComposite> compositeType =
+          PgTypes.compositeOf(
+              typeName,
+              RowCodec.<ComprehensiveComposite>namedBuilder()
+                  .field("text_field", PgTypes.text, ComprehensiveComposite::textField)
+                  .field("int4_field", PgTypes.int4, ComprehensiveComposite::int4Field)
+                  .field("int8_field", PgTypes.int8, ComprehensiveComposite::int8Field)
+                  .field("int2_field", PgTypes.int2, ComprehensiveComposite::int2Field)
+                  .field("float8_field", PgTypes.float8, ComprehensiveComposite::float8Field)
+                  .field("float4_field", PgTypes.float4, ComprehensiveComposite::float4Field)
+                  .field("bool_field", PgTypes.bool, ComprehensiveComposite::boolField)
+                  .field("numeric_field", PgTypes.numeric, ComprehensiveComposite::numericField)
+                  .field("uuid_field", PgTypes.uuid, ComprehensiveComposite::uuidField)
+                  .field("date_field", PgTypes.date, ComprehensiveComposite::dateField)
+                  .field("time_field", PgTypes.time, ComprehensiveComposite::timeField)
+                  .field(
+                      "timestamp_field",
+                      PgTypes.timestamp,
+                      ComprehensiveComposite::timestampField)
+                  .build(ComprehensiveComposite::new));
 
       conn.createStatement().execute("CREATE TEMP TABLE test_comp (v " + typeName + ")");
 
@@ -1107,6 +1025,100 @@ public class PgTypeTest {
       }
     } finally {
       conn.createStatement().execute("DROP FUNCTION IF EXISTS " + funcName);
+    }
+  }
+
+  private static String safeName(String sqlType) {
+    return sqlType
+        .replace("(", "_")
+        .replace(")", "_")
+        .replace(",", "_")
+        .replace(" ", "_")
+        .replace("[", "_arr_")
+        .replace("]", "")
+        .replace("\"", "");
+  }
+
+  /**
+   * Test type as a procedure OUT parameter. Creates {@code CREATE PROCEDURE
+   * foo(IN i T, OUT o T) AS $$ BEGIN o := i; END; $$} and verifies the OUT value matches input.
+   */
+  @SuppressWarnings("unchecked")
+  static <A> void testCallOutParam(Connection conn, PgTypeAndExample<A> t) throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    int uniqueId = tableCounter.incrementAndGet();
+    String procName = "out_" + safeName(sqlType) + "_" + uniqueId;
+
+    conn.createStatement()
+        .execute(
+            "CREATE OR REPLACE PROCEDURE "
+                + procName
+                + "(IN i "
+                + sqlType
+                + ", OUT o "
+                + sqlType
+                + ") AS $$ BEGIN o := i; END; $$ LANGUAGE plpgsql");
+
+    try {
+      Procedure<A> proc =
+          Procedure.buildSingleOut(
+              procName,
+              java.util.List.of(ParamDef.input(t.type), ParamDef.of(t.type, ParamDef.Mode.OUT)));
+
+      A result = proc.call(t.example).run(conn);
+
+      if (!areEqual(result, t.example)) {
+        throw new RuntimeException(
+            "OUT param roundtrip failed for "
+                + sqlType
+                + ": expected '"
+                + format(t.example)
+                + "' but got '"
+                + format(result)
+                + "'");
+      }
+    } finally {
+      conn.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName + "(" + sqlType + "," + sqlType + ")");
+    }
+  }
+
+  /**
+   * Test type as a procedure INOUT parameter. Creates {@code CREATE PROCEDURE foo(INOUT p T) AS
+   * $$ BEGIN END; $$} which passes the value through unchanged, and verifies roundtrip.
+   */
+  @SuppressWarnings("unchecked")
+  static <A> void testCallInOutParam(Connection conn, PgTypeAndExample<A> t) throws SQLException {
+    String sqlType = t.type.typename().sqlType();
+    int uniqueId = tableCounter.incrementAndGet();
+    String procName = "inout_" + safeName(sqlType) + "_" + uniqueId;
+
+    conn.createStatement()
+        .execute(
+            "CREATE OR REPLACE PROCEDURE "
+                + procName
+                + "(INOUT p "
+                + sqlType
+                + ") AS $$ BEGIN END; $$ LANGUAGE plpgsql");
+
+    try {
+      Procedure<A> proc =
+          Procedure.buildSingleOut(
+              procName, java.util.List.of(ParamDef.of(t.type, ParamDef.Mode.INOUT)));
+
+      A result = proc.call(t.example).run(conn);
+
+      if (!areEqual(result, t.example)) {
+        throw new RuntimeException(
+            "INOUT param roundtrip failed for "
+                + sqlType
+                + ": expected '"
+                + format(t.example)
+                + "' but got '"
+                + format(result)
+                + "'");
+      }
+    } finally {
+      conn.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName + "(" + sqlType + ")");
     }
   }
 

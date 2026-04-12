@@ -35,7 +35,7 @@ public interface Db2Types {
           Db2OutParam.readInteger);
 
   Db2Type<Integer> int_ =
-      integer.renamed("INT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("integer"));
+      integer.renamed("INT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("integer")));
 
   Db2Type<Long> bigint =
       Db2Type.of(
@@ -52,10 +52,10 @@ public interface Db2Types {
           Db2OutParam.readBigDecimal);
 
   Db2Type<BigDecimal> numeric =
-      decimal.renamed("NUMERIC").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("decimal"));
+      decimal.renamed("NUMERIC").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("decimal")));
 
   Db2Type<BigDecimal> dec =
-      decimal.renamed("DEC").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("decimal"));
+      decimal.renamed("DEC").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("decimal")));
 
   static Db2Type<BigDecimal> decimal(int precision, int scale) {
     return Db2Type.of(
@@ -69,7 +69,7 @@ public interface Db2Types {
   static Db2Type<BigDecimal> numeric(int precision, int scale) {
     return decimal(precision, scale)
         .renamed("NUMERIC")
-        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("decimal"));
+        .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("decimal")));
   }
 
   // DECFLOAT - DB2-specific decimal floating point
@@ -105,7 +105,7 @@ public interface Db2Types {
           Db2OutParam.readDouble);
 
   Db2Type<Double> float_ =
-      double_.renamed("FLOAT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("double"));
+      double_.renamed("FLOAT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("double")));
 
   // ==================== Boolean Type ====================
 
@@ -125,7 +125,7 @@ public interface Db2Types {
           "CHAR", Db2Read.readString, Db2Write.writeString, Db2Json.text, Db2OutParam.readString);
 
   Db2Type<String> character =
-      char_.renamed("CHARACTER").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames("char"));
+      char_.renamed("CHARACTER").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("char")));
 
   static Db2Type<String> char_(int length) {
     return Db2Type.of(

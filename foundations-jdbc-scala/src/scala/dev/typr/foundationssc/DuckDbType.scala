@@ -1,5 +1,15 @@
 package dev.typr.foundationssc
 
+import dev.typr.foundations.{
+  AnalysisOptions,
+  DuckDbJson,
+  DuckDbRead,
+  DuckDbStringifier,
+  DuckDbTypename,
+  DuckDbWrite
+}
+import java.util.function.IntFunction
+
 class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T]) extends DbType[T](underlying):
   override def opt: DuckDbType[Option[T]] =
     DuckDbType(underlying.opt().to(Bijections.optionalToOption))
@@ -19,6 +29,8 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
       )
   )
 
+  def array(): DuckDbType[Array[T]] = DuckDbType(ArrayCoerce(underlying.array()))
+
   def list: DuckDbType[List[T]] = DuckDbType(
     underlying
       .list()
@@ -27,6 +39,48 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
         slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
       )
   )
+
+  def listNative(elementClass: Class[T], toArray: IntFunction[Array[Object & T]]): dev.typr.foundations.DuckDbType[java.util.List[T]] =
+    underlying.listNative(elementClass, toArray)
+
+  def listViaSqlLiteral(elementClass: Class[T], elementStringifier: DuckDbStringifier[T]): dev.typr.foundations.DuckDbType[java.util.List[T]] =
+    underlying.listViaSqlLiteral(elementClass, elementStringifier)
+
+  def listViaSqlLiteral[W](wireClass: Class[W], wireToElem: java.util.function.Function[W, T], elementStringifier: DuckDbStringifier[T]): dev.typr.foundations.DuckDbType[java.util.List[T]] =
+    underlying.listViaSqlLiteral(wireClass, wireToElem, elementStringifier)
+
+  def arrayNative(size: Int, elementClass: Class[T], toArray: IntFunction[Array[Object & T]]): dev.typr.foundations.DuckDbType[java.util.List[T]] =
+    underlying.arrayNative(size, elementClass, toArray)
+
+  def arrayViaSqlLiteral(size: Int, elementClass: Class[T], elementStringifier: DuckDbStringifier[T]): dev.typr.foundations.DuckDbType[java.util.List[T]] =
+    underlying.arrayViaSqlLiteral(size, elementClass, elementStringifier)
+
+  def mapToNative[V](valueType: DuckDbType[V], keyClass: Class[T], valueClass: Class[V]): dev.typr.foundations.DuckDbType[java.util.Map[T, V]] =
+    underlying.mapToNative(valueType.underlying, keyClass, valueClass)
+
+  def mapToViaSqlLiteral[V](
+    valueType: DuckDbType[V],
+    keyClass: Class[T],
+    valueClass: Class[V],
+    keyStringifier: DuckDbStringifier[T],
+    valueStringifier: DuckDbStringifier[V]
+  ): dev.typr.foundations.DuckDbType[java.util.Map[T, V]] =
+    underlying.mapToViaSqlLiteral(valueType.underlying, keyClass, valueClass, keyStringifier, valueStringifier)
+
+  def encode(value: T): dev.typr.foundations.Fragment.Value[T] = underlying.encode(value)
+
+  def withTypename(typename: DuckDbTypename[T]): DuckDbType[T] = DuckDbType(underlying.withTypename(typename))
+  def withTypename(sqlType: String): DuckDbType[T] = DuckDbType(underlying.withTypename(sqlType))
+  def renamed(value: String): DuckDbType[T] = DuckDbType(underlying.renamed(value))
+  def renamedDropPrecision(value: String): DuckDbType[T] = DuckDbType(underlying.renamedDropPrecision(value))
+
+  def withRead(read: DuckDbRead[T]): DuckDbType[T] = DuckDbType(underlying.withRead(read))
+  def withWrite(write: DuckDbWrite[T]): DuckDbType[T] = DuckDbType(underlying.withWrite(write))
+  def withStringifier(stringifier: DuckDbStringifier[T]): DuckDbType[T] = DuckDbType(underlying.withStringifier(stringifier))
+  def withJson(json: DuckDbJson[T]): DuckDbType[T] = DuckDbType(underlying.withJson(json))
+  def withAnalysis(opts: AnalysisOptions): DuckDbType[T] = DuckDbType(underlying.withAnalysis(opts))
+
+  def noArraySupport(): DuckDbType[T] = DuckDbType(underlying.noArraySupport())
 
   def unchecked(): DuckDbType[T] = DuckDbType(underlying.unchecked())
   def nullableOk(): DuckDbType[T] = DuckDbType(underlying.nullableOk())

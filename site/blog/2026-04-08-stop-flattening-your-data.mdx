@@ -1,0 +1,180 @@
+---
+title: "Stop Flattening Your Data"
+description: "Your database can return rows containing arrays of rows. Your library should too."
+slug: stop-flattening-your-data
+authors:
+  - name: Øyvind Raddum Berg
+tags: [postgresql, structs, arrays, composite-types]
+---
+
+import Snippet from '@site/src/components/Snippet';
+
+SQL returns rectangles. Your domain model is a tree. This tension has a name — the **object-relational impedance mismatch** — and for thirty years the industry has treated it as a fact of life. ORMs hide it behind lazy loading and N+1 queries. Hand-written SQL accepts it and adds a deduplication layer on top. Everyone flattens, then reconstructs.
+
+But PostgreSQL already knows how to return trees. `ARRAY()` subqueries can collect child rows into a single column — no schema changes, no new types, no JSON. One row per order, line items included. The only thing missing was a JDBC library that could read the result.
+
+{/* truncate */}
+
+## The Rectangle Problem
+
+You have three orders. Alice has two, Bob has one. You want each order with its line items. You JOIN:
+
+```
+order | customer        | email             | product             | qty | price
+------+-----------------+-------------------+---------------------+-----+------
+1     | Alice Johnson   | alice@example.com | Mechanical Keyboard |   1 | 149.99
+1     | Alice Johnson   | alice@example.com | USB-C Hub           |   2 |  49.99
+1     | Alice Johnson   | alice@example.com | Monitor Arm         |   1 |  89.95
+2     | Alice Johnson   | alice@example.com | Standing Desk       |   1 | 599.00
+3     | Bob Smith       | bob@example.com   | Webcam              |   3 |  79.99
+3     | Bob Smith       | bob@example.com   | Mechanical Keyboard |   1 | 149.99
+```
+
+Six rows for three orders. Alice's name appears four times. Her email four times. Add a LEFT JOIN for discount codes — now you get NULLs scattered across every row where there's no discount, and the discount repeated on every line item row where there is one.
+
+Then in Java you write the grouping code. Group by order ID. Collect line items into a list. Deduplicate customers. Handle the LEFT JOIN NULLs. Map flat rows back into the nested domain objects you actually wanted.
+
+This isn't hard. It's tedious. And it's entirely unnecessary.
+
+## The Fix: ARRAY() on Normal Tables
+
+Same tables. Same data. Different query:
+
+```sql
+SELECT o.id, c.name, c.email,
+       ARRAY(
+           SELECT (ol.product_name, ol.quantity, ol.unit_price)
+           FROM order_lines ol WHERE ol.order_id = o.id
+       ) AS items,
+       d.code AS discount
+FROM orders o
+JOIN customers c ON c.id = o.customer_id
+LEFT JOIN discounts d ON d.order_id = o.id
+```
+
+Three rows. Three orders:
+
+```
+ id │ name          │ items                                              │ discount
+────┼───────────────┼────────────────────────────────────────────────────┼─────────
+  1 │ Alice Johnson │ {"(Mechanical Keyboard,1,149.99)",                 │ SAVE10
+    │               │  "(USB-C Hub,2,49.99)","(Monitor Arm,1,89.95)"}   │
+  2 │ Alice Johnson │ {"(Standing Desk,1,599.00)"}                      │ ¤
+  3 │ Bob Smith     │ {"(Webcam,3,79.99)",                              │ ¤
+    │               │  "(Mechanical Keyboard,1,149.99)"}                │
+```
+
+**No schema changes.** Your tables stay normalized. Your foreign keys stay intact. The `ARRAY()` subquery assembles the tree at query time. The row constructor `(a, b, c)` builds an anonymous record — no `CREATE TYPE` needed.
+
+The discount is one value per row — NULL means absent, not "duplicated across three line item rows." The line items are one column per order — not three separate rows with duplicated customer data.
+
+## Reading It in Java
+
+With Foundations JDBC, PostgreSQL's composite text format arrives as typed Kotlin objects:
+
+<Snippet file="blog/struct/PgLineItemCodec" lang="kotlin" hideFullFile />
+
+Then query and read — three objects, each self-contained:
+
+```kotlin
+val orders = sql { """
+    SELECT o.id, c.name, c.email,
+           ARRAY(SELECT (ol.product_name, ol.quantity, ol.unit_price)
+                 FROM order_lines ol WHERE ol.order_id = o.id) AS items,
+           d.code AS discount
+    FROM orders o
+    JOIN customers c ON c.id = o.customer_id
+    LEFT JOIN discounts d ON d.order_id = o.id
+    """ }
+    .query(orderCodec.all())
+    .transact(tx)
+```
+
+No deduplication. No grouping. No "check the first row and hope the rest match."
+
+## Deep Nesting
+
+It goes deeper. `ARRAY()` subqueries can return records that themselves contain `ARRAY()` subqueries:
+
+```sql
+SELECT d.name,
+       ARRAY(
+           SELECT (e.name, e.role,
+                   ARRAY(SELECT (s.name, s.level)
+                         FROM skills s WHERE s.employee_id = e.id))
+           FROM employees e WHERE e.department_id = d.id
+       ) AS members
+FROM departments d
+```
+
+Two rows come back. Here's what PostgreSQL actually returns — a row containing an array of rows, each containing an array of rows:
+
+```
+ name        │ members
+─────────────┼──────────────────────────────────────────────────────────────────────────
+ Engineering │ {"(Alice,Lead,\"{\"\"(Java,9)\"\",\"\"(PostgreSQL,8)\"\",\"\"(Kotlin,7)\"\"}\")","(Bob,Senior,\"{\"\"(Python,8)\"\",\"\"(Docker,7)\"\"}\")","(Carol,Junior,\"{\"\"(JavaScript,6)\"\"}\")"}
+ Design      │ {"(Dave,Lead,\"{\"\"(Figma,9)\"\",\"\"(CSS,8)\"\"}\")","(Eve,Senior,\"{\"\"(Illustrator,8)\"\",\"\"(Figma,7)\"\",\"\"(Motion,6)\"\"}\")"}
+```
+
+That's PostgreSQL's composite text format. Each level of nesting adds another layer of quote escaping. No human should have to parse this. But Foundations JDBC's `PgRecordParser` handles it — recursively, at any depth — and gives you:
+
+```
+Engineering (3 people)
+  Alice (Lead) [Java:9, PostgreSQL:8, Kotlin:7]
+  Bob (Senior) [Python:8, Docker:7]
+  Carol (Junior) [JavaScript:6]
+
+Design (2 people)
+  Dave (Lead) [Figma:9, CSS:8]
+  Eve (Senior) [Illustrator:8, Figma:7, Motion:6]
+```
+
+Two rows. Five employees. Eleven skills. All in the right places. The code:
+
+<Snippet file="blog/struct/PgDeepNesting" lang="kotlin" hideFullFile />
+
+`nestedArrayField` handles recursive parsing of PostgreSQL's composite text format. No JSON. No intermediate deserialization. The data arrives as typed records all the way down.
+
+## Array Parameters — The Everyday Win
+
+Every JDBC developer has written this:
+
+```kotlin
+// The horror
+val placeholders = ids.joinToString(",") { "?" }
+val sql = "SELECT * FROM products WHERE id IN ($placeholders)"
+// Then bind each parameter individually...
+```
+
+With PostgreSQL typed arrays, it's one parameter:
+
+<Snippet file="blog/struct/ArrayParameter" lang="kotlin" hideFullFile />
+
+One typed parameter. No string building. No off-by-one. Works with any array type — `int4[]`, `text[]`, `uuid[]`.
+
+## Not Just PostgreSQL
+
+The `ARRAY()` subquery trick on normalized tables is PostgreSQL-specific. But the underlying capability — returning rows that contain arrays of rows — works across multiple databases:
+
+| Database | From normalized tables | With composite columns |
+|----------|----------------------|----------------------|
+| **PostgreSQL** | `ARRAY()` subquery — no schema changes | `CREATE TYPE` + typed columns |
+| **DuckDB** | — | `STRUCT(...)[]` columns — inline, no `CREATE TYPE` |
+| **Oracle** | — | `OBJECT` + `VARRAY` / `NESTED TABLE` |
+
+DuckDB and Oracle require composite types in the schema, but support the same arbitrary nesting depth. The same `Department → Employee[] → Skill[]` tree works on all three — different DDL, same typed result in Java.
+
+For databases without composite types (MariaDB, SQL Server, DB2), JSON aggregation (`json_agg()`, `JSON_ARRAYAGG()`, `FOR JSON PATH`) is the alternative — and Foundations JDBC's [JSON codecs](/docs/json) handle the round-trip.
+
+We'll cover composite column modeling (DuckDB STRUCTs, Oracle OBJECTs) in a follow-up post.
+
+## What This Changes
+
+The rectangular result set isn't a law of nature. It's a limitation of JDBC libraries that only understand flat rows. PostgreSQL has supported composite types and `ARRAY()` subqueries since version 8.0 — that was 2005. Twenty years of unnecessary deduplication code.
+
+Every time you group a JOIN result, or loop over N+1 queries to avoid the rectangle, or serialize to JSON and back — you're working around a problem that doesn't exist. PostgreSQL can return your data in its natural shape. All you need is a library that reads composite text format.
+
+---
+
+- [PostgreSQL type docs](/docs/postgresql)
+- [GitHub](https://github.com/typr-dev/foundations-jdbc)

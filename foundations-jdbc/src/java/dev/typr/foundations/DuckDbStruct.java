@@ -43,17 +43,22 @@ public record DuckDbStruct<A>(
 
   /** Create a DuckDbType for this STRUCT. */
   public DuckDbType<A> asType() {
+    java.util.function.Function<Object, A> structConverter = obj -> {
+      if (obj instanceof java.sql.Struct struct) {
+        try { return reader.read(struct.getAttributes()); }
+        catch (SQLException e) { throw new DatabaseException(e); }
+      }
+      throw new IllegalArgumentException("Expected STRUCT, got: " + obj.getClass());
+    };
+
     DuckDbRead<A> duckDbRead =
-        DuckDbRead.of(
+        new DuckDbRead.NonNullable<>(
             (rs, idx) -> {
               Object obj = rs.getObject(idx);
-              if (obj == null) return null;
-              if (obj instanceof java.sql.Struct struct) {
-                Object[] attrs = struct.getAttributes();
-                return reader.read(attrs);
-              }
-              throw new SQLException("Expected STRUCT, got: " + obj.getClass());
-            });
+              if (obj == null) return java.util.Optional.empty();
+              return java.util.Optional.of(structConverter.apply(obj));
+            },
+            structConverter);
 
     DuckDbStringifier<A> stringifier = structStringifier();
 
@@ -80,6 +85,14 @@ public record DuckDbStruct<A>(
             },
             value -> value);
 
+    DuckDbArrayCodec<A> structArrayCodec = new DuckDbArrayCodec<>(
+        structConverter,
+        value -> {
+          StringBuilder sb = new StringBuilder();
+          stringifier.unsafeEncode(value, sb, false);
+          return sb.toString();
+        });
+
     return new DuckDbType<>(
         typename.asGeneric(),
         duckDbRead,
@@ -87,7 +100,8 @@ public record DuckDbStruct<A>(
         stringifier,
         json,
         structMapSupport,
-        AnalysisOptions.EMPTY);
+        AnalysisOptions.EMPTY,
+        java.util.Optional.of(structArrayCodec));
   }
 
   /** Create an optional version of this STRUCT type. */

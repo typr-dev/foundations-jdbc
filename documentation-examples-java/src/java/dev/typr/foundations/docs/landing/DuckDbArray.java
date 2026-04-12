@@ -14,7 +14,7 @@ public class DuckDbArray {
   // DuckDB arrays are first-class typed values
   List<String[]> getTagSets() {
     return Fragment.of("SELECT tags FROM posts WHERE published = true")
-        .query(RowCodec.of(DuckDbTypes.varcharArray).all())
+        .query(RowCodec.of(DuckDbTypes.varchar.array()).all())
         .transact(tx);
   }
   // stop
