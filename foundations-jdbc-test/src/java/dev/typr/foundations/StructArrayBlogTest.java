@@ -118,33 +118,29 @@ public class StructArrayBlogTest {
   // ======================================================================
 
   //start:blog-duckdb-structs
-  static final DuckDbStruct<Address> duckAddress =
-      DuckDbStruct.<Address>builder("address")
-          .field("street", DuckDbTypes.varchar, Address::street)
-          .field("city", DuckDbTypes.varchar, Address::city)
-          .field("state", DuckDbTypes.varchar, Address::state)
-          .field("zip", DuckDbTypes.varchar, Address::zip)
-          .build(Address::new);
+  static final DuckDbType<Address> duckAddressType =
+      DuckDbTypes.compositeOf("address",
+          RowCodec.<Address>namedBuilder()
+              .field("street", DuckDbTypes.varchar, Address::street)
+              .field("city", DuckDbTypes.varchar, Address::city)
+              .field("state", DuckDbTypes.varchar, Address::state)
+              .field("zip", DuckDbTypes.varchar, Address::zip)
+              .build(Address::new));
 
-  static final DuckDbType<Address> duckAddressType = duckAddress.asType();
+  static final DuckDbType<LineItem> duckLineItemType =
+      DuckDbTypes.compositeOf("line_item",
+          RowCodec.<LineItem>namedBuilder()
+              .field("product_name", DuckDbTypes.varchar, LineItem::productName)
+              .field("quantity", DuckDbTypes.integer, LineItem::quantity)
+              .field("unit_price", DuckDbTypes.decimal, LineItem::unitPrice)
+              .build(LineItem::new));
 
-  static final DuckDbStruct<LineItem> duckLineItem =
-      DuckDbStruct.<LineItem>builder("line_item")
-          .field("product_name", DuckDbTypes.varchar, LineItem::productName)
-          .field("quantity", DuckDbTypes.integer, LineItem::quantity)
-          .field("unit_price", DuckDbTypes.decimal, LineItem::unitPrice)
-          .build(LineItem::new);
-
-  static final DuckDbType<LineItem> duckLineItemType = duckLineItem.asType();
-
-  // Deep nesting DuckDB types
-  static final DuckDbStruct<Skill> duckSkill =
-      DuckDbStruct.<Skill>builder("skill")
-          .field("name", DuckDbTypes.varchar, Skill::name)
-          .field("level", DuckDbTypes.integer, Skill::level)
-          .build(Skill::new);
-
-  static final DuckDbType<Skill> duckSkillType = duckSkill.asType();
+  static final DuckDbType<Skill> duckSkillType =
+      DuckDbTypes.compositeOf("skill",
+          RowCodec.<Skill>namedBuilder()
+              .field("name", DuckDbTypes.varchar, Skill::name)
+              .field("level", DuckDbTypes.integer, Skill::level)
+              .build(Skill::new));
   //stop:blog-duckdb-structs
 
   // ======================================================================
