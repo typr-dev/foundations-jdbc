@@ -315,11 +315,12 @@ CREATE TABLE orders (
 ```
 
 ```kotlin
-val addressStruct = DuckDbStruct.builder<Address>("address")
-    .field("street", DuckDbTypes.varchar, Address::street)
-    .field("city", DuckDbTypes.varchar, Address::city)
-    // ...
-    .build(::Address)
+val addressType = DuckDbTypes.compositeOf("address",
+    RowCodec.namedBuilder<Address>()
+        .field("street", DuckDbTypes.varchar, Address::street)
+        .field("city", DuckDbTypes.varchar, Address::city)
+        // ...
+        .build(::Address))
 ```
 
 Same builder pattern. Same typed records. DuckDB also has MAP and UNION types with full support.
@@ -376,7 +377,7 @@ Engineering (2 people)
 | Array of scalars | `text[]`, `int4[]` | `VARCHAR[]`, `INTEGER[]` | `VARRAY(n) OF ...` |
 | Array of composites | `employee[]` | `STRUCT(...)[]` | `TABLE OF object_t` |
 | Deep nesting | Composites containing arrays of composites | STRUCT containing STRUCT[] containing STRUCT[] | OBJECT containing VARRAY of OBJECT |
-| Builder | `PgStructBuilders.builder()` | `DuckDbStruct.builder()` | `OracleObject.builder()` |
+| Builder | `PgTypes.compositeOf()` | `DuckDbTypes.compositeOf()` | `OracleObject.builder()` |
 
 Same pattern. Same builder API. Different databases, each with their own syntax and capabilities, but the same idea: **define the structure once, read and write it as typed values.**
 
