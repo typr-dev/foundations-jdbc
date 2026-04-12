@@ -18,6 +18,13 @@ A `RowCodec<T>` replaces all of that with a single declaration: you list the dat
 
 You define the mapping once, and it propagates everywhere.
 
+Foundations JDBC has two kinds of row codecs:
+
+1. **Named codecs** (`RowCodecNamed`) — track column names, recommended for most use cases. Created via `RowCodec.namedBuilder()`.
+2. **Positional codecs** (`RowCodecUnnamed`) — track only column positions, for quick single/multi-column reads. Created via `RowCodec.of(type)` or `RowCodec.builder()`.
+
+The same codec drives reads, writes, JSON encoding, composite types, and query analysis.
+
 ## Named Row Codecs
 
 A *named* row codec tracks both types and column names. This is the recommended default — the small overhead of naming fields pays for itself quickly:
@@ -39,6 +46,8 @@ For single-column queries, use the simpler `of()` factory:
 
 <Snippet file="core/SingleColumnCodec" />
 
+For a single named column (preserving the column name for joins), use `RowCodec.ofNamed("name", type)`.
+
 ## Nullable Columns
 
 Use `.opt()` to wrap a type for nullable columns:
@@ -53,9 +62,21 @@ Row codecs compose for joins. Given a `productCodec` and a `categoryCodec`, comb
 
 The result type is `Tuple2<A, B>` in Java (with `._1()` and `._2()` accessors), `Pair<A, B>` in Kotlin, and a tuple `(A, B)` in Scala. Left join wraps the right side in `Optional` (or nullable in Kotlin, `Option` in Scala).
 
+Named codecs also have a `.join()` method that preserves column names through the composition, so the combined codec can still be used with `columnList()`, `Fragment.insertInto()`, and JSON encoding.
+
 The same `Tuple` types appear whenever the library needs to return multiple values without a dedicated record type — `RowCodec.of(type1, type2, ...)` for multi-column ad-hoc queries, `.combine()` for composed operations, and `.joined()` for joins all return `TupleN`. Accessors are 1-based: `._1()`, `._2()`, `._3()`, etc.
 
 This is why row codecs use index-based reading rather than column names. When you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
+
+## Result Modes
+
+A codec defines the shape of a row. Result modes define how many rows the query returns:
+
+| Mode | Returns | Behavior |
+|------|---------|----------|
+| `.all()` | `List<T>` | Collect all rows |
+| `.exactlyOne()` | `T` | Expect exactly one row, throw if 0 or 2+ |
+| `.maxOne()` | `Optional<T>` | Return 0 or 1 rows |
 
 ## Data-Driven Inserts
 

@@ -164,13 +164,22 @@ DuckDB's MAP type for key-value pairs:
 
 <Snippet file="duckdb/MapTypes" />
 
-## STRUCT Types
+## Struct Types
 
-DuckDB's STRUCT type for composite values:
+DuckDB STRUCT types are built from a `RowCodecNamed` via `compositeOf`:
 
 ```java
-// Structs are typically handled via generated code
-// The structure is defined by the table schema
+DuckDbType<Person> personType = DuckDbTypes.compositeOf("person",
+    RowCodec.<Person>namedBuilder()
+        .field("name", DuckDbTypes.varchar, Person::name)
+        .field("age", DuckDbTypes.integer, Person::age)
+        .build(Person::new));
+
+// Array of structs
+DuckDbType<Person[]> personArrayType = personType.array();
+
+// List of structs
+DuckDbType<List<Person>> personListType = personType.list();
 ```
 
 ## UNION Types
