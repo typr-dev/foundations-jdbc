@@ -343,18 +343,20 @@ CREATE TYPE EMPLOYEES_T AS TABLE OF EMPLOYEE_T;
 ```
 
 ```kotlin
-val oracleSkillType = OracleObject.builder<OracleSkill>("BLOG_SKILL_T")
-    .field("NAME", OracleTypes.varchar2(50), OracleSkill::name)
-    .field("LEVEL_NUM", OracleTypes.numberInt, OracleSkill::level)
-    .build(::OracleSkill).asType()
+val oracleSkillType = OracleTypes.compositeOf("BLOG_SKILL_T",
+    RowCodec.namedBuilder<OracleSkill>()
+        .field("NAME", OracleTypes.varchar2(50), OracleSkill::name)
+        .field("LEVEL_NUM", OracleTypes.numberInt, OracleSkill::level)
+        .build(::OracleSkill))
 
 val oracleSkillsType = OracleVArray.of("BLOG_SKILLS_T", 20, oracleSkillType)
 
-val oracleEmployeeType = OracleObject.builder<OracleEmployee>("BLOG_EMPLOYEE_T")
-    .field("NAME", OracleTypes.varchar2(100), OracleEmployee::name)
-    .field("ROLE_NAME", OracleTypes.varchar2(50), OracleEmployee::role)
-    .field("SKILLS", oracleSkillsType, OracleEmployee::skills)  // VARRAY of OBJECT
-    .build(::OracleEmployee).asType()
+val oracleEmployeeType = OracleTypes.compositeOf("BLOG_EMPLOYEE_T",
+    RowCodec.namedBuilder<OracleEmployee>()
+        .field("NAME", OracleTypes.varchar2(100), OracleEmployee::name)
+        .field("ROLE_NAME", OracleTypes.varchar2(50), OracleEmployee::role)
+        .field("SKILLS", oracleSkillsType, OracleEmployee::skills)  // VARRAY of OBJECT
+        .build(::OracleEmployee))
 
 val oracleEmployeesType = OracleNestedTable.of("BLOG_EMPLOYEES_T", oracleEmployeeType)
 ```

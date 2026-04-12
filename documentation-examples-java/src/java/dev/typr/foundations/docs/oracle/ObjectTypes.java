@@ -1,8 +1,8 @@
 package dev.typr.foundations.docs.oracle;
 
-import dev.typr.foundations.OracleObject;
 import dev.typr.foundations.OracleType;
 import dev.typr.foundations.OracleTypes;
+import dev.typr.foundations.RowCodec;
 import java.math.BigDecimal;
 
 @SuppressWarnings("unused")
@@ -15,11 +15,12 @@ public class ObjectTypes {
   record Coordinates(BigDecimal latitude, BigDecimal longitude) {}
 
   static final OracleType<Coordinates> coordinatesType =
-      OracleObject.<Coordinates>builder("COORDINATES_T")
-          .field("LATITUDE", OracleTypes.number(9, 6), Coordinates::latitude)
-          .field("LONGITUDE", OracleTypes.number(9, 6), Coordinates::longitude)
-          .build(Coordinates::new)
-          .asType();
+      OracleTypes.compositeOf(
+          "COORDINATES_T",
+          RowCodec.<Coordinates>namedBuilder()
+              .field("LATITUDE", OracleTypes.number(9, 6), Coordinates::latitude)
+              .field("LONGITUDE", OracleTypes.number(9, 6), Coordinates::longitude)
+              .build(Coordinates::new));
 
   // CREATE TYPE address_t AS OBJECT (
   //     street   VARCHAR2(100),
@@ -29,11 +30,12 @@ public class ObjectTypes {
   record Address(String street, String city, Coordinates location) {}
 
   static final OracleType<Address> addressType =
-      OracleObject.<Address>builder("ADDRESS_T")
-          .field("STREET", OracleTypes.varchar2(100), Address::street)
-          .field("CITY", OracleTypes.varchar2(50), Address::city)
-          .field("LOCATION", coordinatesType, Address::location)
-          .build(Address::new)
-          .asType();
+      OracleTypes.compositeOf(
+          "ADDRESS_T",
+          RowCodec.<Address>namedBuilder()
+              .field("STREET", OracleTypes.varchar2(100), Address::street)
+              .field("CITY", OracleTypes.varchar2(50), Address::city)
+              .field("LOCATION", coordinatesType, Address::location)
+              .build(Address::new));
   // stop
 }

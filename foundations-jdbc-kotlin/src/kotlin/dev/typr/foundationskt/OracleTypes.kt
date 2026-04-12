@@ -120,5 +120,9 @@ open class OracleTypes {
     open fun <Row : Any> jsonObjectEncodedList(parser: RowCodecNamed<Row>) =
         OracleType<List<Row>>(JavaOracleTypes.jsonObjectEncodedList(parser.underlying))
 
+    /** Build a named Oracle OBJECT type from a RowCodecNamed. */
+    open fun <Row : Any> compositeOf(objectTypeName: String, codec: RowCodecNamed<Row>) =
+        OracleType<Row>(JavaOracleTypes.compositeOf(objectTypeName, codec.underlying))
+
     companion object : OracleTypes()
 }
