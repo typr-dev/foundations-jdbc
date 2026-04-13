@@ -10,14 +10,12 @@ import java.util.UUID;
 @SuppressWarnings("unused")
 public class ListTypes {
   // start
-  // Pre-defined list types with optimized native JNI support
-  DuckDbType<List<Integer>> listInt = DuckDbTypes.listInteger;
-  DuckDbType<List<String>> listStr = DuckDbTypes.listVarchar;
-  DuckDbType<List<Double>> listDouble = DuckDbTypes.listDouble;
-
-  // Types that use SQL literal conversion (slightly slower but correct)
-  DuckDbType<List<UUID>> listUuid = DuckDbTypes.listUuid;
-  DuckDbType<List<LocalDate>> listDate = DuckDbTypes.listDate;
-  DuckDbType<List<BigDecimal>> listDecimal = DuckDbTypes.listDecimal;
+  // Any type can be made into a list with .list()
+  DuckDbType<List<Integer>> listInt = DuckDbTypes.integer.list();
+  DuckDbType<List<String>> listStr = DuckDbTypes.varchar.list();
+  DuckDbType<List<Double>> listDouble = DuckDbTypes.double_.list();
+  DuckDbType<List<UUID>> listUuid = DuckDbTypes.uuid.list();
+  DuckDbType<List<LocalDate>> listDate = DuckDbTypes.date.list();
+  DuckDbType<List<BigDecimal>> listDecimal = DuckDbTypes.decimal.list();
   // stop
 }

@@ -252,7 +252,7 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
           });
 
   // Interval - DuckDB returns as string in "HH:MM:SS" or "HH:MM:SS.micros" format
-  private static Duration parseDuckDbInterval(String s) {
+  static Duration parseDuckDbInterval(String s) {
     String[] parts = s.split(":");
     if (parts.length >= 3) {
       long hours = Long.parseLong(parts[0]);

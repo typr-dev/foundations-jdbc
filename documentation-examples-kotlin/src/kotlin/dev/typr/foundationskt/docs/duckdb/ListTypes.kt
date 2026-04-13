@@ -9,14 +9,12 @@ import java.util.UUID
 @Suppress("unused")
 class ListTypes {
     //start
-    // Pre-defined list types with optimized native JNI support
-    val listInt: DuckDbType<List<Int>> = DuckDbTypes.listInteger
-    val listStr: DuckDbType<List<String>> = DuckDbTypes.listVarchar
-    val listDouble: DuckDbType<List<Double>> = DuckDbTypes.listDouble
-
-    // Types that use SQL literal conversion (slightly slower but correct)
-    val listUuid: DuckDbType<List<UUID>> = DuckDbTypes.listUuid
-    val listDate: DuckDbType<List<LocalDate>> = DuckDbTypes.listDate
-    val listDecimal: DuckDbType<List<BigDecimal>> = DuckDbTypes.listDecimal
+    // Any type can be made into a list with .list()
+    val listInt: DuckDbType<List<Int>> = DuckDbTypes.integer.list()
+    val listStr: DuckDbType<List<String>> = DuckDbTypes.varchar.list()
+    val listDouble: DuckDbType<List<Double>> = DuckDbTypes.double_.list()
+    val listUuid: DuckDbType<List<UUID>> = DuckDbTypes.uuid.list()
+    val listDate: DuckDbType<List<LocalDate>> = DuckDbTypes.date.list()
+    val listDecimal: DuckDbType<List<BigDecimal>> = DuckDbTypes.decimal.list()
     //stop
 }

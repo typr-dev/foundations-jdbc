@@ -3,12 +3,12 @@ package dev.typr.foundationssc
 import dev.typr.foundations.{
   AnalysisOptions,
   DuckDbJson,
+  DuckDbListCodec,
   DuckDbRead,
   DuckDbStringifier,
   DuckDbTypename,
   DuckDbWrite
 }
-import java.util.function.IntFunction
 
 class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T]) extends DbType[T](underlying):
   override def opt: DuckDbType[Option[T]] =
@@ -40,21 +40,6 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
       )
   )
 
-  def listNative(elementClass: Class[T], toArray: IntFunction[Array[Object & T]]): dev.typr.foundations.DuckDbType[java.util.List[T]] =
-    underlying.listNative(elementClass, toArray)
-
-  def listViaSqlLiteral(elementClass: Class[T], elementStringifier: DuckDbStringifier[T]): dev.typr.foundations.DuckDbType[java.util.List[T]] =
-    underlying.listViaSqlLiteral(elementClass, elementStringifier)
-
-  def listViaSqlLiteral[W](wireClass: Class[W], wireToElem: java.util.function.Function[W, T], elementStringifier: DuckDbStringifier[T]): dev.typr.foundations.DuckDbType[java.util.List[T]] =
-    underlying.listViaSqlLiteral(wireClass, wireToElem, elementStringifier)
-
-  def arrayNative(size: Int, elementClass: Class[T], toArray: IntFunction[Array[Object & T]]): dev.typr.foundations.DuckDbType[java.util.List[T]] =
-    underlying.arrayNative(size, elementClass, toArray)
-
-  def arrayViaSqlLiteral(size: Int, elementClass: Class[T], elementStringifier: DuckDbStringifier[T]): dev.typr.foundations.DuckDbType[java.util.List[T]] =
-    underlying.arrayViaSqlLiteral(size, elementClass, elementStringifier)
-
   def mapToNative[V](valueType: DuckDbType[V], keyClass: Class[T], valueClass: Class[V]): dev.typr.foundations.DuckDbType[java.util.Map[T, V]] =
     underlying.mapToNative(valueType.underlying, keyClass, valueClass)
 
@@ -79,6 +64,7 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
   def withStringifier(stringifier: DuckDbStringifier[T]): DuckDbType[T] = DuckDbType(underlying.withStringifier(stringifier))
   def withJson(json: DuckDbJson[T]): DuckDbType[T] = DuckDbType(underlying.withJson(json))
   def withAnalysis(opts: AnalysisOptions): DuckDbType[T] = DuckDbType(underlying.withAnalysis(opts))
+  def withListCodec(codec: DuckDbListCodec[T]): DuckDbType[T] = DuckDbType(underlying.withListCodec(codec))
 
   def noArraySupport(): DuckDbType[T] = DuckDbType(underlying.noArraySupport())
 

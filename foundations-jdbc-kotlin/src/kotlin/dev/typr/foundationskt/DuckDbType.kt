@@ -3,11 +3,11 @@ package dev.typr.foundationskt
 
 import dev.typr.foundations.AnalysisOptions
 import dev.typr.foundations.DuckDbJson
+import dev.typr.foundations.DuckDbListCodec
 import dev.typr.foundations.DuckDbRead
 import dev.typr.foundations.DuckDbStringifier
 import dev.typr.foundations.DuckDbTypename
 import dev.typr.foundations.DuckDbWrite
-import java.util.function.IntFunction
 
 class DuckDbType<T>(override val underlying: dev.typr.foundations.DuckDbType<T>) : DbType<T>(underlying) {
     override fun opt(): DuckDbType<T?> =
@@ -25,21 +25,6 @@ class DuckDbType<T>(override val underlying: dev.typr.foundations.DuckDbType<T>)
     fun array(): DuckDbType<Array<T>> = DuckDbType(underlying.array())
 
     fun list(): DuckDbType<List<T>> = DuckDbType(underlying.list())
-
-    fun listNative(elementClass: Class<T>, toArray: IntFunction<Array<T?>>): DuckDbType<List<T>> =
-        DuckDbType(underlying.listNative(elementClass, toArray))
-
-    fun listViaSqlLiteral(elementClass: Class<T>, elementStringifier: DuckDbStringifier<T>): DuckDbType<List<T>> =
-        DuckDbType(underlying.listViaSqlLiteral(elementClass, elementStringifier))
-
-    fun <W> listViaSqlLiteral(wireClass: Class<W>, wireToElem: (W) -> T, elementStringifier: DuckDbStringifier<T>): DuckDbType<List<T>> =
-        DuckDbType(underlying.listViaSqlLiteral(wireClass, { wireToElem(it) }, elementStringifier))
-
-    fun arrayNative(size: Int, elementClass: Class<T>, toArray: IntFunction<Array<T?>>): DuckDbType<List<T>> =
-        DuckDbType(underlying.arrayNative(size, elementClass, toArray))
-
-    fun arrayViaSqlLiteral(size: Int, elementClass: Class<T>, elementStringifier: DuckDbStringifier<T>): DuckDbType<List<T>> =
-        DuckDbType(underlying.arrayViaSqlLiteral(size, elementClass, elementStringifier))
 
     fun <V> mapToNative(valueType: DuckDbType<V>, keyClass: Class<T>, valueClass: Class<V>): DuckDbType<Map<T, V>> =
         DuckDbType(underlying.mapToNative(valueType.underlying, keyClass, valueClass))
@@ -65,6 +50,7 @@ class DuckDbType<T>(override val underlying: dev.typr.foundations.DuckDbType<T>)
     fun withStringifier(stringifier: DuckDbStringifier<T>): DuckDbType<T> = DuckDbType(underlying.withStringifier(stringifier))
     fun withJson(json: DuckDbJson<T>): DuckDbType<T> = DuckDbType(underlying.withJson(json))
     fun withAnalysis(opts: AnalysisOptions): DuckDbType<T> = DuckDbType(underlying.withAnalysis(opts))
+    fun withListCodec(codec: DuckDbListCodec<T>): DuckDbType<T> = DuckDbType(underlying.withListCodec(codec))
 
     fun noArraySupport(): DuckDbType<T> = DuckDbType(underlying.noArraySupport())
 

@@ -29,7 +29,8 @@ public interface DuckDbTypes {
           DuckDbRead.readByte,
           DuckDbWrite.writeByte,
           DuckDbStringifier.tinyint,
-          DuckDbJson.int1);
+          DuckDbJson.int1)
+          .withListCodec(DuckDbListCodec.nativeCodec(Byte[]::new));
 
   DuckDbType<Short> smallint =
       DuckDbType.of(
@@ -37,7 +38,8 @@ public interface DuckDbTypes {
           DuckDbRead.readShort,
           DuckDbWrite.writeShort,
           DuckDbStringifier.smallint,
-          DuckDbJson.int2);
+          DuckDbJson.int2)
+          .withListCodec(DuckDbListCodec.nativeCodec(Short[]::new));
 
   DuckDbType<Integer> integer =
       DuckDbType.of(
@@ -45,7 +47,8 @@ public interface DuckDbTypes {
           DuckDbRead.readInteger,
           DuckDbWrite.writeInteger,
           DuckDbStringifier.integer,
-          DuckDbJson.int4);
+          DuckDbJson.int4)
+          .withListCodec(DuckDbListCodec.nativeCodec(Integer[]::new));
 
   DuckDbType<Long> bigint =
       DuckDbType.of(
@@ -53,7 +56,8 @@ public interface DuckDbTypes {
           DuckDbRead.readLong,
           DuckDbWrite.writeLong,
           DuckDbStringifier.bigint,
-          DuckDbJson.int8);
+          DuckDbJson.int8)
+          .withListCodec(DuckDbListCodec.nativeCodec(Long[]::new));
 
   // HUGEINT: 128-bit signed integer (-170141183460469231731687303715884105728 to
   // 170141183460469231731687303715884105727)
@@ -63,7 +67,8 @@ public interface DuckDbTypes {
           DuckDbRead.readBigInteger,
           DuckDbWrite.writeBigInteger,
           DuckDbStringifier.hugeint,
-          DuckDbJson.hugeint);
+          DuckDbJson.hugeint)
+          .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   // ==================== Integer Types (Unsigned) ====================
 
@@ -120,7 +125,8 @@ public interface DuckDbTypes {
           DuckDbRead.readFloat,
           DuckDbWrite.writeFloat,
           DuckDbStringifier.float4,
-          DuckDbJson.float4);
+          DuckDbJson.float4)
+          .withListCodec(DuckDbListCodec.nativeCodec(Float[]::new));
 
   DuckDbType<Double> double_ =
       DuckDbType.of(
@@ -128,7 +134,8 @@ public interface DuckDbTypes {
           DuckDbRead.readDouble,
           DuckDbWrite.writeDouble,
           DuckDbStringifier.float8,
-          DuckDbJson.float8);
+          DuckDbJson.float8)
+          .withListCodec(DuckDbListCodec.nativeCodec(Double[]::new));
 
   // Aliases
   DuckDbType<Float> real = float_.renamed("REAL");
@@ -143,7 +150,8 @@ public interface DuckDbTypes {
           DuckDbRead.readBigDecimal,
           DuckDbWrite.writeBigDecimal,
           DuckDbStringifier.numeric,
-          DuckDbJson.numeric);
+          DuckDbJson.numeric)
+          .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   DuckDbType<BigDecimal> numeric = decimal.renamed("NUMERIC");
 
@@ -164,7 +172,8 @@ public interface DuckDbTypes {
           DuckDbRead.readBoolean,
           DuckDbWrite.writeBoolean,
           DuckDbStringifier.bool,
-          DuckDbJson.bool);
+          DuckDbJson.bool)
+          .withListCodec(DuckDbListCodec.nativeCodec(Boolean[]::new));
 
   // ==================== String Types ====================
 
@@ -174,7 +183,8 @@ public interface DuckDbTypes {
           DuckDbRead.readString,
           DuckDbWrite.writeString,
           DuckDbStringifier.string,
-          DuckDbJson.text);
+          DuckDbJson.text)
+          .withListCodec(DuckDbListCodec.nativeCodec(String[]::new));
 
   DuckDbType<String> text =
       varchar.renamed("TEXT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
@@ -249,7 +259,8 @@ public interface DuckDbTypes {
           DuckDbRead.readLocalDate,
           DuckDbWrite.passObjectToJdbc(),
           DuckDbStringifier.date,
-          DuckDbJson.date);
+          DuckDbJson.date)
+          .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   DuckDbType<LocalTime> time =
       DuckDbType.of(
@@ -257,7 +268,8 @@ public interface DuckDbTypes {
           DuckDbRead.readLocalTime,
           DuckDbWrite.writeLocalTime,
           DuckDbStringifier.time,
-          DuckDbJson.time);
+          DuckDbJson.time)
+          .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   DuckDbType<LocalDateTime> timestamp =
       DuckDbType.of(
@@ -265,7 +277,8 @@ public interface DuckDbTypes {
           DuckDbRead.readLocalDateTime,
           DuckDbWrite.passObjectToJdbc(),
           DuckDbStringifier.timestamp,
-          DuckDbJson.timestamp);
+          DuckDbJson.timestamp)
+          .withListCodec(DuckDbListCodec.sqlLiteral(obj -> ((java.sql.Timestamp) obj).toLocalDateTime()));
 
   DuckDbType<LocalDateTime> datetime = timestamp.renamed("DATETIME");
 
@@ -276,7 +289,8 @@ public interface DuckDbTypes {
           DuckDbRead.readOffsetDateTime,
           DuckDbWrite.passObjectToJdbc(),
           DuckDbStringifier.timestamptz,
-          DuckDbJson.timestamptz);
+          DuckDbJson.timestamptz)
+          .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   // Time with timezone - represented as OffsetTime
   DuckDbType<OffsetDateTime> timetz =
@@ -300,7 +314,8 @@ public interface DuckDbTypes {
           DuckDbRead.readDuration,
           DuckDbWrite.writeDuration,
           DuckDbStringifier.interval,
-          DuckDbJson.interval);
+          DuckDbJson.interval)
+          .withListCodec(DuckDbListCodec.sqlLiteral(obj -> DuckDbRead.parseDuckDbInterval(obj.toString())));
 
   // ==================== UUID Type ====================
 
@@ -310,7 +325,8 @@ public interface DuckDbTypes {
           DuckDbRead.readUuid,
           DuckDbWrite.writeUuid,
           DuckDbStringifier.uuid,
-          DuckDbJson.uuid);
+          DuckDbJson.uuid)
+          .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   // ==================== JSON Type ====================
 
@@ -320,7 +336,8 @@ public interface DuckDbTypes {
           DuckDbRead.readString.map(Json::new),
           DuckDbWrite.writeString.contramap(Json::value),
           DuckDbStringifier.string.contramap(Json::value),
-          DuckDbJson.json);
+          DuckDbJson.json)
+          .withListCodec(DuckDbListCodec.sqlLiteral(obj -> new Json(obj.toString())));
 
   // ==================== Enum Type ====================
 
@@ -412,81 +429,6 @@ public interface DuckDbTypes {
 
   /** JSON[] - array of json values */
   DuckDbType<Json[]> jsonArray = json.array();
-
-  // ==================== Pre-instantiated List Types ====================
-  // Native JNI types (best performance)
-
-  /** LIST&lt;BOOLEAN&gt; - native JNI support */
-  DuckDbType<java.util.List<Boolean>> listBoolean =
-      boolean_.listNative(Boolean.class, Boolean[]::new);
-
-  /** LIST&lt;TINYINT&gt; - native JNI support */
-  DuckDbType<java.util.List<Byte>> listTinyint = tinyint.listNative(Byte.class, Byte[]::new);
-
-  /** LIST&lt;SMALLINT&gt; - native JNI support */
-  DuckDbType<java.util.List<Short>> listSmallint = smallint.listNative(Short.class, Short[]::new);
-
-  /** LIST&lt;INTEGER&gt; - native JNI support */
-  DuckDbType<java.util.List<Integer>> listInteger =
-      integer.listNative(Integer.class, Integer[]::new);
-
-  /** LIST&lt;BIGINT&gt; - native JNI support */
-  DuckDbType<java.util.List<Long>> listBigint = bigint.listNative(Long.class, Long[]::new);
-
-  /** LIST&lt;FLOAT&gt; - native JNI support */
-  DuckDbType<java.util.List<Float>> listFloat = float_.listNative(Float.class, Float[]::new);
-
-  /** LIST&lt;DOUBLE&gt; - native JNI support */
-  DuckDbType<java.util.List<Double>> listDouble = double_.listNative(Double.class, Double[]::new);
-
-  /** LIST&lt;VARCHAR&gt; - native JNI support */
-  DuckDbType<java.util.List<String>> listVarchar = varchar.listNative(String.class, String[]::new);
-
-  // String-converted types (~33% overhead at 100k rows, but required for correctness)
-
-  /** LIST&lt;UUID&gt; - SQL literal conversion (UUID has byte-ordering bug in JNI) */
-  DuckDbType<java.util.List<UUID>> listUuid =
-      uuid.listViaSqlLiteral(UUID.class, DuckDbStringifier.uuid);
-
-  /** LIST&lt;DATE&gt; - SQL literal conversion (JNI doesn't recognize java.time.LocalDate) */
-  DuckDbType<java.util.List<LocalDate>> listDate =
-      date.listViaSqlLiteral(LocalDate.class, DuckDbStringifier.date);
-
-  /** LIST&lt;TIME&gt; - SQL literal conversion (JNI doesn't recognize java.time.LocalTime) */
-  DuckDbType<java.util.List<LocalTime>> listTime =
-      time.listViaSqlLiteral(LocalTime.class, DuckDbStringifier.time);
-
-  /**
-   * LIST&lt;TIMESTAMP&gt; - SQL literal conversion (DuckDB JDBC returns java.sql.Timestamp in
-   * arrays)
-   */
-  DuckDbType<java.util.List<LocalDateTime>> listTimestamp =
-      timestamp.listViaSqlLiteral(
-          java.sql.Timestamp.class,
-          java.sql.Timestamp::toLocalDateTime,
-          DuckDbStringifier.timestamp);
-
-  /**
-   * LIST&lt;TIMESTAMPTZ&gt; - SQL literal conversion (DuckDB JDBC returns java.sql.Timestamp in
-   * arrays)
-   */
-  DuckDbType<java.util.List<OffsetDateTime>> listTimestamptz =
-      timestamptz.listViaSqlLiteral(
-          java.sql.Timestamp.class,
-          ts -> ts.toLocalDateTime().atOffset(ZoneOffset.UTC),
-          DuckDbStringifier.timestamptz);
-
-  /** LIST&lt;DECIMAL&gt; - SQL literal conversion */
-  DuckDbType<java.util.List<BigDecimal>> listDecimal =
-      decimal.listViaSqlLiteral(BigDecimal.class, DuckDbStringifier.numeric);
-
-  /** LIST&lt;HUGEINT&gt; - SQL literal conversion */
-  DuckDbType<java.util.List<BigInteger>> listHugeint =
-      hugeint.listViaSqlLiteral(BigInteger.class, DuckDbStringifier.hugeint);
-
-  /** LIST&lt;INTERVAL&gt; - SQL literal conversion */
-  DuckDbType<java.util.List<Duration>> listInterval =
-      interval.listViaSqlLiteral(Duration.class, DuckDbStringifier.interval);
 
   // ==================== Unknown Type ====================
   // For columns whose type typr doesn't know how to handle - cast to/from string
@@ -677,7 +619,8 @@ public interface DuckDbTypes {
         duckDbJson,
         structMapSupport,
         AnalysisOptions.EMPTY,
-        java.util.Optional.of(structArrayCodec));
+        java.util.Optional.of(structArrayCodec),
+        java.util.Optional.of(DuckDbListCodec.sqlLiteral(structConverter)));
   }
 
   @SuppressWarnings("unchecked")
