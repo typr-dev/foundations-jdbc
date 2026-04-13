@@ -142,14 +142,14 @@ Any type can be converted to an array type using `.array()`:
 
 ## LIST Types
 
-DuckDB's LIST type is similar to arrays but with different semantics:
+Any type can be made into a list with `.list()`:
 
-| DuckDB Type | Java Type |
-|-------------|-----------|
-| `LIST<INTEGER>` | `List<Integer>` |
-| `LIST<VARCHAR>` | `List<String>` |
-| `LIST<DATE>` | `List<LocalDate>` |
-| ... | ... |
+| DuckDB Type | Java Type | Created via |
+|-------------|-----------|-------------|
+| `LIST<INTEGER>` | `List<Integer>` | `integer.list()` |
+| `LIST<VARCHAR>` | `List<String>` | `varchar.list()` |
+| `LIST<DATE>` | `List<LocalDate>` | `date.list()` |
+| ... | ... | `anyType.list()` |
 
 <Snippet file="duckdb/ListTypes" />
 

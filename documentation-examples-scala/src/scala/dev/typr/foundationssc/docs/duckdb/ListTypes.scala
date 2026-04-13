@@ -4,18 +4,16 @@ import dev.typr.foundationssc.data.*
 
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.util.{List, UUID}
+import java.util.UUID
 
 @SuppressWarnings(Array("unused"))
 object ListTypes:
   // start
-  // Pre-defined list types with optimized native JNI support
-  val listInt: DuckDbType[List[Integer]] = DuckDbTypes.listInteger
-  val listStr: DuckDbType[List[String]] = DuckDbTypes.listVarchar
-  val listDouble: DuckDbType[List[java.lang.Double]] = DuckDbTypes.listDouble
-
-  // Types that use SQL literal conversion (slightly slower but correct)
-  val listUuid: DuckDbType[List[UUID]] = DuckDbTypes.listUuid
-  val listDate: DuckDbType[List[LocalDate]] = DuckDbTypes.listDate
-  val listDecimal: DuckDbType[List[BigDecimal]] = DuckDbTypes.listDecimal
+  // Any type can be made into a list with .list()
+  val listInt = DuckDbTypes.integer.list
+  val listStr = DuckDbTypes.varchar.list
+  val listDouble = DuckDbTypes.double_.list
+  val listUuid = DuckDbTypes.uuid.list
+  val listDate = DuckDbTypes.date.list
+  val listDecimal = DuckDbTypes.decimal.list
   // stop

@@ -112,6 +112,12 @@ public class DuckDbTypeTest {
     boolean supportsArray() {
       return type.arrayCodec().isPresent();
     }
+
+    boolean supportsList() {
+      return type.listCodec().isPresent()
+          && !(type.typename() instanceof DuckDbTypename.ListOf)
+          && !(type.typename() instanceof DuckDbTypename.ArrayOf);
+    }
   }
 
   // Sample enum for ENUM type testing
@@ -272,25 +278,25 @@ public class DuckDbTypeTest {
           // ==================== LIST Types ====================
           // LIST types don't support direct equality in WHERE clauses, so we mark noIdentity()
           // Native JNI types (best performance)
-          new DuckDbTypeAndExample<>(DuckDbTypes.listBoolean, List.of(true, false, true))
+          new DuckDbTypeAndExample<>(DuckDbTypes.boolean_.list(), List.of(true, false, true))
               .noIdentity(),
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.listTinyint, List.of((byte) 1, (byte) 2, (byte) -1))
+                  DuckDbTypes.tinyint.list(), List.of((byte) 1, (byte) 2, (byte) -1))
               .noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listSmallint, List.of((short) 100, (short) -200))
+          new DuckDbTypeAndExample<>(DuckDbTypes.smallint.list(), List.of((short) 100, (short) -200))
               .noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listInteger, List.of(1, 2, 3, 4, 5)).noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listInteger, List.of()).noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listInteger, List.of(-100, 0, 100)).noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listBigint, List.of(1L, 2L, 9999999999L))
+          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of(1, 2, 3, 4, 5)).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of()).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of(-100, 0, 100)).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.bigint.list(), List.of(1L, 2L, 9999999999L))
               .noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listFloat, List.of(1.5f, 2.5f, 3.14f))
+          new DuckDbTypeAndExample<>(DuckDbTypes.float_.list(), List.of(1.5f, 2.5f, 3.14f))
               .noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listDouble, List.of(1.5, 2.5, 3.14159))
+          new DuckDbTypeAndExample<>(DuckDbTypes.double_.list(), List.of(1.5, 2.5, 3.14159))
               .noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listVarchar, List.of("hello", "world"))
+          new DuckDbTypeAndExample<>(DuckDbTypes.varchar.list(), List.of("hello", "world"))
               .noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listVarchar, List.of("quote'test", "back\\slash"))
+          new DuckDbTypeAndExample<>(DuckDbTypes.varchar.list(), List.of("quote'test", "back\\slash"))
               .noIdentity(),
 
           // ==================== MAP Types ====================
@@ -395,7 +401,7 @@ public class DuckDbTypeTest {
           // String-converted types (~33% overhead at 100k rows, but required for correctness)
           // LIST<UUID> - UUID requires String conversion to avoid byte-ordering bug
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.listUuid,
+                  DuckDbTypes.uuid.list(),
                   List.of(
                       UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
                       UUID.fromString("123e4567-e89b-12d3-a456-426614174000")))
@@ -403,29 +409,29 @@ public class DuckDbTypeTest {
           // LIST<TIME> - LocalTime requires String conversion (JNI doesn't recognize
           // java.time.LocalTime)
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.listTime, List.of(LocalTime.of(14, 30, 45), LocalTime.of(8, 15, 0)))
+                  DuckDbTypes.time.list(), List.of(LocalTime.of(14, 30, 45), LocalTime.of(8, 15, 0)))
               .noIdentity(),
           // LIST<DATE> - LocalDate requires String conversion
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.listDate,
+                  DuckDbTypes.date.list(),
                   List.of(LocalDate.of(2024, 6, 15), LocalDate.of(1970, 1, 1)))
               .noIdentity(),
           // LIST<TIMESTAMP> - LocalDateTime requires String conversion
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.listTimestamp,
+                  DuckDbTypes.timestamp.list(),
                   List.of(
                       LocalDateTime.of(2024, 6, 15, 14, 30, 45),
                       LocalDateTime.of(1970, 1, 1, 0, 0, 0)))
               .noIdentity(),
           // LIST<DECIMAL> - BigDecimal requires String conversion
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.listDecimal,
+                  DuckDbTypes.decimal.list(),
                   List.of(
                       new java.math.BigDecimal("123.456"), new java.math.BigDecimal("-99999.99")))
               .noIdentity(),
           // LIST<HUGEINT> - BigInteger requires String conversion
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.listHugeint,
+                  DuckDbTypes.hugeint.list(),
                   List.of(
                       new java.math.BigInteger("170141183460469231731687303715884105727"),
                       java.math.BigInteger.ZERO))
@@ -457,21 +463,11 @@ public class DuckDbTypeTest {
               .noIdentity(),
           new DuckDbTypeAndExample<>(intOrStringType.list(), List.of()).noIdentity(),
 
-          // ==================== ARRAY Types (Fixed-Size) ====================
-          new DuckDbTypeAndExample<>(
-                  DuckDbTypes.float_.arrayNative(3, Float.class, Float[]::new),
-                  List.of(1.0f, 2.0f, 3.0f))
-              .noIdentity(),
-          new DuckDbTypeAndExample<>(
-                  DuckDbTypes.integer.arrayNative(5, Integer.class, Integer[]::new),
-                  List.of(1, 2, 3, 4, 5))
-              .noIdentity(),
-
           // ==================== LIST Variable Length Cases ====================
           // Prove that LIST (unlike ARRAY) accepts variable lengths
-          new DuckDbTypeAndExample<>(DuckDbTypes.listInteger, List.of()).noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listInteger, List.of(1, 2)).noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.listInteger, List.of(1, 2, 3, 4, 5)).noIdentity());
+          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of()).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of(1, 2)).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of(1, 2, 3, 4, 5)).noIdentity());
 
   // Connection helper for DuckDB - uses in-memory database
   static <T> T withConnection(SqlFunction<Connection, T> f) {
@@ -497,6 +493,11 @@ public class DuckDbTypeTest {
     return new DuckDbTypeAndExample<>(arrayType, arr).noIdentity();
   }
 
+  static <A> DuckDbTypeAndExample<java.util.List<A>> toListExample(DuckDbTypeAndExample<A> scalar) {
+    DuckDbType<java.util.List<A>> listType = scalar.type.list();
+    return new DuckDbTypeAndExample<>(listType, java.util.List.of(scalar.example)).noIdentity();
+  }
+
   @Test
   public void test() {
     System.out.println("Testing DuckDB type codecs...\n");
@@ -519,11 +520,31 @@ public class DuckDbTypeTest {
         })
         .filter(t -> t != null)
         .toList();
-    System.out.println("Generated " + arrayExamples.size() + " array type tests from " + All.size() + " scalar types\n");
+    System.out.println("Generated " + arrayExamples.size() + " array type tests from " + All.size() + " scalar types");
+
+    // Derive list tests: wrap every type with supportsList=true in a single-element list
+    var listExamples = All.stream()
+        .filter(t -> t.supportsList())
+        .collect(Collectors.toMap(
+            t -> t.type.typename().sqlType(),
+            t -> t,
+            (a, b) -> a))
+        .values().stream()
+        .map(t -> {
+          try { return toListExample(t); }
+          catch (Exception e) {
+            System.out.println("  Skipping list test for " + t.type.typename().sqlType() + ": " + e.getMessage());
+            return null;
+          }
+        })
+        .filter(t -> t != null)
+        .toList();
+    System.out.println("Generated " + listExamples.size() + " list type tests\n");
 
     var allWithArrays = new ArrayList<DuckDbTypeAndExample<?>>();
     allWithArrays.addAll(All);
     allWithArrays.addAll(arrayExamples);
+    allWithArrays.addAll(listExamples);
 
     // Test JSON roundtrip first (no database connection needed) - parallel
     System.out.println("=== JSON Roundtrip Tests (parallel) ===");
