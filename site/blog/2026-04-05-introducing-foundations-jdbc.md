@@ -13,7 +13,7 @@ Not `Object`. Not `getInt()` with a column index and a prayer. Real types — `i
 
 That's what we built. **Foundations JDBC** is an open-source, MIT-licensed JDBC library for Java, Kotlin, and Scala. It gives you composable SQL fragments, typed row codecs, and test-time query verification — across PostgreSQL, MariaDB, DuckDB, Oracle, SQL Server, and DB2.
 
-Today we're releasing **1.0.0-RC2**.
+Today we're releasing **1.0.0-RC3**.
 
 <!-- truncate -->
 
