@@ -7,11 +7,14 @@ import java.util.function.IntFunction;
  * Describes how to read and write elements of a DuckDB LIST column.
  *
  * <p>Two strategies:
+ *
  * <ul>
- *   <li>{@link Native} — write via JNI native array path ({@code DuckDBUserArray} with typed array).
- *       For types DuckDB JNI handles directly: Boolean, Byte, Short, Integer, Long, Float, Double, String.
- *   <li>{@link SqlLiteral} — write via SQL literal stringification ({@code DuckDBUserArray} with String[]).
- *       For types DuckDB JNI doesn't handle natively: UUID, LocalDate, LocalTime, BigDecimal, etc.
+ *   <li>{@link Native} — write via JNI native array path ({@code DuckDBUserArray} with typed
+ *       array). For types DuckDB JNI handles directly: Boolean, Byte, Short, Integer, Long, Float,
+ *       Double, String.
+ *   <li>{@link SqlLiteral} — write via SQL literal stringification ({@code DuckDBUserArray} with
+ *       String[]). For types DuckDB JNI doesn't handle natively: UUID, LocalDate, LocalTime,
+ *       BigDecimal, etc.
  * </ul>
  *
  * <p>Both strategies use the same read path: {@code Array.getArray()} with per-element conversion
@@ -24,19 +27,15 @@ public sealed interface DuckDbListCodec<A> {
 
   <B> DuckDbListCodec<B> map(Function<A, B> f, Function<B, A> g);
 
-  record Native<A>(
-      Function<Object, A> fromElement,
-      IntFunction<A[]> arrayFactory
-  ) implements DuckDbListCodec<A> {
+  record Native<A>(Function<Object, A> fromElement, IntFunction<A[]> arrayFactory)
+      implements DuckDbListCodec<A> {
     @Override
     public <B> DuckDbListCodec<B> map(Function<A, B> f, Function<B, A> g) {
       return new SqlLiteral<>(obj -> f.apply(fromElement.apply(obj)));
     }
   }
 
-  record SqlLiteral<A>(
-      Function<Object, A> fromElement
-  ) implements DuckDbListCodec<A> {
+  record SqlLiteral<A>(Function<Object, A> fromElement) implements DuckDbListCodec<A> {
     @Override
     public <B> DuckDbListCodec<B> map(Function<A, B> f, Function<B, A> g) {
       return new SqlLiteral<>(obj -> f.apply(fromElement.apply(obj)));

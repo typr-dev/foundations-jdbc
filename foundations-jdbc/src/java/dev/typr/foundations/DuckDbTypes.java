@@ -25,49 +25,49 @@ public interface DuckDbTypes {
 
   DuckDbType<Byte> tinyint =
       DuckDbType.of(
-          "TINYINT",
-          DuckDbRead.readByte,
-          DuckDbWrite.writeByte,
-          DuckDbStringifier.tinyint,
-          DuckDbJson.int1)
+              "TINYINT",
+              DuckDbRead.readByte,
+              DuckDbWrite.writeByte,
+              DuckDbStringifier.tinyint,
+              DuckDbJson.int1)
           .withListCodec(DuckDbListCodec.nativeCodec(Byte[]::new));
 
   DuckDbType<Short> smallint =
       DuckDbType.of(
-          "SMALLINT",
-          DuckDbRead.readShort,
-          DuckDbWrite.writeShort,
-          DuckDbStringifier.smallint,
-          DuckDbJson.int2)
+              "SMALLINT",
+              DuckDbRead.readShort,
+              DuckDbWrite.writeShort,
+              DuckDbStringifier.smallint,
+              DuckDbJson.int2)
           .withListCodec(DuckDbListCodec.nativeCodec(Short[]::new));
 
   DuckDbType<Integer> integer =
       DuckDbType.of(
-          "INTEGER",
-          DuckDbRead.readInteger,
-          DuckDbWrite.writeInteger,
-          DuckDbStringifier.integer,
-          DuckDbJson.int4)
+              "INTEGER",
+              DuckDbRead.readInteger,
+              DuckDbWrite.writeInteger,
+              DuckDbStringifier.integer,
+              DuckDbJson.int4)
           .withListCodec(DuckDbListCodec.nativeCodec(Integer[]::new));
 
   DuckDbType<Long> bigint =
       DuckDbType.of(
-          "BIGINT",
-          DuckDbRead.readLong,
-          DuckDbWrite.writeLong,
-          DuckDbStringifier.bigint,
-          DuckDbJson.int8)
+              "BIGINT",
+              DuckDbRead.readLong,
+              DuckDbWrite.writeLong,
+              DuckDbStringifier.bigint,
+              DuckDbJson.int8)
           .withListCodec(DuckDbListCodec.nativeCodec(Long[]::new));
 
   // HUGEINT: 128-bit signed integer (-170141183460469231731687303715884105728 to
   // 170141183460469231731687303715884105727)
   DuckDbType<BigInteger> hugeint =
       DuckDbType.of(
-          "HUGEINT",
-          DuckDbRead.readBigInteger,
-          DuckDbWrite.writeBigInteger,
-          DuckDbStringifier.hugeint,
-          DuckDbJson.hugeint)
+              "HUGEINT",
+              DuckDbRead.readBigInteger,
+              DuckDbWrite.writeBigInteger,
+              DuckDbStringifier.hugeint,
+              DuckDbJson.hugeint)
           .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   // ==================== Integer Types (Unsigned) ====================
@@ -121,20 +121,20 @@ public interface DuckDbTypes {
 
   DuckDbType<Float> float_ =
       DuckDbType.of(
-          "FLOAT",
-          DuckDbRead.readFloat,
-          DuckDbWrite.writeFloat,
-          DuckDbStringifier.float4,
-          DuckDbJson.float4)
+              "FLOAT",
+              DuckDbRead.readFloat,
+              DuckDbWrite.writeFloat,
+              DuckDbStringifier.float4,
+              DuckDbJson.float4)
           .withListCodec(DuckDbListCodec.nativeCodec(Float[]::new));
 
   DuckDbType<Double> double_ =
       DuckDbType.of(
-          "DOUBLE",
-          DuckDbRead.readDouble,
-          DuckDbWrite.writeDouble,
-          DuckDbStringifier.float8,
-          DuckDbJson.float8)
+              "DOUBLE",
+              DuckDbRead.readDouble,
+              DuckDbWrite.writeDouble,
+              DuckDbStringifier.float8,
+              DuckDbJson.float8)
           .withListCodec(DuckDbListCodec.nativeCodec(Double[]::new));
 
   // Aliases
@@ -146,11 +146,11 @@ public interface DuckDbTypes {
 
   DuckDbType<BigDecimal> decimal =
       DuckDbType.of(
-          "DECIMAL",
-          DuckDbRead.readBigDecimal,
-          DuckDbWrite.writeBigDecimal,
-          DuckDbStringifier.numeric,
-          DuckDbJson.numeric)
+              "DECIMAL",
+              DuckDbRead.readBigDecimal,
+              DuckDbWrite.writeBigDecimal,
+              DuckDbStringifier.numeric,
+              DuckDbJson.numeric)
           .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   DuckDbType<BigDecimal> numeric = decimal.renamed("NUMERIC");
@@ -168,32 +168,40 @@ public interface DuckDbTypes {
 
   DuckDbType<Boolean> boolean_ =
       DuckDbType.of(
-          "BOOLEAN",
-          DuckDbRead.readBoolean,
-          DuckDbWrite.writeBoolean,
-          DuckDbStringifier.bool,
-          DuckDbJson.bool)
+              "BOOLEAN",
+              DuckDbRead.readBoolean,
+              DuckDbWrite.writeBoolean,
+              DuckDbStringifier.bool,
+              DuckDbJson.bool)
           .withListCodec(DuckDbListCodec.nativeCodec(Boolean[]::new));
 
   // ==================== String Types ====================
 
   DuckDbType<String> varchar =
       DuckDbType.of(
-          "VARCHAR",
-          DuckDbRead.readString,
-          DuckDbWrite.writeString,
-          DuckDbStringifier.string,
-          DuckDbJson.text)
+              "VARCHAR",
+              DuckDbRead.readString,
+              DuckDbWrite.writeString,
+              DuckDbStringifier.string,
+              DuckDbJson.text)
           .withListCodec(DuckDbListCodec.nativeCodec(String[]::new));
 
   DuckDbType<String> text =
-      varchar.renamed("TEXT").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
+      varchar
+          .renamed("TEXT")
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
   DuckDbType<String> string =
-      varchar.renamed("STRING").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
+      varchar
+          .renamed("STRING")
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
   DuckDbType<String> char_ =
-      varchar.renamed("CHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
+      varchar
+          .renamed("CHAR")
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
   DuckDbType<String> bpchar =
-      varchar.renamed("BPCHAR").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
+      varchar
+          .renamed("BPCHAR")
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
 
   static DuckDbType<String> varchar(int length) {
     return DuckDbType.of(
@@ -218,11 +226,11 @@ public interface DuckDbTypes {
 
   DuckDbType<byte[]> blob =
       DuckDbType.of(
-          "BLOB",
-          DuckDbRead.readByteArray,
-          DuckDbWrite.writeByteArray,
-          DuckDbStringifier.blob,
-          DuckDbJson.blob)
+              "BLOB",
+              DuckDbRead.readByteArray,
+              DuckDbWrite.writeByteArray,
+              DuckDbStringifier.blob,
+              DuckDbJson.blob)
           .noArraySupport(); // BLOB[] not supported: binary can't be serialized in DuckDBUserArray
 
   DuckDbType<byte[]> bytea = blob.renamed("BYTEA");
@@ -255,41 +263,42 @@ public interface DuckDbTypes {
 
   DuckDbType<LocalDate> date =
       DuckDbType.of(
-          "DATE",
-          DuckDbRead.readLocalDate,
-          DuckDbWrite.passObjectToJdbc(),
-          DuckDbStringifier.date,
-          DuckDbJson.date)
+              "DATE",
+              DuckDbRead.readLocalDate,
+              DuckDbWrite.passObjectToJdbc(),
+              DuckDbStringifier.date,
+              DuckDbJson.date)
           .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   DuckDbType<LocalTime> time =
       DuckDbType.of(
-          "TIME",
-          DuckDbRead.readLocalTime,
-          DuckDbWrite.writeLocalTime,
-          DuckDbStringifier.time,
-          DuckDbJson.time)
+              "TIME",
+              DuckDbRead.readLocalTime,
+              DuckDbWrite.writeLocalTime,
+              DuckDbStringifier.time,
+              DuckDbJson.time)
           .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   DuckDbType<LocalDateTime> timestamp =
       DuckDbType.of(
-          "TIMESTAMP",
-          DuckDbRead.readLocalDateTime,
-          DuckDbWrite.passObjectToJdbc(),
-          DuckDbStringifier.timestamp,
-          DuckDbJson.timestamp)
-          .withListCodec(DuckDbListCodec.sqlLiteral(obj -> ((java.sql.Timestamp) obj).toLocalDateTime()));
+              "TIMESTAMP",
+              DuckDbRead.readLocalDateTime,
+              DuckDbWrite.passObjectToJdbc(),
+              DuckDbStringifier.timestamp,
+              DuckDbJson.timestamp)
+          .withListCodec(
+              DuckDbListCodec.sqlLiteral(obj -> ((java.sql.Timestamp) obj).toLocalDateTime()));
 
   DuckDbType<LocalDateTime> datetime = timestamp.renamed("DATETIME");
 
   // Timestamp with timezone
   DuckDbType<OffsetDateTime> timestamptz =
       DuckDbType.of(
-          "TIMESTAMP WITH TIME ZONE",
-          DuckDbRead.readOffsetDateTime,
-          DuckDbWrite.passObjectToJdbc(),
-          DuckDbStringifier.timestamptz,
-          DuckDbJson.timestamptz)
+              "TIMESTAMP WITH TIME ZONE",
+              DuckDbRead.readOffsetDateTime,
+              DuckDbWrite.passObjectToJdbc(),
+              DuckDbStringifier.timestamptz,
+              DuckDbJson.timestamptz)
           .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   // Time with timezone - represented as OffsetTime
@@ -310,33 +319,34 @@ public interface DuckDbTypes {
 
   DuckDbType<Duration> interval =
       DuckDbType.of(
-          "INTERVAL",
-          DuckDbRead.readDuration,
-          DuckDbWrite.writeDuration,
-          DuckDbStringifier.interval,
-          DuckDbJson.interval)
-          .withListCodec(DuckDbListCodec.sqlLiteral(obj -> DuckDbRead.parseDuckDbInterval(obj.toString())));
+              "INTERVAL",
+              DuckDbRead.readDuration,
+              DuckDbWrite.writeDuration,
+              DuckDbStringifier.interval,
+              DuckDbJson.interval)
+          .withListCodec(
+              DuckDbListCodec.sqlLiteral(obj -> DuckDbRead.parseDuckDbInterval(obj.toString())));
 
   // ==================== UUID Type ====================
 
   DuckDbType<UUID> uuid =
       DuckDbType.of(
-          "UUID",
-          DuckDbRead.readUuid,
-          DuckDbWrite.writeUuid,
-          DuckDbStringifier.uuid,
-          DuckDbJson.uuid)
+              "UUID",
+              DuckDbRead.readUuid,
+              DuckDbWrite.writeUuid,
+              DuckDbStringifier.uuid,
+              DuckDbJson.uuid)
           .withListCodec(DuckDbListCodec.sqlLiteralCast());
 
   // ==================== JSON Type ====================
 
   DuckDbType<Json> json =
       DuckDbType.of(
-          "JSON",
-          DuckDbRead.readString.map(Json::new),
-          DuckDbWrite.writeString.contramap(Json::value),
-          DuckDbStringifier.string.contramap(Json::value),
-          DuckDbJson.json)
+              "JSON",
+              DuckDbRead.readString.map(Json::new),
+              DuckDbWrite.writeString.contramap(Json::value),
+              DuckDbStringifier.string.contramap(Json::value),
+              DuckDbJson.json)
           .withListCodec(DuckDbListCodec.sqlLiteral(obj -> new Json(obj.toString())));
 
   // ==================== Enum Type ====================
@@ -499,6 +509,7 @@ public interface DuckDbTypes {
    * Supports read, write, stringification, JSON encoding, and {@code .array()}/{@code .list()}.
    *
    * <p>Usage:
+   *
    * <pre>{@code
    * DuckDbType<Point> pointType = DuckDbTypes.compositeOf("point",
    *     RowCodec.<Point>namedBuilder()
@@ -516,33 +527,38 @@ public interface DuckDbTypes {
     var columns = codec.columns();
     var names = codec.columnNames();
     var duckColumns = new java.util.ArrayList<DuckDbType<?>>(columns.size());
-    var typenameFields = new java.util.ArrayList<DuckDbTypename.StructOf.StructField>(columns.size());
+    var typenameFields =
+        new java.util.ArrayList<DuckDbTypename.StructOf.StructField>(columns.size());
     for (int i = 0; i < columns.size(); i++) {
       var col = columns.get(i);
       if (!(col instanceof DuckDbType<?> duck)) {
         throw new IllegalArgumentException(
             "compositeOf requires all fields to be DuckDbType, got: "
                 + col.getClass().getSimpleName()
-                + " at field '" + names.get(i) + "'");
+                + " at field '"
+                + names.get(i)
+                + "'");
       }
       duckColumns.add(duck);
       typenameFields.add(new DuckDbTypename.StructOf.StructField(names.get(i), duck.typename()));
     }
 
-    DuckDbTypename.StructOf<Row> typename = new DuckDbTypename.StructOf<>(structName, typenameFields);
+    DuckDbTypename.StructOf<Row> typename =
+        new DuckDbTypename.StructOf<>(structName, typenameFields);
     var decode = codec.decode();
     var encode = codec.encode();
 
-    java.util.function.Function<Object, Row> structConverter = obj -> {
-      if (obj instanceof java.sql.Struct struct) {
-        try {
-          return decode.apply(struct.getAttributes());
-        } catch (java.sql.SQLException e) {
-          throw new DatabaseException(e);
-        }
-      }
-      throw new IllegalArgumentException("Expected STRUCT, got: " + obj.getClass());
-    };
+    java.util.function.Function<Object, Row> structConverter =
+        obj -> {
+          if (obj instanceof java.sql.Struct struct) {
+            try {
+              return decode.apply(struct.getAttributes());
+            } catch (java.sql.SQLException e) {
+              throw new DatabaseException(e);
+            }
+          }
+          throw new IllegalArgumentException("Expected STRUCT, got: " + obj.getClass());
+        };
 
     DuckDbRead<Row> duckDbRead =
         new DuckDbRead.NonNullable<>(
@@ -553,17 +569,18 @@ public interface DuckDbTypes {
             },
             structConverter);
 
-    DuckDbStringifier<Row> stringifier = DuckDbStringifier.instance(
-        (value, sb, quoted) -> {
-          Object[] fieldValues = encode.apply(value);
-          sb.append("{");
-          for (int i = 0; i < duckColumns.size(); i++) {
-            if (i > 0) sb.append(", ");
-            sb.append("'").append(names.get(i)).append("': ");
-            encodeStructField(duckColumns.get(i), fieldValues[i], sb);
-          }
-          sb.append("}");
-        });
+    DuckDbStringifier<Row> stringifier =
+        DuckDbStringifier.instance(
+            (value, sb, quoted) -> {
+              Object[] fieldValues = encode.apply(value);
+              sb.append("{");
+              for (int i = 0; i < duckColumns.size(); i++) {
+                if (i > 0) sb.append(", ");
+                sb.append("'").append(names.get(i)).append("': ");
+                encodeStructField(duckColumns.get(i), fieldValues[i], sb);
+              }
+              sb.append("}");
+            });
 
     DuckDbWrite<Row> duckDbWrite =
         new DuckDbWrite.Instance<>(
@@ -576,40 +593,45 @@ public interface DuckDbTypes {
 
     DuckDbMapSupport<Row> structMapSupport = DuckDbMapSupport.of(structConverter, value -> value);
 
-    DuckDbArrayCodec<Row> structArrayCodec = new DuckDbArrayCodec<>(
-        structConverter,
-        value -> {
-          StringBuilder sb = new StringBuilder();
-          stringifier.unsafeEncode(value, sb, false);
-          return sb.toString();
-        });
+    DuckDbArrayCodec<Row> structArrayCodec =
+        new DuckDbArrayCodec<>(
+            structConverter,
+            value -> {
+              StringBuilder sb = new StringBuilder();
+              stringifier.unsafeEncode(value, sb, false);
+              return sb.toString();
+            });
 
-    DuckDbJson<Row> duckDbJson = new DuckDbJson<>() {
-      @Override
-      public dev.typr.foundations.data.JsonValue toJson(Row value) {
-        Object[] fieldValues = encode.apply(value);
-        var jsonFields = new java.util.LinkedHashMap<String, dev.typr.foundations.data.JsonValue>();
-        for (int i = 0; i < fieldValues.length; i++) {
-          jsonFields.put(names.get(i), structFieldToJson(duckColumns.get(i), fieldValues[i]));
-        }
-        return new dev.typr.foundations.data.JsonValue.JObject(jsonFields);
-      }
-
-      @Override
-      public Row fromJson(dev.typr.foundations.data.JsonValue jsonValue) {
-        if (jsonValue instanceof dev.typr.foundations.data.JsonValue.JObject obj) {
-          Object[] fieldValues = new Object[duckColumns.size()];
-          for (int i = 0; i < duckColumns.size(); i++) {
-            dev.typr.foundations.data.JsonValue fieldJson = obj.fields().get(names.get(i));
-            fieldValues[i] = (fieldJson == null || fieldJson instanceof dev.typr.foundations.data.JsonValue.JNull)
-                ? null
-                : duckColumns.get(i).duckDbJson().fromJson(fieldJson);
+    DuckDbJson<Row> duckDbJson =
+        new DuckDbJson<>() {
+          @Override
+          public dev.typr.foundations.data.JsonValue toJson(Row value) {
+            Object[] fieldValues = encode.apply(value);
+            var jsonFields =
+                new java.util.LinkedHashMap<String, dev.typr.foundations.data.JsonValue>();
+            for (int i = 0; i < fieldValues.length; i++) {
+              jsonFields.put(names.get(i), structFieldToJson(duckColumns.get(i), fieldValues[i]));
+            }
+            return new dev.typr.foundations.data.JsonValue.JObject(jsonFields);
           }
-          return decode.apply(fieldValues);
-        }
-        throw new IllegalArgumentException("Expected JSON object");
-      }
-    };
+
+          @Override
+          public Row fromJson(dev.typr.foundations.data.JsonValue jsonValue) {
+            if (jsonValue instanceof dev.typr.foundations.data.JsonValue.JObject obj) {
+              Object[] fieldValues = new Object[duckColumns.size()];
+              for (int i = 0; i < duckColumns.size(); i++) {
+                dev.typr.foundations.data.JsonValue fieldJson = obj.fields().get(names.get(i));
+                fieldValues[i] =
+                    (fieldJson == null
+                            || fieldJson instanceof dev.typr.foundations.data.JsonValue.JNull)
+                        ? null
+                        : duckColumns.get(i).duckDbJson().fromJson(fieldJson);
+              }
+              return decode.apply(fieldValues);
+            }
+            throw new IllegalArgumentException("Expected JSON object");
+          }
+        };
 
     return new DuckDbType<>(
         typename.asGeneric(),
@@ -633,7 +655,8 @@ public interface DuckDbTypes {
   }
 
   @SuppressWarnings("unchecked")
-  private static <F> dev.typr.foundations.data.JsonValue structFieldToJson(DuckDbType<F> column, Object value) {
+  private static <F> dev.typr.foundations.data.JsonValue structFieldToJson(
+      DuckDbType<F> column, Object value) {
     if (value == null) return dev.typr.foundations.data.JsonValue.JNull.INSTANCE;
     return column.duckDbJson().toJson((F) value);
   }

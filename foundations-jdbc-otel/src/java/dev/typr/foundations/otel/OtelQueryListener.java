@@ -30,10 +30,8 @@ public final class OtelQueryListener implements QueryListener {
   // Semantic convention attribute keys
   private static final AttributeKey<String> DB_SYSTEM_NAME =
       AttributeKey.stringKey("db.system.name");
-  private static final AttributeKey<String> DB_QUERY_TEXT =
-      AttributeKey.stringKey("db.query.text");
-  private static final AttributeKey<String> DB_NAMESPACE =
-      AttributeKey.stringKey("db.namespace");
+  private static final AttributeKey<String> DB_QUERY_TEXT = AttributeKey.stringKey("db.query.text");
+  private static final AttributeKey<String> DB_NAMESPACE = AttributeKey.stringKey("db.namespace");
   private static final AttributeKey<String> SERVER_ADDRESS =
       AttributeKey.stringKey("server.address");
   private static final AttributeKey<Long> SERVER_PORT = AttributeKey.longKey("server.port");
@@ -72,8 +70,7 @@ public final class OtelQueryListener implements QueryListener {
     Instant endTime = Instant.now();
     Instant startTime = endTime.minus(event.elapsed());
 
-    String spanName =
-        (event.name() != null && !event.name().isEmpty()) ? event.name() : "DB query";
+    String spanName = (event.name() != null && !event.name().isEmpty()) ? event.name() : "DB query";
 
     var spanBuilder =
         tracer
@@ -88,9 +85,7 @@ public final class OtelQueryListener implements QueryListener {
 
     // Server attributes
     config.serverAddress().ifPresent(addr -> spanBuilder.setAttribute(SERVER_ADDRESS, addr));
-    config
-        .serverPort()
-        .ifPresent(port -> spanBuilder.setAttribute(SERVER_PORT, port.longValue()));
+    config.serverPort().ifPresent(port -> spanBuilder.setAttribute(SERVER_PORT, port.longValue()));
     config.dbNamespace().ifPresent(ns -> spanBuilder.setAttribute(DB_NAMESPACE, ns));
 
     Span span = spanBuilder.startSpan();

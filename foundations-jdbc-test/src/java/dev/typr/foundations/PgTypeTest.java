@@ -89,8 +89,11 @@ public class PgTypeTest {
     A[] singleton = (A[]) java.lang.reflect.Array.newInstance(example.getClass(), 1);
     singleton[0] = example;
     return new PgTypeAndExample<>(
-        elem.type().array(), singleton,
-        elem.hasIdentity(), elem.streamingWorks(), elem.compositeTextWorks());
+        elem.type().array(),
+        singleton,
+        elem.hasIdentity(),
+        elem.streamingWorks(),
+        elem.compositeTextWorks());
   }
 
   /** Auto-generate an empty array test entry for a type (once per type). */
@@ -98,8 +101,11 @@ public class PgTypeTest {
   static <A> PgTypeAndExample<A[]> emptyArrayEntry(PgTypeAndExample<A> elem) {
     A[] empty = (A[]) java.lang.reflect.Array.newInstance(elem.example().getClass(), 0);
     return new PgTypeAndExample<>(
-        elem.type().array(), empty,
-        elem.hasIdentity(), elem.streamingWorks(), elem.compositeTextWorks());
+        elem.type().array(),
+        empty,
+        elem.hasIdentity(),
+        elem.streamingWorks(),
+        elem.compositeTextWorks());
   }
 
   /** Auto-generate a multi-element array test entry combining all examples for a type. */
@@ -112,8 +118,11 @@ public class PgTypeTest {
       values[i] = sameTypeEntries.get(i).example();
     }
     return new PgTypeAndExample<>(
-        first.type().array(), values,
-        first.hasIdentity(), first.streamingWorks(), first.compositeTextWorks());
+        first.type().array(),
+        values,
+        first.hasIdentity(),
+        first.streamingWorks(),
+        first.compositeTextWorks());
   }
 
   /** Should we auto-generate array test entries for this scalar entry? */
@@ -175,8 +184,7 @@ public class PgTypeTest {
           new PgTypeAndExample<>(PgTypes.bytea, new byte[] {-1, 1, 127}),
           new PgTypeAndExample<>(PgTypes.bytea, new byte[] {}),
           new PgTypeAndExample<>(PgTypes.bytea, new byte[] {0, 0, 0}),
-          new PgTypeAndExample<>(
-              PgTypes.bytea, new byte[] {(byte) 0xFF, (byte) 0xFE, (byte) 0xFD}),
+          new PgTypeAndExample<>(PgTypes.bytea, new byte[] {(byte) 0xFF, (byte) 0xFE, (byte) 0xFD}),
 
           // ==================== Date/Time Types ====================
           new PgTypeAndExample<>(PgTypes.date, LocalDate.now()),
@@ -376,8 +384,8 @@ public class PgTypeTest {
   /**
    * All test entries: element types + auto-generated array entries.
    *
-   * <p>For each scalar entry with array support, we generate a singleton array test (per entry)
-   * so every edge-case value flows through the array codec. For each unique scalar type, we also
+   * <p>For each scalar entry with array support, we generate a singleton array test (per entry) so
+   * every edge-case value flows through the array codec. For each unique scalar type, we also
    * generate one multi-element array (combining all the type's edge-case examples, exercising
    * element separators) and one empty array.
    */
@@ -546,7 +554,10 @@ public class PgTypeTest {
                         });
                   } catch (Exception e) {
                     errors.add(
-                        "Call OUT test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+                        "Call OUT test FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
                   }
                   try {
                     withConnection(
@@ -556,7 +567,10 @@ public class PgTypeTest {
                         });
                   } catch (Exception e) {
                     errors.add(
-                        "Call INOUT test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+                        "Call INOUT test FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
                   }
                   return errors.stream();
                 })
@@ -749,9 +763,7 @@ public class PgTypeTest {
                   .field("date_field", PgTypes.date, ComprehensiveComposite::dateField)
                   .field("time_field", PgTypes.time, ComprehensiveComposite::timeField)
                   .field(
-                      "timestamp_field",
-                      PgTypes.timestamp,
-                      ComprehensiveComposite::timestampField)
+                      "timestamp_field", PgTypes.timestamp, ComprehensiveComposite::timestampField)
                   .build(ComprehensiveComposite::new));
 
       conn.createStatement().execute("CREATE TEMP TABLE test_comp (v " + typeName + ")");
@@ -1040,8 +1052,8 @@ public class PgTypeTest {
   }
 
   /**
-   * Test type as a procedure OUT parameter. Creates {@code CREATE PROCEDURE
-   * foo(IN i T, OUT o T) AS $$ BEGIN o := i; END; $$} and verifies the OUT value matches input.
+   * Test type as a procedure OUT parameter. Creates {@code CREATE PROCEDURE foo(IN i T, OUT o T) AS
+   * $$ BEGIN o := i; END; $$} and verifies the OUT value matches input.
    */
   @SuppressWarnings("unchecked")
   static <A> void testCallOutParam(Connection conn, PgTypeAndExample<A> t) throws SQLException {
@@ -1078,13 +1090,14 @@ public class PgTypeTest {
                 + "'");
       }
     } finally {
-      conn.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName + "(" + sqlType + "," + sqlType + ")");
+      conn.createStatement()
+          .execute("DROP PROCEDURE IF EXISTS " + procName + "(" + sqlType + "," + sqlType + ")");
     }
   }
 
   /**
-   * Test type as a procedure INOUT parameter. Creates {@code CREATE PROCEDURE foo(INOUT p T) AS
-   * $$ BEGIN END; $$} which passes the value through unchanged, and verifies roundtrip.
+   * Test type as a procedure INOUT parameter. Creates {@code CREATE PROCEDURE foo(INOUT p T) AS $$
+   * BEGIN END; $$} which passes the value through unchanged, and verifies roundtrip.
    */
   @SuppressWarnings("unchecked")
   static <A> void testCallInOutParam(Connection conn, PgTypeAndExample<A> t) throws SQLException {

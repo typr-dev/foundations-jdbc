@@ -144,6 +144,7 @@ class OracleTypes {
           slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
         )
     )
+
   /** Build a named Oracle OBJECT type from a RowCodecNamed. */
   def compositeOf[Row](objectTypeName: String, codec: RowCodecNamed[Row]): OracleType[Row] =
     OracleType(JavaOracleTypes.compositeOf(objectTypeName, codec.underlying))

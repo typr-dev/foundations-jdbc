@@ -43,9 +43,9 @@ public abstract class PgCompositeText<A> {
   }
 
   /**
-   * Internal: array encoding with a specific delimiter. The delimiter is a property of the
-   * element type (geometric types use ';', everything else ','). Only {@link PgType#array()}
-   * should call this, passing the delimiter from the type's {@link PgArrayCodec}.
+   * Internal: array encoding with a specific delimiter. The delimiter is a property of the element
+   * type (geometric types use ';', everything else ','). Only {@link PgType#array()} should call
+   * this, passing the delimiter from the type's {@link PgArrayCodec}.
    */
   PgCompositeText<A[]> array(IntFunction<A[]> arrayFactory, char delimiter) {
     var self = this;

@@ -17,8 +17,8 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
   A read(ResultSet rs, int col) throws SQLException;
 
   /**
-   * Convert a raw JDBC value (from Array.getArray() elements, Struct.getAttributes(), etc.)
-   * to the typed value. For scalars this is a cast. For transformed types, it composes.
+   * Convert a raw JDBC value (from Array.getArray() elements, Struct.getAttributes(), etc.) to the
+   * typed value. For scalars this is a cast. For transformed types, it composes.
    */
   @SuppressWarnings("unchecked")
   default A fromJdbcValue(Object obj) {
@@ -69,7 +69,9 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
       this(readNullable, null);
     }
 
-    public NonNullable(RawRead<Optional<A>> readNullable, java.util.function.Function<Object, A> jdbcValueConverter) {
+    public NonNullable(
+        RawRead<Optional<A>> readNullable,
+        java.util.function.Function<Object, A> jdbcValueConverter) {
       this.readNullable = readNullable;
       this.jdbcValueConverter = jdbcValueConverter;
     }
@@ -99,9 +101,14 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
           },
           obj -> {
             try {
-              A base = parentConverter != null ? parentConverter.apply(obj) : NonNullable.this.fromJdbcValue(obj);
+              A base =
+                  parentConverter != null
+                      ? parentConverter.apply(obj)
+                      : NonNullable.this.fromJdbcValue(obj);
               return f.apply(base);
-            } catch (SQLException e) { throw new DatabaseException(e); }
+            } catch (SQLException e) {
+              throw new DatabaseException(e);
+            }
           });
     }
 
@@ -189,14 +196,20 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
   DuckDbRead<Float> readFloat = of(ResultSet::getFloat);
   DuckDbRead<Double> readDouble = of(ResultSet::getDouble);
   DuckDbRead<BigDecimal> readBigDecimal = of(ResultSet::getBigDecimal);
-    DuckDbRead<byte[]> readByteArray = of(ResultSet::getBytes, obj -> {
-    if (obj instanceof byte[] bytes) return bytes;
-    if (obj instanceof java.sql.Blob blob) {
-      try { return blob.getBytes(1, (int) blob.length()); }
-      catch (java.sql.SQLException e) { throw new DatabaseException(e); }
-    }
-    throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to byte[]");
-  });
+  DuckDbRead<byte[]> readByteArray =
+      of(
+          ResultSet::getBytes,
+          obj -> {
+            if (obj instanceof byte[] bytes) return bytes;
+            if (obj instanceof java.sql.Blob blob) {
+              try {
+                return blob.getBytes(1, (int) blob.length());
+              } catch (java.sql.SQLException e) {
+                throw new DatabaseException(e);
+              }
+            }
+            throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to byte[]");
+          });
 
   // BigInteger for HUGEINT/UHUGEINT - DuckDB JDBC returns BigInteger directly
   DuckDbRead<BigInteger> readBigInteger = castJdbcObjectTo(BigInteger.class);
@@ -217,7 +230,8 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
           obj -> {
             if (obj instanceof LocalDateTime ldt) return ldt;
             if (obj instanceof java.sql.Timestamp ts) return ts.toLocalDateTime();
-            throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to LocalDateTime");
+            throw new IllegalArgumentException(
+                "Cannot convert " + obj.getClass() + " to LocalDateTime");
           });
 
   DuckDbRead<OffsetDateTime> readOffsetDateTime =
@@ -232,8 +246,10 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
           },
           obj -> {
             if (obj instanceof OffsetDateTime odt) return odt;
-            if (obj instanceof java.sql.Timestamp ts) return ts.toLocalDateTime().atOffset(ZoneOffset.UTC);
-            throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to OffsetDateTime");
+            if (obj instanceof java.sql.Timestamp ts)
+              return ts.toLocalDateTime().atOffset(ZoneOffset.UTC);
+            throw new IllegalArgumentException(
+                "Cannot convert " + obj.getClass() + " to OffsetDateTime");
           });
 
   DuckDbRead<UUID> readUuid =
@@ -280,8 +296,11 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
           (rs, idx) -> {
             String s = rs.getString(idx);
             if (s == null) return null;
-            try { return parseDuckDbInterval(s); }
-            catch (Exception e) { throw new SQLException("Cannot parse interval: " + s, e); }
+            try {
+              return parseDuckDbInterval(s);
+            } catch (Exception e) {
+              throw new SQLException("Cannot parse interval: " + s, e);
+            }
           },
           obj -> parseDuckDbInterval(obj.toString()));
 
@@ -296,8 +315,11 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
           obj -> {
             if (obj instanceof byte[] bytes) return bytes;
             if (obj instanceof java.sql.Blob blob) {
-              try { return blob.getBytes(1, (int) blob.length()); }
-              catch (java.sql.SQLException e) { throw new DatabaseException(e); }
+              try {
+                return blob.getBytes(1, (int) blob.length());
+              } catch (java.sql.SQLException e) {
+                throw new DatabaseException(e);
+              }
             }
             throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to byte[]");
           });

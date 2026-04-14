@@ -388,8 +388,6 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |""".stripMargin
   }
 
-
-
   def generateScalaTuple(): String = {
     val typeAliases = 1.to(N).map { n =>
       val range = 0.until(n)

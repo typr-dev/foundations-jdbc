@@ -55,7 +55,8 @@ public class DuckDbTypeTest {
 
   // Type-safe builder: field types are tracked, no casts needed in build()
   DuckDbType<Person> personType =
-      DuckDbTypes.compositeOf("Person",
+      DuckDbTypes.compositeOf(
+          "Person",
           RowCodec.<Person>namedBuilder()
               .field("name", DuckDbTypes.varchar, Person::name)
               .field("age", DuckDbTypes.integer, Person::age)
@@ -283,11 +284,14 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.tinyint.list(), List.of((byte) 1, (byte) 2, (byte) -1))
               .noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.smallint.list(), List.of((short) 100, (short) -200))
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.smallint.list(), List.of((short) 100, (short) -200))
               .noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of(1, 2, 3, 4, 5)).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of(1, 2, 3, 4, 5))
+              .noIdentity(),
           new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of()).noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of(-100, 0, 100)).noIdentity(),
+          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of(-100, 0, 100))
+              .noIdentity(),
           new DuckDbTypeAndExample<>(DuckDbTypes.bigint.list(), List.of(1L, 2L, 9999999999L))
               .noIdentity(),
           new DuckDbTypeAndExample<>(DuckDbTypes.float_.list(), List.of(1.5f, 2.5f, 3.14f))
@@ -296,7 +300,8 @@ public class DuckDbTypeTest {
               .noIdentity(),
           new DuckDbTypeAndExample<>(DuckDbTypes.varchar.list(), List.of("hello", "world"))
               .noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.varchar.list(), List.of("quote'test", "back\\slash"))
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.varchar.list(), List.of("quote'test", "back\\slash"))
               .noIdentity(),
 
           // ==================== MAP Types ====================
@@ -409,7 +414,8 @@ public class DuckDbTypeTest {
           // LIST<TIME> - LocalTime requires String conversion (JNI doesn't recognize
           // java.time.LocalTime)
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.time.list(), List.of(LocalTime.of(14, 30, 45), LocalTime.of(8, 15, 0)))
+                  DuckDbTypes.time.list(),
+                  List.of(LocalTime.of(14, 30, 45), LocalTime.of(8, 15, 0)))
               .noIdentity(),
           // LIST<DATE> - LocalDate requires String conversion
           new DuckDbTypeAndExample<>(
@@ -467,7 +473,8 @@ public class DuckDbTypeTest {
           // Prove that LIST (unlike ARRAY) accepts variable lengths
           new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of()).noIdentity(),
           new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of(1, 2)).noIdentity(),
-          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of(1, 2, 3, 4, 5)).noIdentity());
+          new DuckDbTypeAndExample<>(DuckDbTypes.integer.list(), List.of(1, 2, 3, 4, 5))
+              .noIdentity());
 
   // Connection helper for DuckDB - uses in-memory database
   static <T> T withConnection(SqlFunction<Connection, T> f) {
@@ -504,41 +511,60 @@ public class DuckDbTypeTest {
 
     // Derive array tests from every scalar type
     // Derive array tests: wrap every type with supportsArray=true in a single-element array
-    var arrayExamples = All.stream()
-        .filter(t -> t.supportsArray())
-        .collect(Collectors.toMap(
-            t -> t.type.typename().sqlType(),
-            t -> t,
-            (a, b) -> a)) // deduplicate by type name (keep first example per type)
-        .values().stream()
-        .map(t -> {
-          try { return toArrayExample(t); }
-          catch (Exception e) {
-            System.out.println("  Skipping array test for " + t.type.typename().sqlType() + ": " + e.getMessage());
-            return null;
-          }
-        })
-        .filter(t -> t != null)
-        .toList();
-    System.out.println("Generated " + arrayExamples.size() + " array type tests from " + All.size() + " scalar types");
+    var arrayExamples =
+        All.stream()
+            .filter(t -> t.supportsArray())
+            .collect(
+                Collectors.toMap(
+                    t -> t.type.typename().sqlType(),
+                    t -> t,
+                    (a, b) -> a)) // deduplicate by type name (keep first example per type)
+            .values()
+            .stream()
+            .map(
+                t -> {
+                  try {
+                    return toArrayExample(t);
+                  } catch (Exception e) {
+                    System.out.println(
+                        "  Skipping array test for "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
+                    return null;
+                  }
+                })
+            .filter(t -> t != null)
+            .toList();
+    System.out.println(
+        "Generated "
+            + arrayExamples.size()
+            + " array type tests from "
+            + All.size()
+            + " scalar types");
 
     // Derive list tests: wrap every type with supportsList=true in a single-element list
-    var listExamples = All.stream()
-        .filter(t -> t.supportsList())
-        .collect(Collectors.toMap(
-            t -> t.type.typename().sqlType(),
-            t -> t,
-            (a, b) -> a))
-        .values().stream()
-        .map(t -> {
-          try { return toListExample(t); }
-          catch (Exception e) {
-            System.out.println("  Skipping list test for " + t.type.typename().sqlType() + ": " + e.getMessage());
-            return null;
-          }
-        })
-        .filter(t -> t != null)
-        .toList();
+    var listExamples =
+        All.stream()
+            .filter(t -> t.supportsList())
+            .collect(Collectors.toMap(t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+            .values()
+            .stream()
+            .map(
+                t -> {
+                  try {
+                    return toListExample(t);
+                  } catch (Exception e) {
+                    System.out.println(
+                        "  Skipping list test for "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + e.getMessage());
+                    return null;
+                  }
+                })
+            .filter(t -> t != null)
+            .toList();
     System.out.println("Generated " + listExamples.size() + " list type tests\n");
 
     var allWithArrays = new ArrayList<DuckDbTypeAndExample<?>>();
@@ -648,7 +674,8 @@ public class DuckDbTypeTest {
       System.out.println("All tests passed!");
     } else {
       allFailures.forEach(f -> System.err.println("FAILURE: " + f));
-      throw new RuntimeException(allFailures.size() + " tests failed:\n" + String.join("\n", allFailures));
+      throw new RuntimeException(
+          allFailures.size() + " tests failed:\n" + String.join("\n", allFailures));
     }
     System.out.println("=====================================");
   }

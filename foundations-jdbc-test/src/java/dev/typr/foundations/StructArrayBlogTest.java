@@ -1,13 +1,11 @@
 package dev.typr.foundations;
 
 import dev.typr.foundations.connect.DuckDbConfig;
-import dev.typr.foundations.connect.OracleConfig;
 import dev.typr.foundations.connect.SingleConnectionDataSource;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import org.junit.Test;
 
 /**
@@ -24,23 +22,30 @@ public class StructArrayBlogTest {
   //  SHARED DOMAIN TYPES
   // ======================================================================
 
-  //start:blog-domain-types
+  // start:blog-domain-types
   record Address(String street, String city, String state, String zip) {}
+
   record LineItem(String productName, int quantity, BigDecimal unitPrice) {}
+
   record Skill(String name, int level) {}
+
   record Employee(String name, String role, Skill[] skills) {}
+
   record Department(String name, Employee[] members) {}
-  //stop:blog-domain-types
+
+  // stop:blog-domain-types
 
   record Customer(int id, String name, String email, Address shippingAddress) {}
+
   record Product(int id, String name, BigDecimal price, String[] tags) {}
+
   record Order(int id, int customerId, LineItem[] items) {}
 
   // ======================================================================
   //  POSTGRESQL TYPES
   // ======================================================================
 
-  //start:blog-pg-structs
+  // start:blog-pg-structs
   static final PgType<Address> pgAddressType =
       PgTypes.compositeOf(
           "address",
@@ -61,9 +66,9 @@ public class StructArrayBlogTest {
               .build(LineItem::new));
 
   static final PgType<LineItem[]> pgLineItemArrayType = pgLineItemType.array();
-  //stop:blog-pg-structs
+  // stop:blog-pg-structs
 
-  //start:blog-pg-deep-nesting
+  // start:blog-pg-deep-nesting
   static final PgType<Skill> pgSkillType =
       PgTypes.compositeOf(
           "skill",
@@ -88,7 +93,7 @@ public class StructArrayBlogTest {
               .field("name", PgTypes.text, Department::name)
               .field("members", pgEmployeeType.array(), Department::members)
               .build(Department::new));
-  //stop:blog-pg-deep-nesting
+  // stop:blog-pg-deep-nesting
 
   static final RowCodecNamed<Customer> pgCustomerCodec =
       RowCodec.<Customer>namedBuilder()
@@ -117,9 +122,10 @@ public class StructArrayBlogTest {
   //  DUCKDB TYPES
   // ======================================================================
 
-  //start:blog-duckdb-structs
+  // start:blog-duckdb-structs
   static final DuckDbType<Address> duckAddressType =
-      DuckDbTypes.compositeOf("address",
+      DuckDbTypes.compositeOf(
+          "address",
           RowCodec.<Address>namedBuilder()
               .field("street", DuckDbTypes.varchar, Address::street)
               .field("city", DuckDbTypes.varchar, Address::city)
@@ -128,7 +134,8 @@ public class StructArrayBlogTest {
               .build(Address::new));
 
   static final DuckDbType<LineItem> duckLineItemType =
-      DuckDbTypes.compositeOf("line_item",
+      DuckDbTypes.compositeOf(
+          "line_item",
           RowCodec.<LineItem>namedBuilder()
               .field("product_name", DuckDbTypes.varchar, LineItem::productName)
               .field("quantity", DuckDbTypes.integer, LineItem::quantity)
@@ -136,18 +143,20 @@ public class StructArrayBlogTest {
               .build(LineItem::new));
 
   static final DuckDbType<Skill> duckSkillType =
-      DuckDbTypes.compositeOf("skill",
+      DuckDbTypes.compositeOf(
+          "skill",
           RowCodec.<Skill>namedBuilder()
               .field("name", DuckDbTypes.varchar, Skill::name)
               .field("level", DuckDbTypes.integer, Skill::level)
               .build(Skill::new));
-  //stop:blog-duckdb-structs
+
+  // stop:blog-duckdb-structs
 
   // ======================================================================
   //  ORACLE TYPES
   // ======================================================================
 
-  //start:blog-oracle-types
+  // start:blog-oracle-types
   record OracleAddress(String street, String city) {}
 
   record OracleLineItem(Long productId, Integer quantity) {}
@@ -198,7 +207,8 @@ public class StructArrayBlogTest {
 
   static final OracleType<List<OracleEmployee>> oracleEmployeesType =
       OracleNestedTable.of("BLOG_EMPLOYEES_T", oracleEmployeeType);
-  //stop:blog-oracle-types
+
+  // stop:blog-oracle-types
 
   // ======================================================================
   //  TEST ENTRY
@@ -240,12 +250,14 @@ public class StructArrayBlogTest {
               """
               CREATE TYPE address AS (
                   street text, city text, state text, zip text
-              )""");
+              )\
+              """);
           stmt.execute(
               """
               CREATE TYPE line_item AS (
                   product_name text, quantity int, unit_price numeric(10,2)
-              )""");
+              )\
+              """);
           stmt.execute("CREATE TYPE skill AS (name text, level int)");
           stmt.execute("CREATE TYPE employee AS (name text, role text, skills skill[])");
           stmt.execute("CREATE TYPE department AS (name text, members employee[])");
@@ -257,7 +269,8 @@ public class StructArrayBlogTest {
                   name text NOT NULL,
                   email text NOT NULL,
                   shipping_address address NOT NULL
-              )""");
+              )\
+              """);
           stmt.execute(
               """
               CREATE TABLE products (
@@ -265,15 +278,18 @@ public class StructArrayBlogTest {
                   name text NOT NULL,
                   price numeric(10,2) NOT NULL,
                   tags text[] NOT NULL DEFAULT '{}'
-              )""");
+              )\
+              """);
           stmt.execute(
               """
               CREATE TABLE orders (
                   id serial PRIMARY KEY,
                   customer_id int NOT NULL REFERENCES customers(id),
                   items line_item[] NOT NULL
-              )""");
-          stmt.execute("CREATE TABLE departments (id serial PRIMARY KEY, data department NOT NULL)");
+              )\
+              """);
+          stmt.execute(
+              "CREATE TABLE departments (id serial PRIMARY KEY, data department NOT NULL)");
 
           // Sample data
           stmt.execute(
@@ -341,7 +357,8 @@ public class StructArrayBlogTest {
                       FROM orders o
                       JOIN customers c ON c.id = o.customer_id
                       CROSS JOIN LATERAL unnest(o.items) AS li
-                      ORDER BY o.id""");
+                      ORDER BY o.id\
+                      """);
           System.out.println(
               "  order | customer        | email             | product             | qty | price");
           System.out.println(
@@ -349,8 +366,12 @@ public class StructArrayBlogTest {
           while (rs.next()) {
             System.out.printf(
                 "  %-5d | %-15s | %-17s | %-19s | %3d | %s%n",
-                rs.getInt(1), rs.getString(2), rs.getString(3),
-                rs.getString(4), rs.getInt(5), rs.getBigDecimal(6));
+                rs.getInt(1),
+                rs.getString(2),
+                rs.getString(3),
+                rs.getString(4),
+                rs.getInt(5),
+                rs.getBigDecimal(6));
           }
 
           record OrderWithCustomer(
@@ -370,7 +391,8 @@ public class StructArrayBlogTest {
                       """
                       SELECT o.id, c.name, c.shipping_address, o.items
                       FROM orders o JOIN customers c ON c.id = o.customer_id
-                      ORDER BY o.id""")
+                      ORDER BY o.id\
+                      """)
                   .query(codec.all())
                   .run(conn);
 
@@ -448,9 +470,7 @@ public class StructArrayBlogTest {
                         "Frank",
                         "Lead",
                         new Skill[] {
-                          new Skill("Python", 9),
-                          new Skill("SQL", 8),
-                          new Skill("Statistics", 7)
+                          new Skill("Python", 9), new Skill("SQL", 8), new Skill("Statistics", 7)
                         }),
                     new Employee("Grace", "Senior", new Skill[] {new Skill("R", 8)})
                   });
@@ -514,8 +534,7 @@ public class StructArrayBlogTest {
           // Normal tables — no composite types in storage
           stmt.execute("DROP TABLE IF EXISTS norm_order_lines CASCADE");
           stmt.execute("DROP TABLE IF EXISTS norm_orders CASCADE");
-          stmt.execute(
-              "CREATE TABLE norm_orders (id serial PRIMARY KEY, customer text NOT NULL)");
+          stmt.execute("CREATE TABLE norm_orders (id serial PRIMARY KEY, customer text NOT NULL)");
           stmt.execute(
               """
               CREATE TABLE norm_order_lines (
@@ -524,9 +543,9 @@ public class StructArrayBlogTest {
                   product_name text NOT NULL,
                   quantity int NOT NULL,
                   unit_price numeric(10,2) NOT NULL
-              )""");
-          stmt.execute(
-              "INSERT INTO norm_orders (customer) VALUES ('Alice'), ('Bob')");
+              )\
+              """);
+          stmt.execute("INSERT INTO norm_orders (customer) VALUES ('Alice'), ('Bob')");
           stmt.execute(
               """
               INSERT INTO norm_order_lines (order_id, product_name, quantity, unit_price) VALUES
@@ -558,7 +577,8 @@ public class StructArrayBlogTest {
                                  WHERE ol.order_id = o.id
                              ) AS items
                       FROM norm_orders o
-                      ORDER BY o.id""")
+                      ORDER BY o.id\
+                      """)
                   .query(codec.all())
                   .run(conn);
 
@@ -593,7 +613,8 @@ public class StructArrayBlogTest {
                   customer VARCHAR NOT NULL,
                   shipping STRUCT(street VARCHAR, city VARCHAR, state VARCHAR, zip VARCHAR),
                   items STRUCT(product_name VARCHAR, quantity INTEGER, unit_price DECIMAL(10,2))[]
-              )""");
+              )\
+              """);
           stmt.execute(
               """
               CREATE TABLE departments (
@@ -606,7 +627,8 @@ public class StructArrayBlogTest {
                           skills STRUCT(name VARCHAR, level INTEGER)[]
                       )[]
                   )
-              )""");
+              )\
+              """);
 
           stmt.execute(
               """
@@ -637,11 +659,14 @@ public class StructArrayBlogTest {
     subsection("DuckDB: orders with typed struct reads");
     tx.execute(
         conn -> {
-          var rs = conn.createStatement().executeQuery("SELECT id, customer, shipping, items FROM orders ORDER BY id");
+          var rs =
+              conn.createStatement()
+                  .executeQuery("SELECT id, customer, shipping, items FROM orders ORDER BY id");
           while (rs.next()) {
             var addr = duckAddressType.read().read(rs, 3);
             System.out.println("  Order #" + rs.getInt(1) + " — " + rs.getString(2));
-            System.out.println("    Ship to: " + addr.street() + ", " + addr.city() + " " + addr.state());
+            System.out.println(
+                "    Ship to: " + addr.street() + ", " + addr.city() + " " + addr.state());
             // items as typed array
             var itemsRaw = rs.getString(4);
             System.out.println("    Items: " + itemsRaw);
@@ -692,13 +717,15 @@ public class StructArrayBlogTest {
               CREATE TYPE BLOG_ADDRESS_T AS OBJECT (
                   STREET VARCHAR2(100),
                   CITY VARCHAR2(50)
-              )""");
+              )\
+              """);
           stmt.execute(
               """
               CREATE TYPE BLOG_LINE_ITEM_T AS OBJECT (
                   PRODUCT_ID NUMBER,
                   QUANTITY NUMBER
-              )""");
+              )\
+              """);
           stmt.execute("CREATE TYPE BLOG_LINE_ITEMS_T AS TABLE OF BLOG_LINE_ITEM_T");
           stmt.execute(
               """
@@ -706,14 +733,16 @@ public class StructArrayBlogTest {
                   id NUMBER PRIMARY KEY,
                   name VARCHAR2(100) NOT NULL,
                   address BLOG_ADDRESS_T
-              )""");
+              )\
+              """);
           stmt.execute(
               """
               CREATE TABLE blog_orders (
                   id NUMBER PRIMARY KEY,
                   customer_id NUMBER NOT NULL,
                   items BLOG_LINE_ITEMS_T
-              ) NESTED TABLE items STORE AS blog_order_items_store""");
+              ) NESTED TABLE items STORE AS blog_order_items_store\
+              """);
 
           // Deep nesting: NESTED TABLE → OBJECT → VARRAY of OBJECT
           stmt.execute(
@@ -721,7 +750,8 @@ public class StructArrayBlogTest {
               CREATE TYPE BLOG_SKILL_T AS OBJECT (
                   NAME VARCHAR2(50),
                   LEVEL_NUM NUMBER
-              )""");
+              )\
+              """);
           stmt.execute("CREATE TYPE BLOG_SKILLS_T AS VARRAY(20) OF BLOG_SKILL_T");
           stmt.execute(
               """
@@ -729,7 +759,8 @@ public class StructArrayBlogTest {
                   NAME VARCHAR2(100),
                   ROLE_NAME VARCHAR2(50),
                   SKILLS BLOG_SKILLS_T
-              )""");
+              )\
+              """);
           stmt.execute("CREATE TYPE BLOG_EMPLOYEES_T AS TABLE OF BLOG_EMPLOYEE_T");
           stmt.execute(
               """
@@ -737,38 +768,42 @@ public class StructArrayBlogTest {
                   id NUMBER PRIMARY KEY,
                   name VARCHAR2(100) NOT NULL,
                   members BLOG_EMPLOYEES_T
-              ) NESTED TABLE members STORE AS blog_dept_members_store""");
+              ) NESTED TABLE members STORE AS blog_dept_members_store\
+              """);
 
           conn.commit();
           return null;
         });
 
     // Insert data — need raw connection for Oracle STRUCT creation
-    pool.transactor(Transactor.testStrategy()).execute(
-        conn -> {
-          var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
-          // Insert customer with OBJECT type address
-          var ps1 = raw.prepareStatement("INSERT INTO blog_customers VALUES (1, 'Alice', ?)");
-          oracleAddressType.write().set(ps1, 1, new OracleAddress("742 Evergreen Terrace", "Springfield"));
-          ps1.executeUpdate();
+    pool.transactor(Transactor.testStrategy())
+        .execute(
+            conn -> {
+              var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
+              // Insert customer with OBJECT type address
+              var ps1 = raw.prepareStatement("INSERT INTO blog_customers VALUES (1, 'Alice', ?)");
+              oracleAddressType
+                  .write()
+                  .set(ps1, 1, new OracleAddress("742 Evergreen Terrace", "Springfield"));
+              ps1.executeUpdate();
 
-          // Insert order with NESTED TABLE of line items
-          var ps2 = raw.prepareStatement("INSERT INTO blog_orders VALUES (1, 1, ?)");
-          oracleLineItemsType.write().set(ps2, 1,
-              List.of(new OracleLineItem(101L, 2), new OracleLineItem(202L, 5)));
-          ps2.executeUpdate();
+              // Insert order with NESTED TABLE of line items
+              var ps2 = raw.prepareStatement("INSERT INTO blog_orders VALUES (1, 1, ?)");
+              oracleLineItemsType
+                  .write()
+                  .set(ps2, 1, List.of(new OracleLineItem(101L, 2), new OracleLineItem(202L, 5)));
+              ps2.executeUpdate();
 
-          conn.commit();
-          return null;
-        });
+              conn.commit();
+              return null;
+            });
 
     // Read back
     subsection("Oracle: OBJECT type (nested struct)");
     tx.execute(
         conn -> {
           var rs =
-              conn.createStatement()
-                  .executeQuery("SELECT id, name, address FROM blog_customers");
+              conn.createStatement().executeQuery("SELECT id, name, address FROM blog_customers");
           while (rs.next()) {
             String name = rs.getString(2);
             var addr = oracleAddressType.read().read(rs, 3);
@@ -781,8 +816,7 @@ public class StructArrayBlogTest {
     tx.execute(
         conn -> {
           var rs =
-              conn.createStatement()
-                  .executeQuery("SELECT id, customer_id, items FROM blog_orders");
+              conn.createStatement().executeQuery("SELECT id, customer_id, items FROM blog_orders");
           while (rs.next()) {
             long id = rs.getLong(1);
             long custId = rs.getLong(2);
@@ -797,34 +831,32 @@ public class StructArrayBlogTest {
 
     // Deep nesting: NESTED TABLE → OBJECT → VARRAY of OBJECT
     subsection("Oracle: deep nesting — NESTED TABLE → OBJECT → VARRAY of OBJECT");
-    pool.transactor(Transactor.testStrategy()).execute(
-        conn -> {
-          var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
+    pool.transactor(Transactor.testStrategy())
+        .execute(
+            conn -> {
+              var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
 
-          var engineering =
-              List.of(
-                  new OracleEmployee(
-                      "Alice",
-                      "Lead",
-                      List.of(new OracleSkill("Java", 9), new OracleSkill("SQL", 8))),
-                  new OracleEmployee(
-                      "Bob", "Senior", List.of(new OracleSkill("Python", 8))));
+              var engineering =
+                  List.of(
+                      new OracleEmployee(
+                          "Alice",
+                          "Lead",
+                          List.of(new OracleSkill("Java", 9), new OracleSkill("SQL", 8))),
+                      new OracleEmployee("Bob", "Senior", List.of(new OracleSkill("Python", 8))));
 
-          var ps =
-              raw.prepareStatement(
-                  "INSERT INTO blog_departments VALUES (1, 'Engineering', ?)");
-          oracleEmployeesType.write().set(ps, 1, engineering);
-          ps.executeUpdate();
+              var ps =
+                  raw.prepareStatement("INSERT INTO blog_departments VALUES (1, 'Engineering', ?)");
+              oracleEmployeesType.write().set(ps, 1, engineering);
+              ps.executeUpdate();
 
-          conn.commit();
-          return null;
-        });
+              conn.commit();
+              return null;
+            });
 
     tx.execute(
         conn -> {
           var rs =
-              conn.createStatement()
-                  .executeQuery("SELECT id, name, members FROM blog_departments");
+              conn.createStatement().executeQuery("SELECT id, name, members FROM blog_departments");
           while (rs.next()) {
             String name = rs.getString(2);
             var members = oracleEmployeesType.read().read(rs, 3);
@@ -835,12 +867,10 @@ public class StructArrayBlogTest {
                       .map(s -> s.name() + ":" + s.level())
                       .reduce((a, b) -> a + ", " + b)
                       .orElse("");
-              System.out.println(
-                  "    " + emp.name() + " (" + emp.role() + ") [" + skillStr + "]");
+              System.out.println("    " + emp.name() + " (" + emp.role() + ") [" + skillStr + "]");
             }
           }
-          System.out.println(
-              "\n  3 levels deep: NESTED TABLE → OBJECT → VARRAY of OBJECT");
+          System.out.println("\n  3 levels deep: NESTED TABLE → OBJECT → VARRAY of OBJECT");
           return null;
         });
   }

@@ -347,8 +347,7 @@ public class MariaTypeTest {
                   new dev.typr.foundations.data.Vector(new float[] {1.0f, 2.0f, 3.0f}))
               .noJsonRoundtrip(),
           new MariaTypeAndExample<>(
-                  MariaTypes.vector(1),
-                  new dev.typr.foundations.data.Vector(new float[] {0.0f}))
+                  MariaTypes.vector(1), new dev.typr.foundations.data.Vector(new float[] {0.0f}))
               .noJsonRoundtrip(), // Edge case: single dimension
           new MariaTypeAndExample<>(
                   MariaTypes.vector(5),
@@ -382,10 +381,7 @@ public class MariaTypeTest {
                         });
                   } catch (Exception e) {
                     var msg =
-                        "Native test FAILED "
-                            + t.type.typename().sqlType()
-                            + ": "
-                            + e.getMessage();
+                        "Native test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage();
                     System.err.println(msg);
                     errors.add(msg);
                   }

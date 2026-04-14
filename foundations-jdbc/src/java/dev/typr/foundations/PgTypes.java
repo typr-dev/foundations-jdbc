@@ -484,8 +484,10 @@ public interface PgTypes {
   PgType<short[]> smallintArrayUnboxed =
       int2ArrayUnboxed
           .renamed("smallint")
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(
-              (PgTypename<short[]>) (PgTypename<?>) PgTypename.of("int2").array()));
+          .withAnalysis(
+              AnalysisOptions.EMPTY.withVendorTypeNames(
+                  (PgTypename<short[]>) (PgTypename<?>) PgTypename.of("int2").array()));
+
   PgType<String> bpchar =
       new PgType<>(
           PgTypename.of("bpchar"),
@@ -686,13 +688,16 @@ public interface PgTypes {
         json,
         PgOutParam.pgObject(str -> RangeParser.parse(str, valueParser, rangeFactory)),
         AnalysisOptions.EMPTY,
-        Optional.of(PgArrayCodec.of(obj -> {
-          try {
-            return RangeParser.parse(((PGobject) obj).getValue(), valueParser, rangeFactory);
-          } catch (java.sql.SQLException e) {
-            throw new DatabaseException(e);
-          }
-        })),
+        Optional.of(
+            PgArrayCodec.of(
+                obj -> {
+                  try {
+                    return RangeParser.parse(
+                        ((PGobject) obj).getValue(), valueParser, rangeFactory);
+                  } catch (java.sql.SQLException e) {
+                    throw new DatabaseException(e);
+                  }
+                })),
         ',');
   }
 
@@ -708,8 +713,8 @@ public interface PgTypes {
   }
 
   /**
-   * Build a named composite PgType from a {@link RowCodecNamed}. Use for PostgreSQL composite
-   * types declared with {@code CREATE TYPE}. Supports both read and write.
+   * Build a named composite PgType from a {@link RowCodecNamed}. Use for PostgreSQL composite types
+   * declared with {@code CREATE TYPE}. Supports both read and write.
    */
   static <Row> PgType<Row> compositeOf(String sqlType, RowCodecNamed<Row> codec) {
     return compositeOfImpl(sqlType, codec, true);
@@ -721,14 +726,17 @@ public interface PgTypes {
     var columns = codec.columns();
     var names = codec.columnNames();
     var pgColumns = new java.util.ArrayList<PgType<?>>(columns.size());
-    var typenameFields = new java.util.ArrayList<PgTypename.CompositeOf.CompositeField>(columns.size());
+    var typenameFields =
+        new java.util.ArrayList<PgTypename.CompositeOf.CompositeField>(columns.size());
     for (int i = 0; i < columns.size(); i++) {
       var col = columns.get(i);
       if (!(col instanceof PgType<?> pg)) {
         throw new IllegalArgumentException(
             "compositeOf requires all fields to be PgType, got: "
                 + col.getClass().getSimpleName()
-                + " at field '" + names.get(i) + "'");
+                + " at field '"
+                + names.get(i)
+                + "'");
       }
       pgColumns.add(pg);
       typenameFields.add(new PgTypename.CompositeOf.CompositeField(names.get(i), pg.typename()));
@@ -738,100 +746,127 @@ public interface PgTypes {
     var decode = codec.decode();
     var encode = codec.encode();
 
-    java.util.function.Function<String, Row> parseFromText = text -> {
-      List<String> parsedFields = PgRecordParser.parse(text);
-      if (parsedFields.size() != pgColumns.size()) {
-        throw new DatabaseException(new java.sql.SQLException(
-            "Field count mismatch: expected " + pgColumns.size()
-                + " but got " + parsedFields.size() + " in: " + text));
-      }
-      Object[] fieldValues = new Object[pgColumns.size()];
-      for (int i = 0; i < pgColumns.size(); i++) {
-        String raw = parsedFields.get(i);
-        fieldValues[i] = raw == null ? null : pgColumns.get(i).pgCompositeText().decode(raw);
-      }
-      return decode.apply(fieldValues);
-    };
-
-    java.util.function.Function<Row, String> encodeToText = value -> {
-      if (!writable) {
-        throw new UnsupportedOperationException(
-            "Cannot encode ad-hoc composite type (no sqlType). Use compositeOf(sqlType, codec) for writable composites.");
-      }
-      Object[] fieldValues = encode.apply(value);
-      var encodedFields = new java.util.ArrayList<String>(fieldValues.length);
-      for (int i = 0; i < fieldValues.length; i++) {
-        encodedFields.add(encodeCompositeField(pgColumns.get(i), fieldValues[i]));
-      }
-      return PgRecordParser.encode(encodedFields);
-    };
-
-    PgRead<Row> pgRead = PgRead.of((rs, idx) -> {
-      Object obj = rs.getObject(idx);
-      if (obj == null) return null;
-      if (obj instanceof PGobject pgObj) {
-        String textValue = pgObj.getValue();
-        if (textValue == null) return null;
-        return parseFromText.apply(textValue);
-      }
-      throw new java.sql.SQLException("Expected PGobject for composite type, got: " + obj.getClass());
-    });
-
-    PgWrite<Row> pgWrite = new PgWrite.Instance<>(
-        (ps, idx, pgObj) -> ps.setObject(idx, pgObj),
-        value -> {
-          if (value == null) return null;
-          PGobject pgObj = new PGobject();
-          pgObj.setType(sqlType);
-          try {
-            pgObj.setValue(encodeToText.apply(value));
-          } catch (java.sql.SQLException e) {
-            throw new DatabaseException("Failed to encode composite type", e);
+    java.util.function.Function<String, Row> parseFromText =
+        text -> {
+          List<String> parsedFields = PgRecordParser.parse(text);
+          if (parsedFields.size() != pgColumns.size()) {
+            throw new DatabaseException(
+                new java.sql.SQLException(
+                    "Field count mismatch: expected "
+                        + pgColumns.size()
+                        + " but got "
+                        + parsedFields.size()
+                        + " in: "
+                        + text));
           }
-          return pgObj;
-        });
-
-    PgText<Row> pgText = new PgText<>() {
-      @Override public void unsafeEncode(Row value, StringBuilder sb) {
-        sb.append(encodeToText.apply(value));
-      }
-      @Override public void unsafeArrayEncode(Row value, StringBuilder sb) {
-        unsafeEncode(value, sb);
-      }
-    };
-
-    PgCompositeText<Row> pgCompositeText = new PgCompositeText<>() {
-      @Override public Optional<String> encode(Row value) {
-        return Optional.of(encodeToText.apply(value));
-      }
-      @Override public Row decode(String text) {
-        return parseFromText.apply(text);
-      }
-    };
-
-    PgJson<Row> pgJson = new PgJson<>() {
-      @Override public dev.typr.foundations.data.JsonValue toJson(Row value) {
-        Object[] fieldValues = encode.apply(value);
-        var jsonFields = new java.util.LinkedHashMap<String, dev.typr.foundations.data.JsonValue>();
-        for (int i = 0; i < fieldValues.length; i++) {
-          jsonFields.put(names.get(i), compositeFieldToJson(pgColumns.get(i), fieldValues[i]));
-        }
-        return new dev.typr.foundations.data.JsonValue.JObject(jsonFields);
-      }
-      @Override public Row fromJson(dev.typr.foundations.data.JsonValue jsonValue) {
-        if (jsonValue instanceof dev.typr.foundations.data.JsonValue.JObject obj) {
           Object[] fieldValues = new Object[pgColumns.size()];
           for (int i = 0; i < pgColumns.size(); i++) {
-            var fieldJson = obj.fields().get(names.get(i));
-            fieldValues[i] = (fieldJson == null || fieldJson instanceof dev.typr.foundations.data.JsonValue.JNull)
-                ? null
-                : pgColumns.get(i).pgJson().fromJson(fieldJson);
+            String raw = parsedFields.get(i);
+            fieldValues[i] = raw == null ? null : pgColumns.get(i).pgCompositeText().decode(raw);
           }
           return decode.apply(fieldValues);
-        }
-        throw new IllegalArgumentException("Expected JSON object");
-      }
-    };
+        };
+
+    java.util.function.Function<Row, String> encodeToText =
+        value -> {
+          if (!writable) {
+            throw new UnsupportedOperationException(
+                "Cannot encode ad-hoc composite type (no sqlType). Use compositeOf(sqlType, codec)"
+                    + " for writable composites.");
+          }
+          Object[] fieldValues = encode.apply(value);
+          var encodedFields = new java.util.ArrayList<String>(fieldValues.length);
+          for (int i = 0; i < fieldValues.length; i++) {
+            encodedFields.add(encodeCompositeField(pgColumns.get(i), fieldValues[i]));
+          }
+          return PgRecordParser.encode(encodedFields);
+        };
+
+    PgRead<Row> pgRead =
+        PgRead.of(
+            (rs, idx) -> {
+              Object obj = rs.getObject(idx);
+              if (obj == null) return null;
+              if (obj instanceof PGobject pgObj) {
+                String textValue = pgObj.getValue();
+                if (textValue == null) return null;
+                return parseFromText.apply(textValue);
+              }
+              throw new java.sql.SQLException(
+                  "Expected PGobject for composite type, got: " + obj.getClass());
+            });
+
+    PgWrite<Row> pgWrite =
+        new PgWrite.Instance<>(
+            (ps, idx, pgObj) -> ps.setObject(idx, pgObj),
+            value -> {
+              if (value == null) return null;
+              PGobject pgObj = new PGobject();
+              pgObj.setType(sqlType);
+              try {
+                pgObj.setValue(encodeToText.apply(value));
+              } catch (java.sql.SQLException e) {
+                throw new DatabaseException("Failed to encode composite type", e);
+              }
+              return pgObj;
+            });
+
+    PgText<Row> pgText =
+        new PgText<>() {
+          @Override
+          public void unsafeEncode(Row value, StringBuilder sb) {
+            sb.append(encodeToText.apply(value));
+          }
+
+          @Override
+          public void unsafeArrayEncode(Row value, StringBuilder sb) {
+            unsafeEncode(value, sb);
+          }
+        };
+
+    PgCompositeText<Row> pgCompositeText =
+        new PgCompositeText<>() {
+          @Override
+          public Optional<String> encode(Row value) {
+            return Optional.of(encodeToText.apply(value));
+          }
+
+          @Override
+          public Row decode(String text) {
+            return parseFromText.apply(text);
+          }
+        };
+
+    PgJson<Row> pgJson =
+        new PgJson<>() {
+          @Override
+          public dev.typr.foundations.data.JsonValue toJson(Row value) {
+            Object[] fieldValues = encode.apply(value);
+            var jsonFields =
+                new java.util.LinkedHashMap<String, dev.typr.foundations.data.JsonValue>();
+            for (int i = 0; i < fieldValues.length; i++) {
+              jsonFields.put(names.get(i), compositeFieldToJson(pgColumns.get(i), fieldValues[i]));
+            }
+            return new dev.typr.foundations.data.JsonValue.JObject(jsonFields);
+          }
+
+          @Override
+          public Row fromJson(dev.typr.foundations.data.JsonValue jsonValue) {
+            if (jsonValue instanceof dev.typr.foundations.data.JsonValue.JObject obj) {
+              Object[] fieldValues = new Object[pgColumns.size()];
+              for (int i = 0; i < pgColumns.size(); i++) {
+                var fieldJson = obj.fields().get(names.get(i));
+                fieldValues[i] =
+                    (fieldJson == null
+                            || fieldJson instanceof dev.typr.foundations.data.JsonValue.JNull)
+                        ? null
+                        : pgColumns.get(i).pgJson().fromJson(fieldJson);
+              }
+              return decode.apply(fieldValues);
+            }
+            throw new IllegalArgumentException("Expected JSON object");
+          }
+        };
 
     PgOutParam<Row> pgOutParam = PgOutParam.pgObject(parseFromText::apply);
 
@@ -857,7 +892,8 @@ public interface PgTypes {
   }
 
   @SuppressWarnings("unchecked")
-  private static <F> dev.typr.foundations.data.JsonValue compositeFieldToJson(PgType<F> column, Object value) {
+  private static <F> dev.typr.foundations.data.JsonValue compositeFieldToJson(
+      PgType<F> column, Object value) {
     if (value == null) return dev.typr.foundations.data.JsonValue.JNull.INSTANCE;
     return column.pgJson().toJson((F) value);
   }

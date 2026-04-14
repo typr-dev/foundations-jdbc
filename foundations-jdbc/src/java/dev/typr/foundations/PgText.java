@@ -46,9 +46,9 @@ public abstract class PgText<A> implements DbText<A> {
   }
 
   /**
-   * Internal: array encoding with a specific delimiter. The delimiter is a property of the
-   * element type (geometric types use ';', everything else ','). Users should call {@link
-   * #array()} which uses the correct delimiter via {@link PgType#array()}.
+   * Internal: array encoding with a specific delimiter. The delimiter is a property of the element
+   * type (geometric types use ';', everything else ','). Users should call {@link #array()} which
+   * uses the correct delimiter via {@link PgType#array()}.
    */
   PgText<A[]> array(char delimiter) {
     var self = this;

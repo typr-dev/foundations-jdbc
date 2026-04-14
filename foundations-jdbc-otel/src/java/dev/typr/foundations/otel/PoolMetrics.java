@@ -60,7 +60,9 @@ public final class PoolMetrics implements AutoCloseable {
     gauges.add(
         meter
             .gaugeBuilder("db.client.connection.count")
-            .setDescription("The number of connections that are currently in state described by the state attribute")
+            .setDescription(
+                "The number of connections that are currently in state described by the state"
+                    + " attribute")
             .setUnit("{connection}")
             .ofLongs()
             .buildWithCallback(
@@ -93,8 +95,7 @@ public final class PoolMetrics implements AutoCloseable {
             .setUnit("{connection}")
             .ofLongs()
             .buildWithCallback(
-                measurement ->
-                    measurement.record(dataSource.getMaximumPoolSize(), poolAttrs)));
+                measurement -> measurement.record(dataSource.getMaximumPoolSize(), poolAttrs)));
 
     return new PoolMetrics(gauges);
   }

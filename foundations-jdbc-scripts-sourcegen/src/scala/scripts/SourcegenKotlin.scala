@@ -395,7 +395,6 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
         |""".stripMargin
   }
 
-
   def generateKotlinTuple(): String = {
     val classes = 1.to(N).map { n =>
       val range = 0.until(n)

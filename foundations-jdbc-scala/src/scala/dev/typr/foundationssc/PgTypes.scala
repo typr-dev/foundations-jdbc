@@ -119,7 +119,9 @@ class PgTypes {
   def rangeType[T <: Comparable[? >: T]](
       sqlType: String,
       valueParser: dev.typr.foundations.SqlFunction[String, T],
-      rangeFactory: java.util.function.BiFunction[dev.typr.foundations.data.RangeBound[T], dev.typr.foundations.data.RangeBound[T], dev.typr.foundations.data.Range[T]],
+      rangeFactory: java.util.function.BiFunction[dev.typr.foundations.data.RangeBound[T], dev.typr.foundations.data.RangeBound[
+        T
+      ], dev.typr.foundations.data.Range[T]],
       json: dev.typr.foundations.PgJson[dev.typr.foundations.data.Range[T]]
   ): PgType[dev.typr.foundations.data.Range[T]] =
     PgType(JavaPgTypes.rangeType(sqlType, valueParser, rangeFactory, json))

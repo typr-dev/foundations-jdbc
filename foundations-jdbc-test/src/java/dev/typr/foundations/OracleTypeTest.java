@@ -651,7 +651,8 @@ public class OracleTypeTest {
                           .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
                           .field("NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
-                          .field("NUMBER_LONG_FIELD", OracleTypes.numberLong, s -> s.numberLongField)
+                          .field(
+                              "NUMBER_LONG_FIELD", OracleTypes.numberLong, s -> s.numberLongField)
                           .field(
                               "BINARY_FLOAT_FIELD",
                               OracleTypes.binaryFloat,
@@ -844,8 +845,7 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES_NOLOBS",
                       RowCodec.<AllTypesStructNoLobs>namedBuilder()
                           .field("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
-                          .field(
-                              "NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
+                          .field("NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
                           .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
                           .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
@@ -1078,8 +1078,7 @@ public class OracleTypeTest {
                                   "INTERVAL_DS_FIELD",
                                   OracleTypes.intervalDayToSecond,
                                   s -> s.intervalDsField)
-                              .field(
-                                  "NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
+                              .field("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
                               .field(
                                   "VARRAY_FIELD",
                                   OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),

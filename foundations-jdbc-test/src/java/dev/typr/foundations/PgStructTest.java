@@ -639,8 +639,7 @@ public class PgStructTest {
                   RowCodec.<OuterWrapper>namedBuilder()
                       .field("title", PgTypes.text, OuterWrapper::title)
                       .field("metadata", PgTypes.text, OuterWrapper::metadata)
-                      .field(
-                          "containers", dbMiddleContainerType.array(), OuterWrapper::containers)
+                      .field("containers", dbMiddleContainerType.array(), OuterWrapper::containers)
                       .build(OuterWrapper::new));
 
           // Create test data with special chars at every level
@@ -653,7 +652,8 @@ public class PgStructTest {
                   "Middle \"special\" (label)", new InnerItem[] {inner1, inner2, inner3});
 
           // Non-empty nested array required: compositeOf can't infer element class for empty arrays
-          MiddleContainer middle2 = new MiddleContainer("Multi\nLine\nLabel", new InnerItem[] {inner1});
+          MiddleContainer middle2 =
+              new MiddleContainer("Multi\nLine\nLabel", new InnerItem[] {inner1});
 
           OuterWrapper original =
               new OuterWrapper(

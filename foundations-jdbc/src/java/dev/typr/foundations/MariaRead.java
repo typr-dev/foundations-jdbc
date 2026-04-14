@@ -320,6 +320,5 @@ public sealed interface MariaRead<A> extends DbRead<A>
           });
 
   // VECTOR type - MariaDB 11.7+ connector returns float[] via FloatArrayCodec
-  MariaRead<Vector> readVector =
-      of((rs, idx) -> new Vector(rs.getObject(idx, float[].class)));
+  MariaRead<Vector> readVector = of((rs, idx) -> new Vector(rs.getObject(idx, float[].class)));
 }

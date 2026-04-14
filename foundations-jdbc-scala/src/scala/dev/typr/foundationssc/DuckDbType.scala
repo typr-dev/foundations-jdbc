@@ -1,14 +1,6 @@
 package dev.typr.foundationssc
 
-import dev.typr.foundations.{
-  AnalysisOptions,
-  DuckDbJson,
-  DuckDbListCodec,
-  DuckDbRead,
-  DuckDbStringifier,
-  DuckDbTypename,
-  DuckDbWrite
-}
+import dev.typr.foundations.{AnalysisOptions, DuckDbJson, DuckDbListCodec, DuckDbRead, DuckDbStringifier, DuckDbTypename, DuckDbWrite}
 
 class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T]) extends DbType[T](underlying):
   override def opt: DuckDbType[Option[T]] =
@@ -44,11 +36,11 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
     underlying.mapToNative(valueType.underlying, keyClass, valueClass)
 
   def mapToViaSqlLiteral[V](
-    valueType: DuckDbType[V],
-    keyClass: Class[T],
-    valueClass: Class[V],
-    keyStringifier: DuckDbStringifier[T],
-    valueStringifier: DuckDbStringifier[V]
+      valueType: DuckDbType[V],
+      keyClass: Class[T],
+      valueClass: Class[V],
+      keyStringifier: DuckDbStringifier[T],
+      valueStringifier: DuckDbStringifier[V]
   ): dev.typr.foundations.DuckDbType[java.util.Map[T, V]] =
     underlying.mapToViaSqlLiteral(valueType.underlying, keyClass, valueClass, keyStringifier, valueStringifier)
 

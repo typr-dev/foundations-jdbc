@@ -1,16 +1,6 @@
 package dev.typr.foundationssc
 
-import dev.typr.foundations.{
-  AnalysisOptions,
-  PgArrayCodec,
-  PgCompositeText,
-  PgJson,
-  PgOutParam,
-  PgRead,
-  PgText,
-  PgTypename,
-  PgWrite
-}
+import dev.typr.foundations.{AnalysisOptions, PgArrayCodec, PgCompositeText, PgJson, PgOutParam, PgRead, PgText, PgTypename, PgWrite}
 
 class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends DbType[T](underlying):
   override def opt: PgType[Option[T]] =

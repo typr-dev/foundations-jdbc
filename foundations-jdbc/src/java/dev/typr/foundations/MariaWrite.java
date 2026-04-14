@@ -70,6 +70,5 @@ public sealed interface MariaWrite<A> extends DbWrite<A> permits MariaWrite.Inst
   MariaWrite<byte[]> writeByteArray = primitive(PreparedStatement::setBytes);
 
   // VECTOR type - MariaDB 11.7+ connector encodes float[] via FloatArrayCodec
-  MariaWrite<Vector> writeVector =
-      MariaWrite.<float[]>passObjectToJdbc().contramap(Vector::values);
+  MariaWrite<Vector> writeVector = MariaWrite.<float[]>passObjectToJdbc().contramap(Vector::values);
 }

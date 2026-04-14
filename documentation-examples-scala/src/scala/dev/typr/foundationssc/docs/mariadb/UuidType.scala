@@ -5,7 +5,7 @@ import java.util.UUID
 
 //noinspection ScalaUnusedSymbol
 class UuidType {
-  //start
+  // start
   val uuidType: MariaType[UUID] = MariaTypes.uuid
-  //stop
+  // stop
 }

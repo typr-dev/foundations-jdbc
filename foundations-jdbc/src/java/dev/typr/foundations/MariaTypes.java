@@ -114,7 +114,8 @@ public interface MariaTypes {
               MariaWrite.writeLong.contramap(Uint4::value),
               MariaJson.int8.transform(Uint4::new, Uint4::value),
               MariaOutParam.readLong.map(Uint4::new))
-          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("integer unsigned")));
+          .withAnalysis(
+              AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("integer unsigned")));
 
   // BIGINT UNSIGNED: 0-18446744073709551615, wrapped in Uint8
   MariaType<Uint8> bigintUnsigned =
@@ -137,7 +138,9 @@ public interface MariaTypes {
           MariaOutParam.readBigDecimal);
 
   MariaType<BigDecimal> numeric =
-      decimal.renamed("NUMERIC").withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("decimal")));
+      decimal
+          .renamed("NUMERIC")
+          .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("decimal")));
 
   static MariaType<BigDecimal> decimal(int precision, int scale) {
     return MariaType.of(

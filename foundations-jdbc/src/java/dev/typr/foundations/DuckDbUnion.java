@@ -71,15 +71,19 @@ public record DuckDbUnion<A>(
 
   /** Create a DuckDbType for this UNION. */
   public DuckDbType<A> asType() {
-    java.util.function.Function<Object, A> unionFromJdbc = obj -> {
-      String inferredTag = inferTag(obj);
-      if (inferredTag != null) {
-        try { return reader.read(inferredTag, obj); }
-        catch (java.sql.SQLException e) { throw new DatabaseException(e); }
-      }
-      throw new IllegalArgumentException(
-          "Cannot determine UNION tag for value: " + obj + " (" + obj.getClass() + ")");
-    };
+    java.util.function.Function<Object, A> unionFromJdbc =
+        obj -> {
+          String inferredTag = inferTag(obj);
+          if (inferredTag != null) {
+            try {
+              return reader.read(inferredTag, obj);
+            } catch (java.sql.SQLException e) {
+              throw new DatabaseException(e);
+            }
+          }
+          throw new IllegalArgumentException(
+              "Cannot determine UNION tag for value: " + obj + " (" + obj.getClass() + ")");
+        };
 
     DuckDbRead<A> duckDbRead =
         DuckDbRead.of(

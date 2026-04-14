@@ -5,7 +5,7 @@ import dev.typr.foundations.data.Vector
 
 //noinspection ScalaUnusedSymbol
 class VectorType {
-  //start
+  // start
   val embedding: MariaType[Vector] = MariaTypes.vector(1536)
-  //stop
+  // stop
 }

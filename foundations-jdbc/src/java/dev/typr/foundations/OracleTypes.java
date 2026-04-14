@@ -789,8 +789,7 @@ public interface OracleTypes {
             obj -> {
               if (!(obj instanceof STRUCT struct)) {
                 throw new SQLException(
-                    "Expected STRUCT, got: "
-                        + (obj == null ? "null" : obj.getClass().getName()));
+                    "Expected STRUCT, got: " + (obj == null ? "null" : obj.getClass().getName()));
               }
               try {
                 Object[] rawAttrs = struct.getAttributes();
@@ -808,8 +807,7 @@ public interface OracleTypes {
         OracleWrite.structured(
             (value, conn) -> {
               try {
-                StructDescriptor desc =
-                    StructDescriptor.createDescriptor(objectTypeName, conn);
+                StructDescriptor desc = StructDescriptor.createDescriptor(objectTypeName, conn);
                 Object[] rawValues = encode.apply(value);
                 Object[] oracleValues = new Object[rawValues.length];
                 for (int i = 0; i < rawValues.length; i++) {
@@ -818,8 +816,7 @@ public interface OracleTypes {
                 }
                 return new STRUCT(desc, conn, oracleValues);
               } catch (Exception e) {
-                throw new SQLException(
-                    "Failed to create Oracle STRUCT: " + e.getMessage(), e);
+                throw new SQLException("Failed to create Oracle STRUCT: " + e.getMessage(), e);
               }
             },
             objectTypeName,
@@ -833,9 +830,7 @@ public interface OracleTypes {
             Object[] fieldValues = encode.apply(value);
             Map<String, JsonValue> fields = new LinkedHashMap<>();
             for (int i = 0; i < fieldValues.length; i++) {
-              fields.put(
-                  names.get(i),
-                  compositeFieldToJson(oracleColumns.get(i), fieldValues[i]));
+              fields.put(names.get(i), compositeFieldToJson(oracleColumns.get(i), fieldValues[i]));
             }
             return new JsonValue.JObject(fields);
           }
@@ -904,8 +899,7 @@ public interface OracleTypes {
         } catch (SQLException e) {
           throw e;
         } catch (Exception e) {
-          throw new SQLException(
-              "Failed to read Oracle STRUCT OUT param: " + e.getMessage(), e);
+          throw new SQLException("Failed to read Oracle STRUCT OUT param: " + e.getMessage(), e);
         }
       }
     };

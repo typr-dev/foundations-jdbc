@@ -21,8 +21,6 @@ public record DuckDbType<A>(
     java.util.Optional<DuckDbListCodec<A>> listCodec)
     implements DbType<A> {
 
-
-
   @Override
   public Optional<DbOutParam<A>> outParam() {
     return Optional.empty();
@@ -56,19 +54,35 @@ public record DuckDbType<A>(
   }
 
   public DuckDbType<A> withAnalysis(AnalysisOptions opts) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, opts,
-        arrayCodec, listCodec);
+    return new DuckDbType<>(
+        typename, read, write, stringifier, duckDbJson, mapSupport, opts, arrayCodec, listCodec);
   }
 
   /** Remove array support from this type. */
   public DuckDbType<A> noArraySupport() {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions,
-        java.util.Optional.empty(), listCodec);
+    return new DuckDbType<>(
+        typename,
+        read,
+        write,
+        stringifier,
+        duckDbJson,
+        mapSupport,
+        analysisOptions,
+        java.util.Optional.empty(),
+        listCodec);
   }
 
   public DuckDbType<A> withListCodec(DuckDbListCodec<A> codec) {
-    return new DuckDbType<>(typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions,
-        arrayCodec, java.util.Optional.of(codec));
+    return new DuckDbType<>(
+        typename,
+        read,
+        write,
+        stringifier,
+        duckDbJson,
+        mapSupport,
+        analysisOptions,
+        arrayCodec,
+        java.util.Optional.of(codec));
   }
 
   public Fragment.Value<A> encode(A value) {
@@ -77,7 +91,15 @@ public record DuckDbType<A>(
 
   public DuckDbType<A> withTypename(DuckDbTypename<A> typename) {
     return new DuckDbType<>(
-        typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions, defaultArrayCodec(read, stringifier), listCodec);
+        typename,
+        read,
+        write,
+        stringifier,
+        duckDbJson,
+        mapSupport,
+        analysisOptions,
+        defaultArrayCodec(read, stringifier),
+        listCodec);
   }
 
   public DuckDbType<A> withTypename(String sqlType) {
@@ -94,21 +116,54 @@ public record DuckDbType<A>(
 
   public DuckDbType<A> withRead(DuckDbRead<A> read) {
     return new DuckDbType<>(
-        typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions, defaultArrayCodec(read, stringifier), listCodec);
+        typename,
+        read,
+        write,
+        stringifier,
+        duckDbJson,
+        mapSupport,
+        analysisOptions,
+        defaultArrayCodec(read, stringifier),
+        listCodec);
   }
 
   public DuckDbType<A> withWrite(DuckDbWrite<A> write) {
     return new DuckDbType<>(
-        typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions, defaultArrayCodec(read, stringifier), listCodec);
+        typename,
+        read,
+        write,
+        stringifier,
+        duckDbJson,
+        mapSupport,
+        analysisOptions,
+        defaultArrayCodec(read, stringifier),
+        listCodec);
   }
 
   public DuckDbType<A> withStringifier(DuckDbStringifier<A> stringifier) {
     return new DuckDbType<>(
-        typename, read, write, stringifier, duckDbJson, mapSupport, analysisOptions, defaultArrayCodec(read, stringifier), listCodec);
+        typename,
+        read,
+        write,
+        stringifier,
+        duckDbJson,
+        mapSupport,
+        analysisOptions,
+        defaultArrayCodec(read, stringifier),
+        listCodec);
   }
 
   public DuckDbType<A> withJson(DuckDbJson<A> json) {
-    return new DuckDbType<>(typename, read, write, stringifier, json, mapSupport, analysisOptions, defaultArrayCodec(read, stringifier), listCodec);
+    return new DuckDbType<>(
+        typename,
+        read,
+        write,
+        stringifier,
+        json,
+        mapSupport,
+        analysisOptions,
+        defaultArrayCodec(read, stringifier),
+        listCodec);
   }
 
   @Override
@@ -120,40 +175,50 @@ public record DuckDbType<A>(
         stringifier.opt(),
         duckDbJson.opt(),
         DuckDbMapSupport.cast(),
-        analysisOptions, java.util.Optional.empty(),
+        analysisOptions,
+        java.util.Optional.empty(),
         java.util.Optional.empty());
   }
 
   public DuckDbType<java.util.List<A>> list() {
     DuckDbTypename<java.util.List<A>> listTypename = typename.list();
-    java.util.function.Function<Object, A> fromElem = listCodec
-        .<java.util.function.Function<Object, A>>map(DuckDbListCodec::fromElement)
-        .orElse(mapSupport::fromMap);
-    DuckDbRead<java.util.List<A>> listRead = DuckDbRead.of(
-        (rs, idx) -> {
-            java.sql.Array arr = rs.getArray(idx);
-            if (arr == null) return null;
-            Object[] elements = (Object[]) arr.getArray();
-            java.util.List<A> result = new java.util.ArrayList<>(elements.length);
-            for (Object elem : elements) {
+    java.util.function.Function<Object, A> fromElem =
+        listCodec
+            .<java.util.function.Function<Object, A>>map(DuckDbListCodec::fromElement)
+            .orElse(mapSupport::fromMap);
+    DuckDbRead<java.util.List<A>> listRead =
+        DuckDbRead.of(
+            (rs, idx) -> {
+              java.sql.Array arr = rs.getArray(idx);
+              if (arr == null) return null;
+              Object[] elements = (Object[]) arr.getArray();
+              java.util.List<A> result = new java.util.ArrayList<>(elements.length);
+              for (Object elem : elements) {
                 result.add(fromElem.apply(elem));
-            }
-            return result;
-        });
-    DuckDbWrite<java.util.List<A>> listWrite = listCodec
-        .<DuckDbWrite<java.util.List<A>>>map(codec -> switch (codec) {
-            case DuckDbListCodec.Native<A> n ->
-                DuckDbWrite.writeList(typename.sqlType(), n.arrayFactory());
-            case DuckDbListCodec.SqlLiteral<A> ignored ->
-                DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier);
-        })
-        .orElse(typename instanceof DuckDbTypename.UnionOf
-            ? DuckDbWrite.writeListInline(typename.sqlType(), stringifier)
-            : DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier));
+              }
+              return result;
+            });
+    DuckDbWrite<java.util.List<A>> listWrite =
+        listCodec
+            .<DuckDbWrite<java.util.List<A>>>map(
+                codec ->
+                    switch (codec) {
+                      case DuckDbListCodec.Native<A> n ->
+                          DuckDbWrite.writeList(typename.sqlType(), n.arrayFactory());
+                      case DuckDbListCodec.SqlLiteral<A> ignored ->
+                          DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier);
+                    })
+            .orElse(
+                typename instanceof DuckDbTypename.UnionOf
+                    ? DuckDbWrite.writeListInline(typename.sqlType(), stringifier)
+                    : DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier));
     DuckDbStringifier<java.util.List<A>> listStringifier =
         DuckDbStringifier.instance(
             (list, sb, quoted) -> {
-              if (list.isEmpty()) { sb.append("[]"); return; }
+              if (list.isEmpty()) {
+                sb.append("[]");
+                return;
+              }
               sb.append("[");
               boolean first = true;
               for (A elem : list) {
@@ -170,17 +235,24 @@ public record DuckDbType<A>(
         listStringifier,
         duckDbJson.list(),
         DuckDbMapSupport.cast(),
-        analysisOptions, java.util.Optional.empty(),
+        analysisOptions,
+        java.util.Optional.empty(),
         java.util.Optional.empty());
   }
 
   @SuppressWarnings("unchecked")
   public DuckDbType<A[]> array() {
     if (typename instanceof DuckDbTypename.ListOf || typename instanceof DuckDbTypename.ArrayOf) {
-      throw new IllegalStateException("Nested arrays are not supported. Cannot call .array() on " + typename.sqlType());
+      throw new IllegalStateException(
+          "Nested arrays are not supported. Cannot call .array() on " + typename.sqlType());
     }
-    DuckDbArrayCodec<A> codec = arrayCodec.orElseThrow(() ->
-        new IllegalStateException("Array not supported for " + typename.sqlType() + ". This type does not provide a DuckDbArrayCodec."));
+    DuckDbArrayCodec<A> codec =
+        arrayCodec.orElseThrow(
+            () ->
+                new IllegalStateException(
+                    "Array not supported for "
+                        + typename.sqlType()
+                        + ". This type does not provide a DuckDbArrayCodec."));
     DuckDbTypename<A[]> arrayTypename = typename.array();
     DuckDbRead<A[]> arrayRead =
         DuckDbRead.of(
@@ -369,10 +441,14 @@ public record DuckDbType<A>(
   }
 
   public <B> DuckDbType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
-    Function<A, B> fUnchecked = a -> {
-      try { return f.apply(a); }
-      catch (java.sql.SQLException e) { throw new DatabaseException(e); }
-    };
+    Function<A, B> fUnchecked =
+        a -> {
+          try {
+            return f.apply(a);
+          } catch (java.sql.SQLException e) {
+            throw new DatabaseException(e);
+          }
+        };
     return new DuckDbType<>(
         typename.as(),
         read.map(f),
@@ -400,14 +476,22 @@ public record DuckDbType<A>(
   }
 
   /** Default arrayCodec derived from read + stringifier. */
-  static <A> java.util.Optional<DuckDbArrayCodec<A>> defaultArrayCodec(DuckDbRead<A> r, DuckDbStringifier<A> s) {
+  static <A> java.util.Optional<DuckDbArrayCodec<A>> defaultArrayCodec(
+      DuckDbRead<A> r, DuckDbStringifier<A> s) {
     return java.util.Optional.of(DuckDbArrayCodec.fromReadAndStringifier(r, s));
   }
 
   public static <A> DuckDbType<A> of(
       String tpe, DuckDbRead<A> r, DuckDbWrite<A> w, DuckDbStringifier<A> s, DuckDbJson<A> j) {
     return new DuckDbType<>(
-        DuckDbTypename.of(tpe), r, w, s, j, DuckDbMapSupport.cast(), AnalysisOptions.EMPTY, defaultArrayCodec(r, s),
+        DuckDbTypename.of(tpe),
+        r,
+        w,
+        s,
+        j,
+        DuckDbMapSupport.cast(),
+        AnalysisOptions.EMPTY,
+        defaultArrayCodec(r, s),
         java.util.Optional.empty());
   }
 
@@ -417,7 +501,15 @@ public record DuckDbType<A>(
       DuckDbWrite<A> w,
       DuckDbStringifier<A> s,
       DuckDbJson<A> j) {
-    return new DuckDbType<>(typename, r, w, s, j, DuckDbMapSupport.cast(), AnalysisOptions.EMPTY, defaultArrayCodec(r, s),
+    return new DuckDbType<>(
+        typename,
+        r,
+        w,
+        s,
+        j,
+        DuckDbMapSupport.cast(),
+        AnalysisOptions.EMPTY,
+        defaultArrayCodec(r, s),
         java.util.Optional.empty());
   }
 }
