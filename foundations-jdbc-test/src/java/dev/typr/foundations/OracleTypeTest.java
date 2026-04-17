@@ -2078,6 +2078,58 @@ public class OracleTypeTest {
             });
   }
 
+  @Test
+  public void testNumberAsIntInsideStruct() {
+    // numberAsInt(p) / numberAsLong(p) must read correctly as an attribute of an OBJECT.
+    // Regression test: the prior implementation cast the JDBC value directly to Integer/Long,
+    // which worked at top-level (driver unboxed eagerly) but threw
+    // "class java.math.BigDecimal cannot be cast to class java.lang.Integer" inside STRUCT
+    // attribute decoding, where the driver always hands BigDecimal regardless of precision.
+    record Score(String name, int points, long total) {}
+    OracleType<Score> scoreType =
+        OracleTypes.compositeOf(
+            "GAP_SCORE_T",
+            RowCodec.<Score>namedBuilder()
+                .field("NAME", OracleTypes.varchar2(50), Score::name)
+                .field("POINTS", OracleTypes.numberAsInt(5), Score::points)
+                .field("TOTAL", OracleTypes.numberAsLong(15), Score::total)
+                .build(Score::new));
+
+    // Write via Oracle's STRUCT constructor SQL (no PreparedStatement binding so we don't need
+    // the Hikari pool's OracleConnection unwrap dance). The fix under test is on the READ path.
+    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    Score expected = new Score("alice", 42, 12_345_678_901L);
+    Score decoded =
+        tx.execute(
+            conn -> {
+              tryRun(conn, Fragment.of("DROP TABLE gap_score_holder CASCADE CONSTRAINTS"));
+              tryRun(conn, Fragment.of("DROP TYPE GAP_SCORE_T FORCE"));
+              Fragment.of(
+                      "CREATE TYPE GAP_SCORE_T AS OBJECT ("
+                          + "NAME VARCHAR2(50), POINTS NUMBER(5), TOTAL NUMBER(15))")
+                  .execute()
+                  .run(conn);
+              Fragment.of("CREATE TABLE gap_score_holder (s GAP_SCORE_T)").execute().run(conn);
+              Fragment.of("INSERT INTO gap_score_holder VALUES (GAP_SCORE_T('alice', 42, 12345678901))")
+                  .execute()
+                  .run(conn);
+              return Fragment.of("SELECT s FROM gap_score_holder")
+                  .queryExactlyOne(scoreType)
+                  .run(conn);
+            });
+    if (!expected.equals(decoded)) {
+      throw new AssertionError("mismatch: " + decoded + " vs " + expected);
+    }
+  }
+
+  private static void tryRun(java.sql.Connection conn, Fragment fragment) {
+    try {
+      fragment.execute().run(conn);
+    } catch (Exception ignored) {
+      // best-effort cleanup
+    }
+  }
+
   private static void tryExec(java.sql.Statement stmt, String sql) {
     try {
       stmt.execute(sql);

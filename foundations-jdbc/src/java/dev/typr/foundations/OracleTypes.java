@@ -91,22 +91,18 @@ public interface OracleTypes {
         OracleOutParam.readBigDecimal);
   }
 
+  /**
+   * NUMBER(p,0) viewed as Java {@code int}. Implemented via {@code number(p).transform(...)} so
+   * the read path flows through {@code BigDecimal} uniformly — direct Integer casts break inside
+   * STRUCT attributes where the Oracle driver always hands BigDecimal regardless of precision.
+   */
   static OracleType<Integer> numberAsInt(int precision) {
-    return OracleType.of(
-        OracleTypename.of("NUMBER", precision),
-        OracleRead.readInteger,
-        OracleWrite.writeInteger,
-        OracleJson.int4,
-        OracleOutParam.readInteger);
+    return number(precision).transform(BigDecimal::intValueExact, BigDecimal::valueOf);
   }
 
+  /** NUMBER(p,0) viewed as Java {@code long}. See {@link #numberAsInt(int)} for the rationale. */
   static OracleType<Long> numberAsLong(int precision) {
-    return OracleType.of(
-        OracleTypename.of("NUMBER", precision),
-        OracleRead.readLong,
-        OracleWrite.writeLong,
-        OracleJson.int8,
-        OracleOutParam.readLong);
+    return number(precision).transform(BigDecimal::longValueExact, BigDecimal::valueOf);
   }
 
   /** BINARY_FLOAT - 32-bit IEEE 754 floating point. Range: +/-1.17549E-38 to +/-3.40282E+38 */
