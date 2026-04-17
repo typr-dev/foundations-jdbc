@@ -30,6 +30,17 @@ public abstract class DuckDbStringifier<A> {
     return sb.toString();
   }
 
+  /**
+   * As a wire encoder: produces the unquoted text form of a value for DuckDB's JNI parsers
+   * (DuckDBUserStruct attributes / DuckDBUserArray elements / DuckDBMap entries). Used as the
+   * default {@code structAttributeEncoder} for scalar types — DuckDB parses the text back into
+   * the target SQL type, which works uniformly for every scalar including UUID / Duration /
+   * LocalTime / Json / BigInteger.
+   */
+  public Function<A, Object> asWireEncoder() {
+    return value -> encode(value, false);
+  }
+
   public <B> DuckDbStringifier<B> contramap(Function<B, A> f) {
     var self = this;
     return instance((b, sb, quoted) -> self.unsafeEncode(f.apply(b), sb, quoted));

@@ -179,15 +179,22 @@ public class DuckDbTypeTest {
     }
 
     boolean supportsList() {
-      return type.listCodec().isPresent()
-          && !(type.typename() instanceof DuckDbTypename.ListOf)
-          && !(type.typename() instanceof DuckDbTypename.ArrayOf);
+      if (type.typename().isConstructed()) return false;
+      // BLOB/BYTEA/BINARY/VARBINARY: DuckDB's driver doesn't round-trip byte[] through
+      // DuckDBUserArray. Binary payloads ship as top-level parameters only.
+      String sql = type.typename().sqlType();
+      return switch (sql) {
+        case "BLOB", "BYTEA", "BINARY", "VARBINARY" -> false;
+        default -> true;
+      };
     }
 
     // Nested LIST/ARRAY wraps each inner collection as a DuckDBUserArray whose elements are the
     // scalar's Java representation. DuckDB's driver only understands a subset of Java types in
     // that path — types that require string-based parsing (INTERVAL, UUID, JSON) or have no
     // native parameter-binding (HUGEINT/BigInteger, TIME/LocalTime) don't round-trip here.
+    // ENUM fails ARRAY-of-ARRAY specifically (JNI NPE on fixed-of-fixed enum columns) but
+    // works for LIST nesting and ARRAY-of-LIST.
     boolean supportsNested() {
       if (!supportsList()) return false;
       String sql = type.typename().sqlType();
@@ -197,13 +204,22 @@ public class DuckDbTypeTest {
       };
     }
 
+    // Enum can live as LIST / ARRAY-of-LIST but NOT ARRAY-of-ARRAY (driver JNI NPE).
+    boolean supportsNestedArrayOfArray() {
+      if (!supportsNested()) return false;
+      return type.analysisOptions().vendorTypeNames().stream()
+          .noneMatch(t -> "enum".equals(t.sqlType()));
+    }
+
     // STRUCT/LIST/ARRAY map entries bind natively (DuckDBUserStruct / DuckDBUserArray) so
     // nested VARCHAR[] fields round-trip without DuckDB re-parsing our SQL literal. DECIMAL is
     // still excluded because of the BigDecimal precision-padding mismatch (12345 vs 12345.000
-    // are unequal by .equals()).
+    // are unequal by .equals()). UHUGEINT as a map key fails (driver parses key text differently).
     boolean supportsMap() {
       if (!supportsList()) return false;
-      return !type.typename().sqlType().startsWith("DECIMAL");
+      String sql = type.typename().sqlType();
+      if (sql.startsWith("DECIMAL")) return false;
+      return !"UHUGEINT".equals(sql);
     }
   }
 
@@ -794,8 +810,10 @@ public class DuckDbTypeTest {
       tryDerive(s, DuckDbTypeTest::toArrayExample, arrayExamples);
       if (s.supportsNested()) {
         tryDerive(s, DuckDbTypeTest::toNestedListExample, nestedListExamples);
-        tryDerive(s, DuckDbTypeTest::toNestedArrayExample, nestedArrayExamples);
         tryDerive(s, DuckDbTypeTest::toArrayOfListExample, arrayOfListExamples);
+        if (s.supportsNestedArrayOfArray()) {
+          tryDerive(s, DuckDbTypeTest::toNestedArrayExample, nestedArrayExamples);
+        }
       }
       if (s.supportsMap()) {
         tryDerive(s, DuckDbTypeTest::toMapAsKeyExample, mapKeyExamples);

@@ -49,6 +49,25 @@ public record DuckDbUnion<A>(
       M extracted = unwrapper.apply(value);
       return extracted != null ? new TaggedValue<>(tag, extracted) : null;
     }
+
+    /**
+     * Bind a previously-matched {@link TaggedValue#value} onto a {@link PreparedStatement} via
+     * this member's {@link DuckDbWrite}. Callers must ensure the tag matches before calling.
+     * The cast is safe by construction: tags are 1:1 with {@code M}.
+     */
+    @SuppressWarnings("unchecked")
+    void bindTaggedValue(java.sql.PreparedStatement ps, int idx, Object value) throws SQLException {
+      type.write().set(ps, idx, (M) value);
+    }
+
+    /**
+     * Append a previously-matched {@link TaggedValue#value} to a SQL literal buffer via this
+     * member's stringifier. Callers must ensure the tag matches before calling.
+     */
+    @SuppressWarnings("unchecked")
+    void appendTaggedValue(StringBuilder sb, Object value, boolean quoted) {
+      type.stringifier().unsafeEncode((M) value, sb, quoted);
+    }
   }
 
   /**
@@ -95,17 +114,26 @@ public record DuckDbUnion<A>(
             unionFromJdbc);
 
     DuckDbWrite<A> duckDbWrite =
-        new DuckDbWrite.Instance<>(DuckDbUnion::setTaggedValue, writer::write);
+        DuckDbWrite.primitive(
+            (ps, idx, value) -> {
+              if (value == null) {
+                ps.setNull(idx, java.sql.Types.OTHER);
+                return;
+              }
+              TaggedValue<?> tv = writer.write(value);
+              memberForTag(tv.tag()).bindTaggedValue(ps, idx, tv.value());
+            });
 
     DuckDbStringifier<A> stringifier =
         DuckDbStringifier.instance(
             (value, sb, quoted) -> {
               TaggedValue<?> tv = writer.write(value);
               sb.append("union_value(").append(tv.tag()).append(" := ");
-              appendMemberValue(sb, tv);
+              memberForTag(tv.tag()).appendTaggedValue(sb, tv.value(), true);
               sb.append(")");
             });
 
+    String unionSqlType = typename.sqlType();
     return new DuckDbType<>(
         typename.asGeneric(),
         duckDbRead,
@@ -113,7 +141,8 @@ public record DuckDbUnion<A>(
         stringifier,
         json,
         AnalysisOptions.EMPTY,
-        java.util.Optional.empty());
+        DuckDbWrite.writeListInline(unionSqlType, stringifier),
+        stringifier.asWireEncoder());
   }
 
   /** Create an optional version of this UNION type. */
@@ -121,15 +150,12 @@ public record DuckDbUnion<A>(
     return asType().opt();
   }
 
-  @SuppressWarnings("unchecked")
-  private <V> void appendMemberValue(StringBuilder sb, TaggedValue<V> tv) {
+  /** Look up the member whose tag matches, or throw if none. */
+  private Member<A, ?> memberForTag(String tag) {
     for (Member<A, ?> member : members) {
-      if (member.tag().equals(tv.tag())) {
-        ((DuckDbType<V>) member.type()).stringifier().unsafeEncode(tv.value(), sb, true);
-        return;
-      }
+      if (member.tag().equals(tag)) return member;
     }
-    throw new IllegalStateException("Unknown tag: " + tv.tag());
+    throw new IllegalStateException("Unknown tag: " + tag);
   }
 
   /** Infer the tag from the Java type of the value. */
@@ -140,31 +166,6 @@ public record DuckDbUnion<A>(
       }
     }
     return null;
-  }
-
-  /** Set a tagged value on a PreparedStatement. */
-  @SuppressWarnings("unchecked")
-  private static <V> void setTaggedValue(java.sql.PreparedStatement ps, int idx, TaggedValue<V> tv)
-      throws java.sql.SQLException {
-    // We can't directly write a UNION value via JDBC.
-    // The SQL must use union_value(tag := ?) syntax.
-    // For now, just set the raw value - the SQL layer must handle tagging.
-    Object value = tv.value();
-    if (value == null) {
-      ps.setNull(idx, java.sql.Types.OTHER);
-    } else if (value instanceof String s) {
-      ps.setString(idx, s);
-    } else if (value instanceof Integer i) {
-      ps.setInt(idx, i);
-    } else if (value instanceof Long l) {
-      ps.setLong(idx, l);
-    } else if (value instanceof Double d) {
-      ps.setDouble(idx, d);
-    } else if (value instanceof Boolean b) {
-      ps.setBoolean(idx, b);
-    } else {
-      ps.setObject(idx, value);
-    }
   }
 
   // ========================================================================

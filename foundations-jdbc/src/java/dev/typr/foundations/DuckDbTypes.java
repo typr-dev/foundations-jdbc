@@ -68,54 +68,64 @@ public interface DuckDbTypes {
               DuckDbWrite.writeBigInteger,
               DuckDbStringifier.hugeint,
               DuckDbJson.hugeint)
-          .withListCodec(DuckDbListCodec.sqlLiteralCast());
+          .withListCodec(DuckDbListCodec.sqlLiteralCast())
+          .withStructAttributeEncoder(DuckDbStringifier.hugeint.asWireEncoder());
 
   // ==================== Integer Types (Unsigned) ====================
 
   // UTINYINT: 0-255, wrapped in Uint1
   DuckDbType<Uint1> utinyint =
       DuckDbType.of(
-          "UTINYINT",
-          DuckDbRead.readShort.map(Uint1::new),
-          DuckDbWrite.writeShort.contramap(Uint1::value),
-          DuckDbStringifier.smallint.contramap(Uint1::value),
-          DuckDbJson.int2.transform(Uint1::new, Uint1::value));
+              "UTINYINT",
+              DuckDbRead.readShort.map(Uint1::new),
+              DuckDbWrite.writeShort.contramap(Uint1::value),
+              DuckDbStringifier.smallint.contramap(Uint1::value),
+              DuckDbJson.int2.transform(Uint1::new, Uint1::value))
+          .withStructAttributeEncoder(
+              DuckDbStringifier.smallint.contramap(Uint1::value).asWireEncoder());
 
   // USMALLINT: 0-65535, wrapped in Uint2
   DuckDbType<Uint2> usmallint =
       DuckDbType.of(
-          "USMALLINT",
-          DuckDbRead.readInteger.map(Uint2::new),
-          DuckDbWrite.writeInteger.contramap(Uint2::value),
-          DuckDbStringifier.integer.contramap(Uint2::value),
-          DuckDbJson.int4.transform(Uint2::new, Uint2::value));
+              "USMALLINT",
+              DuckDbRead.readInteger.map(Uint2::new),
+              DuckDbWrite.writeInteger.contramap(Uint2::value),
+              DuckDbStringifier.integer.contramap(Uint2::value),
+              DuckDbJson.int4.transform(Uint2::new, Uint2::value))
+          .withStructAttributeEncoder(
+              DuckDbStringifier.integer.contramap(Uint2::value).asWireEncoder());
 
   // UINTEGER: 0-4294967295, wrapped in Uint4
   DuckDbType<Uint4> uinteger =
       DuckDbType.of(
-          "UINTEGER",
-          DuckDbRead.readLong.map(Uint4::new),
-          DuckDbWrite.writeLong.contramap(Uint4::value),
-          DuckDbStringifier.bigint.contramap(Uint4::value),
-          DuckDbJson.int8.transform(Uint4::new, Uint4::value));
+              "UINTEGER",
+              DuckDbRead.readLong.map(Uint4::new),
+              DuckDbWrite.writeLong.contramap(Uint4::value),
+              DuckDbStringifier.bigint.contramap(Uint4::value),
+              DuckDbJson.int8.transform(Uint4::new, Uint4::value))
+          .withStructAttributeEncoder(
+              DuckDbStringifier.bigint.contramap(Uint4::value).asWireEncoder());
 
   // UBIGINT: 0-18446744073709551615, wrapped in Uint8
   DuckDbType<Uint8> ubigint =
       DuckDbType.of(
-          "UBIGINT",
-          DuckDbRead.readBigInteger.map(Uint8::of),
-          DuckDbWrite.writeBigInteger.contramap(Uint8::value),
-          DuckDbStringifier.hugeint.contramap(Uint8::value),
-          DuckDbJson.hugeint.transform(Uint8::of, Uint8::value));
+              "UBIGINT",
+              DuckDbRead.readBigInteger.map(Uint8::of),
+              DuckDbWrite.writeBigInteger.contramap(Uint8::value),
+              DuckDbStringifier.hugeint.contramap(Uint8::value),
+              DuckDbJson.hugeint.transform(Uint8::of, Uint8::value))
+          .withStructAttributeEncoder(
+              DuckDbStringifier.hugeint.contramap(Uint8::value).asWireEncoder());
 
   // UHUGEINT: 128-bit unsigned integer, needs BigInteger
   DuckDbType<BigInteger> uhugeint =
       DuckDbType.of(
-          "UHUGEINT",
-          DuckDbRead.readBigInteger,
-          DuckDbWrite.writeBigInteger,
-          DuckDbStringifier.hugeint,
-          DuckDbJson.hugeint);
+              "UHUGEINT",
+              DuckDbRead.readBigInteger,
+              DuckDbWrite.writeBigInteger,
+              DuckDbStringifier.hugeint,
+              DuckDbJson.hugeint)
+          .withStructAttributeEncoder(DuckDbStringifier.hugeint.asWireEncoder());
 
   // ==================== Floating-Point Types ====================
 
@@ -277,7 +287,8 @@ public interface DuckDbTypes {
               DuckDbWrite.writeLocalTime,
               DuckDbStringifier.time,
               DuckDbJson.time)
-          .withListCodec(DuckDbListCodec.sqlLiteralCast());
+          .withListCodec(DuckDbListCodec.sqlLiteralCast())
+          .withStructAttributeEncoder(DuckDbStringifier.time.asWireEncoder());
 
   DuckDbType<LocalDateTime> timestamp =
       DuckDbType.of(
@@ -304,11 +315,12 @@ public interface DuckDbTypes {
   // Time with timezone - represented as OffsetTime
   DuckDbType<OffsetDateTime> timetz =
       DuckDbType.of(
-          "TIME WITH TIME ZONE",
-          DuckDbRead.readOffsetDateTime,
-          DuckDbWrite.passObjectToJdbc(),
-          DuckDbStringifier.timestamptz,
-          DuckDbJson.timestamptz);
+              "TIME WITH TIME ZONE",
+              DuckDbRead.readOffsetDateTime,
+              DuckDbWrite.passObjectToJdbc(),
+              DuckDbStringifier.timestamptz,
+              DuckDbJson.timestamptz)
+          .withStructAttributeEncoder(DuckDbStringifier.timestamptz.asWireEncoder());
 
   // Timestamp variants with different precisions
   DuckDbType<LocalDateTime> timestamp_s = timestamp.renamed("TIMESTAMP_S");
@@ -325,7 +337,8 @@ public interface DuckDbTypes {
               DuckDbStringifier.interval,
               DuckDbJson.interval)
           .withListCodec(
-              DuckDbListCodec.sqlLiteral(obj -> DuckDbRead.parseDuckDbInterval(obj.toString())));
+              DuckDbListCodec.sqlLiteral(obj -> DuckDbRead.parseDuckDbInterval(obj.toString())))
+          .withStructAttributeEncoder(DuckDbStringifier.interval.asWireEncoder());
 
   // ==================== UUID Type ====================
 
@@ -336,7 +349,8 @@ public interface DuckDbTypes {
               DuckDbWrite.writeUuid,
               DuckDbStringifier.uuid,
               DuckDbJson.uuid)
-          .withListCodec(DuckDbListCodec.sqlLiteralCast());
+          .withListCodec(DuckDbListCodec.sqlLiteralCast())
+          .withStructAttributeEncoder(DuckDbStringifier.uuid.asWireEncoder());
 
   // ==================== JSON Type ====================
 
@@ -347,7 +361,8 @@ public interface DuckDbTypes {
               DuckDbWrite.writeString.contramap(Json::value),
               DuckDbStringifier.string.contramap(Json::value),
               DuckDbJson.json)
-          .withListCodec(DuckDbListCodec.sqlLiteral(obj -> new Json(obj.toString())));
+          .withListCodec(DuckDbListCodec.sqlLiteral(obj -> new Json(obj.toString())))
+          .withStructAttributeEncoder(DuckDbStringifier.string.contramap(Json::value).asWireEncoder());
 
   // ==================== Enum Type ====================
 
@@ -368,6 +383,7 @@ public interface DuckDbTypes {
             DuckDbWrite.writeString.contramap(Enum::name),
             DuckDbStringifier.string.contramap(Enum::name),
             DuckDbJson.text.transform(fromString::apply, Enum::name))
+        .withStructAttributeEncoder(Enum::name)
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("enum")));
   }
 
@@ -576,7 +592,7 @@ public interface DuckDbTypes {
         stringifier,
         duckDbJson,
         AnalysisOptions.EMPTY,
-        java.util.Optional.of(DuckDbListCodec.sqlLiteral(structConverter)),
+        DuckDbWrite.writeListOfUserArray(structSqlType, structAttributeEncoder),
         structAttributeEncoder);
   }
 

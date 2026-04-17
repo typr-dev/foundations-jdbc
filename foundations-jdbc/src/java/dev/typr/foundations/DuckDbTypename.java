@@ -55,6 +55,20 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     return (DuckDbTypename<B>) this;
   }
 
+  /**
+   * Whether this typename is constructed from other typenames (LIST, ARRAY, MAP, STRUCT, UNION).
+   * {@link Base} and {@link Opt}-of-scalar are leaves. Lets callers walk the typename tree
+   * polymorphically without {@code instanceof}.
+   */
+  default boolean isConstructed() {
+    return false;
+  }
+
+  /** Whether this typename represents a nullable SQL value. Only {@link Opt} is nullable. */
+  default boolean isNullable() {
+    return false;
+  }
+
   // ==================== Implementations ====================
 
   /** Base type with optional precision and scale. Examples: VARCHAR, DECIMAL(10,2), INTEGER */
@@ -113,6 +127,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
    */
   record ListOf<A>(DuckDbTypename<A> elementType) implements DuckDbTypename<java.util.List<A>> {
     @Override
+    public boolean isConstructed() {
+      return true;
+    }
+
+    @Override
     public String sqlType() {
       return elementType.sqlType() + "[]";
     }
@@ -156,6 +175,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
    */
   record MapOf<K, V>(DuckDbTypename<K> keyType, DuckDbTypename<V> valueType)
       implements DuckDbTypename<java.util.Map<K, V>> {
+    @Override
+    public boolean isConstructed() {
+      return true;
+    }
+
     @Override
     public String sqlType() {
       return "MAP(" + keyType.sqlType() + ", " + valueType.sqlType() + ")";
@@ -207,6 +231,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
   record ArrayOf<A>(DuckDbTypename<A> elementType, int size)
       implements DuckDbTypename<java.util.List<A>> {
     @Override
+    public boolean isConstructed() {
+      return true;
+    }
+
+    @Override
     public String sqlType() {
       return elementType.sqlType() + "[" + size + "]";
     }
@@ -246,6 +275,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
   /** STRUCT type with named fields. Rendered as "STRUCT(field1 type1, field2 type2, ...)" */
   record StructOf<A>(String name, java.util.List<StructField> fields) implements DuckDbTypename<A> {
     public record StructField(String name, DuckDbTypename<?> type) {}
+
+    @Override
+    public boolean isConstructed() {
+      return true;
+    }
 
     @Override
     public String sqlType() {
@@ -318,6 +352,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     public record UnionMember(String tag, DuckDbTypename<?> type) {}
 
     @Override
+    public boolean isConstructed() {
+      return true;
+    }
+
+    @Override
     public String sqlType() {
       StringBuilder sb = new StringBuilder("UNION(");
       for (int i = 0; i < members.size(); i++) {
@@ -368,6 +407,16 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
 
   /** Optional wrapper (nullable type). The SQL type is the same as the underlying type. */
   record Opt<A>(DuckDbTypename<A> of) implements DuckDbTypename<Optional<A>> {
+    @Override
+    public boolean isConstructed() {
+      return of.isConstructed();
+    }
+
+    @Override
+    public boolean isNullable() {
+      return true;
+    }
+
     @Override
     public String sqlType() {
       return of.sqlType();

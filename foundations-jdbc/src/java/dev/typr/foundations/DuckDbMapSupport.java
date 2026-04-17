@@ -71,7 +71,7 @@ final class DuckDbMapSupport {
         stringifier,
         DuckDbTypes.mapJson(keyType.duckDbJson(), valueType.duckDbJson()),
         AnalysisOptions.EMPTY,
-        Optional.empty(),
+        DuckDbWrite.writeListOfUserArray(sqlType, attributeEncoder),
         attributeEncoder);
   }
 

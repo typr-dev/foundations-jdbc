@@ -116,6 +116,26 @@ public sealed interface DuckDbWrite<A> extends DbWrite<A>
         });
   }
 
+  /**
+   * Write a LIST whose elements are encoded to wire objects via a supplied encoder. The wire
+   * objects (DuckDBUserStruct, DuckDBUserArray, DuckDBMap, or stringified scalars) are wrapped
+   * in a DuckDBUserArray bound via setObject. Used by every composite type's list-binding —
+   * the element's own {@code structAttributeEncoder} is the encoder.
+   */
+  static <E> DuckDbWrite<java.util.List<E>> writeListOfUserArray(
+      String elementSqlType, Function<E, Object> encoder) {
+    return primitive(
+        (ps, idx, list) -> {
+          if (list == null) {
+            ps.setNull(idx, java.sql.Types.ARRAY);
+          } else {
+            Object[] encoded = new Object[list.size()];
+            for (int i = 0; i < list.size(); i++) encoded[i] = encoder.apply(list.get(i));
+            ps.setObject(idx, new org.duckdb.user.DuckDBUserArray(elementSqlType, encoded));
+          }
+        });
+  }
+
   // ==================== SQL Literal-Based List Writers ====================
   // These types require string conversion because DuckDB JNI doesn't handle them
   // directly or has bugs (e.g., UUID byte-ordering). ~33% overhead at 100k rows.
