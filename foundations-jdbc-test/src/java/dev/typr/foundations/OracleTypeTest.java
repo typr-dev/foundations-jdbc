@@ -2163,15 +2163,12 @@ public class OracleTypeTest {
   }
 
   /**
-   * Scalars Oracle accepts inside OBJECT/VARRAY/NESTED TABLE columns. Filters:
+   * Scalars Oracle accepts inside OBJECT/VARRAY/NESTED TABLE columns. Excludes:
    *
    * <ul>
    *   <li>Oracle limitations (genuinely unavailable as user-type attributes / VARRAY elements):
-   *       LOBs, JSON, INTERVAL, TIME ZONE variants, NUMBER(1) when used as BOOLEAN.
+   *       LOBs, JSON, INTERVAL, TIME ZONE variants, BOOLEAN (native).
    *   <li>Types that are themselves composite (TEST_ALLTYPES, ADDRESS_T, PHONE_LIST, etc.).
-   *   <li>Float / Double via raw {@code ResultSet.getFloat}/{@code getDouble} — the driver
-   *       returns BigDecimal inside STRUCT and the read path casts directly. TODO: fix by
-   *       routing {@code OracleRead.readInteger/readFloat/readDouble} through {@code Number}.
    * </ul>
    */
   private static boolean scalarSupportsAutoComposite(String sqlType) {
@@ -2181,10 +2178,8 @@ public class OracleTypeTest {
     if (sqlType.contains("INTERVAL")) return false;
     if (sqlType.contains("TIME ZONE")) return false;
     if (sqlType.contains("BOOLEAN")) return false;
-    if (sqlType.startsWith("FLOAT")) return false; // TODO: bug — readDouble casts BigDecimal
-    if (sqlType.equals("NUMBER(1)")) return false; // TODO: numberAsBoolean — readInteger cast
     if (sqlType.contains("_T") || sqlType.contains("PHONE_LIST")) return false;
-    if (sqlType.startsWith("TEST_")) return false; // already-composite fixtures in All
+    if (sqlType.startsWith("TEST_")) return false;
     return true;
   }
 

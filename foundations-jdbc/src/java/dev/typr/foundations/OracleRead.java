@@ -265,12 +265,66 @@ public sealed interface OracleRead<A> extends DbRead<A>
   }
 
   OracleRead<Boolean> readBoolean = of(ResultSet::getBoolean);
-  OracleRead<Byte> readByte = of(ResultSet::getByte);
-  OracleRead<Short> readShort = of(ResultSet::getShort);
-  OracleRead<Integer> readInteger = of(ResultSet::getInt);
-  OracleRead<Long> readLong = of(ResultSet::getLong);
-  OracleRead<Float> readFloat = of(ResultSet::getFloat);
-  OracleRead<Double> readDouble = of(ResultSet::getDouble);
+
+  // Numeric reads route through Object + Number-aware transform so the same function works at
+  // top level (driver hands Integer/Long/etc. directly for INTEGER columns) and inside STRUCT
+  // attribute decoding (where the driver always hands BigDecimal regardless of column precision).
+  // Without this, `getInt(rs, col)` works at the top level but `transform(BigDecimal)` inside a
+  // STRUCT casts directly to Integer and fails with "BigDecimal cannot be cast to Integer".
+  OracleRead<Byte> readByte =
+      of(
+          ResultSet::getObject,
+          obj -> {
+            if (obj == null) return null;
+            if (obj instanceof Byte b) return b;
+            if (obj instanceof Number n) return n.byteValue();
+            throw new SQLException("Cannot convert " + obj.getClass() + " to Byte");
+          });
+  OracleRead<Short> readShort =
+      of(
+          ResultSet::getObject,
+          obj -> {
+            if (obj == null) return null;
+            if (obj instanceof Short s) return s;
+            if (obj instanceof Number n) return n.shortValue();
+            throw new SQLException("Cannot convert " + obj.getClass() + " to Short");
+          });
+  OracleRead<Integer> readInteger =
+      of(
+          ResultSet::getObject,
+          obj -> {
+            if (obj == null) return null;
+            if (obj instanceof Integer i) return i;
+            if (obj instanceof Number n) return n.intValue();
+            throw new SQLException("Cannot convert " + obj.getClass() + " to Integer");
+          });
+  OracleRead<Long> readLong =
+      of(
+          ResultSet::getObject,
+          obj -> {
+            if (obj == null) return null;
+            if (obj instanceof Long l) return l;
+            if (obj instanceof Number n) return n.longValue();
+            throw new SQLException("Cannot convert " + obj.getClass() + " to Long");
+          });
+  OracleRead<Float> readFloat =
+      of(
+          ResultSet::getObject,
+          obj -> {
+            if (obj == null) return null;
+            if (obj instanceof Float f) return f;
+            if (obj instanceof Number n) return n.floatValue();
+            throw new SQLException("Cannot convert " + obj.getClass() + " to Float");
+          });
+  OracleRead<Double> readDouble =
+      of(
+          ResultSet::getObject,
+          obj -> {
+            if (obj == null) return null;
+            if (obj instanceof Double d) return d;
+            if (obj instanceof Number n) return n.doubleValue();
+            throw new SQLException("Cannot convert " + obj.getClass() + " to Double");
+          });
   OracleRead<BigDecimal> readBigDecimal = of(ResultSet::getBigDecimal);
 
   // For RAW/BLOB - reads as byte[] directly
