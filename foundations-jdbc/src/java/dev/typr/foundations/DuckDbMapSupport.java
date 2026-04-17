@@ -75,23 +75,9 @@ final class DuckDbMapSupport {
         attributeEncoder);
   }
 
-  /**
-   * Pick the wire encoding for one side of a MAP entry. Composite/collection types bind natively
-   * (so DuckDB never re-parses our SQL-literal text — that's the path that strips quotes off
-   * inner {@code VARCHAR[]} elements). Scalars stringify and DuckDB casts on the way in.
-   */
+  /** Pick the wire encoding via polymorphic dispatch on the typename. */
   private static <A> Function<A, Object> entryEncoder(DuckDbType<A> type) {
-    DuckDbTypename<A> tn = type.typename();
-    boolean nativelyBindable =
-        tn instanceof DuckDbTypename.StructOf
-            || tn instanceof DuckDbTypename.ListOf
-            || tn instanceof DuckDbTypename.ArrayOf
-            || tn instanceof DuckDbTypename.MapOf;
-    if (nativelyBindable) {
-      return type.structAttributeEncoder();
-    }
-    DuckDbStringifier<A> s = type.stringifier();
-    return value -> s.encode(value, false);
+    return type.typename().wireEncoder(type);
   }
 
   private static <K, V> Map<K, V> readJdbcMap(

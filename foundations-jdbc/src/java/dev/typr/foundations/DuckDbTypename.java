@@ -55,6 +55,24 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     return (DuckDbTypename<B>) this;
   }
 
+  /**
+   * How a value of this type should be encoded on the wire for DuckDB's native-object binding
+   * path — {@link org.duckdb.user.DuckDBUserStruct} attributes, {@link
+   * org.duckdb.user.DuckDBUserArray} elements, and {@link org.duckdb.user.DuckDBMap} entries all
+   * share this JNI path.
+   *
+   * <p>The default (for {@link Base}/{@link Opt}) stringifies the value via {@link
+   * DuckDbStringifier#encode} — DuckDB parses scalars back from their text form, which works
+   * uniformly including for types whose Java representation (UUID, Duration, LocalTime, Json,
+   * BigInteger, …) JNI binding doesn't accept directly. The composite types ({@link StructOf},
+   * {@link ListOf}, {@link ArrayOf}, {@link MapOf}) override to return their {@link
+   * DuckDbType#structAttributeEncoder()} which produces the matching DuckDBUser* wrapper.
+   */
+  default java.util.function.Function<A, Object> wireEncoder(DuckDbType<A> type) {
+    DuckDbStringifier<A> s = type.stringifier();
+    return v -> s.encode(v, false);
+  }
+
   // ==================== Implementations ====================
 
   /** Base type with optional precision and scale. Examples: VARCHAR, DECIMAL(10,2), INTEGER */
@@ -148,6 +166,12 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     public DuckDbTypename<java.util.List<A>> renamedDropPrecision(String newName) {
       return new ListOf<>(elementType.renamedDropPrecision(newName));
     }
+
+    @Override
+    public java.util.function.Function<java.util.List<A>, Object> wireEncoder(
+        DuckDbType<java.util.List<A>> type) {
+      return type.structAttributeEncoder();
+    }
   }
 
   /**
@@ -192,6 +216,12 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     @Override
     public DuckDbTypename<java.util.Map<K, V>> renamedDropPrecision(String newName) {
       return new MapOf<>(keyType.renamedDropPrecision(newName), valueType);
+    }
+
+    @Override
+    public java.util.function.Function<java.util.Map<K, V>, Object> wireEncoder(
+        DuckDbType<java.util.Map<K, V>> type) {
+      return type.structAttributeEncoder();
     }
   }
 
@@ -240,6 +270,12 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     @Override
     public DuckDbTypename<java.util.List<A>> renamedDropPrecision(String newName) {
       return new ArrayOf<>(elementType.renamedDropPrecision(newName), size);
+    }
+
+    @Override
+    public java.util.function.Function<java.util.List<A>, Object> wireEncoder(
+        DuckDbType<java.util.List<A>> type) {
+      return type.structAttributeEncoder();
     }
   }
 
@@ -304,6 +340,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     @Override
     public DuckDbTypename<A> renamedDropPrecision(String newName) {
       return new StructOf<>(newName, fields);
+    }
+
+    @Override
+    public java.util.function.Function<A, Object> wireEncoder(DuckDbType<A> type) {
+      return type.structAttributeEncoder();
     }
 
     /** Get the generic form (loses the name). */
