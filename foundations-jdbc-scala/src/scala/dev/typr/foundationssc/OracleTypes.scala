@@ -35,36 +35,36 @@ class OracleTypes {
   val numberAsBoolean: OracleType[Boolean] = OracleType(JavaOracleTypes.numberAsBoolean.transform(b => b, b => b))
 
   // Forward all other types directly from Java
-  val varchar2 = OracleType(JavaOracleTypes.varchar2)
-  val char_ = OracleType(JavaOracleTypes.char_)
+  val varchar2: OracleType[String] = OracleType(JavaOracleTypes.varchar2)
+  val char_ : OracleType[String] = OracleType(JavaOracleTypes.char_)
 
   /** Alias for [[char_]] — aesthetic, avoids the Java-keyword `_` suffix. */
-  val character = char_
-  val nvarchar2 = OracleType(JavaOracleTypes.nvarchar2)
-  val nchar = OracleType(JavaOracleTypes.nchar)
-  val clob = OracleType(JavaOracleTypes.clob)
-  val clobNonEmpty = OracleType(JavaOracleTypes.clobNonEmpty)
-  val nclob = OracleType(JavaOracleTypes.nclob)
-  val nclobNonEmpty = OracleType(JavaOracleTypes.nclobNonEmpty)
-  val long_ = OracleType(JavaOracleTypes.long_)
+  val character: OracleType[String] = char_
+  val nvarchar2: OracleType[String] = OracleType(JavaOracleTypes.nvarchar2)
+  val nchar: OracleType[String] = OracleType(JavaOracleTypes.nchar)
+  val clob: OracleType[String] = OracleType(JavaOracleTypes.clob)
+  val clobNonEmpty: OracleType[dev.typr.foundations.data.NonEmptyString] = OracleType(JavaOracleTypes.clobNonEmpty)
+  val nclob: OracleType[String] = OracleType(JavaOracleTypes.nclob)
+  val nclobNonEmpty: OracleType[dev.typr.foundations.data.NonEmptyString] = OracleType(JavaOracleTypes.nclobNonEmpty)
+  val long_ : OracleType[String] = OracleType(JavaOracleTypes.long_)
 
   /** Alias for [[long_]] — aesthetic, avoids the Java-keyword `_` suffix. */
-  val longColumn = long_
-  val raw = OracleType(JavaOracleTypes.raw)
-  val blob = OracleType(JavaOracleTypes.blob)
-  val blobNonEmpty = OracleType(JavaOracleTypes.blobNonEmpty)
-  val longRaw = OracleType(JavaOracleTypes.longRaw)
-  val date = OracleType(JavaOracleTypes.date)
-  val timestamp = OracleType(JavaOracleTypes.timestamp)
-  val timestampWithTimeZone = OracleType(JavaOracleTypes.timestampWithTimeZone)
-  val timestampWithLocalTimeZone = OracleType(JavaOracleTypes.timestampWithLocalTimeZone)
-  val intervalYearToMonth = OracleType(JavaOracleTypes.intervalYearToMonth)
-  val intervalDayToSecond = OracleType(JavaOracleTypes.intervalDayToSecond)
-  val rowId = OracleType(JavaOracleTypes.rowId)
-  val uRowId = OracleType(JavaOracleTypes.uRowId)
-  val xmlType = OracleType(JavaOracleTypes.xmlType)
-  val json = OracleType(JavaOracleTypes.json)
-  val unknown = OracleType(JavaOracleTypes.unknown)
+  val longColumn: OracleType[String] = long_
+  val raw: OracleType[Array[Byte]] = OracleType(JavaOracleTypes.raw)
+  val blob: OracleType[Array[Byte]] = OracleType(JavaOracleTypes.blob)
+  val blobNonEmpty: OracleType[dev.typr.foundations.data.NonEmptyBlob] = OracleType(JavaOracleTypes.blobNonEmpty)
+  val longRaw: OracleType[Array[Byte]] = OracleType(JavaOracleTypes.longRaw)
+  val date: OracleType[java.time.LocalDateTime] = OracleType(JavaOracleTypes.date)
+  val timestamp: OracleType[java.time.LocalDateTime] = OracleType(JavaOracleTypes.timestamp)
+  val timestampWithTimeZone: OracleType[java.time.ZonedDateTime] = OracleType(JavaOracleTypes.timestampWithTimeZone)
+  val timestampWithLocalTimeZone: OracleType[java.time.Instant] = OracleType(JavaOracleTypes.timestampWithLocalTimeZone)
+  val intervalYearToMonth: OracleType[dev.typr.foundations.data.OracleIntervalYM] = OracleType(JavaOracleTypes.intervalYearToMonth)
+  val intervalDayToSecond: OracleType[dev.typr.foundations.data.OracleIntervalDS] = OracleType(JavaOracleTypes.intervalDayToSecond)
+  val rowId: OracleType[String] = OracleType(JavaOracleTypes.rowId)
+  val uRowId: OracleType[String] = OracleType(JavaOracleTypes.uRowId)
+  val xmlType: OracleType[String] = OracleType(JavaOracleTypes.xmlType)
+  val json: OracleType[dev.typr.foundations.data.Json] = OracleType(JavaOracleTypes.json)
+  val unknown: OracleType[dev.typr.foundations.data.Unknown] = OracleType(JavaOracleTypes.unknown)
 
   // Forward static methods with Scala type conversion
   def numberOf(precision: Int): OracleType[BigDecimal] =

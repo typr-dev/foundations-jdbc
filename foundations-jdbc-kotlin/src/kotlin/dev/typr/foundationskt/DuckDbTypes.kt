@@ -24,80 +24,80 @@ open class DuckDbTypes {
 
 
     // Forward all other types directly from Java
-    open val decimal = DuckDbType(JavaDuckDbTypes.decimal)
-    open val numeric = DuckDbType(JavaDuckDbTypes.numeric)
-    open val hugeint = DuckDbType(JavaDuckDbTypes.hugeint)
-    open val utinyint = DuckDbType(JavaDuckDbTypes.utinyint)
-    open val usmallint = DuckDbType(JavaDuckDbTypes.usmallint)
-    open val uinteger = DuckDbType(JavaDuckDbTypes.uinteger)
-    open val ubigint = DuckDbType(JavaDuckDbTypes.ubigint)
-    open val uhugeint = DuckDbType(JavaDuckDbTypes.uhugeint)
-    open val real = DuckDbType(JavaDuckDbTypes.real)
-    open val float4 = DuckDbType(JavaDuckDbTypes.float4)
-    open val float8 = DuckDbType(JavaDuckDbTypes.float8)
-    open val varchar = DuckDbType(JavaDuckDbTypes.varchar)
-    open val text = DuckDbType(JavaDuckDbTypes.text)
-    open val string = DuckDbType(JavaDuckDbTypes.string)
-    open val char_ = DuckDbType(JavaDuckDbTypes.char_)
+    open val decimal: DuckDbType<java.math.BigDecimal> = DuckDbType(JavaDuckDbTypes.decimal)
+    open val numeric: DuckDbType<java.math.BigDecimal> = DuckDbType(JavaDuckDbTypes.numeric)
+    open val hugeint: DuckDbType<java.math.BigInteger> = DuckDbType(JavaDuckDbTypes.hugeint)
+    open val utinyint: DuckDbType<dev.typr.foundations.data.Uint1> = DuckDbType(JavaDuckDbTypes.utinyint)
+    open val usmallint: DuckDbType<dev.typr.foundations.data.Uint2> = DuckDbType(JavaDuckDbTypes.usmallint)
+    open val uinteger: DuckDbType<dev.typr.foundations.data.Uint4> = DuckDbType(JavaDuckDbTypes.uinteger)
+    open val ubigint: DuckDbType<dev.typr.foundations.data.Uint8> = DuckDbType(JavaDuckDbTypes.ubigint)
+    open val uhugeint: DuckDbType<java.math.BigInteger> = DuckDbType(JavaDuckDbTypes.uhugeint)
+    open val real: DuckDbType<Float> = DuckDbType(JavaDuckDbTypes.real)
+    open val float4: DuckDbType<Float> = DuckDbType(JavaDuckDbTypes.float4)
+    open val float8: DuckDbType<Double> = DuckDbType(JavaDuckDbTypes.float8)
+    open val varchar: DuckDbType<String> = DuckDbType(JavaDuckDbTypes.varchar)
+    open val text: DuckDbType<String> = DuckDbType(JavaDuckDbTypes.text)
+    open val string: DuckDbType<String> = DuckDbType(JavaDuckDbTypes.string)
+    open val char_: DuckDbType<String> = DuckDbType(JavaDuckDbTypes.char_)
 
     /** Alias for [char_] — aesthetic, avoids the Java-keyword `_` suffix. */
-    open val character = char_
-    open val bpchar = DuckDbType(JavaDuckDbTypes.bpchar)
-    open val blob = DuckDbType(JavaDuckDbTypes.blob)
-    open val bytea = DuckDbType(JavaDuckDbTypes.bytea)
-    open val binary = DuckDbType(JavaDuckDbTypes.binary)
-    open val varbinary = DuckDbType(JavaDuckDbTypes.varbinary)
-    open val bit = DuckDbType(JavaDuckDbTypes.bit)
-    open val bitstring = DuckDbType(JavaDuckDbTypes.bitstring)
-    open val date = DuckDbType(JavaDuckDbTypes.date)
-    open val time = DuckDbType(JavaDuckDbTypes.time)
-    open val timestamp = DuckDbType(JavaDuckDbTypes.timestamp)
-    open val datetime = DuckDbType(JavaDuckDbTypes.datetime)
+    open val character: DuckDbType<String> = char_
+    open val bpchar: DuckDbType<String> = DuckDbType(JavaDuckDbTypes.bpchar)
+    open val blob: DuckDbType<ByteArray> = DuckDbType(JavaDuckDbTypes.blob)
+    open val bytea: DuckDbType<ByteArray> = DuckDbType(JavaDuckDbTypes.bytea)
+    open val binary: DuckDbType<ByteArray> = DuckDbType(JavaDuckDbTypes.binary)
+    open val varbinary: DuckDbType<ByteArray> = DuckDbType(JavaDuckDbTypes.varbinary)
+    open val bit: DuckDbType<String> = DuckDbType(JavaDuckDbTypes.bit)
+    open val bitstring: DuckDbType<String> = DuckDbType(JavaDuckDbTypes.bitstring)
+    open val date: DuckDbType<java.time.LocalDate> = DuckDbType(JavaDuckDbTypes.date)
+    open val time: DuckDbType<java.time.LocalTime> = DuckDbType(JavaDuckDbTypes.time)
+    open val timestamp: DuckDbType<java.time.LocalDateTime> = DuckDbType(JavaDuckDbTypes.timestamp)
+    open val datetime: DuckDbType<java.time.LocalDateTime> = DuckDbType(JavaDuckDbTypes.datetime)
     open val timestamptz: DuckDbType<java.time.Instant> = DuckDbType(JavaDuckDbTypes.timestamptz)
-    open val timetz = DuckDbType(JavaDuckDbTypes.timetz)
-    open val timestamp_s = DuckDbType(JavaDuckDbTypes.timestamp_s)
-    open val timestamp_ms = DuckDbType(JavaDuckDbTypes.timestamp_ms)
-    open val timestamp_ns = DuckDbType(JavaDuckDbTypes.timestamp_ns)
-    open val interval = DuckDbType(JavaDuckDbTypes.interval)
-    open val uuid = DuckDbType(JavaDuckDbTypes.uuid)
-    open val json = DuckDbType(JavaDuckDbTypes.json)
+    open val timetz: DuckDbType<java.time.OffsetDateTime> = DuckDbType(JavaDuckDbTypes.timetz)
+    open val timestamp_s: DuckDbType<java.time.LocalDateTime> = DuckDbType(JavaDuckDbTypes.timestamp_s)
+    open val timestamp_ms: DuckDbType<java.time.LocalDateTime> = DuckDbType(JavaDuckDbTypes.timestamp_ms)
+    open val timestamp_ns: DuckDbType<java.time.LocalDateTime> = DuckDbType(JavaDuckDbTypes.timestamp_ns)
+    open val interval: DuckDbType<java.time.Duration> = DuckDbType(JavaDuckDbTypes.interval)
+    open val uuid: DuckDbType<java.util.UUID> = DuckDbType(JavaDuckDbTypes.uuid)
+    open val json: DuckDbType<dev.typr.foundations.data.Json> = DuckDbType(JavaDuckDbTypes.json)
     // Pre-defined array-of-T values removed; users call `.list()` or `.array(size)` on the scalar.
-    open val unknown = DuckDbType(JavaDuckDbTypes.unknown)
+    open val unknown: DuckDbType<dev.typr.foundations.data.Unknown> = DuckDbType(JavaDuckDbTypes.unknown)
 
     // Parameterized methods
-    open fun decimalOf(precision: Int, scale: Int) = DuckDbType(JavaDuckDbTypes.decimalOf(precision, scale))
+    open fun decimalOf(precision: Int, scale: Int): DuckDbType<java.math.BigDecimal> = DuckDbType(JavaDuckDbTypes.decimalOf(precision, scale))
 
-    open fun varcharOf(length: Int) = DuckDbType(JavaDuckDbTypes.varcharOf(length))
+    open fun varcharOf(length: Int): DuckDbType<String> = DuckDbType(JavaDuckDbTypes.varcharOf(length))
 
-    open fun char_Of(length: Int) = DuckDbType(JavaDuckDbTypes.char_Of(length))
+    open fun char_Of(length: Int): DuckDbType<String> = DuckDbType(JavaDuckDbTypes.char_Of(length))
 
-    open fun bitOf(length: Int) = DuckDbType(JavaDuckDbTypes.bitOf(length))
+    open fun bitOf(length: Int): DuckDbType<String> = DuckDbType(JavaDuckDbTypes.bitOf(length))
 
-    open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: java.util.function.Function<String, E>) =
+    open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: java.util.function.Function<String, E>): DuckDbType<E> =
         DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, fromString))
 
     // Composite (STRUCT) types
 
-    open fun <Row : Any> compositeOf(structName: String, codec: RowCodecNamed<Row>) =
+    open fun <Row : Any> compositeOf(structName: String, codec: RowCodecNamed<Row>): DuckDbType<Row> =
         DuckDbType(JavaDuckDbTypes.compositeOf(structName, codec.underlying))
 
     // JSON-encoded row types
 
     /** A JSON column type that stores a single row as a positional JSON array: [val1, val2, val3]. */
-    open fun <Row : Any> jsonArrayEncoded(parser: RowCodec<Row>) =
-        DuckDbType<Row>(JavaDuckDbTypes.jsonArrayEncoded(parser.underlying))
+    open fun <Row : Any> jsonArrayEncoded(parser: RowCodec<Row>): DuckDbType<Row> =
+        DuckDbType(JavaDuckDbTypes.jsonArrayEncoded(parser.underlying))
 
     /** A JSON column type that stores a list of rows, each as a positional JSON array. */
-    open fun <Row : Any> jsonArrayEncodedList(parser: RowCodec<Row>) =
-        DuckDbType<List<Row>>(JavaDuckDbTypes.jsonArrayEncodedList(parser.underlying))
+    open fun <Row : Any> jsonArrayEncodedList(parser: RowCodec<Row>): DuckDbType<List<Row>> =
+        DuckDbType(JavaDuckDbTypes.jsonArrayEncodedList(parser.underlying))
 
     /** A JSON column type that stores a single row as a keyed JSON object: {"col": val, ...}. */
-    open fun <Row : Any> jsonObjectEncoded(parser: RowCodecNamed<Row>) =
-        DuckDbType<Row>(JavaDuckDbTypes.jsonObjectEncoded(parser.underlying))
+    open fun <Row : Any> jsonObjectEncoded(parser: RowCodecNamed<Row>): DuckDbType<Row> =
+        DuckDbType(JavaDuckDbTypes.jsonObjectEncoded(parser.underlying))
 
     /** A JSON column type that stores a list of rows, each as a keyed JSON object. */
-    open fun <Row : Any> jsonObjectEncodedList(parser: RowCodecNamed<Row>) =
-        DuckDbType<List<Row>>(JavaDuckDbTypes.jsonObjectEncodedList(parser.underlying))
+    open fun <Row : Any> jsonObjectEncodedList(parser: RowCodecNamed<Row>): DuckDbType<List<Row>> =
+        DuckDbType(JavaDuckDbTypes.jsonObjectEncodedList(parser.underlying))
 
     /** JSON codec for Map<K, V> that serializes as a JSON object. */
     open fun <K, V> mapJson(

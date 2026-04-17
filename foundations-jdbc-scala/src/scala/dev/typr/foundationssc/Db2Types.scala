@@ -36,23 +36,23 @@ class Db2Types {
   val decfloat: Db2Type[BigDecimal] = Db2Type(JavaDb2Types.decfloat.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Forward all other types directly from Java
-  val char_ = Db2Type(JavaDb2Types.char_)
-  val character = Db2Type(JavaDb2Types.character)
-  val varchar = Db2Type(JavaDb2Types.varchar)
-  val clob = Db2Type(JavaDb2Types.clob)
-  val graphic = Db2Type(JavaDb2Types.graphic)
-  val vargraphic = Db2Type(JavaDb2Types.vargraphic)
-  val dbclob = Db2Type(JavaDb2Types.dbclob)
-  val binary = Db2Type(JavaDb2Types.binary)
-  val varbinary = Db2Type(JavaDb2Types.varbinary)
-  val blob = Db2Type(JavaDb2Types.blob)
-  val date = Db2Type(JavaDb2Types.date)
-  val time = Db2Type(JavaDb2Types.time)
-  val timestamp = Db2Type(JavaDb2Types.timestamp)
-  val xml = Db2Type(JavaDb2Types.xml)
-  val rowid = Db2Type(JavaDb2Types.rowid)
-  val `object` = Db2Type(JavaDb2Types.`object`)
-  val unknown = Db2Type(JavaDb2Types.unknown)
+  val char_ : Db2Type[String] = Db2Type(JavaDb2Types.char_)
+  val character: Db2Type[String] = Db2Type(JavaDb2Types.character)
+  val varchar: Db2Type[String] = Db2Type(JavaDb2Types.varchar)
+  val clob: Db2Type[String] = Db2Type(JavaDb2Types.clob)
+  val graphic: Db2Type[String] = Db2Type(JavaDb2Types.graphic)
+  val vargraphic: Db2Type[String] = Db2Type(JavaDb2Types.vargraphic)
+  val dbclob: Db2Type[String] = Db2Type(JavaDb2Types.dbclob)
+  val binary: Db2Type[Array[Byte]] = Db2Type(JavaDb2Types.binary)
+  val varbinary: Db2Type[Array[Byte]] = Db2Type(JavaDb2Types.varbinary)
+  val blob: Db2Type[Array[Byte]] = Db2Type(JavaDb2Types.blob)
+  val date: Db2Type[java.time.LocalDate] = Db2Type(JavaDb2Types.date)
+  val time: Db2Type[java.time.LocalTime] = Db2Type(JavaDb2Types.time)
+  val timestamp: Db2Type[java.time.LocalDateTime] = Db2Type(JavaDb2Types.timestamp)
+  val xml: Db2Type[dev.typr.foundations.data.Xml] = Db2Type(JavaDb2Types.xml)
+  val rowid: Db2Type[Array[Byte]] = Db2Type(JavaDb2Types.rowid)
+  val `object`: Db2Type[AnyRef] = Db2Type(JavaDb2Types.`object`)
+  val unknown: Db2Type[dev.typr.foundations.data.Unknown] = Db2Type(JavaDb2Types.unknown)
 
   // Forward static methods with Scala type conversion
   def decimalOf(precision: Int, scale: Int): Db2Type[BigDecimal] =
@@ -94,7 +94,7 @@ class Db2Types {
   def timestampOf(scale: Int): Db2Type[java.time.LocalDateTime] =
     Db2Type(JavaDb2Types.timestampOf(scale))
 
-  val json = Db2Type(JavaDb2Types.json)
+  val json: Db2Type[dev.typr.foundations.data.Json] = Db2Type(JavaDb2Types.json)
 
   // JSON-encoded row types
 
