@@ -9,6 +9,9 @@ public class MethodFixtures {
 
   public final Operation<List<Integer>> fieldQuery = Fragment.of("SELECT 1").queryAll(PgTypes.int4);
 
+  public static final Operation<List<Integer>> staticField =
+      Fragment.of("SELECT 2").queryAll(PgTypes.int4);
+
   public Operation<List<Integer>> noArgMethod() {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }

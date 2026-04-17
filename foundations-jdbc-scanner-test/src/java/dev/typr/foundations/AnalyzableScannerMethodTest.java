@@ -57,6 +57,15 @@ class AnalyzableScannerMethodTest {
     assertFalse(names.contains("notAnalyzable"), "should not find non-analyzable method");
   }
 
+  @Test
+  void findsStaticAnalyzableFields() {
+    var results = AnalyzableScanner.scanDetailed("dev.typr.foundations.fixtures.methods");
+    var names = fieldNames(results);
+    assertTrue(
+        names.contains("staticField"),
+        "should discover `static final Operation` fields on Java classes with a no-arg ctor");
+  }
+
   // --- Dummy arg construction (unit tests) ---
 
   @Test

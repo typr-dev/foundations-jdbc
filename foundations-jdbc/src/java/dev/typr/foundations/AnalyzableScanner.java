@@ -104,6 +104,15 @@ public final class AnalyzableScanner {
           List.of(),
           errors,
           result);
+      // Java classes also emit `static final Operation` FIELDS. collectAnalyzables skips
+      // statics for non-Scala-object classes, so we also sweep static fields here. Static
+      // methods on instance-scan classes stay skipped — they're picked up on the static-only
+      // path. Skip for Scala objects (`$`-suffixed — statics land via collectAnalyzables'
+      // isScalaObject branch) and Kotlin objects (vals are private-static fields PLUS a
+      // public instance getter; the getter path already covers them).
+      if (!clazz.getName().endsWith("$") && !isKotlinObject(clazz)) {
+        collectStaticFieldAnalyzables(clazz, result);
+      }
     }
 
     if (!errors.isEmpty()) throwScanErrors(errors);
@@ -142,6 +151,9 @@ public final class AnalyzableScanner {
           instanceDirectives,
           errors,
           result);
+      if (!clazz.getName().endsWith("$")) {
+        collectStaticAnalyzables(clazz, result);
+      }
     }
 
     for (var directive : directiveList) {
@@ -281,6 +293,33 @@ public final class AnalyzableScanner {
   // --- Static field and method scanning (Kotlin file-facade classes) ---
 
   private static void collectStaticAnalyzables(Class<?> clazz, List<Result> result) {
+    var fieldNames = collectStaticFieldAnalyzables(clazz, result);
+    collectStaticMethodAnalyzables(clazz, fieldNames, result);
+  }
+
+  /**
+   * Heuristic: a Kotlin {@code object X} compiles to a class with a {@code public static final X
+   * INSTANCE} field. Used to skip the static-field sweep on Kotlin objects, since their {@code
+   * val}s end up as private static fields PLUS a public instance getter; the instance-path
+   * getter scan already covers them, so sweeping statics would double-count.
+   */
+  private static boolean isKotlinObject(Class<?> clazz) {
+    try {
+      var f = clazz.getDeclaredField("INSTANCE");
+      return Modifier.isStatic(f.getModifiers()) && f.getType() == clazz;
+    } catch (NoSuchFieldException e) {
+      return false;
+    }
+  }
+
+  /**
+   * Scan static fields for Analyzable values and return the set of field names collected.
+   *
+   * <p>Used both by the static-only path (classes we couldn't instantiate) and by the
+   * instance path, so that Java classes like {@code public final class UserRepo { static final
+   * Operation<...> q = ...; }} still have their static fields discovered.
+   */
+  private static Set<String> collectStaticFieldAnalyzables(Class<?> clazz, List<Result> result) {
     var simpleName = clazz.getSimpleName();
     if (simpleName.endsWith("Kt")) {
       simpleName = simpleName.substring(0, simpleName.length() - 2);
@@ -314,8 +353,16 @@ public final class AnalyzableScanner {
         }
       }
     }
+    return fieldNames;
+  }
 
-    // Also scan public static methods (Kotlin top-level functions)
+  /** Scan public static methods for Analyzable return values (Kotlin top-level functions). */
+  private static void collectStaticMethodAnalyzables(
+      Class<?> clazz, Set<String> fieldNames, List<Result> result) {
+    var simpleName = clazz.getSimpleName();
+    if (simpleName.endsWith("Kt")) {
+      simpleName = simpleName.substring(0, simpleName.length() - 2);
+    }
     for (var method : declaredMethodsOrEmpty(clazz)) {
       try {
         if (!isStaticAnalyzableMethod(method)) continue;
