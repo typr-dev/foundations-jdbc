@@ -56,7 +56,8 @@ The scanner finds everything that returns an `Analyzable` type — this includes
 | **No-arg methods** | Called directly, return value collected |
 | **Methods with parameters** | Dummy arguments constructed automatically, method invoked |
 | **Templates** | Discovered like any other `Analyzable` field or method return |
-| **Private/static methods** | Skipped — only public instance members are scanned |
+| **Private / protected / package-private members** | Discovered — the scanner uses `setAccessible(true)` since it's a test-scope tool |
+| **Static fields (Kotlin file-facades, Java `static`)** | Discovered — useful for Kotlin top-level `val` and static helper bags |
 
 ### How classes are instantiated
 
