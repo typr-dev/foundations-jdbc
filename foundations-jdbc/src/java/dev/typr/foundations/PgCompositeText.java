@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 import org.postgresql.geometric.*;
 import org.postgresql.util.PGInterval;
 
@@ -37,48 +36,33 @@ public abstract class PgCompositeText<A> {
   /** Decode a value from its text representation. */
   public abstract A decode(String text);
 
-  /** Create an array version of this codec with comma delimiter. */
-  public PgCompositeText<A[]> array(IntFunction<A[]> arrayFactory) {
-    return array(arrayFactory, ',');
+  /** Create a List version of this codec with comma delimiter. */
+  public PgCompositeText<List<A>> list() {
+    return list(',');
   }
 
   /**
-   * Internal: array encoding with a specific delimiter. The delimiter is a property of the element
+   * Internal: list encoding with a specific delimiter. The delimiter is a property of the element
    * type (geometric types use ';', everything else ','). Only {@link PgType#array()} should call
-   * this, passing the delimiter from the type's {@link PgArrayCodec}.
+   * this, passing the delimiter from the type's {@link PgElementCodec}.
    */
-  PgCompositeText<A[]> array(IntFunction<A[]> arrayFactory, char delimiter) {
+  PgCompositeText<List<A>> list(char delimiter) {
     var self = this;
     return new PgCompositeText<>() {
       @Override
-      public Optional<String> encode(A[] values) {
-        List<A> list = java.util.Arrays.asList(values);
+      public Optional<String> encode(List<A> values) {
         return Optional.of(
-            PgRecordParser.encodeArray(list, v -> self.encode(v).orElse(null), delimiter));
+            PgRecordParser.encodeArray(values, v -> self.encode(v).orElse(null), delimiter));
       }
 
       @Override
-      @SuppressWarnings("unchecked")
-      public A[] decode(String text) {
+      public List<A> decode(String text) {
         List<String> elements = PgRecordParser.parseArray(text, delimiter);
-        // Decode to a temporary list so we can infer element class for reflective array creation.
-        // Without this, arrayFactory would create Object[] which fails runtime CHECKCAST when the
-        // result flows into a concrete typed field (e.g. Skill[] in a record constructor).
         List<A> decoded = new java.util.ArrayList<>(elements.size());
-        Class<?> elementClass = null;
         for (String elem : elements) {
-          A v = elem == null ? null : self.decode(elem);
-          decoded.add(v);
-          if (elementClass == null && v != null) elementClass = v.getClass();
+          decoded.add(elem == null ? null : self.decode(elem));
         }
-        A[] result;
-        if (elementClass != null) {
-          result = (A[]) java.lang.reflect.Array.newInstance(elementClass, decoded.size());
-        } else {
-          result = arrayFactory.apply(decoded.size());
-        }
-        for (int i = 0; i < decoded.size(); i++) result[i] = decoded.get(i);
-        return result;
+        return decoded;
       }
     };
   }
@@ -532,173 +516,6 @@ public abstract class PgCompositeText<A> {
         private String unescapeHstoreString(String s) {
           // The parseQuotedString already handles escaping
           return s;
-        }
-      };
-
-  // ========================================================================
-  // Unboxed primitive arrays
-  // ========================================================================
-
-  /** Unboxed boolean array: format {t,f,t}. */
-  public static final PgCompositeText<boolean[]> boolArrayUnboxed =
-      new PgCompositeText<>() {
-        @Override
-        public Optional<String> encode(boolean[] value) {
-          StringBuilder sb = new StringBuilder();
-          sb.append('{');
-          for (int i = 0; i < value.length; i++) {
-            if (i > 0) sb.append(',');
-            sb.append(value[i] ? 't' : 'f');
-          }
-          sb.append('}');
-          return Optional.of(sb.toString());
-        }
-
-        @Override
-        public boolean[] decode(String text) {
-          List<String> elements = PgRecordParser.parseArray(text);
-          boolean[] result = new boolean[elements.size()];
-          for (int i = 0; i < elements.size(); i++) {
-            String elem = elements.get(i);
-            result[i] =
-                elem != null && (elem.equals("t") || elem.equals("true") || elem.equals("1"));
-          }
-          return result;
-        }
-      };
-
-  /** Unboxed short array: format {1,2,3}. */
-  public static final PgCompositeText<short[]> shortArrayUnboxed =
-      new PgCompositeText<>() {
-        @Override
-        public Optional<String> encode(short[] value) {
-          StringBuilder sb = new StringBuilder();
-          sb.append('{');
-          for (int i = 0; i < value.length; i++) {
-            if (i > 0) sb.append(',');
-            sb.append(value[i]);
-          }
-          sb.append('}');
-          return Optional.of(sb.toString());
-        }
-
-        @Override
-        public short[] decode(String text) {
-          List<String> elements = PgRecordParser.parseArray(text);
-          short[] result = new short[elements.size()];
-          for (int i = 0; i < elements.size(); i++) {
-            String elem = elements.get(i);
-            result[i] = elem == null ? 0 : Short.parseShort(elem);
-          }
-          return result;
-        }
-      };
-
-  /** Unboxed int array: format {1,2,3}. */
-  public static final PgCompositeText<int[]> intArrayUnboxed =
-      new PgCompositeText<>() {
-        @Override
-        public Optional<String> encode(int[] value) {
-          StringBuilder sb = new StringBuilder();
-          sb.append('{');
-          for (int i = 0; i < value.length; i++) {
-            if (i > 0) sb.append(',');
-            sb.append(value[i]);
-          }
-          sb.append('}');
-          return Optional.of(sb.toString());
-        }
-
-        @Override
-        public int[] decode(String text) {
-          List<String> elements = PgRecordParser.parseArray(text);
-          int[] result = new int[elements.size()];
-          for (int i = 0; i < elements.size(); i++) {
-            String elem = elements.get(i);
-            result[i] = elem == null ? 0 : Integer.parseInt(elem);
-          }
-          return result;
-        }
-      };
-
-  /** Unboxed long array: format {1,2,3}. */
-  public static final PgCompositeText<long[]> longArrayUnboxed =
-      new PgCompositeText<>() {
-        @Override
-        public Optional<String> encode(long[] value) {
-          StringBuilder sb = new StringBuilder();
-          sb.append('{');
-          for (int i = 0; i < value.length; i++) {
-            if (i > 0) sb.append(',');
-            sb.append(value[i]);
-          }
-          sb.append('}');
-          return Optional.of(sb.toString());
-        }
-
-        @Override
-        public long[] decode(String text) {
-          List<String> elements = PgRecordParser.parseArray(text);
-          long[] result = new long[elements.size()];
-          for (int i = 0; i < elements.size(); i++) {
-            String elem = elements.get(i);
-            result[i] = elem == null ? 0L : Long.parseLong(elem);
-          }
-          return result;
-        }
-      };
-
-  /** Unboxed float array: format {1.0,2.0,3.0}. */
-  public static final PgCompositeText<float[]> floatArrayUnboxed =
-      new PgCompositeText<>() {
-        @Override
-        public Optional<String> encode(float[] value) {
-          StringBuilder sb = new StringBuilder();
-          sb.append('{');
-          for (int i = 0; i < value.length; i++) {
-            if (i > 0) sb.append(',');
-            sb.append(value[i]);
-          }
-          sb.append('}');
-          return Optional.of(sb.toString());
-        }
-
-        @Override
-        public float[] decode(String text) {
-          List<String> elements = PgRecordParser.parseArray(text);
-          float[] result = new float[elements.size()];
-          for (int i = 0; i < elements.size(); i++) {
-            String elem = elements.get(i);
-            result[i] = elem == null ? 0.0f : Float.parseFloat(elem);
-          }
-          return result;
-        }
-      };
-
-  /** Unboxed double array: format {1.0,2.0,3.0}. */
-  public static final PgCompositeText<double[]> doubleArrayUnboxed =
-      new PgCompositeText<>() {
-        @Override
-        public Optional<String> encode(double[] value) {
-          StringBuilder sb = new StringBuilder();
-          sb.append('{');
-          for (int i = 0; i < value.length; i++) {
-            if (i > 0) sb.append(',');
-            sb.append(value[i]);
-          }
-          sb.append('}');
-          return Optional.of(sb.toString());
-        }
-
-        @Override
-        public double[] decode(String text) {
-          List<String> elements = PgRecordParser.parseArray(text);
-          double[] result = new double[elements.size()];
-          for (int i = 0; i < elements.size(); i++) {
-            String elem = elements.get(i);
-            result[i] = elem == null ? 0.0 : Double.parseDouble(elem);
-          }
-          return result;
         }
       };
 

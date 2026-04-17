@@ -2,7 +2,7 @@
 package dev.typr.foundationskt
 
 import dev.typr.foundations.AnalysisOptions
-import dev.typr.foundations.PgArrayCodec
+import dev.typr.foundations.PgElementCodec
 import dev.typr.foundations.PgCompositeText
 import dev.typr.foundations.PgJson
 import dev.typr.foundations.PgOutParam
@@ -21,7 +21,8 @@ class PgType<T>(override val underlying: dev.typr.foundations.PgType<T>) : DbTyp
     fun <B> transform(f: (T) -> B, g: (B) -> T): PgType<B> =
         PgType(underlying.transform(dev.typr.foundations.SqlFunction { f(it) }, g))
 
-    fun array(): PgType<Array<T>> = PgType(underlying.array())
+    /** Variable-length PG array of this type — Kotlin-side as {@code List<T>}. */
+    fun array(): PgType<List<T>> = PgType(underlying.array())
 
     fun encode(value: T): dev.typr.foundations.Fragment.Value<T> = underlying.encode(value)
 
@@ -38,7 +39,7 @@ class PgType<T>(override val underlying: dev.typr.foundations.PgType<T>) : DbTyp
     fun withCompositeText(compositeText: PgCompositeText<T>): PgType<T> = PgType(underlying.withCompositeText(compositeText))
     fun withJson(json: PgJson<T>): PgType<T> = PgType(underlying.withJson(json))
     fun withOutParam(outParam: PgOutParam<T>): PgType<T> = PgType(underlying.withOutParam(outParam))
-    fun withArrayCodec(codec: PgArrayCodec<T>): PgType<T> = PgType(underlying.withArrayCodec(codec))
+    fun withArrayCodec(codec: PgElementCodec<T>): PgType<T> = PgType(underlying.withArrayCodec(codec))
     fun withAnalysis(opts: AnalysisOptions): PgType<T> = PgType(underlying.withAnalysis(opts))
 
     fun unchecked(): PgType<T> = PgType(underlying.unchecked())

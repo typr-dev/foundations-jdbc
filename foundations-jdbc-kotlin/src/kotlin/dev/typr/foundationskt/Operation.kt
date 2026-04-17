@@ -91,8 +91,8 @@ sealed class Operation<Out> : Analyzable {
         override fun run(conn: Connection): Out = underlying.run(conn)
     }
 
-    class UpdateMany<Row>(override val underlying: dev.typr.foundations.Operation.UpdateMany<Row>) : Operation<IntArray>() {
-        override fun run(conn: Connection): IntArray = underlying.run(conn)
+    class UpdateMany<Row>(override val underlying: dev.typr.foundations.Operation.UpdateMany<Row>) : Operation<List<Int>>() {
+        override fun run(conn: Connection): List<Int> = underlying.run(conn)
     }
 
     class UpdateManyReturning<Row>(override val underlying: dev.typr.foundations.Operation.UpdateManyReturning<Row>) : Operation<List<Row>>() {
@@ -103,8 +103,8 @@ sealed class Operation<Out> : Analyzable {
         override fun run(conn: Connection): List<Row> = underlying.run(conn)
     }
 
-    class UpdateManyTemplate<Row>(override val underlying: dev.typr.foundations.Operation.UpdateManyTemplate<Row>) : Operation<IntArray>() {
-        override fun run(conn: Connection): IntArray = underlying.run(conn)
+    class UpdateManyTemplate<Row>(override val underlying: dev.typr.foundations.Operation.UpdateManyTemplate<Row>) : Operation<List<Int>>() {
+        override fun run(conn: Connection): List<Int> = underlying.run(conn)
     }
 
     class StreamingCopy(override val underlying: dev.typr.foundations.Operation<Long>) : Operation<Long>() {

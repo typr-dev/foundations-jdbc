@@ -21,14 +21,33 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
       )
   )
 
-  def array(): DuckDbType[Array[T]] = DuckDbType(ArrayCoerce(underlying.array()))
+  /**
+   * Fixed-size ARRAY of this type ({@code T[size]} in DuckDB). Every row has exactly {@code size}
+   * elements. Use {@link #list} for variable-length lists.
+   */
+  def array(size: Int): DuckDbType[List[T]] = DuckDbType(
+    underlying
+      .array(size)
+      .transform(
+        jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+        slist => {
+          val al = new java.util.ArrayList[T](slist.size)
+          slist.foreach(al.add)
+          al
+        }
+      )
+  )
 
   def list: DuckDbType[List[T]] = DuckDbType(
     underlying
       .list()
       .transform(
         jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
-        slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
+        slist => {
+          val al = new java.util.ArrayList[T](slist.size)
+          slist.foreach(al.add)
+          al
+        }
       )
   )
 
@@ -57,8 +76,6 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
   def withJson(json: DuckDbJson[T]): DuckDbType[T] = DuckDbType(underlying.withJson(json))
   def withAnalysis(opts: AnalysisOptions): DuckDbType[T] = DuckDbType(underlying.withAnalysis(opts))
   def withListCodec(codec: DuckDbListCodec[T]): DuckDbType[T] = DuckDbType(underlying.withListCodec(codec))
-
-  def noArraySupport(): DuckDbType[T] = DuckDbType(underlying.noArraySupport())
 
   def unchecked(): DuckDbType[T] = DuckDbType(underlying.unchecked())
   def nullableOk(): DuckDbType[T] = DuckDbType(underlying.nullableOk())

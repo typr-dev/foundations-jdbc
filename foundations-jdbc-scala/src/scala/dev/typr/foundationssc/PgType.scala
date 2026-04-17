@@ -1,6 +1,6 @@
 package dev.typr.foundationssc
 
-import dev.typr.foundations.{AnalysisOptions, PgArrayCodec, PgCompositeText, PgJson, PgOutParam, PgRead, PgText, PgTypename, PgWrite}
+import dev.typr.foundations.{AnalysisOptions, PgElementCodec, PgCompositeText, PgJson, PgOutParam, PgRead, PgText, PgTypename, PgWrite}
 
 class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends DbType[T](underlying):
   override def opt: PgType[Option[T]] =
@@ -12,7 +12,19 @@ class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends
   def transform[B](f: T => B, g: B => T): PgType[B] =
     PgType(underlying.transform(v => f(v), v => g(v)))
 
-  def array(): PgType[Array[T]] = PgType(ArrayCoerce(underlying.array()))
+  /** Variable-length PG array of this type — Scala-side as immutable {@code List[T]}. */
+  def array: PgType[List[T]] = PgType(
+    underlying
+      .array()
+      .transform(
+        jlist => scala.jdk.CollectionConverters.ListHasAsScala(jlist).asScala.toList,
+        slist => {
+          val al = new java.util.ArrayList[T](slist.size)
+          slist.foreach(al.add)
+          al
+        }
+      )
+  )
 
   def encode(value: T): dev.typr.foundations.Fragment.Value[T] = underlying.encode(value)
 
@@ -29,7 +41,7 @@ class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends
   def withCompositeText(compositeText: PgCompositeText[T]): PgType[T] = PgType(underlying.withCompositeText(compositeText))
   def withJson(json: PgJson[T]): PgType[T] = PgType(underlying.withJson(json))
   def withOutParam(outParam: PgOutParam[T]): PgType[T] = PgType(underlying.withOutParam(outParam))
-  def withArrayCodec(codec: PgArrayCodec[T]): PgType[T] = PgType(underlying.withArrayCodec(codec))
+  def withArrayCodec(codec: PgElementCodec[T]): PgType[T] = PgType(underlying.withArrayCodec(codec))
   def withAnalysis(opts: AnalysisOptions): PgType[T] = PgType(underlying.withAnalysis(opts))
 
   def unchecked(): PgType[T] = PgType(underlying.unchecked())

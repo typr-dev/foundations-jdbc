@@ -21,55 +21,8 @@ class DuckDbTypes {
   val decimal: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.decimal.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
   val numeric: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.numeric.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  // Array types - convert Java boxed arrays to Scala native arrays
-  val tinyintArray: DuckDbType[Array[Byte]] = DuckDbType(
-    JavaDuckDbTypes.tinyintArray.transform(
-      arr => arr.map(_.byteValue()),
-      arr => arr.map(java.lang.Byte.valueOf)
-    )
-  )
-  val smallintArray: DuckDbType[Array[Short]] = DuckDbType(
-    JavaDuckDbTypes.smallintArray.transform(
-      arr => arr.map(_.shortValue()),
-      arr => arr.map(java.lang.Short.valueOf)
-    )
-  )
-  val integerArray: DuckDbType[Array[Int]] = DuckDbType(
-    JavaDuckDbTypes.integerArray.transform(
-      arr => arr.map(_.intValue()),
-      arr => arr.map(java.lang.Integer.valueOf)
-    )
-  )
-  val bigintArray: DuckDbType[Array[Long]] = DuckDbType(
-    JavaDuckDbTypes.bigintArray.transform(
-      arr => arr.map(_.longValue()),
-      arr => arr.map(java.lang.Long.valueOf)
-    )
-  )
-  val floatArray: DuckDbType[Array[Float]] = DuckDbType(
-    JavaDuckDbTypes.floatArray.transform(
-      arr => arr.map(_.floatValue()),
-      arr => arr.map(java.lang.Float.valueOf)
-    )
-  )
-  val doubleArray: DuckDbType[Array[Double]] = DuckDbType(
-    JavaDuckDbTypes.doubleArray.transform(
-      arr => arr.map(_.doubleValue()),
-      arr => arr.map(java.lang.Double.valueOf)
-    )
-  )
-  val booleanArray: DuckDbType[Array[Boolean]] = DuckDbType(
-    JavaDuckDbTypes.booleanArray.transform(
-      arr => arr.map(_.booleanValue()),
-      arr => arr.map(java.lang.Boolean.valueOf)
-    )
-  )
-  val decimalArray: DuckDbType[Array[BigDecimal]] = DuckDbType(
-    JavaDuckDbTypes.decimalArray.transform(
-      arr => arr.map(BigDecimal(_)),
-      arr => arr.map(_.bigDecimal)
-    )
-  )
+  // Pre-defined boxed-array values removed; users call `.list` or `.array(n)` on the scalar type
+  // to obtain a DuckDbType[List[T]].
 
   // Forward all other types directly from Java
   val hugeint = DuckDbType(JavaDuckDbTypes.hugeint)
@@ -104,20 +57,7 @@ class DuckDbTypes {
   val interval = DuckDbType(JavaDuckDbTypes.interval)
   val uuid = DuckDbType(JavaDuckDbTypes.uuid)
   val json = DuckDbType(JavaDuckDbTypes.json)
-  val hugeintArray = DuckDbType(JavaDuckDbTypes.hugeintArray)
-  val utinyintArray = DuckDbType(JavaDuckDbTypes.utinyintArray)
-  val usmallintArray = DuckDbType(JavaDuckDbTypes.usmallintArray)
-  val uintegerArray = DuckDbType(JavaDuckDbTypes.uintegerArray)
-  val ubigintArray = DuckDbType(JavaDuckDbTypes.ubigintArray)
-  val varcharArray = DuckDbType(JavaDuckDbTypes.varcharArray)
-  // blobArray removed: BLOB[] not supported (binary can't be serialized in DuckDBUserArray)
-  val dateArray = DuckDbType(JavaDuckDbTypes.dateArray)
-  val timeArray = DuckDbType(JavaDuckDbTypes.timeArray)
-  val timestampArray = DuckDbType(JavaDuckDbTypes.timestampArray)
-  val timestamptzArray = DuckDbType(JavaDuckDbTypes.timestamptzArray)
-  val intervalArray = DuckDbType(JavaDuckDbTypes.intervalArray)
-  val uuidArray = DuckDbType(JavaDuckDbTypes.uuidArray)
-  val jsonArray = DuckDbType(JavaDuckDbTypes.jsonArray)
+  // Pre-defined array-of-T values removed; users call `.list` or `.array(n)` on the scalar type.
   val unknown = DuckDbType(JavaDuckDbTypes.unknown)
 
   // Forward static methods with Scala type conversion

@@ -226,12 +226,12 @@ public interface DuckDbTypes {
 
   DuckDbType<byte[]> blob =
       DuckDbType.of(
-              "BLOB",
-              DuckDbRead.readByteArray,
-              DuckDbWrite.writeByteArray,
-              DuckDbStringifier.blob,
-              DuckDbJson.blob)
-          .noArraySupport(); // BLOB[] not supported: binary can't be serialized in DuckDBUserArray
+          "BLOB",
+          DuckDbRead.readByteArray,
+          DuckDbWrite.writeByteArray,
+          DuckDbStringifier.blob,
+          DuckDbJson.blob);
+  // BLOB[] / BLOB.list() not usefully supported: binary can't be serialized via DuckDBUserArray.
 
   DuckDbType<byte[]> bytea = blob.renamed("BYTEA");
   DuckDbType<byte[]> binary = blob.renamed("BINARY");
@@ -371,75 +371,6 @@ public interface DuckDbTypes {
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("enum")));
   }
 
-  // ==================== Array Types ====================
-
-  /** TINYINT[] - array of tinyint values */
-  DuckDbType<Byte[]> tinyintArray = tinyint.array();
-
-  /** SMALLINT[] - array of smallint values */
-  DuckDbType<Short[]> smallintArray = smallint.array();
-
-  /** INTEGER[] - array of integer values */
-  DuckDbType<Integer[]> integerArray = integer.array();
-
-  /** BIGINT[] - array of bigint values */
-  DuckDbType<Long[]> bigintArray = bigint.array();
-
-  /** HUGEINT[] - array of hugeint values */
-  DuckDbType<BigInteger[]> hugeintArray = hugeint.array();
-
-  /** UTINYINT[] - array of utinyint values */
-  DuckDbType<Uint1[]> utinyintArray = utinyint.array();
-
-  /** USMALLINT[] - array of usmallint values */
-  DuckDbType<Uint2[]> usmallintArray = usmallint.array();
-
-  /** UINTEGER[] - array of uinteger values */
-  DuckDbType<Uint4[]> uintegerArray = uinteger.array();
-
-  /** UBIGINT[] - array of ubigint values */
-  DuckDbType<Uint8[]> ubigintArray = ubigint.array();
-
-  /** FLOAT[] - array of float values */
-  DuckDbType<Float[]> floatArray = float_.array();
-
-  /** DOUBLE[] - array of double values */
-  DuckDbType<Double[]> doubleArray = double_.array();
-
-  /** DECIMAL[] - array of decimal values */
-  DuckDbType<BigDecimal[]> decimalArray = decimal.array();
-
-  /** BOOLEAN[] - array of boolean values */
-  DuckDbType<Boolean[]> booleanArray = boolean_.array();
-
-  /** VARCHAR[] - array of varchar values */
-  DuckDbType<String[]> varcharArray = varchar.array();
-
-  /** BLOB[] - array of blob values */
-  // BLOB[] not supported: DuckDBUserArray can't serialize binary data
-  // DuckDbType<byte[][]> blobArray = blob.array();
-
-  /** DATE[] - array of date values */
-  DuckDbType<LocalDate[]> dateArray = date.array();
-
-  /** TIME[] - array of time values */
-  DuckDbType<LocalTime[]> timeArray = time.array();
-
-  /** TIMESTAMP[] - array of timestamp values */
-  DuckDbType<LocalDateTime[]> timestampArray = timestamp.array();
-
-  /** TIMESTAMPTZ[] - array of timestamptz values */
-  DuckDbType<OffsetDateTime[]> timestamptzArray = timestamptz.array();
-
-  /** INTERVAL[] - array of interval values */
-  DuckDbType<Duration[]> intervalArray = interval.array();
-
-  /** UUID[] - array of uuid values */
-  DuckDbType<UUID[]> uuidArray = uuid.array();
-
-  /** JSON[] - array of json values */
-  DuckDbType<Json[]> jsonArray = json.array();
-
   // ==================== Unknown Type ====================
   // For columns whose type typr doesn't know how to handle - cast to/from string
   DuckDbType<dev.typr.foundations.data.Unknown> unknown =
@@ -524,21 +455,6 @@ public interface DuckDbTypes {
    * @return a DuckDbType for the STRUCT
    */
   static <Row> DuckDbType<Row> compositeOf(String structName, RowCodecNamed<Row> codec) {
-    return compositeOf(structName, null, codec);
-  }
-
-  /**
-   * Build a named STRUCT DuckDbType with a typed array factory. The factory is required for
-   * {@code .array()} to produce a properly-typed {@code Row[]} — without it, the cast at
-   * assignment time to a record field of type {@code Row[]} will fail. Prefer this overload
-   * whenever the struct type will be used with {@code .array()}.
-   *
-   * <p>Example: {@code DuckDbTypes.compositeOf("person", Person[]::new, codec)}
-   */
-  static <Row> DuckDbType<Row> compositeOf(
-      String structName,
-      java.util.function.IntFunction<Row[]> arrayFactory,
-      RowCodecNamed<Row> codec) {
     var columns = codec.columns();
     var names = codec.columnNames();
     var duckColumns = new java.util.ArrayList<DuckDbType<?>>(columns.size());
@@ -624,18 +540,6 @@ public interface DuckDbTypes {
 
     DuckDbMapSupport<Row> structMapSupport = DuckDbMapSupport.of(structConverter, value -> value);
 
-    DuckDbArrayCodec<Row> structArrayCodec =
-        new DuckDbArrayCodec<>(
-            structConverter,
-            value -> {
-              StringBuilder sb = new StringBuilder();
-              stringifier.unsafeEncode(value, sb, false);
-              return sb.toString();
-            },
-            arrayFactory == null
-                ? java.util.Optional.empty()
-                : java.util.Optional.of(arrayFactory));
-
     DuckDbJson<Row> duckDbJson =
         new DuckDbJson<>() {
           @Override
@@ -675,7 +579,6 @@ public interface DuckDbTypes {
         duckDbJson,
         structMapSupport,
         AnalysisOptions.EMPTY,
-        java.util.Optional.of(structArrayCodec),
         java.util.Optional.of(DuckDbListCodec.sqlLiteral(structConverter)),
         structAttributeEncoder);
   }

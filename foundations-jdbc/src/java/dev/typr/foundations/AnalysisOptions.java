@@ -19,21 +19,23 @@ public record AnalysisOptions(
   }
 
   /**
-   * Apply .array() to each vendor typename alias, producing the array form. Only PG and DuckDB
-   * typenames support arrays.
+   * Apply the collection form (variable-length LIST) to each vendor typename alias. Only PG and
+   * DuckDB typenames support collections. For DuckDB fixed-size {@code ARRAY(T, N)}, alias
+   * matching via this mechanism isn't applicable — those types are fully qualified in the
+   * analyzer.
    */
-  public AnalysisOptions arrayForms() {
+  public AnalysisOptions listForms() {
     if (vendorTypeNames.isEmpty()) return this;
-    var arrayNames = new java.util.HashSet<DbTypename<?>>();
+    var listNames = new java.util.HashSet<DbTypename<?>>();
     for (var tn : vendorTypeNames) {
       switch (tn) {
-        case PgTypename<?> pg -> arrayNames.add(pg.array());
-        case DuckDbTypename<?> duck -> arrayNames.add(duck.array());
+        case PgTypename<?> pg -> listNames.add(pg.array());
+        case DuckDbTypename<?> duck -> listNames.add(duck.list());
         default ->
             throw new UnsupportedOperationException(
-                "Array vendor type names not supported for " + tn.getClass().getSimpleName());
+                "Collection vendor type names not supported for " + tn.getClass().getSimpleName());
       }
     }
-    return new AnalysisOptions(Set.copyOf(arrayNames), nullableOk, unchecked);
+    return new AnalysisOptions(Set.copyOf(listNames), nullableOk, unchecked);
   }
 }

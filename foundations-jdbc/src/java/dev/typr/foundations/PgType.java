@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -13,7 +14,7 @@ public record PgType<A>(
     PgJson<A> pgJson,
     PgOutParam<A> pgOutParam,
     AnalysisOptions analysisOptions,
-    Optional<PgArrayCodec<A>> pgArrayCodec,
+    Optional<PgElementCodec<A>> pgArrayCodec,
     char arrayDelimiter)
     implements DbType<A> {
 
@@ -182,7 +183,7 @@ public record PgType<A>(
         arrayDelimiter);
   }
 
-  public PgType<A> withArrayCodec(PgArrayCodec<A> codec) {
+  public PgType<A> withArrayCodec(PgElementCodec<A> codec) {
     return new PgType<>(
         typename,
         read,
@@ -229,57 +230,67 @@ public record PgType<A>(
         arrayDelimiter);
   }
 
-  @SuppressWarnings("unchecked")
-  public PgType<A[]> array() {
-    PgArrayCodec<A> codec =
+  /**
+   * Variable-length array of this type. Returns {@link PgType} parameterised on {@link List}
+   * — PG's {@code T[]} always maps to {@code List<T>}. Call {@code .array().array()} for
+   * multi-dimensional arrays like {@code int4[][]} → {@code List<List<Integer>>}.
+   */
+  public PgType<List<A>> array() {
+    PgElementCodec<A> codec =
         pgArrayCodec.orElseThrow(
             () ->
                 new IllegalStateException(
                     "Array not supported for "
                         + typename.sqlType()
-                        + ". This type does not provide a PgArrayCodec."));
-    java.util.function.IntFunction<A[]> arrayFactory = size -> (A[]) new Object[size];
-    PgRead<A[]> arrayRead =
+                        + ". This type does not provide a PgElementCodec."));
+    final Function<Object, A> elementConverter =
         switch (codec) {
-          case PgArrayCodec.OfElement<A> e ->
-              PgRead.of(
-                  (rs, idx) -> {
-                    java.sql.Array arr = rs.getArray(idx);
-                    if (arr == null) return null;
-                    Object[] elements = (Object[]) arr.getArray();
-                    // Decode elements first, then build a properly-typed array via reflection
-                    // based on the first non-null element's class. Avoids ClassCastException when
-                    // the result flows into a concrete typed field (e.g. LineItem[] in a record).
-                    Class<?> elementClass = null;
-                    Object[] decoded = new Object[elements.length];
-                    for (int i = 0; i < elements.length; i++) {
-                      decoded[i] = e.converter().apply(elements[i]);
-                      if (elementClass == null && decoded[i] != null)
-                        elementClass = decoded[i].getClass();
-                    }
-                    A[] result;
-                    if (elementClass != null) {
-                      result =
-                          (A[]) java.lang.reflect.Array.newInstance(elementClass, decoded.length);
-                    } else {
-                      result = arrayFactory.apply(decoded.length);
-                    }
-                    for (int i = 0; i < decoded.length; i++) result[i] = (A) decoded[i];
-                    return result;
-                  });
-          case PgArrayCodec.OfText<A> ignored ->
-              PgRead.readCompositeArray(pgCompositeText, arrayFactory);
+          case PgElementCodec.OfElement<A> e -> e.converter();
+          case PgElementCodec.OfText<A> ignored ->
+              // OfText reads whole array as text — no per-element converter. Fall through
+              // to the compositeText path handled below.
+              null;
         };
+    PgRead<List<A>> listRead =
+        (codec instanceof PgElementCodec.OfText)
+            ? PgRead.readCompositeList(pgCompositeText)
+            : PgRead.readElementList(elementConverter);
+    // Nested-array support: the resulting PgType<List<A>> needs its own pgArrayCodec so that
+    // a further .array() call (producing PgType<List<List<A>>>) can decode sub-arrays.
+    PgElementCodec<List<A>> nestedCodec =
+        PgElementCodec.of(
+            obj -> {
+              if (obj == null) return null;
+              if (!(obj instanceof java.sql.Array subArr)) {
+                throw new IllegalArgumentException(
+                    "Expected java.sql.Array for nested PG array element, got: " + obj.getClass());
+              }
+              try {
+                Object[] subElements = (Object[]) subArr.getArray();
+                List<A> inner = new java.util.ArrayList<>(subElements.length);
+                if (elementConverter != null) {
+                  for (Object e : subElements) inner.add(e == null ? null : elementConverter.apply(e));
+                } else {
+                  // OfText: shouldn't normally combine with nesting, but handle gracefully.
+                  for (Object e : subElements) {
+                    inner.add(e == null ? null : pgCompositeText.decode(e.toString()));
+                  }
+                }
+                return inner;
+              } catch (java.sql.SQLException ex) {
+                throw new DatabaseException(ex);
+              }
+            });
     return new PgType<>(
         typename.array(),
-        arrayRead,
-        write.array(typename),
-        pgText.array(arrayDelimiter),
-        pgCompositeText.array(arrayFactory, arrayDelimiter),
-        pgJson.array(arrayFactory),
-        PgOutParam.parsedArray(arrayFactory, pgCompositeText::decode),
-        analysisOptions.arrayForms(),
-        Optional.empty(),
+        listRead,
+        write.list(typename),
+        pgText.list(arrayDelimiter),
+        pgCompositeText.list(arrayDelimiter),
+        pgJson.list(),
+        PgOutParam.parsedList(pgCompositeText::decode),
+        analysisOptions.listForms(),
+        Optional.of(nestedCodec),
         ',');
   }
 

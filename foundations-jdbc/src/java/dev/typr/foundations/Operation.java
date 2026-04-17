@@ -424,9 +424,9 @@ public sealed interface Operation<Out> extends Analyzable
   }
 
   record UpdateMany<Row>(Fragment query, RowCodec<Row> codec, Iterator<Row> rows)
-      implements Operation<int[]> {
+      implements Operation<List<Integer>> {
     @Override
-    public int[] run(Connection conn) {
+    public List<Integer> run(Connection conn) {
       try {
         String sql = Instrumentation.applyName(query.render(), conn);
         return Instrumentation.instrumented(
@@ -442,7 +442,7 @@ public sealed interface Operation<Out> extends Analyzable
                   codec.writeRow(stmt, row);
                   stmt.addBatch();
                 }
-                return stmt.executeBatch();
+                return java.util.Arrays.stream(stmt.executeBatch()).boxed().toList();
               }
             });
       } catch (SQLException e) {
@@ -529,10 +529,10 @@ public sealed interface Operation<Out> extends Analyzable
    */
   record UpdateManyTemplate<Row>(
       Fragment fragment, RowCodecNamed<Row> codec, int[] includedIndices, Iterator<Row> rows)
-      implements Operation<int[]> {
+      implements Operation<List<Integer>> {
     @SuppressWarnings("unchecked")
     @Override
-    public int[] run(Connection conn) {
+    public List<Integer> run(Connection conn) {
       try {
         String sql = Instrumentation.applyName(fragment.render(), conn);
         return Instrumentation.instrumented(
@@ -554,7 +554,7 @@ public sealed interface Operation<Out> extends Analyzable
                   }
                   stmt.addBatch();
                 }
-                return stmt.executeBatch();
+                return java.util.Arrays.stream(stmt.executeBatch()).boxed().toList();
               }
             });
       } catch (SQLException e) {

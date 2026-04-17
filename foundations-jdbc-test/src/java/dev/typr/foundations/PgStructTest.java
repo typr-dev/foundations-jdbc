@@ -1135,19 +1135,7 @@ public class PgStructTest {
     // Composite type with a composite[] field — explicit structural test distinct from the deep
     // nesting roundtrips elsewhere. Verifies read+write of OBJECT with OBJECT[] attribute.
     record LineItem(String name, Integer qty) {}
-    record Order(int id, LineItem[] items) {
-      @Override
-      public boolean equals(Object o) {
-        return o instanceof Order other
-            && id == other.id
-            && java.util.Arrays.equals(items, other.items);
-      }
-
-      @Override
-      public int hashCode() {
-        return id * 31 + java.util.Arrays.hashCode(items);
-      }
-    }
+    record Order(int id, List<LineItem> items) {}
 
     withConnection(
         conn -> {
@@ -1175,9 +1163,7 @@ public class PgStructTest {
                       .build(Order::new));
 
           Order written =
-              new Order(
-                  42,
-                  new LineItem[] {new LineItem("Keyboard", 1), new LineItem("USB-C Hub", 2)});
+              new Order(42, List.of(new LineItem("Keyboard", 1), new LineItem("USB-C Hub", 2)));
           var insert = conn.prepareStatement("INSERT INTO gap_orders (o) VALUES (?)");
           orderType.write().set(insert, 1, written);
           insert.execute();
@@ -1228,17 +1214,7 @@ public class PgStructTest {
     // Empty composite[] fields must be writable — PgRecordParser's encode must emit an empty
     // array literal (`{}`) rather than choking on the reflection-based element-class path.
     record Tag(String name) {}
-    record Tagged(int id, Tag[] tags) {
-      @Override
-      public boolean equals(Object o) {
-        return o instanceof Tagged t && id == t.id && java.util.Arrays.equals(tags, t.tags);
-      }
-
-      @Override
-      public int hashCode() {
-        return id * 31 + java.util.Arrays.hashCode(tags);
-      }
-    }
+    record Tagged(int id, List<Tag> tags) {}
 
     withConnection(
         conn -> {
@@ -1264,16 +1240,15 @@ public class PgStructTest {
                       .field("tags", tagType.array(), Tagged::tags)
                       .build(Tagged::new));
 
-          // First: a record with a non-empty array (sanity)
-          Tagged nonEmpty = new Tagged(1, new Tag[] {new Tag("alpha")});
+          // First: a record with a non-empty list (sanity)
+          Tagged nonEmpty = new Tagged(1, List.of(new Tag("alpha")));
           var insert1 = conn.prepareStatement("INSERT INTO gap_tagged (t) VALUES (?)");
           taggedType.write().set(insert1, 1, nonEmpty);
           insert1.execute();
           insert1.close();
 
-          // Now an empty array — this is the edge case. If reflection can't infer element class
-          // from an empty array, this must not silently fail.
-          Tagged empty = new Tagged(2, new Tag[] {});
+          // Now an empty list — the edge case that exposed the old reflection-based path.
+          Tagged empty = new Tagged(2, List.of());
           try {
             var insert2 = conn.prepareStatement("INSERT INTO gap_tagged (t) VALUES (?)");
             taggedType.write().set(insert2, 1, empty);

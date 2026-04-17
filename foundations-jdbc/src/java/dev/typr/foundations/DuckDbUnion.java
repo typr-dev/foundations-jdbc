@@ -133,7 +133,6 @@ public record DuckDbUnion<A>(
         json,
         unionMapSupport,
         AnalysisOptions.EMPTY,
-        java.util.Optional.empty(), // UNION[] not supported: array elements lose tag info
         java.util.Optional.empty()); // UNION list uses mapSupport fallback
   }
 

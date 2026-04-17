@@ -21,16 +21,16 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
   }
 
   /**
-   * Create a LIST type from this element type. For example, VARCHAR becomes VARCHAR[] (or
-   * LIST(VARCHAR)).
+   * Create a LIST type from this element type. LIST is variable-length. For example, VARCHAR
+   * becomes VARCHAR[] (or LIST(VARCHAR)).
    */
   DuckDbTypename<java.util.List<A>> list();
 
   /**
-   * Create an array type from this element type (for Java array compatibility). Uses the same SQL
-   * representation as list() but with Java arrays.
+   * Create a fixed-size ARRAY type from this element type with the given cardinality. For example,
+   * FLOAT becomes FLOAT[3] for a 3D vector. Every row has exactly {@code size} elements.
    */
-  DuckDbTypename<A[]> array();
+  DuckDbTypename<java.util.List<A>> array(int size);
 
   /**
    * Create a MAP type from this key type and another value type. For example,
@@ -80,8 +80,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<A[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<A>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override
@@ -119,8 +119,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<java.util.List<A>[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<java.util.List<A>>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override
@@ -157,8 +157,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<java.util.Map<K, V>[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<java.util.Map<K, V>>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override
@@ -202,8 +202,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<java.util.List<A>[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<java.util.List<A>>> array(int outerSize) {
+      return new ArrayOf<>(this, outerSize);
     }
 
     @Override
@@ -262,8 +262,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<A[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<A>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override
@@ -310,8 +310,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<A[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<A>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override
@@ -349,8 +349,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<Optional<A>[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<Optional<A>>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override

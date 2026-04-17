@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import java.util.List;
 import java.util.Optional;
 
 public sealed interface PgTypename<A> extends DbTypename<A> {
@@ -7,7 +8,7 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
 
   String sqlTypeNoPrecision();
 
-  PgTypename<A[]> array();
+  PgTypename<List<A>> array();
 
   PgTypename<A> renamed(String value);
 
@@ -46,7 +47,7 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public PgTypename<A[]> array() {
+    public PgTypename<List<A>> array() {
       return new ArrayOf<>(this);
     }
 
@@ -61,7 +62,7 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
     }
   }
 
-  record ArrayOf<A>(PgTypename<A> of) implements PgTypename<A[]> {
+  record ArrayOf<A>(PgTypename<A> of) implements PgTypename<List<A>> {
     @Override
     public String sqlType() {
       return of.sqlType() + "[]";
@@ -73,17 +74,17 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public PgTypename<A[][]> array() {
+    public PgTypename<List<List<A>>> array() {
       return new ArrayOf<>(this);
     }
 
     @Override
-    public PgTypename<A[]> renamed(String value) {
+    public PgTypename<List<A>> renamed(String value) {
       return new ArrayOf<>(of.renamed(value));
     }
 
     @Override
-    public PgTypename<A[]> renamedDropPrecision(String value) {
+    public PgTypename<List<A>> renamedDropPrecision(String value) {
       return new ArrayOf<>(of.renamedDropPrecision(value));
     }
   }
@@ -99,7 +100,7 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public PgTypename<A[]> array() {
+    public PgTypename<List<A>> array() {
       // drops precision
       return new ArrayOf<>(this);
     }
@@ -127,7 +128,7 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public PgTypename<Optional<A>[]> array() {
+    public PgTypename<List<Optional<A>>> array() {
       return new ArrayOf<>(this);
     }
 
@@ -170,7 +171,7 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public PgTypename<A[]> array() {
+    public PgTypename<List<A>> array() {
       return new ArrayOf<>(this);
     }
 
