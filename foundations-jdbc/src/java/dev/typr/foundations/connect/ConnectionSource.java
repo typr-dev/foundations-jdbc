@@ -30,7 +30,7 @@ import javax.sql.DataSource;
  * <pre>{@code
  * // Create a connection source (pooled or non-pooled)
  * var ds = SimpleDataSource.create(
- *     PostgresConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
+ *     PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
  *     ConnectionSettings.builder()
  *         .transactionIsolation(TransactionIsolation.READ_UNCOMMITTED)
  *         .build());

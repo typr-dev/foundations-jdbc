@@ -11,7 +11,7 @@ import io.opentelemetry.api.GlobalOpenTelemetry
 class OtelSetup {
     //start
     val config =
-        PostgresConfig.builder("localhost", 5432, "mydb", "user", "pass").build()
+        PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build()
 
     val telemetryConfig = TelemetryConfig.builder(config).build()
 

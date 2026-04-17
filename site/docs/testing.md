@@ -67,7 +67,7 @@ For databases that need a server, use [Testcontainers](https://testcontainers.co
 ```kotlin
 companion object {
     private val tx = SimpleDataSource.create(
-        PostgresConfig.builder("localhost", 5432, "testdb", "test", "test").build()
+        PgConfig.builder("localhost", 5432, "testdb", "test", "test").build()
     ).transactor(Transactor.testStrategy())
 }
 ```

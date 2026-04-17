@@ -9,7 +9,7 @@ public class TransactorSetup {
   // PostgreSQL
   Transactor pgTx =
       Transactor.create(
-          PostgresConfig.builder("localhost", 5432, "mydb", "user", "pass")
+          PgConfig.builder("localhost", 5432, "mydb", "user", "pass")
               .sslmode(PgSslMode.REQUIRE)
               .build());
 
@@ -23,7 +23,7 @@ public class TransactorSetup {
 
   // MariaDB / MySQL
   Transactor mariaTx =
-      Transactor.create(MariaDbConfig.builder("localhost", 3306, "mydb", "user", "pass").build());
+      Transactor.create(MariaConfig.builder("localhost", 3306, "mydb", "user", "pass").build());
 
   // Oracle
   Transactor oracleTx =

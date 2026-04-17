@@ -16,7 +16,7 @@ import java.util.Properties;
  *
  * <pre>{@code
  * var ds = SimpleDataSource.create(
- *     PostgresConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
+ *     PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
  *     ConnectionSettings.builder()
  *         .transactionIsolation(TransactionIsolation.READ_UNCOMMITTED)
  *         .build());

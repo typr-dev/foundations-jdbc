@@ -4,14 +4,14 @@ import java.util.Map;
 
 /**
  * Configuration for connecting to a database. Implemented by database-specific config classes
- * (PostgresConfig, MariaDbConfig, SqlServerConfig, etc.).
+ * (PgConfig, MariaConfig, SqlServerConfig, etc.).
  *
  * <p>Each implementation provides typed builder methods for all documented JDBC driver properties.
  *
  * <p>Example:
  *
  * <pre>{@code
- * var config = PostgresConfig.builder("localhost", 5432, "mydb", "user", "pass")
+ * var config = PgConfig.builder("localhost", 5432, "mydb", "user", "pass")
  *     .sslmode(PgSslMode.REQUIRE)
  *     .build();
  *

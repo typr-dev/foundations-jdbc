@@ -8,7 +8,7 @@ For production use, the `foundations-jdbc-hikari` module provides HikariCP integ
 
 ```java
 var ds = HikariDataSourceFactory.create(
-    PostgresConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
+    PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
     PoolConfig.builder()
         .maximumPoolSize(20)
         .build()
@@ -23,7 +23,7 @@ For connection-level settings (transaction isolation, auto-commit, read-only), u
 
 ```java
 var ds = HikariDataSourceFactory.create(
-    PostgresConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
+    PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
     ConnectionSettings.builder()
         .transactionIsolation(TransactionIsolation.READ_COMMITTED)
         .build(),

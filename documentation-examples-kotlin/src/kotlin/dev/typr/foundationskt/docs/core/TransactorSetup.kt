@@ -9,7 +9,7 @@ class TransactorSetup {
     // PostgreSQL
     val pgTx =
         Transactor.create(
-            PostgresConfig.builder(
+            PgConfig.builder(
                     "localhost", 5432, "mydb", "user", "pass")
                 .sslmode(PgSslMode.REQUIRE)
                 .build())
@@ -29,7 +29,7 @@ class TransactorSetup {
     // MariaDB / MySQL
     val mariaTx =
         Transactor.create(
-            MariaDbConfig.builder(
+            MariaConfig.builder(
                     "localhost", 3306, "mydb", "user", "pass")
                 .build())
 

@@ -27,10 +27,10 @@ package object connect:
     val NONE: TransactionIsolation = dev.typr.foundations.connect.TransactionIsolation.NONE
 
   // PostgreSQL
-  type PostgresConfig = dev.typr.foundations.connect.PostgresConfig
-  object PostgresConfig:
-    def builder(host: String, port: Int, database: String, username: String, password: String): dev.typr.foundations.connect.PostgresConfig.Builder =
-      dev.typr.foundations.connect.PostgresConfig.builder(host, port, database, username, password)
+  type PgConfig = dev.typr.foundations.connect.PgConfig
+  object PgConfig:
+    def builder(host: String, port: Int, database: String, username: String, password: String): dev.typr.foundations.connect.PgConfig.Builder =
+      dev.typr.foundations.connect.PgConfig.builder(host, port, database, username, password)
   type PgSslMode = dev.typr.foundations.connect.PgSslMode
   object PgSslMode:
     val DISABLE: PgSslMode = dev.typr.foundations.connect.PgSslMode.DISABLE
@@ -95,10 +95,10 @@ package object connect:
     val CALL: PgEscapeSyntaxCallMode = dev.typr.foundations.connect.PgEscapeSyntaxCallMode.CALL
 
   // MariaDB/MySQL
-  type MariaDbConfig = dev.typr.foundations.connect.MariaDbConfig
-  object MariaDbConfig:
-    def builder(host: String, port: Int, database: String, username: String, password: String): dev.typr.foundations.connect.MariaDbConfig.Builder =
-      dev.typr.foundations.connect.MariaDbConfig.builder(host, port, database, username, password)
+  type MariaConfig = dev.typr.foundations.connect.MariaConfig
+  object MariaConfig:
+    def builder(host: String, port: Int, database: String, username: String, password: String): dev.typr.foundations.connect.MariaConfig.Builder =
+      dev.typr.foundations.connect.MariaConfig.builder(host, port, database, username, password)
   type MariaSslMode = dev.typr.foundations.connect.MariaSslMode
   object MariaSslMode:
     val DISABLE: MariaSslMode = dev.typr.foundations.connect.MariaSslMode.DISABLE

@@ -19,7 +19,7 @@ import javax.sql.DataSource;
  *
  * <pre>{@code
  * var ds = PooledDataSource.create(
- *     PostgresConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
+ *     PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
  *     ConnectionSettings.builder()
  *         .transactionIsolation(TransactionIsolation.READ_UNCOMMITTED)
  *         .build(),

@@ -13,7 +13,7 @@ import dev.typr.foundations.connect.DatabaseConfig;
  * <pre>{@code
  * // With connection settings
  * var ds = HikariDataSourceFactory.create(
- *     PostgresConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
+ *     PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
  *     ConnectionSettings.builder()
  *         .transactionIsolation(TransactionIsolation.READ_UNCOMMITTED)
  *         .build(),

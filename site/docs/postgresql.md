@@ -10,10 +10,10 @@ Foundations JDBC provides comprehensive support for all PostgreSQL data types, i
 
 ## Setting `search_path`
 
-Use `PostgresConfig.Builder.currentSchema(...)` to set a comma-separated `search_path` at connection time — handy when your composite types, enums, or tables live in a non-`public` schema and you want to reference them unqualified in SQL:
+Use `PgConfig.Builder.currentSchema(...)` to set a comma-separated `search_path` at connection time — handy when your composite types, enums, or tables live in a non-`public` schema and you want to reference them unqualified in SQL:
 
 ```java
-var config = PostgresConfig.builder("host", 5432, "db", "user", "pw")
+var config = PgConfig.builder("host", 5432, "db", "user", "pw")
     .currentSchema("app,public")   // search_path = app, public
     .build();
 ```
