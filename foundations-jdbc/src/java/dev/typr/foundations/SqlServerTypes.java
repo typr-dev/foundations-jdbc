@@ -67,7 +67,7 @@ public interface SqlServerTypes {
 
   SqlServerType<BigDecimal> numeric = decimal.renamed("NUMERIC");
 
-  static SqlServerType<BigDecimal> decimal(int precision, int scale) {
+  static SqlServerType<BigDecimal> decimalOf(int precision, int scale) {
     return SqlServerType.of(
         SqlServerTypename.of("DECIMAL", precision, scale),
         SqlServerRead.readBigDecimal,
@@ -76,8 +76,8 @@ public interface SqlServerTypes {
         SqlServerOutParam.readBigDecimal);
   }
 
-  static SqlServerType<BigDecimal> numeric(int precision, int scale) {
-    return decimal(precision, scale).renamed("NUMERIC");
+  static SqlServerType<BigDecimal> numericOf(int precision, int scale) {
+    return decimalOf(precision, scale).renamed("NUMERIC");
   }
 
   SqlServerType<BigDecimal> money =
@@ -134,7 +134,7 @@ public interface SqlServerTypes {
           SqlServerJson.text,
           SqlServerOutParam.readString);
 
-  static SqlServerType<String> char_(int length) {
+  static SqlServerType<String> char_Of(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("CHAR", length),
         SqlServerRead.readString,
@@ -151,7 +151,7 @@ public interface SqlServerTypes {
           SqlServerJson.text,
           SqlServerOutParam.readString);
 
-  static SqlServerType<String> varchar(int length) {
+  static SqlServerType<String> varcharOf(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("VARCHAR", length),
         SqlServerRead.readString,
@@ -180,7 +180,7 @@ public interface SqlServerTypes {
           SqlServerJson.text,
           SqlServerOutParam.readString);
 
-  static SqlServerType<String> nchar(int length) {
+  static SqlServerType<String> ncharOf(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("NCHAR", length),
         SqlServerRead.readString,
@@ -197,7 +197,7 @@ public interface SqlServerTypes {
           SqlServerJson.text,
           SqlServerOutParam.readString);
 
-  static SqlServerType<String> nvarchar(int length) {
+  static SqlServerType<String> nvarcharOf(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("NVARCHAR", length),
         SqlServerRead.readString,
@@ -226,7 +226,7 @@ public interface SqlServerTypes {
           SqlServerJson.bytea,
           SqlServerOutParam.readByteArray);
 
-  static SqlServerType<byte[]> binary(int length) {
+  static SqlServerType<byte[]> binaryOf(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("BINARY", length),
         SqlServerRead.readByteArray,
@@ -243,7 +243,7 @@ public interface SqlServerTypes {
           SqlServerJson.bytea,
           SqlServerOutParam.readByteArray);
 
-  static SqlServerType<byte[]> varbinary(int length) {
+  static SqlServerType<byte[]> varbinaryOf(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("VARBINARY", length),
         SqlServerRead.readByteArray,
@@ -273,7 +273,7 @@ public interface SqlServerTypes {
           SqlServerJson.time,
           SqlServerOutParam.readLocalTime);
 
-  static SqlServerType<LocalTime> time(int scale) {
+  static SqlServerType<LocalTime> timeOf(int scale) {
     return SqlServerType.of(
         SqlServerTypename.of("TIME", scale),
         SqlServerRead.readTime,
@@ -309,7 +309,7 @@ public interface SqlServerTypes {
           SqlServerJson.timestamp,
           SqlServerOutParam.readLocalDateTime);
 
-  static SqlServerType<LocalDateTime> datetime2(int scale) {
+  static SqlServerType<LocalDateTime> datetime2Of(int scale) {
     return SqlServerType.of(
         SqlServerTypename.of("DATETIME2", scale),
         SqlServerRead.readTimestamp,
@@ -327,7 +327,7 @@ public interface SqlServerTypes {
           SqlServerJson.timestamptz,
           SqlServerOutParam.readOffsetDateTime);
 
-  static SqlServerType<OffsetDateTime> datetimeoffset(int scale) {
+  static SqlServerType<OffsetDateTime> datetimeoffsetOf(int scale) {
     return SqlServerType.of(
         SqlServerTypename.of("DATETIMEOFFSET", scale),
         SqlServerRead.readOffsetDateTime,

@@ -292,10 +292,10 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(DuckDbTypes.decimal, new BigDecimal("12345")),
           new DuckDbTypeAndExample<>(DuckDbTypes.decimal, BigDecimal.ZERO),
           new DuckDbTypeAndExample<>(DuckDbTypes.decimal, new BigDecimal("-9999999999")),
-          new DuckDbTypeAndExample<>(DuckDbTypes.decimal(10, 2), new BigDecimal("12345678.90")),
-          new DuckDbTypeAndExample<>(DuckDbTypes.decimal(10, 2), new BigDecimal("0.00")),
-          new DuckDbTypeAndExample<>(DuckDbTypes.decimal(10, 2), new BigDecimal("-99999999.99")),
-          new DuckDbTypeAndExample<>(DuckDbTypes.decimal(10, 5), new BigDecimal("12345.67890")),
+          new DuckDbTypeAndExample<>(DuckDbTypes.decimalOf(10, 2), new BigDecimal("12345678.90")),
+          new DuckDbTypeAndExample<>(DuckDbTypes.decimalOf(10, 2), new BigDecimal("0.00")),
+          new DuckDbTypeAndExample<>(DuckDbTypes.decimalOf(10, 2), new BigDecimal("-99999999.99")),
+          new DuckDbTypeAndExample<>(DuckDbTypes.decimalOf(10, 5), new BigDecimal("12345.67890")),
 
           // ==================== Boolean Type ====================
           new DuckDbTypeAndExample<>(DuckDbTypes.boolean_, true),
@@ -310,9 +310,9 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(DuckDbTypes.varchar, "Quote\"Test'Single\\Back"),
           new DuckDbTypeAndExample<>(
               DuckDbTypes.varchar, "Emoji: \uD83D\uDE00\uD83C\uDF89\uD83D\uDE80"),
-          new DuckDbTypeAndExample<>(DuckDbTypes.varchar(100), "Fixed length varchar"),
+          new DuckDbTypeAndExample<>(DuckDbTypes.varcharOf(100), "Fixed length varchar"),
           new DuckDbTypeAndExample<>(DuckDbTypes.text, "Text type content"),
-          new DuckDbTypeAndExample<>(DuckDbTypes.char_(10), "hello"),
+          new DuckDbTypeAndExample<>(DuckDbTypes.char_Of(10), "hello"),
 
           // ==================== Binary Types ====================
           // BLOB[] not supported: DuckDBUserArray can't serialize binary data

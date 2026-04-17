@@ -6,5 +6,5 @@ import dev.typr.foundationssc.data.*
 object BitStringType:
   // start
   val bitType: DuckDbType[String] = DuckDbTypes.bit
-  val bit8: DuckDbType[String] = DuckDbTypes.bit(8) // BIT(8)
+  val bit8: DuckDbType[String] = DuckDbTypes.bitOf(8) // BIT(8)
   // stop

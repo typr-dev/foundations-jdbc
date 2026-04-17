@@ -18,8 +18,8 @@ class ObjectTypes {
         OracleTypes.compositeOf(
             "COORDINATES_T",
             RowCodec.namedBuilder<Coordinates>()
-                .field("LATITUDE", OracleTypes.number(9, 6), Coordinates::latitude)
-                .field("LONGITUDE", OracleTypes.number(9, 6), Coordinates::longitude)
+                .field("LATITUDE", OracleTypes.numberOf(9, 6), Coordinates::latitude)
+                .field("LONGITUDE", OracleTypes.numberOf(9, 6), Coordinates::longitude)
                 .build(::Coordinates))
 
     // CREATE TYPE address_t AS OBJECT (
@@ -33,8 +33,8 @@ class ObjectTypes {
         OracleTypes.compositeOf(
             "ADDRESS_T",
             RowCodec.namedBuilder<Address>()
-                .field("STREET", OracleTypes.varchar2(100), Address::street)
-                .field("CITY", OracleTypes.varchar2(50), Address::city)
+                .field("STREET", OracleTypes.varchar2Of(100), Address::street)
+                .field("CITY", OracleTypes.varchar2Of(50), Address::city)
                 .field("LOCATION", coordinatesType, Address::location)
                 .build(::Address))
     //stop

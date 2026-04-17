@@ -142,7 +142,7 @@ public interface MariaTypes {
           .renamed("NUMERIC")
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("decimal")));
 
-  static MariaType<BigDecimal> decimal(int precision, int scale) {
+  static MariaType<BigDecimal> decimalOf(int precision, int scale) {
     return MariaType.of(
         MariaTypename.of("DECIMAL", precision, scale),
         MariaRead.readBigDecimal,
@@ -249,7 +249,7 @@ public interface MariaTypes {
           MariaJson.text,
           MariaOutParam.readString);
 
-  static MariaType<String> char_(int length) {
+  static MariaType<String> char_Of(int length) {
     return MariaType.of(
         MariaTypename.of("CHAR", length),
         MariaRead.readString,
@@ -258,7 +258,7 @@ public interface MariaTypes {
         MariaOutParam.readString);
   }
 
-  static MariaType<String> varchar(int length) {
+  static MariaType<String> varcharOf(int length) {
     return MariaType.of(
         MariaTypename.of("VARCHAR", length),
         MariaRead.readString,
@@ -317,7 +317,7 @@ public interface MariaTypes {
           MariaJson.bytea,
           MariaOutParam.readByteArray);
 
-  static MariaType<byte[]> binary(int length) {
+  static MariaType<byte[]> binaryOf(int length) {
     return MariaType.of(
         MariaTypename.of("BINARY", length),
         MariaRead.readByteArray,
@@ -326,7 +326,7 @@ public interface MariaTypes {
         MariaOutParam.readByteArray);
   }
 
-  static MariaType<byte[]> varbinary(int length) {
+  static MariaType<byte[]> varbinaryOf(int length) {
     return MariaType.of(
         MariaTypename.of("VARBINARY", length),
         MariaRead.readByteArray,
@@ -377,7 +377,7 @@ public interface MariaTypes {
           MariaJson.int4.transform(Year::of, Year::getValue),
           MariaOutParam.readYear);
 
-  static MariaType<LocalTime> time(int fsp) {
+  static MariaType<LocalTime> timeOf(int fsp) {
     return MariaType.of(
         MariaTypename.of("TIME", fsp),
         MariaRead.readLocalTime,
@@ -386,7 +386,7 @@ public interface MariaTypes {
         MariaOutParam.readLocalTime);
   }
 
-  static MariaType<LocalDateTime> datetime(int fsp) {
+  static MariaType<LocalDateTime> datetimeOf(int fsp) {
     return MariaType.of(
         MariaTypename.of("DATETIME", fsp),
         MariaRead.readLocalDateTime,
@@ -395,7 +395,7 @@ public interface MariaTypes {
         MariaOutParam.readLocalDateTime);
   }
 
-  static MariaType<LocalDateTime> timestamp(int fsp) {
+  static MariaType<LocalDateTime> timestampOf(int fsp) {
     return MariaType.of(
         MariaTypename.of("TIMESTAMP", fsp),
         MariaRead.readLocalDateTime,

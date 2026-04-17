@@ -7,6 +7,6 @@ import dev.typr.foundations.DuckDbTypes;
 public class BitStringType {
   // start
   DuckDbType<String> bitType = DuckDbTypes.bit;
-  DuckDbType<String> bit8 = DuckDbTypes.bit(8); // BIT(8)
+  DuckDbType<String> bit8 = DuckDbTypes.bitOf(8); // BIT(8)
   // stop
 }

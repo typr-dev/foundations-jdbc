@@ -5,7 +5,7 @@ import dev.typr.foundationssc.data.*
 @SuppressWarnings(Array("unused"))
 object BinaryTypes:
   // start
-  val binaryType: SqlServerType[Array[Byte]] = SqlServerTypes.binary(16)
-  val varbinaryType: SqlServerType[Array[Byte]] = SqlServerTypes.varbinary(255)
+  val binaryType: SqlServerType[Array[Byte]] = SqlServerTypes.binaryOf(16)
+  val varbinaryType: SqlServerType[Array[Byte]] = SqlServerTypes.varbinaryOf(255)
   val varbinaryMax: SqlServerType[Array[Byte]] = SqlServerTypes.varbinaryMax
   // stop

@@ -84,11 +84,11 @@ open class PgTypes {
     open val smallserial: PgType<Short> = PgType(JavaPgTypes.smallserial.transform(SqlFunction { it }, { it }))
 
     // Parameterized methods
-    open fun bit(n: Int) = PgType(JavaPgTypes.bit(n))
+    open fun bitOf(n: Int) = PgType(JavaPgTypes.bitOf(n))
 
-    open fun bpchar(length: Int) = PgType(JavaPgTypes.bpchar(length))
+    open fun bpcharOf(length: Int) = PgType(JavaPgTypes.bpcharOf(length))
 
-    open fun record(sqlType: String) = PgType(JavaPgTypes.record(sqlType))
+    open fun recordOf(sqlType: String) = PgType(JavaPgTypes.recordOf(sqlType))
 
     open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: (String) -> E) =
         PgType(JavaPgTypes.ofEnum(enumTypeName) { fromString(it) })

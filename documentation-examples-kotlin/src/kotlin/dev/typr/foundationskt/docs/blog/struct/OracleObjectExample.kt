@@ -11,7 +11,7 @@ class OracleObjectExample {
     val skillType: OracleType<Skill> = OracleTypes.compositeOf(
         "SKILL_T",
         RowCodec.namedBuilder<Skill>()
-            .field("NAME", OracleTypes.varchar2(50), Skill::name)
+            .field("NAME", OracleTypes.varchar2Of(50), Skill::name)
             .field("LEVEL_NUM", OracleTypes.numberInt, Skill::level)
             .build(::Skill))
 
@@ -20,8 +20,8 @@ class OracleObjectExample {
     val employeeType: OracleType<Employee> = OracleTypes.compositeOf(
         "EMPLOYEE_T",
         RowCodec.namedBuilder<Employee>()
-            .field("NAME", OracleTypes.varchar2(100), Employee::name)
-            .field("ROLE_NAME", OracleTypes.varchar2(50), Employee::role)
+            .field("NAME", OracleTypes.varchar2Of(100), Employee::name)
+            .field("ROLE_NAME", OracleTypes.varchar2Of(50), Employee::role)
             .field("SKILLS", skillsType, Employee::skills)
             .build(::Employee))
 

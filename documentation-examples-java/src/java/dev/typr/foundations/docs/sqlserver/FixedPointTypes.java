@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 public class FixedPointTypes {
   // start
   SqlServerType<BigDecimal> decimalType = SqlServerTypes.decimal;
-  SqlServerType<BigDecimal> precise = SqlServerTypes.decimal(18, 4);
+  SqlServerType<BigDecimal> precise = SqlServerTypes.decimalOf(18, 4);
   SqlServerType<BigDecimal> moneyType = SqlServerTypes.money;
   // stop
 }

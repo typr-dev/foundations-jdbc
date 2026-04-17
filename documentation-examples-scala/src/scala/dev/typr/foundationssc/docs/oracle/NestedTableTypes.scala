@@ -16,9 +16,9 @@ object NestedTableTypes:
       "ORDER_ITEM_T",
       RowCodec
         .namedBuilder[OrderItem]()
-        .field("PRODUCT_NAME", OracleTypes.varchar2(100), (o: OrderItem) => o.productName)
+        .field("PRODUCT_NAME", OracleTypes.varchar2Of(100), (o: OrderItem) => o.productName)
         .field("QUANTITY", OracleTypes.numberAsInt(10), (o: OrderItem) => o.quantity)
-        .field("UNIT_PRICE", OracleTypes.number(12, 2), (o: OrderItem) => o.unitPrice)
+        .field("UNIT_PRICE", OracleTypes.numberOf(12, 2), (o: OrderItem) => o.unitPrice)
         .build((name: String, qty: Integer, price: java.math.BigDecimal) => OrderItem(name, qty, price))
     )
 

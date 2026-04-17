@@ -5,7 +5,7 @@ import dev.typr.foundationssc.data.*
 @SuppressWarnings(Array("unused"))
 object BinaryTypes:
   // start
-  val binaryType: MariaType[Array[Byte]] = MariaTypes.binary(16)
-  val varbinaryType: MariaType[Array[Byte]] = MariaTypes.varbinary(255)
+  val binaryType: MariaType[Array[Byte]] = MariaTypes.binaryOf(16)
+  val varbinaryType: MariaType[Array[Byte]] = MariaTypes.varbinaryOf(255)
   val blobType: MariaType[Array[Byte]] = MariaTypes.blob
   // stop

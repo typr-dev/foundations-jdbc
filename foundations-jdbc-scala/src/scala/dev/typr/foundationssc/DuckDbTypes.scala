@@ -61,17 +61,17 @@ class DuckDbTypes {
   val unknown = DuckDbType(JavaDuckDbTypes.unknown)
 
   // Forward static methods with Scala type conversion
-  def decimal(precision: Int, scale: Int): DuckDbType[BigDecimal] =
-    DuckDbType(JavaDuckDbTypes.decimal(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def decimalOf(precision: Int, scale: Int): DuckDbType[BigDecimal] =
+    DuckDbType(JavaDuckDbTypes.decimalOf(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def varchar(length: Int): DuckDbType[String] =
-    DuckDbType(JavaDuckDbTypes.varchar(length))
+  def varcharOf(length: Int): DuckDbType[String] =
+    DuckDbType(JavaDuckDbTypes.varcharOf(length))
 
-  def char_(length: Int): DuckDbType[String] =
-    DuckDbType(JavaDuckDbTypes.char_(length))
+  def char_Of(length: Int): DuckDbType[String] =
+    DuckDbType(JavaDuckDbTypes.char_Of(length))
 
-  def bit(length: Int): DuckDbType[String] =
-    DuckDbType(JavaDuckDbTypes.bit(length))
+  def bitOf(length: Int): DuckDbType[String] =
+    DuckDbType(JavaDuckDbTypes.bitOf(length))
 
   def ofEnum[E <: Enum[E]](enumTypeName: String, fromString: java.util.function.Function[String, E]): DuckDbType[E] =
     DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, fromString))

@@ -59,13 +59,13 @@ open class DuckDbTypes {
     open val unknown = DuckDbType(JavaDuckDbTypes.unknown)
 
     // Parameterized methods
-    open fun decimal(precision: Int, scale: Int) = DuckDbType(JavaDuckDbTypes.decimal(precision, scale))
+    open fun decimalOf(precision: Int, scale: Int) = DuckDbType(JavaDuckDbTypes.decimalOf(precision, scale))
 
-    open fun varchar(length: Int) = DuckDbType(JavaDuckDbTypes.varchar(length))
+    open fun varcharOf(length: Int) = DuckDbType(JavaDuckDbTypes.varcharOf(length))
 
-    open fun char_(length: Int) = DuckDbType(JavaDuckDbTypes.char_(length))
+    open fun char_Of(length: Int) = DuckDbType(JavaDuckDbTypes.char_Of(length))
 
-    open fun bit(length: Int) = DuckDbType(JavaDuckDbTypes.bit(length))
+    open fun bitOf(length: Int) = DuckDbType(JavaDuckDbTypes.bitOf(length))
 
     open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: java.util.function.Function<String, E>) =
         DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, fromString))

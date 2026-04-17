@@ -63,7 +63,7 @@ public interface Db2Types {
           .renamed("DEC")
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("decimal")));
 
-  static Db2Type<BigDecimal> decimal(int precision, int scale) {
+  static Db2Type<BigDecimal> decimalOf(int precision, int scale) {
     return Db2Type.of(
         Db2Typename.of("DECIMAL", precision, scale),
         Db2Read.readBigDecimal,
@@ -72,8 +72,8 @@ public interface Db2Types {
         Db2OutParam.readBigDecimal);
   }
 
-  static Db2Type<BigDecimal> numeric(int precision, int scale) {
-    return decimal(precision, scale)
+  static Db2Type<BigDecimal> numericOf(int precision, int scale) {
+    return decimalOf(precision, scale)
         .renamed("NUMERIC")
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("decimal")));
   }
@@ -87,7 +87,7 @@ public interface Db2Types {
           Db2Json.numeric,
           Db2OutParam.readBigDecimal);
 
-  static Db2Type<BigDecimal> decfloat(int precision) {
+  static Db2Type<BigDecimal> decfloatOf(int precision) {
     return Db2Type.of(
         Db2Typename.of("DECFLOAT", precision),
         Db2Read.readDecFloat,
@@ -137,7 +137,7 @@ public interface Db2Types {
           .renamed("CHARACTER")
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("char")));
 
-  static Db2Type<String> char_(int length) {
+  static Db2Type<String> char_Of(int length) {
     return Db2Type.of(
         Db2Typename.of("CHAR", length),
         Db2Read.readString,
@@ -154,7 +154,7 @@ public interface Db2Types {
           Db2Json.text,
           Db2OutParam.readString);
 
-  static Db2Type<String> varchar(int length) {
+  static Db2Type<String> varcharOf(int length) {
     return Db2Type.of(
         Db2Typename.of("VARCHAR", length),
         Db2Read.readString,
@@ -168,7 +168,7 @@ public interface Db2Types {
       Db2Type.of(
           "CLOB", Db2Read.readClob, Db2Write.writeClob, Db2Json.text, Db2OutParam.readString);
 
-  static Db2Type<String> clob(int length) {
+  static Db2Type<String> clobOf(int length) {
     return Db2Type.of(
         Db2Typename.of("CLOB", length),
         Db2Read.readClob,
@@ -189,7 +189,7 @@ public interface Db2Types {
           Db2Json.unsupported("GRAPHIC"),
           Db2OutParam.readString);
 
-  static Db2Type<String> graphic(int length) {
+  static Db2Type<String> graphicOf(int length) {
     return Db2Type.of(
         Db2Typename.of("GRAPHIC", length),
         Db2Read.readGraphic,
@@ -207,7 +207,7 @@ public interface Db2Types {
           Db2Json.unsupported("VARGRAPHIC"),
           Db2OutParam.readString);
 
-  static Db2Type<String> vargraphic(int length) {
+  static Db2Type<String> vargraphicOf(int length) {
     return Db2Type.of(
         Db2Typename.of("VARGRAPHIC", length),
         Db2Read.readVarGraphic,
@@ -225,7 +225,7 @@ public interface Db2Types {
           Db2Json.unsupported("DBCLOB"),
           Db2OutParam.readString);
 
-  static Db2Type<String> dbclob(int length) {
+  static Db2Type<String> dbclobOf(int length) {
     return Db2Type.of(
         Db2Typename.of("DBCLOB", length),
         Db2Read.readDbClob,
@@ -245,7 +245,7 @@ public interface Db2Types {
           Db2Json.unsupported("BINARY"),
           Db2OutParam.readByteArray);
 
-  static Db2Type<byte[]> binary(int length) {
+  static Db2Type<byte[]> binaryOf(int length) {
     return Db2Type.of(
         Db2Typename.of("BINARY", length),
         Db2Read.readByteArray,
@@ -262,7 +262,7 @@ public interface Db2Types {
           Db2Json.unsupported("VARBINARY"),
           Db2OutParam.readByteArray);
 
-  static Db2Type<byte[]> varbinary(int length) {
+  static Db2Type<byte[]> varbinaryOf(int length) {
     return Db2Type.of(
         Db2Typename.of("VARBINARY", length),
         Db2Read.readByteArray,
@@ -280,7 +280,7 @@ public interface Db2Types {
           Db2Json.unsupported("BLOB"),
           Db2OutParam.readByteArray);
 
-  static Db2Type<byte[]> blob(int length) {
+  static Db2Type<byte[]> blobOf(int length) {
     return Db2Type.of(
         Db2Typename.of("BLOB", length),
         Db2Read.readBlob,
@@ -308,7 +308,7 @@ public interface Db2Types {
           Db2Json.timestamp,
           Db2OutParam.readLocalDateTime);
 
-  static Db2Type<LocalDateTime> timestamp(int scale) {
+  static Db2Type<LocalDateTime> timestampOf(int scale) {
     return Db2Type.of(
         Db2Typename.of("TIMESTAMP", scale),
         Db2Read.readTimestamp,

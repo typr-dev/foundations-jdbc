@@ -13,6 +13,6 @@ object DateTimeTypes:
   val yearType: MariaType[Year] = MariaTypes.year
 
   // With fractional seconds precision
-  val timeFsp: MariaType[LocalTime] = MariaTypes.time(6)
-  val dtFsp: MariaType[LocalDateTime] = MariaTypes.datetime(3)
+  val timeFsp: MariaType[LocalTime] = MariaTypes.timeOf(6)
+  val dtFsp: MariaType[LocalDateTime] = MariaTypes.datetimeOf(3)
   // stop

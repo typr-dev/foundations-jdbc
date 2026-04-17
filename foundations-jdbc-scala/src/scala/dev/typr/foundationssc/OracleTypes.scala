@@ -51,11 +51,11 @@ class OracleTypes {
   val unknown = OracleType(JavaOracleTypes.unknown)
 
   // Forward static methods with Scala type conversion
-  def number(precision: Int): OracleType[BigDecimal] =
-    OracleType(JavaOracleTypes.number(precision).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def numberOf(precision: Int): OracleType[BigDecimal] =
+    OracleType(JavaOracleTypes.numberOf(precision).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def number(precision: Int, scale: Int): OracleType[BigDecimal] =
-    OracleType(JavaOracleTypes.number(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def numberOf(precision: Int, scale: Int): OracleType[BigDecimal] =
+    OracleType(JavaOracleTypes.numberOf(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   def numberAsInt(precision: Int): OracleType[Int] =
     OracleType(JavaOracleTypes.numberAsInt(precision).transform(i => i, i => i))
@@ -63,41 +63,41 @@ class OracleTypes {
   def numberAsLong(precision: Int): OracleType[Long] =
     OracleType(JavaOracleTypes.numberAsLong(precision).transform(l => l, l => l))
 
-  def float_(binaryPrecision: Int): OracleType[Double] =
-    OracleType(JavaOracleTypes.float_(binaryPrecision).transform(d => d, d => d))
+  def float_Of(binaryPrecision: Int): OracleType[Double] =
+    OracleType(JavaOracleTypes.float_Of(binaryPrecision).transform(d => d, d => d))
 
-  def varchar2(maxLength: Int): OracleType[String] =
-    OracleType(JavaOracleTypes.varchar2(maxLength))
+  def varchar2Of(maxLength: Int): OracleType[String] =
+    OracleType(JavaOracleTypes.varchar2Of(maxLength))
 
   def varchar2NonEmpty(maxLength: Int): OracleType[dev.typr.foundations.data.NonEmptyString] =
     OracleType(JavaOracleTypes.varchar2NonEmpty(maxLength))
 
-  def char_(length: Int): OracleType[String] =
-    OracleType(JavaOracleTypes.char_(length))
+  def char_Of(length: Int): OracleType[String] =
+    OracleType(JavaOracleTypes.char_Of(length))
 
   def charPadded(length: Int): OracleType[dev.typr.foundations.data.PaddedString] =
     OracleType(JavaOracleTypes.charPadded(length))
 
-  def nvarchar2(maxLength: Int): OracleType[String] =
-    OracleType(JavaOracleTypes.nvarchar2(maxLength))
+  def nvarchar2Of(maxLength: Int): OracleType[String] =
+    OracleType(JavaOracleTypes.nvarchar2Of(maxLength))
 
   def nvarchar2NonEmpty(maxLength: Int): OracleType[dev.typr.foundations.data.NonEmptyString] =
     OracleType(JavaOracleTypes.nvarchar2NonEmpty(maxLength))
 
-  def nchar(length: Int): OracleType[String] =
-    OracleType(JavaOracleTypes.nchar(length))
+  def ncharOf(length: Int): OracleType[String] =
+    OracleType(JavaOracleTypes.ncharOf(length))
 
   def ncharPadded(length: Int): OracleType[dev.typr.foundations.data.PaddedString] =
     OracleType(JavaOracleTypes.ncharPadded(length))
 
-  def raw(maxLength: Int): OracleType[Array[Byte]] =
-    OracleType(JavaOracleTypes.raw(maxLength))
+  def rawOf(maxLength: Int): OracleType[Array[Byte]] =
+    OracleType(JavaOracleTypes.rawOf(maxLength))
 
   def rawNonEmpty(maxLength: Int): OracleType[dev.typr.foundations.data.NonEmptyBlob] =
     OracleType(JavaOracleTypes.rawNonEmpty(maxLength))
 
-  def timestamp(fractionalSecondsPrecision: Int): OracleType[java.time.LocalDateTime] =
-    OracleType(JavaOracleTypes.timestamp(fractionalSecondsPrecision))
+  def timestampOf(fractionalSecondsPrecision: Int): OracleType[java.time.LocalDateTime] =
+    OracleType(JavaOracleTypes.timestampOf(fractionalSecondsPrecision))
 
   def timestampWithTimeZone(fractionalSecondsPrecision: Int): OracleType[java.time.OffsetDateTime] =
     OracleType(JavaOracleTypes.timestampWithTimeZone(fractionalSecondsPrecision))

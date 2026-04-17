@@ -165,7 +165,7 @@ public interface DuckDbTypes {
 
   DuckDbType<BigDecimal> numeric = decimal.renamed("NUMERIC");
 
-  static DuckDbType<BigDecimal> decimal(int precision, int scale) {
+  static DuckDbType<BigDecimal> decimalOf(int precision, int scale) {
     return DuckDbType.of(
         DuckDbTypename.of("DECIMAL", precision, scale),
         DuckDbRead.readBigDecimal,
@@ -213,7 +213,7 @@ public interface DuckDbTypes {
           .renamed("BPCHAR")
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
 
-  static DuckDbType<String> varchar(int length) {
+  static DuckDbType<String> varcharOf(int length) {
     return DuckDbType.of(
         DuckDbTypename.of("VARCHAR", length),
         DuckDbRead.readString,
@@ -222,7 +222,7 @@ public interface DuckDbTypes {
         DuckDbJson.text);
   }
 
-  static DuckDbType<String> char_(int length) {
+  static DuckDbType<String> char_Of(int length) {
     return DuckDbType.<String>of(
             DuckDbTypename.of("CHAR", length),
             DuckDbRead.readString,
@@ -260,7 +260,7 @@ public interface DuckDbTypes {
 
   DuckDbType<String> bitstring = bit.renamed("BITSTRING");
 
-  static DuckDbType<String> bit(int length) {
+  static DuckDbType<String> bitOf(int length) {
     return DuckDbType.of(
         DuckDbTypename.of("BIT", length),
         DuckDbRead.readBitString,

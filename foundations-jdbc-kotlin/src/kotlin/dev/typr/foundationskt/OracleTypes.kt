@@ -51,9 +51,9 @@ open class OracleTypes {
     open val unknown = OracleType(JavaOracleTypes.unknown)
 
     // Parameterized methods
-    open fun number(precision: Int) = OracleType(JavaOracleTypes.number(precision))
+    open fun numberOf(precision: Int) = OracleType(JavaOracleTypes.numberOf(precision))
 
-    open fun number(precision: Int, scale: Int) = OracleType(JavaOracleTypes.number(precision, scale))
+    open fun numberOf(precision: Int, scale: Int) = OracleType(JavaOracleTypes.numberOf(precision, scale))
 
     open fun numberAsInt(precision: Int): OracleType<Int> =
         OracleType(JavaOracleTypes.numberAsInt(precision).transform(SqlFunction { it }, { it }))
@@ -61,30 +61,30 @@ open class OracleTypes {
     open fun numberAsLong(precision: Int): OracleType<Long> =
         OracleType(JavaOracleTypes.numberAsLong(precision).transform(SqlFunction { it }, { it }))
 
-    open fun float_(binaryPrecision: Int): OracleType<Double> =
-        OracleType(JavaOracleTypes.float_(binaryPrecision).transform(SqlFunction { it }, { it }))
+    open fun float_Of(binaryPrecision: Int): OracleType<Double> =
+        OracleType(JavaOracleTypes.float_Of(binaryPrecision).transform(SqlFunction { it }, { it }))
 
-    open fun varchar2(maxLength: Int) = OracleType(JavaOracleTypes.varchar2(maxLength))
+    open fun varchar2Of(maxLength: Int) = OracleType(JavaOracleTypes.varchar2Of(maxLength))
 
     open fun varchar2NonEmpty(maxLength: Int) = OracleType(JavaOracleTypes.varchar2NonEmpty(maxLength))
 
-    open fun char_(length: Int) = OracleType(JavaOracleTypes.char_(length))
+    open fun char_Of(length: Int) = OracleType(JavaOracleTypes.char_Of(length))
 
     open fun charPadded(length: Int) = OracleType(JavaOracleTypes.charPadded(length))
 
-    open fun nvarchar2(maxLength: Int) = OracleType(JavaOracleTypes.nvarchar2(maxLength))
+    open fun nvarchar2Of(maxLength: Int) = OracleType(JavaOracleTypes.nvarchar2Of(maxLength))
 
     open fun nvarchar2NonEmpty(maxLength: Int) = OracleType(JavaOracleTypes.nvarchar2NonEmpty(maxLength))
 
-    open fun nchar(length: Int) = OracleType(JavaOracleTypes.nchar(length))
+    open fun ncharOf(length: Int) = OracleType(JavaOracleTypes.ncharOf(length))
 
     open fun ncharPadded(length: Int) = OracleType(JavaOracleTypes.ncharPadded(length))
 
-    open fun raw(maxLength: Int) = OracleType(JavaOracleTypes.raw(maxLength))
+    open fun rawOf(maxLength: Int) = OracleType(JavaOracleTypes.rawOf(maxLength))
 
     open fun rawNonEmpty(maxLength: Int) = OracleType(JavaOracleTypes.rawNonEmpty(maxLength))
 
-    open fun timestamp(fractionalSecondsPrecision: Int) = OracleType(JavaOracleTypes.timestamp(fractionalSecondsPrecision))
+    open fun timestampOf(fractionalSecondsPrecision: Int) = OracleType(JavaOracleTypes.timestampOf(fractionalSecondsPrecision))
 
     open fun timestampWithTimeZone(fractionalSecondsPrecision: Int) =
         OracleType(JavaOracleTypes.timestampWithTimeZone(fractionalSecondsPrecision))

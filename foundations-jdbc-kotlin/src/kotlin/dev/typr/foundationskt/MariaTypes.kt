@@ -63,21 +63,21 @@ open class MariaTypes {
     open val unknown = MariaType(JavaMariaTypes.unknown)
 
     // Parameterized methods
-    open fun decimal(precision: Int, scale: Int) = MariaType(JavaMariaTypes.decimal(precision, scale))
+    open fun decimalOf(precision: Int, scale: Int) = MariaType(JavaMariaTypes.decimalOf(precision, scale))
 
-    open fun char_(length: Int) = MariaType(JavaMariaTypes.char_(length))
+    open fun char_Of(length: Int) = MariaType(JavaMariaTypes.char_Of(length))
 
-    open fun varchar(length: Int) = MariaType(JavaMariaTypes.varchar(length))
+    open fun varcharOf(length: Int) = MariaType(JavaMariaTypes.varcharOf(length))
 
-    open fun binary(length: Int) = MariaType(JavaMariaTypes.binary(length))
+    open fun binaryOf(length: Int) = MariaType(JavaMariaTypes.binaryOf(length))
 
-    open fun varbinary(length: Int) = MariaType(JavaMariaTypes.varbinary(length))
+    open fun varbinaryOf(length: Int) = MariaType(JavaMariaTypes.varbinaryOf(length))
 
-    open fun time(fsp: Int) = MariaType(JavaMariaTypes.time(fsp))
+    open fun timeOf(fsp: Int) = MariaType(JavaMariaTypes.timeOf(fsp))
 
-    open fun datetime(fsp: Int) = MariaType(JavaMariaTypes.datetime(fsp))
+    open fun datetimeOf(fsp: Int) = MariaType(JavaMariaTypes.datetimeOf(fsp))
 
-    open fun timestamp(fsp: Int) = MariaType(JavaMariaTypes.timestamp(fsp))
+    open fun timestampOf(fsp: Int) = MariaType(JavaMariaTypes.timestampOf(fsp))
 
     open fun vector(dimension: Int) = MariaType(JavaMariaTypes.vector(dimension))
 

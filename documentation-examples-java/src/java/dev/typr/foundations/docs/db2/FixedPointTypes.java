@@ -8,8 +8,8 @@ import java.math.BigDecimal;
 public class FixedPointTypes {
   // start
   Db2Type<BigDecimal> decType = Db2Types.decimal;
-  Db2Type<BigDecimal> preciseType = Db2Types.decimal(10, 2);
+  Db2Type<BigDecimal> preciseType = Db2Types.decimalOf(10, 2);
   Db2Type<BigDecimal> decfloatType = Db2Types.decfloat;
-  Db2Type<BigDecimal> decfloat16 = Db2Types.decfloat(16);
+  Db2Type<BigDecimal> decfloat16 = Db2Types.decfloatOf(16);
   // stop
 }

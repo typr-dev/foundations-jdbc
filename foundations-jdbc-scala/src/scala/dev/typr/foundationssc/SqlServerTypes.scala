@@ -55,38 +55,38 @@ class SqlServerTypes {
   val unknown = SqlServerType(JavaSqlServerTypes.unknown)
 
   // Forward static methods with Scala type conversion
-  def decimal(precision: Int, scale: Int): SqlServerType[BigDecimal] =
-    SqlServerType(JavaSqlServerTypes.decimal(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def decimalOf(precision: Int, scale: Int): SqlServerType[BigDecimal] =
+    SqlServerType(JavaSqlServerTypes.decimalOf(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def numeric(precision: Int, scale: Int): SqlServerType[BigDecimal] =
-    SqlServerType(JavaSqlServerTypes.numeric(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def numericOf(precision: Int, scale: Int): SqlServerType[BigDecimal] =
+    SqlServerType(JavaSqlServerTypes.numericOf(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def char_(length: Int): SqlServerType[String] =
-    SqlServerType(JavaSqlServerTypes.char_(length))
+  def char_Of(length: Int): SqlServerType[String] =
+    SqlServerType(JavaSqlServerTypes.char_Of(length))
 
-  def varchar(length: Int): SqlServerType[String] =
-    SqlServerType(JavaSqlServerTypes.varchar(length))
+  def varcharOf(length: Int): SqlServerType[String] =
+    SqlServerType(JavaSqlServerTypes.varcharOf(length))
 
-  def nchar(length: Int): SqlServerType[String] =
-    SqlServerType(JavaSqlServerTypes.nchar(length))
+  def ncharOf(length: Int): SqlServerType[String] =
+    SqlServerType(JavaSqlServerTypes.ncharOf(length))
 
-  def nvarchar(length: Int): SqlServerType[String] =
-    SqlServerType(JavaSqlServerTypes.nvarchar(length))
+  def nvarcharOf(length: Int): SqlServerType[String] =
+    SqlServerType(JavaSqlServerTypes.nvarcharOf(length))
 
-  def binary(length: Int): SqlServerType[Array[Byte]] =
-    SqlServerType(JavaSqlServerTypes.binary(length))
+  def binaryOf(length: Int): SqlServerType[Array[Byte]] =
+    SqlServerType(JavaSqlServerTypes.binaryOf(length))
 
-  def varbinary(length: Int): SqlServerType[Array[Byte]] =
-    SqlServerType(JavaSqlServerTypes.varbinary(length))
+  def varbinaryOf(length: Int): SqlServerType[Array[Byte]] =
+    SqlServerType(JavaSqlServerTypes.varbinaryOf(length))
 
-  def time(scale: Int): SqlServerType[java.time.LocalTime] =
-    SqlServerType(JavaSqlServerTypes.time(scale))
+  def timeOf(scale: Int): SqlServerType[java.time.LocalTime] =
+    SqlServerType(JavaSqlServerTypes.timeOf(scale))
 
-  def datetime2(scale: Int): SqlServerType[java.time.LocalDateTime] =
-    SqlServerType(JavaSqlServerTypes.datetime2(scale))
+  def datetime2Of(scale: Int): SqlServerType[java.time.LocalDateTime] =
+    SqlServerType(JavaSqlServerTypes.datetime2Of(scale))
 
-  def datetimeoffset(scale: Int): SqlServerType[java.time.OffsetDateTime] =
-    SqlServerType(JavaSqlServerTypes.datetimeoffset(scale))
+  def datetimeoffsetOf(scale: Int): SqlServerType[java.time.OffsetDateTime] =
+    SqlServerType(JavaSqlServerTypes.datetimeoffsetOf(scale))
 
   // JSON-encoded row types
 

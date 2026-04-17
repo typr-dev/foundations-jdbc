@@ -93,14 +93,14 @@ class PgTypes {
   ): PgType[T] =
     PgType(JavaPgTypes.ofPgObject(sqlType, constructor, extractor, json))
 
-  def record(sqlType: String): PgType[dev.typr.foundations.data.Record] =
-    PgType(JavaPgTypes.record(sqlType))
+  def recordOf(sqlType: String): PgType[dev.typr.foundations.data.Record] =
+    PgType(JavaPgTypes.recordOf(sqlType))
 
-  def bit(n: Int): PgType[dev.typr.foundations.data.Bit] =
-    PgType(JavaPgTypes.bit(n))
+  def bitOf(n: Int): PgType[dev.typr.foundations.data.Bit] =
+    PgType(JavaPgTypes.bitOf(n))
 
-  def bpchar(precision: Int): PgType[String] =
-    PgType(JavaPgTypes.bpchar(precision))
+  def bpcharOf(precision: Int): PgType[String] =
+    PgType(JavaPgTypes.bpcharOf(precision))
 
   def pgObject[T <: org.postgresql.util.PGobject](
       sqlType: String,

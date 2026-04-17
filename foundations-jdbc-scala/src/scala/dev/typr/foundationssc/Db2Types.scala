@@ -44,44 +44,44 @@ class Db2Types {
   val unknown = Db2Type(JavaDb2Types.unknown)
 
   // Forward static methods with Scala type conversion
-  def decimal(precision: Int, scale: Int): Db2Type[BigDecimal] =
-    Db2Type(JavaDb2Types.decimal(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def decimalOf(precision: Int, scale: Int): Db2Type[BigDecimal] =
+    Db2Type(JavaDb2Types.decimalOf(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def numeric(precision: Int, scale: Int): Db2Type[BigDecimal] =
-    Db2Type(JavaDb2Types.numeric(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def numericOf(precision: Int, scale: Int): Db2Type[BigDecimal] =
+    Db2Type(JavaDb2Types.numericOf(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def decfloat(precision: Int): Db2Type[BigDecimal] =
-    Db2Type(JavaDb2Types.decfloat(precision).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def decfloatOf(precision: Int): Db2Type[BigDecimal] =
+    Db2Type(JavaDb2Types.decfloatOf(precision).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def char_(length: Int): Db2Type[String] =
-    Db2Type(JavaDb2Types.char_(length))
+  def char_Of(length: Int): Db2Type[String] =
+    Db2Type(JavaDb2Types.char_Of(length))
 
-  def varchar(length: Int): Db2Type[String] =
-    Db2Type(JavaDb2Types.varchar(length))
+  def varcharOf(length: Int): Db2Type[String] =
+    Db2Type(JavaDb2Types.varcharOf(length))
 
-  def clob(length: Int): Db2Type[String] =
-    Db2Type(JavaDb2Types.clob(length))
+  def clobOf(length: Int): Db2Type[String] =
+    Db2Type(JavaDb2Types.clobOf(length))
 
-  def graphic(length: Int): Db2Type[String] =
-    Db2Type(JavaDb2Types.graphic(length))
+  def graphicOf(length: Int): Db2Type[String] =
+    Db2Type(JavaDb2Types.graphicOf(length))
 
-  def vargraphic(length: Int): Db2Type[String] =
-    Db2Type(JavaDb2Types.vargraphic(length))
+  def vargraphicOf(length: Int): Db2Type[String] =
+    Db2Type(JavaDb2Types.vargraphicOf(length))
 
-  def dbclob(length: Int): Db2Type[String] =
-    Db2Type(JavaDb2Types.dbclob(length))
+  def dbclobOf(length: Int): Db2Type[String] =
+    Db2Type(JavaDb2Types.dbclobOf(length))
 
-  def binary(length: Int): Db2Type[Array[Byte]] =
-    Db2Type(JavaDb2Types.binary(length))
+  def binaryOf(length: Int): Db2Type[Array[Byte]] =
+    Db2Type(JavaDb2Types.binaryOf(length))
 
-  def varbinary(length: Int): Db2Type[Array[Byte]] =
-    Db2Type(JavaDb2Types.varbinary(length))
+  def varbinaryOf(length: Int): Db2Type[Array[Byte]] =
+    Db2Type(JavaDb2Types.varbinaryOf(length))
 
-  def blob(length: Int): Db2Type[Array[Byte]] =
-    Db2Type(JavaDb2Types.blob(length))
+  def blobOf(length: Int): Db2Type[Array[Byte]] =
+    Db2Type(JavaDb2Types.blobOf(length))
 
-  def timestamp(scale: Int): Db2Type[java.time.LocalDateTime] =
-    Db2Type(JavaDb2Types.timestamp(scale))
+  def timestampOf(scale: Int): Db2Type[java.time.LocalDateTime] =
+    Db2Type(JavaDb2Types.timestampOf(scale))
 
   val json = Db2Type(JavaDb2Types.json)
 

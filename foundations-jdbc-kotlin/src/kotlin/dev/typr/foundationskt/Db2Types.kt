@@ -44,31 +44,31 @@ open class Db2Types {
     open val unknown = Db2Type(JavaDb2Types.unknown)
 
     // Parameterized methods
-    open fun decimal(precision: Int, scale: Int) = Db2Type(JavaDb2Types.decimal(precision, scale))
+    open fun decimalOf(precision: Int, scale: Int) = Db2Type(JavaDb2Types.decimalOf(precision, scale))
 
-    open fun numeric(precision: Int, scale: Int) = Db2Type(JavaDb2Types.numeric(precision, scale))
+    open fun numericOf(precision: Int, scale: Int) = Db2Type(JavaDb2Types.numericOf(precision, scale))
 
-    open fun decfloat(precision: Int) = Db2Type(JavaDb2Types.decfloat(precision))
+    open fun decfloatOf(precision: Int) = Db2Type(JavaDb2Types.decfloatOf(precision))
 
-    open fun char_(length: Int) = Db2Type(JavaDb2Types.char_(length))
+    open fun char_Of(length: Int) = Db2Type(JavaDb2Types.char_Of(length))
 
-    open fun varchar(length: Int) = Db2Type(JavaDb2Types.varchar(length))
+    open fun varcharOf(length: Int) = Db2Type(JavaDb2Types.varcharOf(length))
 
-    open fun clob(length: Int) = Db2Type(JavaDb2Types.clob(length))
+    open fun clobOf(length: Int) = Db2Type(JavaDb2Types.clobOf(length))
 
-    open fun graphic(length: Int) = Db2Type(JavaDb2Types.graphic(length))
+    open fun graphicOf(length: Int) = Db2Type(JavaDb2Types.graphicOf(length))
 
-    open fun vargraphic(length: Int) = Db2Type(JavaDb2Types.vargraphic(length))
+    open fun vargraphicOf(length: Int) = Db2Type(JavaDb2Types.vargraphicOf(length))
 
-    open fun dbclob(length: Int) = Db2Type(JavaDb2Types.dbclob(length))
+    open fun dbclobOf(length: Int) = Db2Type(JavaDb2Types.dbclobOf(length))
 
-    open fun binary(length: Int) = Db2Type(JavaDb2Types.binary(length))
+    open fun binaryOf(length: Int) = Db2Type(JavaDb2Types.binaryOf(length))
 
-    open fun varbinary(length: Int) = Db2Type(JavaDb2Types.varbinary(length))
+    open fun varbinaryOf(length: Int) = Db2Type(JavaDb2Types.varbinaryOf(length))
 
-    open fun blob(length: Int) = Db2Type(JavaDb2Types.blob(length))
+    open fun blobOf(length: Int) = Db2Type(JavaDb2Types.blobOf(length))
 
-    open fun timestamp(scale: Int) = Db2Type(JavaDb2Types.timestamp(scale))
+    open fun timestampOf(scale: Int) = Db2Type(JavaDb2Types.timestampOf(scale))
 
     open val json = Db2Type(JavaDb2Types.json)
 

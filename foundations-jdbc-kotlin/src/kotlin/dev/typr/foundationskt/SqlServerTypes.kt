@@ -55,27 +55,27 @@ open class SqlServerTypes {
     open val unknown = SqlServerType(JavaSqlServerTypes.unknown)
 
     // Parameterized methods
-    open fun decimal(precision: Int, scale: Int) = SqlServerType(JavaSqlServerTypes.decimal(precision, scale))
+    open fun decimalOf(precision: Int, scale: Int) = SqlServerType(JavaSqlServerTypes.decimalOf(precision, scale))
 
-    open fun numeric(precision: Int, scale: Int) = SqlServerType(JavaSqlServerTypes.numeric(precision, scale))
+    open fun numericOf(precision: Int, scale: Int) = SqlServerType(JavaSqlServerTypes.numericOf(precision, scale))
 
-    open fun char_(length: Int) = SqlServerType(JavaSqlServerTypes.char_(length))
+    open fun char_Of(length: Int) = SqlServerType(JavaSqlServerTypes.char_Of(length))
 
-    open fun varchar(length: Int) = SqlServerType(JavaSqlServerTypes.varchar(length))
+    open fun varcharOf(length: Int) = SqlServerType(JavaSqlServerTypes.varcharOf(length))
 
-    open fun nchar(length: Int) = SqlServerType(JavaSqlServerTypes.nchar(length))
+    open fun ncharOf(length: Int) = SqlServerType(JavaSqlServerTypes.ncharOf(length))
 
-    open fun nvarchar(length: Int) = SqlServerType(JavaSqlServerTypes.nvarchar(length))
+    open fun nvarcharOf(length: Int) = SqlServerType(JavaSqlServerTypes.nvarcharOf(length))
 
-    open fun binary(length: Int) = SqlServerType(JavaSqlServerTypes.binary(length))
+    open fun binaryOf(length: Int) = SqlServerType(JavaSqlServerTypes.binaryOf(length))
 
-    open fun varbinary(length: Int) = SqlServerType(JavaSqlServerTypes.varbinary(length))
+    open fun varbinaryOf(length: Int) = SqlServerType(JavaSqlServerTypes.varbinaryOf(length))
 
-    open fun time(scale: Int) = SqlServerType(JavaSqlServerTypes.time(scale))
+    open fun timeOf(scale: Int) = SqlServerType(JavaSqlServerTypes.timeOf(scale))
 
-    open fun datetime2(scale: Int) = SqlServerType(JavaSqlServerTypes.datetime2(scale))
+    open fun datetime2Of(scale: Int) = SqlServerType(JavaSqlServerTypes.datetime2Of(scale))
 
-    open fun datetimeoffset(scale: Int) = SqlServerType(JavaSqlServerTypes.datetimeoffset(scale))
+    open fun datetimeoffsetOf(scale: Int) = SqlServerType(JavaSqlServerTypes.datetimeoffsetOf(scale))
 
     // JSON-encoded row types
 

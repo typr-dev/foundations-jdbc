@@ -73,7 +73,7 @@ public interface OracleTypes {
           OracleOutParam.readLong);
 
   /** NUMBER with precision and scale factory methods */
-  static OracleType<BigDecimal> number(int precision) {
+  static OracleType<BigDecimal> numberOf(int precision) {
     return OracleType.of(
         OracleTypename.of("NUMBER", precision),
         OracleRead.readBigDecimal,
@@ -82,7 +82,7 @@ public interface OracleTypes {
         OracleOutParam.readBigDecimal);
   }
 
-  static OracleType<BigDecimal> number(int precision, int scale) {
+  static OracleType<BigDecimal> numberOf(int precision, int scale) {
     return OracleType.of(
         OracleTypename.of("NUMBER", precision, scale),
         OracleRead.readBigDecimal,
@@ -97,12 +97,12 @@ public interface OracleTypes {
    * STRUCT attributes where the Oracle driver always hands BigDecimal regardless of precision.
    */
   static OracleType<Integer> numberAsInt(int precision) {
-    return number(precision).transform(BigDecimal::intValueExact, BigDecimal::valueOf);
+    return numberOf(precision).transform(BigDecimal::intValueExact, BigDecimal::valueOf);
   }
 
   /** NUMBER(p,0) viewed as Java {@code long}. See {@link #numberAsInt(int)} for the rationale. */
   static OracleType<Long> numberAsLong(int precision) {
-    return number(precision).transform(BigDecimal::longValueExact, BigDecimal::valueOf);
+    return numberOf(precision).transform(BigDecimal::longValueExact, BigDecimal::valueOf);
   }
 
   /** BINARY_FLOAT - 32-bit IEEE 754 floating point. Range: +/-1.17549E-38 to +/-3.40282E+38 */
@@ -136,7 +136,7 @@ public interface OracleTypes {
               OracleOutParam.readDouble)
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("number")));
 
-  static OracleType<Double> float_(int binaryPrecision) {
+  static OracleType<Double> float_Of(int binaryPrecision) {
     return OracleType.of(
             OracleTypename.of("FLOAT", binaryPrecision),
             OracleRead.readDouble,
@@ -174,7 +174,7 @@ public interface OracleTypes {
           OracleJson.text,
           OracleOutParam.readString);
 
-  static OracleType<String> varchar2(int maxLength) {
+  static OracleType<String> varchar2Of(int maxLength) {
     return OracleType.of(
         OracleTypename.of("VARCHAR2", maxLength),
         OracleRead.readString,
@@ -206,7 +206,7 @@ public interface OracleTypes {
               OracleOutParam.readString)
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("varchar2")));
 
-  static OracleType<String> char_(int length) {
+  static OracleType<String> char_Of(int length) {
     return OracleType.of(
             OracleTypename.of("CHAR", length),
             OracleRead.readString,
@@ -241,7 +241,7 @@ public interface OracleTypes {
           OracleJson.text,
           OracleOutParam.readString);
 
-  static OracleType<String> nvarchar2(int maxLength) {
+  static OracleType<String> nvarchar2Of(int maxLength) {
     return OracleType.of(
         OracleTypename.of("NVARCHAR2", maxLength),
         OracleRead.readString,
@@ -272,7 +272,7 @@ public interface OracleTypes {
           OracleJson.text,
           OracleOutParam.readString);
 
-  static OracleType<String> nchar(int length) {
+  static OracleType<String> ncharOf(int length) {
     return OracleType.of(
         OracleTypename.of("NCHAR", length),
         OracleRead.readString,
@@ -364,7 +364,7 @@ public interface OracleTypes {
           OracleJson.bytea,
           OracleOutParam.readByteArray);
 
-  static OracleType<byte[]> raw(int maxLength) {
+  static OracleType<byte[]> rawOf(int maxLength) {
     return OracleType.of(
         OracleTypename.of("RAW", maxLength),
         OracleRead.readByteArray,
@@ -447,7 +447,7 @@ public interface OracleTypes {
           OracleJson.timestamp,
           OracleOutParam.readLocalDateTime);
 
-  static OracleType<LocalDateTime> timestamp(int fractionalSecondsPrecision) {
+  static OracleType<LocalDateTime> timestampOf(int fractionalSecondsPrecision) {
     return OracleType.of(
         OracleTypename.of("TIMESTAMP", fractionalSecondsPrecision),
         OracleRead.readTimestamp,
@@ -752,8 +752,8 @@ public interface OracleTypes {
    * <pre>{@code
    * OracleType<Address> addressType = OracleTypes.compositeOf("ADDRESS_T",
    *     RowCodec.<Address>namedBuilder()
-   *         .field("STREET", OracleTypes.varchar2(100), Address::street)
-   *         .field("CITY", OracleTypes.varchar2(50), Address::city)
+   *         .field("STREET", OracleTypes.varchar2Of(100), Address::street)
+   *         .field("CITY", OracleTypes.varchar2Of(50), Address::city)
    *         .build(Address::new));
    * }</pre>
    */

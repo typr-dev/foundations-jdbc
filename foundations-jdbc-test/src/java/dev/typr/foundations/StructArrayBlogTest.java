@@ -164,8 +164,8 @@ public class StructArrayBlogTest {
       OracleTypes.compositeOf(
           "BLOG_ADDRESS_T",
           RowCodec.<OracleAddress>namedBuilder()
-              .field("STREET", OracleTypes.varchar2(100), OracleAddress::street)
-              .field("CITY", OracleTypes.varchar2(50), OracleAddress::city)
+              .field("STREET", OracleTypes.varchar2Of(100), OracleAddress::street)
+              .field("CITY", OracleTypes.varchar2Of(50), OracleAddress::city)
               .build(OracleAddress::new));
 
   static final OracleType<OracleLineItem> oracleLineItemType =
@@ -188,7 +188,7 @@ public class StructArrayBlogTest {
       OracleTypes.compositeOf(
           "BLOG_SKILL_T",
           RowCodec.<OracleSkill>namedBuilder()
-              .field("NAME", OracleTypes.varchar2(50), OracleSkill::name)
+              .field("NAME", OracleTypes.varchar2Of(50), OracleSkill::name)
               .field("LEVEL_NUM", OracleTypes.numberInt, OracleSkill::level)
               .build(OracleSkill::new));
 
@@ -199,8 +199,8 @@ public class StructArrayBlogTest {
       OracleTypes.compositeOf(
           "BLOG_EMPLOYEE_T",
           RowCodec.<OracleEmployee>namedBuilder()
-              .field("NAME", OracleTypes.varchar2(100), OracleEmployee::name)
-              .field("ROLE_NAME", OracleTypes.varchar2(50), OracleEmployee::role)
+              .field("NAME", OracleTypes.varchar2Of(100), OracleEmployee::name)
+              .field("ROLE_NAME", OracleTypes.varchar2Of(50), OracleEmployee::role)
               .field("SKILLS", oracleSkillsType, OracleEmployee::skills)
               .build(OracleEmployee::new));
 

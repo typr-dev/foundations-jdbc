@@ -24,7 +24,7 @@ public class OptionallyTest {
   static RowCodecNamed<Product> productCodec =
       RowCodec.<Product>namedBuilder()
           .field("name", DuckDbTypes.varchar, Product::name)
-          .field("price", DuckDbTypes.decimal(10, 2), Product::price)
+          .field("price", DuckDbTypes.decimalOf(10, 2), Product::price)
           .field("active", DuckDbTypes.boolean_, Product::active)
           .build(Product::new);
 
@@ -100,7 +100,7 @@ public class OptionallyTest {
       var template =
           Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
               .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-              .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimal(10, 2)))
+              .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimalOf(10, 2)))
               .optionally(Fragment.of(" AND active = true"))
               .append(" ORDER BY name")
               .query(productCodec.all());
@@ -163,7 +163,7 @@ public class OptionallyTest {
                   + " VALUES "
                   + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
 
-      var decType = DuckDbTypes.decimal(10, 2);
+      var decType = DuckDbTypes.decimalOf(10, 2);
       var template =
           Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
               .optionally(
@@ -195,7 +195,7 @@ public class OptionallyTest {
       var template =
           Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
               .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-              .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimal(10, 2)))
+              .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimalOf(10, 2)))
               .optionally(Fragment.of(" AND active = true"))
               .append(" ORDER BY name")
               .query(productCodec.all());

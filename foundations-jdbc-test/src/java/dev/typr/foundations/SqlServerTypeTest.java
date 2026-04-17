@@ -104,12 +104,12 @@ public class SqlServerTypeTest {
           // ==================== Fixed-Point Types ====================
           // Use DECIMAL(18,4) - values must have exactly 4 decimal places to match
           new SqlServerTypeAndExample<>(
-              SqlServerTypes.decimal(18, 4), new BigDecimal("12345.6789")),
-          new SqlServerTypeAndExample<>(SqlServerTypes.decimal(18, 4), new BigDecimal("0.0000")),
+              SqlServerTypes.decimalOf(18, 4), new BigDecimal("12345.6789")),
+          new SqlServerTypeAndExample<>(SqlServerTypes.decimalOf(18, 4), new BigDecimal("0.0000")),
           new SqlServerTypeAndExample<>(
-              SqlServerTypes.decimal(18, 4), new BigDecimal("-99999.9990")),
+              SqlServerTypes.decimalOf(18, 4), new BigDecimal("-99999.9990")),
           new SqlServerTypeAndExample<>(
-              SqlServerTypes.decimal(10, 2), new BigDecimal("12345678.90")),
+              SqlServerTypes.decimalOf(10, 2), new BigDecimal("12345678.90")),
           new SqlServerTypeAndExample<>(
               SqlServerTypes.money, new BigDecimal("922337203685477.5807")),
           new SqlServerTypeAndExample<>(
@@ -131,18 +131,18 @@ public class SqlServerTypeTest {
 
           // ==================== String Types (Non-Unicode) ====================
           // Use explicit sizes that match the data
-          new SqlServerTypeAndExample<>(SqlServerTypes.char_(10), "Hello     "),
-          new SqlServerTypeAndExample<>(SqlServerTypes.char_(10), "fixed     "),
-          new SqlServerTypeAndExample<>(SqlServerTypes.varchar(50), "variable length"),
-          new SqlServerTypeAndExample<>(SqlServerTypes.varchar(50), ""),
-          new SqlServerTypeAndExample<>(SqlServerTypes.varchar(50), "Quote\"Test'Single"),
+          new SqlServerTypeAndExample<>(SqlServerTypes.char_Of(10), "Hello     "),
+          new SqlServerTypeAndExample<>(SqlServerTypes.char_Of(10), "fixed     "),
+          new SqlServerTypeAndExample<>(SqlServerTypes.varcharOf(50), "variable length"),
+          new SqlServerTypeAndExample<>(SqlServerTypes.varcharOf(50), ""),
+          new SqlServerTypeAndExample<>(SqlServerTypes.varcharOf(50), "Quote\"Test'Single"),
           new SqlServerTypeAndExample<>(SqlServerTypes.varcharMax, "Very long text ".repeat(100)),
           // TEXT is deprecated legacy type, cannot be used with = operator in WHERE clause
           new SqlServerTypeAndExample<>(SqlServerTypes.text, "legacy text type").noIdentity(),
 
           // ==================== String Types (Unicode) ====================
-          new SqlServerTypeAndExample<>(SqlServerTypes.nchar(10), "Unicode   "),
-          new SqlServerTypeAndExample<>(SqlServerTypes.nvarchar(50), "Unicode variable: 中文 😀"),
+          new SqlServerTypeAndExample<>(SqlServerTypes.ncharOf(10), "Unicode   "),
+          new SqlServerTypeAndExample<>(SqlServerTypes.nvarcharOf(50), "Unicode variable: 中文 😀"),
           new SqlServerTypeAndExample<>(
               SqlServerTypes.nvarcharMax, "Unicode long: ".repeat(50) + "中文"),
           // NTEXT is deprecated legacy type, cannot be used with = operator in WHERE clause
@@ -150,11 +150,11 @@ public class SqlServerTypeTest {
 
           // ==================== Binary Types ====================
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.binary(10),
+                  SqlServerTypes.binaryOf(10),
                   new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A})
               .noIdentity(),
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.varbinary(10), new byte[] {(byte) 0xFF, 0x00, 0x7F})
+                  SqlServerTypes.varbinaryOf(10), new byte[] {(byte) 0xFF, 0x00, 0x7F})
               .noIdentity(),
           new SqlServerTypeAndExample<>(SqlServerTypes.varbinaryMax, new byte[1000]).noIdentity(),
           // IMAGE is deprecated legacy type, cannot be used with = operator in WHERE clause
@@ -166,7 +166,7 @@ public class SqlServerTypeTest {
           new SqlServerTypeAndExample<>(SqlServerTypes.time, LocalTime.of(14, 30, 45)),
           new SqlServerTypeAndExample<>(SqlServerTypes.time, LocalTime.of(0, 0, 0)),
           // TIME(7) has JDBC conversion precision issues with nanoseconds
-          new SqlServerTypeAndExample<>(SqlServerTypes.time(7), LocalTime.of(14, 30, 45, 123456700))
+          new SqlServerTypeAndExample<>(SqlServerTypes.timeOf(7), LocalTime.of(14, 30, 45, 123456700))
               .noIdentity(),
           new SqlServerTypeAndExample<>(
                   SqlServerTypes.datetime, LocalDateTime.of(2024, 12, 22, 14, 30, 45))
@@ -176,12 +176,12 @@ public class SqlServerTypeTest {
           new SqlServerTypeAndExample<>(
               SqlServerTypes.datetime2, LocalDateTime.of(2024, 12, 22, 14, 30, 45, 123456700)),
           new SqlServerTypeAndExample<>(
-              SqlServerTypes.datetime2(7), LocalDateTime.of(2024, 12, 22, 14, 30, 45, 123456700)),
+              SqlServerTypes.datetime2Of(7), LocalDateTime.of(2024, 12, 22, 14, 30, 45, 123456700)),
           new SqlServerTypeAndExample<>(
               SqlServerTypes.datetimeoffset,
               OffsetDateTime.of(2024, 12, 22, 14, 30, 45, 0, ZoneOffset.UTC)),
           new SqlServerTypeAndExample<>(
-              SqlServerTypes.datetimeoffset(7),
+              SqlServerTypes.datetimeoffsetOf(7),
               OffsetDateTime.of(2024, 12, 22, 14, 30, 45, 123456700, ZoneOffset.ofHours(-5))),
 
           // ==================== Special Types ====================
@@ -233,13 +233,13 @@ public class SqlServerTypeTest {
           // ==================== Alias Types (User-Defined Types) ====================
           // Test domain-like wrapper pattern (like CREATE TYPE EmailAddress FROM NVARCHAR(255))
           new SqlServerTypeAndExample<>(
-              SqlServerTypes.nvarchar(255).transform(EmailAddress::new, EmailAddress::value),
+              SqlServerTypes.nvarcharOf(255).transform(EmailAddress::new, EmailAddress::value),
               new EmailAddress("test@example.com")),
 
           // ==================== CLR Types (Assembly Types) ====================
           // Test CLR type as domain wrapper around VARBINARY (like generated code)
           new SqlServerTypeAndExample<>(
-                  SqlServerTypes.varbinary(100).transform(AssemblyData::new, AssemblyData::value),
+                  SqlServerTypes.varbinaryOf(100).transform(AssemblyData::new, AssemblyData::value),
                   new AssemblyData(new byte[] {0x01, 0x02, 0x03, 0x04}))
               .noIdentity(),
 

@@ -7,7 +7,7 @@ import dev.typr.foundationskt.*
 val eventIdType: DuckDbType<EventId> = DuckDbTypes.bigint.transform(::EventId, EventId::value)
 val venueIdType: DuckDbType<VenueId> = DuckDbTypes.bigint.transform(::VenueId, VenueId::value)
 val ticketIdType: DuckDbType<TicketId> = DuckDbTypes.uuid.transform(::TicketId, TicketId::value)
-val moneyType: DuckDbType<Money> = DuckDbTypes.decimal(12, 2).transform(::Money, Money::amount)
+val moneyType: DuckDbType<Money> = DuckDbTypes.decimalOf(12, 2).transform(::Money, Money::amount)
 
 // ─── Enum types ─────────────────────────────────────────────────────
 

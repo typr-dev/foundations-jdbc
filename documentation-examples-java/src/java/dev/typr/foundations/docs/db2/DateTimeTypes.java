@@ -12,6 +12,6 @@ public class DateTimeTypes {
   Db2Type<LocalDate> dateType = Db2Types.date;
   Db2Type<LocalTime> timeType = Db2Types.time;
   Db2Type<LocalDateTime> tsType = Db2Types.timestamp;
-  Db2Type<LocalDateTime> ts6 = Db2Types.timestamp(6);
+  Db2Type<LocalDateTime> ts6 = Db2Types.timestampOf(6);
   // stop
 }

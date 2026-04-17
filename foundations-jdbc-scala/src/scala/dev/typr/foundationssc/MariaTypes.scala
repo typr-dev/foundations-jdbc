@@ -67,29 +67,29 @@ class MariaTypes {
   val unknown = MariaType(JavaMariaTypes.unknown)
 
   // Forward static methods with Scala type conversion
-  def decimal(precision: Int, scale: Int): MariaType[BigDecimal] =
-    MariaType(JavaMariaTypes.decimal(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def decimalOf(precision: Int, scale: Int): MariaType[BigDecimal] =
+    MariaType(JavaMariaTypes.decimalOf(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def char_(length: Int): MariaType[String] =
-    MariaType(JavaMariaTypes.char_(length))
+  def char_Of(length: Int): MariaType[String] =
+    MariaType(JavaMariaTypes.char_Of(length))
 
-  def varchar(length: Int): MariaType[String] =
-    MariaType(JavaMariaTypes.varchar(length))
+  def varcharOf(length: Int): MariaType[String] =
+    MariaType(JavaMariaTypes.varcharOf(length))
 
-  def binary(length: Int): MariaType[Array[Byte]] =
-    MariaType(JavaMariaTypes.binary(length))
+  def binaryOf(length: Int): MariaType[Array[Byte]] =
+    MariaType(JavaMariaTypes.binaryOf(length))
 
-  def varbinary(length: Int): MariaType[Array[Byte]] =
-    MariaType(JavaMariaTypes.varbinary(length))
+  def varbinaryOf(length: Int): MariaType[Array[Byte]] =
+    MariaType(JavaMariaTypes.varbinaryOf(length))
 
-  def time(fsp: Int): MariaType[java.time.LocalTime] =
-    MariaType(JavaMariaTypes.time(fsp))
+  def timeOf(fsp: Int): MariaType[java.time.LocalTime] =
+    MariaType(JavaMariaTypes.timeOf(fsp))
 
-  def datetime(fsp: Int): MariaType[java.time.LocalDateTime] =
-    MariaType(JavaMariaTypes.datetime(fsp))
+  def datetimeOf(fsp: Int): MariaType[java.time.LocalDateTime] =
+    MariaType(JavaMariaTypes.datetimeOf(fsp))
 
-  def timestamp(fsp: Int): MariaType[java.time.LocalDateTime] =
-    MariaType(JavaMariaTypes.timestamp(fsp))
+  def timestampOf(fsp: Int): MariaType[java.time.LocalDateTime] =
+    MariaType(JavaMariaTypes.timestampOf(fsp))
 
   def vector(dimension: Int): MariaType[dev.typr.foundations.data.Vector] =
     MariaType(JavaMariaTypes.vector(dimension))

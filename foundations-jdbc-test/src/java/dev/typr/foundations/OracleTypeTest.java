@@ -57,8 +57,8 @@ public class OracleTypeTest {
     return OracleTypes.compositeOf(
         "COORDINATES_T",
         RowCodec.<Coordinates>namedBuilder()
-            .field("LATITUDE", OracleTypes.number(9, 6), Coordinates::latitude)
-            .field("LONGITUDE", OracleTypes.number(9, 6), Coordinates::longitude)
+            .field("LATITUDE", OracleTypes.numberOf(9, 6), Coordinates::latitude)
+            .field("LONGITUDE", OracleTypes.numberOf(9, 6), Coordinates::longitude)
             .build(Coordinates::new));
   }
 
@@ -67,8 +67,8 @@ public class OracleTypeTest {
     return OracleTypes.compositeOf(
         "ADDRESS_T",
         RowCodec.<Address>namedBuilder()
-            .field("STREET", OracleTypes.varchar2(100), Address::street)
-            .field("CITY", OracleTypes.varchar2(50), Address::city)
+            .field("STREET", OracleTypes.varchar2Of(100), Address::street)
+            .field("CITY", OracleTypes.varchar2Of(50), Address::city)
             .field("LOCATION", coordinatesType(), Address::location)
             .build(Address::new));
   }
@@ -85,13 +85,13 @@ public class OracleTypeTest {
 
   static RowCodec<OracleItem> oracleItemCodec =
       RowCodec.<OracleItem>builder()
-          .field(OracleTypes.varchar2(100), OracleItem::name)
+          .field(OracleTypes.varchar2Of(100), OracleItem::name)
           .field(OracleTypes.numberInt, OracleItem::quantity)
           .build(OracleItem::new);
 
   static RowCodecNamed<OracleItem> namedOracleItemCodec =
       RowCodec.<OracleItem>namedBuilder()
-          .field("name", OracleTypes.varchar2(100), OracleItem::name)
+          .field("name", OracleTypes.varchar2Of(100), OracleItem::name)
           .field("quantity", OracleTypes.numberInt, OracleItem::quantity)
           .build(OracleItem::new);
 
@@ -289,10 +289,10 @@ public class OracleTypeTest {
           new OracleTypeAndExample<>(OracleTypes.numberLong, 0L),
 
           // NUMBER with precision and scale
-          new OracleTypeAndExample<>(OracleTypes.number(10, 2), new BigDecimal("12345678.90")),
-          new OracleTypeAndExample<>(OracleTypes.number(10, 2), new BigDecimal("-99999999.99")),
+          new OracleTypeAndExample<>(OracleTypes.numberOf(10, 2), new BigDecimal("12345678.90")),
+          new OracleTypeAndExample<>(OracleTypes.numberOf(10, 2), new BigDecimal("-99999999.99")),
           new OracleTypeAndExample<>(
-              OracleTypes.number(38, 10),
+              OracleTypes.numberOf(38, 10),
               new BigDecimal("1234567890123456789012345678.1234567890")),
 
           // BINARY_FLOAT - 32-bit IEEE 754
@@ -312,21 +312,21 @@ public class OracleTypeTest {
 
           // FLOAT (ANSI type mapped to NUMBER)
           new OracleTypeAndExample<>(OracleTypes.float_, 42.42),
-          new OracleTypeAndExample<>(OracleTypes.float_(63), 123.456), // REAL equivalent
+          new OracleTypeAndExample<>(OracleTypes.float_Of(63), 123.456), // REAL equivalent
 
           // ═══════════════════════════════════════════════════════════════════════════
           // Character Types
           // ═══════════════════════════════════════════════════════════════════════════
 
           // VARCHAR2
-          new OracleTypeAndExample<>(OracleTypes.varchar2(100), "Hello, Oracle!"),
-          new OracleTypeAndExample<>(OracleTypes.varchar2(100), "", (String) null)
+          new OracleTypeAndExample<>(OracleTypes.varchar2Of(100), "Hello, Oracle!"),
+          new OracleTypeAndExample<>(OracleTypes.varchar2Of(100), "", (String) null)
               .noJsonRoundtrip(), // Oracle quirk: empty string → NULL
           new OracleTypeAndExample<>(
-              OracleTypes.varchar2(100), "Unicode: \u00e9\u00e8\u00ea \u4e2d\u6587"),
-          new OracleTypeAndExample<>(OracleTypes.varchar2(100), "Line1\nLine2\tTabbed"),
-          new OracleTypeAndExample<>(OracleTypes.varchar2(100), "Quote\"Test'Single"),
-          new OracleTypeAndExample<>(OracleTypes.varchar2(100), "Special chars: ,.;{}[]-//#"),
+              OracleTypes.varchar2Of(100), "Unicode: \u00e9\u00e8\u00ea \u4e2d\u6587"),
+          new OracleTypeAndExample<>(OracleTypes.varchar2Of(100), "Line1\nLine2\tTabbed"),
+          new OracleTypeAndExample<>(OracleTypes.varchar2Of(100), "Quote\"Test'Single"),
+          new OracleTypeAndExample<>(OracleTypes.varchar2Of(100), "Special chars: ,.;{}[]-//#"),
 
           // VARCHAR2 with NonEmptyString (for NOT NULL columns)
           new OracleTypeAndExample<>(
@@ -336,8 +336,8 @@ public class OracleTypeTest {
 
           // CHAR (fixed-length, blank-padded)
           new OracleTypeAndExample<>(
-              OracleTypes.char_(10), "hello     "), // Note: CHAR pads with spaces
-          new OracleTypeAndExample<>(OracleTypes.char_(5), "abc  "), // May be trimmed on comparison
+              OracleTypes.char_Of(10), "hello     "), // Note: CHAR pads with spaces
+          new OracleTypeAndExample<>(OracleTypes.char_Of(5), "abc  "), // May be trimmed on comparison
 
           // CHAR with PaddedString (for NOT NULL columns)
           new OracleTypeAndExample<>(OracleTypes.charPadded(10), PaddedString.force("hello", 10)),
@@ -346,15 +346,15 @@ public class OracleTypeTest {
 
           // NVARCHAR2 (National character set)
           new OracleTypeAndExample<>(
-              OracleTypes.nvarchar2(100), "Unicode text: \u0391\u0392\u0393"),
-          new OracleTypeAndExample<>(OracleTypes.nvarchar2(100), "Emoji: \uD83D\uDE00\uD83C\uDF89"),
+              OracleTypes.nvarchar2Of(100), "Unicode text: \u0391\u0392\u0393"),
+          new OracleTypeAndExample<>(OracleTypes.nvarchar2Of(100), "Emoji: \uD83D\uDE00\uD83C\uDF89"),
 
           // NVARCHAR2 with NonEmptyString (for NOT NULL columns)
           new OracleTypeAndExample<>(
               OracleTypes.nvarchar2NonEmpty(100), NonEmptyString.force("NonEmpty NVARCHAR2")),
 
           // NCHAR
-          new OracleTypeAndExample<>(OracleTypes.nchar(10), "test      "),
+          new OracleTypeAndExample<>(OracleTypes.ncharOf(10), "test      "),
 
           // NCHAR with PaddedString (for NOT NULL columns)
           new OracleTypeAndExample<>(
@@ -390,13 +390,13 @@ public class OracleTypeTest {
 
           // RAW
           new OracleTypeAndExample<>(
-              OracleTypes.raw(100), new byte[] {0x01, 0x02, 0x03, (byte) 0xFF}),
-          new OracleTypeAndExample<>(OracleTypes.raw(100), new byte[] {}, (byte[]) null)
+              OracleTypes.rawOf(100), new byte[] {0x01, 0x02, 0x03, (byte) 0xFF}),
+          new OracleTypeAndExample<>(OracleTypes.rawOf(100), new byte[] {}, (byte[]) null)
               .noJsonRoundtrip(), // Oracle quirk: empty byte array → NULL
           new OracleTypeAndExample<>(
-              OracleTypes.raw(100), new byte[] {0x00, 0x00, 0x00}), // Edge case: zeros
+              OracleTypes.rawOf(100), new byte[] {0x00, 0x00, 0x00}), // Edge case: zeros
           new OracleTypeAndExample<>(
-              OracleTypes.raw(100),
+              OracleTypes.rawOf(100),
               new byte[] {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF}),
 
           // BLOB - Binary Large Object (cannot be used as comparison key)
@@ -430,9 +430,9 @@ public class OracleTypeTest {
           new OracleTypeAndExample<>(
               OracleTypes.timestamp, LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)),
           new OracleTypeAndExample<>(
-              OracleTypes.timestamp(6), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)),
+              OracleTypes.timestampOf(6), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)),
           new OracleTypeAndExample<>(
-              OracleTypes.timestamp(9), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456789)),
+              OracleTypes.timestampOf(9), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456789)),
           new OracleTypeAndExample<>(
               OracleTypes.timestamp, LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0)), // Edge case: epoch
 
@@ -559,7 +559,7 @@ public class OracleTypeTest {
 
           // VARRAY example - phone_list (max 5 elements) - cannot be used as comparison key
           new OracleTypeAndExample<>(
-              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
               List.of("555-1234", "555-5678", "555-9999"),
               null,
               false,
@@ -571,7 +571,7 @@ public class OracleTypeTest {
 
           // VARRAY edge case - single element
           new OracleTypeAndExample<>(
-              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
               List.of("555-0000"),
               null,
               false,
@@ -583,7 +583,7 @@ public class OracleTypeTest {
 
           // VARRAY edge case - max size (5 elements)
           new OracleTypeAndExample<>(
-              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
               List.of("555-1111", "555-2222", "555-3333", "555-4444", "555-5555"),
               null,
               false,
@@ -665,10 +665,10 @@ public class OracleTypeTest {
                   OracleTypes.compositeOf(
                       "TEST_ALLTYPES",
                       RowCodec.<AllTypesStruct>namedBuilder()
-                          .field("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
-                          .field("NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
-                          .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
-                          .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
+                          .field("VARCHAR_FIELD", OracleTypes.varchar2Of(100), s -> s.varcharField)
+                          .field("NVARCHAR_FIELD", OracleTypes.nvarchar2Of(100), s -> s.nvarcharField)
+                          .field("CHAR_FIELD", OracleTypes.char_Of(10), s -> s.charField)
+                          .field("NCHAR_FIELD", OracleTypes.ncharOf(10), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
                           .field("NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
                           .field(
@@ -702,7 +702,7 @@ public class OracleTypeTest {
                           .field("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
                           .field(
                               "VARRAY_FIELD",
-                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
                               s -> s.varrayField)
                           .build(AllTypesStruct::new)),
                   new AllTypesStruct(
@@ -756,13 +756,13 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES_OPT",
                       RowCodec.<AllTypesStructOptional>namedBuilder()
                           .field(
-                              "VARCHAR_FIELD", OracleTypes.varchar2(100).opt(), s -> s.varcharField)
+                              "VARCHAR_FIELD", OracleTypes.varchar2Of(100).opt(), s -> s.varcharField)
                           .field(
                               "NVARCHAR_FIELD",
-                              OracleTypes.nvarchar2(100).opt(),
+                              OracleTypes.nvarchar2Of(100).opt(),
                               s -> s.nvarcharField)
-                          .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
-                          .field("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
+                          .field("CHAR_FIELD", OracleTypes.char_Of(10).opt(), s -> s.charField)
+                          .field("NCHAR_FIELD", OracleTypes.ncharOf(10).opt(), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
                           .field(
                               "NUMBER_INT_FIELD",
@@ -803,7 +803,7 @@ public class OracleTypeTest {
                               "NESTED_OBJECT_FIELD", addressType().opt(), s -> s.nestedObjectField)
                           .field(
                               "VARRAY_FIELD",
-                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)).opt(),
+                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)).opt(),
                               s -> s.varrayField)
                           .build(AllTypesStructOptional::new)),
                   new AllTypesStructOptional(
@@ -864,10 +864,10 @@ public class OracleTypeTest {
                   OracleTypes.compositeOf(
                       "TEST_ALLTYPES_NOLOBS",
                       RowCodec.<AllTypesStructNoLobs>namedBuilder()
-                          .field("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
-                          .field("NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
-                          .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
-                          .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
+                          .field("VARCHAR_FIELD", OracleTypes.varchar2Of(100), s -> s.varcharField)
+                          .field("NVARCHAR_FIELD", OracleTypes.nvarchar2Of(100), s -> s.nvarcharField)
+                          .field("CHAR_FIELD", OracleTypes.char_Of(10), s -> s.charField)
+                          .field("NCHAR_FIELD", OracleTypes.ncharOf(10), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
                           .field("NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
                           .field(
@@ -901,7 +901,7 @@ public class OracleTypeTest {
                           .field("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
                           .field(
                               "VARRAY_FIELD",
-                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
                               s -> s.varrayField)
                           .build(AllTypesStructNoLobs::new)),
                   new AllTypesStructNoLobs(
@@ -953,13 +953,13 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES_NOLOBS_OPT",
                       RowCodec.<AllTypesStructNoLobsOptional>namedBuilder()
                           .field(
-                              "VARCHAR_FIELD", OracleTypes.varchar2(100).opt(), s -> s.varcharField)
+                              "VARCHAR_FIELD", OracleTypes.varchar2Of(100).opt(), s -> s.varcharField)
                           .field(
                               "NVARCHAR_FIELD",
-                              OracleTypes.nvarchar2(100).opt(),
+                              OracleTypes.nvarchar2Of(100).opt(),
                               s -> s.nvarcharField)
-                          .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
-                          .field("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
+                          .field("CHAR_FIELD", OracleTypes.char_Of(10).opt(), s -> s.charField)
+                          .field("NCHAR_FIELD", OracleTypes.ncharOf(10).opt(), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
                           .field(
                               "NUMBER_INT_FIELD",
@@ -1000,7 +1000,7 @@ public class OracleTypeTest {
                               "NESTED_OBJECT_FIELD", addressType().opt(), s -> s.nestedObjectField)
                           .field(
                               "VARRAY_FIELD",
-                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)).opt(),
+                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)).opt(),
                               s -> s.varrayField)
                           .build(AllTypesStructNoLobsOptional::new)),
                   new AllTypesStructNoLobsOptional(
@@ -1057,13 +1057,13 @@ public class OracleTypeTest {
                           "TEST_ALLTYPES_NOLOBS",
                           RowCodec.<AllTypesStructNoLobs>namedBuilder()
                               .field(
-                                  "VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
+                                  "VARCHAR_FIELD", OracleTypes.varchar2Of(100), s -> s.varcharField)
                               .field(
                                   "NVARCHAR_FIELD",
-                                  OracleTypes.nvarchar2(100),
+                                  OracleTypes.nvarchar2Of(100),
                                   s -> s.nvarcharField)
-                              .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
-                              .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
+                              .field("CHAR_FIELD", OracleTypes.char_Of(10), s -> s.charField)
+                              .field("NCHAR_FIELD", OracleTypes.ncharOf(10), s -> s.ncharField)
                               .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
                               .field(
                                   "NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
@@ -1101,7 +1101,7 @@ public class OracleTypeTest {
                               .field("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
                               .field(
                                   "VARRAY_FIELD",
-                                  OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+                                  OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
                                   s -> s.varrayField)
                               .build(AllTypesStructNoLobs::new))),
                   List.of(
@@ -1182,14 +1182,14 @@ public class OracleTypeTest {
                           RowCodec.<AllTypesStructNoLobsOptional>namedBuilder()
                               .field(
                                   "VARCHAR_FIELD",
-                                  OracleTypes.varchar2(100).opt(),
+                                  OracleTypes.varchar2Of(100).opt(),
                                   s -> s.varcharField)
                               .field(
                                   "NVARCHAR_FIELD",
-                                  OracleTypes.nvarchar2(100).opt(),
+                                  OracleTypes.nvarchar2Of(100).opt(),
                                   s -> s.nvarcharField)
-                              .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
-                              .field("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
+                              .field("CHAR_FIELD", OracleTypes.char_Of(10).opt(), s -> s.charField)
+                              .field("NCHAR_FIELD", OracleTypes.ncharOf(10).opt(), s -> s.ncharField)
                               .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
                               .field(
                                   "NUMBER_INT_FIELD",
@@ -1234,7 +1234,7 @@ public class OracleTypeTest {
                                   s -> s.nestedObjectField)
                               .field(
                                   "VARRAY_FIELD",
-                                  OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)).opt(),
+                                  OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)).opt(),
                                   s -> s.varrayField)
                               .build(AllTypesStructNoLobsOptional::new))),
                   List.of(
@@ -1928,7 +1928,7 @@ public class OracleTypeTest {
         OracleTypes.compositeOf(
             "GAP_ITEM_T",
             RowCodec.<Item>namedBuilder()
-                .field("NAME", OracleTypes.varchar2(50), Item::name)
+                .field("NAME", OracleTypes.varchar2Of(50), Item::name)
                 .field("QTY", OracleTypes.numberInt, Item::qty)
                 .build(Item::new));
     OracleType<List<Item>> itemVArray = OracleVArray.of("GAP_ITEM_VA", 10, itemType);
@@ -2025,7 +2025,7 @@ public class OracleTypeTest {
         OracleTypes.compositeOf(
             "GAP_CITY_T",
             RowCodec.<City>namedBuilder()
-                .field("NAME", OracleTypes.varchar2(50), City::name)
+                .field("NAME", OracleTypes.varchar2Of(50), City::name)
                 .field("POPULATION", OracleTypes.numberInt, City::population)
                 .build(City::new));
     OracleType<List<City>> citiesType = OracleNestedTable.of("GAP_CITY_NT", cityType);
@@ -2033,7 +2033,7 @@ public class OracleTypeTest {
         OracleTypes.compositeOf(
             "GAP_REGION_T",
             RowCodec.<Region>namedBuilder()
-                .field("NAME", OracleTypes.varchar2(50), Region::name)
+                .field("NAME", OracleTypes.varchar2Of(50), Region::name)
                 .field("CITIES", citiesType, Region::cities)
                 .build(Region::new));
     OracleType<List<Region>> regionsType = OracleVArray.of("GAP_REGION_VA", 10, regionType);
@@ -2041,7 +2041,7 @@ public class OracleTypeTest {
         OracleTypes.compositeOf(
             "GAP_COUNTRY_T",
             RowCodec.<Country>namedBuilder()
-                .field("NAME", OracleTypes.varchar2(50), Country::name)
+                .field("NAME", OracleTypes.varchar2Of(50), Country::name)
                 .field("REGIONS", regionsType, Country::regions)
                 .build(Country::new));
     OracleType<List<Country>> countriesType = OracleNestedTable.of("GAP_COUNTRY_NT", countryType);
@@ -2277,7 +2277,7 @@ public class OracleTypeTest {
         OracleTypes.compositeOf(
             "GAP_SCORE_T",
             RowCodec.<Score>namedBuilder()
-                .field("NAME", OracleTypes.varchar2(50), Score::name)
+                .field("NAME", OracleTypes.varchar2Of(50), Score::name)
                 .field("POINTS", OracleTypes.numberAsInt(5), Score::points)
                 .field("TOTAL", OracleTypes.numberAsLong(15), Score::total)
                 .build(Score::new));

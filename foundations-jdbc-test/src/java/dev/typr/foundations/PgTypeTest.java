@@ -148,8 +148,8 @@ public class PgTypeTest {
           // ==================== Bit String Types ====================
           new PgTypeAndExample<>(PgTypes.bit, new Bit("1")),
           new PgTypeAndExample<>(PgTypes.bit, new Bit("0")),
-          new PgTypeAndExample<>(PgTypes.bit(8), new Bit("10110011")),
-          new PgTypeAndExample<>(PgTypes.bit(8), new Bit("00000000")),
+          new PgTypeAndExample<>(PgTypes.bitOf(8), new Bit("10110011")),
+          new PgTypeAndExample<>(PgTypes.bitOf(8), new Bit("00000000")),
           new PgTypeAndExample<>(PgTypes.varbit, new Varbit("1")),
           new PgTypeAndExample<>(PgTypes.varbit, new Varbit("101")),
           new PgTypeAndExample<>(PgTypes.varbit, new Varbit("00000000")),
@@ -174,7 +174,7 @@ public class PgTypeTest {
               .noIdentity(),
 
           // ==================== Character Types ====================
-          new PgTypeAndExample<>(PgTypes.bpchar(5), "377  "),
+          new PgTypeAndExample<>(PgTypes.bpcharOf(5), "377  "),
           new PgTypeAndExample<>(PgTypes.bpchar, "377"),
           new PgTypeAndExample<>(PgTypes.bpchar, ""),
           new PgTypeAndExample<>(PgTypes.text, ",.;{}[]-//#®✅"),

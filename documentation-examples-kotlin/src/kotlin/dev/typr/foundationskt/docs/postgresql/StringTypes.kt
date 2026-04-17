@@ -7,6 +7,6 @@ import dev.typr.foundationskt.data.*
 class StringTypes {
     //start
     val textType: PgType<String> = PgTypes.text
-    val charType: PgType<String> = PgTypes.bpchar(10)  // char(10)
+    val charType: PgType<String> = PgTypes.bpcharOf(10)  // char(10)
     //stop
 }

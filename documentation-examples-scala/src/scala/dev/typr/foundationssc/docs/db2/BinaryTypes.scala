@@ -6,7 +6,7 @@ import dev.typr.foundationssc.data.*
 object BinaryTypes:
   // start
   val binaryType: Db2Type[Array[Byte]] = Db2Types.binary
-  val binary16: Db2Type[Array[Byte]] = Db2Types.binary(16)
+  val binary16: Db2Type[Array[Byte]] = Db2Types.binaryOf(16)
   val varbinaryType: Db2Type[Array[Byte]] = Db2Types.varbinary
   val blobType: Db2Type[Array[Byte]] = Db2Types.blob
   // stop

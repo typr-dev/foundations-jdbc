@@ -48,7 +48,7 @@ public interface PgTypes {
 
   PgType<Bit> bit = bitType("bit");
 
-  static PgType<Bit> bit(int n) {
+  static PgType<Bit> bitOf(int n) {
     return new PgType<>(
         PgTypename.of("bit", n),
         PgRead.bitString.map(Bit::new),
@@ -542,7 +542,7 @@ public interface PgTypes {
   // Default record type for generic composite/record columns
   PgType<Record> record = ofPgObject("record", Record::new, Record::value, PgJson.record);
 
-  static PgType<Record> record(String sqlType) {
+  static PgType<Record> recordOf(String sqlType) {
     return ofPgObject(sqlType, Record::new, Record::value, PgJson.record);
   }
 
@@ -560,7 +560,7 @@ public interface PgTypes {
         ',');
   }
 
-  static PgType<String> bpchar(int precision) {
+  static PgType<String> bpcharOf(int precision) {
     return new PgType<>(
         PgTypename.of("bpchar", precision),
         PgRead.readString,

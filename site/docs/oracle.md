@@ -130,9 +130,9 @@ Oracle OBJECT types are built from a `RowCodecNamed` via `compositeOf`:
 ```java
 OracleType<Address> addressType = OracleTypes.compositeOf("ADDRESS_T",
     RowCodec.<Address>namedBuilder()
-        .field("STREET", OracleTypes.varchar2(200), Address::street)
-        .field("CITY", OracleTypes.varchar2(100), Address::city)
-        .field("ZIP", OracleTypes.varchar2(10), Address::zip)
+        .field("STREET", OracleTypes.varchar2Of(200), Address::street)
+        .field("CITY", OracleTypes.varchar2Of(100), Address::city)
+        .field("ZIP", OracleTypes.varchar2Of(10), Address::zip)
         .build(Address::new));
 ```
 
@@ -171,7 +171,7 @@ Use `.nullableOk()` on the type if you want to suppress nullability warnings for
 you know are `NOT NULL` in the schema:
 
 ```java
-OracleType<String> name = OracleTypes.varchar2(100).nullableOk();
+OracleType<String> name = OracleTypes.varchar2Of(100).nullableOk();
 ```
 
 ## Custom Domain Types
