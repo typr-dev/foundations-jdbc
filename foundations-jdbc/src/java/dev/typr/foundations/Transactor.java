@@ -201,6 +201,12 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
   /**
    * Strategy for testing: always rollback instead of commit.
    *
+   * <p><b>Warning:</b> this strategy rolls back every {@code execute} / {@code transact}, even
+   * those that succeeded. Nothing you write persists across calls on a given transactor — DDL,
+   * inserts, and updates all disappear. Use only in tests where per-test data isolation is the
+   * desired behavior. For scripts, tutorials, services, migrations, or anything that should
+   * actually persist changes, use {@link #defaultStrategy()}.
+   *
    * <p>Behavior:
    *
    * <ul>

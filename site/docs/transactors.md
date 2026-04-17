@@ -74,4 +74,8 @@ The default strategy wraps each call in a transaction. Pass a different built-in
 var tx = Transactor.create(config, Transactor.testStrategy());
 ```
 
+:::warning testStrategy is for tests only
+`testStrategy()` rolls back every `execute` / `transact`, including ones that succeeded — **nothing persists**. If you copy this into a script, a tutorial, a migration, or any production code, your DDL and INSERTs will silently disappear. For anything that should persist, use `defaultStrategy()`.
+:::
+
 Strategies can be thoroughly customized with composable hooks for transaction lifecycle and observability. See [Strategies](./strategies) for details.
