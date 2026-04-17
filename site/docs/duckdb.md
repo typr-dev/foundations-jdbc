@@ -95,7 +95,7 @@ DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so
 | `TIME` | `LocalTime` | Naive time, no zone |
 | `TIMESTAMP` / `DATETIME` | `LocalDateTime` | Naive timestamp, no zone |
 | `TIMESTAMP WITH TIME ZONE` | `Instant` | **UTC instant** — see note below |
-| `TIME WITH TIME ZONE` | `OffsetDateTime` | Time with offset |
+| `TIME WITH TIME ZONE` | `OffsetTime` | Time of day with offset preserved |
 | `INTERVAL` | `Duration` | Time duration |
 
 <Snippet file="duckdb/DateTimeTypes" />
