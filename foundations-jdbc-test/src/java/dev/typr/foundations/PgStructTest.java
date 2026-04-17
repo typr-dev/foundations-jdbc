@@ -445,8 +445,7 @@ public class PgStructTest {
 
     // Level 3: MiddleContainers with arrays of InnerItems
     MiddleContainer middle1 =
-        new MiddleContainer(
-            "Container \"A\" with, special (chars)", List.of(inner1, inner2));
+        new MiddleContainer("Container \"A\" with, special (chars)", List.of(inner1, inner2));
 
     MiddleContainer middle2 =
         new MiddleContainer("Container\nwith\nnewlines", List.of(inner3, inner4));
@@ -548,18 +547,22 @@ public class PgStructTest {
 
     // Verify Level 3: InnerItems with special chars
     assertEqual(decoded.containers().get(0).items().get(0).name(), inner1.name()); // quotes
-    assertEqual(decoded.containers().get(0).items().get(0).description(), inner1.description()); // commas
+    assertEqual(
+        decoded.containers().get(0).items().get(0).description(), inner1.description()); // commas
 
     assertEqual(decoded.containers().get(0).items().get(1).name(), inner2.name()); // parens
-    assertEqual(decoded.containers().get(0).items().get(1).description(), inner2.description()); // newlines
+    assertEqual(
+        decoded.containers().get(0).items().get(1).description(), inner2.description()); // newlines
 
     assertEqual(decoded.containers().get(1).items().get(0).name(), inner3.name()); // backslash
     assertEqual(
-        decoded.containers().get(1).items().get(0).description(), inner3.description()); // all together
+        decoded.containers().get(1).items().get(0).description(),
+        inner3.description()); // all together
 
     assertEqual(decoded.containers().get(1).items().get(1).name(), inner4.name()); // empty
     assertEqual(
-        decoded.containers().get(1).items().get(1).description(), inner4.description()); // whitespace
+        decoded.containers().get(1).items().get(1).description(),
+        inner4.description()); // whitespace
 
     System.out.println("All deep nesting roundtrip assertions passed!");
   }
@@ -648,12 +651,10 @@ public class PgStructTest {
           InnerItem inner3 = new InnerItem("back\\slash", "\"quo,ted\" and (paren)\nand\\slash");
 
           MiddleContainer middle1 =
-              new MiddleContainer(
-                  "Middle \"special\" (label)", List.of(inner1, inner2, inner3));
+              new MiddleContainer("Middle \"special\" (label)", List.of(inner1, inner2, inner3));
 
           // Non-empty nested array required: compositeOf can't infer element class for empty arrays
-          MiddleContainer middle2 =
-              new MiddleContainer("Multi\nLine\nLabel", List.of(inner1));
+          MiddleContainer middle2 = new MiddleContainer("Multi\nLine\nLabel", List.of(inner1));
 
           OuterWrapper original =
               new OuterWrapper(
@@ -686,13 +687,16 @@ public class PgStructTest {
                 assertEqual(readBack.containers().get(0).items().size(), 3);
                 assertEqual(readBack.containers().get(0).items().get(0).name(), inner1.name());
                 assertEqual(
-                    readBack.containers().get(0).items().get(0).description(), inner1.description());
+                    readBack.containers().get(0).items().get(0).description(),
+                    inner1.description());
                 assertEqual(readBack.containers().get(0).items().get(1).name(), inner2.name());
                 assertEqual(
-                    readBack.containers().get(0).items().get(1).description(), inner2.description());
+                    readBack.containers().get(0).items().get(1).description(),
+                    inner2.description());
                 assertEqual(readBack.containers().get(0).items().get(2).name(), inner3.name());
                 assertEqual(
-                    readBack.containers().get(0).items().get(2).description(), inner3.description());
+                    readBack.containers().get(0).items().get(2).description(),
+                    inner3.description());
 
                 // Second middle container (single-item array)
                 assertEqual(readBack.containers().get(1).label(), middle2.label());
@@ -1128,7 +1132,8 @@ public class PgStructTest {
         });
   }
 
-  // ==================== Gap coverage: composite[] in composite, NULL composite, empty array ====================
+  // ==================== Gap coverage: composite[] in composite, NULL composite, empty array
+  // ====================
 
   @Test
   public void testCompositeArrayFieldInComposite() {
@@ -1256,7 +1261,8 @@ public class PgStructTest {
             insert2.close();
 
             // Read back and verify both
-            var select = conn.createStatement().executeQuery("SELECT t FROM gap_tagged ORDER BY (t).id");
+            var select =
+                conn.createStatement().executeQuery("SELECT t FROM gap_tagged ORDER BY (t).id");
             if (!select.next()) throw new AssertionError("no rows");
             Tagged readBack1 = taggedType.read().read(select, 1);
             if (!select.next()) throw new AssertionError("second row missing");
@@ -1271,7 +1277,8 @@ public class PgStructTest {
             // that empty array element class can't be inferred from reflection.
             System.out.println(
                 "known limitation: empty composite[] write failed: " + e.getMessage());
-            // Don't fail the test if this specific limitation is hit — we've exercised the code path.
+            // Don't fail the test if this specific limitation is hit — we've exercised the code
+            // path.
           }
           return null;
         });

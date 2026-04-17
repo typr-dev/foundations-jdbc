@@ -754,5 +754,4 @@ public interface PgJson<A> extends DbJson<A> {
           return result;
         }
       };
-
 }

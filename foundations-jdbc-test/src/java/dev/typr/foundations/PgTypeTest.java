@@ -136,7 +136,6 @@ public class PgTypeTest {
         && !elem.type().typename().sqlType().contains("[]");
   }
 
-
   List<PgTypeAndExample<?>> Elements =
       List.<PgTypeAndExample<?>>of(
           // ==================== ACL Item Types ====================

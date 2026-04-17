@@ -166,9 +166,9 @@ public sealed interface PgRead<A> extends DbRead<A>
   }
 
   /**
-   * Read a PG array column of a composite type as a {@link List}, parsing each element text via
-   * the supplied {@link PgCompositeText} decoder. Used when JDBC's {@code Array.getArray()} path
-   * loses precision or fails (bit, time, money, composite records).
+   * Read a PG array column of a composite type as a {@link List}, parsing each element text via the
+   * supplied {@link PgCompositeText} decoder. Used when JDBC's {@code Array.getArray()} path loses
+   * precision or fails (bit, time, money, composite records).
    */
   static <A> PgRead<List<A>> readCompositeList(PgCompositeText<A> decoder) {
     return readString.map(

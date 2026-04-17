@@ -4,7 +4,6 @@ import dev.typr.foundations.connect.DuckDbConfig;
 import dev.typr.foundations.connect.SingleConnectionDataSource;
 import java.math.BigDecimal;
 import java.sql.*;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 

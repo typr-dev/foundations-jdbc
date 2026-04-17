@@ -127,8 +127,7 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
     }
 
     public Nullable(
-        RawRead<Optional<A>> readNullable,
-        java.util.function.Function<Object, A> innerConverter) {
+        RawRead<Optional<A>> readNullable, java.util.function.Function<Object, A> innerConverter) {
       this.readNullable = readNullable;
       this.innerConverter = innerConverter;
     }
@@ -421,68 +420,6 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
             }
             throw new SQLException("Cannot convert " + obj.getClass() + " to Struct");
           });
-
-  /**
-   * Read a MAP column with typed keys and values. DuckDB returns java.util.HashMap directly with
-   * proper types.
-   *
-   * @param keyReader reader for key type
-   * @param keyClass the Java class of keys
-   * @param valueReader reader for value type
-   * @param valueClass the Java class of values
-   * @param <K> key type
-   * @param <V> value type
-   * @return reader for Map
-   */
-  @SuppressWarnings("unchecked")
-  static <K, V> DuckDbRead<java.util.Map<K, V>> readMap(
-      DuckDbRead<K> keyReader, Class<K> keyClass, DuckDbRead<V> valueReader, Class<V> valueClass) {
-    return of(
-        (rs, idx) -> {
-          Object obj = rs.getObject(idx);
-          if (obj == null) return null;
-          if (obj instanceof java.util.Map) {
-            java.util.Map<?, ?> rawMap = (java.util.Map<?, ?>) obj;
-            java.util.Map<K, V> result = new java.util.LinkedHashMap<>();
-            for (var entry : rawMap.entrySet()) {
-              K key = keyClass.cast(entry.getKey());
-              V value = valueClass.cast(entry.getValue());
-              result.put(key, value);
-            }
-            return result;
-          }
-          throw new SQLException("Cannot convert " + obj.getClass() + " to Map");
-        });
-  }
-
-  /**
-   * Read a MAP column using support objects to convert keys and values. DuckDB JDBC returns
-   * java.util.HashMap, and we use the support objects to convert each key/value pair.
-   *
-   * @param keySupport support for key type
-   * @param valueSupport support for value type
-   * @param <K> key type
-   * @param <V> value type
-   * @return reader for Map
-   */
-  static <K, V> DuckDbRead<java.util.Map<K, V>> readMapWithSupport(
-      DuckDbMapSupport<K> keySupport, DuckDbMapSupport<V> valueSupport) {
-    return of(
-        (rs, idx) -> {
-          Object obj = rs.getObject(idx);
-          if (obj == null) return null;
-          if (obj instanceof java.util.Map<?, ?> rawMap) {
-            java.util.Map<K, V> result = new java.util.LinkedHashMap<>();
-            for (var entry : rawMap.entrySet()) {
-              K key = keySupport.fromMap(entry.getKey());
-              V value = valueSupport.fromMap(entry.getValue());
-              result.put(key, value);
-            }
-            return result;
-          }
-          throw new SQLException("Cannot convert " + obj.getClass() + " to Map");
-        });
-  }
 
   /**
    * Parse field names from a STRUCT type definition. e.g. STRUCT("name" VARCHAR, age INTEGER) ->

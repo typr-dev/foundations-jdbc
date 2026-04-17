@@ -104,7 +104,6 @@ public interface PgTypes {
           Optional.of(PgElementCodec.cast()),
           ',');
 
-
   PgType<Inet> inet = ofPgObject("inet", Inet::new, Inet::value, PgJson.inet);
   PgType<Cidr> cidr = ofPgObject("cidr", Cidr::new, Cidr::value, PgJson.cidr);
   PgType<MacAddr> macaddr = ofPgObject("macaddr", MacAddr::new, MacAddr::value, PgJson.macaddr);
@@ -139,7 +138,6 @@ public interface PgTypes {
           AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("serial")),
           Optional.of(PgElementCodec.cast()),
           ',');
-
 
   PgType<Json> json =
       ofPgObject("json", Json::new, Json::value, PgJson.json)
@@ -197,7 +195,6 @@ public interface PgTypes {
           AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("bigserial")),
           Optional.of(PgElementCodec.cast()),
           ',');
-
 
   PgType<Oid> oid =
       new PgType<>(
@@ -398,7 +395,6 @@ public interface PgTypes {
   PgType<Short> smallserial =
       int2.withTypename(PgTypename.of("smallserial"))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("int2")));
-
 
   PgType<String> bpchar =
       new PgType<>(

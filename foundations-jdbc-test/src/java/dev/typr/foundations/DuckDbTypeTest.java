@@ -384,6 +384,10 @@ public class DuckDbTypeTest {
           // ==================== MAP Types ====================
           // MAP types use the mapTo() combinator. They don't support direct equality in WHERE
           // clauses. MAP[] not supported: DuckDBUserArray string format rejected by DuckDB.
+          // Empty MAP — exercises the empty-stringifier branch and zero-entry roundtrip.
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.varchar.mapTo(DuckDbTypes.integer), java.util.Map.<String, Integer>of())
+              .noIdentity(),
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.integer), java.util.Map.of("a", 1, "b", 2))
               .noIdentity(),
@@ -478,6 +482,12 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(
                   configType, new Config(java.util.Map.of("max_conn", 100, "min_conn", 5)))
               .noIdentity(),
+          // Optional MAP — exercises .opt() on a transformed map type and the read.fromJdbcValue
+          // path through DuckDbRead.Nullable.
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.varchar.mapTo(DuckDbTypes.integer).opt(),
+                  java.util.Optional.of(java.util.Map.of("present", 1)))
+              .noIdentity(),
 
           // ==================== LIST Types with complex element types ====================
           // String-converted types (~33% overhead at 100k rows, but required for correctness)
@@ -541,8 +551,7 @@ public class DuckDbTypeTest {
                   personWithHobbiesType,
                   new PersonWithHobbies("Alice", List.of("reading", "hiking")))
               .noIdentity(),
-          new DuckDbTypeAndExample<>(
-                  personWithHobbiesType, new PersonWithHobbies("Bob", List.of()))
+          new DuckDbTypeAndExample<>(personWithHobbiesType, new PersonWithHobbies("Bob", List.of()))
               .noIdentity(),
           // Struct-in-struct (2-level)
           new DuckDbTypeAndExample<>(
@@ -551,15 +560,13 @@ public class DuckDbTypeTest {
           // Struct with list-of-struct field (deep nesting — previously broken)
           new DuckDbTypeAndExample<>(
                   teamType,
-                  new Team(
-                      "Platform", List.of(new Person("Alice", 30), new Person("Bob", 25))))
+                  new Team("Platform", List.of(new Person("Alice", 30), new Person("Bob", 25))))
               .noIdentity(),
           new DuckDbTypeAndExample<>(teamType, new Team("Empty", List.of())).noIdentity(),
           // Struct with fixed-size ARRAY-of-struct field
           new DuckDbTypeAndExample<>(
                   teamArrType,
-                  new TeamArr(
-                      "Platform", List.of(new Person("Alice", 30), new Person("Bob", 25))))
+                  new TeamArr("Platform", List.of(new Person("Alice", 30), new Person("Bob", 25))))
               .noIdentity(),
           // 3-level deep: struct → list of struct with list-of-struct field
           new DuckDbTypeAndExample<>(
@@ -569,8 +576,7 @@ public class DuckDbTypeTest {
                       List.of(
                           new Team("Platform", List.of(new Person("Alice", 30))),
                           new Team(
-                              "Design",
-                              List.of(new Person("Bob", 25), new Person("Carol", 28))))))
+                              "Design", List.of(new Person("Bob", 25), new Person("Carol", 28))))))
               .noIdentity(),
 
           // ==================== UNION Types ====================
@@ -641,21 +647,24 @@ public class DuckDbTypeTest {
   static <A> DuckDbTypeAndExample<java.util.List<java.util.List<A>>> toNestedListExample(
       DuckDbTypeAndExample<A> scalar) {
     DuckDbType<java.util.List<java.util.List<A>>> nestedType = scalar.type.list().list();
-    return new DuckDbTypeAndExample<>(nestedType, java.util.List.of(java.util.List.of(scalar.example)))
+    return new DuckDbTypeAndExample<>(
+            nestedType, java.util.List.of(java.util.List.of(scalar.example)))
         .noIdentity();
   }
 
   static <A> DuckDbTypeAndExample<java.util.List<java.util.List<A>>> toNestedArrayExample(
       DuckDbTypeAndExample<A> scalar) {
     DuckDbType<java.util.List<java.util.List<A>>> nestedType = scalar.type.array(1).array(1);
-    return new DuckDbTypeAndExample<>(nestedType, java.util.List.of(java.util.List.of(scalar.example)))
+    return new DuckDbTypeAndExample<>(
+            nestedType, java.util.List.of(java.util.List.of(scalar.example)))
         .noIdentity();
   }
 
   static <A> DuckDbTypeAndExample<java.util.List<java.util.List<A>>> toArrayOfListExample(
       DuckDbTypeAndExample<A> scalar) {
     DuckDbType<java.util.List<java.util.List<A>>> nestedType = scalar.type.list().array(1);
-    return new DuckDbTypeAndExample<>(nestedType, java.util.List.of(java.util.List.of(scalar.example)))
+    return new DuckDbTypeAndExample<>(
+            nestedType, java.util.List.of(java.util.List.of(scalar.example)))
         .noIdentity();
   }
 

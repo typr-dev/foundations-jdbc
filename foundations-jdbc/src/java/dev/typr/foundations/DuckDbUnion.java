@@ -106,34 +106,14 @@ public record DuckDbUnion<A>(
               sb.append(")");
             });
 
-    DuckDbMapSupport<A> unionMapSupport =
-        DuckDbMapSupport.of(
-            raw -> {
-              String inferredTag = inferTag(raw);
-              if (inferredTag != null) {
-                try {
-                  return reader.read(inferredTag, raw);
-                } catch (java.sql.SQLException e) {
-                  throw new DatabaseException(e);
-                }
-              }
-              throw new IllegalArgumentException(
-                  "Cannot determine UNION tag for value: " + raw + " (" + raw.getClass() + ")");
-            },
-            value -> {
-              TaggedValue<?> tv = writer.write(value);
-              return tv.value();
-            });
-
     return new DuckDbType<>(
         typename.asGeneric(),
         duckDbRead,
         duckDbWrite,
         stringifier,
         json,
-        unionMapSupport,
         AnalysisOptions.EMPTY,
-        java.util.Optional.empty()); // UNION list uses mapSupport fallback
+        java.util.Optional.empty());
   }
 
   /** Create an optional version of this UNION type. */

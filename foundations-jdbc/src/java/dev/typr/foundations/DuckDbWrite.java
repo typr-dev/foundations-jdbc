@@ -147,62 +147,6 @@ public sealed interface DuckDbWrite<A> extends DbWrite<A>
   }
 
   /**
-   * Write a MAP with typed keys and values using DuckDBMap. DuckDB JDBC natively supports DuckDBMap
-   * via setObject().
-   *
-   * @param sqlTypeName the full DuckDB type name (e.g., "MAP(VARCHAR, INTEGER)")
-   * @param <K> key type
-   * @param <V> value type
-   * @return writer for Map
-   */
-  static <K, V> DuckDbWrite<java.util.Map<K, V>> writeMap(String sqlTypeName) {
-    return primitive(
-        (ps, idx, map) -> {
-          if (map == null) {
-            ps.setNull(idx, java.sql.Types.OTHER);
-          } else {
-            org.duckdb.user.DuckDBMap<K, V> duckDbMap =
-                new org.duckdb.user.DuckDBMap<>(sqlTypeName, map);
-            ps.setObject(idx, duckDbMap);
-          }
-        });
-  }
-
-  /**
-   * Write a MAP with typed keys and values using DuckDBMap, converting via DuckDbStringifier. All
-   * keys and values are converted to String. DuckDB parses them based on the type name. Uses
-   * unquoted format (quoted=false) suitable for DuckDBMap.
-   *
-   * @param sqlTypeName the full DuckDB type name (e.g., "MAP(UUID, TIME)")
-   * @param keyStringifier how to format keys
-   * @param valueStringifier how to format values
-   * @param <K> key type
-   * @param <V> value type
-   * @return writer for Map
-   */
-  static <K, V> DuckDbWrite<java.util.Map<K, V>> writeMapViaSqlLiteral(
-      String sqlTypeName,
-      DuckDbStringifier<K> keyStringifier,
-      DuckDbStringifier<V> valueStringifier) {
-    return primitive(
-        (ps, idx, map) -> {
-          if (map == null) {
-            ps.setNull(idx, java.sql.Types.OTHER);
-          } else {
-            java.util.Map<String, String> wireMap = new java.util.LinkedHashMap<>();
-            for (var entry : map.entrySet()) {
-              wireMap.put(
-                  keyStringifier.encode(entry.getKey(), false),
-                  valueStringifier.encode(entry.getValue(), false));
-            }
-            org.duckdb.user.DuckDBMap<String, String> duckDbMap =
-                new org.duckdb.user.DuckDBMap<>(sqlTypeName, wireMap);
-            ps.setObject(idx, duckDbMap);
-          }
-        });
-  }
-
-  /**
    * A write implementation that inlines the value as a SQL expression rather than binding a JDBC
    * parameter. Used for types like UNION lists where the value cannot be expressed as a JDBC
    * parameter.

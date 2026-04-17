@@ -538,8 +538,6 @@ public interface DuckDbTypes {
         new DuckDbWrite.Instance<>(
             (ps, idx, obj) -> ps.setObject(idx, obj), structAttributeEncoder);
 
-    DuckDbMapSupport<Row> structMapSupport = DuckDbMapSupport.of(structConverter, value -> value);
-
     DuckDbJson<Row> duckDbJson =
         new DuckDbJson<>() {
           @Override
@@ -577,7 +575,6 @@ public interface DuckDbTypes {
         duckDbWrite,
         stringifier,
         duckDbJson,
-        structMapSupport,
         AnalysisOptions.EMPTY,
         java.util.Optional.of(DuckDbListCodec.sqlLiteral(structConverter)),
         structAttributeEncoder);
@@ -597,7 +594,6 @@ public interface DuckDbTypes {
   private static Object decodeStructAttribute(DuckDbType<?> col, Object raw) {
     return col.read().fromJdbcValue(raw);
   }
-
 
   @SuppressWarnings("unchecked")
   private static <F> void encodeStructField(DuckDbType<F> column, Object value, StringBuilder sb) {

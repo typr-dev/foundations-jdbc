@@ -1,6 +1,7 @@
 package dev.typr.foundations;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -16,7 +17,6 @@ public record DuckDbType<A>(
     DuckDbWrite<A> write,
     DuckDbStringifier<A> stringifier,
     DuckDbJson<A> duckDbJson,
-    DuckDbMapSupport<A> mapSupport,
     AnalysisOptions analysisOptions,
     Optional<DuckDbListCodec<A>> listCodec,
     Function<A, Object> structAttributeEncoder)
@@ -33,32 +33,14 @@ public record DuckDbType<A>(
       DuckDbWrite<A> write,
       DuckDbStringifier<A> stringifier,
       DuckDbJson<A> duckDbJson,
-      DuckDbMapSupport<A> mapSupport,
       AnalysisOptions analysisOptions,
       Optional<DuckDbListCodec<A>> listCodec) {
-    this(
-        typename,
-        read,
-        write,
-        stringifier,
-        duckDbJson,
-        mapSupport,
-        analysisOptions,
-        listCodec,
-        a -> a);
+    this(typename, read, write, stringifier, duckDbJson, analysisOptions, listCodec, a -> a);
   }
 
   public DuckDbType<A> withStructAttributeEncoder(Function<A, Object> encoder) {
     return new DuckDbType<>(
-        typename,
-        read,
-        write,
-        stringifier,
-        duckDbJson,
-        mapSupport,
-        analysisOptions,
-        listCodec,
-        encoder);
+        typename, read, write, stringifier, duckDbJson, analysisOptions, listCodec, encoder);
   }
 
   @Override
@@ -95,15 +77,7 @@ public record DuckDbType<A>(
 
   public DuckDbType<A> withAnalysis(AnalysisOptions opts) {
     return new DuckDbType<>(
-        typename,
-        read,
-        write,
-        stringifier,
-        duckDbJson,
-        mapSupport,
-        opts,
-        listCodec,
-        structAttributeEncoder);
+        typename, read, write, stringifier, duckDbJson, opts, listCodec, structAttributeEncoder);
   }
 
   public DuckDbType<A> withListCodec(DuckDbListCodec<A> codec) {
@@ -113,7 +87,6 @@ public record DuckDbType<A>(
         write,
         stringifier,
         duckDbJson,
-        mapSupport,
         analysisOptions,
         Optional.of(codec),
         structAttributeEncoder);
@@ -130,7 +103,6 @@ public record DuckDbType<A>(
         write,
         stringifier,
         duckDbJson,
-        mapSupport,
         analysisOptions,
         listCodec,
         structAttributeEncoder);
@@ -155,7 +127,6 @@ public record DuckDbType<A>(
         write,
         stringifier,
         duckDbJson,
-        mapSupport,
         analysisOptions,
         listCodec,
         structAttributeEncoder);
@@ -168,7 +139,6 @@ public record DuckDbType<A>(
         write,
         stringifier,
         duckDbJson,
-        mapSupport,
         analysisOptions,
         listCodec,
         structAttributeEncoder);
@@ -181,7 +151,6 @@ public record DuckDbType<A>(
         write,
         stringifier,
         duckDbJson,
-        mapSupport,
         analysisOptions,
         listCodec,
         structAttributeEncoder);
@@ -194,7 +163,6 @@ public record DuckDbType<A>(
         write,
         stringifier,
         json,
-        mapSupport,
         analysisOptions,
         listCodec,
         structAttributeEncoder);
@@ -203,15 +171,13 @@ public record DuckDbType<A>(
   @Override
   public DuckDbType<Optional<A>> opt() {
     Function<A, Object> innerEncoder = structAttributeEncoder;
-    Function<Optional<A>, Object> optEncoder =
-        opt -> opt.isPresent() ? innerEncoder.apply(opt.get()) : null;
+    Function<Optional<A>, Object> optEncoder = opt -> opt.map(innerEncoder).orElse(null);
     return new DuckDbType<>(
         typename.opt(),
         read.opt(),
         write.opt(typename),
         stringifier.opt(),
         duckDbJson.opt(),
-        DuckDbMapSupport.cast(),
         analysisOptions,
         Optional.empty(),
         optEncoder);
@@ -242,8 +208,6 @@ public record DuckDbType<A>(
   private DuckDbType<List<A>> buildCollection(
       DuckDbTypename<List<A>> collectionTypename,
       java.util.function.Function<DuckDbTypename<?>, DuckDbTypename<?>> wrapAlias) {
-    final DuckDbRead<A> elemRead = this.read;
-    java.util.function.Function<Object, A> fromElem = elemRead::fromJdbcValue;
     java.util.function.Function<Object, List<A>> fromArray =
         raw -> {
           if (raw == null) return null;
@@ -254,7 +218,7 @@ public record DuckDbType<A>(
           try {
             Object[] elements = (Object[]) arr.getArray();
             List<A> result = new java.util.ArrayList<>(elements.length);
-            for (Object elem : elements) result.add(fromElem.apply(elem));
+            for (Object elem : elements) result.add(this.read.fromJdbcValue(elem));
             return result;
           } catch (java.sql.SQLException e) {
             throw new DatabaseException(e);
@@ -297,7 +261,7 @@ public record DuckDbType<A>(
     } else {
       collWrite =
           listCodec
-              .<DuckDbWrite<List<A>>>map(
+              .map(
                   codec ->
                       switch (codec) {
                         case DuckDbListCodec.Native<A> n ->
@@ -359,123 +323,14 @@ public record DuckDbType<A>(
         collWrite,
         collStringifier,
         duckDbJson.list(),
-        DuckDbMapSupport.cast(),
         collOpts,
         Optional.empty(),
         collEncoder);
   }
 
-  public <V> DuckDbType<java.util.Map<A, V>> mapTo(DuckDbType<V> valueType) {
-    DuckDbTypename<java.util.Map<A, V>> mapTypename = typename.mapTo(valueType.typename);
-    String sqlType = mapTypename.sqlType();
-    DuckDbRead<java.util.Map<A, V>> mapRead =
-        DuckDbRead.readMapWithSupport(mapSupport, valueType.mapSupport);
-    DuckDbWrite<java.util.Map<A, V>> mapWrite =
-        DuckDbWrite.writeMapViaSqlLiteral(sqlType, stringifier, valueType.stringifier);
-    DuckDbStringifier<java.util.Map<A, V>> mapStringifier =
-        DuckDbStringifier.instance(
-            (map, sb, quoted) -> {
-              if (map.isEmpty()) {
-                sb.append("{}");
-                return;
-              }
-              sb.append("{");
-              boolean first = true;
-              for (var entry : map.entrySet()) {
-                if (!first) sb.append(", ");
-                first = false;
-                stringifier.unsafeEncode(entry.getKey(), sb, true);
-                sb.append(": ");
-                valueType.stringifier.unsafeEncode(entry.getValue(), sb, true);
-              }
-              sb.append("}");
-            });
-    return new DuckDbType<>(
-        mapTypename,
-        mapRead,
-        mapWrite,
-        mapStringifier,
-        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbMapSupport.cast(),
-        analysisOptions,
-        Optional.empty());
-  }
-
-  public <V> DuckDbType<java.util.Map<A, V>> mapToNative(
-      DuckDbType<V> valueType, Class<A> keyClass, Class<V> valueClass) {
-    DuckDbTypename<java.util.Map<A, V>> mapTypename = typename.mapTo(valueType.typename);
-    String sqlType = mapTypename.sqlType();
-    DuckDbRead<java.util.Map<A, V>> mapRead =
-        DuckDbRead.readMap(read, keyClass, valueType.read, valueClass);
-    DuckDbWrite<java.util.Map<A, V>> mapWrite = DuckDbWrite.writeMap(sqlType);
-    DuckDbStringifier<java.util.Map<A, V>> mapStringifier =
-        DuckDbStringifier.instance(
-            (map, sb, quoted) -> {
-              if (map.isEmpty()) {
-                sb.append("{}");
-                return;
-              }
-              sb.append("{");
-              boolean first = true;
-              for (var entry : map.entrySet()) {
-                if (!first) sb.append(", ");
-                first = false;
-                stringifier.unsafeEncode(entry.getKey(), sb, true);
-                sb.append(": ");
-                valueType.stringifier.unsafeEncode(entry.getValue(), sb, true);
-              }
-              sb.append("}");
-            });
-    return new DuckDbType<>(
-        mapTypename,
-        mapRead,
-        mapWrite,
-        mapStringifier,
-        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbMapSupport.cast(),
-        analysisOptions,
-        Optional.empty());
-  }
-
-  public <V> DuckDbType<java.util.Map<A, V>> mapToViaSqlLiteral(
-      DuckDbType<V> valueType,
-      Class<A> keyClass,
-      Class<V> valueClass,
-      DuckDbStringifier<A> keyStringifier,
-      DuckDbStringifier<V> valueStringifier) {
-    DuckDbTypename<java.util.Map<A, V>> mapTypename = typename.mapTo(valueType.typename);
-    String sqlType = mapTypename.sqlType();
-    DuckDbRead<java.util.Map<A, V>> mapRead =
-        DuckDbRead.readMap(read, keyClass, valueType.read, valueClass);
-    DuckDbWrite<java.util.Map<A, V>> mapWrite =
-        DuckDbWrite.writeMapViaSqlLiteral(sqlType, keyStringifier, valueStringifier);
-    DuckDbStringifier<java.util.Map<A, V>> mapStringifier =
-        DuckDbStringifier.instance(
-            (map, sb, quoted) -> {
-              if (map.isEmpty()) {
-                sb.append("{}");
-                return;
-              }
-              sb.append("{");
-              boolean first = true;
-              for (var entry : map.entrySet()) {
-                if (!first) sb.append(", ");
-                first = false;
-                keyStringifier.unsafeEncode(entry.getKey(), sb, true);
-                sb.append(": ");
-                valueStringifier.unsafeEncode(entry.getValue(), sb, true);
-              }
-              sb.append("}");
-            });
-    return new DuckDbType<>(
-        mapTypename,
-        mapRead,
-        mapWrite,
-        mapStringifier,
-        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbMapSupport.cast(),
-        analysisOptions,
-        Optional.empty());
+  /** Build a {@code MAP(A, V)} DuckDB type. See {@link DuckDbMapSupport} for the impl details. */
+  public <V> DuckDbType<Map<A, V>> mapTo(DuckDbType<V> valueType) {
+    return DuckDbMapSupport.mapType(this, valueType);
   }
 
   public <B> DuckDbType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
@@ -493,7 +348,6 @@ public record DuckDbType<A>(
         write.contramap(g),
         stringifier.contramap(g),
         duckDbJson.transform(f, g),
-        mapSupport.transform(fUnchecked, g),
         analysisOptions,
         listCodec.map(c -> c.map(fUnchecked, g)));
   }
@@ -506,7 +360,6 @@ public record DuckDbType<A>(
         write.contramap(bijection::from),
         stringifier.contramap(bijection::from),
         duckDbJson.transform(bijection::underlying, bijection::from),
-        mapSupport.transform(bijection::underlying, bijection::from),
         analysisOptions,
         listCodec.map(c -> c.map(bijection::underlying, bijection::from)));
   }
@@ -514,14 +367,7 @@ public record DuckDbType<A>(
   public static <A> DuckDbType<A> of(
       String tpe, DuckDbRead<A> r, DuckDbWrite<A> w, DuckDbStringifier<A> s, DuckDbJson<A> j) {
     return new DuckDbType<>(
-        DuckDbTypename.of(tpe),
-        r,
-        w,
-        s,
-        j,
-        DuckDbMapSupport.cast(),
-        AnalysisOptions.EMPTY,
-        Optional.empty());
+        DuckDbTypename.of(tpe), r, w, s, j, AnalysisOptions.EMPTY, Optional.empty());
   }
 
   public static <A> DuckDbType<A> of(
@@ -530,7 +376,6 @@ public record DuckDbType<A>(
       DuckDbWrite<A> w,
       DuckDbStringifier<A> s,
       DuckDbJson<A> j) {
-    return new DuckDbType<>(
-        typename, r, w, s, j, DuckDbMapSupport.cast(), AnalysisOptions.EMPTY, Optional.empty());
+    return new DuckDbType<>(typename, r, w, s, j, AnalysisOptions.EMPTY, Optional.empty());
   }
 }

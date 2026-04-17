@@ -1952,7 +1952,8 @@ public class OracleTypeTest {
               if (!rs.next()) throw new AssertionError("no row 1");
               var va1 = itemVArray.opt().read().read(rs, 2);
               var nt1 = itemNestedTable.opt().read().read(rs, 3);
-              if (va1.isPresent()) throw new AssertionError("expected NULL VARRAY, got " + va1.get());
+              if (va1.isPresent())
+                throw new AssertionError("expected NULL VARRAY, got " + va1.get());
               if (nt1.isPresent()) throw new AssertionError("expected NULL NT, got " + nt1.get());
 
               // Row 2 - empty collections. Oracle returns NULL for empty VARRAY/NESTED TABLE
@@ -2027,7 +2028,8 @@ public class OracleTypeTest {
               tryExec(stmt, "DROP TYPE GAP_REGION_T FORCE");
               tryExec(stmt, "DROP TYPE GAP_CITY_NT FORCE");
               tryExec(stmt, "DROP TYPE GAP_CITY_T FORCE");
-              stmt.execute("CREATE TYPE GAP_CITY_T AS OBJECT (NAME VARCHAR2(50), POPULATION NUMBER)");
+              stmt.execute(
+                  "CREATE TYPE GAP_CITY_T AS OBJECT (NAME VARCHAR2(50), POPULATION NUMBER)");
               stmt.execute("CREATE TYPE GAP_CITY_NT AS TABLE OF GAP_CITY_T");
               stmt.execute(
                   "CREATE TYPE GAP_REGION_T AS OBJECT (NAME VARCHAR2(50), CITIES GAP_CITY_NT)");
@@ -2063,13 +2065,15 @@ public class OracleTypeTest {
               if (decoded.size() != 1) throw new AssertionError("countries: " + decoded.size());
               Country c = decoded.get(0);
               if (!c.name().equals("Norway")) throw new AssertionError(c.name());
-              if (c.regions().size() != 2) throw new AssertionError("regions: " + c.regions().size());
+              if (c.regions().size() != 2)
+                throw new AssertionError("regions: " + c.regions().size());
               Region vestland = c.regions().get(1);
               if (vestland.cities().size() != 2)
                 throw new AssertionError("cities: " + vestland.cities().size());
               if (!vestland.cities().get(0).name().equals("Bergen"))
                 throw new AssertionError(vestland.cities().get(0).name());
-              System.out.println("4-level nesting NESTED TABLE→OBJECT→VARRAY→OBJECT→NESTED TABLE OK");
+              System.out.println(
+                  "4-level nesting NESTED TABLE→OBJECT→VARRAY→OBJECT→NESTED TABLE OK");
               return null;
             });
   }

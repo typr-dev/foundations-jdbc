@@ -21,10 +21,8 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
       )
   )
 
-  /**
-   * Fixed-size ARRAY of this type ({@code T[size]} in DuckDB). Every row has exactly {@code size}
-   * elements. Use {@link #list} for variable-length lists.
-   */
+  /** Fixed-size ARRAY of this type ({@code T[size]} in DuckDB). Every row has exactly {@code size} elements. Use {@link #list} for variable-length lists.
+    */
   def array(size: Int): DuckDbType[List[T]] = DuckDbType(
     underlying
       .array(size)
@@ -50,18 +48,6 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
         }
       )
   )
-
-  def mapToNative[V](valueType: DuckDbType[V], keyClass: Class[T], valueClass: Class[V]): dev.typr.foundations.DuckDbType[java.util.Map[T, V]] =
-    underlying.mapToNative(valueType.underlying, keyClass, valueClass)
-
-  def mapToViaSqlLiteral[V](
-      valueType: DuckDbType[V],
-      keyClass: Class[T],
-      valueClass: Class[V],
-      keyStringifier: DuckDbStringifier[T],
-      valueStringifier: DuckDbStringifier[V]
-  ): dev.typr.foundations.DuckDbType[java.util.Map[T, V]] =
-    underlying.mapToViaSqlLiteral(valueType.underlying, keyClass, valueClass, keyStringifier, valueStringifier)
 
   def encode(value: T): dev.typr.foundations.Fragment.Value[T] = underlying.encode(value)
 

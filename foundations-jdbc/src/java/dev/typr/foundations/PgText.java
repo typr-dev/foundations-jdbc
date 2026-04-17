@@ -47,8 +47,8 @@ public abstract class PgText<A> implements DbText<A> {
 
   /**
    * Internal: list/array encoding with a specific delimiter. The delimiter is a property of the
-   * element type (geometric types use ';', everything else ','). Users should call
-   * {@link #list()} which uses the correct delimiter via {@link PgType#array()}.
+   * element type (geometric types use ';', everything else ','). Users should call {@link #list()}
+   * which uses the correct delimiter via {@link PgType#array()}.
    */
   PgText<java.util.List<A>> list(char delimiter) {
     var self = this;

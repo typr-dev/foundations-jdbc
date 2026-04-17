@@ -231,9 +231,9 @@ public record PgType<A>(
   }
 
   /**
-   * Variable-length array of this type. Returns {@link PgType} parameterised on {@link List}
-   * — PG's {@code T[]} always maps to {@code List<T>}. Call {@code .array().array()} for
-   * multi-dimensional arrays like {@code int4[][]} → {@code List<List<Integer>>}.
+   * Variable-length array of this type. Returns {@link PgType} parameterised on {@link List} — PG's
+   * {@code T[]} always maps to {@code List<T>}. Call {@code .array().array()} for multi-dimensional
+   * arrays like {@code int4[][]} → {@code List<List<Integer>>}.
    */
   public PgType<List<A>> array() {
     PgElementCodec<A> codec =
