@@ -197,17 +197,13 @@ public class DuckDbTypeTest {
       };
     }
 
-    // MAP entries are bound through DuckDBMap as wire strings produced by the type's own
-    // stringifier. STRUCT stringification quotes inner array elements (e.g. '['reading','hiking']')
-    // and DuckDB doesn't unquote them when parsing back, so STRUCT keys/values containing nested
-    // arrays don't round-trip. DECIMAL has the same precision-padding mismatch as nested arrays
-    // (12345 vs 12345.000 by BigDecimal equality).
+    // STRUCT/LIST/ARRAY map entries bind natively (DuckDBUserStruct / DuckDBUserArray) so
+    // nested VARCHAR[] fields round-trip without DuckDB re-parsing our SQL literal. DECIMAL is
+    // still excluded because of the BigDecimal precision-padding mismatch (12345 vs 12345.000
+    // are unequal by .equals()).
     boolean supportsMap() {
       if (!supportsList()) return false;
-      String sql = type.typename().sqlType();
-      if (sql.startsWith("DECIMAL")) return false;
-      if (sql.startsWith("STRUCT")) return false;
-      return true;
+      return !type.typename().sqlType().startsWith("DECIMAL");
     }
   }
 

@@ -17,7 +17,7 @@ class DuckDbType<T>(override val underlying: dev.typr.foundations.DuckDbType<T>)
         DuckDbType(underlying.to(bijection))
 
     fun <B> transform(f: (T) -> B, g: (B) -> T): DuckDbType<B> =
-        DuckDbType(underlying.transform(dev.typr.foundations.SqlFunction { f(it) }, g))
+        DuckDbType(underlying.transform({ f(it) }, g))
 
     fun <V> mapTo(valueType: DuckDbType<V>): DuckDbType<Map<T, V>> =
         DuckDbType(underlying.mapTo(valueType.underlying))
@@ -29,18 +29,6 @@ class DuckDbType<T>(override val underlying: dev.typr.foundations.DuckDbType<T>)
     fun array(size: Int): DuckDbType<List<T>> = DuckDbType(underlying.array(size))
 
     fun list(): DuckDbType<List<T>> = DuckDbType(underlying.list())
-
-    fun <V> mapToNative(valueType: DuckDbType<V>, keyClass: Class<T>, valueClass: Class<V>): DuckDbType<Map<T, V>> =
-        DuckDbType(underlying.mapToNative(valueType.underlying, keyClass, valueClass))
-
-    fun <V> mapToViaSqlLiteral(
-        valueType: DuckDbType<V>,
-        keyClass: Class<T>,
-        valueClass: Class<V>,
-        keyStringifier: DuckDbStringifier<T>,
-        valueStringifier: DuckDbStringifier<V>
-    ): DuckDbType<Map<T, V>> =
-        DuckDbType(underlying.mapToViaSqlLiteral(valueType.underlying, keyClass, valueClass, keyStringifier, valueStringifier))
 
     fun encode(value: T): dev.typr.foundations.Fragment.Value<T> = underlying.encode(value)
 

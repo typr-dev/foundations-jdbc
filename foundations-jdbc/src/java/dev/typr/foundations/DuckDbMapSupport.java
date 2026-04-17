@@ -6,15 +6,27 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Builds {@link DuckDbType} instances for DuckDB MAP columns.
  *
  * <p>Reads delegate per-element decoding to each side's {@link DuckDbRead#fromJdbcValue} so
- * transformed/composite element types compose without per-map plumbing. Writes go through
- * DuckDB's literal parser via the keys'/values' stringifiers wrapped in a
- * {@link org.duckdb.user.DuckDBMap} of {@code String}/{@code String} — that path avoids the
- * type-specific JNI binding gaps the driver has for non-string MAP entries.
+ * transformed/composite element types compose without per-map plumbing.
+ *
+ * <p>Writes use a per-side strategy:
+ *
+ * <ul>
+ *   <li>STRUCT / LIST / ARRAY entries are bound natively via each type's
+ *       {@code structAttributeEncoder}, which produces {@link
+ *       org.duckdb.user.DuckDBUserStruct} or {@link org.duckdb.user.DuckDBUserArray}. This is the
+ *       same path top-level struct/list parameters use, so nested {@code VARCHAR[]} fields don't
+ *       get re-quoted by DuckDB's struct-literal parser.
+ *   <li>Scalar entries are stringified via the type's {@link DuckDbStringifier} and shipped as
+ *       {@code String} → DuckDB casts them to the column type. This avoids JNI binding gaps for
+ *       scalars whose Java representation isn't natively recognised in {@code DuckDBMap}
+ *       (UUID, INTERVAL, JSON, HUGEINT, TIME).
+ * </ul>
  */
 final class DuckDbMapSupport {
   private DuckDbMapSupport() {}
@@ -23,13 +35,15 @@ final class DuckDbMapSupport {
     DuckDbTypename<Map<K, V>> typename = keyType.typename().mapTo(valueType.typename());
     String sqlType = typename.sqlType();
 
+    Function<K, Object> keyEncoder = entryEncoder(keyType);
+    Function<V, Object> valueEncoder = entryEncoder(valueType);
+
     DuckDbRead<Map<K, V>> read =
         DuckDbRead.of((rs, idx) -> readJdbcMap(rs, idx, keyType.read(), valueType.read()));
 
     DuckDbWrite<Map<K, V>> write =
         DuckDbWrite.primitive(
-            (ps, idx, map) ->
-                writeJdbcMap(ps, idx, sqlType, map, keyType.stringifier(), valueType.stringifier()));
+            (ps, idx, map) -> writeJdbcMap(ps, idx, sqlType, map, keyEncoder, valueEncoder));
 
     DuckDbStringifier<Map<K, V>> stringifier =
         DuckDbStringifier.instance(
@@ -44,6 +58,24 @@ final class DuckDbMapSupport {
         DuckDbTypes.mapJson(keyType.duckDbJson(), valueType.duckDbJson()),
         AnalysisOptions.EMPTY,
         Optional.empty());
+  }
+
+  /**
+   * Pick the wire encoding for one side of a MAP entry. Composite/collection types bind natively
+   * (so DuckDB never re-parses our SQL-literal text — that's the path that strips quotes off
+   * inner {@code VARCHAR[]} elements). Scalars stringify and DuckDB casts on the way in.
+   */
+  private static <A> Function<A, Object> entryEncoder(DuckDbType<A> type) {
+    DuckDbTypename<A> tn = type.typename();
+    boolean nativelyBindable =
+        tn instanceof DuckDbTypename.StructOf
+            || tn instanceof DuckDbTypename.ListOf
+            || tn instanceof DuckDbTypename.ArrayOf;
+    if (nativelyBindable) {
+      return type.structAttributeEncoder();
+    }
+    DuckDbStringifier<A> s = type.stringifier();
+    return value -> s.encode(value, false);
   }
 
   private static <K, V> Map<K, V> readJdbcMap(
@@ -66,16 +98,16 @@ final class DuckDbMapSupport {
       int idx,
       String sqlType,
       Map<K, V> map,
-      DuckDbStringifier<K> keyStr,
-      DuckDbStringifier<V> valueStr)
+      Function<K, Object> keyEncoder,
+      Function<V, Object> valueEncoder)
       throws SQLException {
     if (map == null) {
       ps.setNull(idx, java.sql.Types.OTHER);
       return;
     }
-    var wireMap = new LinkedHashMap<String, String>();
+    var wireMap = new LinkedHashMap<Object, Object>();
     for (var entry : map.entrySet()) {
-      wireMap.put(keyStr.encode(entry.getKey(), false), valueStr.encode(entry.getValue(), false));
+      wireMap.put(keyEncoder.apply(entry.getKey()), valueEncoder.apply(entry.getValue()));
     }
     ps.setObject(idx, new org.duckdb.user.DuckDBMap<>(sqlType, wireMap));
   }

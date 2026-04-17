@@ -11,13 +11,13 @@ import dev.typr.foundations.DuckDbTypes as JavaDuckDbTypes
  */
 open class DuckDbTypes {
     // Primitives - convert Java boxed types to Kotlin native types
-    open val tinyint: DuckDbType<Byte> = DuckDbType(JavaDuckDbTypes.tinyint.transform(SqlFunction { it }, { it }))
-    open val smallint: DuckDbType<Short> = DuckDbType(JavaDuckDbTypes.smallint.transform(SqlFunction { it }, { it }))
-    open val integer: DuckDbType<Int> = DuckDbType(JavaDuckDbTypes.integer.transform(SqlFunction { it }, { it }))
-    open val bigint: DuckDbType<Long> = DuckDbType(JavaDuckDbTypes.bigint.transform(SqlFunction { it }, { it }))
-    open val float_: DuckDbType<Float> = DuckDbType(JavaDuckDbTypes.float_.transform(SqlFunction { it }, { it }))
-    open val double_: DuckDbType<Double> = DuckDbType(JavaDuckDbTypes.double_.transform(SqlFunction { it }, { it }))
-    open val boolean_: DuckDbType<Boolean> = DuckDbType(JavaDuckDbTypes.boolean_.transform(SqlFunction { it }, { it }))
+    open val tinyint: DuckDbType<Byte> = DuckDbType(JavaDuckDbTypes.tinyint.transform({ it }, { it }))
+    open val smallint: DuckDbType<Short> = DuckDbType(JavaDuckDbTypes.smallint.transform({ it }, { it }))
+    open val integer: DuckDbType<Int> = DuckDbType(JavaDuckDbTypes.integer.transform({ it }, { it }))
+    open val bigint: DuckDbType<Long> = DuckDbType(JavaDuckDbTypes.bigint.transform({ it }, { it }))
+    open val float_: DuckDbType<Float> = DuckDbType(JavaDuckDbTypes.float_.transform({ it }, { it }))
+    open val double_: DuckDbType<Double> = DuckDbType(JavaDuckDbTypes.double_.transform({ it }, { it }))
+    open val boolean_: DuckDbType<Boolean> = DuckDbType(JavaDuckDbTypes.boolean_.transform({ it }, { it }))
 
 
     // Forward all other types directly from Java
@@ -99,7 +99,7 @@ open class DuckDbTypes {
         valueJson: dev.typr.foundations.DuckDbJson<V>
     ): dev.typr.foundations.DuckDbJson<Map<K, V>> =
         JavaDuckDbTypes.mapJson(keyJson, valueJson).transform(
-            dev.typr.foundations.SqlFunction { jmap -> jmap.toMap() },
+            { jmap -> jmap.toMap() },
             { kmap -> kmap.toMap(java.util.HashMap()) }
         )
 
