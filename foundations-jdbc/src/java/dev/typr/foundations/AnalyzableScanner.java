@@ -341,7 +341,8 @@ public final class AnalyzableScanner {
         var value = method.invoke(null, args);
         var analyzable = toAnalyzable(value);
         if (analyzable != null) {
-          result.add(new Result(simpleName, method.getName(), analyzable));
+          result.add(
+              new Result(simpleName, reportMemberName(method.getName(), clazz), analyzable));
         }
       } catch (Exception ignored) {
       }
@@ -364,6 +365,32 @@ public final class AnalyzableScanner {
     } catch (LinkageError ignored) {
       return new java.lang.reflect.Field[0];
     }
+  }
+
+  /**
+   * Report-friendly name for a discovered member. Kotlin `val` and `var` properties compile
+   * to JVM getter methods (`val foo` → `getFoo()`). When the declaring class carries the
+   * {@code kotlin.Metadata} annotation, strip the `get` prefix and lower-case the first
+   * letter, so reports say "UserRepo.findById" instead of "UserRepo.getFindById".
+   */
+  private static String reportMemberName(String methodName, Class<?> declaringClass) {
+    if (!isKotlinClass(declaringClass)) return methodName;
+    if (methodName.length() > 3
+        && methodName.startsWith("get")
+        && Character.isUpperCase(methodName.charAt(3))) {
+      return Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+    }
+    return methodName;
+  }
+
+  private static boolean isKotlinClass(Class<?> clazz) {
+    try {
+      for (var annotation : clazz.getAnnotations()) {
+        if ("kotlin.Metadata".equals(annotation.annotationType().getName())) return true;
+      }
+    } catch (Throwable ignored) {
+    }
+    return false;
   }
 
   private static boolean isStaticAnalyzableMethod(Method method) {
@@ -439,7 +466,8 @@ public final class AnalyzableScanner {
           var value = method.invoke(instance);
           var analyzable = toAnalyzable(value);
           if (analyzable != null) {
-            result.add(new Result(simpleName, methodName, analyzable));
+            result.add(
+                new Result(simpleName, reportMemberName(methodName, clazz), analyzable));
           }
         } catch (LinkageError ignored) {
           // Skip — class loading failed, nothing to report.
@@ -474,7 +502,7 @@ public final class AnalyzableScanner {
         var value = method.invoke(instance, args);
         var analyzable = toAnalyzable(value);
         if (analyzable != null) {
-          result.add(new Result(simpleName, methodName, analyzable));
+          result.add(new Result(simpleName, reportMemberName(methodName, clazz), analyzable));
         }
       } catch (LinkageError ignored) {
         // Skip — class loading failed during invocation.
