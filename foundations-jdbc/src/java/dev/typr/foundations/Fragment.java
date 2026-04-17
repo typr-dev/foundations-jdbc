@@ -280,6 +280,19 @@ public sealed interface Fragment {
     return EMPTY;
   }
 
+  /**
+   * Emit {@code DROP TABLE IF EXISTS <table>}. Works on PostgreSQL, DuckDB, MariaDB, MySQL,
+   * SQL Server (2016+) and Oracle (23c+).
+   *
+   * <p><b>DB2 does not support the {@code IF EXISTS} clause.</b> On DB2 wrap the plain
+   * {@code DROP TABLE <table>} in a try/catch for SQLSTATE 42704 ("undefined name").
+   *
+   * @param table the unqualified or schema-qualified table name
+   */
+  static Operation<Void> dropTableIfExists(String table) {
+    return of("DROP TABLE IF EXISTS " + table).execute();
+  }
+
   static Literal quotedDouble(String value) {
     return new Literal('"' + value + '"');
   }
