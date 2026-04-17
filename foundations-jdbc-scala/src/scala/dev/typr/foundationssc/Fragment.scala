@@ -264,6 +264,9 @@ object Fragment {
 
   def row[Row](codec: RowCodecNamed[Row], row: Row, except: String*): Fragment =
     new Fragment(dev.typr.foundations.Fragment.EMPTY.row(codec.underlying, row, except*))
+
+  def valuesList[A](dbType: DbType[A], values: Iterable[A]): Fragment =
+    new Fragment(dev.typr.foundations.Fragment.valuesList(dbType.underlying, values.asJava))
 }
 
 private[foundationssc] object OptionallyTransforms:
