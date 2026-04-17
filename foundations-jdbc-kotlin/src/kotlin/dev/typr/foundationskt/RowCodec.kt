@@ -28,11 +28,19 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
          */
         fun <T : Any> of(type: DbType<T>): RowCodec<T> = RowCodec(dev.typr.foundations.RowCodec.of(type.underlying))
 
-        fun <T0, T1> of(t0: DbType<T0>, t1: DbType<T1>): RowCodec<Tuple.Tuple2<T0, T1>> =
-            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying))
+        /** Two-column row codec yielding a Kotlin [Pair]. */
+        fun <T0, T1> of(t0: DbType<T0>, t1: DbType<T1>): RowCodec<Pair<T0, T1>> {
+            val javaResult: dev.typr.foundations.RowCodec<Tuple.Tuple2<T0, T1>> =
+                dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying)
+            return RowCodec(javaResult.to(Bijection.andToPair<T0, T1>()))
+        }
 
-        fun <T0, T1, T2> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>): RowCodec<Tuple.Tuple3<T0, T1, T2>> =
-            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying))
+        /** Three-column row codec yielding a Kotlin [Triple]. */
+        fun <T0, T1, T2> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>): RowCodec<Triple<T0, T1, T2>> {
+            val javaResult: dev.typr.foundations.RowCodec<Tuple.Tuple3<T0, T1, T2>> =
+                dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying)
+            return RowCodec(javaResult.to(Bijection.tuple3ToTriple<T0, T1, T2>()))
+        }
 
         fun <T0, T1, T2, T3> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>): RowCodec<Tuple.Tuple4<T0, T1, T2, T3>> =
             RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying))

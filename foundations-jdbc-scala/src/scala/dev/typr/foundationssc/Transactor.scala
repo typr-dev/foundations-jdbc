@@ -36,6 +36,11 @@ object Transactor:
   def create(config: connect.DatabaseConfig, settings: connect.ConnectionSettings, strategy: Strategy): Transactor =
     new Transactor(dev.typr.foundations.Transactor.create(config, settings, strategy))
 
+  /** Create a Transactor from an existing [[ConnectionSource]] (e.g. a
+    * [[SingleConnectionDataSource]] or a custom pool). */
+  def create(source: ConnectionSource): Transactor = source.transactor()
+  def create(source: ConnectionSource, strategy: Strategy): Transactor = source.transactor(strategy)
+
   def defaultStrategy(): Strategy = dev.typr.foundations.Transactor.defaultStrategy()
   def autoCommitStrategy(): Strategy = dev.typr.foundations.Transactor.autoCommitStrategy()
   def testStrategy(): Strategy = dev.typr.foundations.Transactor.testStrategy()
