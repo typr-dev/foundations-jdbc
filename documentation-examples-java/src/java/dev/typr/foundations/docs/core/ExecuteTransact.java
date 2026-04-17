@@ -28,8 +28,24 @@ public class ExecuteTransact {
           .query(cityCodec.all());
 
   // start
+  // Single-operation form: .transact(tx) handles commit/rollback/close.
   List<City> cities() {
-    return tx.execute(conn -> findCities.run(conn));
+    return findCities.transact(tx);
+  }
+
+  // Multiple operations in one transaction: pass a block of Connection-using
+  // code to tx.execute(…). Each .run(conn) inside the block shares the same
+  // Connection and therefore the same transaction.
+  List<City> citiesWithCount() {
+    return tx.execute(conn -> {
+      var list = findCities.run(conn);
+      long count = countCities.run(conn);
+      System.out.println("rows: " + count);
+      return list;
+    });
   }
   // stop
+
+  Operation<Long> countCities =
+      Fragment.of("SELECT count(*) FROM city").queryExactlyOne(PgTypes.int8);
 }
