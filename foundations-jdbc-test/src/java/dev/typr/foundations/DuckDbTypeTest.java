@@ -196,6 +196,19 @@ public class DuckDbTypeTest {
         default -> !sql.startsWith("DECIMAL"); // precision normalization differs nested
       };
     }
+
+    // MAP entries are bound through DuckDBMap as wire strings produced by the type's own
+    // stringifier. STRUCT stringification quotes inner array elements (e.g. '['reading','hiking']')
+    // and DuckDB doesn't unquote them when parsing back, so STRUCT keys/values containing nested
+    // arrays don't round-trip. DECIMAL has the same precision-padding mismatch as nested arrays
+    // (12345 vs 12345.000 by BigDecimal equality).
+    boolean supportsMap() {
+      if (!supportsList()) return false;
+      String sql = type.typename().sqlType();
+      if (sql.startsWith("DECIMAL")) return false;
+      if (sql.startsWith("STRUCT")) return false;
+      return true;
+    }
   }
 
   // Sample enum for ENUM type testing
@@ -668,6 +681,60 @@ public class DuckDbTypeTest {
         .noIdentity();
   }
 
+  /** A second example (different key value) so multi-entry maps stress duplicate-key handling. */
+  @SuppressWarnings("unchecked")
+  private static <A> A altKey(DuckDbTypeAndExample<A> scalar) {
+    A example = scalar.example;
+    return switch (example) {
+      case Byte b -> (A) Byte.valueOf((byte) (b == 0 ? 1 : b + 1));
+      case Short s -> (A) Short.valueOf((short) (s == 0 ? 1 : s + 1));
+      case Integer i -> (A) Integer.valueOf(i == 0 ? 1 : i + 1);
+      case Long l -> (A) Long.valueOf(l == 0 ? 1 : l + 1);
+      case Float f -> (A) Float.valueOf(f == 0f ? 1f : f + 1f);
+      case Double d -> (A) Double.valueOf(d == 0d ? 1d : d + 1d);
+      case Boolean b -> (A) Boolean.valueOf(!b);
+      case String s -> (A) (s + "_alt");
+      case java.math.BigInteger bi -> (A) bi.add(java.math.BigInteger.ONE);
+      case java.math.BigDecimal bd -> (A) bd.add(java.math.BigDecimal.ONE);
+      case java.util.UUID u -> (A) java.util.UUID.fromString("00000000-0000-0000-0000-000000000001");
+      case java.time.LocalDate d -> (A) d.plusDays(1);
+      case java.time.LocalTime t -> (A) t.plusSeconds(1);
+      case java.time.LocalDateTime dt -> (A) dt.plusSeconds(1);
+      case java.time.Instant i -> (A) i.plusSeconds(1);
+      case java.time.OffsetTime ot -> (A) ot.plusSeconds(1);
+      case java.time.Duration d -> (A) d.plusSeconds(1);
+      default -> example; // fall back to single-entry map for types we can't perturb
+    };
+  }
+
+  /** Derive a map test using {@code scalar} as the KEY and varchar as the value. */
+  static <A> DuckDbTypeAndExample<java.util.Map<A, String>> toMapAsKeyExample(
+      DuckDbTypeAndExample<A> scalar) {
+    DuckDbType<java.util.Map<A, String>> mapType =
+        scalar.type.mapTo(DuckDbTypes.varchar);
+    A k1 = scalar.example;
+    A k2 = altKey(scalar);
+    java.util.Map<A, String> example;
+    if (java.util.Objects.equals(k1, k2)) {
+      example = java.util.Map.of(k1, "v1");
+    } else {
+      var m = new java.util.LinkedHashMap<A, String>();
+      m.put(k1, "v1");
+      m.put(k2, "v2");
+      example = m;
+    }
+    return new DuckDbTypeAndExample<>(mapType, example).noIdentity();
+  }
+
+  /** Derive a map test using varchar as key and {@code scalar} as the VALUE. */
+  static <A> DuckDbTypeAndExample<java.util.Map<String, A>> toMapAsValueExample(
+      DuckDbTypeAndExample<A> scalar) {
+    DuckDbType<java.util.Map<String, A>> mapType =
+        DuckDbTypes.varchar.mapTo(scalar.type);
+    return new DuckDbTypeAndExample<>(mapType, java.util.Map.of("k1", scalar.example))
+        .noIdentity();
+  }
+
   @Test
   public void test() {
     System.out.println("Testing DuckDB type codecs...\n");
@@ -684,6 +751,8 @@ public class DuckDbTypeTest {
     var nestedListExamples = new ArrayList<DuckDbTypeAndExample<?>>();
     var nestedArrayExamples = new ArrayList<DuckDbTypeAndExample<?>>();
     var arrayOfListExamples = new ArrayList<DuckDbTypeAndExample<?>>();
+    var mapKeyExamples = new ArrayList<DuckDbTypeAndExample<?>>();
+    var mapValueExamples = new ArrayList<DuckDbTypeAndExample<?>>();
     for (var s : scalars) {
       tryDerive(s, DuckDbTypeTest::toListExample, listExamples);
       tryDerive(s, DuckDbTypeTest::toArrayExample, arrayExamples);
@@ -692,13 +761,19 @@ public class DuckDbTypeTest {
         tryDerive(s, DuckDbTypeTest::toNestedArrayExample, nestedArrayExamples);
         tryDerive(s, DuckDbTypeTest::toArrayOfListExample, arrayOfListExamples);
       }
+      if (s.supportsMap()) {
+        tryDerive(s, DuckDbTypeTest::toMapAsKeyExample, mapKeyExamples);
+        tryDerive(s, DuckDbTypeTest::toMapAsValueExample, mapValueExamples);
+      }
     }
 
     System.out.println("Generated " + listExamples.size() + " LIST type tests");
     System.out.println("Generated " + arrayExamples.size() + " ARRAY(size) type tests");
     System.out.println("Generated " + nestedListExamples.size() + " LIST-of-LIST tests");
     System.out.println("Generated " + nestedArrayExamples.size() + " ARRAY-of-ARRAY tests");
-    System.out.println("Generated " + arrayOfListExamples.size() + " ARRAY-of-LIST tests\n");
+    System.out.println("Generated " + arrayOfListExamples.size() + " ARRAY-of-LIST tests");
+    System.out.println("Generated " + mapKeyExamples.size() + " MAP-as-key tests");
+    System.out.println("Generated " + mapValueExamples.size() + " MAP-as-value tests\n");
 
     var allWithArrays = new ArrayList<DuckDbTypeAndExample<?>>();
     allWithArrays.addAll(All);
@@ -707,6 +782,8 @@ public class DuckDbTypeTest {
     allWithArrays.addAll(nestedListExamples);
     allWithArrays.addAll(nestedArrayExamples);
     allWithArrays.addAll(arrayOfListExamples);
+    allWithArrays.addAll(mapKeyExamples);
+    allWithArrays.addAll(mapValueExamples);
 
     // Test JSON roundtrip first (no database connection needed) - parallel
     System.out.println("=== JSON Roundtrip Tests (parallel) ===");
