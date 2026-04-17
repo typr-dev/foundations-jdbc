@@ -266,6 +266,7 @@ projects:
     - com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
     - com.ibm.db2:jcc:11.5.9.0
     - io.opentelemetry:opentelemetry-api:1.45.0
+    - org.jetbrains.kotlin:kotlin-stdlib:2.3.0
     dependsOn:
     - foundations-jdbc
     - foundations-jdbc-otel

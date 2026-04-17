@@ -247,7 +247,7 @@ public final class AnalyzableScanner {
       List<Result> result) {
     boolean isScalaObject = clazz.getName().endsWith("$");
 
-    for (var field : clazz.getDeclaredFields()) {
+    for (var field : declaredFieldsOrEmpty(clazz)) {
       boolean isStatic = Modifier.isStatic(field.getModifiers());
       if (isStatic && !isScalaObject) continue;
       if ("MODULE$".equals(field.getName())) continue;
@@ -288,7 +288,7 @@ public final class AnalyzableScanner {
 
     var fieldNames = new HashSet<String>();
 
-    for (var field : clazz.getDeclaredFields()) {
+    for (var field : declaredFieldsOrEmpty(clazz)) {
       if (!Modifier.isStatic(field.getModifiers())) continue;
 
       field.setAccessible(true);
@@ -354,6 +354,15 @@ public final class AnalyzableScanner {
       return clazz.getDeclaredMethods();
     } catch (LinkageError ignored) {
       return new Method[0];
+    }
+  }
+
+  /** Getting declared fields can throw on classpath issues (missing field types); fall back. */
+  private static java.lang.reflect.Field[] declaredFieldsOrEmpty(Class<?> clazz) {
+    try {
+      return clazz.getDeclaredFields();
+    } catch (LinkageError ignored) {
+      return new java.lang.reflect.Field[0];
     }
   }
 
