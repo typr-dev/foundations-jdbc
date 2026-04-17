@@ -87,7 +87,6 @@ projects:
 
   foundations-jdbc-scala:
     dependencies:
-    - org.scala-lang:scala3-library_3:3.3.4
     - configuration: provided
       module: org.postgresql:postgresql:42.7.3
     - configuration: provided
@@ -231,7 +230,6 @@ projects:
 
   documentation-examples-scala:
     dependencies:
-    - org.scala-lang:scala3-library_3:3.3.4
     - configuration: provided
       module: org.postgresql:postgresql:42.7.3
     - configuration: provided
@@ -321,11 +319,11 @@ templates:
     extends: template-common
     scala:
       options: -release 21
-      version: 3.3.4
+      version: 3.8.3
   template-scala-3-scripts:
     extends: template-common
     scala:
-      options: -release 21 -source 3.4
+      options: -release 21
       version: 3.8.3
   template-kotlin:
     kotlin:
