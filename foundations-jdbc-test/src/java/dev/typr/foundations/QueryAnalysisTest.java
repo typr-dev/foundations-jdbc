@@ -48,7 +48,7 @@ public class QueryAnalysisTest {
 
   record FloatTypes(Float f, Double d, BigDecimal dec) {}
 
-  record DateTimeTypes(LocalDate d, LocalTime t, LocalDateTime ts, OffsetDateTime tstz) {}
+  record DateTimeTypes(LocalDate d, LocalTime t, LocalDateTime ts, Instant tstz) {}
 
   record ArrayTypes(List<Integer> ints, List<String> strs) {}
 

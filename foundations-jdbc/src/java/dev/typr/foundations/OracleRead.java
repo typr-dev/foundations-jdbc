@@ -389,21 +389,31 @@ public sealed interface OracleRead<A> extends DbRead<A>
             throw new SQLException("Unexpected type for TIMESTAMP: " + obj.getClass().getName());
           });
 
-  // TIMESTAMP WITH TIME ZONE -> OffsetDateTime
-  // Handles OffsetDateTime (from columns) and oracle.sql.TIMESTAMPTZ (from STRUCT)
-  OracleRead<OffsetDateTime> readOffsetDateTime =
+  // TIMESTAMP WITH TIME ZONE -> ZonedDateTime
+  //
+  // Oracle's TIMESTAMP WITH TIME ZONE stores either a fixed offset *or* a named zone region
+  // (e.g. "America/Los_Angeles") — 13-byte on-disk representation. ZonedDateTime is the only
+  // java.time type that round-trips both: fixed offsets become a ZonedDateTime with a ZoneOffset
+  // zone, region names become a ZonedDateTime with a ZoneRegion zone. Mapping to OffsetDateTime
+  // would discard the region and freeze the offset at its current DST state, so a round-trip
+  // through the library would silently turn `… America/Los_Angeles` into `… -08:00`.
+  //
+  // Handles ZonedDateTime (from columns), oracle.sql.TIMESTAMPTZ (from STRUCT attributes),
+  // and OffsetDateTime (defensive fallback for drivers that return it directly).
+  OracleRead<ZonedDateTime> readZonedDateTime =
       of(
-          ResultSet::getObject,
+          (rs, col) -> (Object) rs.getObject(col, ZonedDateTime.class),
           obj -> {
             if (obj == null) return null;
-            if (obj instanceof OffsetDateTime odt) return odt;
+            if (obj instanceof ZonedDateTime zdt) return zdt;
+            if (obj instanceof OffsetDateTime odt) return odt.toZonedDateTime();
             if (obj instanceof oracle.sql.TIMESTAMPTZ oracleTzTs) {
-              // Use offsetDateTimeValue() for oracle.sql.TIMESTAMPTZ from STRUCT attributes
+              // zonedDateTimeValue() preserves region names; offsetDateTimeValue() does not.
               try {
-                return oracleTzTs.offsetDateTimeValue();
+                return oracleTzTs.zonedDateTimeValue();
               } catch (Exception e) {
                 throw new SQLException(
-                    "Failed to convert oracle.sql.TIMESTAMPTZ to OffsetDateTime: " + e.getMessage(),
+                    "Failed to convert oracle.sql.TIMESTAMPTZ to ZonedDateTime: " + e.getMessage(),
                     e);
               }
             }

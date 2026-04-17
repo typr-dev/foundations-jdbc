@@ -366,17 +366,20 @@ public interface OracleJson<A> extends DbJson<A> {
         }
       };
 
-  OracleJson<OffsetDateTime> timestampWithTimeZone =
+  // Uses ISO_ZONED_DATE_TIME — ISO-8601 extended with a bracketed zone-id suffix
+  // (e.g. "2024-01-15T10:00:00-08:00[America/Los_Angeles]") — which round-trips both fixed
+  // offsets and named zone regions. ISO_OFFSET_DATE_TIME would discard the region.
+  OracleJson<ZonedDateTime> timestampWithTimeZone =
       new OracleJson<>() {
         @Override
-        public JsonValue toJson(OffsetDateTime value) {
-          return new JsonValue.JString(value.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        public JsonValue toJson(ZonedDateTime value) {
+          return new JsonValue.JString(value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
         }
 
         @Override
-        public OffsetDateTime fromJson(JsonValue json) {
+        public ZonedDateTime fromJson(JsonValue json) {
           if (json instanceof JsonValue.JString s) {
-            return OffsetDateTime.parse(s.value());
+            return ZonedDateTime.parse(s.value());
           }
           throw new IllegalArgumentException(
               "Expected string for timestamp with time zone, got: "

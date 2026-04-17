@@ -13,6 +13,7 @@ import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -469,24 +470,36 @@ public interface OracleTypes {
   }
 
   /**
-   * TIMESTAMP WITH TIME ZONE - Timestamp with explicit timezone. Stores the time zone offset or
-   * region name.
+   * TIMESTAMP WITH TIME ZONE → {@link ZonedDateTime}.
+   *
+   * <p>Oracle's on-disk TSTZ format (13 bytes) can hold either a fixed time-zone offset or a
+   * named zone region (e.g. {@code America/Los_Angeles}). {@code ZonedDateTime} is the only
+   * {@code java.time} type that round-trips both — a fixed offset becomes a {@code ZonedDateTime}
+   * whose zone is a {@link java.time.ZoneOffset}, a named region becomes one whose zone is a
+   * {@code ZoneRegion}. Mapping to {@code OffsetDateTime} would silently discard the region and
+   * freeze the offset at its current DST state, so a value written as
+   * {@code 2024-01-15T10:00 America/Los_Angeles} would come back as
+   * {@code 2024-01-15T10:00-08:00}, losing DST-awareness.
+   *
+   * <p>For an Oracle timestamp column that does not need region preservation, prefer
+   * {@link #timestampWithLocalTimeZone} — it is semantically simpler (a universal instant) and
+   * maps to {@code Instant}.
    */
-  OracleType<OffsetDateTime> timestampWithTimeZone =
+  OracleType<ZonedDateTime> timestampWithTimeZone =
       OracleType.of(
           "TIMESTAMP WITH TIME ZONE",
-          OracleRead.readOffsetDateTime,
+          OracleRead.readZonedDateTime,
           OracleWrite.writeTimestampWithTimeZone(),
           OracleJson.timestampWithTimeZone,
-          OracleOutParam.readOffsetDateTime);
+          OracleOutParam.readZonedDateTime);
 
-  static OracleType<OffsetDateTime> timestampWithTimeZone(int fractionalSecondsPrecision) {
+  static OracleType<ZonedDateTime> timestampWithTimeZone(int fractionalSecondsPrecision) {
     return OracleType.of(
         OracleTypename.of("TIMESTAMP(" + fractionalSecondsPrecision + ") WITH TIME ZONE"),
-        OracleRead.readOffsetDateTime,
+        OracleRead.readZonedDateTime,
         OracleWrite.writeTimestampWithTimeZone(),
         OracleJson.timestampWithTimeZone,
-        OracleOutParam.readOffsetDateTime);
+        OracleOutParam.readZonedDateTime);
   }
 
   /**

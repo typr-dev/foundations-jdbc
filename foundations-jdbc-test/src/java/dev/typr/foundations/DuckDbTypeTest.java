@@ -334,10 +334,11 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(DuckDbTypes.timestamp, LocalDateTime.of(1970, 1, 1, 0, 0, 0)),
           new DuckDbTypeAndExample<>(
               DuckDbTypes.timestamp, LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)),
-          // Timestamp with timezone
+          // Timestamp with timezone — DuckDB stores TIMESTAMPTZ as UTC microseconds with no offset
+          // retained (see duckdb.md); `Instant` is the honest Java representation.
           new DuckDbTypeAndExample<>(
               DuckDbTypes.timestamptz,
-              OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.UTC)),
+              Instant.parse("2024-06-15T14:30:45Z")),
 
           // ==================== Interval Type ====================
           new DuckDbTypeAndExample<>(DuckDbTypes.interval, Duration.ofHours(2).plusMinutes(30)),

@@ -61,18 +61,26 @@ This maps to PostgreSQL's `currentSchema` connection property. For single-schema
 
 <Snippet file="postgresql/BinaryTypes" />
 
-## Date/Time Types
+## Date/Time Types {#datetime-rationale}
 
 | PostgreSQL Type | Java Type | Notes |
 |-----------------|-----------|-------|
-| `date` | `LocalDate` | Date without time |
-| `time` | `LocalTime` | Time without timezone |
-| `timetz` | `OffsetTime` | Time with timezone |
-| `timestamp` | `LocalDateTime` | Date and time without timezone |
-| `timestamptz` | `Instant` | Date and time with timezone (stored as UTC) |
+| `date` | `LocalDate` | Naive date, no zone |
+| `time` | `LocalTime` | Naive time, no zone |
+| `timetz` | `OffsetTime` | Time with offset (rarely used in practice) |
+| `timestamp` | `LocalDateTime` | Naive timestamp, no zone |
+| `timestamptz` | `Instant` | **UTC instant** — see note below |
 | `interval` | `PGInterval` | Time duration |
 
 <Snippet file="postgresql/DateTimeTypes" />
+
+:::note `timestamptz` does not store a time zone
+PostgreSQL is explicit on this: for `timestamp with time zone`, "the value is stored internally as UTC, and the originally stated or assumed time zone is not retained" (from the [PostgreSQL docs](https://www.postgresql.org/docs/current/datatype-datetime.html)). The zone only affects how the value is rendered at read-time (always converted to the session `TimeZone` setting).
+
+Because the column genuinely stores a universal instant — not a zoned value — the library maps it to `java.time.Instant`. Any zone information must travel alongside the value in a separate column if you need it (same data-modelling approach as Jira, GitHub, and most other systems). Using `OffsetDateTime` here would suggest the stored value carries an offset, which it does not.
+
+This is the reference mapping for the whole library: DuckDB's `TIMESTAMPTZ` shares the same semantics and uses the same `Instant` mapping. SQL Server's `DATETIMEOFFSET` and Oracle's `TIMESTAMP WITH TIME ZONE` genuinely preserve offset/zone and therefore map differently — see each dialect's page for details.
+:::
 
 ## UUID Type
 

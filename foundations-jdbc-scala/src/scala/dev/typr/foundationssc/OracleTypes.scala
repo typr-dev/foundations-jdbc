@@ -115,7 +115,7 @@ class OracleTypes {
   def timestampOf(fractionalSecondsPrecision: Int): OracleType[java.time.LocalDateTime] =
     OracleType(JavaOracleTypes.timestampOf(fractionalSecondsPrecision))
 
-  def timestampWithTimeZone(fractionalSecondsPrecision: Int): OracleType[java.time.OffsetDateTime] =
+  def timestampWithTimeZone(fractionalSecondsPrecision: Int): OracleType[java.time.ZonedDateTime] =
     OracleType(JavaOracleTypes.timestampWithTimeZone(fractionalSecondsPrecision))
 
   def timestampWithLocalTimeZone(fractionalSecondsPrecision: Int): OracleType[java.time.Instant] =

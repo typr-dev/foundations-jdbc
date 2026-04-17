@@ -53,7 +53,7 @@ open class DuckDbTypes {
     open val time = DuckDbType(JavaDuckDbTypes.time)
     open val timestamp = DuckDbType(JavaDuckDbTypes.timestamp)
     open val datetime = DuckDbType(JavaDuckDbTypes.datetime)
-    open val timestamptz = DuckDbType(JavaDuckDbTypes.timestamptz)
+    open val timestamptz: DuckDbType<java.time.Instant> = DuckDbType(JavaDuckDbTypes.timestamptz)
     open val timetz = DuckDbType(JavaDuckDbTypes.timetz)
     open val timestamp_s = DuckDbType(JavaDuckDbTypes.timestamp_s)
     open val timestamp_ms = DuckDbType(JavaDuckDbTypes.timestamp_ms)

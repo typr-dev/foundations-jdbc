@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.function.Function;
 import oracle.sql.BLOB;
@@ -186,22 +187,18 @@ public sealed interface OracleWrite<A> extends DbWrite<A>
   }
 
   /**
-   * Writer for TIMESTAMP WITH TIME ZONE. Converts OffsetDateTime to oracle.sql.TIMESTAMPTZ for
-   * STRUCT context. Oracle stores the timezone offset along with the timestamp.
+   * Writer for TIMESTAMP WITH TIME ZONE. Converts ZonedDateTime to oracle.sql.TIMESTAMPTZ for
+   * STRUCT context. ZonedDateTime is used (rather than OffsetDateTime) so that named zone regions
+   * — e.g. {@code America/Los_Angeles} — are preserved end-to-end: Oracle's on-disk TSTZ format
+   * can hold either a fixed offset or a region name, and the {@link TIMESTAMPTZ#TIMESTAMPTZ(ZonedDateTime)}
+   * constructor routes both cases correctly. An OffsetDateTime-based writer would collapse every
+   * region to its current offset, losing DST-awareness on later reads.
    */
-  static OracleWrite<OffsetDateTime> writeTimestampWithTimeZone() {
+  static OracleWrite<ZonedDateTime> writeTimestampWithTimeZone() {
     return structured(
-        (offsetDateTime, conn) -> {
-          if (offsetDateTime == null) return null;
-          // Convert OffsetDateTime to java.sql.Timestamp
-          Timestamp timestamp = Timestamp.from(offsetDateTime.toInstant());
-          // Create oracle.sql.TIMESTAMPTZ with timezone information
-          // TIMESTAMPTZ constructor: TIMESTAMPTZ(Connection, Timestamp, Calendar)
-          // We need to format with timezone offset
-          java.util.Calendar calendar = java.util.Calendar.getInstance();
-          calendar.setTimeZone(java.util.TimeZone.getTimeZone(offsetDateTime.getOffset()));
-          calendar.setTimeInMillis(timestamp.getTime());
-          return new TIMESTAMPTZ(conn, timestamp, calendar);
+        (zonedDateTime, conn) -> {
+          if (zonedDateTime == null) return null;
+          return new TIMESTAMPTZ(zonedDateTime);
         },
         "TIMESTAMP WITH TIME ZONE",
         java.sql.Types.TIMESTAMP_WITH_TIMEZONE);

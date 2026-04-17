@@ -87,14 +87,36 @@ For CHAR columns preserving padding:
 
 | Oracle Type | Java Type | Notes |
 |-------------|-----------|-------|
-| `DATE` | `LocalDateTime` | Date + time (second precision) |
-| `TIMESTAMP` | `LocalDateTime` | Fractional seconds (default: 6) |
-| `TIMESTAMP WITH TIME ZONE` | `OffsetDateTime` | Explicit timezone |
-| `TIMESTAMP WITH LOCAL TIME ZONE` | `Instant` | Session timezone |
+| `DATE` | `LocalDateTime` | Date + time, second precision — Oracle's DATE always has a time component |
+| `TIMESTAMP` | `LocalDateTime` | Naive timestamp, no zone (default precision 6) |
+| `TIMESTAMP WITH TIME ZONE` | `ZonedDateTime` | **Preserves offset or zone region** — see note below |
+| `TIMESTAMP WITH LOCAL TIME ZONE` | `Instant` | UTC instant, presented in session zone — see note below |
 
 <Snippet file="oracle/DateTimeTypes" />
 
 **Note:** Oracle `DATE` includes time (unlike SQL standard), so it maps to `LocalDateTime`, not `LocalDate`.
+
+:::note `TIMESTAMP WITH TIME ZONE` → `ZonedDateTime` (not `OffsetDateTime`)
+Oracle's TSTZ column uses a 13-byte on-disk format that can hold **either a fixed offset (`-08:00`) or a named zone region (`America/Los_Angeles`)**. Region names are DST-aware — the same `America/Los_Angeles` column value renders as `-08:00` in January and `-07:00` in July.
+
+`OffsetDateTime` cannot represent named zones — it holds only a numeric offset. Mapping Oracle TSTZ to `OffsetDateTime` would silently collapse every region to its current offset, so a round-trip of `2024-01-15T10:00 America/Los_Angeles` would come back as `2024-01-15T10:00-08:00` with the region erased — the DST rule is lost for any future reads.
+
+`ZonedDateTime` covers both cases without information loss:
+- Fixed-offset input (`ZonedDateTime.of(..., ZoneOffset.UTC)`) round-trips as a `ZonedDateTime` whose zone is a `ZoneOffset`.
+- Named-region input (`ZonedDateTime.of(..., ZoneId.of("America/Los_Angeles"))`) round-trips as a `ZonedDateTime` whose zone is a `ZoneRegion`.
+
+If you don't need the region — if you're just modelling "a moment in time with whatever zone the user was in" — prefer `TIMESTAMP WITH LOCAL TIME ZONE` (see below) and get an `Instant`, which is simpler.
+:::
+
+:::note `TIMESTAMP WITH LOCAL TIME ZONE` → `Instant` (not `LocalDateTime`)
+Despite the "LOCAL TIME ZONE" name, this column stores a **universal instant**, not a naive wall-clock. Oracle's documentation: "data stored in the database is normalized to the database time zone, and the time zone offset is not stored as part of the column data. When users retrieve the data, Oracle Database returns it in the users' local session time zone."
+
+In other words: the column stores an instant, and Oracle applies session-TZ rendering at read-time as a display convenience. A value inserted from an Asia/Tokyo session reads back as the same instant from an America/Los_Angeles session, in LA's local time — instant identity is preserved.
+
+`Instant` is the Java type with this exact semantic: a point in time, zone-free. `LocalDateTime` would be wrong — it claims "naive wall-clock with no zone", but the data genuinely *is* a universal moment. Using `LocalDateTime` would mean two clients with different session-TZ settings would mint different `LocalDateTime` values for the same row, destroying round-trip stability.
+
+Same mapping as PostgreSQL's `timestamptz` and DuckDB's `TIMESTAMPTZ` — all three store a universal instant and use `Instant` in Java.
+:::
 
 ## Interval Types
 

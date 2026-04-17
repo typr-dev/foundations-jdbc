@@ -56,7 +56,7 @@ open class OracleTypes {
     open val longRaw = OracleType(JavaOracleTypes.longRaw)
     open val date = OracleType(JavaOracleTypes.date)
     open val timestamp = OracleType(JavaOracleTypes.timestamp)
-    open val timestampWithTimeZone = OracleType(JavaOracleTypes.timestampWithTimeZone)
+    open val timestampWithTimeZone: OracleType<java.time.ZonedDateTime> = OracleType(JavaOracleTypes.timestampWithTimeZone)
     open val timestampWithLocalTimeZone = OracleType(JavaOracleTypes.timestampWithLocalTimeZone)
     open val intervalYearToMonth = OracleType(JavaOracleTypes.intervalYearToMonth)
     open val intervalDayToSecond = OracleType(JavaOracleTypes.intervalDayToSecond)
@@ -102,7 +102,7 @@ open class OracleTypes {
 
     open fun timestampOf(fractionalSecondsPrecision: Int) = OracleType(JavaOracleTypes.timestampOf(fractionalSecondsPrecision))
 
-    open fun timestampWithTimeZone(fractionalSecondsPrecision: Int) =
+    open fun timestampWithTimeZone(fractionalSecondsPrecision: Int): OracleType<java.time.ZonedDateTime> =
         OracleType(JavaOracleTypes.timestampWithTimeZone(fractionalSecondsPrecision))
 
     open fun timestampWithLocalTimeZone(fractionalSecondsPrecision: Int) =

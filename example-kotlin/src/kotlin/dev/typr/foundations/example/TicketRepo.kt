@@ -1,7 +1,7 @@
 package dev.typr.foundations.example
 
 import dev.typr.foundationskt.*
-import java.time.OffsetDateTime
+import java.time.Instant
 import java.util.*
 
 object TicketRepo {
@@ -50,7 +50,7 @@ object TicketRepo {
                 holderName = holderName,
                 holderEmail = holderEmail,
                 price = price,
-                purchased = OffsetDateTime.now(),
+                purchased = Instant.now(),
                 seatNumbers = seatNumbers
             )
         )

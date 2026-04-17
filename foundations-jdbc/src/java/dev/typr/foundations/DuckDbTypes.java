@@ -308,15 +308,23 @@ public interface DuckDbTypes {
 
   DuckDbType<LocalDateTime> datetime = timestamp.renamed("DATETIME");
 
-  // Timestamp with timezone
-  DuckDbType<OffsetDateTime> timestamptz =
-      DuckDbType.of(
+  // TIMESTAMP WITH TIME ZONE → Instant.
+  //
+  // DuckDB stores TIMESTAMPTZ as an INT64 count of microseconds since the Unix epoch — no offset
+  // or zone is retained (see https://duckdb.org/docs/sql/data_types/timestamp). The `WITH TIME
+  // ZONE` name refers only to input/output rendering in the session zone, not to storage.
+  // `Instant` is therefore the honest Java representation — an absolute point in time with no
+  // associated zone — and matches the `PgTypes.timestamptz` choice (PG has the same UTC-only
+  // semantics). The previous `OffsetDateTime` mapping surfaced the JDBC driver's cosmetic
+  // "render in session offset" behaviour as if it were data.
+  DuckDbType<Instant> timestamptz =
+      DuckDbType.<OffsetDateTime>of(
               "TIMESTAMP WITH TIME ZONE",
               DuckDbRead.readOffsetDateTime,
               DuckDbWrite.passObjectToJdbc(),
               DuckDbStringifier.timestamptz,
               DuckDbJson.timestamptz)
-          .withListCodec(DuckDbListCodec.sqlLiteralCast());
+          .transform(OffsetDateTime::toInstant, i -> i.atOffset(ZoneOffset.UTC));
 
   // Time with timezone - represented as OffsetTime
   DuckDbType<OffsetDateTime> timetz =

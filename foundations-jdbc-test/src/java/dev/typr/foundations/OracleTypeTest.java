@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,7 +109,7 @@ public class OracleTypeTest {
       Double binaryDoubleField,
       LocalDateTime dateField,
       LocalDateTime timestampField,
-      OffsetDateTime timestampTzField,
+      ZonedDateTime timestampTzField,
       Instant timestampLtzField,
       OracleIntervalYM intervalYmField,
       OracleIntervalDS intervalDsField,
@@ -128,7 +129,7 @@ public class OracleTypeTest {
       Optional<Double> binaryDoubleField,
       Optional<LocalDateTime> dateField,
       Optional<LocalDateTime> timestampField,
-      Optional<OffsetDateTime> timestampTzField,
+      Optional<ZonedDateTime> timestampTzField,
       Optional<Instant> timestampLtzField,
       Optional<OracleIntervalYM> intervalYmField,
       Optional<OracleIntervalDS> intervalDsField,
@@ -151,7 +152,7 @@ public class OracleTypeTest {
       Double binaryDoubleField,
       LocalDateTime dateField,
       LocalDateTime timestampField,
-      OffsetDateTime timestampTzField,
+      ZonedDateTime timestampTzField,
       Instant timestampLtzField,
       OracleIntervalYM intervalYmField,
       OracleIntervalDS intervalDsField,
@@ -171,7 +172,7 @@ public class OracleTypeTest {
       Optional<Double> binaryDoubleField,
       Optional<LocalDateTime> dateField,
       Optional<LocalDateTime> timestampField,
-      Optional<OffsetDateTime> timestampTzField,
+      Optional<ZonedDateTime> timestampTzField,
       Optional<Instant> timestampLtzField,
       Optional<OracleIntervalYM> intervalYmField,
       Optional<OracleIntervalDS> intervalDsField,
@@ -436,17 +437,42 @@ public class OracleTypeTest {
           new OracleTypeAndExample<>(
               OracleTypes.timestamp, LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0)), // Edge case: epoch
 
-          // TIMESTAMP WITH TIME ZONE
+          // TIMESTAMP WITH TIME ZONE — fixed offsets
           new OracleTypeAndExample<>(
               OracleTypes.timestampWithTimeZone,
-              OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
+              ZonedDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
           new OracleTypeAndExample<>(
               OracleTypes.timestampWithTimeZone,
-              OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)),
+              ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)),
           new OracleTypeAndExample<>(
               OracleTypes.timestampWithTimeZone,
-              OffsetDateTime.of(
+              ZonedDateTime.of(
                   2024, 6, 15, 14, 30, 45, 123456000, ZoneOffset.ofHoursMinutes(-5, -30))),
+
+          // TIMESTAMP WITH TIME ZONE — named zone regions (the whole point of ZonedDateTime
+          // vs OffsetDateTime — these would lose their region identity under OffsetDateTime
+          // and freeze to whatever offset was in effect at the moment).
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(
+                  2024, 1, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"))), // PST
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(
+                  2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"))), // PDT
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(2024, 6, 15, 9, 0, 0, 0, java.time.ZoneId.of("Europe/Berlin"))),
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(2024, 3, 10, 15, 0, 0, 0, java.time.ZoneId.of("Asia/Tokyo"))),
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(2024, 12, 31, 23, 59, 59, 999000000, java.time.ZoneId.of("UTC"))),
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(
+                  2024, 10, 20, 6, 15, 0, 0, java.time.ZoneId.of("Australia/Sydney"))),
 
           // TIMESTAMP WITH LOCAL TIME ZONE
           new OracleTypeAndExample<>(
@@ -717,7 +743,7 @@ public class OracleTypeTest {
                       2.718,
                       LocalDateTime.of(2024, 6, 15, 14, 30, 45),
                       LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000),
-                      OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2)),
+                      ZonedDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2)),
                       Instant.parse("2024-06-15T11:30:45Z"),
                       new OracleIntervalYM(2, 5),
                       new OracleIntervalDS(3, 14, 30, 45, 123456000),
@@ -819,7 +845,7 @@ public class OracleTypeTest {
                       Optional.of(LocalDateTime.of(2024, 6, 15, 14, 30, 45)),
                       Optional.empty(), // Test null timestampField
                       Optional.of(
-                          OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
+                          ZonedDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
                       Optional.of(Instant.parse("2024-06-15T11:30:45Z")),
                       Optional.of(new OracleIntervalYM(2, 5)),
                       Optional.empty(), // Test null intervalDsField
@@ -916,7 +942,7 @@ public class OracleTypeTest {
                       2.718281828,
                       LocalDateTime.of(2024, 3, 15, 14, 30),
                       LocalDateTime.of(2024, 3, 15, 14, 30, 45, 123456789),
-                      OffsetDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2)),
+                      ZonedDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2)),
                       Instant.parse("2024-03-15T11:30:45Z"),
                       new OracleIntervalYM(2, 6),
                       new OracleIntervalDS(5, 12, 30, 45, 123456000),
@@ -1016,7 +1042,7 @@ public class OracleTypeTest {
                       Optional.of(LocalDateTime.of(2024, 3, 15, 14, 30)),
                       Optional.empty(),
                       Optional.of(
-                          OffsetDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
+                          ZonedDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
                       Optional.of(Instant.parse("2024-03-15T11:30:45Z")),
                       Optional.of(new OracleIntervalYM(2, 6)),
                       Optional.empty(),
@@ -1117,7 +1143,7 @@ public class OracleTypeTest {
                           1.11,
                           LocalDateTime.of(2024, 1, 1, 10, 0),
                           LocalDateTime.of(2024, 1, 1, 10, 0, 0, 111000000),
-                          OffsetDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC),
+                          ZonedDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC),
                           Instant.parse("2024-01-01T07:00:00Z"),
                           new OracleIntervalYM(1, 1),
                           new OracleIntervalDS(1, 1, 1, 1, 111000000),
@@ -1135,7 +1161,7 @@ public class OracleTypeTest {
                           2.22,
                           LocalDateTime.of(2024, 2, 2, 20, 0),
                           LocalDateTime.of(2024, 2, 2, 20, 0, 0, 222000000),
-                          OffsetDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(-5)),
+                          ZonedDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(-5)),
                           Instant.parse("2024-02-02T17:00:00Z"),
                           new OracleIntervalYM(2, 2),
                           new OracleIntervalDS(2, 2, 2, 2, 222000000),
@@ -1250,7 +1276,7 @@ public class OracleTypeTest {
                           Optional.of(1.11),
                           Optional.of(LocalDateTime.of(2024, 1, 1, 10, 0)),
                           Optional.empty(),
-                          Optional.of(OffsetDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC)),
+                          Optional.of(ZonedDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC)),
                           Optional.of(Instant.parse("2024-01-01T07:00:00Z")),
                           Optional.of(new OracleIntervalYM(1, 1)),
                           Optional.empty(),
@@ -1270,7 +1296,7 @@ public class OracleTypeTest {
                           Optional.of(LocalDateTime.of(2024, 2, 2, 20, 0)),
                           Optional.of(LocalDateTime.of(2024, 2, 2, 20, 0, 0, 222000000)),
                           Optional.of(
-                              OffsetDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(-5))),
+                              ZonedDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(-5))),
                           Optional.of(Instant.parse("2024-02-02T17:00:00Z")),
                           Optional.of(new OracleIntervalYM(2, 2)),
                           Optional.of(new OracleIntervalDS(2, 2, 2, 2, 222000000)),
@@ -2309,6 +2335,188 @@ public class OracleTypeTest {
     }
   }
 
+  /**
+   * TIMESTAMP WITH TIME ZONE must preserve *named zone regions*, not just their current offset.
+   *
+   * <p>This is the whole reason the library maps Oracle TSTZ to {@link ZonedDateTime} rather than
+   * {@link OffsetDateTime}. The 13-byte on-disk TSTZ format holds either a fixed offset or a
+   * region name; {@code ZonedDateTime} can represent both, while {@code OffsetDateTime} collapses
+   * every region to its current offset — which loses DST-awareness on later reads.
+   *
+   * <p>Scenarios covered:
+   * <ol>
+   *   <li>Named zone region ({@code America/Los_Angeles}) in winter (PST, UTC-8)</li>
+   *   <li>Same named region in summer (PDT, UTC-7) — verifies the zone ID itself is persisted,
+   *       not the current offset</li>
+   *   <li>Fixed offset ({@code +05:30} — India) — verifies the offset path still works</li>
+   *   <li>Region round-trip then rendering: reloading the value into a different session TZ
+   *       should yield the same instant AND the same zone ID</li>
+   * </ol>
+   */
+  @Test
+  public void testTimestampWithTimeZonePreservesZoneRegion() {
+    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    String table = uniqueTableName("zdt_region");
+
+    var winterLA = ZonedDateTime.of(2024, 1, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+    var summerLA = ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+    var berlin = ZonedDateTime.of(2024, 6, 15, 9, 0, 0, 0, java.time.ZoneId.of("Europe/Berlin"));
+    var tokyo = ZonedDateTime.of(2024, 3, 10, 15, 0, 0, 0, java.time.ZoneId.of("Asia/Tokyo"));
+    var fixedOffset = ZonedDateTime.of(2024, 6, 15, 14, 30, 0, 0, ZoneOffset.ofHoursMinutes(5, 30));
+
+    List<ZonedDateTime> samples = List.of(winterLA, summerLA, berlin, tokyo, fixedOffset);
+
+    // CREATE + INSERT + SELECT all in one tx — testStrategy rolls back on exit, so multi-tx
+    // splits would lose the inserts before the read.
+    List<ZonedDateTime> roundTripped =
+        tx.execute(
+            conn -> {
+              Fragment.of(
+                      "CREATE TABLE " + table + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
+                  .execute()
+                  .run(conn);
+              for (int i = 0; i < samples.size(); i++) {
+                Fragment.builder()
+                    .append("INSERT INTO " + table + " (id, ts) VALUES (")
+                    .value(OracleTypes.numberAsInt(5), i)
+                    .append(", ")
+                    .value(OracleTypes.timestampWithTimeZone, samples.get(i))
+                    .append(")")
+                    .execute()
+                    .run(conn);
+              }
+              return Fragment.of("SELECT ts FROM " + table + " ORDER BY id")
+                  .queryAll(OracleTypes.timestampWithTimeZone)
+                  .run(conn);
+            });
+
+    for (int i = 0; i < samples.size(); i++) {
+      ZonedDateTime expected = samples.get(i);
+      ZonedDateTime actual = roundTripped.get(i);
+
+      // Instant must match exactly — that's the basic "same moment in time" check.
+      if (!expected.toInstant().equals(actual.toInstant())) {
+        throw new AssertionError(
+            "Instant mismatch for " + expected + " → " + actual
+                + " (instants " + expected.toInstant() + " vs " + actual.toInstant() + ")");
+      }
+
+      // Zone identity must match — the whole point of using ZonedDateTime.
+      if (!expected.getZone().equals(actual.getZone())) {
+        throw new AssertionError(
+            "Zone mismatch for " + expected + " → " + actual
+                + " (zones " + expected.getZone() + " vs " + actual.getZone() + ")");
+      }
+    }
+
+    // DST-awareness: winter and summer values at the same named region should have
+    // *different* offsets at their respective instants, even though the zone ID is the same.
+    // This is the specific behavior that OffsetDateTime can't express.
+    if (winterLA.getOffset().equals(summerLA.getOffset())) {
+      throw new AssertionError(
+          "Sanity check failed — winter/summer LA should have different offsets");
+    }
+    int winterIdx = samples.indexOf(winterLA);
+    int summerIdx = samples.indexOf(summerLA);
+    if (!roundTripped.get(winterIdx).getOffset().equals(winterLA.getOffset())) {
+      throw new AssertionError("Winter LA lost its DST offset: " + roundTripped.get(winterIdx));
+    }
+    if (!roundTripped.get(summerIdx).getOffset().equals(summerLA.getOffset())) {
+      throw new AssertionError("Summer LA lost its DST offset: " + roundTripped.get(summerIdx));
+    }
+  }
+
+  /**
+   * Session-timezone independence: the same row should decode to the same {@link ZonedDateTime}
+   * (same instant, same zone) regardless of which timezone the reading session is configured
+   * with. Region names must survive unchanged; fixed offsets must survive unchanged.
+   */
+  @Test
+  public void testTimestampWithTimeZoneIsSessionTzIndependent() {
+    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    String table = uniqueTableName("zdt_session");
+
+    var value = ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+
+    // Setup + all session-TZ reads in one tx block — testStrategy rolls back on exit so the
+    // table doesn't outlive the test.
+    tx.execute(
+        conn -> {
+          Fragment.of("CREATE TABLE " + table + " (ts TIMESTAMP WITH TIME ZONE)")
+              .execute()
+              .run(conn);
+          Fragment.builder()
+              .append("INSERT INTO " + table + " (ts) VALUES (")
+              .value(OracleTypes.timestampWithTimeZone, value)
+              .append(")")
+              .execute()
+              .run(conn);
+          for (String sessionTz : List.of("UTC", "America/New_York", "Asia/Tokyo", "Europe/Berlin")) {
+            Fragment.of("ALTER SESSION SET TIME_ZONE = '" + sessionTz + "'")
+                .execute()
+                .run(conn);
+            ZonedDateTime decoded =
+                Fragment.of("SELECT ts FROM " + table)
+                    .queryExactlyOne(OracleTypes.timestampWithTimeZone)
+                    .run(conn);
+            if (!decoded.toInstant().equals(value.toInstant())) {
+              throw new AssertionError(
+                  "Session TZ " + sessionTz + ": instant mismatch: "
+                      + decoded.toInstant() + " vs " + value.toInstant());
+            }
+            if (!decoded.getZone().equals(value.getZone())) {
+              throw new AssertionError(
+                  "Session TZ " + sessionTz + ": zone mismatch: "
+                      + decoded.getZone() + " vs " + value.getZone());
+            }
+          }
+          return null;
+        });
+  }
+
+  /** Nullable column and null round-trip for TIMESTAMP WITH TIME ZONE → Optional<ZonedDateTime>. */
+  @Test
+  public void testTimestampWithTimeZoneNullable() {
+    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    String table = uniqueTableName("zdt_null");
+
+    var value = ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+
+    List<Optional<ZonedDateTime>> decoded =
+        tx.execute(
+            conn -> {
+              Fragment.of("CREATE TABLE " + table + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
+                  .execute()
+                  .run(conn);
+              Fragment.builder()
+                  .append("INSERT INTO " + table + " (id, ts) VALUES (1, ")
+                  .value(OracleTypes.timestampWithTimeZone, value)
+                  .append(")")
+                  .execute()
+                  .run(conn);
+              Fragment.of("INSERT INTO " + table + " (id, ts) VALUES (2, NULL)")
+                  .execute()
+                  .run(conn);
+              return Fragment.of("SELECT ts FROM " + table + " ORDER BY id")
+                  .queryAll(OracleTypes.timestampWithTimeZone.opt())
+                  .run(conn);
+            });
+
+    if (decoded.size() != 2) {
+      throw new AssertionError("Expected 2 rows, got " + decoded.size());
+    }
+    if (decoded.get(0).isEmpty()) {
+      throw new AssertionError("Non-null row decoded as empty");
+    }
+    if (!decoded.get(0).get().toInstant().equals(value.toInstant())
+        || !decoded.get(0).get().getZone().equals(value.getZone())) {
+      throw new AssertionError("Non-null round-trip mismatch: " + decoded.get(0).get());
+    }
+    if (decoded.get(1).isPresent()) {
+      throw new AssertionError("NULL row decoded as present: " + decoded.get(1));
+    }
+  }
+
   private static void tryRun(java.sql.Connection conn, Fragment fragment) {
     try {
       fragment.execute().run(conn);
@@ -2344,6 +2552,13 @@ public class OracleTypeTest {
     // tz)
     if (expected instanceof OffsetDateTime && actual instanceof OffsetDateTime) {
       return ((OffsetDateTime) actual).toInstant().equals(((OffsetDateTime) expected).toInstant());
+    }
+    // For ZonedDateTime, compare by instant only in this shared helper — Oracle's JSON_OBJECT
+    // renders TSTZ values in ISO_OFFSET_DATE_TIME format, stripping the zone region before the
+    // library ever sees the JSON. The native (non-JSON) TSTZ round-trip is covered separately
+    // in testTimestampWithTimeZonePreservesZoneRegion, which asserts zone identity explicitly.
+    if (expected instanceof ZonedDateTime && actual instanceof ZonedDateTime) {
+      return ((ZonedDateTime) actual).toInstant().equals(((ZonedDateTime) expected).toInstant());
     }
 
     // For Json, parse and compare structures (Oracle normalizes JSON formatting)

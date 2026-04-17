@@ -2,7 +2,7 @@ package dev.typr.foundations.example
 
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.OffsetDateTime
+import java.time.Instant
 import java.util.*
 
 // ─── Domain wrapper types ───────────────────────────────────────────
@@ -44,7 +44,7 @@ data class Event(
     val title: String,
     val description: String?,
     val status: EventStatus,
-    val date: OffsetDateTime,
+    val date: Instant,
     val doorOpen: LocalDate,
     val basePrice: Money,
     val tags: List<String>,
@@ -58,7 +58,7 @@ data class Ticket(
     val holderName: String,
     val holderEmail: String?,
     val price: Money,
-    val purchased: OffsetDateTime,
+    val purchased: Instant,
     val seatNumbers: List<Int>
 )
 

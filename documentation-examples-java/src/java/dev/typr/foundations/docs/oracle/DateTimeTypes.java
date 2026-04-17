@@ -4,7 +4,7 @@ import dev.typr.foundations.OracleType;
 import dev.typr.foundations.OracleTypes;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 
 @SuppressWarnings("unused")
 public class DateTimeTypes {
@@ -12,7 +12,7 @@ public class DateTimeTypes {
   OracleType<LocalDateTime> dateType = OracleTypes.date;
   OracleType<LocalDateTime> tsType = OracleTypes.timestamp;
   OracleType<LocalDateTime> ts3 = OracleTypes.timestampOf(3); // TIMESTAMP(3)
-  OracleType<OffsetDateTime> tstz = OracleTypes.timestampWithTimeZone;
+  OracleType<ZonedDateTime> tstz = OracleTypes.timestampWithTimeZone; // preserves zone regions
   OracleType<Instant> tsltz = OracleTypes.timestampWithLocalTimeZone;
   // stop
 }

@@ -91,14 +91,20 @@ DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so
 
 | DuckDB Type | Java Type | Notes |
 |-------------|-----------|-------|
-| `DATE` | `LocalDate` | Date only |
-| `TIME` | `LocalTime` | Time only |
-| `TIMESTAMP` / `DATETIME` | `LocalDateTime` | Date and time |
-| `TIMESTAMP WITH TIME ZONE` | `OffsetDateTime` | With timezone |
-| `TIME WITH TIME ZONE` | `OffsetDateTime` | Time with timezone |
+| `DATE` | `LocalDate` | Naive date, no zone |
+| `TIME` | `LocalTime` | Naive time, no zone |
+| `TIMESTAMP` / `DATETIME` | `LocalDateTime` | Naive timestamp, no zone |
+| `TIMESTAMP WITH TIME ZONE` | `Instant` | **UTC instant** — see note below |
+| `TIME WITH TIME ZONE` | `OffsetDateTime` | Time with offset |
 | `INTERVAL` | `Duration` | Time duration |
 
 <Snippet file="duckdb/DateTimeTypes" />
+
+:::note `TIMESTAMP WITH TIME ZONE` is not what the name suggests
+Despite the SQL keyword, DuckDB does **not** store any zone or offset with a `TIMESTAMPTZ` value — it stores an `INT64` count of microseconds since the Unix epoch (see the [DuckDB timestamp docs](https://duckdb.org/docs/sql/data_types/timestamp)). The original offset or region is used only for parsing on input, then discarded. Reads render the instant in the session timezone, which is a display convenience, not persisted state.
+
+Because the storage *is* a universal instant, the library maps this column to `java.time.Instant` — the Java type with the same semantics. Using `OffsetDateTime` would surface the JDBC driver's cosmetic "render in session offset" output as if it were data. `Instant` is identical in spirit to PostgreSQL's `timestamptz` mapping ([see `postgresql.md`](./postgresql#datetime-rationale)).
+:::
 
 ### Timestamp Precision Variants
 
