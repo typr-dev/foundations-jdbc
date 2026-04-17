@@ -44,7 +44,7 @@ public record SqlServerType<A>(
 
   @Override
   public String toString() {
-    return "SQLServer(" + typename.sqlType() + ")";
+    return "SQLServer(" + typename + ")";
   }
 
   public SqlServerType<A> unchecked() {

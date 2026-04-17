@@ -69,7 +69,7 @@ public record DuckDbType<A>(
 
   @Override
   public String toString() {
-    return "DuckDB(" + typename.sqlType() + ")";
+    return "DuckDB(" + typename + ")";
   }
 
   public DuckDbType<A> unchecked() {

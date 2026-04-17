@@ -49,7 +49,7 @@ public record PgType<A>(
 
   @Override
   public String toString() {
-    return "PostgreSQL(" + typename.sqlType() + ")";
+    return "PostgreSQL(" + typename + ")";
   }
 
   public PgType<A> unchecked() {

@@ -44,7 +44,7 @@ public record MariaType<A>(
 
   @Override
   public String toString() {
-    return "MariaDB(" + typename.sqlType() + ")";
+    return "MariaDB(" + typename + ")";
   }
 
   public MariaType<A> unchecked() {

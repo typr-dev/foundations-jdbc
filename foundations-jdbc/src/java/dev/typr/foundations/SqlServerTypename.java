@@ -39,6 +39,11 @@ public sealed interface SqlServerTypename<A> extends DbTypename<A> {
     }
 
     @Override
+    public String toString() {
+      return sqlType;
+    }
+
+    @Override
     public Base<A> renamed(String value) {
       return new Base<>(value);
     }
@@ -57,6 +62,11 @@ public sealed interface SqlServerTypename<A> extends DbTypename<A> {
     @Override
     public String sqlTypeNoPrecision() {
       return of.sqlTypeNoPrecision();
+    }
+
+    @Override
+    public String toString() {
+      return sqlType();
     }
 
     @Override
@@ -81,6 +91,11 @@ public sealed interface SqlServerTypename<A> extends DbTypename<A> {
     }
 
     @Override
+    public String toString() {
+      return sqlType();
+    }
+
+    @Override
     public SqlServerTypename<A> renamed(String value) {
       return new WithPrecScale<>(of.renamed(value), precision, scale);
     }
@@ -100,6 +115,11 @@ public sealed interface SqlServerTypename<A> extends DbTypename<A> {
     @Override
     public String sqlTypeNoPrecision() {
       return of.sqlTypeNoPrecision();
+    }
+
+    @Override
+    public String toString() {
+      return of.toString();
     }
 
     @Override

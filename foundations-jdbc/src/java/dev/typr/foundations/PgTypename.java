@@ -47,6 +47,11 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
     }
 
     @Override
+    public String toString() {
+      return sqlType;
+    }
+
+    @Override
     public PgTypename<List<A>> array() {
       return new ArrayOf<>(this);
     }
@@ -71,6 +76,11 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
     @Override
     public String sqlTypeNoPrecision() {
       return of.sqlTypeNoPrecision() + "[]";
+    }
+
+    @Override
+    public String toString() {
+      return of + "[]";
     }
 
     @Override
@@ -100,6 +110,11 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
     }
 
     @Override
+    public String toString() {
+      return sqlType();
+    }
+
+    @Override
     public PgTypename<List<A>> array() {
       // drops precision
       return new ArrayOf<>(this);
@@ -125,6 +140,11 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
     @Override
     public String sqlTypeNoPrecision() {
       return of.sqlTypeNoPrecision();
+    }
+
+    @Override
+    public String toString() {
+      return of.toString();
     }
 
     @Override
@@ -167,6 +187,11 @@ public sealed interface PgTypename<A> extends DbTypename<A> {
 
     @Override
     public String sqlTypeNoPrecision() {
+      return name;
+    }
+
+    @Override
+    public String toString() {
       return name;
     }
 

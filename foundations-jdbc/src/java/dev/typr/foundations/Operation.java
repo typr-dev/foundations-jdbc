@@ -325,6 +325,16 @@ public sealed interface Operation<Out> extends Analyzable
         throw new DatabaseException(e);
       }
     }
+
+    @Override
+    public String description(boolean verbose) {
+      return "Query: " + query.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
+    }
   }
 
   record Update(Fragment query) implements Operation<Integer> {
@@ -346,6 +356,16 @@ public sealed interface Operation<Out> extends Analyzable
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "Update: " + query.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 
@@ -369,6 +389,16 @@ public sealed interface Operation<Out> extends Analyzable
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "Execute: " + query.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 
@@ -395,6 +425,16 @@ public sealed interface Operation<Out> extends Analyzable
         throw new DatabaseException(e);
       }
     }
+
+    @Override
+    public String description(boolean verbose) {
+      return "UpdateReturning: " + query.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
+    }
   }
 
   record UpdateReturningGeneratedKeys<Out>(
@@ -420,6 +460,19 @@ public sealed interface Operation<Out> extends Analyzable
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "UpdateReturningGeneratedKeys["
+          + String.join(",", columnNames)
+          + "]: "
+          + query.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 
@@ -448,6 +501,16 @@ public sealed interface Operation<Out> extends Analyzable
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "UpdateMany: " + query.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 
@@ -480,6 +543,16 @@ public sealed interface Operation<Out> extends Analyzable
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "UpdateManyReturning: " + query.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 
@@ -516,6 +589,16 @@ public sealed interface Operation<Out> extends Analyzable
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "UpdateReturningEach: " + query.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 
@@ -561,6 +644,16 @@ public sealed interface Operation<Out> extends Analyzable
         throw new DatabaseException(e);
       }
     }
+
+    @Override
+    public String description(boolean verbose) {
+      return "UpdateManyTemplate: " + fragment.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
+    }
   }
 
   record StreamingCopy<Row>(String copyCommand, int batchSize, Iterator<Row> rows, PgText<Row> text)
@@ -578,6 +671,16 @@ public sealed interface Operation<Out> extends Analyzable
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "StreamingCopy: " + copyCommand;
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 
@@ -605,6 +708,16 @@ public sealed interface Operation<Out> extends Analyzable
         throw new DatabaseException(e);
       }
     }
+
+    @Override
+    public String description(boolean verbose) {
+      return "Streaming: " + query.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
+    }
   }
 
   record Mapped<A, B>(Operation<A> source, SqlFunction<A, B> f) implements Operation<B> {
@@ -616,12 +729,32 @@ public sealed interface Operation<Out> extends Analyzable
         throw new DatabaseException(e);
       }
     }
+
+    @Override
+    public String description(boolean verbose) {
+      return "Mapped(" + source.description(verbose) + ")";
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
+    }
   }
 
   record Pure<T>(T value) implements Operation<T> {
     @Override
     public T run(Connection conn) {
       return value;
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "Pure(" + value + ")";
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 
@@ -631,6 +764,16 @@ public sealed interface Operation<Out> extends Analyzable
     public Tuple.Tuple2<A, B> run(Connection conn) {
       return Tuple.of(first.run(conn), second.run(conn));
     }
+
+    @Override
+    public String description(boolean verbose) {
+      return "Combine(" + first.description(verbose) + ", " + second.description(verbose) + ")";
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
+    }
   }
 
   record IfEmpty<T>(Operation<Optional<T>> check, Operation<T> fallback) implements Operation<T> {
@@ -638,6 +781,16 @@ public sealed interface Operation<Out> extends Analyzable
     public T run(Connection conn) {
       Optional<T> result = check.run(conn);
       return result.isPresent() ? result.get() : fallback.run(conn);
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "IfEmpty(" + check.description(verbose) + ", " + fallback.description(verbose) + ")";
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 
@@ -649,6 +802,20 @@ public sealed interface Operation<Out> extends Analyzable
       A a = source.run(conn);
       In in = extract.apply(a);
       return continuation.on(in).run(conn);
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "Then("
+          + source.description(verbose)
+          + " -> "
+          + continuation.description(verbose)
+          + ")";
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 
@@ -681,6 +848,19 @@ public sealed interface Operation<Out> extends Analyzable
       }
       QueryListener effectiveListener = listener != null ? listener : QueryListener.NOOP;
       return new InstrumentedConnection(conn, effectiveListener, name, timeout);
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      if (name != null) {
+        return verbose ? name + "\n" + inner.description(false) : name;
+      }
+      return inner.description(verbose);
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 }

@@ -44,7 +44,7 @@ public record OracleType<A>(
 
   @Override
   public String toString() {
-    return "Oracle(" + typename.sqlType() + ")";
+    return "Oracle(" + typename + ")";
   }
 
   public OracleType<A> unchecked() {

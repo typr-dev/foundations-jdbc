@@ -769,6 +769,16 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       public <T> From<T, Out> from($fromFnParams) {
         return new From<>(this, t -> on($fromApplyArgs));
       }
+
+      @Override
+      public String description(boolean verbose) {
+        return "Query1: " + fragment.renderInterpolated();
+      }
+
+      @Override
+      public String toString() {
+        return description(false);
+      }
     }"""
       } else {
         val inType = inputType(n)
@@ -793,6 +803,16 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
 
       public <T> From<T, Out> from($fromFnParams) {
         return new From<>(this, t -> on($fromApplyArgs));
+      }
+
+      @Override
+      public String description(boolean verbose) {
+        return "Query$n: " + fragment.renderInterpolated();
+      }
+
+      @Override
+      public String toString() {
+        return description(false);
       }
     }"""
       }
@@ -819,6 +839,16 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       public <T> From<T, Integer> from($fromFnParams) {
         return new From<>(this, t -> on($fromApplyArgs));
       }
+
+      @Override
+      public String description(boolean verbose) {
+        return "Update1: " + fragment.renderInterpolated();
+      }
+
+      @Override
+      public String toString() {
+        return description(false);
+      }
     }"""
       } else {
         val inType = inputType(n)
@@ -841,6 +871,16 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
 
       public <T> From<T, Integer> from($fromFnParams) {
         return new From<>(this, t -> on($fromApplyArgs));
+      }
+
+      @Override
+      public String description(boolean verbose) {
+        return "Update$n: " + fragment.renderInterpolated();
+      }
+
+      @Override
+      public String toString() {
+        return description(false);
       }
     }"""
       }
@@ -871,6 +911,16 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
         |    @Override
         |    public Fragment fragment() {
         |      return inner.fragment();
+        |    }
+        |
+        |    @Override
+        |    public String description(boolean verbose) {
+        |      return "From: " + fragment().renderInterpolated();
+        |    }
+        |
+        |    @Override
+        |    public String toString() {
+        |      return description(false);
         |    }
         |  }
         |}

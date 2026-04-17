@@ -75,6 +75,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
+    public String toString() {
+      return sqlType();
+    }
+
+    @Override
     public DuckDbTypename<java.util.List<A>> list() {
       return new ListOf<>(this);
     }
@@ -110,6 +115,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     @Override
     public String sqlType() {
       return elementType.sqlType() + "[]";
+    }
+
+    @Override
+    public String toString() {
+      return elementType + "[]";
     }
 
     @Override
@@ -149,6 +159,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     @Override
     public String sqlType() {
       return "MAP(" + keyType.sqlType() + ", " + valueType.sqlType() + ")";
+    }
+
+    @Override
+    public String toString() {
+      return "MAP(" + keyType + ", " + valueType + ")";
     }
 
     @Override
@@ -194,6 +209,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     @Override
     public String sqlType() {
       return elementType.sqlType() + "[" + size + "]";
+    }
+
+    @Override
+    public String toString() {
+      return elementType + "[" + size + "]";
     }
 
     @Override
@@ -243,6 +263,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
       }
       sb.append(")");
       return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+      return name;
     }
 
     private static boolean needsQuoting(String name) {
@@ -305,6 +330,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
+    public String toString() {
+      return name;
+    }
+
+    @Override
     public DuckDbTypename<java.util.List<A>> list() {
       return new ListOf<>(this);
     }
@@ -341,6 +371,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     @Override
     public String sqlType() {
       return of.sqlType();
+    }
+
+    @Override
+    public String toString() {
+      return of.toString();
     }
 
     @Override

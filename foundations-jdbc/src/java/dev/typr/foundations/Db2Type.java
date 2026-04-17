@@ -44,7 +44,7 @@ public record Db2Type<A>(
 
   @Override
   public String toString() {
-    return "DB2(" + typename.sqlType() + ")";
+    return "DB2(" + typename + ")";
   }
 
   public Db2Type<A> unchecked() {

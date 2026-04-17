@@ -18,6 +18,16 @@ public sealed interface RowTemplate<Row, Out> extends Template<Row, Out> {
       for (int i = 0; i < includedIndices.length; i++) params[i] = encoded[includedIndices[i]];
       return new Operation.Query<>(fragment.fill(Arrays.asList(params).iterator()), resultParser);
     }
+
+    @Override
+    public String description(boolean verbose) {
+      return "RowTemplate.Query: " + fragment.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
+    }
   }
 
   record Update<Row>(Fragment fragment, RowCodecNamed<Row> codec, int[] includedIndices)
@@ -32,6 +42,16 @@ public sealed interface RowTemplate<Row, Out> extends Template<Row, Out> {
 
     public Operation.UpdateManyTemplate<Row> onMany(Iterator<Row> rows) {
       return new Operation.UpdateManyTemplate<>(fragment, codec, includedIndices, rows);
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "RowTemplate.Update: " + fragment.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 
@@ -49,6 +69,19 @@ public sealed interface RowTemplate<Row, Out> extends Template<Row, Out> {
       for (int i = 0; i < includedIndices.length; i++) params[i] = encoded[includedIndices[i]];
       return new Operation.UpdateReturningGeneratedKeys<>(
           fragment.fill(Arrays.asList(params).iterator()), generatedColumns, resultParser);
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "RowTemplate.GeneratedKeys["
+          + String.join(",", generatedColumns)
+          + "]: "
+          + fragment.renderInterpolated();
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 }

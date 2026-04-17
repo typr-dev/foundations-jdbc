@@ -30,6 +30,11 @@ public sealed interface OracleTypename<A> extends DbTypename<A> {
     }
 
     @Override
+    public String toString() {
+      return sqlType;
+    }
+
+    @Override
     public Base<A> renamed(String value) {
       return new Base<>(value);
     }
@@ -51,6 +56,11 @@ public sealed interface OracleTypename<A> extends DbTypename<A> {
     }
 
     @Override
+    public String toString() {
+      return sqlType();
+    }
+
+    @Override
     public OracleTypename<A> renamed(String value) {
       return new WithPrec<>(of.renamed(value), precision);
     }
@@ -69,6 +79,11 @@ public sealed interface OracleTypename<A> extends DbTypename<A> {
     @Override
     public String sqlTypeNoPrecision() {
       return of.sqlTypeNoPrecision();
+    }
+
+    @Override
+    public String toString() {
+      return sqlType();
     }
 
     @Override
@@ -94,6 +109,11 @@ public sealed interface OracleTypename<A> extends DbTypename<A> {
     }
 
     @Override
+    public String toString() {
+      return of.toString();
+    }
+
+    @Override
     public OracleTypename<Optional<A>> renamed(String value) {
       return new Opt<>(of.renamed(value));
     }
@@ -108,6 +128,11 @@ public sealed interface OracleTypename<A> extends DbTypename<A> {
   record ObjectOf<A>(String sqlType) implements OracleTypename<A> {
     @Override
     public String sqlTypeNoPrecision() {
+      return sqlType;
+    }
+
+    @Override
+    public String toString() {
       return sqlType;
     }
 
