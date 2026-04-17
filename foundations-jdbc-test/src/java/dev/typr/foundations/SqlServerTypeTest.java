@@ -166,7 +166,8 @@ public class SqlServerTypeTest {
           new SqlServerTypeAndExample<>(SqlServerTypes.time, LocalTime.of(14, 30, 45)),
           new SqlServerTypeAndExample<>(SqlServerTypes.time, LocalTime.of(0, 0, 0)),
           // TIME(7) has JDBC conversion precision issues with nanoseconds
-          new SqlServerTypeAndExample<>(SqlServerTypes.timeOf(7), LocalTime.of(14, 30, 45, 123456700))
+          new SqlServerTypeAndExample<>(
+                  SqlServerTypes.timeOf(7), LocalTime.of(14, 30, 45, 123456700))
               .noIdentity(),
           new SqlServerTypeAndExample<>(
                   SqlServerTypes.datetime, LocalDateTime.of(2024, 12, 22, 14, 30, 45))

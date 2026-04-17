@@ -320,16 +320,18 @@ public record QueryAnalysis(
         && returned.isNullabilityKnown()
         && returned.nullable() == ResultSetMetaData.columnNullable
         && !declared.isNullable()) {
-      errors.add(new AlignmentError.NullabilityMismatch(returned.position(), returned.displayName(), declared));
+      errors.add(
+          new AlignmentError.NullabilityMismatch(
+              returned.position(), returned.displayName(), declared));
     }
   }
 
   /**
-   * Top-level match between a declared {@link DbType} and a parsed {@link DuckDbTypename}.
-   * Differs from {@link #duckDbTypenamesMatch} in that the TOP-LEVEL {@link DuckDbTypename.Base}
-   * case consults the declared type's {@link DbType#vendorTypeNames()} alias set — so user-named
-   * ENUM types ({@code color_enum} aliased to {@code enum}) and other declared aliases match
-   * the vendor-reported form. Nested Base nodes inside composites fall back to structural
+   * Top-level match between a declared {@link DbType} and a parsed {@link DuckDbTypename}. Differs
+   * from {@link #duckDbTypenamesMatch} in that the TOP-LEVEL {@link DuckDbTypename.Base} case
+   * consults the declared type's {@link DbType#vendorTypeNames()} alias set — so user-named ENUM
+   * types ({@code color_enum} aliased to {@code enum}) and other declared aliases match the
+   * vendor-reported form. Nested Base nodes inside composites fall back to structural
    * canonicalization since aliases only live on the outer {@code DbType}.
    */
   private static boolean duckDbMatchesTopLevel(DbType<?> declared, DuckDbTypename<?> parsed) {
@@ -353,10 +355,10 @@ public record QueryAnalysis(
   }
 
   /**
-   * Structural compare of two DuckDB typenames. Walks STRUCT fields / UNION members / MAP
-   * key+value / LIST+ARRAY element recursively, comparing field names and types. {@link
-   * DuckDbTypename.StructOf#name} and {@link DuckDbTypename.UnionOf#name} are ignored — the
-   * driver never surfaces the user-given CREATE TYPE name through {@code getColumnTypeName}.
+   * Structural compare of two DuckDB typenames. Walks STRUCT fields / UNION members / MAP key+value
+   * / LIST+ARRAY element recursively, comparing field names and types. {@link
+   * DuckDbTypename.StructOf#name} and {@link DuckDbTypename.UnionOf#name} are ignored — the driver
+   * never surfaces the user-given CREATE TYPE name through {@code getColumnTypeName}.
    */
   static boolean duckDbTypenamesMatch(DuckDbTypename<?> a, DuckDbTypename<?> b) {
     if (a instanceof DuckDbTypename.Opt<?> oa) return duckDbTypenamesMatch(oa.of(), b);
@@ -399,8 +401,8 @@ public record QueryAnalysis(
 
   /**
    * Canonicalize a DuckDB base type name so aliases that resolve to the same storage form match
-   * structurally. Mirrors the aliases set up in {@link DuckDbTypes} (e.g. {@code text},
-   * {@code string}, {@code bpchar}, {@code char} all resolve to {@code varchar}).
+   * structurally. Mirrors the aliases set up in {@link DuckDbTypes} (e.g. {@code text}, {@code
+   * string}, {@code bpchar}, {@code char} all resolve to {@code varchar}).
    */
   private static String duckDbCanonicalBase(String sqlType) {
     String head = normalizeVendorTypeName(sqlType);

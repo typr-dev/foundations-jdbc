@@ -114,7 +114,9 @@ public interface Db2Types {
           Db2Json.float8,
           Db2OutParam.readDouble);
 
-  /** Alias for {@link #double_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754. */
+  /**
+   * Alias for {@link #double_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754.
+   */
   Db2Type<Double> float8 = double_;
 
   Db2Type<Double> float_ =

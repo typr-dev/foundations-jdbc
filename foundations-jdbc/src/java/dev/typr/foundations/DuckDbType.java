@@ -13,11 +13,10 @@ import java.util.function.Function;
  *
  * <p>Every type also carries two pre-built parameters for composition: {@link
  * #structAttributeEncoder} — how a value of this type encodes as a wire attribute when it sits
- * inside a composite ({@code DuckDBUserStruct} attribute, {@code DuckDBUserArray} element,
- * {@code DuckDBMap} entry) — and {@link #listWrite} — the {@link DuckDbWrite} for a {@code
- * List<A>} column when values of this type are the elements. Both are set at construction time
- * so {@link #list} / {@link #array} / {@code compositeOf} / {@code mapTo} never need to
- * introspect the typename.
+ * inside a composite ({@code DuckDBUserStruct} attribute, {@code DuckDBUserArray} element, {@code
+ * DuckDBMap} entry) — and {@link #listWrite} — the {@link DuckDbWrite} for a {@code List<A>} column
+ * when values of this type are the elements. Both are set at construction time so {@link #list} /
+ * {@link #array} / {@code compositeOf} / {@code mapTo} never need to introspect the typename.
  */
 public record DuckDbType<A>(
     DuckDbTypename<A> typename,
@@ -215,9 +214,9 @@ public record DuckDbType<A>(
 
   /**
    * Shared machinery behind {@link #list()} and {@link #array(int)}. The element's own {@link
-   * #listWrite} drives binding of a single list value; the resulting list type carries a
-   * {@link DuckDBUserArray}-based listWrite of its own so a second {@link #list}/{@link #array}
-   * call (list-of-list) composes without dispatch.
+   * #listWrite} drives binding of a single list value; the resulting list type carries a {@link
+   * DuckDBUserArray}-based listWrite of its own so a second {@link #list}/{@link #array} call
+   * (list-of-list) composes without dispatch.
    */
   private DuckDbType<List<A>> buildCollection(
       DuckDbTypename<List<A>> collectionTypename,

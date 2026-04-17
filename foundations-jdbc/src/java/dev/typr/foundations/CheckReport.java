@@ -64,8 +64,8 @@ public record CheckReport(List<QueryAnalysis> analyses) {
 
   /**
    * A statement with no declared parameters and no declared columns is DDL (CREATE TABLE, DROP,
-   * ALTER). The analyzer trivially passes these since there's nothing to align — but they
-   * dilute the "N queries passed" signal, so we tag them out of the headline count.
+   * ALTER). The analyzer trivially passes these since there's nothing to align — but they dilute
+   * the "N queries passed" signal, so we tag them out of the headline count.
    */
   private static boolean isDdl(QueryAnalysis a) {
     return a.parameterAlignment().isEmpty() && a.columnAlignment().isEmpty();

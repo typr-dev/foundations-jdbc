@@ -306,11 +306,11 @@ public final class AnalyzableScanner {
   }
 
   /**
-   * Heuristic: a Scala {@code object X} in package {@code p} compiles to both {@code p.X} (a
-   * facade class with static forwarders) and {@code p.X$} (the actual singleton, with a
-   * {@code public static final X$ MODULE$} field). When we're scanning the facade {@code p.X},
-   * we want to skip the static-method sweep because the MODULE$ instance scan on {@code p.X$}
-   * already covers every val/def via the Scala singleton instance.
+   * Heuristic: a Scala {@code object X} in package {@code p} compiles to both {@code p.X} (a facade
+   * class with static forwarders) and {@code p.X$} (the actual singleton, with a {@code public
+   * static final X$ MODULE$} field). When we're scanning the facade {@code p.X}, we want to skip
+   * the static-method sweep because the MODULE$ instance scan on {@code p.X$} already covers every
+   * val/def via the Scala singleton instance.
    */
   private static boolean isScalaObject(Class<?> clazz) {
     try {
@@ -325,8 +325,8 @@ public final class AnalyzableScanner {
   /**
    * Heuristic: a Kotlin {@code object X} compiles to a class with a {@code public static final X
    * INSTANCE} field. Used to skip the static-field sweep on Kotlin objects, since their {@code
-   * val}s end up as private static fields PLUS a public instance getter; the instance-path
-   * getter scan already covers them, so sweeping statics would double-count.
+   * val}s end up as private static fields PLUS a public instance getter; the instance-path getter
+   * scan already covers them, so sweeping statics would double-count.
    */
   private static boolean isKotlinObject(Class<?> clazz) {
     try {
@@ -340,8 +340,8 @@ public final class AnalyzableScanner {
   /**
    * Scan static fields for Analyzable values and return the set of field names collected.
    *
-   * <p>Used both by the static-only path (classes we couldn't instantiate) and by the
-   * instance path, so that Java classes like {@code public final class UserRepo { static final
+   * <p>Used both by the static-only path (classes we couldn't instantiate) and by the instance
+   * path, so that Java classes like {@code public final class UserRepo { static final
    * Operation<...> q = ...; }} still have their static fields discovered.
    */
   private static Set<String> collectStaticFieldAnalyzables(Class<?> clazz, List<Result> result) {
@@ -413,8 +413,7 @@ public final class AnalyzableScanner {
         var value = method.invoke(null, args);
         var analyzable = toAnalyzable(value);
         if (analyzable != null) {
-          result.add(
-              new Result(simpleName, reportMemberName(method.getName(), clazz), analyzable));
+          result.add(new Result(simpleName, reportMemberName(method.getName(), clazz), analyzable));
         }
       } catch (Exception ignored) {
       }
@@ -440,10 +439,10 @@ public final class AnalyzableScanner {
   }
 
   /**
-   * Report-friendly name for a discovered member. Kotlin `val` and `var` properties compile
-   * to JVM getter methods (`val foo` → `getFoo()`). When the declaring class carries the
-   * {@code kotlin.Metadata} annotation, strip the `get` prefix and lower-case the first
-   * letter, so reports say "UserRepo.findById" instead of "UserRepo.getFindById".
+   * Report-friendly name for a discovered member. Kotlin `val` and `var` properties compile to JVM
+   * getter methods (`val foo` → `getFoo()`). When the declaring class carries the {@code
+   * kotlin.Metadata} annotation, strip the `get` prefix and lower-case the first letter, so reports
+   * say "UserRepo.findById" instead of "UserRepo.getFindById".
    */
   private static String reportMemberName(String methodName, Class<?> declaringClass) {
     if (!isKotlinClass(declaringClass)) return methodName;
@@ -538,8 +537,7 @@ public final class AnalyzableScanner {
           var value = method.invoke(instance);
           var analyzable = toAnalyzable(value);
           if (analyzable != null) {
-            result.add(
-                new Result(simpleName, reportMemberName(methodName, clazz), analyzable));
+            result.add(new Result(simpleName, reportMemberName(methodName, clazz), analyzable));
           }
         } catch (LinkageError ignored) {
           // Skip — class loading failed, nothing to report.

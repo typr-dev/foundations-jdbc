@@ -1,7 +1,7 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.connect.DuckDbConfig;
 import dev.typr.foundations.connect.ConnectionSource;
+import dev.typr.foundations.connect.DuckDbConfig;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.List;

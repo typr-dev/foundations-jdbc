@@ -39,7 +39,8 @@ public interface DatabaseConfig {
   Map<String, String> driverProperties();
 
   /**
-   * Whether this config requires single-connection mode (reusing one connection across all callers).
+   * Whether this config requires single-connection mode (reusing one connection across all
+   * callers).
    *
    * <p>Returns {@code true} for embedded databases like DuckDB in-memory, where each {@code
    * DriverManager.getConnection()} creates an independent database. {@link

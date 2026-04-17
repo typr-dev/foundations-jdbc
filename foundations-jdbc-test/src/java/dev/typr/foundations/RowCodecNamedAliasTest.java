@@ -8,9 +8,9 @@ import java.util.List;
 import org.junit.Test;
 
 /**
- * Pure unit tests for {@link RowCodecNamed#aliased} and the duplicate-detection behavior of
- * {@link RowCodecNamed#columnList()}. No database connection required — only inspects column
- * names and rendered SQL fragments.
+ * Pure unit tests for {@link RowCodecNamed#aliased} and the duplicate-detection behavior of {@link
+ * RowCodecNamed#columnList()}. No database connection required — only inspects column names and
+ * rendered SQL fragments.
  */
 public class RowCodecNamedAliasTest {
 
@@ -81,10 +81,8 @@ public class RowCodecNamedAliasTest {
   @Test
   public void aliasBeforeJoinResolvesDuplicatesAndRendersQualifiedSql() {
     var joined = empCodec.aliased("e").leftJoin(deptCodec.aliased("d"));
-    assertEquals(
-        List.of("e.id", "e.name", "e.department", "d.id", "d.name"), joined.columnNames());
-    assertEquals(
-        "e.id, e.name, e.department, d.id, d.name", joined.columnList().render());
+    assertEquals(List.of("e.id", "e.name", "e.department", "d.id", "d.name"), joined.columnNames());
+    assertEquals("e.id, e.name, e.department, d.id, d.name", joined.columnList().render());
   }
 
   @Test

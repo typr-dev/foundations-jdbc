@@ -204,8 +204,8 @@ public sealed interface Fragment {
 
   /**
    * Empty starting point for the fluent builder pattern — equivalent to {@code Fragment.of("")}.
-   * Use when your first call is {@code .value(...)} or {@code .append(...)} and there is no
-   * leading SQL literal.
+   * Use when your first call is {@code .value(...)} or {@code .append(...)} and there is no leading
+   * SQL literal.
    */
   static Literal builder() {
     return new Literal("");
@@ -281,11 +281,11 @@ public sealed interface Fragment {
   }
 
   /**
-   * Emit {@code DROP TABLE IF EXISTS <table>}. Works on PostgreSQL, DuckDB, MariaDB, MySQL,
-   * SQL Server (2016+), Oracle (23c+) and DB2 (11.5.4+).
+   * Emit {@code DROP TABLE IF EXISTS <table>}. Works on PostgreSQL, DuckDB, MariaDB, MySQL, SQL
+   * Server (2016+), Oracle (23c+) and DB2 (11.5.4+).
    *
-   * <p>On DB2 older than 11.5.4 (no native {@code IF EXISTS} support), wrap the plain
-   * {@code DROP TABLE <table>} in a try/catch for SQLSTATE 42704 ("undefined name").
+   * <p>On DB2 older than 11.5.4 (no native {@code IF EXISTS} support), wrap the plain {@code DROP
+   * TABLE <table>} in a try/catch for SQLSTATE 42704 ("undefined name").
    *
    * @param table the unqualified or schema-qualified table name
    */
@@ -567,12 +567,12 @@ public sealed interface Fragment {
   }
 
   /**
-   * Returns {@code (?, ?, ...)} with each element bound as a typed parameter. Useful for
-   * {@code IN} clauses on dialects without native array types (MariaDB, SQL Server, Oracle,
-   * pre-23c; DB2): {@code Fragment.of("WHERE id IN ").append(Fragment.valuesList(MariaTypes.int_, ids))}.
+   * Returns {@code (?, ?, ...)} with each element bound as a typed parameter. Useful for {@code IN}
+   * clauses on dialects without native array types (MariaDB, SQL Server, Oracle, pre-23c; DB2):
+   * {@code Fragment.of("WHERE id IN ").append(Fragment.valuesList(MariaTypes.int_, ids))}.
    *
-   * <p>On PostgreSQL/DuckDB prefer the array idiom: {@code .value(int4.array(), ids)} with
-   * {@code = ANY(?)}.
+   * <p>On PostgreSQL/DuckDB prefer the array idiom: {@code .value(int4.array(), ids)} with {@code =
+   * ANY(?)}.
    *
    * @throws IllegalArgumentException if {@code values} is empty — an empty {@code IN()} is
    *     SQL-invalid, so the caller must branch (e.g. return no rows without issuing the query).

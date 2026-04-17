@@ -179,7 +179,8 @@ public class MariaTypeTest {
           new MariaTypeAndExample<>(MariaTypes.char_Of(10), ""), // Edge case: empty string
           new MariaTypeAndExample<>(MariaTypes.char_Of(10), "a"), // Edge case: single char
           new MariaTypeAndExample<>(
-              MariaTypes.varcharOf(255), "Hello, MariaDB! Unicode: \u00e9\u00e8\u00ea \u4e2d\u6587"),
+              MariaTypes.varcharOf(255),
+              "Hello, MariaDB! Unicode: \u00e9\u00e8\u00ea \u4e2d\u6587"),
           new MariaTypeAndExample<>(MariaTypes.varcharOf(255), ""), // Edge case: empty string
           new MariaTypeAndExample<>(
               MariaTypes.varcharOf(255), "Line1\nLine2\tTabbed"), // Edge case: whitespace
@@ -199,9 +200,11 @@ public class MariaTypeTest {
           // ==================== Binary Types ====================
           // Note: MariaDB's JSON encoding of binary is lossy - bytes > 127 get corrupted
           // because JSON is UTF-8 and MariaDB outputs raw bytes without proper encoding
-          new MariaTypeAndExample<>(MariaTypes.binaryOf(5), new byte[] {0x01, 0x02, 0x03, 0x00, 0x00})
+          new MariaTypeAndExample<>(
+                  MariaTypes.binaryOf(5), new byte[] {0x01, 0x02, 0x03, 0x00, 0x00})
               .noJsonRoundtrip(),
-          new MariaTypeAndExample<>(MariaTypes.binaryOf(5), new byte[] {0x00, 0x00, 0x00, 0x00, 0x00})
+          new MariaTypeAndExample<>(
+                  MariaTypes.binaryOf(5), new byte[] {0x00, 0x00, 0x00, 0x00, 0x00})
               .noJsonRoundtrip(), // Edge case: all zeros
           new MariaTypeAndExample<>(
                   MariaTypes.varbinaryOf(255), new byte[] {(byte) 0xFF, 0x00, 0x7F, (byte) 0x80})

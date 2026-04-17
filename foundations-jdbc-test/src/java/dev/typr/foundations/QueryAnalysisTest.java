@@ -1437,8 +1437,7 @@ public class QueryAnalysisTest {
           var analysis =
               QueryAnalyzer.analyze(Fragment.of("SELECT p FROM t").query(parser.all()), conn)
                   .getFirst();
-          assertTrue(
-              "expected structural match, got:\n" + analysis.report(), analysis.succeeded());
+          assertTrue("expected structural match, got:\n" + analysis.report(), analysis.succeeded());
           return null;
         });
   }
@@ -1606,16 +1605,15 @@ public class QueryAnalysisTest {
         new AlignmentError.PrepareFailure(
             "42883",
             "ERROR: operator does not exist: integer = text",
-            "The column type is 'integer' but the declared parameter type is 'text'. Change the parameter type to match the column.");
+            "The column type is 'integer' but the declared parameter type is 'text'. Change the"
+                + " parameter type to match the column.");
     var analysis =
         QueryAnalysis.prepareFailed(
-            "SELECT id FROM t WHERE id = ?",
-            null,
-            List.of((DbType<?>) PgTypes.text),
-            failure);
+            "SELECT id FROM t WHERE id = ?", null, List.of((DbType<?>) PgTypes.text), failure);
 
     assertFalse("prepareFailed analysis should be !succeeded", analysis.succeeded());
-    assertEquals("allErrors should contain exactly the PrepareFailure", 1, analysis.allErrors().size());
+    assertEquals(
+        "allErrors should contain exactly the PrepareFailure", 1, analysis.allErrors().size());
     assertTrue(
         "error should be PrepareFailure",
         analysis.allErrors().getFirst() instanceof AlignmentError.PrepareFailure);

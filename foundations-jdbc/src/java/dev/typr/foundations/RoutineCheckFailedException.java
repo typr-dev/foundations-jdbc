@@ -5,8 +5,8 @@ package dev.typr.foundations;
  * against the live database. Carries the failing {@link RoutineAnalysis} for programmatic
  * inspection.
  *
- * <p>Extends {@link RuntimeException} (not {@link AssertionError}) so it is caught by
- * {@code catch (Exception e)}.
+ * <p>Extends {@link RuntimeException} (not {@link AssertionError}) so it is caught by {@code catch
+ * (Exception e)}.
  */
 public final class RoutineCheckFailedException extends RuntimeException {
 

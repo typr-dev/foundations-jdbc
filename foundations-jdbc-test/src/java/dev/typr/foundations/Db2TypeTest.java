@@ -77,7 +77,8 @@ public class Db2TypeTest {
           new Db2TypeAndExample<>(Db2Types.decimalOf(10, 2), new BigDecimal("12345.67")),
           new Db2TypeAndExample<>(
               Db2Types.decimalOf(10, 2), new BigDecimal("0.00")), // Edge case: zero (with scale)
-          new Db2TypeAndExample<>(Db2Types.decimalOf(10, 2), new BigDecimal("-99999.99")), // Negative
+          new Db2TypeAndExample<>(
+              Db2Types.decimalOf(10, 2), new BigDecimal("-99999.99")), // Negative
           new Db2TypeAndExample<>(
               Db2Types.decimalOf(10, 2), new BigDecimal("12345678.90")), // With precision
 

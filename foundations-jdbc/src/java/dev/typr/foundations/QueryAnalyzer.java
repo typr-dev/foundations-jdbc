@@ -224,8 +224,8 @@ public final class QueryAnalyzer {
   }
 
   /**
-   * Best-effort parse of PostgreSQL's "operator does not exist: {@code <lhs>} {@code <op>}
-   * {@code <rhs>}" message. When it matches, produce a hint that mirrors the structured
+   * Best-effort parse of PostgreSQL's "operator does not exist: {@code <lhs>} {@code <op>} {@code
+   * <rhs>}" message. When it matches, produce a hint that mirrors the structured
    * ParameterTypeMismatch report — "The column type appears to be X but your declared type is Y".
    */
   private static final Pattern PG_OPERATOR_MISMATCH =

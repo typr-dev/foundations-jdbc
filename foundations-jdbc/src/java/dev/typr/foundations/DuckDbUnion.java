@@ -51,9 +51,9 @@ public record DuckDbUnion<A>(
     }
 
     /**
-     * Bind a previously-matched {@link TaggedValue#value} onto a {@link PreparedStatement} via
-     * this member's {@link DuckDbWrite}. Callers must ensure the tag matches before calling.
-     * The cast is safe by construction: tags are 1:1 with {@code M}.
+     * Bind a previously-matched {@link TaggedValue#value} onto a {@link PreparedStatement} via this
+     * member's {@link DuckDbWrite}. Callers must ensure the tag matches before calling. The cast is
+     * safe by construction: tags are 1:1 with {@code M}.
      */
     @SuppressWarnings("unchecked")
     void bindTaggedValue(java.sql.PreparedStatement ps, int idx, Object value) throws SQLException {

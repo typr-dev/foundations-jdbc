@@ -126,9 +126,9 @@ public sealed interface DuckDbWrite<A> extends DbWrite<A>
 
   /**
    * Write a LIST whose elements are encoded to wire objects via a supplied encoder. The wire
-   * objects (DuckDBUserStruct, DuckDBUserArray, DuckDBMap, or stringified scalars) are wrapped
-   * in a DuckDBUserArray bound via setObject. Used by every composite type's list-binding —
-   * the element's own {@code structAttributeEncoder} is the encoder.
+   * objects (DuckDBUserStruct, DuckDBUserArray, DuckDBMap, or stringified scalars) are wrapped in a
+   * DuckDBUserArray bound via setObject. Used by every composite type's list-binding — the
+   * element's own {@code structAttributeEncoder} is the encoder.
    */
   static <E> DuckDbWrite<java.util.List<E>> writeListOfUserArray(
       String elementSqlType, Function<E, Object> encoder) {

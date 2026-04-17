@@ -4,9 +4,8 @@ import java.util.List;
 
 /**
  * Thrown by {@link QueryChecker} when one or more queries fail type/nullability checking against
- * the live database. Carries the failed {@link QueryAnalysis}es so callers can inspect
- * individual failures programmatically — useful for IDE reporters, aggregated CI output, or
- * selective retry.
+ * the live database. Carries the failed {@link QueryAnalysis}es so callers can inspect individual
+ * failures programmatically — useful for IDE reporters, aggregated CI output, or selective retry.
  *
  * <p>Extends {@link RuntimeException} (not {@link AssertionError}) so it is caught by a plain
  * {@code catch (Exception e)} and does not imply assertions-enabled semantics.

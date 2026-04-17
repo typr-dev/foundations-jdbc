@@ -3,10 +3,10 @@ package dev.typr.foundations;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.JsonValue;
 import java.math.BigDecimal;
-import java.util.function.Function;
 import java.time.*;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 /**
  * SQL Server type definitions for the typr-runtime-java library.
@@ -121,7 +121,10 @@ public interface SqlServerTypes {
           SqlServerJson.float8,
           SqlServerOutParam.readDouble);
 
-  /** Alias for {@link #float_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754 (FLOAT ≡ FLOAT(53)). */
+  /**
+   * Alias for {@link #float_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754
+   * (FLOAT ≡ FLOAT(53)).
+   */
   SqlServerType<Double> float8 = float_;
 
   // ==================== Boolean Type ====================
@@ -490,8 +493,8 @@ public interface SqlServerTypes {
   // ==================== ENUM Type ====================
 
   /**
-   * Map enum values through an underlying SqlServerType. SQL Server has no native ENUM — this
-   * wraps any column type (NVARCHAR, INT, etc.) with a bidirectional mapping to/from enum constants.
+   * Map enum values through an underlying SqlServerType. SQL Server has no native ENUM — this wraps
+   * any column type (NVARCHAR, INT, etc.) with a bidirectional mapping to/from enum constants.
    *
    * <pre>{@code
    * // Store as string (NVARCHAR)

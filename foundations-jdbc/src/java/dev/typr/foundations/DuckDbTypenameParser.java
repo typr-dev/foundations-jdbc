@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Parses the text DuckDB reports through {@code ResultSetMetaData.getColumnTypeName} — which
- * for composites is the fully-expanded shape (e.g. {@code STRUCT("name" VARCHAR, age INTEGER)[]}
- * or {@code MAP(VARCHAR, INTEGER)}) — back into the {@link DuckDbTypename} tree. Lets
- * {@link QueryAnalysis} compare struct field names and types structurally rather than by
- * strict string equality.
+ * Parses the text DuckDB reports through {@code ResultSetMetaData.getColumnTypeName} — which for
+ * composites is the fully-expanded shape (e.g. {@code STRUCT("name" VARCHAR, age INTEGER)[]} or
+ * {@code MAP(VARCHAR, INTEGER)}) — back into the {@link DuckDbTypename} tree. Lets {@link
+ * QueryAnalysis} compare struct field names and types structurally rather than by strict string
+ * equality.
  *
  * <p>Grammar handled:
  *

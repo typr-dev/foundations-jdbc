@@ -188,11 +188,12 @@ public sealed interface OracleWrite<A> extends DbWrite<A>
 
   /**
    * Writer for TIMESTAMP WITH TIME ZONE. Converts ZonedDateTime to oracle.sql.TIMESTAMPTZ for
-   * STRUCT context. ZonedDateTime is used (rather than OffsetDateTime) so that named zone regions
-   * — e.g. {@code America/Los_Angeles} — are preserved end-to-end: Oracle's on-disk TSTZ format
-   * can hold either a fixed offset or a region name, and the {@link TIMESTAMPTZ#TIMESTAMPTZ(ZonedDateTime)}
-   * constructor routes both cases correctly. An OffsetDateTime-based writer would collapse every
-   * region to its current offset, losing DST-awareness on later reads.
+   * STRUCT context. ZonedDateTime is used (rather than OffsetDateTime) so that named zone regions —
+   * e.g. {@code America/Los_Angeles} — are preserved end-to-end: Oracle's on-disk TSTZ format can
+   * hold either a fixed offset or a region name, and the {@link
+   * TIMESTAMPTZ#TIMESTAMPTZ(ZonedDateTime)} constructor routes both cases correctly. An
+   * OffsetDateTime-based writer would collapse every region to its current offset, losing
+   * DST-awareness on later reads.
    */
   static OracleWrite<ZonedDateTime> writeTimestampWithTimeZone() {
     return structured(

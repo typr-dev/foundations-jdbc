@@ -164,7 +164,9 @@ public interface MariaTypes {
           MariaJson.float4,
           MariaOutParam.readFloat);
 
-  /** Alias for {@link #float_} — aesthetic, avoids the Java-keyword {@code _} suffix. 4B IEEE 754. */
+  /**
+   * Alias for {@link #float_} — aesthetic, avoids the Java-keyword {@code _} suffix. 4B IEEE 754.
+   */
   MariaType<Float> float4 = float_;
 
   MariaType<Double> double_ =
@@ -175,7 +177,9 @@ public interface MariaTypes {
           MariaJson.float8,
           MariaOutParam.readDouble);
 
-  /** Alias for {@link #double_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754. */
+  /**
+   * Alias for {@link #double_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754.
+   */
   MariaType<Double> float8 = double_;
 
   // ==================== Boolean Type ====================
@@ -419,9 +423,9 @@ public interface MariaTypes {
   // ==================== ENUM Type ====================
 
   /**
-   * Create a MariaType for an ENUM column from a values array. No reflection — derives the
-   * {@code ENUM('A','B','C')} SQL literal from the array. The column DDL must list the same values
-   * in the same order.
+   * Create a MariaType for an ENUM column from a values array. No reflection — derives the {@code
+   * ENUM('A','B','C')} SQL literal from the array. The column DDL must list the same values in the
+   * same order.
    *
    * <pre>{@code
    * enum OrderState { PENDING, SHIPPED, DELIVERED }
@@ -448,14 +452,15 @@ public interface MariaTypes {
   }
 
   /**
-   * Create a MariaType for an ENUM column with an explicit SQL literal and a custom mapping.
-   * Use when the database labels differ from the Java enum's constant names.
+   * Create a MariaType for an ENUM column with an explicit SQL literal and a custom mapping. Use
+   * when the database labels differ from the Java enum's constant names.
    */
   static <E extends Enum<E>> MariaType<E> ofEnum(String sqlType, Function<String, E> fromString) {
     return ofEnum(sqlType, fromString, Enum::name);
   }
 
-  static <E> MariaType<E> ofEnum(String sqlType, Function<String, E> fromString, Function<E, String> name) {
+  static <E> MariaType<E> ofEnum(
+      String sqlType, Function<String, E> fromString, Function<E, String> name) {
     return MariaType.<E>of(
             sqlType,
             MariaRead.readString.map(fromString::apply),

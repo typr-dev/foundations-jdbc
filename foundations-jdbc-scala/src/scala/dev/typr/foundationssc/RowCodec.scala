@@ -72,8 +72,7 @@ class RowCodecNamed[Row](override val underlying: dev.typr.foundations.RowCodecN
 
   def columnList: Fragment = new Fragment(underlying.columnList())
 
-  /** Return a copy of this codec where every column name is prefixed with `alias.`.
-    * Apply before a join to keep `columnList` unambiguous:
+  /** Return a copy of this codec where every column name is prefixed with `alias.`. Apply before a join to keep `columnList` unambiguous:
     *
     * {{{
     * empCodec.aliased("e").leftJoin(deptCodec.aliased("d"))

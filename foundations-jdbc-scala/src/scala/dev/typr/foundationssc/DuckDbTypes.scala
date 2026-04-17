@@ -88,7 +88,6 @@ class DuckDbTypes {
   def ofEnum[E](enumTypeName: String, values: Array[E], name: java.util.function.Function[E, String]): DuckDbType[E] =
     DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, values.asInstanceOf[Array[Object & E]], name))
 
-
   // Composite (STRUCT) types
 
   def compositeOf[Row](structName: String, codec: RowCodecNamed[Row]): DuckDbType[Row] =

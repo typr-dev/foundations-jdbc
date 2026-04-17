@@ -19,15 +19,13 @@ public class DuckDbTypenameParserTest {
   @Test
   public void baseScalarPrecision() {
     var t = DuckDbTypenameParser.parse("VARCHAR(100)");
-    assertEquals(
-        new DuckDbTypename.Base<>("VARCHAR", Optional.of(100), Optional.empty()), t);
+    assertEquals(new DuckDbTypename.Base<>("VARCHAR", Optional.of(100), Optional.empty()), t);
   }
 
   @Test
   public void baseScalarPrecisionScale() {
     var t = DuckDbTypenameParser.parse("DECIMAL(18, 3)");
-    assertEquals(
-        new DuckDbTypename.Base<>("DECIMAL", Optional.of(18), Optional.of(3)), t);
+    assertEquals(new DuckDbTypename.Base<>("DECIMAL", Optional.of(18), Optional.of(3)), t);
   }
 
   @Test
@@ -82,28 +80,30 @@ public class DuckDbTypenameParserTest {
   @Test
   public void structArray() {
     DuckDbTypename<?> t = DuckDbTypenameParser.parse("STRUCT(name VARCHAR, age INTEGER)[]");
-    assertTrue(t instanceof DuckDbTypename.ListOf<?> list
-        && list.elementType() instanceof DuckDbTypename.StructOf<?> struct
-        && struct.fields().size() == 2);
+    assertTrue(
+        t instanceof DuckDbTypename.ListOf<?> list
+            && list.elementType() instanceof DuckDbTypename.StructOf<?> struct
+            && struct.fields().size() == 2);
   }
 
   @Test
   public void nestedStruct() {
     DuckDbTypename<?> t =
         DuckDbTypenameParser.parse("STRUCT(outer VARCHAR, nested STRUCT(a INTEGER, b BOOLEAN))");
-    assertTrue(t instanceof DuckDbTypename.StructOf<?> s
-        && s.fields().size() == 2
-        && s.fields().get(1).name().equals("nested")
-        && s.fields().get(1).type() instanceof DuckDbTypename.StructOf<?>);
+    assertTrue(
+        t instanceof DuckDbTypename.StructOf<?> s
+            && s.fields().size() == 2
+            && s.fields().get(1).name().equals("nested")
+            && s.fields().get(1).type() instanceof DuckDbTypename.StructOf<?>);
   }
 
   @Test
   public void structWithListField() {
-    DuckDbTypename<?> t =
-        DuckDbTypenameParser.parse("STRUCT(name VARCHAR, hobbies VARCHAR[])");
-    assertTrue(t instanceof DuckDbTypename.StructOf<?> s
-        && s.fields().size() == 2
-        && s.fields().get(1).type() instanceof DuckDbTypename.ListOf<?>);
+    DuckDbTypename<?> t = DuckDbTypenameParser.parse("STRUCT(name VARCHAR, hobbies VARCHAR[])");
+    assertTrue(
+        t instanceof DuckDbTypename.StructOf<?> s
+            && s.fields().size() == 2
+            && s.fields().get(1).type() instanceof DuckDbTypename.ListOf<?>);
   }
 
   @Test
@@ -146,8 +146,7 @@ public class DuckDbTypenameParserTest {
                     "name", new DuckDbTypename.Base<>("VARCHAR")),
                 new DuckDbTypename.StructOf.StructField(
                     "age", new DuckDbTypename.Base<>("INTEGER"))));
-    var parsed =
-        DuckDbTypenameParser.parse("STRUCT(\"name\" VARCHAR, age INTEGER)");
+    var parsed = DuckDbTypenameParser.parse("STRUCT(\"name\" VARCHAR, age INTEGER)");
     assertTrue(QueryAnalysis.duckDbTypenamesMatch(declared, parsed));
   }
 
@@ -161,8 +160,7 @@ public class DuckDbTypenameParserTest {
                     "name", new DuckDbTypename.Base<>("VARCHAR")),
                 new DuckDbTypename.StructOf.StructField(
                     "age", new DuckDbTypename.Base<>("INTEGER"))));
-    var parsed =
-        DuckDbTypenameParser.parse("STRUCT(name VARCHAR, years INTEGER)");
+    var parsed = DuckDbTypenameParser.parse("STRUCT(name VARCHAR, years INTEGER)");
     assertTrue(!QueryAnalysis.duckDbTypenamesMatch(declared, parsed));
   }
 

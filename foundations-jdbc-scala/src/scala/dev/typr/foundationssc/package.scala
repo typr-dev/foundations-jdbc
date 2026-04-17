@@ -31,14 +31,20 @@ package object foundationssc:
   object OracleVArray:
     def of[T](typeName: String, maxSize: Int, elementType: OracleType[T]): OracleType[List[T]] =
       import _root_.scala.jdk.CollectionConverters.*
-      OracleType(dev.typr.foundations.OracleVArray.of(typeName, maxSize, elementType.underlying)
-        .transform(jl => jl.asScala.toList, sl => { val al = new java.util.ArrayList[T](sl.size); sl.foreach(al.add); al }))
+      OracleType(
+        dev.typr.foundations.OracleVArray
+          .of(typeName, maxSize, elementType.underlying)
+          .transform(jl => jl.asScala.toList, sl => { val al = new java.util.ArrayList[T](sl.size); sl.foreach(al.add); al })
+      )
 
   object OracleNestedTable:
     def of[T](typeName: String, elementType: OracleType[T]): OracleType[List[T]] =
       import _root_.scala.jdk.CollectionConverters.*
-      OracleType(dev.typr.foundations.OracleNestedTable.of(typeName, elementType.underlying)
-        .transform(jl => jl.asScala.toList, sl => { val al = new java.util.ArrayList[T](sl.size); sl.foreach(al.add); al }))
+      OracleType(
+        dev.typr.foundations.OracleNestedTable
+          .of(typeName, elementType.underlying)
+          .transform(jl => jl.asScala.toList, sl => { val al = new java.util.ArrayList[T](sl.size); sl.foreach(al.add); al })
+      )
 
   // Extension methods for Scala-friendly DbJson combinators
   extension [A](codec: dev.typr.foundations.DbJson[A])

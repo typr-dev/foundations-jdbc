@@ -37,13 +37,15 @@ public class ExecuteTransact {
   // code to tx.execute(…). Each .run(conn) inside the block shares the same
   // Connection and therefore the same transaction.
   List<City> citiesWithCount() {
-    return tx.execute(conn -> {
-      var list = findCities.run(conn);
-      long count = countCities.run(conn);
-      System.out.println("rows: " + count);
-      return list;
-    });
+    return tx.execute(
+        conn -> {
+          var list = findCities.run(conn);
+          long count = countCities.run(conn);
+          System.out.println("rows: " + count);
+          return list;
+        });
   }
+
   // stop
 
   Operation<Long> countCities =

@@ -41,10 +41,9 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
   /**
    * Comma-separated column names as a Fragment, useful for SQL SELECT lists.
    *
-   * <p>Throws when the codec carries duplicate column names — which happens after
-   * {@link #join} / {@link #leftJoin} if the left and right sides share any
-   * column name. Call {@link #aliased(String)} on each side <em>before</em> the join
-   * to qualify columns with a table prefix:
+   * <p>Throws when the codec carries duplicate column names — which happens after {@link #join} /
+   * {@link #leftJoin} if the left and right sides share any column name. Call {@link
+   * #aliased(String)} on each side <em>before</em> the join to qualify columns with a table prefix:
    *
    * <pre>{@code
    * var joined = empCodec.aliased("e").leftJoin(deptCodec.aliased("d"));
@@ -54,8 +53,8 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
    *     .query(joined.all());
    * }</pre>
    *
-   * If you don't need named decoding, fall back to {@link RowCodec#leftJoin} which is
-   * positional and doesn't carry names.
+   * If you don't need named decoding, fall back to {@link RowCodec#leftJoin} which is positional
+   * and doesn't carry names.
    */
   public Fragment columnList() {
     var duplicates = findDuplicateNames();
@@ -71,16 +70,16 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
   }
 
   /**
-   * Return a copy of this codec where every column name is prefixed with {@code alias + "."}.
-   * Use before a join to keep {@link #columnList()} unambiguous:
+   * Return a copy of this codec where every column name is prefixed with {@code alias + "."}. Use
+   * before a join to keep {@link #columnList()} unambiguous:
    *
    * <pre>{@code
    * empCodec.aliased("e").leftJoin(deptCodec.aliased("d"))
    * }</pre>
    *
-   * <p>The aliased codec's {@code columnList} is SELECT-friendly but not INSERT-friendly
-   * (an {@code INSERT INTO tbl (e.id, ...)} is almost never what you want). For INSERTs
-   * use the unaliased codec.
+   * <p>The aliased codec's {@code columnList} is SELECT-friendly but not INSERT-friendly (an {@code
+   * INSERT INTO tbl (e.id, ...)} is almost never what you want). For INSERTs use the unaliased
+   * codec.
    */
   public RowCodecNamed<Row> aliased(String alias) {
     var prefixed = new ArrayList<String>(columnNames.size());
@@ -185,9 +184,9 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
    * Left join that preserves column names. Wraps every column on the right side in {@code .opt()}
    * so a row with all-null right-side columns decodes as {@code Optional.empty()}.
    *
-   * <p>Unlike the positional {@link RowCodec#leftJoin}, this returns a {@link RowCodecNamed}
-   * so {@code columnList()}, {@code Fragment.insertInto}, and JSON encoding continue to work on
-   * the combined codec.
+   * <p>Unlike the positional {@link RowCodec#leftJoin}, this returns a {@link RowCodecNamed} so
+   * {@code columnList()}, {@code Fragment.insertInto}, and JSON encoding continue to work on the
+   * combined codec.
    */
   public <Row2> RowCodecNamed<Tuple.Tuple2<Row, Optional<Row2>>> leftJoin(
       RowCodecNamed<Row2> right) {
@@ -203,9 +202,7 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
     return this.opt().join(right);
   }
 
-  /**
-   * Full outer join that preserves column names. Both sides are wrapped in {@code .opt()}.
-   */
+  /** Full outer join that preserves column names. Both sides are wrapped in {@code .opt()}. */
   public <Row2> RowCodecNamed<Tuple.Tuple2<Optional<Row>, Optional<Row2>>> fullJoin(
       RowCodecNamed<Row2> right) {
     return this.opt().join(right.opt());

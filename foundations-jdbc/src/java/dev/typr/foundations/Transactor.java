@@ -1,8 +1,8 @@
 package dev.typr.foundations;
 
 import dev.typr.foundations.connect.ConnectionSettings;
-import dev.typr.foundations.connect.DatabaseConfig;
 import dev.typr.foundations.connect.ConnectionSource;
+import dev.typr.foundations.connect.DatabaseConfig;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -137,8 +137,8 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * <ul>
    *   <li>onBegin: setAutoCommit(false)
    *   <li>onSuccess: commit()
-   *   <li>onFailure: rollback() (rollback exceptions are attached to the primary via
-   *       {@link Throwable#addSuppressed})
+   *   <li>onFailure: rollback() (rollback exceptions are attached to the primary via {@link
+   *       Throwable#addSuppressed})
    *   <li>onComplete: close()
    * </ul>
    *
@@ -184,8 +184,8 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
    * <ul>
    *   <li>onBegin: setAutoCommit(false)
    *   <li>onSuccess: rollback() (instead of commit, to keep test data isolated)
-   *   <li>onFailure: rollback() (rollback exceptions are attached to the primary via
-   *       {@link Throwable#addSuppressed})
+   *   <li>onFailure: rollback() (rollback exceptions are attached to the primary via {@link
+   *       Throwable#addSuppressed})
    *   <li>onComplete: close()
    * </ul>
    *
@@ -201,9 +201,9 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
 
   /**
    * Roll back the connection if it's in a manual transaction and not already closed. Any
-   * SQLException thrown by the rollback itself is attached as a suppressed exception on the
-   * primary failure, so the caller's stack trace still starts at the business logic that failed
-   * but a debugger can still see why the rollback itself could not complete.
+   * SQLException thrown by the rollback itself is attached as a suppressed exception on the primary
+   * failure, so the caller's stack trace still starts at the business logic that failed but a
+   * debugger can still see why the rollback itself could not complete.
    */
   private static void rollbackQuietly(Connection conn, Throwable primary) throws SQLException {
     try {

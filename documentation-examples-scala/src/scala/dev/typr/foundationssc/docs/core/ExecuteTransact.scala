@@ -29,7 +29,7 @@ object ExecuteTransact:
   // Multiple operations in one transaction: pass a block taking a Connection.
   // Each .run(conn) inside shares the same Connection and therefore the same transaction.
   def citiesWithCount(): List[City] = tx.transact { conn =>
-    val list  = findCities.run(conn)
+    val list = findCities.run(conn)
     val count = countCities.run(conn)
     println(s"rows: $count")
     list

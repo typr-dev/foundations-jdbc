@@ -214,6 +214,7 @@ public interface DuckDbTypes {
 
   /** Alias for {@link #char_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
   DuckDbType<String> character = char_;
+
   DuckDbType<String> bpchar =
       varchar
           .renamed("BPCHAR")
@@ -381,7 +382,8 @@ public interface DuckDbTypes {
               DuckDbStringifier.string.contramap(Json::value),
               DuckDbJson.json)
           .withListCodec(DuckDbListCodec.sqlLiteral(obj -> new Json(obj.toString())))
-          .withStructAttributeEncoder(DuckDbStringifier.string.contramap(Json::value).asWireEncoder());
+          .withStructAttributeEncoder(
+              DuckDbStringifier.string.contramap(Json::value).asWireEncoder());
 
   // ==================== Enum Type ====================
 

@@ -129,10 +129,10 @@ public sealed interface AlignmentError {
   }
 
   /**
-   * The prepared-statement call itself failed — the driver rejected the SQL before we could
-   * query its parameter/column metadata. Typical on PostgreSQL when the declared parameter
-   * type is incompatible with the column's type (e.g., binding {@code text} to an {@code int4}
-   * column), producing {@code operator does not exist: integer = text} at prepare time.
+   * The prepared-statement call itself failed — the driver rejected the SQL before we could query
+   * its parameter/column metadata. Typical on PostgreSQL when the declared parameter type is
+   * incompatible with the column's type (e.g., binding {@code text} to an {@code int4} column),
+   * producing {@code operator does not exist: integer = text} at prepare time.
    *
    * <p>{@code position} is 0 since we don't know which parameter the driver objected to.
    */

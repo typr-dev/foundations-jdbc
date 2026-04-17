@@ -72,7 +72,8 @@ public interface QueryChecker {
     RoutineAnalysis analysis =
         transactor().execute(conn -> RoutineAnalyzer.analyzeProcedure(procedure, conn));
     if (!analysis.succeeded()) {
-      throw new RoutineCheckFailedException(analysis, "Routine analysis failed:\n" + analysis.report());
+      throw new RoutineCheckFailedException(
+          analysis, "Routine analysis failed:\n" + analysis.report());
     }
   }
 }

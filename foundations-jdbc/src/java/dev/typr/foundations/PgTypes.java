@@ -514,8 +514,8 @@ public interface PgTypes {
   }
 
   /**
-   * Create a PgType for ENUM columns from a values array and a name function. No {@code Enum}
-   * bound required — works with Scala 3 enums and other constant sets.
+   * Create a PgType for ENUM columns from a values array and a name function. No {@code Enum} bound
+   * required — works with Scala 3 enums and other constant sets.
    */
   static <E> PgType<E> ofEnum(String sqlType, E[] values, Function<E, String> name) {
     return ofEnumImpl(sqlType, enumFromString(values, name), name);

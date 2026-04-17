@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -338,7 +338,8 @@ public class OracleTypeTest {
           // CHAR (fixed-length, blank-padded)
           new OracleTypeAndExample<>(
               OracleTypes.char_Of(10), "hello     "), // Note: CHAR pads with spaces
-          new OracleTypeAndExample<>(OracleTypes.char_Of(5), "abc  "), // May be trimmed on comparison
+          new OracleTypeAndExample<>(
+              OracleTypes.char_Of(5), "abc  "), // May be trimmed on comparison
 
           // CHAR with PaddedString (for NOT NULL columns)
           new OracleTypeAndExample<>(OracleTypes.charPadded(10), PaddedString.force("hello", 10)),
@@ -348,7 +349,8 @@ public class OracleTypeTest {
           // NVARCHAR2 (National character set)
           new OracleTypeAndExample<>(
               OracleTypes.nvarchar2Of(100), "Unicode text: \u0391\u0392\u0393"),
-          new OracleTypeAndExample<>(OracleTypes.nvarchar2Of(100), "Emoji: \uD83D\uDE00\uD83C\uDF89"),
+          new OracleTypeAndExample<>(
+              OracleTypes.nvarchar2Of(100), "Emoji: \uD83D\uDE00\uD83C\uDF89"),
 
           // NVARCHAR2 with NonEmptyString (for NOT NULL columns)
           new OracleTypeAndExample<>(
@@ -471,8 +473,7 @@ public class OracleTypeTest {
               ZonedDateTime.of(2024, 12, 31, 23, 59, 59, 999000000, java.time.ZoneId.of("UTC"))),
           new OracleTypeAndExample<>(
               OracleTypes.timestampWithTimeZone,
-              ZonedDateTime.of(
-                  2024, 10, 20, 6, 15, 0, 0, java.time.ZoneId.of("Australia/Sydney"))),
+              ZonedDateTime.of(2024, 10, 20, 6, 15, 0, 0, java.time.ZoneId.of("Australia/Sydney"))),
 
           // TIMESTAMP WITH LOCAL TIME ZONE
           new OracleTypeAndExample<>(
@@ -692,7 +693,8 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES",
                       RowCodec.<AllTypesStruct>namedBuilder()
                           .field("VARCHAR_FIELD", OracleTypes.varchar2Of(100), s -> s.varcharField)
-                          .field("NVARCHAR_FIELD", OracleTypes.nvarchar2Of(100), s -> s.nvarcharField)
+                          .field(
+                              "NVARCHAR_FIELD", OracleTypes.nvarchar2Of(100), s -> s.nvarcharField)
                           .field("CHAR_FIELD", OracleTypes.char_Of(10), s -> s.charField)
                           .field("NCHAR_FIELD", OracleTypes.ncharOf(10), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
@@ -782,7 +784,9 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES_OPT",
                       RowCodec.<AllTypesStructOptional>namedBuilder()
                           .field(
-                              "VARCHAR_FIELD", OracleTypes.varchar2Of(100).opt(), s -> s.varcharField)
+                              "VARCHAR_FIELD",
+                              OracleTypes.varchar2Of(100).opt(),
+                              s -> s.varcharField)
                           .field(
                               "NVARCHAR_FIELD",
                               OracleTypes.nvarchar2Of(100).opt(),
@@ -891,7 +895,8 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES_NOLOBS",
                       RowCodec.<AllTypesStructNoLobs>namedBuilder()
                           .field("VARCHAR_FIELD", OracleTypes.varchar2Of(100), s -> s.varcharField)
-                          .field("NVARCHAR_FIELD", OracleTypes.nvarchar2Of(100), s -> s.nvarcharField)
+                          .field(
+                              "NVARCHAR_FIELD", OracleTypes.nvarchar2Of(100), s -> s.nvarcharField)
                           .field("CHAR_FIELD", OracleTypes.char_Of(10), s -> s.charField)
                           .field("NCHAR_FIELD", OracleTypes.ncharOf(10), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
@@ -979,7 +984,9 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES_NOLOBS_OPT",
                       RowCodec.<AllTypesStructNoLobsOptional>namedBuilder()
                           .field(
-                              "VARCHAR_FIELD", OracleTypes.varchar2Of(100).opt(), s -> s.varcharField)
+                              "VARCHAR_FIELD",
+                              OracleTypes.varchar2Of(100).opt(),
+                              s -> s.varcharField)
                           .field(
                               "NVARCHAR_FIELD",
                               OracleTypes.nvarchar2Of(100).opt(),
@@ -1215,7 +1222,8 @@ public class OracleTypeTest {
                                   OracleTypes.nvarchar2Of(100).opt(),
                                   s -> s.nvarcharField)
                               .field("CHAR_FIELD", OracleTypes.char_Of(10).opt(), s -> s.charField)
-                              .field("NCHAR_FIELD", OracleTypes.ncharOf(10).opt(), s -> s.ncharField)
+                              .field(
+                                  "NCHAR_FIELD", OracleTypes.ncharOf(10).opt(), s -> s.ncharField)
                               .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
                               .field(
                                   "NUMBER_INT_FIELD",
@@ -1260,7 +1268,8 @@ public class OracleTypeTest {
                                   s -> s.nestedObjectField)
                               .field(
                                   "VARRAY_FIELD",
-                                  OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)).opt(),
+                                  OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20))
+                                      .opt(),
                                   s -> s.varrayField)
                               .build(AllTypesStructNoLobsOptional::new))),
                   List.of(
@@ -2231,8 +2240,12 @@ public class OracleTypeTest {
       derived.add(toNestedTableExample(scalar, "GAP_" + suffix + "_NT"));
     }
 
-    System.out.println("Auto-derived " + derived.size() + " composite tests from "
-        + seenSqlTypes.size() + " unique scalar types");
+    System.out.println(
+        "Auto-derived "
+            + derived.size()
+            + " composite tests from "
+            + seenSqlTypes.size()
+            + " unique scalar types");
 
     // Phase 1: create every needed OBJECT/VARRAY/NT type upfront (sequential to avoid races).
     withConnection(
@@ -2275,10 +2288,7 @@ public class OracleTypeTest {
                         });
                   } catch (Throwable ex) {
                     errs.add(
-                        "Composite FAILED "
-                            + t.type.typename().sqlType()
-                            + ": "
-                            + ex.getMessage());
+                        "Composite FAILED " + t.type.typename().sqlType() + ": " + ex.getMessage());
                   }
                   return errs.stream();
                 })
@@ -2286,7 +2296,9 @@ public class OracleTypeTest {
 
     if (!failures.isEmpty()) {
       throw new AssertionError(
-          "Composite derivation failures (" + failures.size() + "):\n  "
+          "Composite derivation failures ("
+              + failures.size()
+              + "):\n  "
               + String.join("\n  ", failures));
     }
   }
@@ -2323,7 +2335,8 @@ public class OracleTypeTest {
                   .execute()
                   .run(conn);
               Fragment.of("CREATE TABLE gap_score_holder (s GAP_SCORE_T)").execute().run(conn);
-              Fragment.of("INSERT INTO gap_score_holder VALUES (GAP_SCORE_T('alice', 42, 12345678901))")
+              Fragment.of(
+                      "INSERT INTO gap_score_holder VALUES (GAP_SCORE_T('alice', 42, 12345678901))")
                   .execute()
                   .run(conn);
               return Fragment.of("SELECT s FROM gap_score_holder")
@@ -2339,18 +2352,19 @@ public class OracleTypeTest {
    * TIMESTAMP WITH TIME ZONE must preserve *named zone regions*, not just their current offset.
    *
    * <p>This is the whole reason the library maps Oracle TSTZ to {@link ZonedDateTime} rather than
-   * {@link OffsetDateTime}. The 13-byte on-disk TSTZ format holds either a fixed offset or a
-   * region name; {@code ZonedDateTime} can represent both, while {@code OffsetDateTime} collapses
-   * every region to its current offset — which loses DST-awareness on later reads.
+   * {@link OffsetDateTime}. The 13-byte on-disk TSTZ format holds either a fixed offset or a region
+   * name; {@code ZonedDateTime} can represent both, while {@code OffsetDateTime} collapses every
+   * region to its current offset — which loses DST-awareness on later reads.
    *
    * <p>Scenarios covered:
+   *
    * <ol>
-   *   <li>Named zone region ({@code America/Los_Angeles}) in winter (PST, UTC-8)</li>
-   *   <li>Same named region in summer (PDT, UTC-7) — verifies the zone ID itself is persisted,
-   *       not the current offset</li>
-   *   <li>Fixed offset ({@code +05:30} — India) — verifies the offset path still works</li>
-   *   <li>Region round-trip then rendering: reloading the value into a different session TZ
-   *       should yield the same instant AND the same zone ID</li>
+   *   <li>Named zone region ({@code America/Los_Angeles}) in winter (PST, UTC-8)
+   *   <li>Same named region in summer (PDT, UTC-7) — verifies the zone ID itself is persisted, not
+   *       the current offset
+   *   <li>Fixed offset ({@code +05:30} — India) — verifies the offset path still works
+   *   <li>Region round-trip then rendering: reloading the value into a different session TZ should
+   *       yield the same instant AND the same zone ID
    * </ol>
    */
   @Test
@@ -2358,8 +2372,10 @@ public class OracleTypeTest {
     var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
     String table = uniqueTableName("zdt_region");
 
-    var winterLA = ZonedDateTime.of(2024, 1, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
-    var summerLA = ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+    var winterLA =
+        ZonedDateTime.of(2024, 1, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+    var summerLA =
+        ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
     var berlin = ZonedDateTime.of(2024, 6, 15, 9, 0, 0, 0, java.time.ZoneId.of("Europe/Berlin"));
     var tokyo = ZonedDateTime.of(2024, 3, 10, 15, 0, 0, 0, java.time.ZoneId.of("Asia/Tokyo"));
     var fixedOffset = ZonedDateTime.of(2024, 6, 15, 14, 30, 0, 0, ZoneOffset.ofHoursMinutes(5, 30));
@@ -2372,7 +2388,9 @@ public class OracleTypeTest {
         tx.execute(
             conn -> {
               Fragment.of(
-                      "CREATE TABLE " + table + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
+                      "CREATE TABLE "
+                          + table
+                          + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
                   .execute()
                   .run(conn);
               for (int i = 0; i < samples.size(); i++) {
@@ -2397,15 +2415,29 @@ public class OracleTypeTest {
       // Instant must match exactly — that's the basic "same moment in time" check.
       if (!expected.toInstant().equals(actual.toInstant())) {
         throw new AssertionError(
-            "Instant mismatch for " + expected + " → " + actual
-                + " (instants " + expected.toInstant() + " vs " + actual.toInstant() + ")");
+            "Instant mismatch for "
+                + expected
+                + " → "
+                + actual
+                + " (instants "
+                + expected.toInstant()
+                + " vs "
+                + actual.toInstant()
+                + ")");
       }
 
       // Zone identity must match — the whole point of using ZonedDateTime.
       if (!expected.getZone().equals(actual.getZone())) {
         throw new AssertionError(
-            "Zone mismatch for " + expected + " → " + actual
-                + " (zones " + expected.getZone() + " vs " + actual.getZone() + ")");
+            "Zone mismatch for "
+                + expected
+                + " → "
+                + actual
+                + " (zones "
+                + expected.getZone()
+                + " vs "
+                + actual.getZone()
+                + ")");
       }
     }
 
@@ -2428,15 +2460,16 @@ public class OracleTypeTest {
 
   /**
    * Session-timezone independence: the same row should decode to the same {@link ZonedDateTime}
-   * (same instant, same zone) regardless of which timezone the reading session is configured
-   * with. Region names must survive unchanged; fixed offsets must survive unchanged.
+   * (same instant, same zone) regardless of which timezone the reading session is configured with.
+   * Region names must survive unchanged; fixed offsets must survive unchanged.
    */
   @Test
   public void testTimestampWithTimeZoneIsSessionTzIndependent() {
     var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
     String table = uniqueTableName("zdt_session");
 
-    var value = ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+    var value =
+        ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
 
     // Setup + all session-TZ reads in one tx block — testStrategy rolls back on exit so the
     // table doesn't outlive the test.
@@ -2451,23 +2484,30 @@ public class OracleTypeTest {
               .append(")")
               .execute()
               .run(conn);
-          for (String sessionTz : List.of("UTC", "America/New_York", "Asia/Tokyo", "Europe/Berlin")) {
-            Fragment.of("ALTER SESSION SET TIME_ZONE = '" + sessionTz + "'")
-                .execute()
-                .run(conn);
+          for (String sessionTz :
+              List.of("UTC", "America/New_York", "Asia/Tokyo", "Europe/Berlin")) {
+            Fragment.of("ALTER SESSION SET TIME_ZONE = '" + sessionTz + "'").execute().run(conn);
             ZonedDateTime decoded =
                 Fragment.of("SELECT ts FROM " + table)
                     .queryExactlyOne(OracleTypes.timestampWithTimeZone)
                     .run(conn);
             if (!decoded.toInstant().equals(value.toInstant())) {
               throw new AssertionError(
-                  "Session TZ " + sessionTz + ": instant mismatch: "
-                      + decoded.toInstant() + " vs " + value.toInstant());
+                  "Session TZ "
+                      + sessionTz
+                      + ": instant mismatch: "
+                      + decoded.toInstant()
+                      + " vs "
+                      + value.toInstant());
             }
             if (!decoded.getZone().equals(value.getZone())) {
               throw new AssertionError(
-                  "Session TZ " + sessionTz + ": zone mismatch: "
-                      + decoded.getZone() + " vs " + value.getZone());
+                  "Session TZ "
+                      + sessionTz
+                      + ": zone mismatch: "
+                      + decoded.getZone()
+                      + " vs "
+                      + value.getZone());
             }
           }
           return null;
@@ -2480,12 +2520,16 @@ public class OracleTypeTest {
     var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
     String table = uniqueTableName("zdt_null");
 
-    var value = ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+    var value =
+        ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
 
     List<Optional<ZonedDateTime>> decoded =
         tx.execute(
             conn -> {
-              Fragment.of("CREATE TABLE " + table + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
+              Fragment.of(
+                      "CREATE TABLE "
+                          + table
+                          + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
                   .execute()
                   .run(conn);
               Fragment.builder()

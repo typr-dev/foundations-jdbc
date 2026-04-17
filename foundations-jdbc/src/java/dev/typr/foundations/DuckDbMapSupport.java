@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -17,15 +16,15 @@ import java.util.function.Function;
  * <p>Writes use a per-side strategy:
  *
  * <ul>
- *   <li>STRUCT / LIST / ARRAY entries are bound natively via each type's
- *       {@code structAttributeEncoder}, which produces {@link
- *       org.duckdb.user.DuckDBUserStruct} or {@link org.duckdb.user.DuckDBUserArray}. This is the
- *       same path top-level struct/list parameters use, so nested {@code VARCHAR[]} fields don't
- *       get re-quoted by DuckDB's struct-literal parser.
+ *   <li>STRUCT / LIST / ARRAY entries are bound natively via each type's {@code
+ *       structAttributeEncoder}, which produces {@link org.duckdb.user.DuckDBUserStruct} or {@link
+ *       org.duckdb.user.DuckDBUserArray}. This is the same path top-level struct/list parameters
+ *       use, so nested {@code VARCHAR[]} fields don't get re-quoted by DuckDB's struct-literal
+ *       parser.
  *   <li>Scalar entries are stringified via the type's {@link DuckDbStringifier} and shipped as
  *       {@code String} → DuckDB casts them to the column type. This avoids JNI binding gaps for
- *       scalars whose Java representation isn't natively recognised in {@code DuckDBMap}
- *       (UUID, INTERVAL, JSON, HUGEINT, TIME).
+ *       scalars whose Java representation isn't natively recognised in {@code DuckDBMap} (UUID,
+ *       INTERVAL, JSON, HUGEINT, TIME).
  * </ul>
  */
 final class DuckDbMapSupport {
@@ -84,8 +83,7 @@ final class DuckDbMapSupport {
     }
     Map<K, V> result = new LinkedHashMap<>();
     for (var entry : rawMap.entrySet()) {
-      result.put(
-          keyRead.fromJdbcValue(entry.getKey()), valueRead.fromJdbcValue(entry.getValue()));
+      result.put(keyRead.fromJdbcValue(entry.getKey()), valueRead.fromJdbcValue(entry.getValue()));
     }
     return result;
   }

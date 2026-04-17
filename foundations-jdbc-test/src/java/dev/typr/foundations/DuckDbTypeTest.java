@@ -337,19 +337,15 @@ public class DuckDbTypeTest {
           // Timestamp with timezone — DuckDB stores TIMESTAMPTZ as UTC microseconds with no offset
           // retained (see duckdb.md); `Instant` is the honest Java representation.
           new DuckDbTypeAndExample<>(
-              DuckDbTypes.timestamptz,
-              Instant.parse("2024-06-15T14:30:45Z")),
+              DuckDbTypes.timestamptz, Instant.parse("2024-06-15T14:30:45Z")),
 
           // Time with timezone — DuckDB TIMETZ preserves the offset (distinct from TIMESTAMPTZ).
           new DuckDbTypeAndExample<>(
-              DuckDbTypes.timetz,
-              OffsetTime.of(14, 30, 45, 0, ZoneOffset.ofHours(2))),
+              DuckDbTypes.timetz, OffsetTime.of(14, 30, 45, 0, ZoneOffset.ofHours(2))),
           new DuckDbTypeAndExample<>(
-              DuckDbTypes.timetz,
-              OffsetTime.of(9, 15, 30, 0, ZoneOffset.ofHoursMinutes(-5, -30))),
+              DuckDbTypes.timetz, OffsetTime.of(9, 15, 30, 0, ZoneOffset.ofHoursMinutes(-5, -30))),
           new DuckDbTypeAndExample<>(
-              DuckDbTypes.timetz,
-              OffsetTime.of(23, 59, 59, 0, ZoneOffset.UTC)),
+              DuckDbTypes.timetz, OffsetTime.of(23, 59, 59, 0, ZoneOffset.UTC)),
 
           // ==================== Interval Type ====================
           new DuckDbTypeAndExample<>(DuckDbTypes.interval, Duration.ofHours(2).plusMinutes(30)),
@@ -423,7 +419,8 @@ public class DuckDbTypeTest {
           // clauses. MAP[] not supported: DuckDBUserArray string format rejected by DuckDB.
           // Empty MAP — exercises the empty-stringifier branch and zero-entry roundtrip.
           new DuckDbTypeAndExample<>(
-                  DuckDbTypes.varchar.mapTo(DuckDbTypes.integer), java.util.Map.<String, Integer>of())
+                  DuckDbTypes.varchar.mapTo(DuckDbTypes.integer),
+                  java.util.Map.<String, Integer>of())
               .noIdentity(),
           new DuckDbTypeAndExample<>(
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.integer), java.util.Map.of("a", 1, "b", 2))
@@ -760,7 +757,8 @@ public class DuckDbTypeTest {
       case String s -> (A) (s + "_alt");
       case java.math.BigInteger bi -> (A) bi.add(java.math.BigInteger.ONE);
       case java.math.BigDecimal bd -> (A) bd.add(java.math.BigDecimal.ONE);
-      case java.util.UUID u -> (A) java.util.UUID.fromString("00000000-0000-0000-0000-000000000001");
+      case java.util.UUID u ->
+          (A) java.util.UUID.fromString("00000000-0000-0000-0000-000000000001");
       case java.time.LocalDate d -> (A) d.plusDays(1);
       case java.time.LocalTime t -> (A) t.plusSeconds(1);
       case java.time.LocalDateTime dt -> (A) dt.plusSeconds(1);
@@ -774,8 +772,7 @@ public class DuckDbTypeTest {
   /** Derive a map test using {@code scalar} as the KEY and varchar as the value. */
   static <A> DuckDbTypeAndExample<java.util.Map<A, String>> toMapAsKeyExample(
       DuckDbTypeAndExample<A> scalar) {
-    DuckDbType<java.util.Map<A, String>> mapType =
-        scalar.type.mapTo(DuckDbTypes.varchar);
+    DuckDbType<java.util.Map<A, String>> mapType = scalar.type.mapTo(DuckDbTypes.varchar);
     A k1 = scalar.example;
     A k2 = altKey(scalar);
     java.util.Map<A, String> example;
@@ -793,10 +790,8 @@ public class DuckDbTypeTest {
   /** Derive a map test using varchar as key and {@code scalar} as the VALUE. */
   static <A> DuckDbTypeAndExample<java.util.Map<String, A>> toMapAsValueExample(
       DuckDbTypeAndExample<A> scalar) {
-    DuckDbType<java.util.Map<String, A>> mapType =
-        DuckDbTypes.varchar.mapTo(scalar.type);
-    return new DuckDbTypeAndExample<>(mapType, java.util.Map.of("k1", scalar.example))
-        .noIdentity();
+    DuckDbType<java.util.Map<String, A>> mapType = DuckDbTypes.varchar.mapTo(scalar.type);
+    return new DuckDbTypeAndExample<>(mapType, java.util.Map.of("k1", scalar.example)).noIdentity();
   }
 
   @Test

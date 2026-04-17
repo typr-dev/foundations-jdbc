@@ -142,7 +142,6 @@ class OracleTypes {
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): OracleType[E] =
     OracleType(JavaOracleTypes.ofEnum(sqlType, fromString))
 
-
   // JSON-encoded row types
 
   def jsonArrayEncoded[Row](parser: RowCodec[Row]): OracleType[Row] =

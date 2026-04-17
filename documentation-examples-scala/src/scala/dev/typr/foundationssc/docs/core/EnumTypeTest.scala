@@ -29,12 +29,14 @@ object EnumTypeTest:
       Fragment.of("INSERT INTO enum_test VALUES (1, ").value(duckStatus, Status.ACTIVE).append(")").execute().run(conn)
       Fragment.of("INSERT INTO enum_test VALUES (2, ").value(duckStatus, Status.PENDING).append(")").execute().run(conn)
 
-      val result = Fragment.of("SELECT status FROM enum_test WHERE id = 1")
+      val result = Fragment
+        .of("SELECT status FROM enum_test WHERE id = 1")
         .queryExactlyOne(duckStatus)
         .run(conn)
       assert(result == Status.ACTIVE, s"Expected ACTIVE, got $result")
 
-      val all = Fragment.of("SELECT status FROM enum_test ORDER BY id")
+      val all = Fragment
+        .of("SELECT status FROM enum_test ORDER BY id")
         .queryAll(duckStatus)
         .run(conn)
       assert(all == List(Status.ACTIVE, Status.PENDING), s"Expected [ACTIVE, PENDING], got $all")
