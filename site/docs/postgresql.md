@@ -245,17 +245,6 @@ PostgreSQL enums are mapped to Java enums:
 The first argument to `ofEnum(sqlType, ...)` is the PostgreSQL type name used to cast bound parameters. Pass exactly the name that appears in `CREATE TYPE schema.color AS ENUM(...)` — including the schema prefix if the type isn't in `search_path`. A mismatch produces `type "color" does not exist` on the first insert.
 :::
 
-:::note Scala 3 enums need an explicit `extends`
-The Scala wrapper's `ofEnum` method has the bound `[E <: java.lang.Enum[E]]`. Simple Scala 3 enums (no constructor parameters) extend `java.lang.Enum[T]` at the JVM level, but the Scala 3 type checker does not recognize this for the `ofEnum` bound unless you add the extension explicitly:
-
-```scala
-enum Status extends java.lang.Enum[Status]:
-  case PENDING, ACTIVE, COMPLETED
-```
-
-Without the explicit `extends`, the call `PgTypes.ofEnum[Status]("status", Status.valueOf)` fails with `Type argument Status does not conform to upper bound Enum[Status]`. Java enums and Kotlin `enum class` work without any extra clause.
-:::
-
 ## Custom Domain Types
 
 Wrap base types with custom Java types using `transform`:

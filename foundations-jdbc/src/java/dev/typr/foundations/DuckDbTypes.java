@@ -396,14 +396,39 @@ public interface DuckDbTypes {
    */
   static <E extends Enum<E>> DuckDbType<E> ofEnum(
       String enumTypeName, Function<String, E> fromString) {
+    return ofEnumImpl(enumTypeName, fromString, Enum::name);
+  }
+
+  /** Create a DuckDbType for ENUM columns from a values array. No reflection. */
+  static <E extends Enum<E>> DuckDbType<E> ofEnum(String enumTypeName, E[] values) {
+    return ofEnumImpl(enumTypeName, enumFromString(values, Enum::name), Enum::name);
+  }
+
+  /** Create a DuckDbType for ENUM columns without the {@code Enum} bound. */
+  static <E> DuckDbType<E> ofEnum(String enumTypeName, E[] values, Function<E, String> name) {
+    return ofEnumImpl(enumTypeName, enumFromString(values, name), name);
+  }
+
+  private static <E> DuckDbType<E> ofEnumImpl(
+      String enumTypeName, Function<String, E> fromString, Function<E, String> name) {
     return DuckDbType.<E>of(
             enumTypeName,
             DuckDbRead.readString.map(fromString::apply),
-            DuckDbWrite.writeString.contramap(Enum::name),
-            DuckDbStringifier.string.contramap(Enum::name),
-            DuckDbJson.text.transform(fromString::apply, Enum::name))
-        .withStructAttributeEncoder(Enum::name)
+            DuckDbWrite.writeString.contramap(name::apply),
+            DuckDbStringifier.string.contramap(name::apply),
+            DuckDbJson.text.transform(fromString::apply, name::apply))
+        .withStructAttributeEncoder(name::apply)
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("enum")));
+  }
+
+  private static <E> Function<String, E> enumFromString(E[] values, Function<E, String> name) {
+    var map = new java.util.HashMap<String, E>();
+    for (E v : values) map.put(name.apply(v), v);
+    return s -> {
+      E result = map.get(s);
+      if (result == null) throw new IllegalArgumentException("No enum constant: " + s);
+      return result;
+    };
   }
 
   // ==================== Unknown Type ====================

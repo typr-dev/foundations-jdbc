@@ -669,13 +669,30 @@ public interface OracleTypes {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * Create an OracleType for ENUM-like columns (stored as VARCHAR2 or NUMBER). Oracle doesn't have
-   * native ENUM type, so enums are typically stored as strings.
+   * Map enum values through an underlying OracleType. Oracle has no native ENUM — this wraps any
+   * column type (VARCHAR2, NUMBER, etc.) with a bidirectional mapping to/from enum constants.
    *
-   * @param sqlType The SQL type (e.g., "VARCHAR2(20)")
-   * @param fromString Function to convert string to enum value
-   * @param <E> The enum type
+   * <pre>{@code
+   * // Store as VARCHAR2
+   * OracleTypes.ofEnum(OracleTypes.varchar2Of(20), Status.values(), Enum::name)
+   *
+   * // Store as NUMBER (ordinal)
+   * OracleTypes.ofEnum(OracleTypes.numberInt, Status.values(), Status::ordinal)
+   * }</pre>
    */
+  static <E, U> OracleType<E> ofEnum(
+      OracleType<U> underlying, E[] values, Function<E, U> toUnderlying) {
+    return underlying.transform(reverseMap(values, toUnderlying), toUnderlying);
+  }
+
+  /** Convenience: store enum names as VARCHAR2, column width derived from longest name. */
+  static <E extends Enum<E>> OracleType<E> ofEnum(E[] values) {
+    int maxLen = 0;
+    for (E v : values) maxLen = Math.max(maxLen, v.name().length());
+    return ofEnum(varchar2Of(maxLen), values, Enum::name);
+  }
+
+  /** Legacy overload for custom string mapping. */
   static <E extends Enum<E>> OracleType<E> ofEnum(String sqlType, Function<String, E> fromString) {
     return OracleType.of(
         sqlType,
@@ -683,6 +700,16 @@ public interface OracleTypes {
         OracleWrite.writeString.contramap(Enum::name),
         OracleJson.text.transform(fromString::apply, Enum::name),
         OracleOutParam.readString.map(fromString::apply));
+  }
+
+  private static <E, U> SqlFunction<U, E> reverseMap(E[] values, Function<E, U> toUnderlying) {
+    var map = new java.util.HashMap<U, E>();
+    for (E v : values) map.put(toUnderlying.apply(v), v);
+    return u -> {
+      E result = map.get(u);
+      if (result == null) throw new IllegalArgumentException("No enum constant for: " + u);
+      return result;
+    };
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

@@ -419,52 +419,60 @@ public interface MariaTypes {
   // ==================== ENUM Type ====================
 
   /**
-   * Create a MariaType for an ENUM column, deriving the SQL literal from the enum class.
-   *
-   * <p>MariaDB's ENUM is not a named type — the full set of values is part of the column type
-   * itself (e.g. {@code ENUM('PENDING','SHIPPED','DELIVERED')}). This factory uses the enum
-   * constants' {@code name()} values in declaration order to build that literal automatically —
-   * so the column DDL must match exactly:
+   * Create a MariaType for an ENUM column from a values array. No reflection — derives the
+   * {@code ENUM('A','B','C')} SQL literal from the array. The column DDL must list the same values
+   * in the same order.
    *
    * <pre>{@code
    * enum OrderState { PENDING, SHIPPED, DELIVERED }
-   * var state = MariaTypes.ofEnum(OrderState.class);
+   * var state = MariaTypes.ofEnum(OrderState.values());
    * // column must be: state ENUM('PENDING','SHIPPED','DELIVERED')
    * }</pre>
-   *
-   * <p>Use {@link #ofEnum(String, Function)} when the database label set differs from the Java
-   * enum's {@code name()} values.
    */
-  static <E extends Enum<E>> MariaType<E> ofEnum(Class<E> enumClass) {
-    var literal = new StringBuilder("ENUM(");
-    var values = enumClass.getEnumConstants();
-    for (int i = 0; i < values.length; i++) {
-      if (i > 0) literal.append(',');
-      literal.append('\'').append(values[i].name()).append('\'');
-    }
-    literal.append(')');
-    return ofEnum(literal.toString(), s -> Enum.valueOf(enumClass, s));
+  static <E extends Enum<E>> MariaType<E> ofEnum(E[] values) {
+    return ofEnum(values, Enum::name);
   }
 
   /**
-   * Create a MariaType for an ENUM column, with an explicit SQL literal and a custom string →
-   * enum mapping. Use when the database labels differ from the Java enum's {@code name()} values
-   * (e.g. lowercase in the DB), or when you want a hand-crafted literal for any other reason.
-   *
-   * <p>For the common case of matching Java enum constant names, prefer {@link #ofEnum(Class)}.
-   *
-   * @param sqlType the complete ENUM(...) literal, exactly as it appears in the column DDL
-   * @param fromString function to convert a string from the DB to the enum value
-   * @param <E> the enum type
+   * Create a MariaType for an ENUM column from a values array and a name function. No {@code Enum}
+   * bound — works with Scala 3 enums and other constant sets.
+   */
+  static <E> MariaType<E> ofEnum(E[] values, Function<E, String> name) {
+    var literal = new StringBuilder("ENUM(");
+    for (int i = 0; i < values.length; i++) {
+      if (i > 0) literal.append(',');
+      literal.append('\'').append(name.apply(values[i])).append('\'');
+    }
+    literal.append(')');
+    return ofEnum(literal.toString(), enumFromString(values, name), name);
+  }
+
+  /**
+   * Create a MariaType for an ENUM column with an explicit SQL literal and a custom mapping.
+   * Use when the database labels differ from the Java enum's constant names.
    */
   static <E extends Enum<E>> MariaType<E> ofEnum(String sqlType, Function<String, E> fromString) {
+    return ofEnum(sqlType, fromString, Enum::name);
+  }
+
+  static <E> MariaType<E> ofEnum(String sqlType, Function<String, E> fromString, Function<E, String> name) {
     return MariaType.<E>of(
             sqlType,
             MariaRead.readString.map(fromString::apply),
-            MariaWrite.writeString.contramap(Enum::name),
-            MariaJson.text.transform(fromString::apply, Enum::name),
+            MariaWrite.writeString.contramap(name::apply),
+            MariaJson.text.transform(fromString::apply, name::apply),
             MariaOutParam.readString.map(fromString::apply))
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("char")));
+  }
+
+  private static <E> Function<String, E> enumFromString(E[] values, Function<E, String> name) {
+    var map = new java.util.HashMap<String, E>();
+    for (E v : values) map.put(name.apply(v), v);
+    return s -> {
+      E result = map.get(s);
+      if (result == null) throw new IllegalArgumentException("No enum constant: " + s);
+      return result;
+    };
   }
 
   // ==================== SET Type ====================

@@ -85,6 +85,13 @@ class PgTypes {
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): PgType[E] =
     PgType(JavaPgTypes.ofEnum(sqlType, fromString))
 
+  def ofEnum[E <: AnyRef](sqlType: String, values: Array[E]): PgType[E] =
+    ofEnum(sqlType, values, ((e: E) => e.toString): java.util.function.Function[E, String])
+
+  def ofEnum[E <: AnyRef](sqlType: String, values: Array[E], name: java.util.function.Function[E, String]): PgType[E] =
+    PgType(JavaPgTypes.ofEnum(sqlType, values.asInstanceOf[Array[Object & E]], name))
+
+
   def ofPgObject[T](
       sqlType: String,
       constructor: dev.typr.foundations.SqlFunction[String, T],

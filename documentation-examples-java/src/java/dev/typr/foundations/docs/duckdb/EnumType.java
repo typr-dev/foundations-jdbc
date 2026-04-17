@@ -13,7 +13,7 @@ public class EnumType {
     COMPLETED
   }
 
-  // Create DuckDbType for it
-  DuckDbType<Status> statusType = DuckDbTypes.ofEnum("status", Status::valueOf);
+  // Create DuckDbType — pass values(), no reflection
+  DuckDbType<Status> statusType = DuckDbTypes.ofEnum("status", Status.values());
   // stop
 }

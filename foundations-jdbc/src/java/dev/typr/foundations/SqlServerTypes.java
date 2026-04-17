@@ -3,6 +3,7 @@ package dev.typr.foundations;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.JsonValue;
 import java.math.BigDecimal;
+import java.util.function.Function;
 import java.time.*;
 import java.util.List;
 import java.util.UUID;
@@ -484,5 +485,41 @@ public interface SqlServerTypes {
     return json.transform(
         j -> rowJson.fromJson(JsonValue.parse(j.value())),
         list -> new Json(rowJson.toJson(list).encode()));
+  }
+
+  // ==================== ENUM Type ====================
+
+  /**
+   * Map enum values through an underlying SqlServerType. SQL Server has no native ENUM — this
+   * wraps any column type (NVARCHAR, INT, etc.) with a bidirectional mapping to/from enum constants.
+   *
+   * <pre>{@code
+   * // Store as string (NVARCHAR)
+   * SqlServerTypes.ofEnum(SqlServerTypes.nvarchar, Status.values(), Enum::name)
+   *
+   * // Store as integer
+   * SqlServerTypes.ofEnum(SqlServerTypes.int_, Status.values(), Status::ordinal)
+   * }</pre>
+   */
+  static <E, U> SqlServerType<E> ofEnum(
+      SqlServerType<U> underlying, E[] values, Function<E, U> toUnderlying) {
+    return underlying.transform(reverseMap(values, toUnderlying), toUnderlying);
+  }
+
+  /** Convenience: store enum names as NVARCHAR, column width derived from longest name. */
+  static <E extends Enum<E>> SqlServerType<E> ofEnum(E[] values) {
+    int maxLen = 0;
+    for (E v : values) maxLen = Math.max(maxLen, v.name().length());
+    return ofEnum(nvarcharOf(maxLen), values, Enum::name);
+  }
+
+  private static <E, U> SqlFunction<U, E> reverseMap(E[] values, Function<E, U> toUnderlying) {
+    var map = new java.util.HashMap<U, E>();
+    for (E v : values) map.put(toUnderlying.apply(v), v);
+    return u -> {
+      E result = map.get(u);
+      if (result == null) throw new IllegalArgumentException("No enum constant for: " + u);
+      return result;
+    };
   }
 }

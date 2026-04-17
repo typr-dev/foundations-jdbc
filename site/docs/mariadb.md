@@ -125,33 +125,22 @@ For application-level "point in time" values, the idiomatic approach on MariaDB 
 
 <Snippet file="mariadb/EnumType" />
 
-:::tip Prefer the class-based factory
-MariaDB/MySQL enums aren't named types — they're declared inline on the column. The class-based factory derives the full `ENUM('A','B','C')` literal from the Java enum class automatically:
+:::tip The `values()`-based factory derives everything
+MariaDB/MySQL enums aren't named types — they're declared inline on the column. The `values()`-based factory derives the full `ENUM('A','B','C')` literal automatically:
 
 ```java
-MariaTypes.ofEnum(State.class)            // Java
+MariaTypes.ofEnum(State.values())          // Java
 ```
 ```kotlin
 MariaTypes.ofEnum<State>()                 // Kotlin (reified)
 ```
 ```scala
-MariaTypes.ofEnum[State]                   // Scala 3 (ClassTag-derived)
+MariaTypes.ofEnum(State.values)            // Scala 3
 ```
 
-The column DDL must match the derived literal — `ENUM('PENDING','ACTIVE','COMPLETED')` in declaration order, using the enum constants' `name()` values.
+The column DDL must match the derived literal — `ENUM('PENDING','ACTIVE','COMPLETED')` in declaration order, using each constant's name.
 
-Fall back to the string-based overload `ofEnum("ENUM('pending',…)", State::valueOf)` when the database labels differ from the Java enum's `name()` values (e.g. lowercase labels in the DB).
-:::
-
-:::note Scala 3 enums need an explicit `extends`
-The Scala wrapper's `ofEnum` method has the bound `[E <: java.lang.Enum[E]]`. Simple Scala 3 enums (no constructor parameters) extend `java.lang.Enum[T]` at the JVM level, but the Scala 3 type checker does not recognize this for the `ofEnum` bound unless you add the extension explicitly:
-
-```scala
-enum Status extends java.lang.Enum[Status]:
-  case PENDING, ACTIVE, COMPLETED
-```
-
-Without the explicit `extends`, the call `MariaTypes.ofEnum[Status]` fails with `Type argument Status does not conform to upper bound Enum[Status]`. Java enums and Kotlin `enum class` work without any extra clause.
+Fall back to the string-based overload `ofEnum("ENUM('pending',…)", s -> State.valueOf(s.toUpperCase()))` when the database labels differ from the Java enum's `name()` values (e.g. lowercase labels in the DB).
 :::
 
 ## SET Type

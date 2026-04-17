@@ -13,7 +13,7 @@ public class EnumType {
     COMPLETED
   }
 
-  // Create MariaType for it
-  MariaType<Status> statusType = MariaTypes.ofEnum("status", Status::valueOf);
+  // Create MariaType — derives ENUM('PENDING','ACTIVE','COMPLETED') from values()
+  MariaType<Status> statusType = MariaTypes.ofEnum(Status.values());
   // stop
 }

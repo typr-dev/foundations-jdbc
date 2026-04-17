@@ -130,8 +130,18 @@ class OracleTypes {
   def uRowId(maxLength: Int): OracleType[String] =
     OracleType(JavaOracleTypes.uRowId(maxLength))
 
+  def ofEnum[E <: AnyRef, U](underlying: OracleType[U], values: Array[E], toUnderlying: java.util.function.Function[E, U]): OracleType[E] =
+    OracleType(JavaOracleTypes.ofEnum(underlying.underlying, values.asInstanceOf[Array[Object & E]], toUnderlying))
+
+  def ofEnum[E <: Enum[E]](values: Array[E]): OracleType[E] =
+    OracleType(JavaOracleTypes.ofEnum(values))
+
+  def ofEnum[E <: AnyRef](values: Array[E]): OracleType[E] =
+    ofEnum(OracleTypes.varchar2, values, ((e: E) => e.toString): java.util.function.Function[E, String])
+
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): OracleType[E] =
     OracleType(JavaOracleTypes.ofEnum(sqlType, fromString))
+
 
   // JSON-encoded row types
 

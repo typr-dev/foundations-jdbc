@@ -2,6 +2,7 @@ package dev.typr.foundations;
 
 import java.math.BigDecimal;
 import java.time.*;
+import java.util.function.Function;
 
 /**
  * DB2 type definitions for the typr-runtime-java library.
@@ -403,5 +404,32 @@ public interface Db2Types {
     return json.transform(
         j -> rowJson.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
         list -> new dev.typr.foundations.data.Json(rowJson.toJson(list).encode()));
+  }
+
+  // ==================== ENUM Type ====================
+
+  /**
+   * Map enum values through an underlying Db2Type. DB2 has no native ENUM — this wraps any column
+   * type (VARCHAR, INTEGER, etc.) with a bidirectional mapping to/from enum constants.
+   */
+  static <E, U> Db2Type<E> ofEnum(Db2Type<U> underlying, E[] values, Function<E, U> toUnderlying) {
+    return underlying.transform(reverseMap(values, toUnderlying), toUnderlying);
+  }
+
+  /** Convenience: store enum names as VARCHAR, column width derived from longest name. */
+  static <E extends Enum<E>> Db2Type<E> ofEnum(E[] values) {
+    int maxLen = 0;
+    for (E v : values) maxLen = Math.max(maxLen, v.name().length());
+    return ofEnum(varcharOf(maxLen), values, Enum::name);
+  }
+
+  private static <E, U> SqlFunction<U, E> reverseMap(E[] values, Function<E, U> toUnderlying) {
+    var map = new java.util.HashMap<U, E>();
+    for (E v : values) map.put(toUnderlying.apply(v), v);
+    return u -> {
+      E result = map.get(u);
+      if (result == null) throw new IllegalArgumentException("No enum constant for: " + u);
+      return result;
+    };
   }
 }

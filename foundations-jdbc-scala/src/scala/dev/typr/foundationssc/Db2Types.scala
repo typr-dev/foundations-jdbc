@@ -123,6 +123,15 @@ class Db2Types {
           slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
         )
     )
+  def ofEnum[E <: AnyRef, U](underlying: Db2Type[U], values: Array[E], toUnderlying: java.util.function.Function[E, U]): Db2Type[E] =
+    Db2Type(JavaDb2Types.ofEnum(underlying.underlying, values.asInstanceOf[Array[Object & E]], toUnderlying))
+
+  def ofEnum[E <: Enum[E]](values: Array[E]): Db2Type[E] =
+    Db2Type(JavaDb2Types.ofEnum(values))
+
+  def ofEnum[E <: AnyRef](values: Array[E]): Db2Type[E] =
+    ofEnum(Db2Types.varchar, values, ((e: E) => e.toString): java.util.function.Function[E, String])
+
 }
 
 object Db2Types extends Db2Types

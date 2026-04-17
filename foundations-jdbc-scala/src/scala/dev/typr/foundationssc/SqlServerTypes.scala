@@ -129,6 +129,15 @@ class SqlServerTypes {
           slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
         )
     )
+  def ofEnum[E <: AnyRef, U](underlying: SqlServerType[U], values: Array[E], toUnderlying: java.util.function.Function[E, U]): SqlServerType[E] =
+    SqlServerType(JavaSqlServerTypes.ofEnum(underlying.underlying, values.asInstanceOf[Array[Object & E]], toUnderlying))
+
+  def ofEnum[E <: Enum[E]](values: Array[E]): SqlServerType[E] =
+    SqlServerType(JavaSqlServerTypes.ofEnum(values))
+
+  def ofEnum[E <: AnyRef](values: Array[E]): SqlServerType[E] =
+    ofEnum(SqlServerTypes.nvarchar, values, ((e: E) => e.toString): java.util.function.Function[E, String])
+
 }
 
 object SqlServerTypes extends SqlServerTypes

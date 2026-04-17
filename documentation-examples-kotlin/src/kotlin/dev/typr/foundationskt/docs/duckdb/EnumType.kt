@@ -9,7 +9,7 @@ class EnumType {
     // Define your Kotlin enum
     enum class Status { PENDING, ACTIVE, COMPLETED }
 
-    // Create DuckDbType for it
-    val statusType: DuckDbType<Status> = DuckDbTypes.ofEnum("status", Status::valueOf)
+    // Create DuckDbType — reified, no arguments beyond the SQL type name
+    val statusType: DuckDbType<Status> = DuckDbTypes.ofEnum<Status>("status")
     //stop
 }

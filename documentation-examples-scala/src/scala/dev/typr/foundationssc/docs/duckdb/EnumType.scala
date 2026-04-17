@@ -5,13 +5,11 @@ import dev.typr.foundationssc.data.*
 @SuppressWarnings(Array("unused"))
 object EnumType:
   // start
-  // Scala 3 enums need an explicit `extends java.lang.Enum[Self]` clause
-  // to satisfy the `ofEnum[E <: Enum[E]]` bound. Without it, the type
-  // checker rejects the call even though simple Scala 3 enums do extend
-  // java.lang.Enum at the JVM level.
-  enum Status extends java.lang.Enum[Status]:
+  // Plain Scala 3 enum — no extends java.lang.Enum needed
+  enum Status:
     case PENDING, ACTIVE, COMPLETED
 
+  // Create DuckDbType — just pass .values
   val statusType: DuckDbType[Status] =
-    DuckDbTypes.ofEnum[Status]("status", Status.valueOf)
+    DuckDbTypes.ofEnum("status", Status.values)
   // stop

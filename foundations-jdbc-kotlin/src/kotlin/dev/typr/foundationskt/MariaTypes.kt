@@ -103,8 +103,11 @@ open class MariaTypes {
      * enum constant's `name`). Use [ofEnum(sqlType, fromString)] when the database labels
      * differ from the Java enum's `name()` values.
      */
-    open fun <E : Enum<E>> ofEnum(enumClass: Class<E>): MariaType<E> =
-        MariaType(JavaMariaTypes.ofEnum(enumClass))
+    open fun <E : Enum<E>> ofEnum(values: Array<E>): MariaType<E> =
+        MariaType(JavaMariaTypes.ofEnum(values))
+
+    open fun <E> ofEnum(values: Array<E>, name: java.util.function.Function<E, String>): MariaType<E> =
+        MariaType(JavaMariaTypes.ofEnum(values, name))
 
     open fun <E : Enum<E>> ofEnum(sqlType: String, fromString: java.util.function.Function<String, E>): MariaType<E> =
         MariaType(JavaMariaTypes.ofEnum(sqlType, fromString))
@@ -137,4 +140,4 @@ open class MariaTypes {
  * can't be `inline reified`.
  */
 inline fun <reified E : Enum<E>> MariaTypes.Companion.ofEnum(): MariaType<E> =
-    ofEnum(E::class.java)
+    ofEnum(enumValues<E>())

@@ -13,7 +13,7 @@ public class EnumType {
     COMPLETED
   }
 
-  // Create a PgType for it
-  PgType<Status> statusType = PgTypes.ofEnum("status", Status::valueOf);
+  // Create a PgType — pass values(), no reflection
+  PgType<Status> statusType = PgTypes.ofEnum("status", Status.values());
   // stop
 }

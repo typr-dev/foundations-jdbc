@@ -500,17 +500,50 @@ public interface PgTypes {
       rangeType("tstzrange", RangeParser.TIMESTAMPTZ_PARSER, Range.TIMESTAMPTZ, PgJson.tstzrange);
 
   static <E extends Enum<E>> PgType<E> ofEnum(String sqlType, Function<String, E> fromString) {
+    return ofEnumImpl(sqlType, fromString, Enum::name);
+  }
+
+  /**
+   * Create a PgType for ENUM columns from a values array. No reflection.
+   *
+   * @param sqlType the PostgreSQL type name (e.g., "status")
+   * @param values all enum constants (e.g., {@code Status.values()})
+   */
+  static <E extends Enum<E>> PgType<E> ofEnum(String sqlType, E[] values) {
+    return ofEnumImpl(sqlType, enumFromString(values, Enum::name), Enum::name);
+  }
+
+  /**
+   * Create a PgType for ENUM columns from a values array and a name function. No {@code Enum}
+   * bound required — works with Scala 3 enums and other constant sets.
+   */
+  static <E> PgType<E> ofEnum(String sqlType, E[] values, Function<E, String> name) {
+    return ofEnumImpl(sqlType, enumFromString(values, name), name);
+  }
+
+  private static <E> PgType<E> ofEnumImpl(
+      String sqlType, Function<String, E> fromString, Function<E, String> name) {
     return new PgType<>(
         PgTypename.of(sqlType),
         PgRead.readString.map(fromString::apply),
-        PgWrite.writeString.contramap(Enum::name),
-        PgText.textString.contramap(Enum::name),
-        PgCompositeText.text.transform(fromString::apply, Enum::name),
-        PgJson.text.transform(fromString::apply, Enum::name),
+        PgWrite.writeString.contramap(name::apply),
+        PgText.textString.contramap(name::apply),
+        PgCompositeText.text.transform(fromString::apply, name::apply),
+        PgJson.text.transform(fromString::apply, name::apply),
         PgOutParam.readString.map(fromString::apply),
         AnalysisOptions.EMPTY,
         Optional.of(PgElementCodec.fromString(fromString::apply)),
         ',');
+  }
+
+  private static <E> Function<String, E> enumFromString(E[] values, Function<E, String> name) {
+    var map = new java.util.HashMap<String, E>();
+    for (E v : values) map.put(name.apply(v), v);
+    return s -> {
+      E result = map.get(s);
+      if (result == null) throw new IllegalArgumentException("No enum constant: " + s);
+      return result;
+    };
   }
 
   static <T> PgType<T> ofPgObject(

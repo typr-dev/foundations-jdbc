@@ -101,5 +101,14 @@ open class Db2Types {
     open fun <Row : Any> jsonObjectEncodedList(parser: RowCodecNamed<Row>): Db2Type<List<Row>> =
         Db2Type(JavaDb2Types.jsonObjectEncodedList(parser.underlying))
 
+    open fun <E, U> ofEnum(underlying: Db2Type<U>, values: Array<E>, toUnderlying: java.util.function.Function<E, U>): Db2Type<E> =
+        Db2Type(JavaDb2Types.ofEnum(underlying.underlying, values, toUnderlying))
+
+    open fun <E : Enum<E>> ofEnum(values: Array<E>): Db2Type<E> =
+        Db2Type(JavaDb2Types.ofEnum(values))
+
     companion object : Db2Types()
 }
+
+inline fun <reified E : Enum<E>> Db2Types.Companion.ofEnum(): Db2Type<E> =
+    ofEnum(enumValues<E>())

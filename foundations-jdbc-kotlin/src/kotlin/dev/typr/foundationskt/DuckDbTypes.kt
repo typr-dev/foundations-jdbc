@@ -76,6 +76,12 @@ open class DuckDbTypes {
     open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: java.util.function.Function<String, E>): DuckDbType<E> =
         DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, fromString))
 
+    open fun <E : Enum<E>> ofEnum(enumTypeName: String, values: Array<E>): DuckDbType<E> =
+        DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, values))
+
+    open fun <E> ofEnum(enumTypeName: String, values: Array<E>, name: java.util.function.Function<E, String>): DuckDbType<E> =
+        DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, values, name))
+
     // Composite (STRUCT) types
 
     open fun <Row : Any> compositeOf(structName: String, codec: RowCodecNamed<Row>): DuckDbType<Row> =
@@ -111,3 +117,6 @@ open class DuckDbTypes {
 
     companion object : DuckDbTypes()
 }
+
+inline fun <reified E : Enum<E>> DuckDbTypes.Companion.ofEnum(enumTypeName: String): DuckDbType<E> =
+    ofEnum(enumTypeName, enumValues<E>())

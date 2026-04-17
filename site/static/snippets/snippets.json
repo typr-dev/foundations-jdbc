@@ -89,16 +89,6 @@
     "snippet": "SqlServerType<byte[]> binaryType = SqlServerTypes.binaryOf(16);\nSqlServerType<byte[]> varbinaryType = SqlServerTypes.varbinaryOf(255);\nSqlServerType<byte[]> varbinaryMax = SqlServerTypes.varbinaryMax;",
     "fullContent": "package dev.typr.foundations.docs.sqlserver;\n\nimport dev.typr.foundations.SqlServerType;\nimport dev.typr.foundations.SqlServerTypes;\n\n@SuppressWarnings(\"unused\")\npublic class BinaryTypes {\n  SqlServerType<byte[]> binaryType = SqlServerTypes.binaryOf(16);\n  SqlServerType<byte[]> varbinaryType = SqlServerTypes.varbinaryOf(255);\n  SqlServerType<byte[]> varbinaryMax = SqlServerTypes.varbinaryMax;\n}"
   },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/otel/OtelSetup.java": {
-    "name": "java/otel/OtelSetup",
-    "snippet": "PgConfig config = PgConfig.builder(\"localhost\", 5432, \"mydb\", \"user\", \"pass\").build();\n\nTelemetryConfig telemetryConfig = TelemetryConfig.builder(config).build();\n\nQueryListener otelListener = OtelQueryListener.create(GlobalOpenTelemetry.get(), telemetryConfig);\n\nTransactor tx =\n    Transactor.create(config, Transactor.defaultStrategy().mergeListener(otelListener));",
-    "fullContent": "package dev.typr.foundations.docs.otel;\n\nimport dev.typr.foundations.QueryListener;\nimport dev.typr.foundations.Transactor;\nimport dev.typr.foundations.connect.PgConfig;\nimport dev.typr.foundations.otel.OtelQueryListener;\nimport dev.typr.foundations.otel.TelemetryConfig;\nimport io.opentelemetry.api.GlobalOpenTelemetry;\n\n@SuppressWarnings(\"unused\")\npublic class OtelSetup {\n  PgConfig config = PgConfig.builder(\"localhost\", 5432, \"mydb\", \"user\", \"pass\").build();\n\n  TelemetryConfig telemetryConfig = TelemetryConfig.builder(config).build();\n\n  QueryListener otelListener = OtelQueryListener.create(GlobalOpenTelemetry.get(), telemetryConfig);\n\n  Transactor tx =\n      Transactor.create(config, Transactor.defaultStrategy().mergeListener(otelListener));\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/otel/OtelPoolMetrics.java": {
-    "name": "java/otel/OtelPoolMetrics",
-    "snippet": "PoolMetrics poolMetrics =\n    PoolMetrics.register(GlobalOpenTelemetry.get(), dataSource, Optional.of(\"main-pool\"));\n\nvoid onShutdown() {\n  poolMetrics.close();\n}",
-    "fullContent": "package dev.typr.foundations.docs.otel;\n\nimport com.zaxxer.hikari.HikariDataSource;\nimport dev.typr.foundations.otel.PoolMetrics;\nimport io.opentelemetry.api.GlobalOpenTelemetry;\nimport java.util.Optional;\n\n@SuppressWarnings(\"unused\")\npublic class OtelPoolMetrics {\n  HikariDataSource dataSource = null; // placeholder\n\n  PoolMetrics poolMetrics =\n      PoolMetrics.register(GlobalOpenTelemetry.get(), dataSource, Optional.of(\"main-pool\"));\n\n  void onShutdown() {\n    poolMetrics.close();\n  }\n}"
-  },
   "documentation-examples-java/src/java/dev/typr/foundations/docs/routines/VoidProcedure.java": {
     "name": "java/routines/VoidProcedure",
     "snippet": "// A void procedure — no OUT parameters, just side effects\nstatic final DbProcedure.Def2_0<String, String> auditLog =\n    DbProcedure.define(\"audit_log\").input(PgTypes.text).input(PgTypes.text).build();\n\nvoid logAction(String action, String details) {\n  auditLog.call(action, details).transact(tx);\n}",
@@ -191,8 +181,8 @@
   },
   "documentation-examples-java/src/java/dev/typr/foundations/docs/postgresql/EnumType.java": {
     "name": "java/postgresql/EnumType",
-    "snippet": "// Define your Java enum\npublic enum Status {\n  PENDING,\n  ACTIVE,\n  COMPLETED\n}\n\n// Create a PgType for it\nPgType<Status> statusType = PgTypes.ofEnum(\"status\", Status::valueOf);",
-    "fullContent": "package dev.typr.foundations.docs.postgresql;\n\nimport dev.typr.foundations.PgType;\nimport dev.typr.foundations.PgTypes;\n\n@SuppressWarnings(\"unused\")\npublic class EnumType {\n  // Define your Java enum\n  public enum Status {\n    PENDING,\n    ACTIVE,\n    COMPLETED\n  }\n\n  // Create a PgType for it\n  PgType<Status> statusType = PgTypes.ofEnum(\"status\", Status::valueOf);\n}"
+    "snippet": "// Define your Java enum\npublic enum Status {\n  PENDING,\n  ACTIVE,\n  COMPLETED\n}\n\n// Create a PgType — pass values(), no reflection\nPgType<Status> statusType = PgTypes.ofEnum(\"status\", Status.values());",
+    "fullContent": "package dev.typr.foundations.docs.postgresql;\n\nimport dev.typr.foundations.PgType;\nimport dev.typr.foundations.PgTypes;\n\n@SuppressWarnings(\"unused\")\npublic class EnumType {\n  // Define your Java enum\n  public enum Status {\n    PENDING,\n    ACTIVE,\n    COMPLETED\n  }\n\n  // Create a PgType — pass values(), no reflection\n  PgType<Status> statusType = PgTypes.ofEnum(\"status\", Status.values());\n}"
   },
   "documentation-examples-java/src/java/dev/typr/foundations/docs/postgresql/DomainType.java": {
     "name": "java/postgresql/DomainType",
@@ -219,90 +209,15 @@
     "snippet": "// Any scalar type can be made into a PostgreSQL array via `.array()`.\nPgType<List<Integer>> intArray = PgTypes.int4.array();\nPgType<List<String>> textArray = PgTypes.text.array();\nPgType<List<UUID>> uuidArray = PgTypes.uuid.array();\n\n// Multi-dimensional arrays compose: `int4[][]` in SQL.\nPgType<List<List<Integer>>> intMatrix = PgTypes.int4.array().array();",
     "fullContent": "package dev.typr.foundations.docs.postgresql;\n\nimport dev.typr.foundations.PgType;\nimport dev.typr.foundations.PgTypes;\nimport java.util.List;\nimport java.util.UUID;\n\n@SuppressWarnings(\"unused\")\npublic class ArrayTypes {\n  // Any scalar type can be made into a PostgreSQL array via `.array()`.\n  PgType<List<Integer>> intArray = PgTypes.int4.array();\n  PgType<List<String>> textArray = PgTypes.text.array();\n  PgType<List<UUID>> uuidArray = PgTypes.uuid.array();\n\n  // Multi-dimensional arrays compose: `int4[][]` in SQL.\n  PgType<List<List<Integer>>> intMatrix = PgTypes.int4.array().array();\n}"
   },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/XmlJsonTypes.java": {
-    "name": "java/oracle/XmlJsonTypes",
-    "snippet": "OracleType<String> xmlType = OracleTypes.xmlType;\nOracleType<Json> jsonType = OracleTypes.json;\n\nJson data = new Json(\"{\\\"name\\\": \\\"Oracle\\\"}\");",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.Json;\n\n@SuppressWarnings(\"unused\")\npublic class XmlJsonTypes {\n  OracleType<String> xmlType = OracleTypes.xmlType;\n  OracleType<Json> jsonType = OracleTypes.json;\n\n  Json data = new Json(\"{\\\"name\\\": \\\"Oracle\\\"}\");\n}"
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/otel/OtelSetup.java": {
+    "name": "java/otel/OtelSetup",
+    "snippet": "PgConfig config = PgConfig.builder(\"localhost\", 5432, \"mydb\", \"user\", \"pass\").build();\n\nTelemetryConfig telemetryConfig = TelemetryConfig.builder(config).build();\n\nQueryListener otelListener = OtelQueryListener.create(GlobalOpenTelemetry.get(), telemetryConfig);\n\nTransactor tx =\n    Transactor.create(config, Transactor.defaultStrategy().mergeListener(otelListener));",
+    "fullContent": "package dev.typr.foundations.docs.otel;\n\nimport dev.typr.foundations.QueryListener;\nimport dev.typr.foundations.Transactor;\nimport dev.typr.foundations.connect.PgConfig;\nimport dev.typr.foundations.otel.OtelQueryListener;\nimport dev.typr.foundations.otel.TelemetryConfig;\nimport io.opentelemetry.api.GlobalOpenTelemetry;\n\n@SuppressWarnings(\"unused\")\npublic class OtelSetup {\n  PgConfig config = PgConfig.builder(\"localhost\", 5432, \"mydb\", \"user\", \"pass\").build();\n\n  TelemetryConfig telemetryConfig = TelemetryConfig.builder(config).build();\n\n  QueryListener otelListener = OtelQueryListener.create(GlobalOpenTelemetry.get(), telemetryConfig);\n\n  Transactor tx =\n      Transactor.create(config, Transactor.defaultStrategy().mergeListener(otelListener));\n}"
   },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/VArrayTypes.java": {
-    "name": "java/oracle/VArrayTypes",
-    "snippet": "// CREATE TYPE phone_list AS VARRAY(5) OF VARCHAR2(25);\nstatic final OracleType<List<String>> phoneList =\n    OracleVArray.of(\"PHONE_LIST\", 5, OracleTypes.varchar2Of(25));\n\n// CREATE TYPE score_array AS VARRAY(100) OF NUMBER;\nstatic final OracleType<List<java.math.BigDecimal>> scores =\n    OracleVArray.of(\"SCORE_ARRAY\", 100, OracleTypes.number);",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.OracleVArray;\nimport java.util.List;\n\n@SuppressWarnings(\"unused\")\npublic class VArrayTypes {\n  // CREATE TYPE phone_list AS VARRAY(5) OF VARCHAR2(25);\n  static final OracleType<List<String>> phoneList =\n      OracleVArray.of(\"PHONE_LIST\", 5, OracleTypes.varchar2Of(25));\n\n  // CREATE TYPE score_array AS VARRAY(100) OF NUMBER;\n  static final OracleType<List<java.math.BigDecimal>> scores =\n      OracleVArray.of(\"SCORE_ARRAY\", 100, OracleTypes.number);\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/StringTypes.java": {
-    "name": "java/oracle/StringTypes",
-    "snippet": "OracleType<String> varcharType = OracleTypes.varchar2;\nOracleType<String> varchar100 = OracleTypes.varchar2Of(100);\nOracleType<String> charType = OracleTypes.char_Of(10);\nOracleType<String> nvarcharType = OracleTypes.nvarchar2Of(100);",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\n\n@SuppressWarnings(\"unused\")\npublic class StringTypes {\n  OracleType<String> varcharType = OracleTypes.varchar2;\n  OracleType<String> varchar100 = OracleTypes.varchar2Of(100);\n  OracleType<String> charType = OracleTypes.char_Of(10);\n  OracleType<String> nvarcharType = OracleTypes.nvarchar2Of(100);\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/RowIdTypes.java": {
-    "name": "java/oracle/RowIdTypes",
-    "snippet": "OracleType<String> rowidType = OracleTypes.rowId;\nOracleType<String> urowidType = OracleTypes.uRowId;\nOracleType<String> urowid1000 = OracleTypes.uRowId(1000);",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\n\n@SuppressWarnings(\"unused\")\npublic class RowIdTypes {\n  OracleType<String> rowidType = OracleTypes.rowId;\n  OracleType<String> urowidType = OracleTypes.uRowId;\n  OracleType<String> urowid1000 = OracleTypes.uRowId(1000);\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/PaddedStringTypes.java": {
-    "name": "java/oracle/PaddedStringTypes",
-    "snippet": "OracleType<PaddedString> padded = OracleTypes.charPadded(10); // CHAR(10)\nOracleType<PaddedString> npadded = OracleTypes.ncharPadded(10); // NCHAR(10)",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.PaddedString;\n\n@SuppressWarnings(\"unused\")\npublic class PaddedStringTypes {\n  OracleType<PaddedString> padded = OracleTypes.charPadded(10); // CHAR(10)\n  OracleType<PaddedString> npadded = OracleTypes.ncharPadded(10); // NCHAR(10)\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/ObjectTypes.java": {
-    "name": "java/oracle/ObjectTypes",
-    "snippet": "// CREATE TYPE coordinates_t AS OBJECT (\n//     latitude  NUMBER(9,6),\n//     longitude NUMBER(9,6)\n// );\nrecord Coordinates(BigDecimal latitude, BigDecimal longitude) {}\n\nstatic final OracleType<Coordinates> coordinatesType =\n    OracleTypes.compositeOf(\n        \"COORDINATES_T\",\n        RowCodec.<Coordinates>namedBuilder()\n            .field(\"LATITUDE\", OracleTypes.numberOf(9, 6), Coordinates::latitude)\n            .field(\"LONGITUDE\", OracleTypes.numberOf(9, 6), Coordinates::longitude)\n            .build(Coordinates::new));\n\n// CREATE TYPE address_t AS OBJECT (\n//     street   VARCHAR2(100),\n//     city     VARCHAR2(50),\n//     location coordinates_t   -- nested OBJECT\n// );\nrecord Address(String street, String city, Coordinates location) {}\n\nstatic final OracleType<Address> addressType =\n    OracleTypes.compositeOf(\n        \"ADDRESS_T\",\n        RowCodec.<Address>namedBuilder()\n            .field(\"STREET\", OracleTypes.varchar2Of(100), Address::street)\n            .field(\"CITY\", OracleTypes.varchar2Of(50), Address::city)\n            .field(\"LOCATION\", coordinatesType, Address::location)\n            .build(Address::new));",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.RowCodec;\nimport java.math.BigDecimal;\n\n@SuppressWarnings(\"unused\")\npublic class ObjectTypes {\n  // CREATE TYPE coordinates_t AS OBJECT (\n  //     latitude  NUMBER(9,6),\n  //     longitude NUMBER(9,6)\n  // );\n  record Coordinates(BigDecimal latitude, BigDecimal longitude) {}\n\n  static final OracleType<Coordinates> coordinatesType =\n      OracleTypes.compositeOf(\n          \"COORDINATES_T\",\n          RowCodec.<Coordinates>namedBuilder()\n              .field(\"LATITUDE\", OracleTypes.numberOf(9, 6), Coordinates::latitude)\n              .field(\"LONGITUDE\", OracleTypes.numberOf(9, 6), Coordinates::longitude)\n              .build(Coordinates::new));\n\n  // CREATE TYPE address_t AS OBJECT (\n  //     street   VARCHAR2(100),\n  //     city     VARCHAR2(50),\n  //     location coordinates_t   -- nested OBJECT\n  // );\n  record Address(String street, String city, Coordinates location) {}\n\n  static final OracleType<Address> addressType =\n      OracleTypes.compositeOf(\n          \"ADDRESS_T\",\n          RowCodec.<Address>namedBuilder()\n              .field(\"STREET\", OracleTypes.varchar2Of(100), Address::street)\n              .field(\"CITY\", OracleTypes.varchar2Of(50), Address::city)\n              .field(\"LOCATION\", coordinatesType, Address::location)\n              .build(Address::new));\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/NumericTypes.java": {
-    "name": "java/oracle/NumericTypes",
-    "snippet": "OracleType<BigDecimal> numberType = OracleTypes.number;\nOracleType<BigDecimal> decimal = OracleTypes.numberOf(10, 2); // NUMBER(10,2)\nOracleType<Integer> intType = OracleTypes.numberAsInt(9); // NUMBER(9)\nOracleType<Long> longType = OracleTypes.numberAsLong(18); // NUMBER(18)",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport java.math.BigDecimal;\n\n@SuppressWarnings(\"unused\")\npublic class NumericTypes {\n  OracleType<BigDecimal> numberType = OracleTypes.number;\n  OracleType<BigDecimal> decimal = OracleTypes.numberOf(10, 2); // NUMBER(10,2)\n  OracleType<Integer> intType = OracleTypes.numberAsInt(9); // NUMBER(9)\n  OracleType<Long> longType = OracleTypes.numberAsLong(18); // NUMBER(18)\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/NullableType.java": {
-    "name": "java/oracle/NullableType",
-    "snippet": "OracleType<Integer> notNull = OracleTypes.numberInt;\nOracleType<Optional<Integer>> nullable = OracleTypes.numberInt.opt();",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport java.util.Optional;\n\n@SuppressWarnings(\"unused\")\npublic class NullableType {\n  OracleType<Integer> notNull = OracleTypes.numberInt;\n  OracleType<Optional<Integer>> nullable = OracleTypes.numberInt.opt();\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/NonEmptyStringTypes.java": {
-    "name": "java/oracle/NonEmptyStringTypes",
-    "snippet": "OracleType<NonEmptyString> nonEmpty = OracleTypes.varchar2NonEmpty(100);\nOracleType<NonEmptyString> nvarNonEmpty = OracleTypes.nvarchar2NonEmpty(100);",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.NonEmptyString;\n\n@SuppressWarnings(\"unused\")\npublic class NonEmptyStringTypes {\n  OracleType<NonEmptyString> nonEmpty = OracleTypes.varchar2NonEmpty(100);\n  OracleType<NonEmptyString> nvarNonEmpty = OracleTypes.nvarchar2NonEmpty(100);\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/NestedTableTypes.java": {
-    "name": "java/oracle/NestedTableTypes",
-    "snippet": "// CREATE TYPE order_item_t AS OBJECT (\n//     product_name VARCHAR2(100),\n//     quantity     NUMBER(10),\n//     unit_price   NUMBER(12,2)\n// );\nrecord OrderItem(String productName, int quantity, BigDecimal unitPrice) {}\n\nstatic final OracleType<OrderItem> orderItemType =\n    OracleTypes.compositeOf(\n        \"ORDER_ITEM_T\",\n        RowCodec.<OrderItem>namedBuilder()\n            .field(\"PRODUCT_NAME\", OracleTypes.varchar2Of(100), OrderItem::productName)\n            .field(\"QUANTITY\", OracleTypes.numberAsInt(10), OrderItem::quantity)\n            .field(\"UNIT_PRICE\", OracleTypes.numberOf(12, 2), OrderItem::unitPrice)\n            .build(OrderItem::new));\n\n// CREATE TYPE order_items_t AS TABLE OF order_item_t;\nstatic final OracleType<List<OrderItem>> orderItems =\n    OracleNestedTable.of(\"ORDER_ITEMS_T\", orderItemType);",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleNestedTable;\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.RowCodec;\nimport java.math.BigDecimal;\nimport java.util.List;\n\n@SuppressWarnings(\"unused\")\npublic class NestedTableTypes {\n  // CREATE TYPE order_item_t AS OBJECT (\n  //     product_name VARCHAR2(100),\n  //     quantity     NUMBER(10),\n  //     unit_price   NUMBER(12,2)\n  // );\n  record OrderItem(String productName, int quantity, BigDecimal unitPrice) {}\n\n  static final OracleType<OrderItem> orderItemType =\n      OracleTypes.compositeOf(\n          \"ORDER_ITEM_T\",\n          RowCodec.<OrderItem>namedBuilder()\n              .field(\"PRODUCT_NAME\", OracleTypes.varchar2Of(100), OrderItem::productName)\n              .field(\"QUANTITY\", OracleTypes.numberAsInt(10), OrderItem::quantity)\n              .field(\"UNIT_PRICE\", OracleTypes.numberOf(12, 2), OrderItem::unitPrice)\n              .build(OrderItem::new));\n\n  // CREATE TYPE order_items_t AS TABLE OF order_item_t;\n  static final OracleType<List<OrderItem>> orderItems =\n      OracleNestedTable.of(\"ORDER_ITEMS_T\", orderItemType);\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/LobTypes.java": {
-    "name": "java/oracle/LobTypes",
-    "snippet": "OracleType<String> clobType = OracleTypes.clob;\nOracleType<String> nclobType = OracleTypes.nclob;\nOracleType<byte[]> blobType = OracleTypes.blob;\n\n// Non-empty variants\nOracleType<NonEmptyString> clobNonEmpty = OracleTypes.clobNonEmpty;\nOracleType<NonEmptyBlob> blobNonEmpty = OracleTypes.blobNonEmpty;",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.NonEmptyBlob;\nimport dev.typr.foundations.data.NonEmptyString;\n\n@SuppressWarnings(\"unused\")\npublic class LobTypes {\n  OracleType<String> clobType = OracleTypes.clob;\n  OracleType<String> nclobType = OracleTypes.nclob;\n  OracleType<byte[]> blobType = OracleTypes.blob;\n\n  // Non-empty variants\n  OracleType<NonEmptyString> clobNonEmpty = OracleTypes.clobNonEmpty;\n  OracleType<NonEmptyBlob> blobNonEmpty = OracleTypes.blobNonEmpty;\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/IntervalTypes.java": {
-    "name": "java/oracle/IntervalTypes",
-    "snippet": "OracleType<OracleIntervalYM> ymType = OracleTypes.intervalYearToMonth;\nOracleType<OracleIntervalYM> ym4 = OracleTypes.intervalYearToMonth(4);\n\nOracleType<OracleIntervalDS> dsType = OracleTypes.intervalDayToSecond;\nOracleType<OracleIntervalDS> ds96 = OracleTypes.intervalDayToSecond(9, 6);\n\n// Create and use intervals\nOracleIntervalYM interval = OracleIntervalYM.parse(\"+02-05\"); // 2 years, 5 months\nString oracle = interval.toOracleFormat(); // \"+02-05\"\nString iso = interval.toIso8601(); // \"P2Y5M\"",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.OracleIntervalDS;\nimport dev.typr.foundations.data.OracleIntervalYM;\n\n@SuppressWarnings(\"unused\")\npublic class IntervalTypes {\n  OracleType<OracleIntervalYM> ymType = OracleTypes.intervalYearToMonth;\n  OracleType<OracleIntervalYM> ym4 = OracleTypes.intervalYearToMonth(4);\n\n  OracleType<OracleIntervalDS> dsType = OracleTypes.intervalDayToSecond;\n  OracleType<OracleIntervalDS> ds96 = OracleTypes.intervalDayToSecond(9, 6);\n\n  // Create and use intervals\n  OracleIntervalYM interval = OracleIntervalYM.parse(\"+02-05\"); // 2 years, 5 months\n  String oracle = interval.toOracleFormat(); // \"+02-05\"\n  String iso = interval.toIso8601(); // \"P2Y5M\"\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/FloatTypes.java": {
-    "name": "java/oracle/FloatTypes",
-    "snippet": "OracleType<Float> binaryFloat = OracleTypes.binaryFloat;\nOracleType<Double> binaryDouble = OracleTypes.binaryDouble;\nOracleType<Double> floatType = OracleTypes.float_Of(126); // FLOAT(126)",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\n\n@SuppressWarnings(\"unused\")\npublic class FloatTypes {\n  OracleType<Float> binaryFloat = OracleTypes.binaryFloat;\n  OracleType<Double> binaryDouble = OracleTypes.binaryDouble;\n  OracleType<Double> floatType = OracleTypes.float_Of(126); // FLOAT(126)\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/DomainType.java": {
-    "name": "java/oracle/DomainType",
-    "snippet": "// Wrapper type\npublic record EmployeeId(Long value) {}\n\n// Create OracleType from NUMBER\nOracleType<EmployeeId> empIdType =\n    OracleTypes.numberLong.transform(EmployeeId::new, EmployeeId::value);",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\n\n@SuppressWarnings(\"unused\")\npublic class DomainType {\n  // Wrapper type\n  public record EmployeeId(Long value) {}\n\n  // Create OracleType from NUMBER\n  OracleType<EmployeeId> empIdType =\n      OracleTypes.numberLong.transform(EmployeeId::new, EmployeeId::value);\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/DateTimeTypes.java": {
-    "name": "java/oracle/DateTimeTypes",
-    "snippet": "OracleType<LocalDateTime> dateType = OracleTypes.date;\nOracleType<LocalDateTime> tsType = OracleTypes.timestamp;\nOracleType<LocalDateTime> ts3 = OracleTypes.timestampOf(3); // TIMESTAMP(3)\nOracleType<ZonedDateTime> tstz = OracleTypes.timestampWithTimeZone; // preserves zone regions\nOracleType<Instant> tsltz = OracleTypes.timestampWithLocalTimeZone;",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport java.time.Instant;\nimport java.time.LocalDateTime;\nimport java.time.ZonedDateTime;\n\n@SuppressWarnings(\"unused\")\npublic class DateTimeTypes {\n  OracleType<LocalDateTime> dateType = OracleTypes.date;\n  OracleType<LocalDateTime> tsType = OracleTypes.timestamp;\n  OracleType<LocalDateTime> ts3 = OracleTypes.timestampOf(3); // TIMESTAMP(3)\n  OracleType<ZonedDateTime> tstz = OracleTypes.timestampWithTimeZone; // preserves zone regions\n  OracleType<Instant> tsltz = OracleTypes.timestampWithLocalTimeZone;\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/BoolType.java": {
-    "name": "java/oracle/BoolType",
-    "snippet": "OracleType<Boolean> boolNative = OracleTypes.boolean_; // Oracle 23c+\nOracleType<Boolean> boolNumber = OracleTypes.numberAsBoolean; // NUMBER(1)",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\n\n@SuppressWarnings(\"unused\")\npublic class BoolType {\n  OracleType<Boolean> boolNative = OracleTypes.boolean_; // Oracle 23c+\n  OracleType<Boolean> boolNumber = OracleTypes.numberAsBoolean; // NUMBER(1)\n}"
-  },
-  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/BinaryTypes.java": {
-    "name": "java/oracle/BinaryTypes",
-    "snippet": "OracleType<byte[]> rawType = OracleTypes.raw;\nOracleType<byte[]> raw100 = OracleTypes.rawOf(100); // RAW(100)\n\n// Non-empty variant\nOracleType<NonEmptyBlob> rawNonEmpty = OracleTypes.rawNonEmpty(100);",
-    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.NonEmptyBlob;\n\n@SuppressWarnings(\"unused\")\npublic class BinaryTypes {\n  OracleType<byte[]> rawType = OracleTypes.raw;\n  OracleType<byte[]> raw100 = OracleTypes.rawOf(100); // RAW(100)\n\n  // Non-empty variant\n  OracleType<NonEmptyBlob> rawNonEmpty = OracleTypes.rawNonEmpty(100);\n}"
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/otel/OtelPoolMetrics.java": {
+    "name": "java/otel/OtelPoolMetrics",
+    "snippet": "PoolMetrics poolMetrics =\n    PoolMetrics.register(GlobalOpenTelemetry.get(), dataSource, Optional.of(\"main-pool\"));\n\nvoid onShutdown() {\n  poolMetrics.close();\n}",
+    "fullContent": "package dev.typr.foundations.docs.otel;\n\nimport com.zaxxer.hikari.HikariDataSource;\nimport dev.typr.foundations.otel.PoolMetrics;\nimport io.opentelemetry.api.GlobalOpenTelemetry;\nimport java.util.Optional;\n\n@SuppressWarnings(\"unused\")\npublic class OtelPoolMetrics {\n  HikariDataSource dataSource = null; // placeholder\n\n  PoolMetrics poolMetrics =\n      PoolMetrics.register(GlobalOpenTelemetry.get(), dataSource, Optional.of(\"main-pool\"));\n\n  void onShutdown() {\n    poolMetrics.close();\n  }\n}"
   },
   "documentation-examples-java/src/java/dev/typr/foundations/docs/landing/WrapperType.java": {
     "name": "java/landing/WrapperType",
@@ -421,8 +336,8 @@
   },
   "documentation-examples-java/src/java/dev/typr/foundations/docs/mariadb/EnumType.java": {
     "name": "java/mariadb/EnumType",
-    "snippet": "// Define your Java enum\npublic enum Status {\n  PENDING,\n  ACTIVE,\n  COMPLETED\n}\n\n// Create MariaType for it\nMariaType<Status> statusType = MariaTypes.ofEnum(\"status\", Status::valueOf);",
-    "fullContent": "package dev.typr.foundations.docs.mariadb;\n\nimport dev.typr.foundations.MariaType;\nimport dev.typr.foundations.MariaTypes;\n\n@SuppressWarnings(\"unused\")\npublic class EnumType {\n  // Define your Java enum\n  public enum Status {\n    PENDING,\n    ACTIVE,\n    COMPLETED\n  }\n\n  // Create MariaType for it\n  MariaType<Status> statusType = MariaTypes.ofEnum(\"status\", Status::valueOf);\n}"
+    "snippet": "// Define your Java enum\npublic enum Status {\n  PENDING,\n  ACTIVE,\n  COMPLETED\n}\n\n// Create MariaType — derives ENUM('PENDING','ACTIVE','COMPLETED') from values()\nMariaType<Status> statusType = MariaTypes.ofEnum(Status.values());",
+    "fullContent": "package dev.typr.foundations.docs.mariadb;\n\nimport dev.typr.foundations.MariaType;\nimport dev.typr.foundations.MariaTypes;\n\n@SuppressWarnings(\"unused\")\npublic class EnumType {\n  // Define your Java enum\n  public enum Status {\n    PENDING,\n    ACTIVE,\n    COMPLETED\n  }\n\n  // Create MariaType — derives ENUM('PENDING','ACTIVE','COMPLETED') from values()\n  MariaType<Status> statusType = MariaTypes.ofEnum(Status.values());\n}"
   },
   "documentation-examples-java/src/java/dev/typr/foundations/docs/mariadb/DomainType.java": {
     "name": "java/mariadb/DomainType",
@@ -511,8 +426,8 @@
   },
   "documentation-examples-java/src/java/dev/typr/foundations/docs/duckdb/EnumType.java": {
     "name": "java/duckdb/EnumType",
-    "snippet": "// Define your Java enum\npublic enum Status {\n  PENDING,\n  ACTIVE,\n  COMPLETED\n}\n\n// Create DuckDbType for it\nDuckDbType<Status> statusType = DuckDbTypes.ofEnum(\"status\", Status::valueOf);",
-    "fullContent": "package dev.typr.foundations.docs.duckdb;\n\nimport dev.typr.foundations.DuckDbType;\nimport dev.typr.foundations.DuckDbTypes;\n\n@SuppressWarnings(\"unused\")\npublic class EnumType {\n  // Define your Java enum\n  public enum Status {\n    PENDING,\n    ACTIVE,\n    COMPLETED\n  }\n\n  // Create DuckDbType for it\n  DuckDbType<Status> statusType = DuckDbTypes.ofEnum(\"status\", Status::valueOf);\n}"
+    "snippet": "// Define your Java enum\npublic enum Status {\n  PENDING,\n  ACTIVE,\n  COMPLETED\n}\n\n// Create DuckDbType — pass values(), no reflection\nDuckDbType<Status> statusType = DuckDbTypes.ofEnum(\"status\", Status.values());",
+    "fullContent": "package dev.typr.foundations.docs.duckdb;\n\nimport dev.typr.foundations.DuckDbType;\nimport dev.typr.foundations.DuckDbTypes;\n\n@SuppressWarnings(\"unused\")\npublic class EnumType {\n  // Define your Java enum\n  public enum Status {\n    PENDING,\n    ACTIVE,\n    COMPLETED\n  }\n\n  // Create DuckDbType — pass values(), no reflection\n  DuckDbType<Status> statusType = DuckDbTypes.ofEnum(\"status\", Status.values());\n}"
   },
   "documentation-examples-java/src/java/dev/typr/foundations/docs/duckdb/DomainType.java": {
     "name": "java/duckdb/DomainType",
@@ -543,6 +458,91 @@
     "name": "java/duckdb/ArrayTypes",
     "snippet": "// Fixed-size ARRAY — every row must have exactly `size` elements.\nDuckDbType<List<Float>> embedding = DuckDbTypes.float_.array(1536);\nDuckDbType<List<Integer>> rgb = DuckDbTypes.integer.array(3);",
     "fullContent": "package dev.typr.foundations.docs.duckdb;\n\nimport dev.typr.foundations.DuckDbType;\nimport dev.typr.foundations.DuckDbTypes;\nimport java.util.List;\n\n@SuppressWarnings(\"unused\")\npublic class ArrayTypes {\n  // Fixed-size ARRAY — every row must have exactly `size` elements.\n  DuckDbType<List<Float>> embedding = DuckDbTypes.float_.array(1536);\n  DuckDbType<List<Integer>> rgb = DuckDbTypes.integer.array(3);\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/XmlJsonTypes.java": {
+    "name": "java/oracle/XmlJsonTypes",
+    "snippet": "OracleType<String> xmlType = OracleTypes.xmlType;\nOracleType<Json> jsonType = OracleTypes.json;\n\nJson data = new Json(\"{\\\"name\\\": \\\"Oracle\\\"}\");",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.Json;\n\n@SuppressWarnings(\"unused\")\npublic class XmlJsonTypes {\n  OracleType<String> xmlType = OracleTypes.xmlType;\n  OracleType<Json> jsonType = OracleTypes.json;\n\n  Json data = new Json(\"{\\\"name\\\": \\\"Oracle\\\"}\");\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/VArrayTypes.java": {
+    "name": "java/oracle/VArrayTypes",
+    "snippet": "// CREATE TYPE phone_list AS VARRAY(5) OF VARCHAR2(25);\nstatic final OracleType<List<String>> phoneList =\n    OracleVArray.of(\"PHONE_LIST\", 5, OracleTypes.varchar2Of(25));\n\n// CREATE TYPE score_array AS VARRAY(100) OF NUMBER;\nstatic final OracleType<List<java.math.BigDecimal>> scores =\n    OracleVArray.of(\"SCORE_ARRAY\", 100, OracleTypes.number);",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.OracleVArray;\nimport java.util.List;\n\n@SuppressWarnings(\"unused\")\npublic class VArrayTypes {\n  // CREATE TYPE phone_list AS VARRAY(5) OF VARCHAR2(25);\n  static final OracleType<List<String>> phoneList =\n      OracleVArray.of(\"PHONE_LIST\", 5, OracleTypes.varchar2Of(25));\n\n  // CREATE TYPE score_array AS VARRAY(100) OF NUMBER;\n  static final OracleType<List<java.math.BigDecimal>> scores =\n      OracleVArray.of(\"SCORE_ARRAY\", 100, OracleTypes.number);\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/StringTypes.java": {
+    "name": "java/oracle/StringTypes",
+    "snippet": "OracleType<String> varcharType = OracleTypes.varchar2;\nOracleType<String> varchar100 = OracleTypes.varchar2Of(100);\nOracleType<String> charType = OracleTypes.char_Of(10);\nOracleType<String> nvarcharType = OracleTypes.nvarchar2Of(100);",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\n\n@SuppressWarnings(\"unused\")\npublic class StringTypes {\n  OracleType<String> varcharType = OracleTypes.varchar2;\n  OracleType<String> varchar100 = OracleTypes.varchar2Of(100);\n  OracleType<String> charType = OracleTypes.char_Of(10);\n  OracleType<String> nvarcharType = OracleTypes.nvarchar2Of(100);\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/RowIdTypes.java": {
+    "name": "java/oracle/RowIdTypes",
+    "snippet": "OracleType<String> rowidType = OracleTypes.rowId;\nOracleType<String> urowidType = OracleTypes.uRowId;\nOracleType<String> urowid1000 = OracleTypes.uRowId(1000);",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\n\n@SuppressWarnings(\"unused\")\npublic class RowIdTypes {\n  OracleType<String> rowidType = OracleTypes.rowId;\n  OracleType<String> urowidType = OracleTypes.uRowId;\n  OracleType<String> urowid1000 = OracleTypes.uRowId(1000);\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/PaddedStringTypes.java": {
+    "name": "java/oracle/PaddedStringTypes",
+    "snippet": "OracleType<PaddedString> padded = OracleTypes.charPadded(10); // CHAR(10)\nOracleType<PaddedString> npadded = OracleTypes.ncharPadded(10); // NCHAR(10)",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.PaddedString;\n\n@SuppressWarnings(\"unused\")\npublic class PaddedStringTypes {\n  OracleType<PaddedString> padded = OracleTypes.charPadded(10); // CHAR(10)\n  OracleType<PaddedString> npadded = OracleTypes.ncharPadded(10); // NCHAR(10)\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/ObjectTypes.java": {
+    "name": "java/oracle/ObjectTypes",
+    "snippet": "// CREATE TYPE coordinates_t AS OBJECT (\n//     latitude  NUMBER(9,6),\n//     longitude NUMBER(9,6)\n// );\nrecord Coordinates(BigDecimal latitude, BigDecimal longitude) {}\n\nstatic final OracleType<Coordinates> coordinatesType =\n    OracleTypes.compositeOf(\n        \"COORDINATES_T\",\n        RowCodec.<Coordinates>namedBuilder()\n            .field(\"LATITUDE\", OracleTypes.numberOf(9, 6), Coordinates::latitude)\n            .field(\"LONGITUDE\", OracleTypes.numberOf(9, 6), Coordinates::longitude)\n            .build(Coordinates::new));\n\n// CREATE TYPE address_t AS OBJECT (\n//     street   VARCHAR2(100),\n//     city     VARCHAR2(50),\n//     location coordinates_t   -- nested OBJECT\n// );\nrecord Address(String street, String city, Coordinates location) {}\n\nstatic final OracleType<Address> addressType =\n    OracleTypes.compositeOf(\n        \"ADDRESS_T\",\n        RowCodec.<Address>namedBuilder()\n            .field(\"STREET\", OracleTypes.varchar2Of(100), Address::street)\n            .field(\"CITY\", OracleTypes.varchar2Of(50), Address::city)\n            .field(\"LOCATION\", coordinatesType, Address::location)\n            .build(Address::new));",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.RowCodec;\nimport java.math.BigDecimal;\n\n@SuppressWarnings(\"unused\")\npublic class ObjectTypes {\n  // CREATE TYPE coordinates_t AS OBJECT (\n  //     latitude  NUMBER(9,6),\n  //     longitude NUMBER(9,6)\n  // );\n  record Coordinates(BigDecimal latitude, BigDecimal longitude) {}\n\n  static final OracleType<Coordinates> coordinatesType =\n      OracleTypes.compositeOf(\n          \"COORDINATES_T\",\n          RowCodec.<Coordinates>namedBuilder()\n              .field(\"LATITUDE\", OracleTypes.numberOf(9, 6), Coordinates::latitude)\n              .field(\"LONGITUDE\", OracleTypes.numberOf(9, 6), Coordinates::longitude)\n              .build(Coordinates::new));\n\n  // CREATE TYPE address_t AS OBJECT (\n  //     street   VARCHAR2(100),\n  //     city     VARCHAR2(50),\n  //     location coordinates_t   -- nested OBJECT\n  // );\n  record Address(String street, String city, Coordinates location) {}\n\n  static final OracleType<Address> addressType =\n      OracleTypes.compositeOf(\n          \"ADDRESS_T\",\n          RowCodec.<Address>namedBuilder()\n              .field(\"STREET\", OracleTypes.varchar2Of(100), Address::street)\n              .field(\"CITY\", OracleTypes.varchar2Of(50), Address::city)\n              .field(\"LOCATION\", coordinatesType, Address::location)\n              .build(Address::new));\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/NumericTypes.java": {
+    "name": "java/oracle/NumericTypes",
+    "snippet": "OracleType<BigDecimal> numberType = OracleTypes.number;\nOracleType<BigDecimal> decimal = OracleTypes.numberOf(10, 2); // NUMBER(10,2)\nOracleType<Integer> intType = OracleTypes.numberAsInt(9); // NUMBER(9)\nOracleType<Long> longType = OracleTypes.numberAsLong(18); // NUMBER(18)",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport java.math.BigDecimal;\n\n@SuppressWarnings(\"unused\")\npublic class NumericTypes {\n  OracleType<BigDecimal> numberType = OracleTypes.number;\n  OracleType<BigDecimal> decimal = OracleTypes.numberOf(10, 2); // NUMBER(10,2)\n  OracleType<Integer> intType = OracleTypes.numberAsInt(9); // NUMBER(9)\n  OracleType<Long> longType = OracleTypes.numberAsLong(18); // NUMBER(18)\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/NullableType.java": {
+    "name": "java/oracle/NullableType",
+    "snippet": "OracleType<Integer> notNull = OracleTypes.numberInt;\nOracleType<Optional<Integer>> nullable = OracleTypes.numberInt.opt();",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport java.util.Optional;\n\n@SuppressWarnings(\"unused\")\npublic class NullableType {\n  OracleType<Integer> notNull = OracleTypes.numberInt;\n  OracleType<Optional<Integer>> nullable = OracleTypes.numberInt.opt();\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/NonEmptyStringTypes.java": {
+    "name": "java/oracle/NonEmptyStringTypes",
+    "snippet": "OracleType<NonEmptyString> nonEmpty = OracleTypes.varchar2NonEmpty(100);\nOracleType<NonEmptyString> nvarNonEmpty = OracleTypes.nvarchar2NonEmpty(100);",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.NonEmptyString;\n\n@SuppressWarnings(\"unused\")\npublic class NonEmptyStringTypes {\n  OracleType<NonEmptyString> nonEmpty = OracleTypes.varchar2NonEmpty(100);\n  OracleType<NonEmptyString> nvarNonEmpty = OracleTypes.nvarchar2NonEmpty(100);\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/NestedTableTypes.java": {
+    "name": "java/oracle/NestedTableTypes",
+    "snippet": "// CREATE TYPE order_item_t AS OBJECT (\n//     product_name VARCHAR2(100),\n//     quantity     NUMBER(10),\n//     unit_price   NUMBER(12,2)\n// );\nrecord OrderItem(String productName, int quantity, BigDecimal unitPrice) {}\n\nstatic final OracleType<OrderItem> orderItemType =\n    OracleTypes.compositeOf(\n        \"ORDER_ITEM_T\",\n        RowCodec.<OrderItem>namedBuilder()\n            .field(\"PRODUCT_NAME\", OracleTypes.varchar2Of(100), OrderItem::productName)\n            .field(\"QUANTITY\", OracleTypes.numberAsInt(10), OrderItem::quantity)\n            .field(\"UNIT_PRICE\", OracleTypes.numberOf(12, 2), OrderItem::unitPrice)\n            .build(OrderItem::new));\n\n// CREATE TYPE order_items_t AS TABLE OF order_item_t;\nstatic final OracleType<List<OrderItem>> orderItems =\n    OracleNestedTable.of(\"ORDER_ITEMS_T\", orderItemType);",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleNestedTable;\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.RowCodec;\nimport java.math.BigDecimal;\nimport java.util.List;\n\n@SuppressWarnings(\"unused\")\npublic class NestedTableTypes {\n  // CREATE TYPE order_item_t AS OBJECT (\n  //     product_name VARCHAR2(100),\n  //     quantity     NUMBER(10),\n  //     unit_price   NUMBER(12,2)\n  // );\n  record OrderItem(String productName, int quantity, BigDecimal unitPrice) {}\n\n  static final OracleType<OrderItem> orderItemType =\n      OracleTypes.compositeOf(\n          \"ORDER_ITEM_T\",\n          RowCodec.<OrderItem>namedBuilder()\n              .field(\"PRODUCT_NAME\", OracleTypes.varchar2Of(100), OrderItem::productName)\n              .field(\"QUANTITY\", OracleTypes.numberAsInt(10), OrderItem::quantity)\n              .field(\"UNIT_PRICE\", OracleTypes.numberOf(12, 2), OrderItem::unitPrice)\n              .build(OrderItem::new));\n\n  // CREATE TYPE order_items_t AS TABLE OF order_item_t;\n  static final OracleType<List<OrderItem>> orderItems =\n      OracleNestedTable.of(\"ORDER_ITEMS_T\", orderItemType);\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/LobTypes.java": {
+    "name": "java/oracle/LobTypes",
+    "snippet": "OracleType<String> clobType = OracleTypes.clob;\nOracleType<String> nclobType = OracleTypes.nclob;\nOracleType<byte[]> blobType = OracleTypes.blob;\n\n// Non-empty variants\nOracleType<NonEmptyString> clobNonEmpty = OracleTypes.clobNonEmpty;\nOracleType<NonEmptyBlob> blobNonEmpty = OracleTypes.blobNonEmpty;",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.NonEmptyBlob;\nimport dev.typr.foundations.data.NonEmptyString;\n\n@SuppressWarnings(\"unused\")\npublic class LobTypes {\n  OracleType<String> clobType = OracleTypes.clob;\n  OracleType<String> nclobType = OracleTypes.nclob;\n  OracleType<byte[]> blobType = OracleTypes.blob;\n\n  // Non-empty variants\n  OracleType<NonEmptyString> clobNonEmpty = OracleTypes.clobNonEmpty;\n  OracleType<NonEmptyBlob> blobNonEmpty = OracleTypes.blobNonEmpty;\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/IntervalTypes.java": {
+    "name": "java/oracle/IntervalTypes",
+    "snippet": "OracleType<OracleIntervalYM> ymType = OracleTypes.intervalYearToMonth;\nOracleType<OracleIntervalYM> ym4 = OracleTypes.intervalYearToMonth(4);\n\nOracleType<OracleIntervalDS> dsType = OracleTypes.intervalDayToSecond;\nOracleType<OracleIntervalDS> ds96 = OracleTypes.intervalDayToSecond(9, 6);\n\n// Create and use intervals\nOracleIntervalYM interval = OracleIntervalYM.parse(\"+02-05\"); // 2 years, 5 months\nString oracle = interval.toOracleFormat(); // \"+02-05\"\nString iso = interval.toIso8601(); // \"P2Y5M\"",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.OracleIntervalDS;\nimport dev.typr.foundations.data.OracleIntervalYM;\n\n@SuppressWarnings(\"unused\")\npublic class IntervalTypes {\n  OracleType<OracleIntervalYM> ymType = OracleTypes.intervalYearToMonth;\n  OracleType<OracleIntervalYM> ym4 = OracleTypes.intervalYearToMonth(4);\n\n  OracleType<OracleIntervalDS> dsType = OracleTypes.intervalDayToSecond;\n  OracleType<OracleIntervalDS> ds96 = OracleTypes.intervalDayToSecond(9, 6);\n\n  // Create and use intervals\n  OracleIntervalYM interval = OracleIntervalYM.parse(\"+02-05\"); // 2 years, 5 months\n  String oracle = interval.toOracleFormat(); // \"+02-05\"\n  String iso = interval.toIso8601(); // \"P2Y5M\"\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/FloatTypes.java": {
+    "name": "java/oracle/FloatTypes",
+    "snippet": "OracleType<Float> binaryFloat = OracleTypes.binaryFloat;\nOracleType<Double> binaryDouble = OracleTypes.binaryDouble;\nOracleType<Double> floatType = OracleTypes.float_Of(126); // FLOAT(126)",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\n\n@SuppressWarnings(\"unused\")\npublic class FloatTypes {\n  OracleType<Float> binaryFloat = OracleTypes.binaryFloat;\n  OracleType<Double> binaryDouble = OracleTypes.binaryDouble;\n  OracleType<Double> floatType = OracleTypes.float_Of(126); // FLOAT(126)\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/DomainType.java": {
+    "name": "java/oracle/DomainType",
+    "snippet": "// Wrapper type\npublic record EmployeeId(Long value) {}\n\n// Create OracleType from NUMBER\nOracleType<EmployeeId> empIdType =\n    OracleTypes.numberLong.transform(EmployeeId::new, EmployeeId::value);",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\n\n@SuppressWarnings(\"unused\")\npublic class DomainType {\n  // Wrapper type\n  public record EmployeeId(Long value) {}\n\n  // Create OracleType from NUMBER\n  OracleType<EmployeeId> empIdType =\n      OracleTypes.numberLong.transform(EmployeeId::new, EmployeeId::value);\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/DateTimeTypes.java": {
+    "name": "java/oracle/DateTimeTypes",
+    "snippet": "OracleType<LocalDateTime> dateType = OracleTypes.date;\nOracleType<LocalDateTime> tsType = OracleTypes.timestamp;\nOracleType<LocalDateTime> ts3 = OracleTypes.timestampOf(3); // TIMESTAMP(3)\nOracleType<ZonedDateTime> tstz = OracleTypes.timestampWithTimeZone; // preserves zone regions\nOracleType<Instant> tsltz = OracleTypes.timestampWithLocalTimeZone;",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport java.time.Instant;\nimport java.time.LocalDateTime;\nimport java.time.ZonedDateTime;\n\n@SuppressWarnings(\"unused\")\npublic class DateTimeTypes {\n  OracleType<LocalDateTime> dateType = OracleTypes.date;\n  OracleType<LocalDateTime> tsType = OracleTypes.timestamp;\n  OracleType<LocalDateTime> ts3 = OracleTypes.timestampOf(3); // TIMESTAMP(3)\n  OracleType<ZonedDateTime> tstz = OracleTypes.timestampWithTimeZone; // preserves zone regions\n  OracleType<Instant> tsltz = OracleTypes.timestampWithLocalTimeZone;\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/BoolType.java": {
+    "name": "java/oracle/BoolType",
+    "snippet": "OracleType<Boolean> boolNative = OracleTypes.boolean_; // Oracle 23c+\nOracleType<Boolean> boolNumber = OracleTypes.numberAsBoolean; // NUMBER(1)",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\n\n@SuppressWarnings(\"unused\")\npublic class BoolType {\n  OracleType<Boolean> boolNative = OracleTypes.boolean_; // Oracle 23c+\n  OracleType<Boolean> boolNumber = OracleTypes.numberAsBoolean; // NUMBER(1)\n}"
+  },
+  "documentation-examples-java/src/java/dev/typr/foundations/docs/oracle/BinaryTypes.java": {
+    "name": "java/oracle/BinaryTypes",
+    "snippet": "OracleType<byte[]> rawType = OracleTypes.raw;\nOracleType<byte[]> raw100 = OracleTypes.rawOf(100); // RAW(100)\n\n// Non-empty variant\nOracleType<NonEmptyBlob> rawNonEmpty = OracleTypes.rawNonEmpty(100);",
+    "fullContent": "package dev.typr.foundations.docs.oracle;\n\nimport dev.typr.foundations.OracleType;\nimport dev.typr.foundations.OracleTypes;\nimport dev.typr.foundations.data.NonEmptyBlob;\n\n@SuppressWarnings(\"unused\")\npublic class BinaryTypes {\n  OracleType<byte[]> rawType = OracleTypes.raw;\n  OracleType<byte[]> raw100 = OracleTypes.rawOf(100); // RAW(100)\n\n  // Non-empty variant\n  OracleType<NonEmptyBlob> rawNonEmpty = OracleTypes.rawNonEmpty(100);\n}"
   },
   "documentation-examples-java/src/java/dev/typr/foundations/docs/dbtypes/TypeSafeDbTypes.java": {
     "name": "java/dbtypes/TypeSafeDbTypes",
@@ -1039,31 +1039,6 @@
     "snippet": "val binaryType: SqlServerType<ByteArray> = SqlServerTypes.binaryOf(16)\nval varbinaryType: SqlServerType<ByteArray> = SqlServerTypes.varbinaryOf(255)\nval varbinaryMax: SqlServerType<ByteArray> = SqlServerTypes.varbinaryMax",
     "fullContent": "package dev.typr.foundationskt.docs.sqlserver\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BinaryTypes {\n    val binaryType: SqlServerType<ByteArray> = SqlServerTypes.binaryOf(16)\n    val varbinaryType: SqlServerType<ByteArray> = SqlServerTypes.varbinaryOf(255)\n    val varbinaryMax: SqlServerType<ByteArray> = SqlServerTypes.varbinaryMax\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/routines/VoidProcedure.kt": {
-    "name": "kotlin/routines/VoidProcedure",
-    "snippet": "// A void procedure — no OUT parameters, just side effects\nval auditLog =\n    DbProcedure.define(\"audit_log\")\n        .input(PgTypes.text)       // action\n        .input(PgTypes.text)       // details\n        .build()\n\nfun logAction(action: String, details: String) {\n    auditLog.call(action, details).transact(tx)\n}",
-    "fullContent": "package dev.typr.foundationskt.docs.routines\n\nimport dev.typr.foundationskt.*\n\n@Suppress(\"unused\")\nclass VoidProcedure {\n    private lateinit var tx: Transactor\n\n    // A void procedure — no OUT parameters, just side effects\n    val auditLog =\n        DbProcedure.define(\"audit_log\")\n            .input(PgTypes.text)       // action\n            .input(PgTypes.text)       // details\n            .build()\n\n    fun logAction(action: String, details: String) {\n        auditLog.call(action, details).transact(tx)\n    }\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/routines/OutProcedure.kt": {
-    "name": "kotlin/routines/OutProcedure",
-    "snippet": "// OUT parameters — the builder tracks output types statically\nval getUser =\n    DbProcedure.define(\"get_user_by_id\")\n        .input(PgTypes.int4)       // user_id IN\n        .out(PgTypes.text)        // name OUT\n        .out(PgTypes.text)        // email OUT\n        .build()\n\n// call() is fully typed — wrong argument types won't compile\nfun findUser(userId: Int): Pair<String, String> =\n    getUser.call(userId).transact(tx)",
-    "fullContent": "package dev.typr.foundationskt.docs.routines\n\nimport dev.typr.foundationskt.*\n\n@Suppress(\"unused\")\nclass OutProcedure {\n    private lateinit var tx: Transactor\n\n    // OUT parameters — the builder tracks output types statically\n    val getUser =\n        DbProcedure.define(\"get_user_by_id\")\n            .input(PgTypes.int4)       // user_id IN\n            .out(PgTypes.text)        // name OUT\n            .out(PgTypes.text)        // email OUT\n            .build()\n\n    // call() is fully typed — wrong argument types won't compile\n    fun findUser(userId: Int): Pair<String, String> =\n        getUser.call(userId).transact(tx)\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/routines/OracleExample.kt": {
-    "name": "kotlin/routines/OracleExample",
-    "snippet": "// Works with any database — just use the right types\nval applyDiscount =\n    DbProcedure.define(\"apply_discount\")\n        .input(OracleTypes.number)         // amount IN\n        .inout(OracleTypes.varchar2)      // status INOUT\n        .build()\n\nval getBalance =\n    DbFunction.define(\"get_balance\", OracleTypes.number)\n        .input(OracleTypes.varchar2)       // account_id\n        .build()",
-    "fullContent": "package dev.typr.foundationskt.docs.routines\n\nimport dev.typr.foundationskt.*\nimport java.math.BigDecimal\n\n@Suppress(\"unused\")\nclass OracleExample {\n    // Works with any database — just use the right types\n    val applyDiscount =\n        DbProcedure.define(\"apply_discount\")\n            .input(OracleTypes.number)         // amount IN\n            .inout(OracleTypes.varchar2)      // status INOUT\n            .build()\n\n    val getBalance =\n        DbFunction.define(\"get_balance\", OracleTypes.number)\n            .input(OracleTypes.varchar2)       // account_id\n            .build()\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/routines/InoutProcedure.kt": {
-    "name": "kotlin/routines/InoutProcedure",
-    "snippet": "// INOUT — the value goes in and comes back modified\nval applyDiscount =\n    DbProcedure.define(\"apply_discount\")\n        .input(PgTypes.text)           // discount_code IN\n        .inout(PgTypes.numeric)       // price INOUT — goes in, comes back modified\n        .build()\n\nfun applyDiscount(code: String, price: BigDecimal): BigDecimal =\n    applyDiscount\n        .call(code, price)\n        .transact(tx)",
-    "fullContent": "package dev.typr.foundationskt.docs.routines\n\nimport dev.typr.foundationskt.*\nimport java.math.BigDecimal\n\n@Suppress(\"unused\")\nclass InoutProcedure {\n    private lateinit var tx: Transactor\n\n    // INOUT — the value goes in and comes back modified\n    val applyDiscount =\n        DbProcedure.define(\"apply_discount\")\n            .input(PgTypes.text)           // discount_code IN\n            .inout(PgTypes.numeric)       // price INOUT — goes in, comes back modified\n            .build()\n\n    fun applyDiscount(code: String, price: BigDecimal): BigDecimal =\n        applyDiscount\n            .call(code, price)\n            .transact(tx)\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/routines/FunctionExample.kt": {
-    "name": "kotlin/routines/FunctionExample",
-    "snippet": "// Functions use SELECT instead of CALL — every DbType reads correctly\nval calcTax =\n    DbFunction.define(\"calculate_tax\", PgTypes.numeric)\n        .input(PgTypes.numeric)    // amount\n        .input(PgTypes.text)       // region\n        .build()\n\n// Zero-argument function\nval nextId =\n    DbFunction.define(\"next_id\", PgTypes.int4)\n        .build()\n\nfun calculateTax(amount: BigDecimal, region: String): BigDecimal =\n    calcTax.call(amount, region)\n        .transact(tx)",
-    "fullContent": "package dev.typr.foundationskt.docs.routines\n\nimport dev.typr.foundationskt.*\nimport java.math.BigDecimal\n\n@Suppress(\"unused\")\nclass FunctionExample {\n    private lateinit var tx: Transactor\n\n    // Functions use SELECT instead of CALL — every DbType reads correctly\n    val calcTax =\n        DbFunction.define(\"calculate_tax\", PgTypes.numeric)\n            .input(PgTypes.numeric)    // amount\n            .input(PgTypes.text)       // region\n            .build()\n\n    // Zero-argument function\n    val nextId =\n        DbFunction.define(\"next_id\", PgTypes.int4)\n            .build()\n\n    fun calculateTax(amount: BigDecimal, region: String): BigDecimal =\n        calcTax.call(amount, region)\n            .transact(tx)\n}"
-  },
   "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/postgresql/XmlType.kt": {
     "name": "kotlin/postgresql/XmlType",
     "snippet": "val xmlType: PgType<Xml> = PgTypes.xml\nval doc: Xml = Xml(\"<root><child>text</child></root>\")",
@@ -1131,8 +1106,8 @@
   },
   "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/postgresql/EnumType.kt": {
     "name": "kotlin/postgresql/EnumType",
-    "snippet": "// Define your Kotlin enum\nenum class Status { PENDING, ACTIVE, COMPLETED }\n\n// Create a PgType for it\nval statusType: PgType<Status> = PgTypes.ofEnum(\"status\", Status::valueOf)",
-    "fullContent": "package dev.typr.foundationskt.docs.postgresql\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass EnumType {\n    // Define your Kotlin enum\n    enum class Status { PENDING, ACTIVE, COMPLETED }\n\n    // Create a PgType for it\n    val statusType: PgType<Status> = PgTypes.ofEnum(\"status\", Status::valueOf)\n}"
+    "snippet": "// Define your Kotlin enum\nenum class Status { PENDING, ACTIVE, COMPLETED }\n\n// Create a PgType — reified, no arguments beyond the SQL type name\nval statusType: PgType<Status> = PgTypes.ofEnum<Status>(\"status\")",
+    "fullContent": "package dev.typr.foundationskt.docs.postgresql\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass EnumType {\n    // Define your Kotlin enum\n    enum class Status { PENDING, ACTIVE, COMPLETED }\n\n    // Create a PgType — reified, no arguments beyond the SQL type name\n    val statusType: PgType<Status> = PgTypes.ofEnum<Status>(\"status\")\n}"
   },
   "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/postgresql/DomainType.kt": {
     "name": "kotlin/postgresql/DomainType",
@@ -1159,105 +1134,30 @@
     "snippet": "// Any scalar type can be made into a PostgreSQL array via `.array()`.\nval intArray: PgType<List<Int>> = PgTypes.int4.array()\nval textArray: PgType<List<String>> = PgTypes.text.array()\nval uuidArray: PgType<List<UUID>> = PgTypes.uuid.array()\n\n// Multi-dimensional arrays compose: `int4[][]` in SQL.\nval intMatrix: PgType<List<List<Int>>> = PgTypes.int4.array().array()",
     "fullContent": "package dev.typr.foundationskt.docs.postgresql\n\nimport dev.typr.foundationskt.*\nimport java.util.UUID\n\n@Suppress(\"unused\")\nclass ArrayTypes {\n    // Any scalar type can be made into a PostgreSQL array via `.array()`.\n    val intArray: PgType<List<Int>> = PgTypes.int4.array()\n    val textArray: PgType<List<String>> = PgTypes.text.array()\n    val uuidArray: PgType<List<UUID>> = PgTypes.uuid.array()\n\n    // Multi-dimensional arrays compose: `int4[][]` in SQL.\n    val intMatrix: PgType<List<List<Int>>> = PgTypes.int4.array().array()\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/otel/OtelSetup.kt": {
-    "name": "kotlin/otel/OtelSetup",
-    "snippet": "val config =\n    PgConfig.builder(\"localhost\", 5432, \"mydb\", \"user\", \"pass\").build()\n\nval telemetryConfig = TelemetryConfig.builder(config).build()\n\nval otelListener: QueryListener =\n    OtelQueryListener.create(GlobalOpenTelemetry.get(), telemetryConfig)\n\nval tx = Transactor.create(config, Transactor.defaultStrategy().mergeListener(otelListener))",
-    "fullContent": "package dev.typr.foundationskt.docs.otel\n\nimport dev.typr.foundations.QueryListener\nimport dev.typr.foundationskt.Transactor\nimport dev.typr.foundationskt.connect.*\nimport dev.typr.foundations.otel.OtelQueryListener\nimport dev.typr.foundations.otel.TelemetryConfig\nimport io.opentelemetry.api.GlobalOpenTelemetry\n\n@Suppress(\"unused\")\nclass OtelSetup {\n    val config =\n        PgConfig.builder(\"localhost\", 5432, \"mydb\", \"user\", \"pass\").build()\n\n    val telemetryConfig = TelemetryConfig.builder(config).build()\n\n    val otelListener: QueryListener =\n        OtelQueryListener.create(GlobalOpenTelemetry.get(), telemetryConfig)\n\n    val tx = Transactor.create(config, Transactor.defaultStrategy().mergeListener(otelListener))\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/routines/VoidProcedure.kt": {
+    "name": "kotlin/routines/VoidProcedure",
+    "snippet": "// A void procedure — no OUT parameters, just side effects\nval auditLog =\n    DbProcedure.define(\"audit_log\")\n        .input(PgTypes.text)       // action\n        .input(PgTypes.text)       // details\n        .build()\n\nfun logAction(action: String, details: String) {\n    auditLog.call(action, details).transact(tx)\n}",
+    "fullContent": "package dev.typr.foundationskt.docs.routines\n\nimport dev.typr.foundationskt.*\n\n@Suppress(\"unused\")\nclass VoidProcedure {\n    private lateinit var tx: Transactor\n\n    // A void procedure — no OUT parameters, just side effects\n    val auditLog =\n        DbProcedure.define(\"audit_log\")\n            .input(PgTypes.text)       // action\n            .input(PgTypes.text)       // details\n            .build()\n\n    fun logAction(action: String, details: String) {\n        auditLog.call(action, details).transact(tx)\n    }\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/otel/OtelPoolMetrics.kt": {
-    "name": "kotlin/otel/OtelPoolMetrics",
-    "snippet": "val poolMetrics: PoolMetrics =\n    PoolMetrics.register(GlobalOpenTelemetry.get(), dataSource, Optional.of(\"main-pool\"))\n\nfun onShutdown() {\n    poolMetrics.close()\n}",
-    "fullContent": "package dev.typr.foundationskt.docs.otel\n\nimport com.zaxxer.hikari.HikariDataSource\nimport dev.typr.foundations.otel.PoolMetrics\nimport io.opentelemetry.api.GlobalOpenTelemetry\nimport java.util.Optional\n\n@Suppress(\"unused\")\nclass OtelPoolMetrics {\n    lateinit var dataSource: HikariDataSource\n\n    val poolMetrics: PoolMetrics =\n        PoolMetrics.register(GlobalOpenTelemetry.get(), dataSource, Optional.of(\"main-pool\"))\n\n    fun onShutdown() {\n        poolMetrics.close()\n    }\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/routines/OutProcedure.kt": {
+    "name": "kotlin/routines/OutProcedure",
+    "snippet": "// OUT parameters — the builder tracks output types statically\nval getUser =\n    DbProcedure.define(\"get_user_by_id\")\n        .input(PgTypes.int4)       // user_id IN\n        .out(PgTypes.text)        // name OUT\n        .out(PgTypes.text)        // email OUT\n        .build()\n\n// call() is fully typed — wrong argument types won't compile\nfun findUser(userId: Int): Pair<String, String> =\n    getUser.call(userId).transact(tx)",
+    "fullContent": "package dev.typr.foundationskt.docs.routines\n\nimport dev.typr.foundationskt.*\n\n@Suppress(\"unused\")\nclass OutProcedure {\n    private lateinit var tx: Transactor\n\n    // OUT parameters — the builder tracks output types statically\n    val getUser =\n        DbProcedure.define(\"get_user_by_id\")\n            .input(PgTypes.int4)       // user_id IN\n            .out(PgTypes.text)        // name OUT\n            .out(PgTypes.text)        // email OUT\n            .build()\n\n    // call() is fully typed — wrong argument types won't compile\n    fun findUser(userId: Int): Pair<String, String> =\n        getUser.call(userId).transact(tx)\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/VectorType.kt": {
-    "name": "kotlin/mariadb/VectorType",
-    "snippet": "val embedding: MariaType<Vector> = MariaTypes.vector(1536)",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.MariaType\nimport dev.typr.foundationskt.MariaTypes\nimport dev.typr.foundations.data.Vector\n\n@Suppress(\"unused\")\nclass VectorType {\n    val embedding: MariaType<Vector> = MariaTypes.vector(1536)\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/routines/OracleExample.kt": {
+    "name": "kotlin/routines/OracleExample",
+    "snippet": "// Works with any database — just use the right types\nval applyDiscount =\n    DbProcedure.define(\"apply_discount\")\n        .input(OracleTypes.number)         // amount IN\n        .inout(OracleTypes.varchar2)      // status INOUT\n        .build()\n\nval getBalance =\n    DbFunction.define(\"get_balance\", OracleTypes.number)\n        .input(OracleTypes.varchar2)       // account_id\n        .build()",
+    "fullContent": "package dev.typr.foundationskt.docs.routines\n\nimport dev.typr.foundationskt.*\nimport java.math.BigDecimal\n\n@Suppress(\"unused\")\nclass OracleExample {\n    // Works with any database — just use the right types\n    val applyDiscount =\n        DbProcedure.define(\"apply_discount\")\n            .input(OracleTypes.number)         // amount IN\n            .inout(OracleTypes.varchar2)      // status INOUT\n            .build()\n\n    val getBalance =\n        DbFunction.define(\"get_balance\", OracleTypes.number)\n            .input(OracleTypes.varchar2)       // account_id\n            .build()\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/UuidType.kt": {
-    "name": "kotlin/mariadb/UuidType",
-    "snippet": "val uuidType: MariaType<UUID> = MariaTypes.uuid",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.MariaType\nimport dev.typr.foundationskt.MariaTypes\nimport java.util.UUID\n\n@Suppress(\"unused\")\nclass UuidType {\n    val uuidType: MariaType<UUID> = MariaTypes.uuid\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/routines/InoutProcedure.kt": {
+    "name": "kotlin/routines/InoutProcedure",
+    "snippet": "// INOUT — the value goes in and comes back modified\nval applyDiscount =\n    DbProcedure.define(\"apply_discount\")\n        .input(PgTypes.text)           // discount_code IN\n        .inout(PgTypes.numeric)       // price INOUT — goes in, comes back modified\n        .build()\n\nfun applyDiscount(code: String, price: BigDecimal): BigDecimal =\n    applyDiscount\n        .call(code, price)\n        .transact(tx)",
+    "fullContent": "package dev.typr.foundationskt.docs.routines\n\nimport dev.typr.foundationskt.*\nimport java.math.BigDecimal\n\n@Suppress(\"unused\")\nclass InoutProcedure {\n    private lateinit var tx: Transactor\n\n    // INOUT — the value goes in and comes back modified\n    val applyDiscount =\n        DbProcedure.define(\"apply_discount\")\n            .input(PgTypes.text)           // discount_code IN\n            .inout(PgTypes.numeric)       // price INOUT — goes in, comes back modified\n            .build()\n\n    fun applyDiscount(code: String, price: BigDecimal): BigDecimal =\n        applyDiscount\n            .call(code, price)\n            .transact(tx)\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/StringTypes.kt": {
-    "name": "kotlin/mariadb/StringTypes",
-    "snippet": "val charType: MariaType<String> = MariaTypes.char_Of(10)\nval varcharType: MariaType<String> = MariaTypes.varcharOf(255)\nval textType: MariaType<String> = MariaTypes.text\nval longType: MariaType<String> = MariaTypes.longtext",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass StringTypes {\n    val charType: MariaType<String> = MariaTypes.char_Of(10)\n    val varcharType: MariaType<String> = MariaTypes.varcharOf(255)\n    val textType: MariaType<String> = MariaTypes.text\n    val longType: MariaType<String> = MariaTypes.longtext\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/SpatialTypes.kt": {
-    "name": "kotlin/mariadb/SpatialTypes",
-    "snippet": "val pointType: MariaType<Point> = MariaTypes.point\nval polygonType: MariaType<Polygon> = MariaTypes.polygon\nval gcType: MariaType<GeometryCollection> = MariaTypes.geometrycollection\n\n// Create a point\nval p: Point = Point(1.0, 2.0)",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport org.mariadb.jdbc.type.GeometryCollection\nimport org.mariadb.jdbc.type.Point\nimport org.mariadb.jdbc.type.Polygon\n\n@Suppress(\"unused\")\nclass SpatialTypes {\n    val pointType: MariaType<Point> = MariaTypes.point\n    val polygonType: MariaType<Polygon> = MariaTypes.polygon\n    val gcType: MariaType<GeometryCollection> = MariaTypes.geometrycollection\n\n    // Create a point\n    val p: Point = Point(1.0, 2.0)\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/SetType.kt": {
-    "name": "kotlin/mariadb/SetType",
-    "snippet": "val setType: MariaType<MariaSet> = MariaTypes.set\n\n// Create and use sets\nval values: MariaSet = MariaSet.of(\"read\", \"write\")\nval csv: String = values.toCommaSeparated()",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass SetType {\n    val setType: MariaType<MariaSet> = MariaTypes.set\n\n    // Create and use sets\n    val values: MariaSet = MariaSet.of(\"read\", \"write\")\n    val csv: String = values.toCommaSeparated()\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/NullableType.kt": {
-    "name": "kotlin/mariadb/NullableType",
-    "snippet": "val notNull: MariaType<Int> = MariaTypes.int_\nval nullable: MariaType<Int?> = MariaTypes.int_.opt()",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass NullableType {\n    val notNull: MariaType<Int> = MariaTypes.int_\n    val nullable: MariaType<Int?> = MariaTypes.int_.opt()\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/NetworkTypes.kt": {
-    "name": "kotlin/mariadb/NetworkTypes",
-    "snippet": "val inet4Type: MariaType<Inet4> = MariaTypes.inet4\nval inet6Type: MariaType<Inet6> = MariaTypes.inet6\n\nval ipv4: Inet4 = Inet4.parse(\"192.168.1.1\")\nval ipv6: Inet6 = Inet6.parse(\"::1\")",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass NetworkTypes {\n    val inet4Type: MariaType<Inet4> = MariaTypes.inet4\n    val inet6Type: MariaType<Inet6> = MariaTypes.inet6\n\n    val ipv4: Inet4 = Inet4.parse(\"192.168.1.1\")\n    val ipv6: Inet6 = Inet6.parse(\"::1\")\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/JsonType.kt": {
-    "name": "kotlin/mariadb/JsonType",
-    "snippet": "val jsonType: MariaType<Json> = MariaTypes.json\n\nval data: Json = Json(\"{\\\"name\\\": \\\"John\\\", \\\"age\\\": 30}\")",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass JsonType {\n    val jsonType: MariaType<Json> = MariaTypes.json\n\n    val data: Json = Json(\"{\\\"name\\\": \\\"John\\\", \\\"age\\\": 30}\")\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/IntegerTypesUnsigned.kt": {
-    "name": "kotlin/mariadb/IntegerTypesUnsigned",
-    "snippet": "val unsignedTiny: MariaType<Uint1> = MariaTypes.tinyintUnsigned\nval unsignedInt: MariaType<Uint4> = MariaTypes.intUnsigned\nval unsignedBig: MariaType<Uint8> = MariaTypes.bigintUnsigned",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass IntegerTypesUnsigned {\n    val unsignedTiny: MariaType<Uint1> = MariaTypes.tinyintUnsigned\n    val unsignedInt: MariaType<Uint4> = MariaTypes.intUnsigned\n    val unsignedBig: MariaType<Uint8> = MariaTypes.bigintUnsigned\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/IntegerTypesSigned.kt": {
-    "name": "kotlin/mariadb/IntegerTypesSigned",
-    "snippet": "val tinyType: MariaType<Byte> = MariaTypes.tinyint\nval intType: MariaType<Int> = MariaTypes.int_\nval bigType: MariaType<Long> = MariaTypes.bigint",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass IntegerTypesSigned {\n    val tinyType: MariaType<Byte> = MariaTypes.tinyint\n    val intType: MariaType<Int> = MariaTypes.int_\n    val bigType: MariaType<Long> = MariaTypes.bigint\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/FloatingPointTypes.kt": {
-    "name": "kotlin/mariadb/FloatingPointTypes",
-    "snippet": "val floatType: MariaType<Float> = MariaTypes.float_\nval doubleType: MariaType<Double> = MariaTypes.double_",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass FloatingPointTypes {\n    val floatType: MariaType<Float> = MariaTypes.float_\n    val doubleType: MariaType<Double> = MariaTypes.double_\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/FixedPointTypes.kt": {
-    "name": "kotlin/mariadb/FixedPointTypes",
-    "snippet": "val decimalType: MariaType<BigDecimal> = MariaTypes.decimal\nval preciseDecimal: MariaType<BigDecimal> = MariaTypes.decimalOf(10, 2)",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.math.BigDecimal\n\n@Suppress(\"unused\")\nclass FixedPointTypes {\n    val decimalType: MariaType<BigDecimal> = MariaTypes.decimal\n    val preciseDecimal: MariaType<BigDecimal> = MariaTypes.decimalOf(10, 2)\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/EnumType.kt": {
-    "name": "kotlin/mariadb/EnumType",
-    "snippet": "// Define your Kotlin enum\nenum class Status { PENDING, ACTIVE, COMPLETED }\n\n// Create MariaType for it\nval statusType: MariaType<Status> = MariaTypes.ofEnum(\"status\", Status::valueOf)",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass EnumType {\n    // Define your Kotlin enum\n    enum class Status { PENDING, ACTIVE, COMPLETED }\n\n    // Create MariaType for it\n    val statusType: MariaType<Status> = MariaTypes.ofEnum(\"status\", Status::valueOf)\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/DomainType.kt": {
-    "name": "kotlin/mariadb/DomainType",
-    "snippet": "// Wrapper type\ndata class UserId(val value: Long)\n\n// Create MariaType from bigint\nval userIdType: MariaType<UserId> = MariaTypes.bigint.transform(::UserId, UserId::value)",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass DomainType {\n    // Wrapper type\n    data class UserId(val value: Long)\n\n    // Create MariaType from bigint\n    val userIdType: MariaType<UserId> = MariaTypes.bigint.transform(::UserId, UserId::value)\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/DateTimeTypes.kt": {
-    "name": "kotlin/mariadb/DateTimeTypes",
-    "snippet": "val dateType: MariaType<LocalDate> = MariaTypes.date\nval timeType: MariaType<LocalTime> = MariaTypes.time\nval datetimeType: MariaType<LocalDateTime> = MariaTypes.datetime\nval yearType: MariaType<Year> = MariaTypes.year\n\n// With fractional seconds precision\nval timeFsp: MariaType<LocalTime> = MariaTypes.timeOf(6)\nval dtFsp: MariaType<LocalDateTime> = MariaTypes.datetimeOf(3)",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.time.LocalDate\nimport java.time.LocalDateTime\nimport java.time.LocalTime\nimport java.time.Year\n\n@Suppress(\"unused\")\nclass DateTimeTypes {\n    val dateType: MariaType<LocalDate> = MariaTypes.date\n    val timeType: MariaType<LocalTime> = MariaTypes.time\n    val datetimeType: MariaType<LocalDateTime> = MariaTypes.datetime\n    val yearType: MariaType<Year> = MariaTypes.year\n\n    // With fractional seconds precision\n    val timeFsp: MariaType<LocalTime> = MariaTypes.timeOf(6)\n    val dtFsp: MariaType<LocalDateTime> = MariaTypes.datetimeOf(3)\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/BooleanType.kt": {
-    "name": "kotlin/mariadb/BooleanType",
-    "snippet": "val boolType: MariaType<Boolean> = MariaTypes.bool\nval bitBool: MariaType<Boolean> = MariaTypes.bit1",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BooleanType {\n    val boolType: MariaType<Boolean> = MariaTypes.bool\n    val bitBool: MariaType<Boolean> = MariaTypes.bit1\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/BitTypes.kt": {
-    "name": "kotlin/mariadb/BitTypes",
-    "snippet": "val bitType: MariaType<ByteArray> = MariaTypes.bit",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BitTypes {\n    val bitType: MariaType<ByteArray> = MariaTypes.bit\n}"
-  },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/BinaryTypes.kt": {
-    "name": "kotlin/mariadb/BinaryTypes",
-    "snippet": "val binaryType: MariaType<ByteArray> = MariaTypes.binaryOf(16)\nval varbinaryType: MariaType<ByteArray> = MariaTypes.varbinaryOf(255)\nval blobType: MariaType<ByteArray> = MariaTypes.blob",
-    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BinaryTypes {\n    val binaryType: MariaType<ByteArray> = MariaTypes.binaryOf(16)\n    val varbinaryType: MariaType<ByteArray> = MariaTypes.varbinaryOf(255)\n    val blobType: MariaType<ByteArray> = MariaTypes.blob\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/routines/FunctionExample.kt": {
+    "name": "kotlin/routines/FunctionExample",
+    "snippet": "// Functions use SELECT instead of CALL — every DbType reads correctly\nval calcTax =\n    DbFunction.define(\"calculate_tax\", PgTypes.numeric)\n        .input(PgTypes.numeric)    // amount\n        .input(PgTypes.text)       // region\n        .build()\n\n// Zero-argument function\nval nextId =\n    DbFunction.define(\"next_id\", PgTypes.int4)\n        .build()\n\nfun calculateTax(amount: BigDecimal, region: String): BigDecimal =\n    calcTax.call(amount, region)\n        .transact(tx)",
+    "fullContent": "package dev.typr.foundationskt.docs.routines\n\nimport dev.typr.foundationskt.*\nimport java.math.BigDecimal\n\n@Suppress(\"unused\")\nclass FunctionExample {\n    private lateinit var tx: Transactor\n\n    // Functions use SELECT instead of CALL — every DbType reads correctly\n    val calcTax =\n        DbFunction.define(\"calculate_tax\", PgTypes.numeric)\n            .input(PgTypes.numeric)    // amount\n            .input(PgTypes.text)       // region\n            .build()\n\n    // Zero-argument function\n    val nextId =\n        DbFunction.define(\"next_id\", PgTypes.int4)\n            .build()\n\n    fun calculateTax(amount: BigDecimal, region: String): BigDecimal =\n        calcTax.call(amount, region)\n            .transact(tx)\n}"
   },
   "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/oracle/XmlJsonTypes.kt": {
     "name": "kotlin/oracle/XmlJsonTypes",
@@ -1344,100 +1244,105 @@
     "snippet": "val rawType: OracleType<ByteArray> = OracleTypes.raw\nval raw100: OracleType<ByteArray> = OracleTypes.rawOf(100)  // RAW(100)\n\n// Non-empty variant\nval rawNonEmpty: OracleType<NonEmptyBlob> = OracleTypes.rawNonEmpty(100)",
     "fullContent": "package dev.typr.foundationskt.docs.oracle\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BinaryTypes {\n    val rawType: OracleType<ByteArray> = OracleTypes.raw\n    val raw100: OracleType<ByteArray> = OracleTypes.rawOf(100)  // RAW(100)\n\n    // Non-empty variant\n    val rawNonEmpty: OracleType<NonEmptyBlob> = OracleTypes.rawNonEmpty(100)\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/UuidType.kt": {
-    "name": "kotlin/duckdb/UuidType",
-    "snippet": "val uuidType: DuckDbType<UUID> = DuckDbTypes.uuid",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.util.UUID\n\n@Suppress(\"unused\")\nclass UuidType {\n    val uuidType: DuckDbType<UUID> = DuckDbTypes.uuid\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/otel/OtelSetup.kt": {
+    "name": "kotlin/otel/OtelSetup",
+    "snippet": "val config =\n    PgConfig.builder(\"localhost\", 5432, \"mydb\", \"user\", \"pass\").build()\n\nval telemetryConfig = TelemetryConfig.builder(config).build()\n\nval otelListener: QueryListener =\n    OtelQueryListener.create(GlobalOpenTelemetry.get(), telemetryConfig)\n\nval tx = Transactor.create(config, Transactor.defaultStrategy().mergeListener(otelListener))",
+    "fullContent": "package dev.typr.foundationskt.docs.otel\n\nimport dev.typr.foundations.QueryListener\nimport dev.typr.foundationskt.Transactor\nimport dev.typr.foundationskt.connect.*\nimport dev.typr.foundations.otel.OtelQueryListener\nimport dev.typr.foundations.otel.TelemetryConfig\nimport io.opentelemetry.api.GlobalOpenTelemetry\n\n@Suppress(\"unused\")\nclass OtelSetup {\n    val config =\n        PgConfig.builder(\"localhost\", 5432, \"mydb\", \"user\", \"pass\").build()\n\n    val telemetryConfig = TelemetryConfig.builder(config).build()\n\n    val otelListener: QueryListener =\n        OtelQueryListener.create(GlobalOpenTelemetry.get(), telemetryConfig)\n\n    val tx = Transactor.create(config, Transactor.defaultStrategy().mergeListener(otelListener))\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/TimestampPrecision.kt": {
-    "name": "kotlin/duckdb/TimestampPrecision",
-    "snippet": "val tsSeconds: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_s\nval tsMillis: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_ms\nval tsNanos: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_ns",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.time.LocalDateTime\n\n@Suppress(\"unused\")\nclass TimestampPrecision {\n    val tsSeconds: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_s\n    val tsMillis: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_ms\n    val tsNanos: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_ns\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/otel/OtelPoolMetrics.kt": {
+    "name": "kotlin/otel/OtelPoolMetrics",
+    "snippet": "val poolMetrics: PoolMetrics =\n    PoolMetrics.register(GlobalOpenTelemetry.get(), dataSource, Optional.of(\"main-pool\"))\n\nfun onShutdown() {\n    poolMetrics.close()\n}",
+    "fullContent": "package dev.typr.foundationskt.docs.otel\n\nimport com.zaxxer.hikari.HikariDataSource\nimport dev.typr.foundations.otel.PoolMetrics\nimport io.opentelemetry.api.GlobalOpenTelemetry\nimport java.util.Optional\n\n@Suppress(\"unused\")\nclass OtelPoolMetrics {\n    lateinit var dataSource: HikariDataSource\n\n    val poolMetrics: PoolMetrics =\n        PoolMetrics.register(GlobalOpenTelemetry.get(), dataSource, Optional.of(\"main-pool\"))\n\n    fun onShutdown() {\n        poolMetrics.close()\n    }\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/StringTypes.kt": {
-    "name": "kotlin/duckdb/StringTypes",
-    "snippet": "val varcharType: DuckDbType<String> = DuckDbTypes.varchar\nval charType: DuckDbType<String> = DuckDbTypes.char_Of(10)",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass StringTypes {\n    val varcharType: DuckDbType<String> = DuckDbTypes.varchar\n    val charType: DuckDbType<String> = DuckDbTypes.char_Of(10)\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/VectorType.kt": {
+    "name": "kotlin/mariadb/VectorType",
+    "snippet": "val embedding: MariaType<Vector> = MariaTypes.vector(1536)",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.MariaType\nimport dev.typr.foundationskt.MariaTypes\nimport dev.typr.foundations.data.Vector\n\n@Suppress(\"unused\")\nclass VectorType {\n    val embedding: MariaType<Vector> = MariaTypes.vector(1536)\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/NullableTypes.kt": {
-    "name": "kotlin/duckdb/NullableTypes",
-    "snippet": "val notNull: DuckDbType<Int> = DuckDbTypes.integer\nval nullable: DuckDbType<Int?> = DuckDbTypes.integer.opt()",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass NullableTypes {\n    val notNull: DuckDbType<Int> = DuckDbTypes.integer\n    val nullable: DuckDbType<Int?> = DuckDbTypes.integer.opt()\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/UuidType.kt": {
+    "name": "kotlin/mariadb/UuidType",
+    "snippet": "val uuidType: MariaType<UUID> = MariaTypes.uuid",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.MariaType\nimport dev.typr.foundationskt.MariaTypes\nimport java.util.UUID\n\n@Suppress(\"unused\")\nclass UuidType {\n    val uuidType: MariaType<UUID> = MariaTypes.uuid\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/NestedCollections.kt": {
-    "name": "kotlin/duckdb/NestedCollections",
-    "snippet": "// Nested collections compose — any combination is legal.\nval grid: DuckDbType<List<List<Int>>> = DuckDbTypes.integer.list().list()\nval matrix: DuckDbType<List<List<Float>>> = DuckDbTypes.float_.array(3).array(3)\nval variableRows: DuckDbType<List<List<String>>> = DuckDbTypes.varchar.list().array(4)",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\n\n@Suppress(\"unused\")\nclass NestedCollections {\n    // Nested collections compose — any combination is legal.\n    val grid: DuckDbType<List<List<Int>>> = DuckDbTypes.integer.list().list()\n    val matrix: DuckDbType<List<List<Float>>> = DuckDbTypes.float_.array(3).array(3)\n    val variableRows: DuckDbType<List<List<String>>> = DuckDbTypes.varchar.list().array(4)\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/StringTypes.kt": {
+    "name": "kotlin/mariadb/StringTypes",
+    "snippet": "val charType: MariaType<String> = MariaTypes.char_Of(10)\nval varcharType: MariaType<String> = MariaTypes.varcharOf(255)\nval textType: MariaType<String> = MariaTypes.text\nval longType: MariaType<String> = MariaTypes.longtext",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass StringTypes {\n    val charType: MariaType<String> = MariaTypes.char_Of(10)\n    val varcharType: MariaType<String> = MariaTypes.varcharOf(255)\n    val textType: MariaType<String> = MariaTypes.text\n    val longType: MariaType<String> = MariaTypes.longtext\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/MapTypes.kt": {
-    "name": "kotlin/duckdb/MapTypes",
-    "snippet": "// Create map types using the mapTo() combinator\nval mapStrInt: DuckDbType<Map<String, Int>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)\nval mapStrStr: DuckDbType<Map<String, String>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.varchar)\nval mapUuidTime: DuckDbType<Map<UUID, LocalTime>> = DuckDbTypes.uuid.mapTo(DuckDbTypes.time)\n\n// Works with any combination of types\nval mapStrDate: DuckDbType<Map<String, LocalDate>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.date)",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.time.LocalDate\nimport java.time.LocalTime\nimport java.util.UUID\n\n@Suppress(\"unused\")\nclass MapTypes {\n    // Create map types using the mapTo() combinator\n    val mapStrInt: DuckDbType<Map<String, Int>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)\n    val mapStrStr: DuckDbType<Map<String, String>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.varchar)\n    val mapUuidTime: DuckDbType<Map<UUID, LocalTime>> = DuckDbTypes.uuid.mapTo(DuckDbTypes.time)\n\n    // Works with any combination of types\n    val mapStrDate: DuckDbType<Map<String, LocalDate>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.date)\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/SpatialTypes.kt": {
+    "name": "kotlin/mariadb/SpatialTypes",
+    "snippet": "val pointType: MariaType<Point> = MariaTypes.point\nval polygonType: MariaType<Polygon> = MariaTypes.polygon\nval gcType: MariaType<GeometryCollection> = MariaTypes.geometrycollection\n\n// Create a point\nval p: Point = Point(1.0, 2.0)",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport org.mariadb.jdbc.type.GeometryCollection\nimport org.mariadb.jdbc.type.Point\nimport org.mariadb.jdbc.type.Polygon\n\n@Suppress(\"unused\")\nclass SpatialTypes {\n    val pointType: MariaType<Point> = MariaTypes.point\n    val polygonType: MariaType<Polygon> = MariaTypes.polygon\n    val gcType: MariaType<GeometryCollection> = MariaTypes.geometrycollection\n\n    // Create a point\n    val p: Point = Point(1.0, 2.0)\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/ListTypes.kt": {
-    "name": "kotlin/duckdb/ListTypes",
-    "snippet": "// Any type can be made into a list with .list()\nval listInt: DuckDbType<List<Int>> = DuckDbTypes.integer.list()\nval listStr: DuckDbType<List<String>> = DuckDbTypes.varchar.list()\nval listDouble: DuckDbType<List<Double>> = DuckDbTypes.double_.list()\nval listUuid: DuckDbType<List<UUID>> = DuckDbTypes.uuid.list()\nval listDate: DuckDbType<List<LocalDate>> = DuckDbTypes.date.list()\nval listDecimal: DuckDbType<List<BigDecimal>> = DuckDbTypes.decimal.list()",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.math.BigDecimal\nimport java.time.LocalDate\nimport java.util.UUID\n\n@Suppress(\"unused\")\nclass ListTypes {\n    // Any type can be made into a list with .list()\n    val listInt: DuckDbType<List<Int>> = DuckDbTypes.integer.list()\n    val listStr: DuckDbType<List<String>> = DuckDbTypes.varchar.list()\n    val listDouble: DuckDbType<List<Double>> = DuckDbTypes.double_.list()\n    val listUuid: DuckDbType<List<UUID>> = DuckDbTypes.uuid.list()\n    val listDate: DuckDbType<List<LocalDate>> = DuckDbTypes.date.list()\n    val listDecimal: DuckDbType<List<BigDecimal>> = DuckDbTypes.decimal.list()\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/SetType.kt": {
+    "name": "kotlin/mariadb/SetType",
+    "snippet": "val setType: MariaType<MariaSet> = MariaTypes.set\n\n// Create and use sets\nval values: MariaSet = MariaSet.of(\"read\", \"write\")\nval csv: String = values.toCommaSeparated()",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass SetType {\n    val setType: MariaType<MariaSet> = MariaTypes.set\n\n    // Create and use sets\n    val values: MariaSet = MariaSet.of(\"read\", \"write\")\n    val csv: String = values.toCommaSeparated()\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/JsonType.kt": {
-    "name": "kotlin/duckdb/JsonType",
-    "snippet": "val jsonType: DuckDbType<Json> = DuckDbTypes.json\n\nval data: Json = Json(\"{\\\"name\\\": \\\"DuckDB\\\"}\")",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass JsonType {\n    val jsonType: DuckDbType<Json> = DuckDbTypes.json\n\n    val data: Json = Json(\"{\\\"name\\\": \\\"DuckDB\\\"}\")\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/NullableType.kt": {
+    "name": "kotlin/mariadb/NullableType",
+    "snippet": "val notNull: MariaType<Int> = MariaTypes.int_\nval nullable: MariaType<Int?> = MariaTypes.int_.opt()",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass NullableType {\n    val notNull: MariaType<Int> = MariaTypes.int_\n    val nullable: MariaType<Int?> = MariaTypes.int_.opt()\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/IntegerTypesUnsigned.kt": {
-    "name": "kotlin/duckdb/IntegerTypesUnsigned",
-    "snippet": "val utinyType: DuckDbType<Uint1> = DuckDbTypes.utinyint\nval uintType: DuckDbType<Uint4> = DuckDbTypes.uinteger\nval uhugeType: DuckDbType<BigInteger> = DuckDbTypes.uhugeint",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.math.BigInteger\n\n@Suppress(\"unused\")\nclass IntegerTypesUnsigned {\n    val utinyType: DuckDbType<Uint1> = DuckDbTypes.utinyint\n    val uintType: DuckDbType<Uint4> = DuckDbTypes.uinteger\n    val uhugeType: DuckDbType<BigInteger> = DuckDbTypes.uhugeint\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/NetworkTypes.kt": {
+    "name": "kotlin/mariadb/NetworkTypes",
+    "snippet": "val inet4Type: MariaType<Inet4> = MariaTypes.inet4\nval inet6Type: MariaType<Inet6> = MariaTypes.inet6\n\nval ipv4: Inet4 = Inet4.parse(\"192.168.1.1\")\nval ipv6: Inet6 = Inet6.parse(\"::1\")",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass NetworkTypes {\n    val inet4Type: MariaType<Inet4> = MariaTypes.inet4\n    val inet6Type: MariaType<Inet6> = MariaTypes.inet6\n\n    val ipv4: Inet4 = Inet4.parse(\"192.168.1.1\")\n    val ipv6: Inet6 = Inet6.parse(\"::1\")\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/IntegerTypesSigned.kt": {
-    "name": "kotlin/duckdb/IntegerTypesSigned",
-    "snippet": "val tinyType: DuckDbType<Byte> = DuckDbTypes.tinyint\nval intType: DuckDbType<Int> = DuckDbTypes.integer\nval hugeType: DuckDbType<BigInteger> = DuckDbTypes.hugeint",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.math.BigInteger\n\n@Suppress(\"unused\")\nclass IntegerTypesSigned {\n    val tinyType: DuckDbType<Byte> = DuckDbTypes.tinyint\n    val intType: DuckDbType<Int> = DuckDbTypes.integer\n    val hugeType: DuckDbType<BigInteger> = DuckDbTypes.hugeint\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/JsonType.kt": {
+    "name": "kotlin/mariadb/JsonType",
+    "snippet": "val jsonType: MariaType<Json> = MariaTypes.json\n\nval data: Json = Json(\"{\\\"name\\\": \\\"John\\\", \\\"age\\\": 30}\")",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass JsonType {\n    val jsonType: MariaType<Json> = MariaTypes.json\n\n    val data: Json = Json(\"{\\\"name\\\": \\\"John\\\", \\\"age\\\": 30}\")\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/FloatingPointTypes.kt": {
-    "name": "kotlin/duckdb/FloatingPointTypes",
-    "snippet": "val floatType: DuckDbType<Float> = DuckDbTypes.float_\nval doubleType: DuckDbType<Double> = DuckDbTypes.double_",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass FloatingPointTypes {\n    val floatType: DuckDbType<Float> = DuckDbTypes.float_\n    val doubleType: DuckDbType<Double> = DuckDbTypes.double_\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/IntegerTypesUnsigned.kt": {
+    "name": "kotlin/mariadb/IntegerTypesUnsigned",
+    "snippet": "val unsignedTiny: MariaType<Uint1> = MariaTypes.tinyintUnsigned\nval unsignedInt: MariaType<Uint4> = MariaTypes.intUnsigned\nval unsignedBig: MariaType<Uint8> = MariaTypes.bigintUnsigned",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass IntegerTypesUnsigned {\n    val unsignedTiny: MariaType<Uint1> = MariaTypes.tinyintUnsigned\n    val unsignedInt: MariaType<Uint4> = MariaTypes.intUnsigned\n    val unsignedBig: MariaType<Uint8> = MariaTypes.bigintUnsigned\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/FixedPointTypes.kt": {
-    "name": "kotlin/duckdb/FixedPointTypes",
-    "snippet": "val decimalType: DuckDbType<BigDecimal> = DuckDbTypes.decimal\nval precise: DuckDbType<BigDecimal> = DuckDbTypes.decimalOf(18, 6)  // DECIMAL(18,6)",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.math.BigDecimal\n\n@Suppress(\"unused\")\nclass FixedPointTypes {\n    val decimalType: DuckDbType<BigDecimal> = DuckDbTypes.decimal\n    val precise: DuckDbType<BigDecimal> = DuckDbTypes.decimalOf(18, 6)  // DECIMAL(18,6)\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/IntegerTypesSigned.kt": {
+    "name": "kotlin/mariadb/IntegerTypesSigned",
+    "snippet": "val tinyType: MariaType<Byte> = MariaTypes.tinyint\nval intType: MariaType<Int> = MariaTypes.int_\nval bigType: MariaType<Long> = MariaTypes.bigint",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass IntegerTypesSigned {\n    val tinyType: MariaType<Byte> = MariaTypes.tinyint\n    val intType: MariaType<Int> = MariaTypes.int_\n    val bigType: MariaType<Long> = MariaTypes.bigint\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/EnumType.kt": {
-    "name": "kotlin/duckdb/EnumType",
-    "snippet": "// Define your Kotlin enum\nenum class Status { PENDING, ACTIVE, COMPLETED }\n\n// Create DuckDbType for it\nval statusType: DuckDbType<Status> = DuckDbTypes.ofEnum(\"status\", Status::valueOf)",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass EnumType {\n    // Define your Kotlin enum\n    enum class Status { PENDING, ACTIVE, COMPLETED }\n\n    // Create DuckDbType for it\n    val statusType: DuckDbType<Status> = DuckDbTypes.ofEnum(\"status\", Status::valueOf)\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/FloatingPointTypes.kt": {
+    "name": "kotlin/mariadb/FloatingPointTypes",
+    "snippet": "val floatType: MariaType<Float> = MariaTypes.float_\nval doubleType: MariaType<Double> = MariaTypes.double_",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass FloatingPointTypes {\n    val floatType: MariaType<Float> = MariaTypes.float_\n    val doubleType: MariaType<Double> = MariaTypes.double_\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/DomainType.kt": {
-    "name": "kotlin/duckdb/DomainType",
-    "snippet": "// Wrapper type\ndata class ProductId(val value: Long)\n\n// Create DuckDbType from bigint\nval productIdType: DuckDbType<ProductId> = DuckDbTypes.bigint.transform(::ProductId, ProductId::value)",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass DomainType {\n    // Wrapper type\n    data class ProductId(val value: Long)\n\n    // Create DuckDbType from bigint\n    val productIdType: DuckDbType<ProductId> = DuckDbTypes.bigint.transform(::ProductId, ProductId::value)\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/FixedPointTypes.kt": {
+    "name": "kotlin/mariadb/FixedPointTypes",
+    "snippet": "val decimalType: MariaType<BigDecimal> = MariaTypes.decimal\nval preciseDecimal: MariaType<BigDecimal> = MariaTypes.decimalOf(10, 2)",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.math.BigDecimal\n\n@Suppress(\"unused\")\nclass FixedPointTypes {\n    val decimalType: MariaType<BigDecimal> = MariaTypes.decimal\n    val preciseDecimal: MariaType<BigDecimal> = MariaTypes.decimalOf(10, 2)\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/DateTimeTypes.kt": {
-    "name": "kotlin/duckdb/DateTimeTypes",
-    "snippet": "val dateType: DuckDbType<LocalDate> = DuckDbTypes.date\nval tsType: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp\nval tstzType: DuckDbType<Instant> = DuckDbTypes.timestamptz\nval intervalType: DuckDbType<Duration> = DuckDbTypes.interval",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.time.Duration\nimport java.time.Instant\nimport java.time.LocalDate\nimport java.time.LocalDateTime\n\n@Suppress(\"unused\")\nclass DateTimeTypes {\n    val dateType: DuckDbType<LocalDate> = DuckDbTypes.date\n    val tsType: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp\n    val tstzType: DuckDbType<Instant> = DuckDbTypes.timestamptz\n    val intervalType: DuckDbType<Duration> = DuckDbTypes.interval\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/EnumType.kt": {
+    "name": "kotlin/mariadb/EnumType",
+    "snippet": "// Define your Kotlin enum\nenum class Status { PENDING, ACTIVE, COMPLETED }\n\n// Create MariaType — reified, derives ENUM literal automatically\nval statusType: MariaType<Status> = MariaTypes.ofEnum<Status>()",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass EnumType {\n    // Define your Kotlin enum\n    enum class Status { PENDING, ACTIVE, COMPLETED }\n\n    // Create MariaType — reified, derives ENUM literal automatically\n    val statusType: MariaType<Status> = MariaTypes.ofEnum<Status>()\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/BoolType.kt": {
-    "name": "kotlin/duckdb/BoolType",
-    "snippet": "val boolType: DuckDbType<Boolean> = DuckDbTypes.boolean_",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BoolType {\n    val boolType: DuckDbType<Boolean> = DuckDbTypes.boolean_\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/DomainType.kt": {
+    "name": "kotlin/mariadb/DomainType",
+    "snippet": "// Wrapper type\ndata class UserId(val value: Long)\n\n// Create MariaType from bigint\nval userIdType: MariaType<UserId> = MariaTypes.bigint.transform(::UserId, UserId::value)",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass DomainType {\n    // Wrapper type\n    data class UserId(val value: Long)\n\n    // Create MariaType from bigint\n    val userIdType: MariaType<UserId> = MariaTypes.bigint.transform(::UserId, UserId::value)\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/BitStringType.kt": {
-    "name": "kotlin/duckdb/BitStringType",
-    "snippet": "val bitType: DuckDbType<String> = DuckDbTypes.bit\nval bit8: DuckDbType<String> = DuckDbTypes.bitOf(8)  // BIT(8)",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BitStringType {\n    val bitType: DuckDbType<String> = DuckDbTypes.bit\n    val bit8: DuckDbType<String> = DuckDbTypes.bitOf(8)  // BIT(8)\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/DateTimeTypes.kt": {
+    "name": "kotlin/mariadb/DateTimeTypes",
+    "snippet": "val dateType: MariaType<LocalDate> = MariaTypes.date\nval timeType: MariaType<LocalTime> = MariaTypes.time\nval datetimeType: MariaType<LocalDateTime> = MariaTypes.datetime\nval yearType: MariaType<Year> = MariaTypes.year\n\n// With fractional seconds precision\nval timeFsp: MariaType<LocalTime> = MariaTypes.timeOf(6)\nval dtFsp: MariaType<LocalDateTime> = MariaTypes.datetimeOf(3)",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.time.LocalDate\nimport java.time.LocalDateTime\nimport java.time.LocalTime\nimport java.time.Year\n\n@Suppress(\"unused\")\nclass DateTimeTypes {\n    val dateType: MariaType<LocalDate> = MariaTypes.date\n    val timeType: MariaType<LocalTime> = MariaTypes.time\n    val datetimeType: MariaType<LocalDateTime> = MariaTypes.datetime\n    val yearType: MariaType<Year> = MariaTypes.year\n\n    // With fractional seconds precision\n    val timeFsp: MariaType<LocalTime> = MariaTypes.timeOf(6)\n    val dtFsp: MariaType<LocalDateTime> = MariaTypes.datetimeOf(3)\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/BinaryTypes.kt": {
-    "name": "kotlin/duckdb/BinaryTypes",
-    "snippet": "val blobType: DuckDbType<ByteArray> = DuckDbTypes.blob",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BinaryTypes {\n    val blobType: DuckDbType<ByteArray> = DuckDbTypes.blob\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/BooleanType.kt": {
+    "name": "kotlin/mariadb/BooleanType",
+    "snippet": "val boolType: MariaType<Boolean> = MariaTypes.bool\nval bitBool: MariaType<Boolean> = MariaTypes.bit1",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BooleanType {\n    val boolType: MariaType<Boolean> = MariaTypes.bool\n    val bitBool: MariaType<Boolean> = MariaTypes.bit1\n}"
   },
-  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/ArrayTypes.kt": {
-    "name": "kotlin/duckdb/ArrayTypes",
-    "snippet": "// Fixed-size ARRAY — every row must have exactly `size` elements.\nval embedding: DuckDbType<List<Float>> = DuckDbTypes.float_.array(1536)\nval rgb: DuckDbType<List<Int>> = DuckDbTypes.integer.array(3)",
-    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\n\n@Suppress(\"unused\")\nclass ArrayTypes {\n    // Fixed-size ARRAY — every row must have exactly `size` elements.\n    val embedding: DuckDbType<List<Float>> = DuckDbTypes.float_.array(1536)\n    val rgb: DuckDbType<List<Int>> = DuckDbTypes.integer.array(3)\n}"
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/BitTypes.kt": {
+    "name": "kotlin/mariadb/BitTypes",
+    "snippet": "val bitType: MariaType<ByteArray> = MariaTypes.bit",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BitTypes {\n    val bitType: MariaType<ByteArray> = MariaTypes.bit\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/mariadb/BinaryTypes.kt": {
+    "name": "kotlin/mariadb/BinaryTypes",
+    "snippet": "val binaryType: MariaType<ByteArray> = MariaTypes.binaryOf(16)\nval varbinaryType: MariaType<ByteArray> = MariaTypes.varbinaryOf(255)\nval blobType: MariaType<ByteArray> = MariaTypes.blob",
+    "fullContent": "package dev.typr.foundationskt.docs.mariadb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BinaryTypes {\n    val binaryType: MariaType<ByteArray> = MariaTypes.binaryOf(16)\n    val varbinaryType: MariaType<ByteArray> = MariaTypes.varbinaryOf(255)\n    val blobType: MariaType<ByteArray> = MariaTypes.blob\n}"
   },
   "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/landing/WrapperType.kt": {
     "name": "kotlin/landing/WrapperType",
@@ -1608,6 +1513,101 @@
     "name": "kotlin/analysis/QueryAnalysisAll",
     "snippet": "fun analyzeComposedOperation() {\n    // Build a composed operation\n    val transaction: Operation<*> =\n        insertUser.on(\"Alice\")\n            .productL(allUsers)\n\n    // Analyze every SQL statement in the tree — one call\n    val results: List<QueryAnalysis> =\n        QueryAnalyzer.analyze(transaction, conn)\n\n    for (analysis in results) {\n        if (!analysis.succeeded()) {\n            System.err.println(analysis.report())\n        }\n    }\n}",
     "fullContent": "package dev.typr.foundationskt.docs.analysis\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.sql.Connection\n\n@Suppress(\"unused\")\nclass QueryAnalysisAll {\n    data class User(val id: Int, val name: String)\n\n    val userCodec: RowCodec<User> =\n        RowCodec.builder<User>()\n            .field(PgTypes.int4, User::id)\n            .field(PgTypes.text, User::name)\n            .build(::User)\n\n    lateinit var conn: Connection\n\n    val insertUser: Template<String, Int> =\n        sql { \"INSERT INTO users(name) VALUES(\" }\n            .param(PgTypes.text)\n            .append(\") RETURNING id\")\n            .query(RowCodec.of(PgTypes.int4).exactlyOne())\n\n    val allUsers: Operation<List<User>> =\n        sql { \"SELECT id, name FROM users\" }\n            .query(userCodec.all())\n\n    fun analyzeComposedOperation() {\n        // Build a composed operation\n        val transaction: Operation<*> =\n            insertUser.on(\"Alice\")\n                .productL(allUsers)\n\n        // Analyze every SQL statement in the tree — one call\n        val results: List<QueryAnalysis> =\n            QueryAnalyzer.analyze(transaction, conn)\n\n        for (analysis in results) {\n            if (!analysis.succeeded()) {\n                System.err.println(analysis.report())\n            }\n        }\n    }\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/UuidType.kt": {
+    "name": "kotlin/duckdb/UuidType",
+    "snippet": "val uuidType: DuckDbType<UUID> = DuckDbTypes.uuid",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.util.UUID\n\n@Suppress(\"unused\")\nclass UuidType {\n    val uuidType: DuckDbType<UUID> = DuckDbTypes.uuid\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/TimestampPrecision.kt": {
+    "name": "kotlin/duckdb/TimestampPrecision",
+    "snippet": "val tsSeconds: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_s\nval tsMillis: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_ms\nval tsNanos: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_ns",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.time.LocalDateTime\n\n@Suppress(\"unused\")\nclass TimestampPrecision {\n    val tsSeconds: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_s\n    val tsMillis: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_ms\n    val tsNanos: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp_ns\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/StringTypes.kt": {
+    "name": "kotlin/duckdb/StringTypes",
+    "snippet": "val varcharType: DuckDbType<String> = DuckDbTypes.varchar\nval charType: DuckDbType<String> = DuckDbTypes.char_Of(10)",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass StringTypes {\n    val varcharType: DuckDbType<String> = DuckDbTypes.varchar\n    val charType: DuckDbType<String> = DuckDbTypes.char_Of(10)\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/NullableTypes.kt": {
+    "name": "kotlin/duckdb/NullableTypes",
+    "snippet": "val notNull: DuckDbType<Int> = DuckDbTypes.integer\nval nullable: DuckDbType<Int?> = DuckDbTypes.integer.opt()",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass NullableTypes {\n    val notNull: DuckDbType<Int> = DuckDbTypes.integer\n    val nullable: DuckDbType<Int?> = DuckDbTypes.integer.opt()\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/NestedCollections.kt": {
+    "name": "kotlin/duckdb/NestedCollections",
+    "snippet": "// Nested collections compose — any combination is legal.\nval grid: DuckDbType<List<List<Int>>> = DuckDbTypes.integer.list().list()\nval matrix: DuckDbType<List<List<Float>>> = DuckDbTypes.float_.array(3).array(3)\nval variableRows: DuckDbType<List<List<String>>> = DuckDbTypes.varchar.list().array(4)",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\n\n@Suppress(\"unused\")\nclass NestedCollections {\n    // Nested collections compose — any combination is legal.\n    val grid: DuckDbType<List<List<Int>>> = DuckDbTypes.integer.list().list()\n    val matrix: DuckDbType<List<List<Float>>> = DuckDbTypes.float_.array(3).array(3)\n    val variableRows: DuckDbType<List<List<String>>> = DuckDbTypes.varchar.list().array(4)\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/MapTypes.kt": {
+    "name": "kotlin/duckdb/MapTypes",
+    "snippet": "// Create map types using the mapTo() combinator\nval mapStrInt: DuckDbType<Map<String, Int>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)\nval mapStrStr: DuckDbType<Map<String, String>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.varchar)\nval mapUuidTime: DuckDbType<Map<UUID, LocalTime>> = DuckDbTypes.uuid.mapTo(DuckDbTypes.time)\n\n// Works with any combination of types\nval mapStrDate: DuckDbType<Map<String, LocalDate>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.date)",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.time.LocalDate\nimport java.time.LocalTime\nimport java.util.UUID\n\n@Suppress(\"unused\")\nclass MapTypes {\n    // Create map types using the mapTo() combinator\n    val mapStrInt: DuckDbType<Map<String, Int>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)\n    val mapStrStr: DuckDbType<Map<String, String>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.varchar)\n    val mapUuidTime: DuckDbType<Map<UUID, LocalTime>> = DuckDbTypes.uuid.mapTo(DuckDbTypes.time)\n\n    // Works with any combination of types\n    val mapStrDate: DuckDbType<Map<String, LocalDate>> = DuckDbTypes.varchar.mapTo(DuckDbTypes.date)\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/ListTypes.kt": {
+    "name": "kotlin/duckdb/ListTypes",
+    "snippet": "// Any type can be made into a list with .list()\nval listInt: DuckDbType<List<Int>> = DuckDbTypes.integer.list()\nval listStr: DuckDbType<List<String>> = DuckDbTypes.varchar.list()\nval listDouble: DuckDbType<List<Double>> = DuckDbTypes.double_.list()\nval listUuid: DuckDbType<List<UUID>> = DuckDbTypes.uuid.list()\nval listDate: DuckDbType<List<LocalDate>> = DuckDbTypes.date.list()\nval listDecimal: DuckDbType<List<BigDecimal>> = DuckDbTypes.decimal.list()",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.math.BigDecimal\nimport java.time.LocalDate\nimport java.util.UUID\n\n@Suppress(\"unused\")\nclass ListTypes {\n    // Any type can be made into a list with .list()\n    val listInt: DuckDbType<List<Int>> = DuckDbTypes.integer.list()\n    val listStr: DuckDbType<List<String>> = DuckDbTypes.varchar.list()\n    val listDouble: DuckDbType<List<Double>> = DuckDbTypes.double_.list()\n    val listUuid: DuckDbType<List<UUID>> = DuckDbTypes.uuid.list()\n    val listDate: DuckDbType<List<LocalDate>> = DuckDbTypes.date.list()\n    val listDecimal: DuckDbType<List<BigDecimal>> = DuckDbTypes.decimal.list()\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/JsonType.kt": {
+    "name": "kotlin/duckdb/JsonType",
+    "snippet": "val jsonType: DuckDbType<Json> = DuckDbTypes.json\n\nval data: Json = Json(\"{\\\"name\\\": \\\"DuckDB\\\"}\")",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass JsonType {\n    val jsonType: DuckDbType<Json> = DuckDbTypes.json\n\n    val data: Json = Json(\"{\\\"name\\\": \\\"DuckDB\\\"}\")\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/IntegerTypesUnsigned.kt": {
+    "name": "kotlin/duckdb/IntegerTypesUnsigned",
+    "snippet": "val utinyType: DuckDbType<Uint1> = DuckDbTypes.utinyint\nval uintType: DuckDbType<Uint4> = DuckDbTypes.uinteger\nval uhugeType: DuckDbType<BigInteger> = DuckDbTypes.uhugeint",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.math.BigInteger\n\n@Suppress(\"unused\")\nclass IntegerTypesUnsigned {\n    val utinyType: DuckDbType<Uint1> = DuckDbTypes.utinyint\n    val uintType: DuckDbType<Uint4> = DuckDbTypes.uinteger\n    val uhugeType: DuckDbType<BigInteger> = DuckDbTypes.uhugeint\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/IntegerTypesSigned.kt": {
+    "name": "kotlin/duckdb/IntegerTypesSigned",
+    "snippet": "val tinyType: DuckDbType<Byte> = DuckDbTypes.tinyint\nval intType: DuckDbType<Int> = DuckDbTypes.integer\nval hugeType: DuckDbType<BigInteger> = DuckDbTypes.hugeint",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.math.BigInteger\n\n@Suppress(\"unused\")\nclass IntegerTypesSigned {\n    val tinyType: DuckDbType<Byte> = DuckDbTypes.tinyint\n    val intType: DuckDbType<Int> = DuckDbTypes.integer\n    val hugeType: DuckDbType<BigInteger> = DuckDbTypes.hugeint\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/FloatingPointTypes.kt": {
+    "name": "kotlin/duckdb/FloatingPointTypes",
+    "snippet": "val floatType: DuckDbType<Float> = DuckDbTypes.float_\nval doubleType: DuckDbType<Double> = DuckDbTypes.double_",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass FloatingPointTypes {\n    val floatType: DuckDbType<Float> = DuckDbTypes.float_\n    val doubleType: DuckDbType<Double> = DuckDbTypes.double_\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/FixedPointTypes.kt": {
+    "name": "kotlin/duckdb/FixedPointTypes",
+    "snippet": "val decimalType: DuckDbType<BigDecimal> = DuckDbTypes.decimal\nval precise: DuckDbType<BigDecimal> = DuckDbTypes.decimalOf(18, 6)  // DECIMAL(18,6)",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.math.BigDecimal\n\n@Suppress(\"unused\")\nclass FixedPointTypes {\n    val decimalType: DuckDbType<BigDecimal> = DuckDbTypes.decimal\n    val precise: DuckDbType<BigDecimal> = DuckDbTypes.decimalOf(18, 6)  // DECIMAL(18,6)\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/EnumType.kt": {
+    "name": "kotlin/duckdb/EnumType",
+    "snippet": "// Define your Kotlin enum\nenum class Status { PENDING, ACTIVE, COMPLETED }\n\n// Create DuckDbType — reified, no arguments beyond the SQL type name\nval statusType: DuckDbType<Status> = DuckDbTypes.ofEnum<Status>(\"status\")",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass EnumType {\n    // Define your Kotlin enum\n    enum class Status { PENDING, ACTIVE, COMPLETED }\n\n    // Create DuckDbType — reified, no arguments beyond the SQL type name\n    val statusType: DuckDbType<Status> = DuckDbTypes.ofEnum<Status>(\"status\")\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/DomainType.kt": {
+    "name": "kotlin/duckdb/DomainType",
+    "snippet": "// Wrapper type\ndata class ProductId(val value: Long)\n\n// Create DuckDbType from bigint\nval productIdType: DuckDbType<ProductId> = DuckDbTypes.bigint.transform(::ProductId, ProductId::value)",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass DomainType {\n    // Wrapper type\n    data class ProductId(val value: Long)\n\n    // Create DuckDbType from bigint\n    val productIdType: DuckDbType<ProductId> = DuckDbTypes.bigint.transform(::ProductId, ProductId::value)\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/DateTimeTypes.kt": {
+    "name": "kotlin/duckdb/DateTimeTypes",
+    "snippet": "val dateType: DuckDbType<LocalDate> = DuckDbTypes.date\nval tsType: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp\nval tstzType: DuckDbType<Instant> = DuckDbTypes.timestamptz\nval intervalType: DuckDbType<Duration> = DuckDbTypes.interval",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\nimport java.time.Duration\nimport java.time.Instant\nimport java.time.LocalDate\nimport java.time.LocalDateTime\n\n@Suppress(\"unused\")\nclass DateTimeTypes {\n    val dateType: DuckDbType<LocalDate> = DuckDbTypes.date\n    val tsType: DuckDbType<LocalDateTime> = DuckDbTypes.timestamp\n    val tstzType: DuckDbType<Instant> = DuckDbTypes.timestamptz\n    val intervalType: DuckDbType<Duration> = DuckDbTypes.interval\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/BoolType.kt": {
+    "name": "kotlin/duckdb/BoolType",
+    "snippet": "val boolType: DuckDbType<Boolean> = DuckDbTypes.boolean_",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BoolType {\n    val boolType: DuckDbType<Boolean> = DuckDbTypes.boolean_\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/BitStringType.kt": {
+    "name": "kotlin/duckdb/BitStringType",
+    "snippet": "val bitType: DuckDbType<String> = DuckDbTypes.bit\nval bit8: DuckDbType<String> = DuckDbTypes.bitOf(8)  // BIT(8)",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BitStringType {\n    val bitType: DuckDbType<String> = DuckDbTypes.bit\n    val bit8: DuckDbType<String> = DuckDbTypes.bitOf(8)  // BIT(8)\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/BinaryTypes.kt": {
+    "name": "kotlin/duckdb/BinaryTypes",
+    "snippet": "val blobType: DuckDbType<ByteArray> = DuckDbTypes.blob",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\nimport dev.typr.foundationskt.data.*\n\n@Suppress(\"unused\")\nclass BinaryTypes {\n    val blobType: DuckDbType<ByteArray> = DuckDbTypes.blob\n}"
+  },
+  "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/duckdb/ArrayTypes.kt": {
+    "name": "kotlin/duckdb/ArrayTypes",
+    "snippet": "// Fixed-size ARRAY — every row must have exactly `size` elements.\nval embedding: DuckDbType<List<Float>> = DuckDbTypes.float_.array(1536)\nval rgb: DuckDbType<List<Int>> = DuckDbTypes.integer.array(3)",
+    "fullContent": "package dev.typr.foundationskt.docs.duckdb\n\nimport dev.typr.foundationskt.*\n\n@Suppress(\"unused\")\nclass ArrayTypes {\n    // Fixed-size ARRAY — every row must have exactly `size` elements.\n    val embedding: DuckDbType<List<Float>> = DuckDbTypes.float_.array(1536)\n    val rgb: DuckDbType<List<Int>> = DuckDbTypes.integer.array(3)\n}"
   },
   "documentation-examples-kotlin/src/kotlin/dev/typr/foundationskt/docs/core/UserService.kt": {
     "name": "kotlin/core/UserService",
@@ -1934,31 +1934,6 @@
     "snippet": "object ExportTest:\n  // Test if types are accessible\n  val t: PgType[Int] = PgTypes.int4\n\n  // Test if Fragment is accessible as a type\n  def useFragment(f: Fragment): String = f.render()",
     "fullContent": "package dev.typr.foundationssc.docs.test\n\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\nobject ExportTest:\n  // Test if types are accessible\n  val t: PgType[Int] = PgTypes.int4\n\n  // Test if Fragment is accessible as a type\n  def useFragment(f: Fragment): String = f.render()"
   },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/routines/VoidProcedure.scala": {
-    "name": "scala/routines/VoidProcedure",
-    "snippet": "// A void procedure — no OUT parameters, just side effects\nval auditLog =\n  DbProcedure\n    .define(\"audit_log\")\n    .input(PgTypes.text) // action\n    .input(PgTypes.text) // details\n    .build()\n\ndef logAction(action: String, details: String): Unit =\n  auditLog.call(action, details).transact(tx)",
-    "fullContent": "package dev.typr.foundationssc.docs.routines\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject VoidProcedure:\n  private val tx: Transactor = null // placeholder\n\n  // A void procedure — no OUT parameters, just side effects\n  val auditLog =\n    DbProcedure\n      .define(\"audit_log\")\n      .input(PgTypes.text) // action\n      .input(PgTypes.text) // details\n      .build()\n\n  def logAction(action: String, details: String): Unit =\n    auditLog.call(action, details).transact(tx)"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/routines/OutProcedure.scala": {
-    "name": "scala/routines/OutProcedure",
-    "snippet": "// OUT parameters — the builder tracks output types statically\nval getUser =\n  DbProcedure\n    .define(\"get_user_by_id\")\n    .input(PgTypes.int4) // user_id IN\n    .out(PgTypes.text) // name OUT\n    .out(PgTypes.text) // email OUT\n    .build()\n\n// call() is fully typed — wrong argument types won't compile\ndef findUser(userId: Int): (String, String) =\n  getUser.call(userId).transact(tx)",
-    "fullContent": "package dev.typr.foundationssc.docs.routines\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject OutProcedure:\n  private val tx: Transactor = null // placeholder\n\n  // OUT parameters — the builder tracks output types statically\n  val getUser =\n    DbProcedure\n      .define(\"get_user_by_id\")\n      .input(PgTypes.int4) // user_id IN\n      .out(PgTypes.text) // name OUT\n      .out(PgTypes.text) // email OUT\n      .build()\n\n  // call() is fully typed — wrong argument types won't compile\n  def findUser(userId: Int): (String, String) =\n    getUser.call(userId).transact(tx)"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/routines/OracleExample.scala": {
-    "name": "scala/routines/OracleExample",
-    "snippet": "// Works with any database — just use the right types\nval applyDiscount =\n  DbProcedure\n    .define(\"apply_discount\")\n    .input(OracleTypes.number) // amount IN\n    .inout(OracleTypes.varchar2) // status INOUT\n    .build()\n\nval getBalance =\n  DbFunction\n    .define(\"get_balance\", OracleTypes.number)\n    .input(OracleTypes.varchar2) // account_id\n    .build()",
-    "fullContent": "package dev.typr.foundationssc.docs.routines\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject OracleExample:\n  // Works with any database — just use the right types\n  val applyDiscount =\n    DbProcedure\n      .define(\"apply_discount\")\n      .input(OracleTypes.number) // amount IN\n      .inout(OracleTypes.varchar2) // status INOUT\n      .build()\n\n  val getBalance =\n    DbFunction\n      .define(\"get_balance\", OracleTypes.number)\n      .input(OracleTypes.varchar2) // account_id\n      .build()"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/routines/InoutProcedure.scala": {
-    "name": "scala/routines/InoutProcedure",
-    "snippet": "// INOUT — the value goes in and comes back modified\nval applyDiscount =\n  DbProcedure\n    .define(\"apply_discount\")\n    .input(PgTypes.text) // discount_code IN\n    .inout(PgTypes.numeric) // price INOUT\n    .build()\n\ndef applyDiscount(code: String, price: BigDecimal): BigDecimal =\n  applyDiscount.call(code, price).transact(tx)",
-    "fullContent": "package dev.typr.foundationssc.docs.routines\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject InoutProcedure:\n  private val tx: Transactor = null // placeholder\n\n  // INOUT — the value goes in and comes back modified\n  val applyDiscount =\n    DbProcedure\n      .define(\"apply_discount\")\n      .input(PgTypes.text) // discount_code IN\n      .inout(PgTypes.numeric) // price INOUT\n      .build()\n\n  def applyDiscount(code: String, price: BigDecimal): BigDecimal =\n    applyDiscount.call(code, price).transact(tx)"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/routines/FunctionExample.scala": {
-    "name": "scala/routines/FunctionExample",
-    "snippet": "// Functions use SELECT instead of CALL — every DbType reads correctly\nval calcTax =\n  DbFunction\n    .define(\"calculate_tax\", PgTypes.numeric)\n    .input(PgTypes.numeric) // amount\n    .input(PgTypes.text) // region\n    .build()\n\n// Zero-argument function\nval nextId =\n  DbFunction\n    .define(\"next_id\", PgTypes.int4)\n    .build()\n\ndef calculateTax(amount: BigDecimal, region: String): BigDecimal =\n  calcTax.call(amount, region).transact(tx)",
-    "fullContent": "package dev.typr.foundationssc.docs.routines\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject FunctionExample:\n  private val tx: Transactor = null // placeholder\n\n  // Functions use SELECT instead of CALL — every DbType reads correctly\n  val calcTax =\n    DbFunction\n      .define(\"calculate_tax\", PgTypes.numeric)\n      .input(PgTypes.numeric) // amount\n      .input(PgTypes.text) // region\n      .build()\n\n  // Zero-argument function\n  val nextId =\n    DbFunction\n      .define(\"next_id\", PgTypes.int4)\n      .build()\n\n  def calculateTax(amount: BigDecimal, region: String): BigDecimal =\n    calcTax.call(amount, region).transact(tx)"
-  },
   "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/sqlserver/XmlType.scala": {
     "name": "scala/sqlserver/XmlType",
     "snippet": "val xmlType: SqlServerType[Xml] = SqlServerTypes.xml",
@@ -2049,6 +2024,31 @@
     "snippet": "val binaryType: SqlServerType[Array[Byte]] = SqlServerTypes.binaryOf(16)\nval varbinaryType: SqlServerType[Array[Byte]] = SqlServerTypes.varbinaryOf(255)\nval varbinaryMax: SqlServerType[Array[Byte]] = SqlServerTypes.varbinaryMax",
     "fullContent": "package dev.typr.foundationssc.docs.sqlserver\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject BinaryTypes:\n  val binaryType: SqlServerType[Array[Byte]] = SqlServerTypes.binaryOf(16)\n  val varbinaryType: SqlServerType[Array[Byte]] = SqlServerTypes.varbinaryOf(255)\n  val varbinaryMax: SqlServerType[Array[Byte]] = SqlServerTypes.varbinaryMax"
   },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/routines/VoidProcedure.scala": {
+    "name": "scala/routines/VoidProcedure",
+    "snippet": "// A void procedure — no OUT parameters, just side effects\nval auditLog =\n  DbProcedure\n    .define(\"audit_log\")\n    .input(PgTypes.text) // action\n    .input(PgTypes.text) // details\n    .build()\n\ndef logAction(action: String, details: String): Unit =\n  auditLog.call(action, details).transact(tx)",
+    "fullContent": "package dev.typr.foundationssc.docs.routines\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject VoidProcedure:\n  private val tx: Transactor = null // placeholder\n\n  // A void procedure — no OUT parameters, just side effects\n  val auditLog =\n    DbProcedure\n      .define(\"audit_log\")\n      .input(PgTypes.text) // action\n      .input(PgTypes.text) // details\n      .build()\n\n  def logAction(action: String, details: String): Unit =\n    auditLog.call(action, details).transact(tx)"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/routines/OutProcedure.scala": {
+    "name": "scala/routines/OutProcedure",
+    "snippet": "// OUT parameters — the builder tracks output types statically\nval getUser =\n  DbProcedure\n    .define(\"get_user_by_id\")\n    .input(PgTypes.int4) // user_id IN\n    .out(PgTypes.text) // name OUT\n    .out(PgTypes.text) // email OUT\n    .build()\n\n// call() is fully typed — wrong argument types won't compile\ndef findUser(userId: Int): (String, String) =\n  getUser.call(userId).transact(tx)",
+    "fullContent": "package dev.typr.foundationssc.docs.routines\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject OutProcedure:\n  private val tx: Transactor = null // placeholder\n\n  // OUT parameters — the builder tracks output types statically\n  val getUser =\n    DbProcedure\n      .define(\"get_user_by_id\")\n      .input(PgTypes.int4) // user_id IN\n      .out(PgTypes.text) // name OUT\n      .out(PgTypes.text) // email OUT\n      .build()\n\n  // call() is fully typed — wrong argument types won't compile\n  def findUser(userId: Int): (String, String) =\n    getUser.call(userId).transact(tx)"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/routines/OracleExample.scala": {
+    "name": "scala/routines/OracleExample",
+    "snippet": "// Works with any database — just use the right types\nval applyDiscount =\n  DbProcedure\n    .define(\"apply_discount\")\n    .input(OracleTypes.number) // amount IN\n    .inout(OracleTypes.varchar2) // status INOUT\n    .build()\n\nval getBalance =\n  DbFunction\n    .define(\"get_balance\", OracleTypes.number)\n    .input(OracleTypes.varchar2) // account_id\n    .build()",
+    "fullContent": "package dev.typr.foundationssc.docs.routines\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject OracleExample:\n  // Works with any database — just use the right types\n  val applyDiscount =\n    DbProcedure\n      .define(\"apply_discount\")\n      .input(OracleTypes.number) // amount IN\n      .inout(OracleTypes.varchar2) // status INOUT\n      .build()\n\n  val getBalance =\n    DbFunction\n      .define(\"get_balance\", OracleTypes.number)\n      .input(OracleTypes.varchar2) // account_id\n      .build()"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/routines/InoutProcedure.scala": {
+    "name": "scala/routines/InoutProcedure",
+    "snippet": "// INOUT — the value goes in and comes back modified\nval applyDiscount =\n  DbProcedure\n    .define(\"apply_discount\")\n    .input(PgTypes.text) // discount_code IN\n    .inout(PgTypes.numeric) // price INOUT\n    .build()\n\ndef applyDiscount(code: String, price: BigDecimal): BigDecimal =\n  applyDiscount.call(code, price).transact(tx)",
+    "fullContent": "package dev.typr.foundationssc.docs.routines\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject InoutProcedure:\n  private val tx: Transactor = null // placeholder\n\n  // INOUT — the value goes in and comes back modified\n  val applyDiscount =\n    DbProcedure\n      .define(\"apply_discount\")\n      .input(PgTypes.text) // discount_code IN\n      .inout(PgTypes.numeric) // price INOUT\n      .build()\n\n  def applyDiscount(code: String, price: BigDecimal): BigDecimal =\n    applyDiscount.call(code, price).transact(tx)"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/routines/FunctionExample.scala": {
+    "name": "scala/routines/FunctionExample",
+    "snippet": "// Functions use SELECT instead of CALL — every DbType reads correctly\nval calcTax =\n  DbFunction\n    .define(\"calculate_tax\", PgTypes.numeric)\n    .input(PgTypes.numeric) // amount\n    .input(PgTypes.text) // region\n    .build()\n\n// Zero-argument function\nval nextId =\n  DbFunction\n    .define(\"next_id\", PgTypes.int4)\n    .build()\n\ndef calculateTax(amount: BigDecimal, region: String): BigDecimal =\n  calcTax.call(amount, region).transact(tx)",
+    "fullContent": "package dev.typr.foundationssc.docs.routines\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject FunctionExample:\n  private val tx: Transactor = null // placeholder\n\n  // Functions use SELECT instead of CALL — every DbType reads correctly\n  val calcTax =\n    DbFunction\n      .define(\"calculate_tax\", PgTypes.numeric)\n      .input(PgTypes.numeric) // amount\n      .input(PgTypes.text) // region\n      .build()\n\n  // Zero-argument function\n  val nextId =\n    DbFunction\n      .define(\"next_id\", PgTypes.int4)\n      .build()\n\n  def calculateTax(amount: BigDecimal, region: String): BigDecimal =\n    calcTax.call(amount, region).transact(tx)"
+  },
   "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/otel/OtelSetup.scala": {
     "name": "scala/otel/OtelSetup",
     "snippet": "val config =\n  PgConfig\n    .builder(\"localhost\", 5432, \"mydb\", \"user\", \"pass\")\n    .build()\n\nval telemetryConfig = TelemetryConfig.builder(config).build()\n\nval otelListener: QueryListener =\n  OtelQueryListener.create(GlobalOpenTelemetry.get(), telemetryConfig)\n\nval tx = Transactor.create(config, Transactor.defaultStrategy().mergeListener(otelListener))",
@@ -2126,8 +2126,8 @@
   },
   "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/postgresql/EnumType.scala": {
     "name": "scala/postgresql/EnumType",
-    "snippet": "// Scala 3 enums need an explicit `extends java.lang.Enum[Self]` clause\n// to satisfy the `ofEnum[E <: Enum[E]]` bound. Without it, the type\n// checker rejects the call even though simple Scala 3 enums do extend\n// java.lang.Enum at the JVM level.\nenum Status extends java.lang.Enum[Status]:\n  case PENDING, ACTIVE, COMPLETED\n\nval statusType: PgType[Status] =\n  PgTypes.ofEnum[Status](\"status\", Status.valueOf)",
-    "fullContent": "package dev.typr.foundationssc.docs.postgresql\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject EnumType:\n  // Scala 3 enums need an explicit `extends java.lang.Enum[Self]` clause\n  // to satisfy the `ofEnum[E <: Enum[E]]` bound. Without it, the type\n  // checker rejects the call even though simple Scala 3 enums do extend\n  // java.lang.Enum at the JVM level.\n  enum Status extends java.lang.Enum[Status]:\n    case PENDING, ACTIVE, COMPLETED\n\n  val statusType: PgType[Status] =\n    PgTypes.ofEnum[Status](\"status\", Status.valueOf)"
+    "snippet": "// Plain Scala 3 enum — no extends java.lang.Enum needed\nenum Status:\n  case PENDING, ACTIVE, COMPLETED\n\n// Create a PgType — just pass .values\nval statusType: PgType[Status] =\n  PgTypes.ofEnum(\"status\", Status.values)",
+    "fullContent": "package dev.typr.foundationssc.docs.postgresql\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject EnumType:\n  // Plain Scala 3 enum — no extends java.lang.Enum needed\n  enum Status:\n    case PENDING, ACTIVE, COMPLETED\n\n  // Create a PgType — just pass .values\n  val statusType: PgType[Status] =\n    PgTypes.ofEnum(\"status\", Status.values)"
   },
   "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/postgresql/DomainType.scala": {
     "name": "scala/postgresql/DomainType",
@@ -2301,8 +2301,8 @@
   },
   "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/mariadb/EnumType.scala": {
     "name": "scala/mariadb/EnumType",
-    "snippet": "// Scala 3 enums need an explicit `extends java.lang.Enum[Self]` clause\n// to satisfy the `ofEnum[E <: Enum[E]]` bound. Without it, the type\n// checker rejects the call even though simple Scala 3 enums do extend\n// java.lang.Enum at the JVM level.\nenum Status extends java.lang.Enum[Status]:\n  case PENDING, ACTIVE, COMPLETED\n\nval statusType: MariaType[Status] =\n  MariaTypes.ofEnum[Status](\"ENUM('PENDING','ACTIVE','COMPLETED')\", Status.valueOf)",
-    "fullContent": "package dev.typr.foundationssc.docs.mariadb\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject EnumType:\n  // Scala 3 enums need an explicit `extends java.lang.Enum[Self]` clause\n  // to satisfy the `ofEnum[E <: Enum[E]]` bound. Without it, the type\n  // checker rejects the call even though simple Scala 3 enums do extend\n  // java.lang.Enum at the JVM level.\n  enum Status extends java.lang.Enum[Status]:\n    case PENDING, ACTIVE, COMPLETED\n\n  val statusType: MariaType[Status] =\n    MariaTypes.ofEnum[Status](\"ENUM('PENDING','ACTIVE','COMPLETED')\", Status.valueOf)"
+    "snippet": "// Plain Scala 3 enum — no extends java.lang.Enum needed\nenum Status:\n  case PENDING, ACTIVE, COMPLETED\n\n// Create MariaType — derives ENUM('PENDING','ACTIVE','COMPLETED') from .values\nval statusType: MariaType[Status] =\n  MariaTypes.ofEnum(Status.values)",
+    "fullContent": "package dev.typr.foundationssc.docs.mariadb\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject EnumType:\n  // Plain Scala 3 enum — no extends java.lang.Enum needed\n  enum Status:\n    case PENDING, ACTIVE, COMPLETED\n\n  // Create MariaType — derives ENUM('PENDING','ACTIVE','COMPLETED') from .values\n  val statusType: MariaType[Status] =\n    MariaTypes.ofEnum(Status.values)"
   },
   "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/mariadb/DomainType.scala": {
     "name": "scala/mariadb/DomainType",
@@ -2328,6 +2328,61 @@
     "name": "scala/mariadb/BinaryTypes",
     "snippet": "val binaryType: MariaType[Array[Byte]] = MariaTypes.binaryOf(16)\nval varbinaryType: MariaType[Array[Byte]] = MariaTypes.varbinaryOf(255)\nval blobType: MariaType[Array[Byte]] = MariaTypes.blob",
     "fullContent": "package dev.typr.foundationssc.docs.mariadb\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject BinaryTypes:\n  val binaryType: MariaType[Array[Byte]] = MariaTypes.binaryOf(16)\n  val varbinaryType: MariaType[Array[Byte]] = MariaTypes.varbinaryOf(255)\n  val blobType: MariaType[Array[Byte]] = MariaTypes.blob"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/WrapperType.scala": {
+    "name": "scala/landing/WrapperType",
+    "snippet": "case class ProductId(value: Int)\n\nobject ProductId:\n  // MariaDB int -> wraps to your domain type\n  val mariaType: MariaType[ProductId] =\n    MariaTypes.int_.transform(ProductId.apply, _.value)",
+    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject WrapperType:\n  case class ProductId(value: Int)\n\n  object ProductId:\n    // MariaDB int -> wraps to your domain type\n    val mariaType: MariaType[ProductId] =\n      MariaTypes.int_.transform(ProductId.apply, _.value)"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/StoredProcedure.scala": {
+    "name": "scala/landing/StoredProcedure",
+    "snippet": "// Define once, call many times — input and output types are baked in\nval getUser: DbProcedure.Def1_2[Int, String, String] =\n  DbProcedure\n    .define(\"get_user_by_id\")\n    .input(PgTypes.int4)\n    .out(PgTypes.text)\n    .out(PgTypes.text)\n    .build()\n\n// call() returns a ProcedureOp — use it like any other operation\ndef findUser(userId: Int): (String, String) =\n  getUser.call(userId).transact(tx)",
+    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject StoredProcedure:\n  var tx: Transactor = null // placeholder\n\n  // Define once, call many times — input and output types are baked in\n  val getUser: DbProcedure.Def1_2[Int, String, String] =\n    DbProcedure\n      .define(\"get_user_by_id\")\n      .input(PgTypes.int4)\n      .out(PgTypes.text)\n      .out(PgTypes.text)\n      .build()\n\n  // call() returns a ProcedureOp — use it like any other operation\n  def findUser(userId: Int): (String, String) =\n    getUser.call(userId).transact(tx)"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/SqlServerQuery.scala": {
+    "name": "scala/landing/SqlServerQuery",
+    "snippet": "// Build small reusable filters - SQL Server example\nval nvarchar = SqlServerTypes.nvarchar\nval decimal = SqlServerTypes.decimal\n\ndef byName(name: String): Fragment =\n  sql\"name LIKE ${nvarchar(name)}\"\n\ndef cheaperThan(max: BigDecimal): Fragment =\n  sql\"price < ${decimal(max)}\"\n\n// Compose dynamically\nval filters: List[Fragment] =\n  List(\n    Some(byName(\"%widget%\")),\n    maxPrice.map(cheaperThan)\n  ).flatten\n\nval orders: List[OrderRow] =\n  sql\"SELECT * FROM orders ${Fragment.whereAnd(filters)}\"\n    .query(orderRowCodec.all())\n    .run(conn)",
+    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.Fragment.*\nimport dev.typr.foundationssc.data.*\n\nimport java.sql.Connection\n\n@SuppressWarnings(Array(\"unused\"))\nobject SqlServerQuery:\n  case class OrderRow(id: Int, name: String, price: BigDecimal)\n  val orderRowCodec: RowCodec[OrderRow] = null // placeholder\n  val maxPrice: Option[BigDecimal] = None\n  val conn: Connection = null // placeholder\n\n  // Build small reusable filters - SQL Server example\n  val nvarchar = SqlServerTypes.nvarchar\n  val decimal = SqlServerTypes.decimal\n\n  def byName(name: String): Fragment =\n    sql\"name LIKE ${nvarchar(name)}\"\n\n  def cheaperThan(max: BigDecimal): Fragment =\n    sql\"price < ${decimal(max)}\"\n\n  // Compose dynamically\n  val filters: List[Fragment] =\n    List(\n      Some(byName(\"%widget%\")),\n      maxPrice.map(cheaperThan)\n    ).flatten\n\n  val orders: List[OrderRow] =\n    sql\"SELECT * FROM orders ${Fragment.whereAnd(filters)}\"\n      .query(orderRowCodec.all())\n      .run(conn)"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/SpringTransactorExample.scala": {
+    "name": "scala/landing/SpringTransactorExample",
+    "snippet": "@Service\nclass OrderService(tx: Transactor):\n\n  @Transactional\n  def getGreeting(): String =\n    sql\"SELECT 'Hello from Oracle' FROM dual\"\n      .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())\n      .transact(tx)",
+    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.Fragment.sql\nimport dev.typr.foundationssc.data.*\nimport org.springframework.stereotype.Service\nimport org.springframework.transaction.annotation.Transactional\n\n@SuppressWarnings(Array(\"unused\"))\nobject SpringTransactorExample:\n  @Service\n  class OrderService(tx: Transactor):\n\n    @Transactional\n    def getGreeting(): String =\n      sql\"SELECT 'Hello from Oracle' FROM dual\"\n        .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())\n        .transact(tx)"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/QueryAnalysis.scala": {
+    "name": "scala/landing/QueryAnalysis",
+    "snippet": "// Your query looks fine at compile time...\nval query: Operation.Query[List[User]] =\n  sql\"\"\"SELECT id, name, created_at, email\n        FROM users\n        WHERE active = ${PgTypes.bool(true)}\"\"\"\n    .query(User.rowCodec.all())\n\n// But Query Analysis catches the bugs in your tests\ndef check(): Unit =\n  val result: QueryAnalysis =\n    QueryAnalyzer.analyze(query, connection).head\n  if !result.succeeded() then throw new AssertionError(result.report())",
+    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.Fragment.*\nimport dev.typr.foundationssc.data.*\n\nimport java.sql.Connection\n\n@SuppressWarnings(Array(\"unused\"))\nobject QueryAnalysisExample:\n  case class User(id: Int, name: String, createdAt: Int, email: String)\n  object User:\n    val rowCodec: RowCodec[User] = RowCodec\n      .builder[User]()\n      .field(PgTypes.int4)(_.id)\n      .field(PgTypes.text)(_.name)\n      .field(PgTypes.int4)(_.createdAt) // WRONG! Should be timestamptz\n      .field(PgTypes.text)(_.email) // nullable but not Optional!\n      .build(User.apply)\n\n  val connection: Connection = null // placeholder\n\n  // Your query looks fine at compile time...\n  val query: Operation.Query[List[User]] =\n    sql\"\"\"SELECT id, name, created_at, email\n          FROM users\n          WHERE active = ${PgTypes.bool(true)}\"\"\"\n      .query(User.rowCodec.all())\n\n  // But Query Analysis catches the bugs in your tests\n  def check(): Unit =\n    val result: QueryAnalysis =\n      QueryAnalyzer.analyze(query, connection).head\n    if !result.succeeded() then throw new AssertionError(result.report())"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/ProductRowCodec.scala": {
+    "name": "scala/landing/ProductRowCodec",
+    "snippet": "val productCodec: RowCodecNamed[Product] = RowCodec\n  .namedBuilder[Product]()\n  .field(\"id\", PgTypes.int4)(_.id)\n  .field(\"name\", PgTypes.text)(_.name)\n  .field(\"price\", PgTypes.numeric)(_.price)\n  .field(\"created_at\", PgTypes.timestamptz.opt)(_.createdAt)\n  .build(Product.apply)\n\n// Compose codecs for joins\nval joined: RowCodec[(Product, Option[Category])] =\n  productCodec.leftJoin(categoryRowCodec)",
+    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\n\nimport java.time.Instant\n\n@SuppressWarnings(Array(\"unused\"))\nobject ProductRowCodec:\n  case class Product(id: Int, name: String, price: BigDecimal, createdAt: Option[Instant])\n  case class Category(id: Int, name: String)\n\n  val categoryRowCodec: RowCodec[Category] =\n    RowCodec\n      .builder[Category]()\n      .field(PgTypes.int4)(_.id)\n      .field(PgTypes.text)(_.name)\n      .build(Category.apply)\n\n  val productCodec: RowCodecNamed[Product] = RowCodec\n    .namedBuilder[Product]()\n    .field(\"id\", PgTypes.int4)(_.id)\n    .field(\"name\", PgTypes.text)(_.name)\n    .field(\"price\", PgTypes.numeric)(_.price)\n    .field(\"created_at\", PgTypes.timestamptz.opt)(_.createdAt)\n    .build(Product.apply)\n\n  // Compose codecs for joins\n  val joined: RowCodec[(Product, Option[Category])] =\n    productCodec.leftJoin(categoryRowCodec)"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/ProductRow.scala": {
+    "name": "scala/landing/ProductRow",
+    "snippet": "case class Product(\n    id: Int,\n    name: String,\n    price: BigDecimal,\n    createdAt: Option[Instant]\n)",
+    "fullContent": "package dev.typr.foundationssc.docs.landing\n\nimport java.time.Instant\n\n@SuppressWarnings(Array(\"unused\"))\nobject ProductRow:\n  case class Product(\n      id: Int,\n      name: String,\n      price: BigDecimal,\n      createdAt: Option[Instant]\n  )"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/OracleTransactor.scala": {
+    "name": "scala/landing/OracleTransactor",
+    "snippet": "// Oracle - typed config, no JDBC URL to remember\nval tx =\n  ConnectionSource\n    .of(\n      OracleConfig\n        .builder(\n          \"localhost\",\n          1521,\n          \"xe\",\n          \"app\",\n          \"secret\"\n        )\n        .serviceName(\"XEPDB1\")\n        .build()\n    )\n    .transactor()\n\n// Everything inside runs in one transaction\ndef getGreeting(): String =\n  sql\"SELECT 'Hello from Oracle' FROM dual\"\n    .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())\n    .transact(tx)",
+    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.connect.*\nimport dev.typr.foundationssc.Fragment.sql\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject OracleTransactor:\n  // Oracle - typed config, no JDBC URL to remember\n  val tx =\n    ConnectionSource\n      .of(\n        OracleConfig\n          .builder(\n            \"localhost\",\n            1521,\n            \"xe\",\n            \"app\",\n            \"secret\"\n          )\n          .serviceName(\"XEPDB1\")\n          .build()\n      )\n      .transactor()\n\n  // Everything inside runs in one transaction\n  def getGreeting(): String =\n    sql\"SELECT 'Hello from Oracle' FROM dual\"\n      .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())\n      .transact(tx)"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/JsonCodecs.scala": {
+    "name": "scala/landing/JsonCodecs",
+    "snippet": "// RowCodec → JSON column type, zero extra code\nval linesType: DuckDbType[List[OrderLine]] =\n  DuckDbTypes.jsonArrayEncodedList(lineCodec)\n\ndef getOrderLines(customerId: Int): List[OrderLine] =\n  sql\"\"\"SELECT json_group_array(\n            json_array(product, qty, price))\n        FROM order_lines\n        WHERE customer_id =\n            ${DuckDbTypes.integer(customerId)}\"\"\"\n    .query(RowCodec.of(linesType).exactlyOne())\n    .transact(tx)",
+    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.Fragment.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject JsonCodecs:\n  var tx: Transactor = null\n\n  case class OrderLine(product: String, qty: Int, price: BigDecimal)\n\n  val lineCodec: RowCodec[OrderLine] =\n    RowCodec\n      .builder[OrderLine]()\n      .field(DuckDbTypes.varchar)(_.product)\n      .field(DuckDbTypes.integer)(_.qty)\n      .field(DuckDbTypes.decimalOf(10, 2))(_.price)\n      .build(OrderLine.apply)\n\n  // RowCodec → JSON column type, zero extra code\n  val linesType: DuckDbType[List[OrderLine]] =\n    DuckDbTypes.jsonArrayEncodedList(lineCodec)\n\n  def getOrderLines(customerId: Int): List[OrderLine] =\n    sql\"\"\"SELECT json_group_array(\n              json_array(product, qty, price))\n          FROM order_lines\n          WHERE customer_id =\n              ${DuckDbTypes.integer(customerId)}\"\"\"\n      .query(RowCodec.of(linesType).exactlyOne())\n      .transact(tx)"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/DuckDbArray.scala": {
+    "name": "scala/landing/DuckDbArray",
+    "snippet": "// DuckDB LIST columns are first-class typed values\ndef getTagSets(): List[List[String]] =\n  sql\"SELECT tags FROM posts WHERE published = true\"\n    .query(RowCodec.of(DuckDbTypes.varchar.list).all())\n    .transact(tx)",
+    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.Fragment.sql\n\n@SuppressWarnings(Array(\"unused\"))\nobject DuckDbArray:\n  val tx: Transactor = null // placeholder\n\n  // DuckDB LIST columns are first-class typed values\n  def getTagSets(): List[List[String]] =\n    sql\"SELECT tags FROM posts WHERE published = true\"\n      .query(RowCodec.of(DuckDbTypes.varchar.list).all())\n      .transact(tx)"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/Dimensions.scala": {
+    "name": "scala/landing/Dimensions",
+    "snippet": "case class Dim(\n    width: Double,\n    height: Double,\n    depth: Double,\n    unit: String\n)\n\nval dimCodec: RowCodecNamed[Dim] =\n  RowCodec\n    .namedBuilder[Dim]()\n    .field(\"width\", PgTypes.float8)(_.width)\n    .field(\"height\", PgTypes.float8)(_.height)\n    .field(\"depth\", PgTypes.float8)(_.depth)\n    .field(\"unit\", PgTypes.text)(_.unit)\n    .build(Dim.apply)\n\n// Named composite — reads and writes via CREATE TYPE dimensions\nval pgType: PgType[Dim] = PgTypes.compositeOf(\"dimensions\", dimCodec)",
+    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject Dimensions:\n  case class Dim(\n      width: Double,\n      height: Double,\n      depth: Double,\n      unit: String\n  )\n\n  val dimCodec: RowCodecNamed[Dim] =\n    RowCodec\n      .namedBuilder[Dim]()\n      .field(\"width\", PgTypes.float8)(_.width)\n      .field(\"height\", PgTypes.float8)(_.height)\n      .field(\"depth\", PgTypes.float8)(_.depth)\n      .field(\"unit\", PgTypes.text)(_.unit)\n      .build(Dim.apply)\n\n  // Named composite — reads and writes via CREATE TYPE dimensions\n  val pgType: PgType[Dim] = PgTypes.compositeOf(\"dimensions\", dimCodec)"
   },
   "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/dbtypes/TypeSafeDbTypes.scala": {
     "name": "scala/dbtypes/TypeSafeDbTypes",
@@ -2396,8 +2451,8 @@
   },
   "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/duckdb/EnumType.scala": {
     "name": "scala/duckdb/EnumType",
-    "snippet": "// Scala 3 enums need an explicit `extends java.lang.Enum[Self]` clause\n// to satisfy the `ofEnum[E <: Enum[E]]` bound. Without it, the type\n// checker rejects the call even though simple Scala 3 enums do extend\n// java.lang.Enum at the JVM level.\nenum Status extends java.lang.Enum[Status]:\n  case PENDING, ACTIVE, COMPLETED\n\nval statusType: DuckDbType[Status] =\n  DuckDbTypes.ofEnum[Status](\"status\", Status.valueOf)",
-    "fullContent": "package dev.typr.foundationssc.docs.duckdb\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject EnumType:\n  // Scala 3 enums need an explicit `extends java.lang.Enum[Self]` clause\n  // to satisfy the `ofEnum[E <: Enum[E]]` bound. Without it, the type\n  // checker rejects the call even though simple Scala 3 enums do extend\n  // java.lang.Enum at the JVM level.\n  enum Status extends java.lang.Enum[Status]:\n    case PENDING, ACTIVE, COMPLETED\n\n  val statusType: DuckDbType[Status] =\n    DuckDbTypes.ofEnum[Status](\"status\", Status.valueOf)"
+    "snippet": "// Plain Scala 3 enum — no extends java.lang.Enum needed\nenum Status:\n  case PENDING, ACTIVE, COMPLETED\n\n// Create DuckDbType — just pass .values\nval statusType: DuckDbType[Status] =\n  DuckDbTypes.ofEnum(\"status\", Status.values)",
+    "fullContent": "package dev.typr.foundationssc.docs.duckdb\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject EnumType:\n  // Plain Scala 3 enum — no extends java.lang.Enum needed\n  enum Status:\n    case PENDING, ACTIVE, COMPLETED\n\n  // Create DuckDbType — just pass .values\n  val statusType: DuckDbType[Status] =\n    DuckDbTypes.ofEnum(\"status\", Status.values)"
   },
   "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/duckdb/DomainType.scala": {
     "name": "scala/duckdb/DomainType",
@@ -2483,61 +2538,6 @@
     "name": "scala/db2/BinaryTypes",
     "snippet": "val binaryType: Db2Type[Array[Byte]] = Db2Types.binary\nval binary16: Db2Type[Array[Byte]] = Db2Types.binaryOf(16)\nval varbinaryType: Db2Type[Array[Byte]] = Db2Types.varbinary\nval blobType: Db2Type[Array[Byte]] = Db2Types.blob",
     "fullContent": "package dev.typr.foundationssc.docs.db2\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject BinaryTypes:\n  val binaryType: Db2Type[Array[Byte]] = Db2Types.binary\n  val binary16: Db2Type[Array[Byte]] = Db2Types.binaryOf(16)\n  val varbinaryType: Db2Type[Array[Byte]] = Db2Types.varbinary\n  val blobType: Db2Type[Array[Byte]] = Db2Types.blob"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/WrapperType.scala": {
-    "name": "scala/landing/WrapperType",
-    "snippet": "case class ProductId(value: Int)\n\nobject ProductId:\n  // MariaDB int -> wraps to your domain type\n  val mariaType: MariaType[ProductId] =\n    MariaTypes.int_.transform(ProductId.apply, _.value)",
-    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject WrapperType:\n  case class ProductId(value: Int)\n\n  object ProductId:\n    // MariaDB int -> wraps to your domain type\n    val mariaType: MariaType[ProductId] =\n      MariaTypes.int_.transform(ProductId.apply, _.value)"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/StoredProcedure.scala": {
-    "name": "scala/landing/StoredProcedure",
-    "snippet": "// Define once, call many times — input and output types are baked in\nval getUser: DbProcedure.Def1_2[Int, String, String] =\n  DbProcedure\n    .define(\"get_user_by_id\")\n    .input(PgTypes.int4)\n    .out(PgTypes.text)\n    .out(PgTypes.text)\n    .build()\n\n// call() returns a ProcedureOp — use it like any other operation\ndef findUser(userId: Int): (String, String) =\n  getUser.call(userId).transact(tx)",
-    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject StoredProcedure:\n  var tx: Transactor = null // placeholder\n\n  // Define once, call many times — input and output types are baked in\n  val getUser: DbProcedure.Def1_2[Int, String, String] =\n    DbProcedure\n      .define(\"get_user_by_id\")\n      .input(PgTypes.int4)\n      .out(PgTypes.text)\n      .out(PgTypes.text)\n      .build()\n\n  // call() returns a ProcedureOp — use it like any other operation\n  def findUser(userId: Int): (String, String) =\n    getUser.call(userId).transact(tx)"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/SqlServerQuery.scala": {
-    "name": "scala/landing/SqlServerQuery",
-    "snippet": "// Build small reusable filters - SQL Server example\nval nvarchar = SqlServerTypes.nvarchar\nval decimal = SqlServerTypes.decimal\n\ndef byName(name: String): Fragment =\n  sql\"name LIKE ${nvarchar(name)}\"\n\ndef cheaperThan(max: BigDecimal): Fragment =\n  sql\"price < ${decimal(max)}\"\n\n// Compose dynamically\nval filters: List[Fragment] =\n  List(\n    Some(byName(\"%widget%\")),\n    maxPrice.map(cheaperThan)\n  ).flatten\n\nval orders: List[OrderRow] =\n  sql\"SELECT * FROM orders ${Fragment.whereAnd(filters)}\"\n    .query(orderRowCodec.all())\n    .run(conn)",
-    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.Fragment.*\nimport dev.typr.foundationssc.data.*\n\nimport java.sql.Connection\n\n@SuppressWarnings(Array(\"unused\"))\nobject SqlServerQuery:\n  case class OrderRow(id: Int, name: String, price: BigDecimal)\n  val orderRowCodec: RowCodec[OrderRow] = null // placeholder\n  val maxPrice: Option[BigDecimal] = None\n  val conn: Connection = null // placeholder\n\n  // Build small reusable filters - SQL Server example\n  val nvarchar = SqlServerTypes.nvarchar\n  val decimal = SqlServerTypes.decimal\n\n  def byName(name: String): Fragment =\n    sql\"name LIKE ${nvarchar(name)}\"\n\n  def cheaperThan(max: BigDecimal): Fragment =\n    sql\"price < ${decimal(max)}\"\n\n  // Compose dynamically\n  val filters: List[Fragment] =\n    List(\n      Some(byName(\"%widget%\")),\n      maxPrice.map(cheaperThan)\n    ).flatten\n\n  val orders: List[OrderRow] =\n    sql\"SELECT * FROM orders ${Fragment.whereAnd(filters)}\"\n      .query(orderRowCodec.all())\n      .run(conn)"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/SpringTransactorExample.scala": {
-    "name": "scala/landing/SpringTransactorExample",
-    "snippet": "@Service\nclass OrderService(tx: Transactor):\n\n  @Transactional\n  def getGreeting(): String =\n    sql\"SELECT 'Hello from Oracle' FROM dual\"\n      .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())\n      .transact(tx)",
-    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.Fragment.sql\nimport dev.typr.foundationssc.data.*\nimport org.springframework.stereotype.Service\nimport org.springframework.transaction.annotation.Transactional\n\n@SuppressWarnings(Array(\"unused\"))\nobject SpringTransactorExample:\n  @Service\n  class OrderService(tx: Transactor):\n\n    @Transactional\n    def getGreeting(): String =\n      sql\"SELECT 'Hello from Oracle' FROM dual\"\n        .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())\n        .transact(tx)"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/QueryAnalysis.scala": {
-    "name": "scala/landing/QueryAnalysis",
-    "snippet": "// Your query looks fine at compile time...\nval query: Operation.Query[List[User]] =\n  sql\"\"\"SELECT id, name, created_at, email\n        FROM users\n        WHERE active = ${PgTypes.bool(true)}\"\"\"\n    .query(User.rowCodec.all())\n\n// But Query Analysis catches the bugs in your tests\ndef check(): Unit =\n  val result: QueryAnalysis =\n    QueryAnalyzer.analyze(query, connection).head\n  if !result.succeeded() then throw new AssertionError(result.report())",
-    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.Fragment.*\nimport dev.typr.foundationssc.data.*\n\nimport java.sql.Connection\n\n@SuppressWarnings(Array(\"unused\"))\nobject QueryAnalysisExample:\n  case class User(id: Int, name: String, createdAt: Int, email: String)\n  object User:\n    val rowCodec: RowCodec[User] = RowCodec\n      .builder[User]()\n      .field(PgTypes.int4)(_.id)\n      .field(PgTypes.text)(_.name)\n      .field(PgTypes.int4)(_.createdAt) // WRONG! Should be timestamptz\n      .field(PgTypes.text)(_.email) // nullable but not Optional!\n      .build(User.apply)\n\n  val connection: Connection = null // placeholder\n\n  // Your query looks fine at compile time...\n  val query: Operation.Query[List[User]] =\n    sql\"\"\"SELECT id, name, created_at, email\n          FROM users\n          WHERE active = ${PgTypes.bool(true)}\"\"\"\n      .query(User.rowCodec.all())\n\n  // But Query Analysis catches the bugs in your tests\n  def check(): Unit =\n    val result: QueryAnalysis =\n      QueryAnalyzer.analyze(query, connection).head\n    if !result.succeeded() then throw new AssertionError(result.report())"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/ProductRowCodec.scala": {
-    "name": "scala/landing/ProductRowCodec",
-    "snippet": "val productCodec: RowCodecNamed[Product] = RowCodec\n  .namedBuilder[Product]()\n  .field(\"id\", PgTypes.int4)(_.id)\n  .field(\"name\", PgTypes.text)(_.name)\n  .field(\"price\", PgTypes.numeric)(_.price)\n  .field(\"created_at\", PgTypes.timestamptz.opt)(_.createdAt)\n  .build(Product.apply)\n\n// Compose codecs for joins\nval joined: RowCodec[(Product, Option[Category])] =\n  productCodec.leftJoin(categoryRowCodec)",
-    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\n\nimport java.time.Instant\n\n@SuppressWarnings(Array(\"unused\"))\nobject ProductRowCodec:\n  case class Product(id: Int, name: String, price: BigDecimal, createdAt: Option[Instant])\n  case class Category(id: Int, name: String)\n\n  val categoryRowCodec: RowCodec[Category] =\n    RowCodec\n      .builder[Category]()\n      .field(PgTypes.int4)(_.id)\n      .field(PgTypes.text)(_.name)\n      .build(Category.apply)\n\n  val productCodec: RowCodecNamed[Product] = RowCodec\n    .namedBuilder[Product]()\n    .field(\"id\", PgTypes.int4)(_.id)\n    .field(\"name\", PgTypes.text)(_.name)\n    .field(\"price\", PgTypes.numeric)(_.price)\n    .field(\"created_at\", PgTypes.timestamptz.opt)(_.createdAt)\n    .build(Product.apply)\n\n  // Compose codecs for joins\n  val joined: RowCodec[(Product, Option[Category])] =\n    productCodec.leftJoin(categoryRowCodec)"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/ProductRow.scala": {
-    "name": "scala/landing/ProductRow",
-    "snippet": "case class Product(\n    id: Int,\n    name: String,\n    price: BigDecimal,\n    createdAt: Option[Instant]\n)",
-    "fullContent": "package dev.typr.foundationssc.docs.landing\n\nimport java.time.Instant\n\n@SuppressWarnings(Array(\"unused\"))\nobject ProductRow:\n  case class Product(\n      id: Int,\n      name: String,\n      price: BigDecimal,\n      createdAt: Option[Instant]\n  )"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/OracleTransactor.scala": {
-    "name": "scala/landing/OracleTransactor",
-    "snippet": "// Oracle - typed config, no JDBC URL to remember\nval tx =\n  ConnectionSource\n    .of(\n      OracleConfig\n        .builder(\n          \"localhost\",\n          1521,\n          \"xe\",\n          \"app\",\n          \"secret\"\n        )\n        .serviceName(\"XEPDB1\")\n        .build()\n    )\n    .transactor()\n\n// Everything inside runs in one transaction\ndef getGreeting(): String =\n  sql\"SELECT 'Hello from Oracle' FROM dual\"\n    .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())\n    .transact(tx)",
-    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.connect.*\nimport dev.typr.foundationssc.Fragment.sql\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject OracleTransactor:\n  // Oracle - typed config, no JDBC URL to remember\n  val tx =\n    ConnectionSource\n      .of(\n        OracleConfig\n          .builder(\n            \"localhost\",\n            1521,\n            \"xe\",\n            \"app\",\n            \"secret\"\n          )\n          .serviceName(\"XEPDB1\")\n          .build()\n      )\n      .transactor()\n\n  // Everything inside runs in one transaction\n  def getGreeting(): String =\n    sql\"SELECT 'Hello from Oracle' FROM dual\"\n      .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())\n      .transact(tx)"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/JsonCodecs.scala": {
-    "name": "scala/landing/JsonCodecs",
-    "snippet": "// RowCodec → JSON column type, zero extra code\nval linesType: DuckDbType[List[OrderLine]] =\n  DuckDbTypes.jsonArrayEncodedList(lineCodec)\n\ndef getOrderLines(customerId: Int): List[OrderLine] =\n  sql\"\"\"SELECT json_group_array(\n            json_array(product, qty, price))\n        FROM order_lines\n        WHERE customer_id =\n            ${DuckDbTypes.integer(customerId)}\"\"\"\n    .query(RowCodec.of(linesType).exactlyOne())\n    .transact(tx)",
-    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.Fragment.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject JsonCodecs:\n  var tx: Transactor = null\n\n  case class OrderLine(product: String, qty: Int, price: BigDecimal)\n\n  val lineCodec: RowCodec[OrderLine] =\n    RowCodec\n      .builder[OrderLine]()\n      .field(DuckDbTypes.varchar)(_.product)\n      .field(DuckDbTypes.integer)(_.qty)\n      .field(DuckDbTypes.decimalOf(10, 2))(_.price)\n      .build(OrderLine.apply)\n\n  // RowCodec → JSON column type, zero extra code\n  val linesType: DuckDbType[List[OrderLine]] =\n    DuckDbTypes.jsonArrayEncodedList(lineCodec)\n\n  def getOrderLines(customerId: Int): List[OrderLine] =\n    sql\"\"\"SELECT json_group_array(\n              json_array(product, qty, price))\n          FROM order_lines\n          WHERE customer_id =\n              ${DuckDbTypes.integer(customerId)}\"\"\"\n      .query(RowCodec.of(linesType).exactlyOne())\n      .transact(tx)"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/DuckDbArray.scala": {
-    "name": "scala/landing/DuckDbArray",
-    "snippet": "// DuckDB LIST columns are first-class typed values\ndef getTagSets(): List[List[String]] =\n  sql\"SELECT tags FROM posts WHERE published = true\"\n    .query(RowCodec.of(DuckDbTypes.varchar.list).all())\n    .transact(tx)",
-    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.Fragment.sql\n\n@SuppressWarnings(Array(\"unused\"))\nobject DuckDbArray:\n  val tx: Transactor = null // placeholder\n\n  // DuckDB LIST columns are first-class typed values\n  def getTagSets(): List[List[String]] =\n    sql\"SELECT tags FROM posts WHERE published = true\"\n      .query(RowCodec.of(DuckDbTypes.varchar.list).all())\n      .transact(tx)"
-  },
-  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/landing/Dimensions.scala": {
-    "name": "scala/landing/Dimensions",
-    "snippet": "case class Dim(\n    width: Double,\n    height: Double,\n    depth: Double,\n    unit: String\n)\n\nval dimCodec: RowCodecNamed[Dim] =\n  RowCodec\n    .namedBuilder[Dim]()\n    .field(\"width\", PgTypes.float8)(_.width)\n    .field(\"height\", PgTypes.float8)(_.height)\n    .field(\"depth\", PgTypes.float8)(_.depth)\n    .field(\"unit\", PgTypes.text)(_.unit)\n    .build(Dim.apply)\n\n// Named composite — reads and writes via CREATE TYPE dimensions\nval pgType: PgType[Dim] = PgTypes.compositeOf(\"dimensions\", dimCodec)",
-    "fullContent": "package dev.typr.foundationssc.docs.landing\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject Dimensions:\n  case class Dim(\n      width: Double,\n      height: Double,\n      depth: Double,\n      unit: String\n  )\n\n  val dimCodec: RowCodecNamed[Dim] =\n    RowCodec\n      .namedBuilder[Dim]()\n      .field(\"width\", PgTypes.float8)(_.width)\n      .field(\"height\", PgTypes.float8)(_.height)\n      .field(\"depth\", PgTypes.float8)(_.depth)\n      .field(\"unit\", PgTypes.text)(_.unit)\n      .build(Dim.apply)\n\n  // Named composite — reads and writes via CREATE TYPE dimensions\n  val pgType: PgType[Dim] = PgTypes.compositeOf(\"dimensions\", dimCodec)"
   },
   "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/analysis/ScannerMethods.scala": {
     "name": "scala/analysis/ScannerMethods",
@@ -2853,6 +2853,11 @@
     "name": "scala/core/ExecuteComposed",
     "snippet": "def dashboard(): Dashboard = tx.transact { conn =>\n  countUsers\n    .combineWith(recentOrders)(Dashboard.apply)\n    .run(conn)\n}",
     "fullContent": "package dev.typr.foundationssc.docs.core\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.Fragment.sql\nimport dev.typr.foundationssc.data.*\n\n@SuppressWarnings(Array(\"unused\"))\nobject ExecuteComposed:\n  case class Order(id: Int, userId: Int, product: String)\n  case class Dashboard(userCount: Long, recentOrders: List[Order])\n\n  val orderCodec: RowCodec[Order] = RowCodec\n    .builder[Order]()\n    .field(PgTypes.int4)(_.id)\n    .field(PgTypes.int4)(_.userId)\n    .field(PgTypes.text)(_.product)\n    .build(Order.apply)\n\n  var tx: Transactor = null // placeholder\n\n  val countUsers: Operation[Long] =\n    sql\"SELECT count(*) FROM users\"\n      .query(RowCodec.of(PgTypes.int8).exactlyOne())\n  val recentOrders: Operation[List[Order]] =\n    sql\"SELECT * FROM orders ORDER BY id DESC LIMIT 10\"\n      .query(orderCodec.all())\n\n  def dashboard(): Dashboard = tx.transact { conn =>\n    countUsers\n      .combineWith(recentOrders)(Dashboard.apply)\n      .run(conn)\n  }"
+  },
+  "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/core/EnumTypeTest.scala": {
+    "name": "scala/core/EnumTypeTest",
+    "snippet": "/** Verification that plain Scala 3 enums work with ofEnum — no extends java.lang.Enum needed. */\n@SuppressWarnings(Array(\"unused\"))\nobject EnumTypeTest:\n  // Plain Scala 3 enum — NO extends java.lang.Enum\n  enum Status:\n    case PENDING, ACTIVE, COMPLETED\n\n  // Just pass .values — works for any Scala 3 enum\n  val pgStatus: PgType[Status] = PgTypes.ofEnum(\"status\", Status.values)\n  val duckStatus: DuckDbType[Status] = DuckDbTypes.ofEnum(\"status\", Status.values)\n  val mariaStatus: MariaType[Status] = MariaTypes.ofEnum(Status.values)\n  val sqlServerStatus: SqlServerType[Status] = SqlServerTypes.ofEnum(Status.values)\n  val db2Status: Db2Type[Status] = Db2Types.ofEnum(Status.values)\n  val oracleStatus: OracleType[Status] = OracleTypes.ofEnum(Status.values)\n\n  // Runtime verification with DuckDB\n  def main(args: Array[String]): Unit =\n    val tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor()\n\n    tx.transact { conn =>\n      Fragment.of(\"CREATE TYPE status AS ENUM('PENDING', 'ACTIVE', 'COMPLETED')\").execute().run(conn)\n      Fragment.of(\"CREATE TABLE enum_test (id INTEGER, status status)\").execute().run(conn)\n\n      Fragment.of(\"INSERT INTO enum_test VALUES (1, \").value(duckStatus, Status.ACTIVE).append(\")\").execute().run(conn)\n      Fragment.of(\"INSERT INTO enum_test VALUES (2, \").value(duckStatus, Status.PENDING).append(\")\").execute().run(conn)\n\n      val result = Fragment.of(\"SELECT status FROM enum_test WHERE id = 1\")\n        .queryExactlyOne(duckStatus)\n        .run(conn)\n      assert(result == Status.ACTIVE, s\"Expected ACTIVE, got $result\")\n\n      val all = Fragment.of(\"SELECT status FROM enum_test ORDER BY id\")\n        .queryAll(duckStatus)\n        .run(conn)\n      assert(all == List(Status.ACTIVE, Status.PENDING), s\"Expected [ACTIVE, PENDING], got $all\")\n    }\n\n    println(\"Scala 3 enum test passed — no extends java.lang.Enum needed!\")",
+    "fullContent": "package dev.typr.foundationssc.docs.core\n\nimport dev.typr.foundationssc.*\nimport dev.typr.foundationssc.connect.*\n\n/** Verification that plain Scala 3 enums work with ofEnum — no extends java.lang.Enum needed. */\n@SuppressWarnings(Array(\"unused\"))\nobject EnumTypeTest:\n  // Plain Scala 3 enum — NO extends java.lang.Enum\n  enum Status:\n    case PENDING, ACTIVE, COMPLETED\n\n  // Just pass .values — works for any Scala 3 enum\n  val pgStatus: PgType[Status] = PgTypes.ofEnum(\"status\", Status.values)\n  val duckStatus: DuckDbType[Status] = DuckDbTypes.ofEnum(\"status\", Status.values)\n  val mariaStatus: MariaType[Status] = MariaTypes.ofEnum(Status.values)\n  val sqlServerStatus: SqlServerType[Status] = SqlServerTypes.ofEnum(Status.values)\n  val db2Status: Db2Type[Status] = Db2Types.ofEnum(Status.values)\n  val oracleStatus: OracleType[Status] = OracleTypes.ofEnum(Status.values)\n\n  // Runtime verification with DuckDB\n  def main(args: Array[String]): Unit =\n    val tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor()\n\n    tx.transact { conn =>\n      Fragment.of(\"CREATE TYPE status AS ENUM('PENDING', 'ACTIVE', 'COMPLETED')\").execute().run(conn)\n      Fragment.of(\"CREATE TABLE enum_test (id INTEGER, status status)\").execute().run(conn)\n\n      Fragment.of(\"INSERT INTO enum_test VALUES (1, \").value(duckStatus, Status.ACTIVE).append(\")\").execute().run(conn)\n      Fragment.of(\"INSERT INTO enum_test VALUES (2, \").value(duckStatus, Status.PENDING).append(\")\").execute().run(conn)\n\n      val result = Fragment.of(\"SELECT status FROM enum_test WHERE id = 1\")\n        .queryExactlyOne(duckStatus)\n        .run(conn)\n      assert(result == Status.ACTIVE, s\"Expected ACTIVE, got $result\")\n\n      val all = Fragment.of(\"SELECT status FROM enum_test ORDER BY id\")\n        .queryAll(duckStatus)\n        .run(conn)\n      assert(all == List(Status.ACTIVE, Status.PENDING), s\"Expected [ACTIVE, PENDING], got $all\")\n    }\n\n    println(\"Scala 3 enum test passed — no extends java.lang.Enum needed!\")"
   },
   "documentation-examples-scala/src/scala/dev/typr/foundationssc/docs/core/ComposingWith.scala": {
     "name": "scala/core/ComposingWith",

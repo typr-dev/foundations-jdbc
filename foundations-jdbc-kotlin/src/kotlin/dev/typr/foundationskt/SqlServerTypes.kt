@@ -109,5 +109,14 @@ open class SqlServerTypes {
     open fun <Row : Any> jsonObjectEncodedList(parser: RowCodecNamed<Row>): SqlServerType<List<Row>> =
         SqlServerType(JavaSqlServerTypes.jsonObjectEncodedList(parser.underlying))
 
+    open fun <E, U> ofEnum(underlying: SqlServerType<U>, values: Array<E>, toUnderlying: java.util.function.Function<E, U>): SqlServerType<E> =
+        SqlServerType(JavaSqlServerTypes.ofEnum(underlying.underlying, values, toUnderlying))
+
+    open fun <E : Enum<E>> ofEnum(values: Array<E>): SqlServerType<E> =
+        SqlServerType(JavaSqlServerTypes.ofEnum(values))
+
     companion object : SqlServerTypes()
 }
+
+inline fun <reified E : Enum<E>> SqlServerTypes.Companion.ofEnum(): SqlServerType<E> =
+    ofEnum(enumValues<E>())

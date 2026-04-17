@@ -115,6 +115,12 @@ open class OracleTypes {
 
     open fun uRowId(maxLength: Int): OracleType<String> = OracleType(JavaOracleTypes.uRowId(maxLength))
 
+    open fun <E, U> ofEnum(underlying: OracleType<U>, values: Array<E>, toUnderlying: java.util.function.Function<E, U>): OracleType<E> =
+        OracleType(JavaOracleTypes.ofEnum(underlying.underlying, values, toUnderlying))
+
+    open fun <E : Enum<E>> ofEnum(values: Array<E>): OracleType<E> =
+        OracleType(JavaOracleTypes.ofEnum(values))
+
     open fun <E : Enum<E>> ofEnum(sqlType: String, fromString: java.util.function.Function<String, E>): OracleType<E> =
         OracleType(JavaOracleTypes.ofEnum(sqlType, fromString))
 
@@ -142,3 +148,6 @@ open class OracleTypes {
 
     companion object : OracleTypes()
 }
+
+inline fun <reified E : Enum<E>> OracleTypes.Companion.ofEnum(): OracleType<E> =
+    ofEnum(enumValues<E>())

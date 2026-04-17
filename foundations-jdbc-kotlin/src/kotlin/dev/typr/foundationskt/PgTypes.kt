@@ -93,6 +93,12 @@ open class PgTypes {
     open fun <E : Enum<E>> ofEnum(enumTypeName: String, fromString: (String) -> E): PgType<E> =
         PgType(JavaPgTypes.ofEnum(enumTypeName) { fromString(it) })
 
+    open fun <E : Enum<E>> ofEnum(enumTypeName: String, values: Array<E>): PgType<E> =
+        PgType(JavaPgTypes.ofEnum(enumTypeName, values))
+
+    open fun <E> ofEnum(enumTypeName: String, values: Array<E>, name: java.util.function.Function<E, String>): PgType<E> =
+        PgType(JavaPgTypes.ofEnum(enumTypeName, values, name))
+
     open fun <T> ofPgObject(
         sqlType: String,
         constructor: dev.typr.foundations.SqlFunction<String, T>,
@@ -151,3 +157,6 @@ open class PgTypes {
 
     companion object : PgTypes()
 }
+
+inline fun <reified E : Enum<E>> PgTypes.Companion.ofEnum(enumTypeName: String): PgType<E> =
+    ofEnum(enumTypeName, enumValues<E>())
