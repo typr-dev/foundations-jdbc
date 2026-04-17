@@ -178,20 +178,20 @@ public final class QueryAnalyzer {
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
       List<JdbcMeta.ParameterMeta> paramMeta = JdbcMeta.extractParameters(ps);
 
-      // Phantom-SELECT fallback: when the driver reports no USABLE parameter metadata but we
-      // have declared parameters AND the SQL is an INSERT with an explicit column list, probe
-      // the target columns via SELECT metadata — that's the metadata path DuckDB does populate.
-      // Lets the analyzer catch STRUCT-field mismatches on INSERT parameters that would
-      // otherwise be invisible.
+      // Target-table-schema fallback: when the driver reports no USABLE parameter metadata but
+      // we have declared parameters AND the SQL is an INSERT with an explicit column list,
+      // pull the table schema via DatabaseMetaData.getColumns and synthesize parameter
+      // metadata from the matching columns. Catches STRUCT-field mismatches on INSERT
+      // parameters that would otherwise be invisible on DuckDB, and in principle supports
+      // reporting extra/missing codec columns.
       //
-      // "Not usable" means: the driver returned a parameter count that matches the declared
-      // params but every entry has a null/empty vendor type name (DuckDB) OR the count is zero
-      // while we have declared params.
+      // "Not usable" means: the driver returned entries whose vendor type name is null/empty
+      // (DuckDB) OR returned zero entries while we have declared params.
       if (!paramTypes.isEmpty() && !paramMetaHasVendorNames(paramMeta)) {
-        Optional<List<JdbcMeta.ParameterMeta>> phantom =
-            phantomInsertParameterMeta(sql, paramTypes.size(), conn);
-        if (phantom.isPresent()) {
-          paramMeta = phantom.get();
+        Optional<List<JdbcMeta.ParameterMeta>> synthesized =
+            insertParameterMetaFromTableSchema(sql, paramTypes.size(), conn);
+        if (synthesized.isPresent()) {
+          paramMeta = synthesized.get();
         }
       }
 
@@ -219,46 +219,72 @@ public final class QueryAnalyzer {
           java.util.regex.Pattern.CASE_INSENSITIVE);
 
   /**
-   * If {@code sql} is an {@code INSERT INTO <table> (<cols>) VALUES ...} statement, prepare a
-   * {@code SELECT <cols> FROM <table>} and return per-column metadata as synthetic
-   * ParameterMeta (one entry per parameter position). When the parameter count doesn't match
-   * the column list (e.g. a literal was used for one column) or the probe fails for any other
-   * reason, returns {@code Optional.empty()} so the caller falls back to the driver's own
-   * (empty) parameter metadata.
+   * If {@code sql} is an {@code INSERT INTO <table> (<cols>) VALUES ...} statement, pull the
+   * target table's schema via {@link java.sql.DatabaseMetaData#getColumns} and synthesize one
+   * ParameterMeta per codec column by looking each codec column up by name. Returns
+   * {@code Optional.empty()} when the SQL isn't a shape we can handle, the parameter count
+   * doesn't match the column list, the table has no usable schema, or any codec column name
+   * doesn't appear in the table — in those cases the caller falls back to the driver's own
+   * (usually empty) parameter metadata rather than report bogus errors.
+   *
+   * <p>Prefers a proper JDBC metadata source over re-parsing SQL or running a phantom SELECT:
+   * {@code getColumns} works even when the target column names collide with SQL keywords, and
+   * it surfaces auto-generated / default columns so we can tell legitimate partial inserts
+   * from codec-with-missing-fields.
    */
-  private static Optional<List<JdbcMeta.ParameterMeta>> phantomInsertParameterMeta(
+  private static Optional<List<JdbcMeta.ParameterMeta>> insertParameterMetaFromTableSchema(
       String sql, int expectedParamCount, Connection conn) {
     var m = INSERT_COLUMN_LIST.matcher(sql);
-    if (!m.find()) {
-      return Optional.empty();
-    }
-    String table = m.group(1);
+    if (!m.find()) return Optional.empty();
+    String table = stripQuotes(m.group(1));
     String[] rawCols = m.group(2).split(",");
-    if (rawCols.length != expectedParamCount) {
-      return Optional.empty();
-    }
-    StringBuilder selectSql = new StringBuilder("SELECT ");
-    for (int i = 0; i < rawCols.length; i++) {
-      if (i > 0) selectSql.append(", ");
-      selectSql.append(rawCols[i].trim());
-    }
-    selectSql.append(" FROM ").append(table);
-    try (PreparedStatement probe = conn.prepareStatement(selectSql.toString())) {
-      List<JdbcMeta.ColumnMeta> columns = JdbcMeta.extractColumns(probe);
-      if (columns.size() != expectedParamCount) {
-        return Optional.empty();
-      }
-      List<JdbcMeta.ParameterMeta> synthetic = new java.util.ArrayList<>(columns.size());
-      for (int i = 0; i < columns.size(); i++) {
-        JdbcMeta.ColumnMeta c = columns.get(i);
-        synthetic.add(
-            new JdbcMeta.ParameterMeta(
-                i + 1, c.jdbcType(), c.vendorTypeName(), c.nullable()));
-      }
-      return Optional.of(synthetic);
+    if (rawCols.length != expectedParamCount) return Optional.empty();
+
+    java.util.Map<String, JdbcMeta.ColumnMeta> tableColumns;
+    try {
+      tableColumns = loadTableColumns(conn, table);
     } catch (SQLException ignored) {
       return Optional.empty();
     }
+    if (tableColumns.isEmpty()) return Optional.empty();
+
+    List<JdbcMeta.ParameterMeta> synthetic = new java.util.ArrayList<>(expectedParamCount);
+    for (int i = 0; i < rawCols.length; i++) {
+      String codecCol = stripQuotes(rawCols[i].trim()).toLowerCase();
+      JdbcMeta.ColumnMeta tableCol = tableColumns.get(codecCol);
+      if (tableCol == null) return Optional.empty();
+      synthetic.add(
+          new JdbcMeta.ParameterMeta(
+              i + 1, tableCol.jdbcType(), tableCol.vendorTypeName(), tableCol.nullable()));
+    }
+    return Optional.of(synthetic);
+  }
+
+  private static java.util.Map<String, JdbcMeta.ColumnMeta> loadTableColumns(
+      Connection conn, String tableName) throws SQLException {
+    var result = new java.util.LinkedHashMap<String, JdbcMeta.ColumnMeta>();
+    try (java.sql.ResultSet rs =
+        conn.getMetaData().getColumns(null, null, tableName, "%")) {
+      while (rs.next()) {
+        String name = rs.getString("COLUMN_NAME");
+        if (name == null) continue;
+        int jdbcType = rs.getInt("DATA_TYPE");
+        String typeName = rs.getString("TYPE_NAME");
+        int nullable = rs.getInt("NULLABLE");
+        int ordinal = rs.getInt("ORDINAL_POSITION");
+        result.put(
+            name.toLowerCase(),
+            new JdbcMeta.ColumnMeta(ordinal, jdbcType, typeName, nullable, name, name));
+      }
+    }
+    return result;
+  }
+
+  private static String stripQuotes(String ident) {
+    if (ident.length() >= 2 && ident.charAt(0) == '"' && ident.charAt(ident.length() - 1) == '"') {
+      return ident.substring(1, ident.length() - 1);
+    }
+    return ident;
   }
 
   @SuppressWarnings("rawtypes")
