@@ -65,10 +65,9 @@ The default strategy wraps each call in a transaction. Pass a different built-in
 
 | Strategy | Behavior |
 |----------|----------|
-| `defaultStrategy()` | begin, commit, close |
+| `defaultStrategy()` | begin, commit on success, rollback on error, close |
 | `autoCommitStrategy()` | no transaction management, just close |
-| `rollbackOnErrorStrategy()` | begin, commit on success, rollback on error, close |
-| `testStrategy()` | begin, **rollback** (not commit), close — keeps test data isolated |
+| `testStrategy()` | begin, **rollback** on success or error, close — keeps test data isolated |
 
 ```java
 var tx = Transactor.create(config, Transactor.testStrategy());

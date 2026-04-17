@@ -38,5 +38,4 @@ object Transactor:
 
   def defaultStrategy(): Strategy = dev.typr.foundations.Transactor.defaultStrategy()
   def autoCommitStrategy(): Strategy = dev.typr.foundations.Transactor.autoCommitStrategy()
-  def rollbackOnErrorStrategy(): Strategy = dev.typr.foundations.Transactor.rollbackOnErrorStrategy()
   def testStrategy(): Strategy = dev.typr.foundations.Transactor.testStrategy()

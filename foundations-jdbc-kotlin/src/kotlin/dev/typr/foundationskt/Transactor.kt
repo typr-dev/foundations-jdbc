@@ -54,9 +54,6 @@ class Transactor(val underlying: dev.typr.foundations.Transactor) {
         fun autoCommitStrategy(): Strategy = dev.typr.foundations.Transactor.autoCommitStrategy()
 
         @JvmStatic
-        fun rollbackOnErrorStrategy(): Strategy = dev.typr.foundations.Transactor.rollbackOnErrorStrategy()
-
-        @JvmStatic
         fun testStrategy(): Strategy = dev.typr.foundations.Transactor.testStrategy()
     }
 }
