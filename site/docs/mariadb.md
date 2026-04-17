@@ -115,6 +115,17 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 
 <Snippet file="mariadb/EnumType" />
 
+:::note Scala 3 enums need an explicit `extends`
+The Scala wrapper's `ofEnum` method has the bound `[E <: java.lang.Enum[E]]`. Simple Scala 3 enums (no constructor parameters) extend `java.lang.Enum[T]` at the JVM level, but the Scala 3 type checker does not recognize this for the `ofEnum` bound unless you add the extension explicitly:
+
+```scala
+enum Status extends java.lang.Enum[Status]:
+  case PENDING, ACTIVE, COMPLETED
+```
+
+Without the explicit `extends`, the call `MariaTypes.ofEnum[Status]("ENUM('PENDING','ACTIVE','COMPLETED')", Status.valueOf)` fails with `Type argument Status does not conform to upper bound Enum[Status]`. Java enums and Kotlin `enum class` work without any extra clause.
+:::
+
 ## SET Type
 
 | MariaDB Type | Java Type |

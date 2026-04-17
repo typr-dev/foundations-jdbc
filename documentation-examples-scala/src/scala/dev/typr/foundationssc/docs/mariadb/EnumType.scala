@@ -5,13 +5,13 @@ import dev.typr.foundationssc.data.*
 @SuppressWarnings(Array("unused"))
 object EnumType:
   // start
-  // Define your Scala 3 enum
-  enum Status:
+  // Scala 3 enums need an explicit `extends java.lang.Enum[Self]` clause
+  // to satisfy the `ofEnum[E <: Enum[E]]` bound. Without it, the type
+  // checker rejects the call even though simple Scala 3 enums do extend
+  // java.lang.Enum at the JVM level.
+  enum Status extends java.lang.Enum[Status]:
     case PENDING, ACTIVE, COMPLETED
 
-  // Create a MariaType using transform (Scala 3 enums don't extend java.lang.Enum)
-  val statusType: MariaType[Status] = MariaTypes.text.transform(
-    Status.valueOf,
-    _.toString
-  )
+  val statusType: MariaType[Status] =
+    MariaTypes.ofEnum[Status]("ENUM('PENDING','ACTIVE','COMPLETED')", Status.valueOf)
   // stop

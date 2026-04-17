@@ -127,6 +127,17 @@ Foundations JDBC provides comprehensive support for DuckDB's rich type system, i
 
 <Snippet file="duckdb/EnumType" />
 
+:::note Scala 3 enums need an explicit `extends`
+The Scala wrapper's `ofEnum` method has the bound `[E <: java.lang.Enum[E]]`. Simple Scala 3 enums (no constructor parameters) extend `java.lang.Enum[T]` at the JVM level, but the Scala 3 type checker does not recognize this for the `ofEnum` bound unless you add the extension explicitly:
+
+```scala
+enum Status extends java.lang.Enum[Status]:
+  case PENDING, ACTIVE, COMPLETED
+```
+
+Without the explicit `extends`, the call `DuckDbTypes.ofEnum[Status]("status", Status.valueOf)` fails with `Type argument Status does not conform to upper bound Enum[Status]`. Java enums and Kotlin `enum class` work without any extra clause.
+:::
+
 ## LIST Types
 
 Any type can be made into a variable-length list with `.list()`. DuckDB renders as `T[]` and the Java representation is `List<T>`:
