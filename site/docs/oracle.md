@@ -179,3 +179,48 @@ OracleType<String> name = OracleTypes.varchar2(100).nullableOk();
 Wrap base types with custom Java types using `transform`:
 
 <Snippet file="oracle/DomainType" />
+
+## Required driver dependencies
+
+The core driver is `com.oracle.database.jdbc:ojdbc11`. A second artifact is needed
+when you bind OBJECT or VARRAY literals inline in SQL — e.g. `TABLE(?)` over a
+VARRAY parameter, or `SELECT ?::my_t FROM dual`:
+
+```
+com.oracle.database.xml:xdb:23.6.0.24.10
+```
+
+Without `xdb` on the runtime classpath, the first inline OBJECT/VARRAY bind fails
+with `NoClassDefFoundError: oracle/xdb/XMLType`. The driver itself compiles fine
+without it — the error only surfaces at execute time.
+
+## Reserved-word traps in OBJECT types
+
+Oracle's reserved-word list applies inside `CREATE TYPE`. Attribute names like
+`LEVEL`, `ROWID`, `DATE`, `NUMBER`, `USER` will *compile* the type but leave it in
+state `INVALID`:
+
+```sql
+CREATE TYPE skill_t AS OBJECT (name VARCHAR2(100), LEVEL NUMBER(3));
+-- reports "Type created" but SELECT status FROM user_objects WHERE object_name='SKILL_T' → INVALID
+-- every downstream use then fails with ORA-00902 / ORA-03050
+```
+
+Rename the attribute (`LVL`, `ROW_ID`, etc.) or quote the identifier. The error
+messages don't point back to the CREATE TYPE — they show up at SELECT/INSERT time.
+
+## DDL inside a transaction
+
+Oracle auto-commits DDL. Running several `CREATE TYPE` / `CREATE TABLE` statements
+inside a single `tx.transact { conn -> ... }` block can produce surprising catalog
+visibility issues — a subsequent `CREATE TABLE` referencing a freshly-declared
+`TYPE` may fail with `ORA-00902` even though the type is valid. Split each DDL
+into its own `tx.transact { }` call to keep each statement's auto-commit boundary
+clean.
+
+## Schema-qualified type names
+
+When a connection's current schema owns the type, you can reference it bare
+(`compositeOf("SKILL_T", ...)`). Cross-schema usage generally requires the
+fully-qualified name (`compositeOf("TYPR.SKILL_T", ...)`). If in doubt, use the
+qualified form — it works from either side.

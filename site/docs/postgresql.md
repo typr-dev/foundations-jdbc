@@ -77,6 +77,17 @@ Foundations JDBC provides comprehensive support for all PostgreSQL data types, i
 | `json` | `Json` | Stored as-is, validated on input |
 | `jsonb` | `Jsonb` | Binary format, indexed, normalized |
 
+`Json` and `Jsonb` are distinct wrapper records around a `String` payload, so a single row with both a `json` and a `jsonb` column keeps its types straight. Wrap the raw JSON text at the edges:
+
+```java
+new Jsonb("{\"ok\":true}")     // java
+```
+```kotlin
+Jsonb("""{"ok":true}""")        // kotlin
+```
+
+A common first-run surprise is declaring `val payload: String` on a Kotlin data class and getting `actual type is 'String', but 'Jsonb!' was expected` — the Kotlin `!` just marks a platform type, the fix is the wrap above.
+
 <Snippet file="postgresql/JsonTypes" />
 
 ## Array Types
