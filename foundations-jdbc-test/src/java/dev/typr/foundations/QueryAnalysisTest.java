@@ -1554,6 +1554,15 @@ public class QueryAnalysisTest {
         });
   }
 
+  // No test for INSERT parameter-side struct mismatch on DuckDB — the driver reports no
+  // parameter metadata for INSERTs, so the analyzer can't see the parameter type at all
+  // regardless of what the declared codec says. The checkParameterTypes structural-parser
+  // path is live; it just has nothing to check against on DuckDB. This is the same reason
+  // the user's abosleuth "type → type2" change didn't fail QueryChecker — the INSERT
+  // template is the only analyzer-visible target there. To catch this class of bug on
+  // DuckDB we'd need the analyzer to cross-reference INSERT target columns via a phantom
+  // SELECT; not implemented yet.
+
   @Test
   public void testStructAnalysis_nestedStructMismatchAtInnerField() {
     // Declared nested STRUCT field is "level" but the DB column has "xp" — the mismatch is two
