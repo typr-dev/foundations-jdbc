@@ -115,6 +115,10 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 
 <Snippet file="mariadb/EnumType" />
 
+:::note `sqlType` is the full `ENUM(...)` literal
+MariaDB/MySQL enums aren't named types — they're declared inline on the column. Pass the complete literal to `ofEnum`: `ofEnum("ENUM('PENDING','ACTIVE','COMPLETED')", State::valueOf)`. The string must exactly match the column's declared type (same values, same order, same quoting).
+:::
+
 :::note Scala 3 enums need an explicit `extends`
 The Scala wrapper's `ofEnum` method has the bound `[E <: java.lang.Enum[E]]`. Simple Scala 3 enums (no constructor parameters) extend `java.lang.Enum[T]` at the JVM level, but the Scala 3 type checker does not recognize this for the `ofEnum` bound unless you add the extension explicitly:
 

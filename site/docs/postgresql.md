@@ -8,6 +8,18 @@ import Snippet from '@site/src/components/Snippet';
 
 Foundations JDBC provides comprehensive support for all PostgreSQL data types, including the many exotic types that make PostgreSQL unique.
 
+## Setting `search_path`
+
+Use `PostgresConfig.Builder.currentSchema(...)` to set a comma-separated `search_path` at connection time — handy when your composite types, enums, or tables live in a non-`public` schema and you want to reference them unqualified in SQL:
+
+```java
+var config = PostgresConfig.builder("host", 5432, "db", "user", "pw")
+    .currentSchema("app,public")   // search_path = app, public
+    .build();
+```
+
+This maps to PostgreSQL's `currentSchema` connection property. For single-schema use, [`ConnectionSettings.schema(...)`](./transactors#connection-settings) also works but only accepts one name.
+
 ## Numeric Types
 
 | PostgreSQL Type | Java Type | Notes |
@@ -220,6 +232,10 @@ Types used internally by PostgreSQL:
 PostgreSQL enums are mapped to Java enums:
 
 <Snippet file="postgresql/EnumType" />
+
+:::note `sqlType` must match the `CREATE TYPE` name (schema-qualified if needed)
+The first argument to `ofEnum(sqlType, ...)` is the PostgreSQL type name used to cast bound parameters. Pass exactly the name that appears in `CREATE TYPE schema.color AS ENUM(...)` — including the schema prefix if the type isn't in `search_path`. A mismatch produces `type "color" does not exist` on the first insert.
+:::
 
 :::note Scala 3 enums need an explicit `extends`
 The Scala wrapper's `ofEnum` method has the bound `[E <: java.lang.Enum[E]]`. Simple Scala 3 enums (no constructor parameters) extend `java.lang.Enum[T]` at the JVM level, but the Scala 3 type checker does not recognize this for the `ofEnum` bound unless you add the extension explicitly:

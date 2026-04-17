@@ -8,6 +8,10 @@ import Snippet from '@site/src/components/Snippet';
 
 Foundations JDBC provides comprehensive support for DuckDB's rich type system, including nested types (LIST, STRUCT, MAP, UNION) and extended integer types.
 
+:::warning Query Analysis on DuckDB is column-type-only
+DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so `QueryChecker`'s `.opt()` and wrong-parameter-type checks silently pass on DuckDB. Column type mismatches are still caught. If you test against DuckDB in-memory and deploy against PostgreSQL or another dialect, run analysis against the production dialect too — it will find issues DuckDB can't. See [Query Analysis: Database Behavior](./query-analysis-database-behavior) for the full matrix.
+:::
+
 ## Integer Types (Signed)
 
 | DuckDB Type | Java Type | Range |
@@ -126,6 +130,10 @@ Foundations JDBC provides comprehensive support for DuckDB's rich type system, i
 ## Enum Type
 
 <Snippet file="duckdb/EnumType" />
+
+:::note `sqlType` must match the declared type name
+The first argument to `ofEnum(sqlType, ...)` is used to cast bound parameters (e.g. `CAST(? AS status)`) and must match the name used in `CREATE TYPE status AS ENUM(...)` and in the column's declared type. If the column is typed `status_t` but you call `ofEnum("status", ...)`, inserts fail with `Type with name status does not exist`.
+:::
 
 :::note Scala 3 enums need an explicit `extends`
 The Scala wrapper's `ofEnum` method has the bound `[E <: java.lang.Enum[E]]`. Simple Scala 3 enums (no constructor parameters) extend `java.lang.Enum[T]` at the JVM level, but the Scala 3 type checker does not recognize this for the `ofEnum` bound unless you add the extension explicitly:
