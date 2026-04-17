@@ -108,6 +108,20 @@ class MariaTypes {
   def vector(dimension: Int): MariaType[dev.typr.foundations.data.Vector] =
     MariaType(JavaMariaTypes.vector(dimension))
 
+  /** Create a MariaType for an ENUM column, deriving the SQL literal from the enum class.
+    *
+    * Call-site: `MariaTypes.ofEnum[OrderState]` — no arguments, the enum class is resolved via
+    * {{{ClassTag}}}. The column DDL must match the derived literal
+    * (`ENUM('PENDING','SHIPPED',…)` using each enum constant's `name`). Use
+    * [[ofEnum(sqlType, fromString)]] when the database labels differ from the Java enum's
+    * `name()` values.
+    *
+    * See the Scala 3 enum caveat at the top of this file: simple Scala 3 enums need an explicit
+    * `extends java.lang.Enum[E]` to satisfy the `<: Enum[E]` bound.
+    */
+  def ofEnum[E <: Enum[E]](using ct: scala.reflect.ClassTag[E]): MariaType[E] =
+    MariaType(JavaMariaTypes.ofEnum(ct.runtimeClass.asInstanceOf[Class[E]]))
+
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): MariaType[E] =
     MariaType(JavaMariaTypes.ofEnum(sqlType, fromString))
 

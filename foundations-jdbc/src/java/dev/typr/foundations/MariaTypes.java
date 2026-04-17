@@ -419,11 +419,43 @@ public interface MariaTypes {
   // ==================== ENUM Type ====================
 
   /**
-   * Create a MariaType for ENUM columns. MariaDB ENUMs are read/written as strings.
+   * Create a MariaType for an ENUM column, deriving the SQL literal from the enum class.
    *
-   * @param fromString function to convert string to enum value
+   * <p>MariaDB's ENUM is not a named type — the full set of values is part of the column type
+   * itself (e.g. {@code ENUM('PENDING','SHIPPED','DELIVERED')}). This factory uses the enum
+   * constants' {@code name()} values in declaration order to build that literal automatically —
+   * so the column DDL must match exactly:
+   *
+   * <pre>{@code
+   * enum OrderState { PENDING, SHIPPED, DELIVERED }
+   * var state = MariaTypes.ofEnum(OrderState.class);
+   * // column must be: state ENUM('PENDING','SHIPPED','DELIVERED')
+   * }</pre>
+   *
+   * <p>Use {@link #ofEnum(String, Function)} when the database label set differs from the Java
+   * enum's {@code name()} values.
+   */
+  static <E extends Enum<E>> MariaType<E> ofEnum(Class<E> enumClass) {
+    var literal = new StringBuilder("ENUM(");
+    var values = enumClass.getEnumConstants();
+    for (int i = 0; i < values.length; i++) {
+      if (i > 0) literal.append(',');
+      literal.append('\'').append(values[i].name()).append('\'');
+    }
+    literal.append(')');
+    return ofEnum(literal.toString(), s -> Enum.valueOf(enumClass, s));
+  }
+
+  /**
+   * Create a MariaType for an ENUM column, with an explicit SQL literal and a custom string →
+   * enum mapping. Use when the database labels differ from the Java enum's {@code name()} values
+   * (e.g. lowercase in the DB), or when you want a hand-crafted literal for any other reason.
+   *
+   * <p>For the common case of matching Java enum constant names, prefer {@link #ofEnum(Class)}.
+   *
+   * @param sqlType the complete ENUM(...) literal, exactly as it appears in the column DDL
+   * @param fromString function to convert a string from the DB to the enum value
    * @param <E> the enum type
-   * @return MariaType for the enum
    */
   static <E extends Enum<E>> MariaType<E> ofEnum(String sqlType, Function<String, E> fromString) {
     return MariaType.<E>of(

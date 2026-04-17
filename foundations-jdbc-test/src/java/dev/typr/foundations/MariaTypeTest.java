@@ -260,14 +260,16 @@ public class MariaTypeTest {
           new MariaTypeAndExample<>(MariaTypes.year, Year.of(2155)), // Edge case: max YEAR
 
           // ==================== ENUM Type ====================
+          // Class-based factory derives ENUM('RED','GREEN','BLUE') from Color.class.
+          new MariaTypeAndExample<>(MariaTypes.ofEnum(Color.class), Color.GREEN),
+          new MariaTypeAndExample<>(
+              MariaTypes.ofEnum(Color.class), Color.RED), // Edge case: first value
+          new MariaTypeAndExample<>(
+              MariaTypes.ofEnum(Color.class), Color.BLUE), // Edge case: last value
+          // String-based fallback — still supported for cases where DB labels differ from
+          // the Java enum constant names.
           new MariaTypeAndExample<>(
               MariaTypes.ofEnum("ENUM('RED','GREEN','BLUE')", Color::valueOf), Color.GREEN),
-          new MariaTypeAndExample<>(
-              MariaTypes.ofEnum("ENUM('RED','GREEN','BLUE')", Color::valueOf),
-              Color.RED), // Edge case: first value
-          new MariaTypeAndExample<>(
-              MariaTypes.ofEnum("ENUM('RED','GREEN','BLUE')", Color::valueOf),
-              Color.BLUE), // Edge case: last value
 
           // ==================== SET Type ====================
           new MariaTypeAndExample<>(

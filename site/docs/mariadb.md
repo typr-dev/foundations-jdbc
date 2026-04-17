@@ -125,8 +125,22 @@ For application-level "point in time" values, the idiomatic approach on MariaDB 
 
 <Snippet file="mariadb/EnumType" />
 
-:::note `sqlType` is the full `ENUM(...)` literal
-MariaDB/MySQL enums aren't named types — they're declared inline on the column. Pass the complete literal to `ofEnum`: `ofEnum("ENUM('PENDING','ACTIVE','COMPLETED')", State::valueOf)`. The string must exactly match the column's declared type (same values, same order, same quoting).
+:::tip Prefer the class-based factory
+MariaDB/MySQL enums aren't named types — they're declared inline on the column. The class-based factory derives the full `ENUM('A','B','C')` literal from the Java enum class automatically:
+
+```java
+MariaTypes.ofEnum(State.class)            // Java
+```
+```kotlin
+MariaTypes.ofEnum<State>()                 // Kotlin (reified)
+```
+```scala
+MariaTypes.ofEnum[State]                   // Scala 3 (ClassTag-derived)
+```
+
+The column DDL must match the derived literal — `ENUM('PENDING','ACTIVE','COMPLETED')` in declaration order, using the enum constants' `name()` values.
+
+Fall back to the string-based overload `ofEnum("ENUM('pending',…)", State::valueOf)` when the database labels differ from the Java enum's `name()` values (e.g. lowercase labels in the DB).
 :::
 
 :::note Scala 3 enums need an explicit `extends`
@@ -137,7 +151,7 @@ enum Status extends java.lang.Enum[Status]:
   case PENDING, ACTIVE, COMPLETED
 ```
 
-Without the explicit `extends`, the call `MariaTypes.ofEnum[Status]("ENUM('PENDING','ACTIVE','COMPLETED')", Status.valueOf)` fails with `Type argument Status does not conform to upper bound Enum[Status]`. Java enums and Kotlin `enum class` work without any extra clause.
+Without the explicit `extends`, the call `MariaTypes.ofEnum[Status]` fails with `Type argument Status does not conform to upper bound Enum[Status]`. Java enums and Kotlin `enum class` work without any extra clause.
 :::
 
 ## SET Type
