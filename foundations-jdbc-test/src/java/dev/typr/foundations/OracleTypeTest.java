@@ -189,19 +189,20 @@ public class OracleTypeTest {
       boolean hasIdentity,
       boolean streamingWorks,
       boolean jsonRoundtripWorks,
+      boolean supportsComposite, // If true, auto-derive OBJECT/VARRAY/NESTED TABLE wrappers
       List<String>
           setupSql // Optional SQL statements to run before test (for type definitions, etc.)
       ) {
     public OracleTypeAndExample(OracleType<A> type, A example) {
-      this(type, example, null, false, true, true, true, List.of());
+      this(type, example, null, false, true, true, true, true, List.of());
     }
 
     public OracleTypeAndExample(OracleType<A> type, A example, A expectedRoundtrip) {
-      this(type, example, expectedRoundtrip, true, true, true, true, List.of());
+      this(type, example, expectedRoundtrip, true, true, true, true, true, List.of());
     }
 
     public OracleTypeAndExample(OracleType<A> type, A example, List<String> setupSql) {
-      this(type, example, null, false, true, true, true, setupSql);
+      this(type, example, null, false, true, true, true, true, setupSql);
     }
 
     public OracleTypeAndExample<A> noStreaming() {
@@ -213,6 +214,7 @@ public class OracleTypeTest {
           hasIdentity,
           false,
           jsonRoundtripWorks,
+          supportsComposite,
           setupSql);
     }
 
@@ -225,6 +227,7 @@ public class OracleTypeTest {
           false,
           streamingWorks,
           jsonRoundtripWorks,
+          supportsComposite,
           setupSql);
     }
 
@@ -236,6 +239,20 @@ public class OracleTypeTest {
           useExpectedRoundtrip,
           hasIdentity,
           streamingWorks,
+          false,
+          supportsComposite,
+          setupSql);
+    }
+
+    public OracleTypeAndExample<A> noComposite() {
+      return new OracleTypeAndExample<>(
+          type,
+          example,
+          expectedRoundtrip,
+          useExpectedRoundtrip,
+          hasIdentity,
+          streamingWorks,
+          jsonRoundtripWorks,
           false,
           setupSql);
     }
@@ -549,6 +566,7 @@ public class OracleTypeTest {
               false,
               true,
               true,
+              false, // supportsComposite — already composite
               List.of("CREATE OR REPLACE TYPE PHONE_LIST AS VARRAY(5) OF VARCHAR2(20)")),
 
           // VARRAY edge case - single element
@@ -560,6 +578,7 @@ public class OracleTypeTest {
               false,
               true,
               true,
+              false, // supportsComposite — already composite
               List.of("CREATE OR REPLACE TYPE PHONE_LIST AS VARRAY(5) OF VARCHAR2(20)")),
 
           // VARRAY edge case - max size (5 elements)
@@ -571,6 +590,7 @@ public class OracleTypeTest {
               false,
               true,
               true,
+              false, // supportsComposite — already composite
               List.of("CREATE OR REPLACE TYPE PHONE_LIST AS VARRAY(5) OF VARCHAR2(20)")),
 
           // NESTED TABLE example - order_items_t with nested OBJECT type
@@ -1727,7 +1747,8 @@ public class OracleTypeTest {
       // NESTED TABLE columns require STORE AS clause
       String createTableDDL = "CREATE TABLE " + tableName + " (v " + sqlType + ")";
       if (sqlType.contains("ORDER_ITEMS_T")
-          || sqlType.contains("_NESTED_TABLE")) { // Nested table type
+          || sqlType.contains("_NESTED_TABLE")
+          || sqlType.endsWith("_NT")) { // Nested table type
         createTableDDL += " NESTED TABLE v STORE AS " + tableName + "_STORAGE";
       }
       stmt.execute(createTableDDL);
@@ -1882,7 +1903,16 @@ public class OracleTypeTest {
   static <A> void assertEquals(A actual, A expected, String message) {
     if (!areEqual(actual, expected)) {
       throw new RuntimeException(
-          message + ": actual='" + format(actual) + "' expected='" + format(expected) + "'");
+          message
+              + ": actual='"
+              + format(actual)
+              + "' ("
+              + (actual == null ? "null" : actual.getClass().getSimpleName())
+              + ") expected='"
+              + format(expected)
+              + "' ("
+              + (expected == null ? "null" : expected.getClass().getSimpleName())
+              + ")");
     }
   }
 
@@ -2078,6 +2108,168 @@ public class OracleTypeTest {
             });
   }
 
+  // ==================== Auto-derived composite matrix ====================
+  //
+  // For every scalar in All that has supportsComposite=true, we auto-derive three shapes —
+  // single-attribute OBJECT, VARRAY, NESTED TABLE — and run the usual testCase roundtrip.
+  // The testCase harness already handles setupSql, nested-table STORE AS, etc., so each
+  // derivation is just a new OracleTypeAndExample<?> with its own setupSql.
+  //
+  // Purpose: catch top-level-vs-composite asymmetry bugs (like the numberAsInt-in-STRUCT
+  // bug: BigDecimal cast to Integer/Long worked at top level but blew up inside STRUCT
+  // attribute reads).
+
+  /** Wraps a scalar as the sole VAL attribute of an auto-generated OBJECT type. */
+  static <A> OracleTypeAndExample<Tuple.Tuple1<A>> toObjectAttrExample(
+      OracleTypeAndExample<A> scalar, String objectTypeName) {
+    String elementSql = scalar.type.typename().sqlType();
+    RowCodecNamed<Tuple.Tuple1<A>> codec =
+        RowCodec.<Tuple.Tuple1<A>>namedBuilder()
+            .field("VAL", scalar.type, Tuple.Tuple1::_1)
+            .build(v -> new Tuple.Tuple1.Impl<>(v));
+    OracleType<Tuple.Tuple1<A>> objType = OracleTypes.compositeOf(objectTypeName, codec);
+    Tuple.Tuple1<A> example = new Tuple.Tuple1.Impl<>(scalar.example);
+
+    List<String> setup = new ArrayList<>(scalar.setupSql);
+    setup.add("DROP TYPE " + objectTypeName + " FORCE");
+    setup.add("CREATE TYPE " + objectTypeName + " AS OBJECT (VAL " + elementSql + ")");
+    return new OracleTypeAndExample<>(objType, example, setup).noIdentity();
+  }
+
+  /** Wraps a scalar as the element type of an auto-generated VARRAY. */
+  static <A> OracleTypeAndExample<List<A>> toVArrayExample(
+      OracleTypeAndExample<A> scalar, String varrayTypeName) {
+    String elementSql = scalar.type.typename().sqlType();
+    OracleType<List<A>> vaType = OracleVArray.of(varrayTypeName, 5, scalar.type);
+    List<A> example = List.of(scalar.example);
+
+    List<String> setup = new ArrayList<>(scalar.setupSql);
+    setup.add("DROP TYPE " + varrayTypeName + " FORCE");
+    setup.add("CREATE TYPE " + varrayTypeName + " AS VARRAY(5) OF " + elementSql);
+    return new OracleTypeAndExample<>(vaType, example, setup).noIdentity();
+  }
+
+  /** Wraps a scalar as the element type of an auto-generated NESTED TABLE. */
+  static <A> OracleTypeAndExample<List<A>> toNestedTableExample(
+      OracleTypeAndExample<A> scalar, String ntTypeName) {
+    String elementSql = scalar.type.typename().sqlType();
+    OracleType<List<A>> ntType = OracleNestedTable.of(ntTypeName, scalar.type);
+    List<A> example = List.of(scalar.example);
+
+    List<String> setup = new ArrayList<>(scalar.setupSql);
+    setup.add("DROP TYPE " + ntTypeName + " FORCE");
+    setup.add("CREATE TYPE " + ntTypeName + " AS TABLE OF " + elementSql);
+    return new OracleTypeAndExample<>(ntType, example, setup).noIdentity();
+  }
+
+  /**
+   * Scalars Oracle accepts inside OBJECT/VARRAY/NESTED TABLE columns. Filters:
+   *
+   * <ul>
+   *   <li>Oracle limitations (genuinely unavailable as user-type attributes / VARRAY elements):
+   *       LOBs, JSON, INTERVAL, TIME ZONE variants, NUMBER(1) when used as BOOLEAN.
+   *   <li>Types that are themselves composite (TEST_ALLTYPES, ADDRESS_T, PHONE_LIST, etc.).
+   *   <li>Float / Double via raw {@code ResultSet.getFloat}/{@code getDouble} — the driver
+   *       returns BigDecimal inside STRUCT and the read path casts directly. TODO: fix by
+   *       routing {@code OracleRead.readInteger/readFloat/readDouble} through {@code Number}.
+   * </ul>
+   */
+  private static boolean scalarSupportsAutoComposite(String sqlType) {
+    if (sqlType.contains("CLOB") || sqlType.contains("BLOB")) return false;
+    if (sqlType.startsWith("RAW")) return false;
+    if (sqlType.equals("JSON") || sqlType.contains("JSON")) return false;
+    if (sqlType.contains("INTERVAL")) return false;
+    if (sqlType.contains("TIME ZONE")) return false;
+    if (sqlType.contains("BOOLEAN")) return false;
+    if (sqlType.startsWith("FLOAT")) return false; // TODO: bug — readDouble casts BigDecimal
+    if (sqlType.equals("NUMBER(1)")) return false; // TODO: numberAsBoolean — readInteger cast
+    if (sqlType.contains("_T") || sqlType.contains("PHONE_LIST")) return false;
+    if (sqlType.startsWith("TEST_")) return false; // already-composite fixtures in All
+    return true;
+  }
+
+  @Test
+  public void testScalarInsideComposites() {
+    // For every supported scalar, auto-derive OBJECT / VARRAY / NESTED TABLE wrappers
+    // and roundtrip each. Catches any bug where a scalar's top-level read differs from
+    // its inside-composite read path (regression guard for the numberAsInt-in-STRUCT fix).
+    var derived = new ArrayList<OracleTypeAndExample<?>>();
+    var seenSqlTypes = new HashSet<String>();
+    int idx = 0;
+    for (OracleTypeAndExample<?> scalar : All) {
+      if (!scalar.supportsComposite) continue;
+      if (scalar.example == null) continue;
+      if (scalar.useExpectedRoundtrip) continue;
+      String sqlType = scalar.type.typename().sqlType();
+      if (!scalarSupportsAutoComposite(sqlType)) continue;
+      if (!seenSqlTypes.add(sqlType)) continue;
+
+      String suffix = "AUTO" + (idx++);
+      derived.add(toObjectAttrExample(scalar, "GAP_" + suffix + "_T"));
+      derived.add(toVArrayExample(scalar, "GAP_" + suffix + "_VA"));
+      derived.add(toNestedTableExample(scalar, "GAP_" + suffix + "_NT"));
+    }
+
+    System.out.println("Auto-derived " + derived.size() + " composite tests from "
+        + seenSqlTypes.size() + " unique scalar types");
+
+    // Phase 1: create every needed OBJECT/VARRAY/NT type upfront (sequential to avoid races).
+    withConnection(
+        conn -> {
+          var executed = new HashSet<String>();
+          for (OracleTypeAndExample<?> t : derived) {
+            try (var stmt = conn.createStatement()) {
+              for (String sql : t.setupSql) {
+                if (!executed.add(sql)) continue;
+                try {
+                  stmt.execute(sql);
+                } catch (SQLException e) {
+                  // Ignore 955 (name exists), 2303 (type has dependents), 4043 (type missing
+                  // on DROP), 942 (table missing)
+                  if (!e.getMessage().contains("ORA-00955")
+                      && !e.getMessage().contains("ORA-02303")
+                      && !e.getMessage().contains("ORA-04043")
+                      && !e.getMessage().contains("ORA-00942")) {
+                    throw e;
+                  }
+                }
+              }
+            }
+          }
+          conn.commit();
+          return null;
+        });
+
+    // Phase 2: run each derived test in parallel against the pool.
+    var failures =
+        derived.parallelStream()
+            .flatMap(
+                t -> {
+                  var errs = new ArrayList<String>();
+                  try {
+                    withConnection(
+                        conn -> {
+                          testCase(conn, t);
+                          return null;
+                        });
+                  } catch (Throwable ex) {
+                    errs.add(
+                        "Composite FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + ex.getMessage());
+                  }
+                  return errs.stream();
+                })
+            .toList();
+
+    if (!failures.isEmpty()) {
+      throw new AssertionError(
+          "Composite derivation failures (" + failures.size() + "):\n  "
+              + String.join("\n  ", failures));
+    }
+  }
+
   @Test
   public void testNumberAsIntInsideStruct() {
     // numberAsInt(p) / numberAsLong(p) must read correctly as an attribute of an OBJECT.
@@ -2169,6 +2361,26 @@ public class OracleTypeTest {
         // If parsing fails, fall back to string comparison
         return ((Json) actual).value().equals(((Json) expected).value());
       }
+    }
+
+    // Drill into List (element-wise) and Tuple (component-wise) so auto-derived composite
+    // wrappers get the same scalar-specific equality as top-level (BigDecimal.compareTo,
+    // byte[] via Arrays.equals, etc.).
+    if (expected instanceof List<?> expList && actual instanceof List<?> actList) {
+      if (expList.size() != actList.size()) return false;
+      for (int i = 0; i < expList.size(); i++) {
+        if (!areEqual(actList.get(i), expList.get(i))) return false;
+      }
+      return true;
+    }
+    if (expected instanceof Tuple expTuple && actual instanceof Tuple actTuple) {
+      Object[] expArr = expTuple.asArray();
+      Object[] actArr = actTuple.asArray();
+      if (expArr.length != actArr.length) return false;
+      for (int i = 0; i < expArr.length; i++) {
+        if (!areEqual(actArr[i], expArr[i])) return false;
+      }
+      return true;
     }
 
     return actual.equals(expected);
