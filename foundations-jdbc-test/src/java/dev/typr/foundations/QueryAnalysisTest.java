@@ -1595,4 +1595,53 @@ public class QueryAnalysisTest {
           return null;
         });
   }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Prepare-time failure path
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Test
+  public void prepareFailure_included_in_report_and_errors() {
+    var failure =
+        new AlignmentError.PrepareFailure(
+            "42883",
+            "ERROR: operator does not exist: integer = text",
+            "The column type is 'integer' but the declared parameter type is 'text'. Change the parameter type to match the column.");
+    var analysis =
+        QueryAnalysis.prepareFailed(
+            "SELECT id FROM t WHERE id = ?",
+            null,
+            List.of((DbType<?>) PgTypes.text),
+            failure);
+
+    assertFalse("prepareFailed analysis should be !succeeded", analysis.succeeded());
+    assertEquals("allErrors should contain exactly the PrepareFailure", 1, analysis.allErrors().size());
+    assertTrue(
+        "error should be PrepareFailure",
+        analysis.allErrors().getFirst() instanceof AlignmentError.PrepareFailure);
+
+    String report = analysis.report();
+    assertTrue("report mentions prepare failure", report.contains("Prepare failed"));
+    assertTrue("report includes SQLSTATE", report.contains("42883"));
+    assertTrue(
+        "report includes driver message",
+        report.contains("operator does not exist: integer = text"));
+    assertTrue("report includes parsed hint", report.contains("Change the parameter type"));
+  }
+
+  @Test
+  public void parsePgPrepareHint_matches_operator_does_not_exist() {
+    String msg = "ERROR: operator does not exist: integer = text\n  Hint: ...";
+    String hint = QueryAnalyzer.parsePgPrepareHint(msg);
+    assertNotNull("should parse a hint for the operator-mismatch pattern", hint);
+    assertTrue("hint names the expected (column) type", hint.contains("integer"));
+    assertTrue("hint names the declared (param) type", hint.contains("text"));
+  }
+
+  @Test
+  public void parsePgPrepareHint_returns_null_for_unrelated_messages() {
+    assertNull(QueryAnalyzer.parsePgPrepareHint(null));
+    assertNull(QueryAnalyzer.parsePgPrepareHint("syntax error at or near \"SELEKT\""));
+    assertNull(QueryAnalyzer.parsePgPrepareHint("column \"foo\" does not exist"));
+  }
 }

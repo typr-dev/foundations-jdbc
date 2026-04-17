@@ -16,14 +16,35 @@ public record QueryAnalysis(
     String queryName,
     List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
     List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
-    boolean parameterMetadataAvailable) {
+    boolean parameterMetadataAvailable,
+    AlignmentError.PrepareFailure prepareFailure) {
 
   public QueryAnalysis(
       String sql,
       List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
       List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
       boolean parameterMetadataAvailable) {
-    this(sql, null, parameterAlignment, columnAlignment, parameterMetadataAvailable);
+    this(sql, null, parameterAlignment, columnAlignment, parameterMetadataAvailable, null);
+  }
+
+  public QueryAnalysis(
+      String sql,
+      String queryName,
+      List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
+      List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
+      boolean parameterMetadataAvailable) {
+    this(sql, queryName, parameterAlignment, columnAlignment, parameterMetadataAvailable, null);
+  }
+
+  /** Construct a prepare-failure analysis (metadata couldn't be read — driver rejected the SQL). */
+  public static QueryAnalysis prepareFailed(
+      String sql,
+      String queryName,
+      List<DbType<?>> paramTypes,
+      AlignmentError.PrepareFailure failure) {
+    List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> declared = new ArrayList<>();
+    for (DbType<?> t : paramTypes) declared.add(new Alignment.LeftOnly<>(t));
+    return new QueryAnalysis(sql, queryName, declared, List.of(), false, failure);
   }
 
   public List<AlignmentError> parameterErrors() {
@@ -95,6 +116,7 @@ public record QueryAnalysis(
 
   public List<AlignmentError> allErrors() {
     List<AlignmentError> all = new ArrayList<>();
+    if (prepareFailure != null) all.add(prepareFailure);
     all.addAll(parameterErrors());
     all.addAll(columnErrors());
     return all;
