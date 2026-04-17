@@ -40,11 +40,20 @@ class AnalyzableScannerMethodTest {
   }
 
   @Test
-  void skipsPrivateStaticNonAnalyzable() {
+  void findsPrivateMethods() {
+    // The scanner is a test-scope tool — private / package-private methods are fair game and
+    // get unlocked via setAccessible(true). Keeping them hidden was a footgun for callers whose
+    // repo classes weren't deliberately public.
     var results = AnalyzableScanner.scanDetailed("dev.typr.foundations.fixtures.methods");
     var names = fieldNames(results);
-    assertFalse(names.contains("privateMethod"), "should not find private method");
-    assertFalse(names.contains("staticMethod"), "should not find static method");
+    assertTrue(names.contains("privateMethod"), "should find private method via reflection");
+  }
+
+  @Test
+  void skipsStaticNonAnalyzable() {
+    var results = AnalyzableScanner.scanDetailed("dev.typr.foundations.fixtures.methods");
+    var names = fieldNames(results);
+    assertFalse(names.contains("staticMethod"), "should not find instance-scan static method");
     assertFalse(names.contains("notAnalyzable"), "should not find non-analyzable method");
   }
 

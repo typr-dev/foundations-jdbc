@@ -258,6 +258,10 @@ public final class AnalyzableScanner {
         value = isStatic ? field.get(null) : field.get(instance);
       } catch (IllegalAccessException e) {
         continue;
+      } catch (LinkageError le) {
+        // Class init triggered by field.get() may fail if the initializer references
+        // classes not on this classpath (e.g. private Kotlin ThreadLocal state). Skip.
+        continue;
       }
       if (value == null) continue;
 
@@ -293,6 +297,9 @@ public final class AnalyzableScanner {
         value = field.get(null);
       } catch (IllegalAccessException e) {
         continue;
+      } catch (LinkageError le) {
+        // Class init triggered by field.get() may fail. Skip this class quietly.
+        continue;
       }
       if (value == null) continue;
 
@@ -309,8 +316,12 @@ public final class AnalyzableScanner {
     }
 
     // Also scan public static methods (Kotlin top-level functions)
-    for (var method : clazz.getDeclaredMethods()) {
-      if (!isStaticAnalyzableMethod(method)) continue;
+    for (var method : declaredMethodsOrEmpty(clazz)) {
+      try {
+        if (!isStaticAnalyzableMethod(method)) continue;
+      } catch (LinkageError ignored) {
+        continue;
+      }
       if (method.getParameterCount() == 0 && isGetterForField(method.getName(), fieldNames))
         continue;
 
@@ -337,29 +348,43 @@ public final class AnalyzableScanner {
     }
   }
 
+  /** Getting declared methods can throw on classpath issues; fall back to an empty array. */
+  private static Method[] declaredMethodsOrEmpty(Class<?> clazz) {
+    try {
+      return clazz.getDeclaredMethods();
+    } catch (LinkageError ignored) {
+      return new Method[0];
+    }
+  }
+
   private static boolean isStaticAnalyzableMethod(Method method) {
     int mods = method.getModifiers();
-    if (!Modifier.isPublic(mods)) return false;
+    // Visibility is not a criterion — the scanner is a test-scope tool and unlocks
+    // private/package-private members via setAccessible(true) before invocation.
     if (!Modifier.isStatic(mods)) return false;
     if (method.isSynthetic() || method.isBridge()) return false;
-    if (method.getParameterCount() > 10) return false;
-
-    var returnType = method.getReturnType();
-    if (Analyzable.class.isAssignableFrom(returnType)) return true;
-
     try {
-      returnType.getMethod("getAnalyzable");
-      return true;
-    } catch (NoSuchMethodException ignored) {
-    }
+      if (method.getParameterCount() > 10) return false;
 
-    try {
-      returnType.getMethod("analyzable");
-      return true;
-    } catch (NoSuchMethodException ignored) {
-    }
+      var returnType = method.getReturnType();
+      if (Analyzable.class.isAssignableFrom(returnType)) return true;
 
-    return false;
+      try {
+        returnType.getMethod("getAnalyzable");
+        return true;
+      } catch (NoSuchMethodException ignored) {
+      }
+
+      try {
+        returnType.getMethod("analyzable");
+        return true;
+      } catch (NoSuchMethodException ignored) {
+      }
+
+      return false;
+    } catch (LinkageError ignored) {
+      return false;
+    }
   }
 
   // --- Method scanning ---
@@ -374,8 +399,13 @@ public final class AnalyzableScanner {
       List<Result> result) {
     var consumed = new HashSet<ScanDirective>();
 
-    for (var method : clazz.getDeclaredMethods()) {
-      if (!isAnalyzableMethod(method)) continue;
+    for (var method : declaredMethodsOrEmpty(clazz)) {
+      try {
+        if (!isAnalyzableMethod(method)) continue;
+      } catch (LinkageError ignored) {
+        // Private Kotlin methods may reference classes not on this project's classpath.
+        continue;
+      }
 
       var className = clazz.getName();
       var methodName = method.getName();
@@ -402,6 +432,8 @@ public final class AnalyzableScanner {
           if (analyzable != null) {
             result.add(new Result(simpleName, methodName, analyzable));
           }
+        } catch (LinkageError ignored) {
+          // Skip — class loading failed, nothing to report.
         } catch (Exception e) {
           errors.add(
               formatMethodError(
@@ -416,6 +448,8 @@ public final class AnalyzableScanner {
       Object[] args;
       try {
         args = constructDummyArgs(method);
+      } catch (LinkageError ignored) {
+        continue; // parameter types unresolvable — skip quietly
       } catch (Exception e) {
         errors.add(
             formatMethodError(
@@ -433,6 +467,8 @@ public final class AnalyzableScanner {
         if (analyzable != null) {
           result.add(new Result(simpleName, methodName, analyzable));
         }
+      } catch (LinkageError ignored) {
+        // Skip — class loading failed during invocation.
       } catch (Exception e) {
         errors.add(
             formatMethodError(
@@ -483,28 +519,36 @@ public final class AnalyzableScanner {
 
   private static boolean isAnalyzableMethod(Method method) {
     int mods = method.getModifiers();
-    if (!Modifier.isPublic(mods)) return false;
+    // Visibility is not a criterion — the scanner is a test-scope tool and unlocks
+    // private/package-private members via setAccessible(true) before invocation.
     if (Modifier.isStatic(mods)) return false;
     if (method.isSynthetic() || method.isBridge()) return false;
     if (method.getDeclaringClass() == Object.class) return false;
-    if (method.getParameterCount() > 10) return false;
-
-    var returnType = method.getReturnType();
-    if (Analyzable.class.isAssignableFrom(returnType)) return true;
-
+    // Private / package-private Kotlin methods may reference classes (e.g. kotlin.Unit) not
+    // present on the scanning classpath — introspecting their signature throws
+    // NoClassDefFoundError. Treat as "not analyzable" and continue.
     try {
-      returnType.getMethod("getAnalyzable");
-      return true;
-    } catch (NoSuchMethodException ignored) {
-    }
+      if (method.getParameterCount() > 10) return false;
 
-    try {
-      returnType.getMethod("analyzable");
-      return true;
-    } catch (NoSuchMethodException ignored) {
-    }
+      var returnType = method.getReturnType();
+      if (Analyzable.class.isAssignableFrom(returnType)) return true;
 
-    return false;
+      try {
+        returnType.getMethod("getAnalyzable");
+        return true;
+      } catch (NoSuchMethodException ignored) {
+      }
+
+      try {
+        returnType.getMethod("analyzable");
+        return true;
+      } catch (NoSuchMethodException ignored) {
+      }
+
+      return false;
+    } catch (LinkageError ignored) {
+      return false;
+    }
   }
 
   private static boolean isSkipped(
