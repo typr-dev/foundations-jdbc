@@ -220,6 +220,24 @@ public record QueryAnalysis(
     if (!metaName.isEmpty() && !"unknown".equals(metaName)) {
       Set<String> ours = normalizeVendorTypeNames(declared.vendorTypeNames());
       if (!ours.isEmpty() && !ours.contains(metaName)) {
+        // For DuckDB composites, ResultSetMetaData returns the fully-expanded STRUCT(...) —
+        // which never matches our sqlType() verbatim if field names were quoted or whitespace
+        // differs. Parse both sides into the DuckDbTypename tree and compare structurally.
+        if (declared.typename() instanceof DuckDbTypename<?> declaredTn
+            && returned.vendorTypeName() != null
+            && (returned.vendorTypeName().contains("STRUCT(")
+                || returned.vendorTypeName().contains("MAP(")
+                || returned.vendorTypeName().contains("UNION("))) {
+          try {
+            DuckDbTypename<Object> parsed =
+                DuckDbTypenameParser.parse(returned.vendorTypeName());
+            if (duckDbTypenamesMatch(declaredTn, parsed)) {
+              return; // structural match — no error
+            }
+          } catch (RuntimeException parseFail) {
+            // fall through to string-mismatch error below
+          }
+        }
         errors.add(
             new AlignmentError.ColumnTypeMismatch(
                 pos,
@@ -239,6 +257,55 @@ public record QueryAnalysis(
         && !declared.isNullable()) {
       errors.add(new AlignmentError.NullabilityMismatch(pos, returned.displayName(), declared));
     }
+  }
+
+  /**
+   * Structural compare of two DuckDB typenames. Walks STRUCT fields / UNION members / MAP
+   * key+value / LIST+ARRAY element recursively, comparing field names and types. {@link
+   * DuckDbTypename.StructOf#name} and {@link DuckDbTypename.UnionOf#name} are ignored — the
+   * driver never surfaces the user-given CREATE TYPE name through {@code getColumnTypeName}.
+   */
+  static boolean duckDbTypenamesMatch(DuckDbTypename<?> a, DuckDbTypename<?> b) {
+    if (a instanceof DuckDbTypename.Opt<?> oa) return duckDbTypenamesMatch(oa.of(), b);
+    if (b instanceof DuckDbTypename.Opt<?> ob) return duckDbTypenamesMatch(a, ob.of());
+    if (a instanceof DuckDbTypename.ListOf<?> la && b instanceof DuckDbTypename.ListOf<?> lb) {
+      return duckDbTypenamesMatch(la.elementType(), lb.elementType());
+    }
+    if (a instanceof DuckDbTypename.ArrayOf<?> aa && b instanceof DuckDbTypename.ArrayOf<?> ab) {
+      return aa.size() == ab.size() && duckDbTypenamesMatch(aa.elementType(), ab.elementType());
+    }
+    if (a instanceof DuckDbTypename.MapOf<?, ?> ma && b instanceof DuckDbTypename.MapOf<?, ?> mb) {
+      return duckDbTypenamesMatch(ma.keyType(), mb.keyType())
+          && duckDbTypenamesMatch(ma.valueType(), mb.valueType());
+    }
+    if (a instanceof DuckDbTypename.StructOf<?> sa && b instanceof DuckDbTypename.StructOf<?> sb) {
+      if (sa.fields().size() != sb.fields().size()) return false;
+      for (int i = 0; i < sa.fields().size(); i++) {
+        var fa = sa.fields().get(i);
+        var fb = sb.fields().get(i);
+        if (!fa.name().equals(fb.name())) return false;
+        if (!duckDbTypenamesMatch(fa.type(), fb.type())) return false;
+      }
+      return true;
+    }
+    if (a instanceof DuckDbTypename.UnionOf<?> ua && b instanceof DuckDbTypename.UnionOf<?> ub) {
+      if (ua.members().size() != ub.members().size()) return false;
+      for (int i = 0; i < ua.members().size(); i++) {
+        var ma = ua.members().get(i);
+        var mb = ub.members().get(i);
+        if (!ma.tag().equals(mb.tag())) return false;
+        if (!duckDbTypenamesMatch(ma.type(), mb.type())) return false;
+      }
+      return true;
+    }
+    if (a instanceof DuckDbTypename.Base<?> ba && b instanceof DuckDbTypename.Base<?> bb) {
+      // Normalize vendor names (e.g. declared "TEXT" aliased to "VARCHAR", default DECIMAL
+      // precision). Fall back to string equality of sqlType for the common path.
+      String aNorm = normalizeVendorTypeName(ba.sqlType());
+      String bNorm = normalizeVendorTypeName(bb.sqlType());
+      return aNorm.equals(bNorm);
+    }
+    return false;
   }
 
   static Set<String> normalizeVendorTypeNames(Set<String> names) {
