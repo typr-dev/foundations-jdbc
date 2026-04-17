@@ -17,7 +17,7 @@ var ds = HikariDataSourceFactory.create(
 var tx = ds.transactor();
 ```
 
-The `PooledDataSource` returned by the factory implements `ConnectionSource`, so you can call `.transactor()` on it just like `SimpleDataSource`. It also implements `Closeable` — call `.close()` on application shutdown to release all pooled connections.
+The `PooledDataSource` returned by the factory implements `ConnectionSource`, so you can call `.transactor()` on it just like `ConnectionSource.of()`. It also implements `Closeable` — call `.close()` on application shutdown to release all pooled connections.
 
 For connection-level settings (transaction isolation, auto-commit, read-only), use `ConnectionSettings`:
 

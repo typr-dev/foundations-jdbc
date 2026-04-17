@@ -13,7 +13,7 @@ import javax.sql.DataSource;
  * A pooled connection source using HikariCP.
  *
  * <p>This class wraps a HikariDataSource and implements {@link ConnectionSource} for unified API
- * with {@link dev.typr.foundations.connect.SimpleDataSource}.
+ * with {@link dev.typr.foundations.connect.ConnectionSource#of(dev.typr.foundations.connect.DatabaseConfig)}.
  *
  * <p>Example usage:
  *

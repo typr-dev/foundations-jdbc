@@ -8,8 +8,8 @@ import dev.typr.foundationssc.data.*
 object GettingStarted:
   // start
   val tx: Transactor =
-    SimpleDataSource
-      .create(DuckDbConfig.inMemory().build())
+    ConnectionSource
+      .of(DuckDbConfig.inMemory().build())
       .transactor()
 
   val result: Int = sql"SELECT 42"

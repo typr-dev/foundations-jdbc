@@ -27,7 +27,7 @@ Each module includes everything you need — the Kotlin and Scala modules depend
 
 ```java
 import dev.typr.foundations.*;           // Core: Fragment, RowCodec, Operation, Transactor, *Types
-import dev.typr.foundations.connect.*;    // Connection: SimpleDataSource, *Config
+import dev.typr.foundations.connect.*;    // Connection: ConnectionSource, *Config
 import dev.typr.foundations.data.*;       // Data types: Json, Range, Uint4, etc.
 ```
 
@@ -36,7 +36,7 @@ import dev.typr.foundations.data.*;       // Data types: Json, Range, Uint4, etc
 
 ```kotlin
 import dev.typr.foundationskt.*         // Core: Fragment, RowCodec, Operation, Transactor, *Types
-import dev.typr.foundationskt.connect.* // Connection: SimpleDataSource, *Config
+import dev.typr.foundationskt.connect.* // Connection: ConnectionSource, *Config
 import dev.typr.foundationskt.data.*    // Data types: Json, Range, Uint4, etc.
 ```
 
@@ -45,7 +45,7 @@ import dev.typr.foundationskt.data.*    // Data types: Json, Range, Uint4, etc.
 
 ```scala
 import dev.typr.foundationssc.*         // Core: Fragment, RowCodec, Operation, Transactor, *Types
-import dev.typr.foundationssc.connect.* // Connection: SimpleDataSource, *Config
+import dev.typr.foundationssc.connect.* // Connection: ConnectionSource, *Config
 import dev.typr.foundationssc.data.*    // Data types: Json, Range, Uint4, etc.
 ```
 
@@ -54,7 +54,7 @@ import dev.typr.foundationssc.data.*    // Data types: Json, Range, Uint4, etc.
 
 ## Setting Up a Connection
 
-The quickest way to get started is with DuckDB in-memory using `SingleConnectionDataSource`. DuckDB is an embedded database that requires no Docker, no server, and no setup — just add the dependency and go:
+The quickest way to get started is with DuckDB in-memory. DuckDB is an embedded database that requires no Docker, no server, and no setup — just add the dependency and go:
 
 <Snippet file="core/GettingStarted" />
 

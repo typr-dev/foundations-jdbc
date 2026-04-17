@@ -52,10 +52,11 @@ var tx = pool.transactor();
 
 ## Single Connection Mode
 
-`SingleConnectionDataSource` reuses one connection across all calls — needed for DuckDB in-memory, where each new connection creates a separate database:
+When a config requires single-connection mode (e.g. DuckDB in-memory), `ConnectionSource.of()` automatically reuses one connection across all callers — no special setup needed. DuckDB in-memory creates a separate database per connection, so this is detected and handled transparently:
 
 ```java
-var ds = SingleConnectionDataSource.create(config);
+// DuckDB in-memory: single-connection mode is automatic
+var ds = ConnectionSource.of(DuckDbConfig.inMemory().build());
 var tx = ds.transactor();
 ```
 

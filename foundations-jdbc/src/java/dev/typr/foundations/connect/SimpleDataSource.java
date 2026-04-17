@@ -1,31 +1,19 @@
 package dev.typr.foundations.connect;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * A simple non-pooled connection source using DriverManager.
- *
- * <p>Suitable for scripts, tests, or low-volume use cases. For production use with connection
- * pooling, use {@code PooledDataSource} from the foundations-jdbc-hikari module.
- *
- * <p>Example usage:
- *
- * <pre>{@code
- * var ds = SimpleDataSource.create(
- *     PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
- *     ConnectionSettings.builder()
- *         .transactionIsolation(TransactionIsolation.READ_UNCOMMITTED)
- *         .build());
- *
- * var tx = ds.transactor(Transactor.testStrategy());
- * tx.execute(conn -> repo.selectAll(conn));
- * }</pre>
+ * Non-pooled connection source using DriverManager. Package-private — use {@link
+ * ConnectionSource#of(DatabaseConfig)} as the public entry point.
  */
-public final class SimpleDataSource implements ConnectionSource {
+final class SimpleDataSource implements ConnectionSource {
 
   private final DatabaseConfig config;
   private final ConnectionSettings settings;
@@ -35,25 +23,16 @@ public final class SimpleDataSource implements ConnectionSource {
     this.settings = settings;
   }
 
-  /**
-   * Create a SimpleDataSource with connection settings.
-   *
-   * @param config database configuration
-   * @param settings connection settings to apply
-   * @return a new SimpleDataSource
-   */
-  public static SimpleDataSource create(DatabaseConfig config, ConnectionSettings settings) {
-    return new SimpleDataSource(config, settings);
+  static ConnectionSource create(DatabaseConfig config, ConnectionSettings settings) {
+    var simple = new SimpleDataSource(config, settings);
+    if (config.singleConnectionMode()) {
+      return new SingleConnection(simple);
+    }
+    return simple;
   }
 
-  /**
-   * Create a SimpleDataSource with default settings.
-   *
-   * @param config database configuration
-   * @return a new SimpleDataSource with driver defaults
-   */
-  public static SimpleDataSource create(DatabaseConfig config) {
-    return new SimpleDataSource(config, ConnectionSettings.EMPTY);
+  static ConnectionSource create(DatabaseConfig config) {
+    return create(config, ConnectionSettings.EMPTY);
   }
 
   @Override
@@ -99,5 +78,51 @@ public final class SimpleDataSource implements ConnectionSource {
   /** Get the connection settings. */
   public ConnectionSettings settings() {
     return settings;
+  }
+
+  /**
+   * A connection source that lazily creates a single connection and reuses it for all callers. Each
+   * call to {@link #getConnection()} returns a non-closing proxy around the same underlying
+   * connection.
+   */
+  private static final class SingleConnection implements ConnectionSource {
+
+    private final ConnectionSource underlying;
+    private final ReentrantLock lock = new ReentrantLock();
+    private Connection connection;
+
+    SingleConnection(ConnectionSource underlying) {
+      this.underlying = underlying;
+    }
+
+    @Override
+    public Connection getConnection() throws SQLException {
+      lock.lock();
+      try {
+        if (connection == null || connection.isClosed()) {
+          connection = underlying.getConnection();
+        }
+        return nonClosingProxy(connection);
+      } finally {
+        lock.unlock();
+      }
+    }
+
+    private static Connection nonClosingProxy(Connection real) {
+      return (Connection)
+          Proxy.newProxyInstance(
+              Connection.class.getClassLoader(),
+              new Class<?>[] {Connection.class},
+              (proxy, method, args) -> {
+                if ("close".equals(method.getName())) {
+                  return null;
+                }
+                try {
+                  return method.invoke(real, args);
+                } catch (InvocationTargetException e) {
+                  throw e.getCause();
+                }
+              });
+    }
   }
 }

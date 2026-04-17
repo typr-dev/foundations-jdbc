@@ -1,7 +1,7 @@
 package dev.typr.foundations.benchmark
 
 import dev.typr.foundations.connect.DuckDbConfig
-import dev.typr.foundations.connect.SingleConnectionDataSource
+import dev.typr.foundations.connect.ConnectionSource
 import java.io.File
 import java.math.BigDecimal
 import java.sql.Connection
@@ -21,7 +21,7 @@ private val BASE_DATE = LocalDateTime.of(2024, 1, 1, 0, 0)
 private val BASE_LOCAL_DATE = LocalDate.of(2024, 1, 1)
 
 fun main() {
-    val ds = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build())
+    val ds = ConnectionSource.of(DuckDbConfig.inMemory().build())
 
     val benchmarks = listOf(
         RawJdbcBenchmark(ds),

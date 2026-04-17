@@ -2,7 +2,7 @@ package dev.typr.foundations;
 
 import dev.typr.foundations.connect.ConnectionSettings;
 import dev.typr.foundations.connect.DatabaseConfig;
-import dev.typr.foundations.connect.SimpleDataSource;
+import dev.typr.foundations.connect.ConnectionSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -15,7 +15,7 @@ import java.sql.SQLException;
  * <p>Typically obtained via {@link dev.typr.foundations.connect.ConnectionSource#transactor}:
  *
  * <pre>{@code
- * var ds = SimpleDataSource.create(config, settings);
+ * var ds = ConnectionSource.of(config, settings);
  * var tx = ds.transactor(Transactor.testStrategy());
  * tx.execute(conn -> repo.selectAll(conn));
  * }</pre>
@@ -113,20 +113,20 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
   }
 
   public static Transactor create(DatabaseConfig config) {
-    return SimpleDataSource.create(config).transactor();
+    return ConnectionSource.of(config).transactor();
   }
 
   public static Transactor create(DatabaseConfig config, Strategy strategy) {
-    return SimpleDataSource.create(config).transactor(strategy);
+    return ConnectionSource.of(config).transactor(strategy);
   }
 
   public static Transactor create(DatabaseConfig config, ConnectionSettings settings) {
-    return SimpleDataSource.create(config, settings).transactor();
+    return ConnectionSource.of(config, settings).transactor();
   }
 
   public static Transactor create(
       DatabaseConfig config, ConnectionSettings settings, Strategy strategy) {
-    return SimpleDataSource.create(config, settings).transactor(strategy);
+    return ConnectionSource.of(config, settings).transactor(strategy);
   }
 
   /**

@@ -37,4 +37,18 @@ public interface DatabaseConfig {
    * These are passed to the JDBC driver via DataSource properties or connection URL parameters.
    */
   Map<String, String> driverProperties();
+
+  /**
+   * Whether this config requires single-connection mode (reusing one connection across all callers).
+   *
+   * <p>Returns {@code true} for embedded databases like DuckDB in-memory, where each {@code
+   * DriverManager.getConnection()} creates an independent database. {@link
+   * ConnectionSource#of(DatabaseConfig)} checks this and automatically wraps the connection source
+   * to reuse a single connection.
+   *
+   * @return true if this config needs single-connection semantics
+   */
+  default boolean singleConnectionMode() {
+    return false;
+  }
 }

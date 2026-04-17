@@ -7,7 +7,7 @@ import java.time.LocalDate
 import java.time.Instant
 
 fun main() {
-    val ds = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build())
+    val ds = ConnectionSource.of(DuckDbConfig.inMemory().build())
     val tx = ds.transactor(Transactor.autoCommitStrategy())
 
     // ── Apply schema ────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 package dev.typr.foundations;
 
 import dev.typr.foundations.connect.DuckDbConfig;
-import dev.typr.foundations.connect.SingleConnectionDataSource;
+import dev.typr.foundations.connect.ConnectionSource;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.List;
@@ -597,7 +597,7 @@ public class StructArrayBlogTest {
   // ======================================================================
 
   void testDuckDb() {
-    var tx = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build()).transactor();
+    var tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor();
 
     tx.execute(
         conn -> {

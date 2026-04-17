@@ -4,8 +4,8 @@ package dev.typr.foundations.connect;
  * Settings applied to database connections. These settings are common whether using a connection
  * pool (HikariCP) or plain DriverManager connections.
  *
- * <p>Pass to {@link SimpleDataSource#create} or {@code PooledDataSource.create} to configure
- * connection behavior.
+ * <p>Pass to {@link ConnectionSource#of(DatabaseConfig, ConnectionSettings)} or {@code
+ * PooledDataSource.create} to configure connection behavior.
  *
  * <p>Example usage:
  *
@@ -15,7 +15,7 @@ package dev.typr.foundations.connect;
  *     .readOnly(true)
  *     .build();
  *
- * var ds = SimpleDataSource.create(config, settings);
+ * var ds = ConnectionSource.of(config, settings);
  * var tx = ds.transactor(Transactor.testStrategy());
  * }</pre>
  */

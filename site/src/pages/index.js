@@ -105,7 +105,7 @@ import dev.typr.foundations.connect.*;
 
 public class Main {
     public static void main(String[] args) {
-        var tx = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build()).transactor();
+        var tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor();
         int answer = Fragment.of("SELECT 42")
             .queryExactlyOne(DuckDbTypes.integer)
             .transact(tx);
@@ -117,7 +117,7 @@ const quickstartKotlin = `import dev.typr.foundationskt.*
 import dev.typr.foundationskt.connect.*
 
 fun main() {
-    val tx = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build()).transactor()
+    val tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor()
     val answer: Int = sql { "SELECT 42" }
         .queryExactlyOne(DuckDbTypes.integer)
         .transact(tx)
@@ -129,7 +129,7 @@ import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.connect.*
 
 @main def run(): Unit =
-  val tx = SimpleDataSource.create(DuckDbConfig.inMemory().build()).transactor()
+  val tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor()
   val answer: Int = sql"SELECT 42"
     .queryExactlyOne(DuckDbTypes.integer)
     .transact(tx)

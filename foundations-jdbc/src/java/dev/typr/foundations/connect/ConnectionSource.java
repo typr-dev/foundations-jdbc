@@ -18,29 +18,50 @@ import javax.sql.DataSource;
  * <p>Extends {@link DataSource} so that any ConnectionSource can be used directly with frameworks
  * that expect a standard DataSource (e.g. Spring's {@code DataSourceTransactionManager}).
  *
- * <p>Implementations:
- *
- * <ul>
- *   <li>{@link SimpleDataSource} - Non-pooled connections via DriverManager
- *   <li>{@code PooledDataSource} - Pooled connections via HikariCP (in foundations-jdbc-hikari)
- * </ul>
+ * <p>Use the {@link #of(DatabaseConfig)} factory for non-pooled connections via DriverManager. For
+ * production use with connection pooling, use {@code HikariDataSourceFactory} from the
+ * foundations-jdbc-hikari module.
  *
  * <p>Example usage:
  *
  * <pre>{@code
- * // Create a connection source (pooled or non-pooled)
- * var ds = SimpleDataSource.create(
- *     PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
- *     ConnectionSettings.builder()
- *         .transactionIsolation(TransactionIsolation.READ_UNCOMMITTED)
- *         .build());
+ * var ds = ConnectionSource.of(
+ *     PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build());
  *
- * // Get a transactor
  * var tx = ds.transactor(Transactor.testStrategy());
  * tx.execute(conn -> repo.selectAll(conn));
  * }</pre>
  */
 public interface ConnectionSource extends DataSource {
+
+  /**
+   * Create a non-pooled connection source from a database configuration.
+   *
+   * <p>Connections are obtained via {@link java.sql.DriverManager} — suitable for scripts, tests,
+   * and low-volume use cases. For production use with connection pooling, use {@code
+   * HikariDataSourceFactory} from the foundations-jdbc-hikari module.
+   *
+   * <p>If the config requires single-connection mode (e.g. DuckDB in-memory), the returned source
+   * automatically reuses a single connection across all callers.
+   *
+   * @param config database configuration
+   * @return a ConnectionSource backed by DriverManager
+   */
+  static ConnectionSource of(DatabaseConfig config) {
+    return SimpleDataSource.create(config);
+  }
+
+  /**
+   * Create a non-pooled connection source with connection settings.
+   *
+   * @param config database configuration
+   * @param settings connection settings to apply to each connection
+   * @return a ConnectionSource backed by DriverManager
+   * @see #of(DatabaseConfig)
+   */
+  static ConnectionSource of(DatabaseConfig config, ConnectionSettings settings) {
+    return SimpleDataSource.create(config, settings);
+  }
 
   /**
    * Get a connection from this source.
