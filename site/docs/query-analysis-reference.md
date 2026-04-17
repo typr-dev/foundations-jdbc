@@ -108,21 +108,13 @@ Preparing a statement and reading metadata is fast — milliseconds per query. Y
 ### QueryAnalyzer
 
 ```java
-// Analyze a query operation
-static <T> List<QueryAnalysis> analyze(Operation.Query<T> query, Connection conn)
+// Analyze any Analyzable (Operation, Template, or named wrapper)
+static List<QueryAnalysis> analyze(Analyzable analyzable, Connection conn)
 
-// Analyze a named query operation
-static <T> List<QueryAnalysis> analyze(String name, Operation.Query<T> query, Connection conn)
+// Analyze a template — expands all dynamic variants from .optionally()
+static List<QueryAnalysis> analyze(Template<?, ?> template, Connection conn)
 
-// Analyze an update-returning operation
-static <T> List<QueryAnalysis> analyze(Operation.UpdateReturning<T> op, Connection conn)
-static <T> List<QueryAnalysis> analyze(String name, Operation.UpdateReturning<T> op, Connection conn)
-
-// Analyze an update operation (parameters only)
-static List<QueryAnalysis> analyze(Operation.Update update, Connection conn)
-static List<QueryAnalysis> analyze(String name, Operation.Update update, Connection conn)
-
-// Analyze all SQL in a composed operation tree
+// Analyze an operation tree (handles composed operations from .combine(), .then(), etc.)
 static List<QueryAnalysis> analyze(Operation<?> operation, Connection conn)
 
 // Low-level: analyze fragment + parser directly
@@ -130,6 +122,14 @@ static QueryAnalysis analyzeFragmentAndParser(
     Fragment fragment,
     ResultSetParser<?> parser,
     Connection conn)
+```
+
+To attach a name to an analyzed query (shown in reports), call `.named(name)` on the
+operation before passing it to `analyze`:
+
+```java
+var named = Fragment.of("SELECT ...").query(codec.all()).named("findUser");
+QueryAnalyzer.analyze(named, conn);
 ```
 
 ### QueryAnalysis
@@ -158,21 +158,29 @@ List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment()
 interface QueryChecker {
     Transactor transactor();
 
-    // Check any operation
-    void check(Operation<?> op)
-    void check(String name, Operation<?> op)
+    // Check any analyzable — throws AssertionError on failure
+    void check(Analyzable analyzable)
 
-    // Check fragments with codecs
+    // Check fragments with codecs — throws AssertionError on failure
     void check(Fragment fragment, ResultSetParser<?> parser)
-    void check(Fragment fragment, RowCodec<?> codec)
+    <T> void check(Fragment fragment, RowCodec<T> codec)
 
-    // Batch check — returns report with per-query results
-    CheckReport checkAll(Analyzable... analyzables)
+    // Batch check — throws AssertionError if any query fails
+    void checkAll(Analyzable... analyzables)
+    void checkAll(List<? extends Analyzable> analyzables)
+
+    // Batch analyze — returns report with per-query results, never throws
+    CheckReport analyzeAll(Analyzable... analyzables)
+    CheckReport analyzeAll(List<? extends Analyzable> analyzables)
 
     // Routine analysis
+    void checkRoutine(RoutineDef def)
     void checkRoutine(Procedure<?> procedure)
 }
 ```
+
+Use `checkAll` for the "throw on any failure" pattern in tests. Use `analyzeAll` when
+you want to inspect or print the report without failing the test.
 
 ### AnalysisOptions
 

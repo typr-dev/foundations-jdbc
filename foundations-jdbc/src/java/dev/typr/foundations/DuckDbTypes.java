@@ -524,6 +524,21 @@ public interface DuckDbTypes {
    * @return a DuckDbType for the STRUCT
    */
   static <Row> DuckDbType<Row> compositeOf(String structName, RowCodecNamed<Row> codec) {
+    return compositeOf(structName, null, codec);
+  }
+
+  /**
+   * Build a named STRUCT DuckDbType with a typed array factory. The factory is required for
+   * {@code .array()} to produce a properly-typed {@code Row[]} — without it, the cast at
+   * assignment time to a record field of type {@code Row[]} will fail. Prefer this overload
+   * whenever the struct type will be used with {@code .array()}.
+   *
+   * <p>Example: {@code DuckDbTypes.compositeOf("person", Person[]::new, codec)}
+   */
+  static <Row> DuckDbType<Row> compositeOf(
+      String structName,
+      java.util.function.IntFunction<Row[]> arrayFactory,
+      RowCodecNamed<Row> codec) {
     var columns = codec.columns();
     var names = codec.columnNames();
     var duckColumns = new java.util.ArrayList<DuckDbType<?>>(columns.size());
@@ -552,7 +567,12 @@ public interface DuckDbTypes {
         obj -> {
           if (obj instanceof java.sql.Struct struct) {
             try {
-              return decode.apply(struct.getAttributes());
+              Object[] rawAttrs = struct.getAttributes();
+              Object[] decodedAttrs = new Object[duckColumns.size()];
+              for (int i = 0; i < duckColumns.size(); i++) {
+                decodedAttrs[i] = decodeStructAttribute(duckColumns.get(i), rawAttrs[i]);
+              }
+              return decode.apply(decodedAttrs);
             } catch (java.sql.SQLException e) {
               throw new DatabaseException(e);
             }
@@ -582,14 +602,25 @@ public interface DuckDbTypes {
               sb.append("}");
             });
 
+    final String structSqlType = typename.sqlType();
+    java.util.function.Function<Row, Object> structAttributeEncoder =
+        row -> {
+          if (row == null) return null;
+          Object[] rawFields = encode.apply(row);
+          Object[] bindFields = new Object[duckColumns.size()];
+          for (int i = 0; i < duckColumns.size(); i++) {
+            bindFields[i] = applyStructAttributeEncoder(duckColumns.get(i), rawFields[i]);
+          }
+          return new org.duckdb.user.DuckDBUserStruct(structSqlType, bindFields);
+        };
+
+    // Bind via DuckDBUserStruct (setObject) rather than a SQL-literal string (setString).
+    // setString with a struct literal causes DuckDB to re-parse nested array elements with
+    // their quoting — strings inside a STRUCT's VARCHAR[] field end up keeping their quote
+    // characters. DuckDBUserStruct bypasses the literal parser entirely.
     DuckDbWrite<Row> duckDbWrite =
         new DuckDbWrite.Instance<>(
-            (ps, idx, str) -> ps.setString(idx, str),
-            value -> {
-              StringBuilder sb = new StringBuilder();
-              stringifier.unsafeEncode(value, sb, false);
-              return sb.toString();
-            });
+            (ps, idx, obj) -> ps.setObject(idx, obj), structAttributeEncoder);
 
     DuckDbMapSupport<Row> structMapSupport = DuckDbMapSupport.of(structConverter, value -> value);
 
@@ -600,7 +631,10 @@ public interface DuckDbTypes {
               StringBuilder sb = new StringBuilder();
               stringifier.unsafeEncode(value, sb, false);
               return sb.toString();
-            });
+            },
+            arrayFactory == null
+                ? java.util.Optional.empty()
+                : java.util.Optional.of(arrayFactory));
 
     DuckDbJson<Row> duckDbJson =
         new DuckDbJson<>() {
@@ -642,8 +676,25 @@ public interface DuckDbTypes {
         structMapSupport,
         AnalysisOptions.EMPTY,
         java.util.Optional.of(structArrayCodec),
-        java.util.Optional.of(DuckDbListCodec.sqlLiteral(structConverter)));
+        java.util.Optional.of(DuckDbListCodec.sqlLiteral(structConverter)),
+        structAttributeEncoder);
   }
+
+  @SuppressWarnings("unchecked")
+  private static <F> Object applyStructAttributeEncoder(DuckDbType<F> col, Object value) {
+    return col.structAttributeEncoder().apply((F) value);
+  }
+
+  /**
+   * Decode a raw JDBC attribute (as returned by {@link java.sql.Struct#getAttributes()}) into the
+   * field type's Java representation. Each {@link DuckDbType}'s {@link DuckDbRead#fromJdbcValue}
+   * handles its own unwrapping — scalars pass through, composites run their struct converter,
+   * lists/arrays unwrap {@link java.sql.Array}, and {@link java.util.Optional} wraps correctly.
+   */
+  private static Object decodeStructAttribute(DuckDbType<?> col, Object raw) {
+    return col.read().fromJdbcValue(raw);
+  }
+
 
   @SuppressWarnings("unchecked")
   private static <F> void encodeStructField(DuckDbType<F> column, Object value, StringBuilder sb) {

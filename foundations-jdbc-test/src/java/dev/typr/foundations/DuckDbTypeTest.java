@@ -57,10 +57,119 @@ public class DuckDbTypeTest {
   DuckDbType<Person> personType =
       DuckDbTypes.compositeOf(
           "Person",
+          Person[]::new,
           RowCodec.<Person>namedBuilder()
               .field("name", DuckDbTypes.varchar, Person::name)
               .field("age", DuckDbTypes.integer, Person::age)
               .build(Person::new));
+
+  // ==================== Nested STRUCT Examples ====================
+
+  /** Struct with an optional field — exercises null-wrapping in struct attributes. */
+  record WithOpt(String name, Optional<String> nickname) {}
+
+  DuckDbType<WithOpt> withOptType =
+      DuckDbTypes.compositeOf(
+          "with_opt",
+          WithOpt[]::new,
+          RowCodec.<WithOpt>namedBuilder()
+              .field("name", DuckDbTypes.varchar, WithOpt::name)
+              .field("nickname", DuckDbTypes.varchar.opt(), WithOpt::nickname)
+              .build(WithOpt::new));
+
+  /** Struct with a list-of-scalar field. */
+  record PersonWithHobbies(String name, List<String> hobbies) {}
+
+  DuckDbType<PersonWithHobbies> personWithHobbiesType =
+      DuckDbTypes.compositeOf(
+          "person_hobbies",
+          PersonWithHobbies[]::new,
+          RowCodec.<PersonWithHobbies>namedBuilder()
+              .field("name", DuckDbTypes.varchar, PersonWithHobbies::name)
+              .field("hobbies", DuckDbTypes.varchar.list(), PersonWithHobbies::hobbies)
+              .build(PersonWithHobbies::new));
+
+  /** Struct with an array-of-scalar field (previously broke at read time). */
+  record PersonWithTags(String name, String[] tags) {
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof PersonWithTags p
+          && name.equals(p.name)
+          && Arrays.equals(tags, p.tags);
+    }
+
+    @Override
+    public int hashCode() {
+      return java.util.Objects.hash(name, Arrays.hashCode(tags));
+    }
+  }
+
+  DuckDbType<PersonWithTags> personWithTagsType =
+      DuckDbTypes.compositeOf(
+          "person_tags",
+          PersonWithTags[]::new,
+          RowCodec.<PersonWithTags>namedBuilder()
+              .field("name", DuckDbTypes.varchar, PersonWithTags::name)
+              .field("tags", DuckDbTypes.varchar.array(), PersonWithTags::tags)
+              .build(PersonWithTags::new));
+
+  /** Struct-containing-struct (2-level nesting). */
+  record Employee(String role, Person person) {}
+
+  DuckDbType<Employee> employeeType =
+      DuckDbTypes.compositeOf(
+          "employee",
+          Employee[]::new,
+          RowCodec.<Employee>namedBuilder()
+              .field("role", DuckDbTypes.varchar, Employee::role)
+              .field("person", personType, Employee::person)
+              .build(Employee::new));
+
+  /** Struct with list-of-struct field (deep nesting — the headline broken case). */
+  record Team(String name, List<Person> members) {}
+
+  DuckDbType<Team> teamType =
+      DuckDbTypes.compositeOf(
+          "team",
+          Team[]::new,
+          RowCodec.<Team>namedBuilder()
+              .field("name", DuckDbTypes.varchar, Team::name)
+              .field("members", personType.list(), Team::members)
+              .build(Team::new));
+
+  /** Struct with array-of-struct field. */
+  record TeamArr(String name, Person[] members) {
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof TeamArr t && name.equals(t.name) && Arrays.equals(members, t.members);
+    }
+
+    @Override
+    public int hashCode() {
+      return java.util.Objects.hash(name, Arrays.hashCode(members));
+    }
+  }
+
+  DuckDbType<TeamArr> teamArrType =
+      DuckDbTypes.compositeOf(
+          "team_arr",
+          TeamArr[]::new,
+          RowCodec.<TeamArr>namedBuilder()
+              .field("name", DuckDbTypes.varchar, TeamArr::name)
+              .field("members", personType.array(), TeamArr::members)
+              .build(TeamArr::new));
+
+  /** Struct with list-of-struct-containing-list-of-struct (3-level deep). */
+  record Company(String name, List<Team> teams) {}
+
+  DuckDbType<Company> companyType =
+      DuckDbTypes.compositeOf(
+          "company",
+          Company[]::new,
+          RowCodec.<Company>namedBuilder()
+              .field("name", DuckDbTypes.varchar, Company::name)
+              .field("teams", teamType.list(), Company::teams)
+              .build(Company::new));
 
   // Parsers for JSON-encoded row type testing
   static RowCodec<Person> personCodec =
@@ -452,6 +561,58 @@ public class DuckDbTypeTest {
                   personType.list(), List.of(new Person("Alice", 30), new Person("Bob", 25)))
               .noIdentity(),
           new DuckDbTypeAndExample<>(personType.list(), List.of()).noIdentity(),
+
+          // ==================== STRUCT with nested field types ====================
+          // Struct with Optional field (nullable) — null must arrive as Optional.empty()
+          new DuckDbTypeAndExample<>(withOptType, new WithOpt("Alice", Optional.of("Ali")))
+              .noIdentity(),
+          new DuckDbTypeAndExample<>(withOptType, new WithOpt("Bob", Optional.empty()))
+              .noIdentity(),
+          // Struct with List<String> field
+          new DuckDbTypeAndExample<>(
+                  personWithHobbiesType,
+                  new PersonWithHobbies("Alice", List.of("reading", "hiking")))
+              .noIdentity(),
+          new DuckDbTypeAndExample<>(
+                  personWithHobbiesType, new PersonWithHobbies("Bob", List.of()))
+              .noIdentity(),
+          // Struct with String[] field
+          new DuckDbTypeAndExample<>(
+                  personWithTagsType, new PersonWithTags("Alice", new String[] {"admin", "user"}))
+              .noIdentity(),
+          new DuckDbTypeAndExample<>(
+                  personWithTagsType, new PersonWithTags("Bob", new String[] {}))
+              .noIdentity(),
+          // Struct-in-struct (2-level)
+          new DuckDbTypeAndExample<>(
+                  employeeType, new Employee("Engineer", new Person("Alice", 30)))
+              .noIdentity(),
+          // Struct with list-of-struct field (deep nesting — previously broken)
+          new DuckDbTypeAndExample<>(
+                  teamType,
+                  new Team(
+                      "Platform", List.of(new Person("Alice", 30), new Person("Bob", 25))))
+              .noIdentity(),
+          new DuckDbTypeAndExample<>(teamType, new Team("Empty", List.of())).noIdentity(),
+          // Struct with array-of-struct field
+          new DuckDbTypeAndExample<>(
+                  teamArrType,
+                  new TeamArr(
+                      "Platform", new Person[] {new Person("Alice", 30), new Person("Bob", 25)}))
+              .noIdentity(),
+          new DuckDbTypeAndExample<>(teamArrType, new TeamArr("Empty", new Person[] {}))
+              .noIdentity(),
+          // 3-level deep: struct → list of struct with list-of-struct field
+          new DuckDbTypeAndExample<>(
+                  companyType,
+                  new Company(
+                      "Acme",
+                      List.of(
+                          new Team("Platform", List.of(new Person("Alice", 30))),
+                          new Team(
+                              "Design",
+                              List.of(new Person("Bob", 25), new Person("Carol", 28))))))
+              .noIdentity(),
 
           // ==================== UNION Types ====================
           // UNION[] not supported: array elements returned as String, tag inference fails

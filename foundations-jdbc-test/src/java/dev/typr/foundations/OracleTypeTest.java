@@ -1886,6 +1886,201 @@ public class OracleTypeTest {
     }
   }
 
+  // ==================== Gap coverage tests ====================
+
+  @Test
+  public void testNullAndEmptyCollection() {
+    // NULL collection at the column level (valid). Oracle rejects NULL OBJECT entries inside
+    // VARRAY/NESTED TABLE with ORA-22805, so this test deliberately covers the cases that are
+    // valid: NULL whole-collection and empty collection.
+    record Item(String name, Integer qty) {}
+    OracleType<Item> itemType =
+        OracleTypes.compositeOf(
+            "GAP_ITEM_T",
+            RowCodec.<Item>namedBuilder()
+                .field("NAME", OracleTypes.varchar2(50), Item::name)
+                .field("QTY", OracleTypes.numberInt, Item::qty)
+                .build(Item::new));
+    OracleType<List<Item>> itemVArray = OracleVArray.of("GAP_ITEM_VA", 10, itemType);
+    OracleType<List<Item>> itemNestedTable = OracleNestedTable.of("GAP_ITEM_NT", itemType);
+
+    var pool = Containers.oraclePool();
+    pool.transactor(Transactor.testStrategy())
+        .execute(
+            conn -> {
+              var stmt = conn.createStatement();
+              tryExec(stmt, "DROP TABLE gap_null_collection_t CASCADE CONSTRAINTS");
+              tryExec(stmt, "DROP TYPE GAP_ITEM_VA FORCE");
+              tryExec(stmt, "DROP TYPE GAP_ITEM_NT FORCE");
+              tryExec(stmt, "DROP TYPE GAP_ITEM_T FORCE");
+              stmt.execute("CREATE TYPE GAP_ITEM_T AS OBJECT (NAME VARCHAR2(50), QTY NUMBER)");
+              stmt.execute("CREATE TYPE GAP_ITEM_VA AS VARRAY(10) OF GAP_ITEM_T");
+              stmt.execute("CREATE TYPE GAP_ITEM_NT AS TABLE OF GAP_ITEM_T");
+              stmt.execute(
+                  "CREATE TABLE gap_null_collection_t (id NUMBER, va GAP_ITEM_VA, nt GAP_ITEM_NT)"
+                      + " NESTED TABLE nt STORE AS gap_null_nt_store");
+
+              var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
+
+              // Row 1: NULL collections (whole column NULL)
+              var ps1 = raw.prepareStatement("INSERT INTO gap_null_collection_t VALUES (?, ?, ?)");
+              ps1.setInt(1, 1);
+              itemVArray.opt().write().set(ps1, 2, java.util.Optional.empty());
+              itemNestedTable.opt().write().set(ps1, 3, java.util.Optional.empty());
+              ps1.executeUpdate();
+
+              // Row 2: empty collections
+              var ps2 = raw.prepareStatement("INSERT INTO gap_null_collection_t VALUES (?, ?, ?)");
+              ps2.setInt(1, 2);
+              itemVArray.write().set(ps2, 2, List.of());
+              itemNestedTable.write().set(ps2, 3, List.of());
+              ps2.executeUpdate();
+
+              // Row 3: populated
+              var ps3 = raw.prepareStatement("INSERT INTO gap_null_collection_t VALUES (?, ?, ?)");
+              ps3.setInt(1, 3);
+              List<Item> items = List.of(new Item("Keyboard", 1), new Item("Mouse", 2));
+              itemVArray.write().set(ps3, 2, items);
+              itemNestedTable.write().set(ps3, 3, items);
+              ps3.executeUpdate();
+              conn.commit();
+
+              var rs =
+                  conn.createStatement()
+                      .executeQuery("SELECT id, va, nt FROM gap_null_collection_t ORDER BY id");
+              // Row 1 - NULL collections
+              if (!rs.next()) throw new AssertionError("no row 1");
+              var va1 = itemVArray.opt().read().read(rs, 2);
+              var nt1 = itemNestedTable.opt().read().read(rs, 3);
+              if (va1.isPresent()) throw new AssertionError("expected NULL VARRAY, got " + va1.get());
+              if (nt1.isPresent()) throw new AssertionError("expected NULL NT, got " + nt1.get());
+
+              // Row 2 - empty collections. Oracle returns NULL for empty VARRAY/NESTED TABLE
+              // (this is a well-known Oracle quirk — an empty VARRAY and a NULL one are
+              // indistinguishable through JDBC), so we test with the opt() read to tolerate both.
+              if (!rs.next()) throw new AssertionError("no row 2");
+              var va2 = itemVArray.opt().read().read(rs, 2);
+              var nt2 = itemNestedTable.opt().read().read(rs, 3);
+              if (va2.isPresent() && !va2.get().isEmpty())
+                throw new AssertionError("row 2 VARRAY should be empty or null, got " + va2.get());
+              if (nt2.isPresent() && !nt2.get().isEmpty())
+                throw new AssertionError("row 2 NT should be empty or null, got " + nt2.get());
+
+              // Row 3 - populated
+              if (!rs.next()) throw new AssertionError("no row 3");
+              var va3 = itemVArray.read().read(rs, 2);
+              var nt3 = itemNestedTable.read().read(rs, 3);
+              if (va3.size() != 2) throw new AssertionError("row 3 VARRAY size: " + va3.size());
+              if (!va3.get(0).name().equals("Keyboard"))
+                throw new AssertionError(va3.get(0).name());
+              if (nt3.size() != 2) throw new AssertionError("row 3 NT size: " + nt3.size());
+              System.out.println(
+                  "NULL/empty VARRAY and NESTED TABLE roundtrip OK"
+                      + " (Oracle: null elements inside collections are rejected as ORA-22805)");
+              return null;
+            });
+  }
+
+  @Test
+  public void testFourLevelNesting() {
+    // 4 levels: NESTED TABLE<Country> where Country has VARRAY<Region> where Region has
+    // NESTED TABLE<City> where City has scalars. Exercises recursion through all collection
+    // kinds at deeper than 3 levels.
+    record City(String name, Integer population) {}
+    record Region(String name, List<City> cities) {}
+    record Country(String name, List<Region> regions) {}
+
+    OracleType<City> cityType =
+        OracleTypes.compositeOf(
+            "GAP_CITY_T",
+            RowCodec.<City>namedBuilder()
+                .field("NAME", OracleTypes.varchar2(50), City::name)
+                .field("POPULATION", OracleTypes.numberInt, City::population)
+                .build(City::new));
+    OracleType<List<City>> citiesType = OracleNestedTable.of("GAP_CITY_NT", cityType);
+    OracleType<Region> regionType =
+        OracleTypes.compositeOf(
+            "GAP_REGION_T",
+            RowCodec.<Region>namedBuilder()
+                .field("NAME", OracleTypes.varchar2(50), Region::name)
+                .field("CITIES", citiesType, Region::cities)
+                .build(Region::new));
+    OracleType<List<Region>> regionsType = OracleVArray.of("GAP_REGION_VA", 10, regionType);
+    OracleType<Country> countryType =
+        OracleTypes.compositeOf(
+            "GAP_COUNTRY_T",
+            RowCodec.<Country>namedBuilder()
+                .field("NAME", OracleTypes.varchar2(50), Country::name)
+                .field("REGIONS", regionsType, Country::regions)
+                .build(Country::new));
+    OracleType<List<Country>> countriesType = OracleNestedTable.of("GAP_COUNTRY_NT", countryType);
+
+    var pool = Containers.oraclePool();
+    pool.transactor(Transactor.testStrategy())
+        .execute(
+            conn -> {
+              var stmt = conn.createStatement();
+              tryExec(stmt, "DROP TABLE gap_four_level_t CASCADE CONSTRAINTS");
+              tryExec(stmt, "DROP TYPE GAP_COUNTRY_NT FORCE");
+              tryExec(stmt, "DROP TYPE GAP_COUNTRY_T FORCE");
+              tryExec(stmt, "DROP TYPE GAP_REGION_VA FORCE");
+              tryExec(stmt, "DROP TYPE GAP_REGION_T FORCE");
+              tryExec(stmt, "DROP TYPE GAP_CITY_NT FORCE");
+              tryExec(stmt, "DROP TYPE GAP_CITY_T FORCE");
+              stmt.execute("CREATE TYPE GAP_CITY_T AS OBJECT (NAME VARCHAR2(50), POPULATION NUMBER)");
+              stmt.execute("CREATE TYPE GAP_CITY_NT AS TABLE OF GAP_CITY_T");
+              stmt.execute(
+                  "CREATE TYPE GAP_REGION_T AS OBJECT (NAME VARCHAR2(50), CITIES GAP_CITY_NT)");
+              stmt.execute("CREATE TYPE GAP_REGION_VA AS VARRAY(10) OF GAP_REGION_T");
+              stmt.execute(
+                  "CREATE TYPE GAP_COUNTRY_T AS OBJECT (NAME VARCHAR2(50), REGIONS GAP_REGION_VA)");
+              stmt.execute("CREATE TYPE GAP_COUNTRY_NT AS TABLE OF GAP_COUNTRY_T");
+              stmt.execute(
+                  "CREATE TABLE gap_four_level_t (cs GAP_COUNTRY_NT)"
+                      + " NESTED TABLE cs STORE AS gap_four_cs_store");
+
+              var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
+              List<Country> countries =
+                  List.of(
+                      new Country(
+                          "Norway",
+                          List.of(
+                              new Region("Oslo", List.of(new City("Oslo", 700_000))),
+                              new Region(
+                                  "Vestland",
+                                  List.of(
+                                      new City("Bergen", 285_000),
+                                      new City("Haugesund", 37_000))))));
+              var ps = raw.prepareStatement("INSERT INTO gap_four_level_t VALUES (?)");
+              countriesType.write().set(ps, 1, countries);
+              ps.executeUpdate();
+              conn.commit();
+
+              var rs = conn.createStatement().executeQuery("SELECT cs FROM gap_four_level_t");
+              if (!rs.next()) throw new AssertionError("no row");
+              List<Country> decoded = countriesType.read().read(rs, 1);
+
+              if (decoded.size() != 1) throw new AssertionError("countries: " + decoded.size());
+              Country c = decoded.get(0);
+              if (!c.name().equals("Norway")) throw new AssertionError(c.name());
+              if (c.regions().size() != 2) throw new AssertionError("regions: " + c.regions().size());
+              Region vestland = c.regions().get(1);
+              if (vestland.cities().size() != 2)
+                throw new AssertionError("cities: " + vestland.cities().size());
+              if (!vestland.cities().get(0).name().equals("Bergen"))
+                throw new AssertionError(vestland.cities().get(0).name());
+              System.out.println("4-level nesting NESTED TABLE→OBJECT→VARRAY→OBJECT→NESTED TABLE OK");
+              return null;
+            });
+  }
+
+  private static void tryExec(java.sql.Statement stmt, String sql) {
+    try {
+      stmt.execute(sql);
+    } catch (SQLException ignored) {
+    }
+  }
+
   static <A> boolean areEqual(A actual, A expected) {
     if (expected == null && actual == null) return true;
     if (expected == null || actual == null) return false;

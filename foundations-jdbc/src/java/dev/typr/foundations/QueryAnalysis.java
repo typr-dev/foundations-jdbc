@@ -127,6 +127,11 @@ public record QueryAnalysis(
     }
     b.plain("  ").gray(truncateSql(sql, 72)).newline().newline();
 
+    java.util.Set<Integer> paramErrorPositions = new java.util.HashSet<>();
+    for (AlignmentError e : parameterErrors()) paramErrorPositions.add(e.position());
+    java.util.Set<Integer> columnErrorPositions = new java.util.HashSet<>();
+    for (AlignmentError e : columnErrors()) columnErrorPositions.add(e.position());
+
     // Parameters section
     b.gray("┌─ ").bold("Parameters ");
     if (!parameterMetadataAvailable) {
@@ -138,7 +143,7 @@ public record QueryAnalysis(
     } else {
       for (int i = 0; i < parameterAlignment.size(); i++) {
         var align = parameterAlignment.get(i);
-        b.add(formatStyledAlignment(i + 1, align, true));
+        b.add(formatStyledAlignment(i + 1, align, true, paramErrorPositions));
       }
     }
     b.gray("└" + "─".repeat(78) + "┘").newline().newline();
@@ -150,7 +155,7 @@ public record QueryAnalysis(
     } else {
       for (int i = 0; i < columnAlignment.size(); i++) {
         var align = columnAlignment.get(i);
-        b.add(formatStyledAlignment(i + 1, align, false));
+        b.add(formatStyledAlignment(i + 1, align, false, columnErrorPositions));
       }
     }
     b.gray("└" + "─".repeat(78) + "┘").newline().newline();
@@ -287,34 +292,48 @@ public record QueryAnalysis(
     return oneLine.substring(0, maxLen - 3) + "...";
   }
 
-  private Str formatStyledAlignment(int pos, Alignment<DbType<?>, ?> align, boolean isParameter) {
-    boolean ok;
+  private Str formatStyledAlignment(
+      int pos,
+      Alignment<DbType<?>, ?> align,
+      boolean isParameter,
+      java.util.Set<Integer> errorPositions) {
+    boolean hasError = errorPositions.contains(pos);
+    boolean vendorMissing = false;
     String declared;
     String actual;
 
     switch (align) {
       case Alignment.Both(var d, var a) -> {
-        ok = true;
         declared = d.typename().sqlType();
         if (isParameter) {
           JdbcMeta.ParameterMeta pm = (JdbcMeta.ParameterMeta) a;
-          actual = pm.vendorTypeName();
+          String vendor = pm.vendorTypeName();
+          if (vendor == null || vendor.isEmpty()) {
+            vendorMissing = true;
+            actual = "(driver does not report)";
+          } else {
+            actual = vendor;
+          }
         } else {
           JdbcMeta.ColumnMeta cm = (JdbcMeta.ColumnMeta) a;
           actual = cm.displayName() + " : " + cm.vendorTypeName();
         }
       }
       case Alignment.LeftOnly(var d) -> {
-        ok = false;
         declared = d.typename().sqlType();
         actual = "(missing)";
       }
       case Alignment.RightOnly(var a) -> {
-        ok = false;
         declared = "(missing)";
         if (isParameter) {
           JdbcMeta.ParameterMeta pm = (JdbcMeta.ParameterMeta) a;
-          actual = pm.vendorTypeName();
+          String vendor = pm.vendorTypeName();
+          if (vendor == null || vendor.isEmpty()) {
+            vendorMissing = true;
+            actual = "(driver does not report)";
+          } else {
+            actual = vendor;
+          }
         } else {
           JdbcMeta.ColumnMeta cm = (JdbcMeta.ColumnMeta) a;
           actual = cm.displayName() + " : " + cm.vendorTypeName();
@@ -322,18 +341,22 @@ public record QueryAnalysis(
       }
     }
 
+    boolean skipped = (isParameter && !parameterMetadataAvailable) || vendorMissing;
+
     String label = isParameter ? "param" : "col";
     var b = Str.builder();
     b.gray("│  ");
-    if (ok) {
-      b.green("✓");
-    } else {
+    if (skipped) {
+      b.gray("·");
+    } else if (hasError) {
       b.red("✗");
+    } else {
+      b.green("✓");
     }
     b.plain(" " + label + "[").yellow(String.valueOf(pos)).plain("]: ");
 
     String declaredPadded = String.format("%-20s", declared);
-    if (ok || !declared.equals("(missing)")) {
+    if (!hasError || !declared.equals("(missing)")) {
       b.cyan(declaredPadded);
     } else {
       b.red(declaredPadded);
@@ -342,7 +365,7 @@ public record QueryAnalysis(
     b.gray(" → ");
 
     String actualPadded = String.format("%-30s", actual);
-    if (ok || !actual.equals("(missing)")) {
+    if (!hasError || !actual.equals("(missing)")) {
       b.plain(actualPadded);
     } else {
       b.red(actualPadded);

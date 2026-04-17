@@ -114,20 +114,36 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
 
     @Override
     public DuckDbRead<Optional<A>> opt() {
-      return new Nullable<>(readNullable);
+      return new Nullable<>(readNullable, this::fromJdbcValue);
     }
   }
 
   final class Nullable<A> implements DuckDbRead<Optional<A>> {
     final RawRead<Optional<A>> readNullable;
+    private final java.util.function.Function<Object, A> innerConverter;
 
     public Nullable(RawRead<Optional<A>> readNullable) {
+      this(readNullable, null);
+    }
+
+    public Nullable(
+        RawRead<Optional<A>> readNullable,
+        java.util.function.Function<Object, A> innerConverter) {
       this.readNullable = readNullable;
+      this.innerConverter = innerConverter;
     }
 
     @Override
     public Optional<A> read(ResultSet rs, int col) throws SQLException {
       return readNullable.apply(rs, col);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Optional<A> fromJdbcValue(Object obj) {
+      if (obj == null) return Optional.empty();
+      if (innerConverter != null) return Optional.of(innerConverter.apply(obj));
+      return Optional.of((A) obj);
     }
 
     @Override
@@ -142,7 +158,8 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
             Optional<A> maybeA = readNullable.apply(rs, col);
             if (maybeA.isEmpty()) return Optional.empty();
             return Optional.of(maybeA);
-          });
+          },
+          this::fromJdbcValue);
     }
   }
 
