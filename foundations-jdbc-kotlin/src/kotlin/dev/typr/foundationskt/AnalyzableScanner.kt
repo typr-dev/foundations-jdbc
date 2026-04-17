@@ -5,6 +5,7 @@ object AnalyzableScanner {
     private fun wrap(java: dev.typr.foundations.Analyzable): Analyzable =
         object : Analyzable {
             override val analyzable: dev.typr.foundations.Analyzable = java
+            override fun toString(): String = java.toString()
         }
 
     @JvmStatic

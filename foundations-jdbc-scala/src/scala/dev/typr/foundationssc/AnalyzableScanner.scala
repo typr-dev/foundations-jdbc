@@ -4,7 +4,10 @@ import scala.jdk.CollectionConverters.*
 
 object AnalyzableScanner:
   private def wrap(java: dev.typr.foundations.Analyzable): Analyzable =
-    new Analyzable { def analyzable: dev.typr.foundations.Analyzable = java }
+    new Analyzable {
+      def analyzable: dev.typr.foundations.Analyzable = java
+      override def toString: String = java.toString
+    }
 
   def scan(packageName: String): List[Analyzable] =
     dev.typr.foundations.AnalyzableScanner.scan(packageName).asScala.toList.map(wrap)

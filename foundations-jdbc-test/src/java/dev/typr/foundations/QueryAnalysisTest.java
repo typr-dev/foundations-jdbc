@@ -1512,4 +1512,82 @@ public class QueryAnalysisTest {
           return null;
         });
   }
+
+  record Skill(String name, Integer level) {}
+
+  record Employee(String name, List<Skill> skills) {}
+
+  static final DuckDbType<Skill> skillType =
+      DuckDbTypes.compositeOf(
+          "skill",
+          RowCodec.<Skill>namedBuilder()
+              .field("name", DuckDbTypes.varchar, Skill::name)
+              .field("level", DuckDbTypes.integer, Skill::level)
+              .build(Skill::new));
+
+  static final DuckDbType<Employee> employeeType =
+      DuckDbTypes.compositeOf(
+          "employee",
+          RowCodec.<Employee>namedBuilder()
+              .field("name", DuckDbTypes.varchar, Employee::name)
+              .field("skills", skillType.list(), Employee::skills)
+              .build(Employee::new));
+
+  @Test
+  public void testStructAnalysis_nestedStructMatches() {
+    // STRUCT containing a LIST-of-STRUCT field — the parser needs to recurse through the
+    // nested shape and match field names and types at every depth.
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  "CREATE TEMP TABLE t (e STRUCT(name VARCHAR, "
+                      + "skills STRUCT(name VARCHAR, level INTEGER)[]))");
+          RowCodec<Employee> parser = RowCodec.of(employeeType);
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT e FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertTrue(
+              "expected structural match on nested struct, got:\n" + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
+
+  @Test
+  public void testStructAnalysis_nestedStructMismatchAtInnerField() {
+    // Declared nested STRUCT field is "level" but the DB column has "xp" — the mismatch is two
+    // levels deep. Parser must recurse to catch it.
+    record BadSkill(String name, Integer xp) {}
+    record BadEmployee(String name, List<BadSkill> skills) {}
+    DuckDbType<BadSkill> badSkill =
+        DuckDbTypes.compositeOf(
+            "bad_skill",
+            RowCodec.<BadSkill>namedBuilder()
+                .field("name", DuckDbTypes.varchar, BadSkill::name)
+                .field("xp", DuckDbTypes.integer, BadSkill::xp)
+                .build(BadSkill::new));
+    DuckDbType<BadEmployee> badEmployee =
+        DuckDbTypes.compositeOf(
+            "bad_employee",
+            RowCodec.<BadEmployee>namedBuilder()
+                .field("name", DuckDbTypes.varchar, BadEmployee::name)
+                .field("skills", badSkill.list(), BadEmployee::skills)
+                .build(BadEmployee::new));
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  "CREATE TEMP TABLE t (e STRUCT(name VARCHAR, "
+                      + "skills STRUCT(name VARCHAR, level INTEGER)[]))");
+          RowCodec<BadEmployee> parser = RowCodec.of(badEmployee);
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT e FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertFalse(
+              "expected nested struct field-name mismatch to fail, got:\n" + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
 }
