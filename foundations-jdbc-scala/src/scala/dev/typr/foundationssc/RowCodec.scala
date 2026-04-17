@@ -77,6 +77,9 @@ class RowCodecNamed[Row](override val underlying: dev.typr.foundations.RowCodecN
   def join[Row2](other: RowCodecNamed[Row2]): RowCodecNamed[(Row, Row2)] =
     new RowCodecNamed(underlying.join(other.underlying).to(Bijections.andToTuple[Row, Row2]))
 
+  def leftJoinedNamed[Row2](other: RowCodecNamed[Row2]): RowCodecNamed[(Row, Option[Row2])] =
+    new RowCodecNamed(underlying.leftJoinedNamed(other.underlying).to(Bijections.leftJoinToTuple[Row, Row2]))
+
   def to[Row2](forward: Row => Row2, backward: Row2 => Row): RowCodecNamed[Row2] =
     new RowCodecNamed(underlying.to(dev.typr.foundations.Bijection.of[Row, Row2](r => forward(r), r2 => backward(r2))))
 

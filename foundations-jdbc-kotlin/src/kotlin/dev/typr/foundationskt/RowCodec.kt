@@ -219,6 +219,18 @@ class RowCodecNamed<Row : Any>(
         return RowCodecNamed(converted)
     }
 
+    /**
+     * Left join that preserves column names. Right-side columns are wrapped in .opt() so a row
+     * with all-null right-side columns decodes as null. Unlike [leftJoined] on the positional
+     * [RowCodec], this returns a [RowCodecNamed] so `columnList`, `Fragment.insertInto`, and
+     * JSON encoding keep working on the combined codec.
+     */
+    fun <Row2 : Any> leftJoinedNamed(other: RowCodecNamed<Row2>): RowCodecNamed<Pair<Row, Row2?>> {
+        val javaJoined = underlying.leftJoinedNamed(other.underlying)
+        val converted = javaJoined.to(Bijection.leftJoinToNullable<Row, Row2>())
+        return RowCodecNamed(converted)
+    }
+
     fun <Row2 : Any> to(forward: (Row) -> Row2, backward: (Row2) -> Row): RowCodecNamed<Row2> =
         RowCodecNamed(underlying.to(dev.typr.foundations.Bijection.of(
             { forward(it) }, { backward(it) })))

@@ -53,7 +53,7 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
   }
 
   @Override
-  public RowCodec<Optional<Row>> opt() {
+  public RowCodecNamed<Optional<Row>> opt() {
     List<DbType<?>> optColumns = new ArrayList<>(columns().size());
     for (int i = 0; i < columns().size(); i++) {
       optColumns.add(columns().get(i).opt());
@@ -134,5 +134,18 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
           return allValues;
         };
     return new RowCodecNamed<>(allNames, allColumns, joinDecode, joinEncode);
+  }
+
+  /**
+   * Left join that preserves column names. Wraps every column on the right side in {@code .opt()}
+   * so a row with all-null right-side columns decodes as {@code Optional.empty()}.
+   *
+   * <p>Unlike the positional {@link RowCodec#leftJoined}, this returns a {@link RowCodecNamed}
+   * so {@code columnList()}, {@code Fragment.insertInto}, and JSON encoding continue to work on
+   * the combined codec.
+   */
+  public <Row2> RowCodecNamed<Tuple.Tuple2<Row, Optional<Row2>>> leftJoinedNamed(
+      RowCodecNamed<Row2> right) {
+    return this.join(right.opt());
   }
 }
