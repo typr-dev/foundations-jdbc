@@ -234,6 +234,12 @@ object Fragment {
   def insertInto[Row](table: String, codec: RowCodecNamed[Row], except: String*): RowTemplate.Update[Row] =
     new RowTemplate.Update(dev.typr.foundations.Fragment.insertInto(table, codec.underlying, except*))
 
+  /** Emit `DROP TABLE IF EXISTS <table>`. Works on PostgreSQL, DuckDB, MariaDB, MySQL,
+    * SQL Server (2016+) and Oracle (23c+). DB2 does not support the `IF EXISTS` clause —
+    * wrap the plain `DROP TABLE <table>` in a try/catch for SQLSTATE 42704. */
+  def dropTableIfExists(table: String): Operation.Execute =
+    new Operation.Execute(dev.typr.foundations.Fragment.dropTableIfExists(table))
+
   def insertIntoReturning[Row](table: String, codec: RowCodecNamed[Row], except: String*): RowTemplate.Query[Row, Row] =
     new RowTemplate.Query(dev.typr.foundations.Fragment.insertIntoReturning(table, codec.underlying, except*))
 

@@ -289,8 +289,8 @@ public sealed interface Fragment {
    *
    * @param table the unqualified or schema-qualified table name
    */
-  static Operation<Void> dropTableIfExists(String table) {
-    return of("DROP TABLE IF EXISTS " + table).execute();
+  static Operation.Execute dropTableIfExists(String table) {
+    return new Operation.Execute(of("DROP TABLE IF EXISTS " + table));
   }
 
   static Literal quotedDouble(String value) {

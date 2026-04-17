@@ -203,6 +203,15 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
         fun of(vararg fragments: Fragment): Fragment =
             Fragment(dev.typr.foundations.Fragment.of(*fragments.map { it.underlying }.toTypedArray()))
 
+        /**
+         * Emit `DROP TABLE IF EXISTS <table>`. Works on PostgreSQL, DuckDB, MariaDB, MySQL,
+         * SQL Server (2016+) and Oracle (23c+). DB2 does not support the `IF EXISTS` clause —
+         * wrap the plain `DROP TABLE <table>` in a try/catch for SQLSTATE 42704.
+         */
+        @JvmStatic
+        fun dropTableIfExists(table: String): Operation.Execute =
+            Operation.Execute(dev.typr.foundations.Fragment.dropTableIfExists(table))
+
         @JvmStatic
         fun <Row : Any> insertInto(table: String, codec: RowCodecNamed<Row>, vararg except: String): RowTemplate.Update<Row> =
             RowTemplate.Update(dev.typr.foundations.Fragment.insertInto(table, codec.underlying, *except))
