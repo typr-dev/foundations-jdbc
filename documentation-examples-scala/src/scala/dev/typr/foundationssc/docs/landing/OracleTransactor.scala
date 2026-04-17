@@ -9,8 +9,8 @@ object OracleTransactor:
   // start
   // Oracle - typed config, no JDBC URL to remember
   val tx =
-    SimpleDataSource
-      .create(
+    ConnectionSource
+      .of(
         OracleConfig
           .builder(
             "localhost",

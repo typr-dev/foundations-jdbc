@@ -5,13 +5,11 @@ import dev.typr.foundationssc.data.*
 @SuppressWarnings(Array("unused"))
 object EnumType:
   // start
-  // Define your Scala 3 enum
+  // Plain Scala 3 enum — no extends java.lang.Enum needed
   enum Status:
     case PENDING, ACTIVE, COMPLETED
 
-  // Create a PgType using transform (Scala 3 enums don't extend java.lang.Enum)
-  val statusType: PgType[Status] = PgTypes.text.transform(
-    Status.valueOf,
-    _.toString
-  )
+  // Create a PgType — just pass .values
+  val statusType: PgType[Status] =
+    PgTypes.ofEnum("status", Status.values)
   // stop

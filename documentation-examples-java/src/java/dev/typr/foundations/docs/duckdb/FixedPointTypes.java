@@ -8,6 +8,6 @@ import java.math.BigDecimal;
 public class FixedPointTypes {
   // start
   DuckDbType<BigDecimal> decimalType = DuckDbTypes.decimal;
-  DuckDbType<BigDecimal> precise = DuckDbTypes.decimal(18, 6); // DECIMAL(18,6)
+  DuckDbType<BigDecimal> precise = DuckDbTypes.decimalOf(18, 6); // DECIMAL(18,6)
   // stop
 }

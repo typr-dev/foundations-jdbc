@@ -1,16 +1,15 @@
 package dev.typr.foundationssc.docs.landing
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
-import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object DuckDbArray:
   val tx: Transactor = null // placeholder
 
   // start
-  // DuckDB arrays are first-class typed values
-  def getTagSets(): List[Array[String]] =
+  // DuckDB LIST columns are first-class typed values
+  def getTagSets(): List[List[String]] =
     sql"SELECT tags FROM posts WHERE published = true"
-      .query(RowCodec.of(DuckDbTypes.varchar.array()).all())
+      .query(RowCodec.of(DuckDbTypes.varchar.list).all())
       .transact(tx)
   // stop

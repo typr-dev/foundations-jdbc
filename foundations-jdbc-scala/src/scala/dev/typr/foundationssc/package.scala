@@ -27,6 +27,25 @@ package object foundationssc:
   // Exceptions
   type DatabaseException = dev.typr.foundations.DatabaseException
 
+  // Oracle collection wrappers — return Scala OracleType[List[T]], not Java OracleType[java.util.List[T]]
+  object OracleVArray:
+    def of[T](typeName: String, maxSize: Int, elementType: OracleType[T]): OracleType[List[T]] =
+      import _root_.scala.jdk.CollectionConverters.*
+      OracleType(
+        dev.typr.foundations.OracleVArray
+          .of(typeName, maxSize, elementType.underlying)
+          .transform(jl => jl.asScala.toList, sl => { val al = new java.util.ArrayList[T](sl.size); sl.foreach(al.add); al })
+      )
+
+  object OracleNestedTable:
+    def of[T](typeName: String, elementType: OracleType[T]): OracleType[List[T]] =
+      import _root_.scala.jdk.CollectionConverters.*
+      OracleType(
+        dev.typr.foundations.OracleNestedTable
+          .of(typeName, elementType.underlying)
+          .transform(jl => jl.asScala.toList, sl => { val al = new java.util.ArrayList[T](sl.size); sl.foreach(al.add); al })
+      )
+
   // Extension methods for Scala-friendly DbJson combinators
   extension [A](codec: dev.typr.foundations.DbJson[A])
     /** Create a list codec that uses Scala List instead of java.util.List. */

@@ -95,12 +95,20 @@ DB2's `JSON_OBJECT` does not support BINARY, VARBINARY, or BLOB types. JSON seri
 
 | DB2 Type | Java Type | Notes |
 |----------|-----------|-------|
-| `DATE` | `LocalDate` | Date without time |
-| `TIME` | `LocalTime` | Time without date |
-| `TIMESTAMP` | `LocalDateTime` | Timestamp without timezone |
-| `TIMESTAMP(p)` | `LocalDateTime` | With fractional seconds precision |
+| `DATE` | `LocalDate` | Naive date, no zone |
+| `TIME` | `LocalTime` | Naive time, no zone |
+| `TIMESTAMP` | `LocalDateTime` | Naive timestamp, no zone |
+| `TIMESTAMP(p)` | `LocalDateTime` | Naive timestamp with fractional-second precision |
 
 <Snippet file="db2/DateTimeTypes" />
+
+:::note DB2 has no zone-preserving timestamp type
+All of DB2's temporal types are naive wall-clock values — the stored bytes represent a date/time as written, with no associated zone or offset. `LocalDate`, `LocalTime`, and `LocalDateTime` are the Java types that match this "no-zone" semantic exactly.
+
+DB2 does have a `TIMESTAMP WITH TIME ZONE` syntax available in some environments, but its support is limited (it is not supported on LUW common configurations without explicit setup) and the library does not expose a dedicated mapping for it. For application-level "point in time" values, normalize to UTC before writing to a `TIMESTAMP` column, or store `BIGINT` epoch milliseconds.
+
+Using `Instant`, `OffsetDateTime`, or `ZonedDateTime` would misrepresent the stored value — none of those Java types' semantics match a naive wall-clock.
+:::
 
 ## Special Types
 

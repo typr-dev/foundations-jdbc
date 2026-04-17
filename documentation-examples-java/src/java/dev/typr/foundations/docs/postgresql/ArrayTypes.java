@@ -2,21 +2,18 @@ package dev.typr.foundations.docs.postgresql;
 
 import dev.typr.foundations.PgType;
 import dev.typr.foundations.PgTypes;
+import java.util.List;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class ArrayTypes {
   // start
-  // Boxed arrays
-  PgType<Integer[]> intArrayBoxed = PgTypes.int4.array();
+  // Any scalar type can be made into a PostgreSQL array via `.array()`.
+  PgType<List<Integer>> intArray = PgTypes.int4.array();
+  PgType<List<String>> textArray = PgTypes.text.array();
+  PgType<List<UUID>> uuidArray = PgTypes.uuid.array();
 
-  // Unboxed arrays (more efficient)
-  PgType<int[]> intArrayUnboxed = PgTypes.int4ArrayUnboxed;
-
-  // Text arrays
-  PgType<String[]> textArray = PgTypes.text.array();
-
-  // Any type can be made into an array
-  PgType<UUID[]> uuidArray = PgTypes.uuid.array();
+  // Multi-dimensional arrays compose: `int4[][]` in SQL.
+  PgType<List<List<Integer>>> intMatrix = PgTypes.int4.array().array();
   // stop
 }

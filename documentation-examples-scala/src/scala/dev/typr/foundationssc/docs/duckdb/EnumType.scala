@@ -5,13 +5,11 @@ import dev.typr.foundationssc.data.*
 @SuppressWarnings(Array("unused"))
 object EnumType:
   // start
-  // Define your Scala 3 enum
+  // Plain Scala 3 enum — no extends java.lang.Enum needed
   enum Status:
     case PENDING, ACTIVE, COMPLETED
 
-  // Create a DuckDbType using transform (Scala 3 enums don't extend java.lang.Enum)
-  val statusType: DuckDbType[Status] = DuckDbTypes.varchar.transform(
-    Status.valueOf,
-    _.toString
-  )
+  // Create DuckDbType — just pass .values
+  val statusType: DuckDbType[Status] =
+    DuckDbTypes.ofEnum("status", Status.values)
   // stop

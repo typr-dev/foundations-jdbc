@@ -6,8 +6,8 @@ import dev.typr.foundationskt.*
 class PgDeepNesting {
     //start
     data class Skill(val name: String, val level: Int)
-    data class Employee(val name: String, val role: String, val skills: Array<Skill>)
-    data class Department(val name: String, val members: Array<Employee>)
+    data class Employee(val name: String, val role: String, val skills: List<Skill>)
+    data class Department(val name: String, val members: List<Employee>)
 
     val skillType: PgType<Skill> = PgTypes.compositeOf(
         RowCodec.namedBuilder<Skill>()

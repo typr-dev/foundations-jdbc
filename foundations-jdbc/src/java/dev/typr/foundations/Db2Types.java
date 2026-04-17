@@ -2,6 +2,7 @@ package dev.typr.foundations;
 
 import java.math.BigDecimal;
 import java.time.*;
+import java.util.function.Function;
 
 /**
  * DB2 type definitions for the typr-runtime-java library.
@@ -63,7 +64,7 @@ public interface Db2Types {
           .renamed("DEC")
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("decimal")));
 
-  static Db2Type<BigDecimal> decimal(int precision, int scale) {
+  static Db2Type<BigDecimal> decimalOf(int precision, int scale) {
     return Db2Type.of(
         Db2Typename.of("DECIMAL", precision, scale),
         Db2Read.readBigDecimal,
@@ -72,8 +73,8 @@ public interface Db2Types {
         Db2OutParam.readBigDecimal);
   }
 
-  static Db2Type<BigDecimal> numeric(int precision, int scale) {
-    return decimal(precision, scale)
+  static Db2Type<BigDecimal> numericOf(int precision, int scale) {
+    return decimalOf(precision, scale)
         .renamed("NUMERIC")
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("decimal")));
   }
@@ -87,7 +88,7 @@ public interface Db2Types {
           Db2Json.numeric,
           Db2OutParam.readBigDecimal);
 
-  static Db2Type<BigDecimal> decfloat(int precision) {
+  static Db2Type<BigDecimal> decfloatOf(int precision) {
     return Db2Type.of(
         Db2Typename.of("DECFLOAT", precision),
         Db2Read.readDecFloat,
@@ -102,6 +103,9 @@ public interface Db2Types {
       Db2Type.of(
           "REAL", Db2Read.readFloat, Db2Write.writeFloat, Db2Json.float4, Db2OutParam.readFloat);
 
+  /** Alias for {@link #real} — aesthetic cross-palette naming. 4B IEEE 754. */
+  Db2Type<Float> float4 = real;
+
   Db2Type<Double> double_ =
       Db2Type.of(
           "DOUBLE",
@@ -109,6 +113,11 @@ public interface Db2Types {
           Db2Write.writeDouble,
           Db2Json.float8,
           Db2OutParam.readDouble);
+
+  /**
+   * Alias for {@link #double_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754.
+   */
+  Db2Type<Double> float8 = double_;
 
   Db2Type<Double> float_ =
       double_
@@ -126,6 +135,9 @@ public interface Db2Types {
           Db2Json.bool,
           Db2OutParam.readBoolean);
 
+  /** Alias for {@link #boolean_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  Db2Type<Boolean> bool = boolean_;
+
   // ==================== String Types (SBCS - Single-Byte) ====================
 
   Db2Type<String> char_ =
@@ -137,7 +149,7 @@ public interface Db2Types {
           .renamed("CHARACTER")
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(Db2Typename.of("char")));
 
-  static Db2Type<String> char_(int length) {
+  static Db2Type<String> char_Of(int length) {
     return Db2Type.of(
         Db2Typename.of("CHAR", length),
         Db2Read.readString,
@@ -154,7 +166,7 @@ public interface Db2Types {
           Db2Json.text,
           Db2OutParam.readString);
 
-  static Db2Type<String> varchar(int length) {
+  static Db2Type<String> varcharOf(int length) {
     return Db2Type.of(
         Db2Typename.of("VARCHAR", length),
         Db2Read.readString,
@@ -168,7 +180,7 @@ public interface Db2Types {
       Db2Type.of(
           "CLOB", Db2Read.readClob, Db2Write.writeClob, Db2Json.text, Db2OutParam.readString);
 
-  static Db2Type<String> clob(int length) {
+  static Db2Type<String> clobOf(int length) {
     return Db2Type.of(
         Db2Typename.of("CLOB", length),
         Db2Read.readClob,
@@ -189,7 +201,7 @@ public interface Db2Types {
           Db2Json.unsupported("GRAPHIC"),
           Db2OutParam.readString);
 
-  static Db2Type<String> graphic(int length) {
+  static Db2Type<String> graphicOf(int length) {
     return Db2Type.of(
         Db2Typename.of("GRAPHIC", length),
         Db2Read.readGraphic,
@@ -207,7 +219,7 @@ public interface Db2Types {
           Db2Json.unsupported("VARGRAPHIC"),
           Db2OutParam.readString);
 
-  static Db2Type<String> vargraphic(int length) {
+  static Db2Type<String> vargraphicOf(int length) {
     return Db2Type.of(
         Db2Typename.of("VARGRAPHIC", length),
         Db2Read.readVarGraphic,
@@ -225,7 +237,7 @@ public interface Db2Types {
           Db2Json.unsupported("DBCLOB"),
           Db2OutParam.readString);
 
-  static Db2Type<String> dbclob(int length) {
+  static Db2Type<String> dbclobOf(int length) {
     return Db2Type.of(
         Db2Typename.of("DBCLOB", length),
         Db2Read.readDbClob,
@@ -245,7 +257,7 @@ public interface Db2Types {
           Db2Json.unsupported("BINARY"),
           Db2OutParam.readByteArray);
 
-  static Db2Type<byte[]> binary(int length) {
+  static Db2Type<byte[]> binaryOf(int length) {
     return Db2Type.of(
         Db2Typename.of("BINARY", length),
         Db2Read.readByteArray,
@@ -262,7 +274,7 @@ public interface Db2Types {
           Db2Json.unsupported("VARBINARY"),
           Db2OutParam.readByteArray);
 
-  static Db2Type<byte[]> varbinary(int length) {
+  static Db2Type<byte[]> varbinaryOf(int length) {
     return Db2Type.of(
         Db2Typename.of("VARBINARY", length),
         Db2Read.readByteArray,
@@ -280,7 +292,7 @@ public interface Db2Types {
           Db2Json.unsupported("BLOB"),
           Db2OutParam.readByteArray);
 
-  static Db2Type<byte[]> blob(int length) {
+  static Db2Type<byte[]> blobOf(int length) {
     return Db2Type.of(
         Db2Typename.of("BLOB", length),
         Db2Read.readBlob,
@@ -308,7 +320,7 @@ public interface Db2Types {
           Db2Json.timestamp,
           Db2OutParam.readLocalDateTime);
 
-  static Db2Type<LocalDateTime> timestamp(int scale) {
+  static Db2Type<LocalDateTime> timestampOf(int scale) {
     return Db2Type.of(
         Db2Typename.of("TIMESTAMP", scale),
         Db2Read.readTimestamp,
@@ -394,5 +406,32 @@ public interface Db2Types {
     return json.transform(
         j -> rowJson.fromJson(dev.typr.foundations.data.JsonValue.parse(j.value())),
         list -> new dev.typr.foundations.data.Json(rowJson.toJson(list).encode()));
+  }
+
+  // ==================== ENUM Type ====================
+
+  /**
+   * Map enum values through an underlying Db2Type. DB2 has no native ENUM — this wraps any column
+   * type (VARCHAR, INTEGER, etc.) with a bidirectional mapping to/from enum constants.
+   */
+  static <E, U> Db2Type<E> ofEnum(Db2Type<U> underlying, E[] values, Function<E, U> toUnderlying) {
+    return underlying.transform(reverseMap(values, toUnderlying), toUnderlying);
+  }
+
+  /** Convenience: store enum names as VARCHAR, column width derived from longest name. */
+  static <E extends Enum<E>> Db2Type<E> ofEnum(E[] values) {
+    int maxLen = 0;
+    for (E v : values) maxLen = Math.max(maxLen, v.name().length());
+    return ofEnum(varcharOf(maxLen), values, Enum::name);
+  }
+
+  private static <E, U> SqlFunction<U, E> reverseMap(E[] values, Function<E, U> toUnderlying) {
+    var map = new java.util.HashMap<U, E>();
+    for (E v : values) map.put(toUnderlying.apply(v), v);
+    return u -> {
+      E result = map.get(u);
+      if (result == null) throw new IllegalArgumentException("No enum constant for: " + u);
+      return result;
+    };
   }
 }

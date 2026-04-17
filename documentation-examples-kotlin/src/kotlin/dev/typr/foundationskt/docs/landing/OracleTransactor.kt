@@ -9,7 +9,7 @@ class OracleTransactor {
     //start
     // Oracle - typed config, no JDBC URL to remember
     val tx =
-        SimpleDataSource.create(
+        ConnectionSource.of(
             OracleConfig.builder("localhost", 1521, "xe", "app", "secret")
                 .serviceName("XEPDB1")
                 .build()

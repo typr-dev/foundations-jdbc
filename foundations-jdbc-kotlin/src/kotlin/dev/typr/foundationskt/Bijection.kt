@@ -22,6 +22,12 @@ class Bijection<A, B>(val underlying: dev.typr.foundations.Bijection<A, B>) {
                 { pair: Pair<A, B> -> Tuple.of(pair.first, pair.second) }
             )
 
+        internal fun <A, B, C> tuple3ToTriple(): dev.typr.foundations.Bijection<Tuple.Tuple3<A, B, C>, Triple<A, B, C>> =
+            dev.typr.foundations.Bijection.of(
+                { t: Tuple.Tuple3<A, B, C> -> Triple(t._1(), t._2(), t._3()) },
+                { tr: Triple<A, B, C> -> Tuple.of(tr.first, tr.second, tr.third) }
+            )
+
         internal fun <A, B : Any> leftJoinToNullable(): dev.typr.foundations.Bijection<Tuple.Tuple2<A, Optional<B>>, Pair<A, B?>> =
             dev.typr.foundations.Bijection.of(
                 { t: Tuple.Tuple2<A, Optional<B>> -> Pair(t._1(), t._2().orElse(null)) },

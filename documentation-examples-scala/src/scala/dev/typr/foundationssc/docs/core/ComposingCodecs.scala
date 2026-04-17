@@ -24,9 +24,9 @@ object ComposingCodecs:
   // start
   // Inner join — both sides always present
   val innerJoined: RowCodec[(ProductRow, CategoryRow)] =
-    productCodec.joined(categoryCodec)
+    productCodec.join(categoryCodec)
 
   // Left join — right side is Option
   val leftJoined: RowCodec[(ProductRow, Option[CategoryRow])] =
-    productCodec.leftJoined(categoryCodec)
+    productCodec.leftJoin(categoryCodec)
   // stop

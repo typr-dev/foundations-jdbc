@@ -110,6 +110,11 @@ public final class DuckDbConfig implements DatabaseConfig {
   }
 
   @Override
+  public boolean singleConnectionMode() {
+    return ":memory:".equals(path);
+  }
+
+  @Override
   public Map<String, String> driverProperties() {
     Map<String, String> props = new HashMap<>();
 

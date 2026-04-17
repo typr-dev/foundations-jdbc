@@ -1,80 +1,127 @@
 package dev.typr.foundations;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Handles conversion of values to/from DuckDB MAP entries. DuckDB JDBC returns maps with Object
- * keys/values that need to be cast to the proper types, and when writing we may need to convert
- * back.
+ * Builds {@link DuckDbType} instances for DuckDB MAP columns.
  *
- * @param <A> the Java type
+ * <p>Reads delegate per-element decoding to each side's {@link DuckDbRead#fromJdbcValue} so
+ * transformed/composite element types compose without per-map plumbing.
+ *
+ * <p>Writes use a per-side strategy:
+ *
+ * <ul>
+ *   <li>STRUCT / LIST / ARRAY entries are bound natively via each type's {@code
+ *       structAttributeEncoder}, which produces {@link org.duckdb.user.DuckDBUserStruct} or {@link
+ *       org.duckdb.user.DuckDBUserArray}. This is the same path top-level struct/list parameters
+ *       use, so nested {@code VARCHAR[]} fields don't get re-quoted by DuckDB's struct-literal
+ *       parser.
+ *   <li>Scalar entries are stringified via the type's {@link DuckDbStringifier} and shipped as
+ *       {@code String} → DuckDB casts them to the column type. This avoids JNI binding gaps for
+ *       scalars whose Java representation isn't natively recognised in {@code DuckDBMap} (UUID,
+ *       INTERVAL, JSON, HUGEINT, TIME).
+ * </ul>
  */
-public interface DuckDbMapSupport<A> {
-  /** Convert a raw value from a DuckDB MAP to the Java type. */
-  A fromMap(Object raw);
+final class DuckDbMapSupport {
+  private DuckDbMapSupport() {}
 
-  /** Convert the Java type to a value suitable for a DuckDB MAP. Usually identity. */
-  Object toMap(A value);
+  static <K, V> DuckDbType<Map<K, V>> mapType(DuckDbType<K> keyType, DuckDbType<V> valueType) {
+    DuckDbTypename<Map<K, V>> typename = keyType.typename().mapTo(valueType.typename());
+    String sqlType = typename.sqlType();
 
-  /** Create a support that just casts (for types DuckDB returns directly). */
-  @SuppressWarnings("unchecked")
-  static <A> DuckDbMapSupport<A> cast() {
-    return new DuckDbMapSupport<>() {
-      @Override
-      public A fromMap(Object raw) {
-        return (A) raw;
-      }
+    Function<K, Object> keyEncoder = keyType.structAttributeEncoder();
+    Function<V, Object> valueEncoder = valueType.structAttributeEncoder();
 
-      @Override
-      public Object toMap(A value) {
-        return value;
-      }
-    };
+    DuckDbRead<Map<K, V>> read =
+        DuckDbRead.of((rs, idx) -> readJdbcMap(rs, idx, keyType.read(), valueType.read()));
+
+    DuckDbWrite<Map<K, V>> write =
+        DuckDbWrite.primitive(
+            (ps, idx, map) -> writeJdbcMap(ps, idx, sqlType, map, keyEncoder, valueEncoder));
+
+    DuckDbStringifier<Map<K, V>> stringifier =
+        DuckDbStringifier.instance(
+            (map, sb, quoted) ->
+                stringify(map, sb, keyType.stringifier(), valueType.stringifier()));
+
+    // Composite-as-attribute encoder: when this MAP type is itself the value of an outer MAP,
+    // LIST, ARRAY or STRUCT, it gets bound as a DuckDBMap object via the same native path
+    // composites use. Mirrors the structAttributeEncoder produced by `compositeOf` for STRUCT
+    // and `buildCollection` for LIST/ARRAY.
+    Function<Map<K, V>, Object> attributeEncoder =
+        map -> {
+          if (map == null) return null;
+          var wireMap = new LinkedHashMap<Object, Object>();
+          for (var entry : map.entrySet()) {
+            wireMap.put(keyEncoder.apply(entry.getKey()), valueEncoder.apply(entry.getValue()));
+          }
+          return new org.duckdb.user.DuckDBMap<>(sqlType, wireMap);
+        };
+
+    return new DuckDbType<>(
+        typename,
+        read,
+        write,
+        stringifier,
+        DuckDbTypes.mapJson(keyType.duckDbJson(), valueType.duckDbJson()),
+        AnalysisOptions.EMPTY,
+        DuckDbWrite.writeListOfUserArray(sqlType, attributeEncoder),
+        attributeEncoder);
   }
 
-  /** Create a support with custom conversion in both directions. */
-  static <A> DuckDbMapSupport<A> of(Function<Object, A> from, Function<A, Object> to) {
-    return new DuckDbMapSupport<>() {
-      @Override
-      public A fromMap(Object raw) {
-        return from.apply(raw);
-      }
-
-      @Override
-      public Object toMap(A value) {
-        return to.apply(value);
-      }
-    };
+  private static <K, V> Map<K, V> readJdbcMap(
+      ResultSet rs, int idx, DuckDbRead<K> keyRead, DuckDbRead<V> valueRead) throws SQLException {
+    Object obj = rs.getObject(idx);
+    if (obj == null) return null;
+    if (!(obj instanceof Map<?, ?> rawMap)) {
+      throw new SQLException("Cannot convert " + obj.getClass() + " to Map");
+    }
+    Map<K, V> result = new LinkedHashMap<>();
+    for (var entry : rawMap.entrySet()) {
+      result.put(keyRead.fromJdbcValue(entry.getKey()), valueRead.fromJdbcValue(entry.getValue()));
+    }
+    return result;
   }
 
-  /** Create a support with custom read conversion, identity for write. */
-  static <A> DuckDbMapSupport<A> fromOnly(Function<Object, A> from) {
-    return new DuckDbMapSupport<>() {
-      @Override
-      public A fromMap(Object raw) {
-        return from.apply(raw);
-      }
-
-      @Override
-      public Object toMap(A value) {
-        return value;
-      }
-    };
+  private static <K, V> void writeJdbcMap(
+      PreparedStatement ps,
+      int idx,
+      String sqlType,
+      Map<K, V> map,
+      Function<K, Object> keyEncoder,
+      Function<V, Object> valueEncoder)
+      throws SQLException {
+    if (map == null) {
+      ps.setNull(idx, java.sql.Types.OTHER);
+      return;
+    }
+    var wireMap = new LinkedHashMap<Object, Object>();
+    for (var entry : map.entrySet()) {
+      wireMap.put(keyEncoder.apply(entry.getKey()), valueEncoder.apply(entry.getValue()));
+    }
+    ps.setObject(idx, new org.duckdb.user.DuckDBMap<>(sqlType, wireMap));
   }
 
-  /** Transform this support with a bijection (for transform support). */
-  default <B> DuckDbMapSupport<B> transform(Function<A, B> f, Function<B, A> g) {
-    DuckDbMapSupport<A> self = this;
-    return new DuckDbMapSupport<>() {
-      @Override
-      public B fromMap(Object raw) {
-        return f.apply(self.fromMap(raw));
-      }
-
-      @Override
-      public Object toMap(B value) {
-        return self.toMap(g.apply(value));
-      }
-    };
+  private static <K, V> void stringify(
+      Map<K, V> map, StringBuilder sb, DuckDbStringifier<K> keyStr, DuckDbStringifier<V> valueStr) {
+    if (map.isEmpty()) {
+      sb.append("{}");
+      return;
+    }
+    sb.append("{");
+    boolean first = true;
+    for (var entry : map.entrySet()) {
+      if (!first) sb.append(", ");
+      first = false;
+      keyStr.unsafeEncode(entry.getKey(), sb, true);
+      sb.append(": ");
+      valueStr.unsafeEncode(entry.getValue(), sb, true);
+    }
+    sb.append("}");
   }
 }

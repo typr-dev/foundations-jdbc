@@ -145,15 +145,15 @@ public class MariaTypeTest {
           new MariaTypeAndExample<>(
               MariaTypes.decimal, new BigDecimal("-9999999999")), // Edge case: negative
           new MariaTypeAndExample<>(MariaTypes.numeric, new BigDecimal("99999")),
-          new MariaTypeAndExample<>(MariaTypes.decimal(10, 2), new BigDecimal("12345678.90")),
+          new MariaTypeAndExample<>(MariaTypes.decimalOf(10, 2), new BigDecimal("12345678.90")),
           new MariaTypeAndExample<>(
-              MariaTypes.decimal(10, 2), new BigDecimal("0.00")), // Edge case: zero with decimals
+              MariaTypes.decimalOf(10, 2), new BigDecimal("0.00")), // Edge case: zero with decimals
           new MariaTypeAndExample<>(
-              MariaTypes.decimal(10, 2),
+              MariaTypes.decimalOf(10, 2),
               new BigDecimal("-99999999.99")), // Edge case: large negative
-          new MariaTypeAndExample<>(MariaTypes.decimal(10, 5), new BigDecimal("12345.67890")),
+          new MariaTypeAndExample<>(MariaTypes.decimalOf(10, 5), new BigDecimal("12345.67890")),
           new MariaTypeAndExample<>(
-              MariaTypes.decimal(10, 5), new BigDecimal("0.00001")), // Edge case: small value
+              MariaTypes.decimalOf(10, 5), new BigDecimal("0.00001")), // Edge case: small value
 
           // ==================== Floating-Point Types ====================
           new MariaTypeAndExample<>(MariaTypes.float_, 3.14159f).noIdentity(),
@@ -175,18 +175,19 @@ public class MariaTypeTest {
               .noJsonRoundtrip(), // Edge case: false bit
 
           // ==================== String Types ====================
-          new MariaTypeAndExample<>(MariaTypes.char_(10), "hello"),
-          new MariaTypeAndExample<>(MariaTypes.char_(10), ""), // Edge case: empty string
-          new MariaTypeAndExample<>(MariaTypes.char_(10), "a"), // Edge case: single char
+          new MariaTypeAndExample<>(MariaTypes.char_Of(10), "hello"),
+          new MariaTypeAndExample<>(MariaTypes.char_Of(10), ""), // Edge case: empty string
+          new MariaTypeAndExample<>(MariaTypes.char_Of(10), "a"), // Edge case: single char
           new MariaTypeAndExample<>(
-              MariaTypes.varchar(255), "Hello, MariaDB! Unicode: \u00e9\u00e8\u00ea \u4e2d\u6587"),
-          new MariaTypeAndExample<>(MariaTypes.varchar(255), ""), // Edge case: empty string
+              MariaTypes.varcharOf(255),
+              "Hello, MariaDB! Unicode: \u00e9\u00e8\u00ea \u4e2d\u6587"),
+          new MariaTypeAndExample<>(MariaTypes.varcharOf(255), ""), // Edge case: empty string
           new MariaTypeAndExample<>(
-              MariaTypes.varchar(255), "Line1\nLine2\tTabbed"), // Edge case: whitespace
+              MariaTypes.varcharOf(255), "Line1\nLine2\tTabbed"), // Edge case: whitespace
           new MariaTypeAndExample<>(
-              MariaTypes.varchar(255), "Quote\"Test'Single\\Back"), // Edge case: special chars
+              MariaTypes.varcharOf(255), "Quote\"Test'Single\\Back"), // Edge case: special chars
           new MariaTypeAndExample<>(
-              MariaTypes.varchar(255),
+              MariaTypes.varcharOf(255),
               "Emoji: \uD83D\uDE00\uD83C\uDF89\uD83D\uDE80"), // Edge case: emoji
           new MariaTypeAndExample<>(MariaTypes.tinytext, "tiny text content"),
           new MariaTypeAndExample<>(MariaTypes.tinytext, ""), // Edge case: empty
@@ -199,16 +200,18 @@ public class MariaTypeTest {
           // ==================== Binary Types ====================
           // Note: MariaDB's JSON encoding of binary is lossy - bytes > 127 get corrupted
           // because JSON is UTF-8 and MariaDB outputs raw bytes without proper encoding
-          new MariaTypeAndExample<>(MariaTypes.binary(5), new byte[] {0x01, 0x02, 0x03, 0x00, 0x00})
+          new MariaTypeAndExample<>(
+                  MariaTypes.binaryOf(5), new byte[] {0x01, 0x02, 0x03, 0x00, 0x00})
               .noJsonRoundtrip(),
-          new MariaTypeAndExample<>(MariaTypes.binary(5), new byte[] {0x00, 0x00, 0x00, 0x00, 0x00})
+          new MariaTypeAndExample<>(
+                  MariaTypes.binaryOf(5), new byte[] {0x00, 0x00, 0x00, 0x00, 0x00})
               .noJsonRoundtrip(), // Edge case: all zeros
           new MariaTypeAndExample<>(
-                  MariaTypes.varbinary(255), new byte[] {(byte) 0xFF, 0x00, 0x7F, (byte) 0x80})
+                  MariaTypes.varbinaryOf(255), new byte[] {(byte) 0xFF, 0x00, 0x7F, (byte) 0x80})
               .noJsonRoundtrip(),
-          new MariaTypeAndExample<>(MariaTypes.varbinary(255), new byte[] {})
+          new MariaTypeAndExample<>(MariaTypes.varbinaryOf(255), new byte[] {})
               .noJsonRoundtrip(), // Edge case: empty
-          new MariaTypeAndExample<>(MariaTypes.varbinary(255), new byte[] {0x00})
+          new MariaTypeAndExample<>(MariaTypes.varbinaryOf(255), new byte[] {0x00})
               .noJsonRoundtrip(), // Edge case: single zero byte
           new MariaTypeAndExample<>(MariaTypes.tinyblob, new byte[] {0x01, 0x02, 0x03})
               .noJsonRoundtrip(),
@@ -238,14 +241,14 @@ public class MariaTypeTest {
           new MariaTypeAndExample<>(MariaTypes.time, LocalTime.of(0, 0, 0)), // Edge case: midnight
           new MariaTypeAndExample<>(
               MariaTypes.time, LocalTime.of(23, 59, 59)), // Edge case: end of day
-          new MariaTypeAndExample<>(MariaTypes.time(3), LocalTime.of(14, 30, 45, 123000000)),
+          new MariaTypeAndExample<>(MariaTypes.timeOf(3), LocalTime.of(14, 30, 45, 123000000)),
           new MariaTypeAndExample<>(
-              MariaTypes.time(6), LocalTime.of(14, 30, 45, 123456000)), // Edge case: microseconds
+              MariaTypes.timeOf(6), LocalTime.of(14, 30, 45, 123456000)), // Edge case: microseconds
           new MariaTypeAndExample<>(MariaTypes.datetime, LocalDateTime.of(2024, 6, 15, 14, 30, 45)),
           new MariaTypeAndExample<>(
               MariaTypes.datetime, LocalDateTime.of(1970, 1, 1, 0, 0, 0)), // Edge case: epoch
           new MariaTypeAndExample<>(
-              MariaTypes.datetime(6), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)),
+              MariaTypes.datetimeOf(6), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)),
           new MariaTypeAndExample<>(
               MariaTypes.timestamp, LocalDateTime.of(2024, 6, 15, 14, 30, 45)),
           new MariaTypeAndExample<>(
@@ -254,20 +257,22 @@ public class MariaTypeTest {
                   1971, 1, 1, 0, 0,
                   1)), // Edge case: near epoch (timestamp starts at 1970-01-01 00:00:01)
           new MariaTypeAndExample<>(
-              MariaTypes.timestamp(6), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)),
+              MariaTypes.timestampOf(6), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)),
           new MariaTypeAndExample<>(MariaTypes.year, Year.of(2024)),
           new MariaTypeAndExample<>(MariaTypes.year, Year.of(1901)), // Edge case: min YEAR
           new MariaTypeAndExample<>(MariaTypes.year, Year.of(2155)), // Edge case: max YEAR
 
           // ==================== ENUM Type ====================
+          // Class-based factory derives ENUM('RED','GREEN','BLUE') from Color.class.
+          new MariaTypeAndExample<>(MariaTypes.ofEnum(Color.values()), Color.GREEN),
+          new MariaTypeAndExample<>(
+              MariaTypes.ofEnum(Color.values()), Color.RED), // Edge case: first value
+          new MariaTypeAndExample<>(
+              MariaTypes.ofEnum(Color.values()), Color.BLUE), // Edge case: last value
+          // String-based fallback — still supported for cases where DB labels differ from
+          // the Java enum constant names.
           new MariaTypeAndExample<>(
               MariaTypes.ofEnum("ENUM('RED','GREEN','BLUE')", Color::valueOf), Color.GREEN),
-          new MariaTypeAndExample<>(
-              MariaTypes.ofEnum("ENUM('RED','GREEN','BLUE')", Color::valueOf),
-              Color.RED), // Edge case: first value
-          new MariaTypeAndExample<>(
-              MariaTypes.ofEnum("ENUM('RED','GREEN','BLUE')", Color::valueOf),
-              Color.BLUE), // Edge case: last value
 
           // ==================== SET Type ====================
           new MariaTypeAndExample<>(

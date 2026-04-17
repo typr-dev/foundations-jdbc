@@ -1,9 +1,9 @@
 package dev.typr.foundations;
 
 import dev.typr.foundations.connect.Db2Config;
-import dev.typr.foundations.connect.MariaDbConfig;
+import dev.typr.foundations.connect.MariaConfig;
 import dev.typr.foundations.connect.OracleConfig;
-import dev.typr.foundations.connect.PostgresConfig;
+import dev.typr.foundations.connect.PgConfig;
 import dev.typr.foundations.connect.SqlServerConfig;
 import dev.typr.foundations.connect.SqlServerEncrypt;
 import dev.typr.foundations.hikari.HikariDataSourceFactory;
@@ -55,7 +55,7 @@ public final class Containers {
 
       TRANSACTOR =
           Transactor.create(
-              PostgresConfig.builder(
+              PgConfig.builder(
                       INSTANCE.getHost(),
                       INSTANCE.getMappedPort(5432),
                       INSTANCE.getDatabaseName(),
@@ -81,7 +81,7 @@ public final class Containers {
 
       TRANSACTOR =
           Transactor.create(
-              MariaDbConfig.builder(
+              MariaConfig.builder(
                       INSTANCE.getHost(),
                       INSTANCE.getMappedPort(3306),
                       INSTANCE.getDatabaseName(),

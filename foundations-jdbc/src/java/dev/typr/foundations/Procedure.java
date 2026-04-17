@@ -228,6 +228,16 @@ public sealed interface Procedure<Out>
             }
           });
     }
+
+    @Override
+    public String description(boolean verbose) {
+      return "ProcedureCall: " + name;
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
+    }
   }
 
   /**
@@ -275,6 +285,16 @@ public sealed interface Procedure<Out>
       } catch (SQLException e) {
         throw new DatabaseException(e);
       }
+    }
+
+    @Override
+    public String description(boolean verbose) {
+      return "FunctionCall: " + name;
+    }
+
+    @Override
+    public String toString() {
+      return description(false);
     }
   }
 }

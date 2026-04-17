@@ -7,6 +7,6 @@ import dev.typr.foundations.PgTypes;
 public class StringTypes {
   // start
   PgType<String> textType = PgTypes.text;
-  PgType<String> charType = PgTypes.bpchar(10); // char(10)
+  PgType<String> charType = PgTypes.bpcharOf(10); // char(10)
   // stop
 }

@@ -1,8 +1,8 @@
 package dev.typr.foundations;
 
 import dev.typr.foundations.connect.ConnectionSettings;
+import dev.typr.foundations.connect.ConnectionSource;
 import dev.typr.foundations.connect.DatabaseConfig;
-import dev.typr.foundations.connect.SimpleDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -15,7 +15,7 @@ import java.sql.SQLException;
  * <p>Typically obtained via {@link dev.typr.foundations.connect.ConnectionSource#transactor}:
  *
  * <pre>{@code
- * var ds = SimpleDataSource.create(config, settings);
+ * var ds = ConnectionSource.of(config, settings);
  * var tx = ds.transactor(Transactor.testStrategy());
  * tx.execute(conn -> repo.selectAll(conn));
  * }</pre>
@@ -113,31 +113,32 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
   }
 
   public static Transactor create(DatabaseConfig config) {
-    return SimpleDataSource.create(config).transactor();
+    return ConnectionSource.of(config).transactor();
   }
 
   public static Transactor create(DatabaseConfig config, Strategy strategy) {
-    return SimpleDataSource.create(config).transactor(strategy);
+    return ConnectionSource.of(config).transactor(strategy);
   }
 
   public static Transactor create(DatabaseConfig config, ConnectionSettings settings) {
-    return SimpleDataSource.create(config, settings).transactor();
+    return ConnectionSource.of(config, settings).transactor();
   }
 
   public static Transactor create(
       DatabaseConfig config, ConnectionSettings settings, Strategy strategy) {
-    return SimpleDataSource.create(config, settings).transactor(strategy);
+    return ConnectionSource.of(config, settings).transactor(strategy);
   }
 
   /**
-   * Default strategy: manual transactions with commit on success, close always.
+   * Default strategy: manual transactions, commit on success, rollback on failure, close always.
    *
    * <p>Behavior:
    *
    * <ul>
    *   <li>onBegin: setAutoCommit(false)
    *   <li>onSuccess: commit()
-   *   <li>onFailure: no-op (caller handles exceptions)
+   *   <li>onFailure: rollback() (rollback exceptions are attached to the primary via {@link
+   *       Throwable#addSuppressed})
    *   <li>onComplete: close()
    * </ul>
    *
@@ -147,6 +148,7 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
     return Strategy.empty()
         .replaceOnBegin(conn -> conn.setAutoCommit(false))
         .replaceOnSuccess(Connection::commit)
+        .replaceOnFailure(Transactor::rollbackQuietly)
         .replaceOnComplete(Connection::close);
   }
 
@@ -169,44 +171,21 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
   }
 
   /**
-   * Strategy with rollback on error.
-   *
-   * <p>Behavior:
-   *
-   * <ul>
-   *   <li>onBegin: setAutoCommit(false)
-   *   <li>onSuccess: commit()
-   *   <li>onFailure: rollback() (silently ignores rollback failures)
-   *   <li>onComplete: close()
-   * </ul>
-   *
-   * @return a strategy that rolls back on error
-   */
-  public static Strategy rollbackOnErrorStrategy() {
-    return Strategy.empty()
-        .replaceOnBegin(conn -> conn.setAutoCommit(false))
-        .replaceOnSuccess(Connection::commit)
-        .replaceOnFailure(
-            (conn, t) -> {
-              try {
-                if (!conn.getAutoCommit() && !conn.isClosed()) {
-                  conn.rollback();
-                }
-              } catch (SQLException ignored) {
-              }
-            })
-        .replaceOnComplete(Connection::close);
-  }
-
-  /**
    * Strategy for testing: always rollback instead of commit.
+   *
+   * <p><b>Warning:</b> this strategy rolls back every {@code execute} / {@code transact}, even
+   * those that succeeded. Nothing you write persists across calls on a given transactor — DDL,
+   * inserts, and updates all disappear. Use only in tests where per-test data isolation is the
+   * desired behavior. For scripts, tutorials, services, migrations, or anything that should
+   * actually persist changes, use {@link #defaultStrategy()}.
    *
    * <p>Behavior:
    *
    * <ul>
    *   <li>onBegin: setAutoCommit(false)
    *   <li>onSuccess: rollback() (instead of commit, to keep test data isolated)
-   *   <li>onFailure: no-op (caller handles exceptions)
+   *   <li>onFailure: rollback() (rollback exceptions are attached to the primary via {@link
+   *       Throwable#addSuppressed})
    *   <li>onComplete: close()
    * </ul>
    *
@@ -216,7 +195,24 @@ public record Transactor(SqlSupplier<Connection> connect, Strategy strategy) {
     return Strategy.empty()
         .replaceOnBegin(conn -> conn.setAutoCommit(false))
         .replaceOnSuccess(Connection::rollback)
+        .replaceOnFailure(Transactor::rollbackQuietly)
         .replaceOnComplete(Connection::close);
+  }
+
+  /**
+   * Roll back the connection if it's in a manual transaction and not already closed. Any
+   * SQLException thrown by the rollback itself is attached as a suppressed exception on the primary
+   * failure, so the caller's stack trace still starts at the business logic that failed but a
+   * debugger can still see why the rollback itself could not complete.
+   */
+  private static void rollbackQuietly(Connection conn, Throwable primary) throws SQLException {
+    try {
+      if (!conn.getAutoCommit() && !conn.isClosed()) {
+        conn.rollback();
+      }
+    } catch (SQLException rollbackFailure) {
+      primary.addSuppressed(rollbackFailure);
+    }
   }
 
   /**

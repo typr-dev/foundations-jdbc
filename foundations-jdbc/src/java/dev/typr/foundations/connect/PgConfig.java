@@ -12,7 +12,7 @@ import java.util.Map;
  *
  * @see <a href="https://jdbc.postgresql.org/documentation/use/">PostgreSQL JDBC Documentation</a>
  */
-public final class PostgresConfig implements DatabaseConfig {
+public final class PgConfig implements DatabaseConfig {
 
   private final String host;
   private final int port;
@@ -112,7 +112,7 @@ public final class PostgresConfig implements DatabaseConfig {
   // Escape hatch for undocumented/future properties
   private final Map<String, String> extraProperties;
 
-  private PostgresConfig(Builder b) {
+  private PgConfig(Builder b) {
     this.host = b.host;
     this.port = b.port;
     this.database = b.database;
@@ -363,7 +363,7 @@ public final class PostgresConfig implements DatabaseConfig {
     return props;
   }
 
-  /** Builder for PostgresConfig with typed methods for all JDBC driver properties. */
+  /** Builder for PgConfig with typed methods for all JDBC driver properties. */
   public static final class Builder {
     // Required
     private final String host;
@@ -1273,12 +1273,12 @@ public final class PostgresConfig implements DatabaseConfig {
     }
 
     /**
-     * Build the PostgresConfig.
+     * Build the PgConfig.
      *
-     * @return immutable PostgresConfig
+     * @return immutable PgConfig
      */
-    public PostgresConfig build() {
-      return new PostgresConfig(this);
+    public PgConfig build() {
+      return new PgConfig(this);
     }
   }
 }

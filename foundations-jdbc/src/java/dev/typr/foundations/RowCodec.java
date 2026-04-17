@@ -798,7 +798,7 @@ public sealed class RowCodec<Row> permits RowCodecNamed, RowCodecUnnamed {
     return new RowCodecUnnamed<>(optColumns, optDecode, optEncode);
   }
 
-  public <Row2> RowCodec<Tuple.Tuple2<Row, Row2>> joined(RowCodec<Row2> right) {
+  public <Row2> RowCodec<Tuple.Tuple2<Row, Row2>> join(RowCodec<Row2> right) {
     var allColumns = new ArrayList<>(columns);
     allColumns.addAll(right.columns);
     var left = this;
@@ -822,17 +822,17 @@ public sealed class RowCodec<Row> permits RowCodecNamed, RowCodecUnnamed {
     return new RowCodecUnnamed<>(allColumns, joinDecode, joinEncode);
   }
 
-  public <Row2> RowCodec<Tuple.Tuple2<Row, Optional<Row2>>> leftJoined(RowCodec<Row2> other) {
-    return joined(other.opt());
+  public <Row2> RowCodec<Tuple.Tuple2<Row, Optional<Row2>>> leftJoin(RowCodec<Row2> other) {
+    return join(other.opt());
   }
 
-  public <Row2> RowCodec<Tuple.Tuple2<Optional<Row>, Row2>> rightJoined(RowCodec<Row2> other) {
-    return opt().joined(other);
+  public <Row2> RowCodec<Tuple.Tuple2<Optional<Row>, Row2>> rightJoin(RowCodec<Row2> other) {
+    return opt().join(other);
   }
 
-  public <Row2> RowCodec<Tuple.Tuple2<Optional<Row>, Optional<Row2>>> fullJoined(
+  public <Row2> RowCodec<Tuple.Tuple2<Optional<Row>, Optional<Row2>>> fullJoin(
       RowCodec<Row2> other) {
-    return opt().joined(other.opt());
+    return opt().join(other.opt());
   }
 
   /**

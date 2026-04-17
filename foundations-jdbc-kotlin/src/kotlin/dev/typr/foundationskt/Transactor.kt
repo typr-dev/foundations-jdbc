@@ -47,14 +47,24 @@ class Transactor(val underlying: dev.typr.foundations.Transactor) {
         fun create(config: dev.typr.foundationskt.connect.DatabaseConfig, settings: dev.typr.foundationskt.connect.ConnectionSettings, strategy: Strategy): Transactor =
             Transactor(dev.typr.foundations.Transactor.create(config, settings, strategy))
 
+        /**
+         * Create a Transactor directly from an existing [dev.typr.foundationskt.connect.ConnectionSource].
+         * Useful when you already hold a [dev.typr.foundationskt.connect.ConnectionSource] from
+         * [dev.typr.foundationskt.connect.ConnectionSource.of] or a custom pool.
+         */
+        @JvmStatic
+        fun create(source: dev.typr.foundationskt.connect.ConnectionSource, strategy: Strategy): Transactor =
+            source.transactor(strategy)
+
+        @JvmStatic
+        fun create(source: dev.typr.foundationskt.connect.ConnectionSource): Transactor =
+            source.transactor()
+
         @JvmStatic
         fun defaultStrategy(): Strategy = dev.typr.foundations.Transactor.defaultStrategy()
 
         @JvmStatic
         fun autoCommitStrategy(): Strategy = dev.typr.foundations.Transactor.autoCommitStrategy()
-
-        @JvmStatic
-        fun rollbackOnErrorStrategy(): Strategy = dev.typr.foundations.Transactor.rollbackOnErrorStrategy()
 
         @JvmStatic
         fun testStrategy(): Strategy = dev.typr.foundations.Transactor.testStrategy()

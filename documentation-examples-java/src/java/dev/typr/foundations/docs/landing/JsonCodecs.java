@@ -14,7 +14,7 @@ public class JsonCodecs {
       RowCodec.<OrderLine>builder()
           .field(DuckDbTypes.varchar, OrderLine::product)
           .field(DuckDbTypes.integer, OrderLine::qty)
-          .field(DuckDbTypes.decimal(10, 2), OrderLine::price)
+          .field(DuckDbTypes.decimalOf(10, 2), OrderLine::price)
           .build(OrderLine::new);
 
   // start

@@ -48,9 +48,9 @@ public class QueryAnalysisTest {
 
   record FloatTypes(Float f, Double d, BigDecimal dec) {}
 
-  record DateTimeTypes(LocalDate d, LocalTime t, LocalDateTime ts, OffsetDateTime tstz) {}
+  record DateTimeTypes(LocalDate d, LocalTime t, LocalDateTime ts, Instant tstz) {}
 
-  record ArrayTypes(Integer[] ints, String[] strs) {}
+  record ArrayTypes(List<Integer> ints, List<String> strs) {}
 
   record DecDoubleInt(BigDecimal sum, Double avg, Long cnt) {}
 
@@ -613,8 +613,8 @@ public class QueryAnalysisTest {
 
           RowCodec<ArrayTypes> parser =
               RowCodec.<ArrayTypes>builder()
-                  .field(DuckDbTypes.integerArray, ArrayTypes::ints)
-                  .field(DuckDbTypes.varcharArray, ArrayTypes::strs)
+                  .field(DuckDbTypes.integer.list(), ArrayTypes::ints)
+                  .field(DuckDbTypes.varchar.list(), ArrayTypes::strs)
                   .build(ArrayTypes::new);
 
           Fragment fragment = Fragment.of("SELECT int_arr, str_arr FROM array_types");
@@ -1411,5 +1411,235 @@ public class QueryAnalysisTest {
   @Test
   public void testNormalizeVendorTypeName_trimWhitespace() {
     assertEquals("integer", QueryAnalysis.normalizeVendorTypeName("  INTEGER  "));
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Composite (STRUCT) structural matching — DuckDbTypenameParser end-to-end
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  record Person(String name, Integer age) {}
+
+  static final DuckDbType<Person> personType =
+      DuckDbTypes.compositeOf(
+          "person",
+          RowCodec.<Person>namedBuilder()
+              .field("name", DuckDbTypes.varchar, Person::name)
+              .field("age", DuckDbTypes.integer, Person::age)
+              .build(Person::new));
+
+  @Test
+  public void testStructAnalysis_matchingFields() {
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute("CREATE TEMP TABLE t (p STRUCT(name VARCHAR, age INTEGER))");
+          RowCodec<Person> parser = RowCodec.of(personType);
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT p FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertTrue("expected structural match, got:\n" + analysis.report(), analysis.succeeded());
+          return null;
+        });
+  }
+
+  @Test
+  public void testStructAnalysis_wrongFieldName() {
+    // Declared STRUCT field is "age" but the DB column has "years". The parser-based path
+    // catches this — string-normalize alone would not (both normalize to "struct").
+    record PersonWrong(String name, Integer years) {}
+    DuckDbType<PersonWrong> wrongType =
+        DuckDbTypes.compositeOf(
+            "person_wrong",
+            RowCodec.<PersonWrong>namedBuilder()
+                .field("name", DuckDbTypes.varchar, PersonWrong::name)
+                .field("years", DuckDbTypes.integer, PersonWrong::years)
+                .build(PersonWrong::new));
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute("CREATE TEMP TABLE t (p STRUCT(name VARCHAR, age INTEGER))");
+          RowCodec<PersonWrong> parser = RowCodec.of(wrongType);
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT p FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertFalse(
+              "expected struct-field mismatch to fail analysis, got:\n" + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
+
+  @Test
+  public void testStructAnalysis_wrongFieldType() {
+    // Declared STRUCT field "age" is INTEGER but DB column has BIGINT.
+    record PersonBig(String name, Long age) {}
+    DuckDbType<PersonBig> bigType =
+        DuckDbTypes.compositeOf(
+            "person_big",
+            RowCodec.<PersonBig>namedBuilder()
+                .field("name", DuckDbTypes.varchar, PersonBig::name)
+                .field("age", DuckDbTypes.bigint, PersonBig::age)
+                .build(PersonBig::new));
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute("CREATE TEMP TABLE t (p STRUCT(name VARCHAR, age INTEGER))");
+          RowCodec<PersonBig> parser = RowCodec.of(bigType);
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT p FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertFalse(
+              "expected struct-field-type mismatch to fail analysis, got:\n" + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
+
+  @Test
+  public void testStructAnalysis_listOfStructMatches() {
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute("CREATE TEMP TABLE t (ps STRUCT(name VARCHAR, age INTEGER)[])");
+          RowCodec<List<Person>> parser = RowCodec.of(personType.list());
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT ps FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertTrue(
+              "expected structural match on struct[], got:\n" + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
+
+  record Skill(String name, Integer level) {}
+
+  record Employee(String name, List<Skill> skills) {}
+
+  static final DuckDbType<Skill> skillType =
+      DuckDbTypes.compositeOf(
+          "skill",
+          RowCodec.<Skill>namedBuilder()
+              .field("name", DuckDbTypes.varchar, Skill::name)
+              .field("level", DuckDbTypes.integer, Skill::level)
+              .build(Skill::new));
+
+  static final DuckDbType<Employee> employeeType =
+      DuckDbTypes.compositeOf(
+          "employee",
+          RowCodec.<Employee>namedBuilder()
+              .field("name", DuckDbTypes.varchar, Employee::name)
+              .field("skills", skillType.list(), Employee::skills)
+              .build(Employee::new));
+
+  @Test
+  public void testStructAnalysis_nestedStructMatches() {
+    // STRUCT containing a LIST-of-STRUCT field — the parser needs to recurse through the
+    // nested shape and match field names and types at every depth.
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  "CREATE TEMP TABLE t (e STRUCT(name VARCHAR, "
+                      + "skills STRUCT(name VARCHAR, level INTEGER)[]))");
+          RowCodec<Employee> parser = RowCodec.of(employeeType);
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT e FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertTrue(
+              "expected structural match on nested struct, got:\n" + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
+
+  // No INSERT-parameter analysis tests for DuckDB: the driver reports no parameter metadata
+  // for INSERTs, so there is nothing for the analyzer to compare declared parameter types
+  // against. We rely on SELECT-based analysis (with its column-side structural parser) for
+  // type safety; INSERTs are intentionally unchecked on DuckDB.
+
+  @Test
+  public void testStructAnalysis_nestedStructMismatchAtInnerField() {
+    // Declared nested STRUCT field is "level" but the DB column has "xp" — the mismatch is two
+    // levels deep. Parser must recurse to catch it.
+    record BadSkill(String name, Integer xp) {}
+    record BadEmployee(String name, List<BadSkill> skills) {}
+    DuckDbType<BadSkill> badSkill =
+        DuckDbTypes.compositeOf(
+            "bad_skill",
+            RowCodec.<BadSkill>namedBuilder()
+                .field("name", DuckDbTypes.varchar, BadSkill::name)
+                .field("xp", DuckDbTypes.integer, BadSkill::xp)
+                .build(BadSkill::new));
+    DuckDbType<BadEmployee> badEmployee =
+        DuckDbTypes.compositeOf(
+            "bad_employee",
+            RowCodec.<BadEmployee>namedBuilder()
+                .field("name", DuckDbTypes.varchar, BadEmployee::name)
+                .field("skills", badSkill.list(), BadEmployee::skills)
+                .build(BadEmployee::new));
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  "CREATE TEMP TABLE t (e STRUCT(name VARCHAR, "
+                      + "skills STRUCT(name VARCHAR, level INTEGER)[]))");
+          RowCodec<BadEmployee> parser = RowCodec.of(badEmployee);
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT e FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertFalse(
+              "expected nested struct field-name mismatch to fail, got:\n" + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Prepare-time failure path
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Test
+  public void prepareFailure_included_in_report_and_errors() {
+    var failure =
+        new AlignmentError.PrepareFailure(
+            "42883",
+            "ERROR: operator does not exist: integer = text",
+            "The column type is 'integer' but the declared parameter type is 'text'. Change the"
+                + " parameter type to match the column.");
+    var analysis =
+        QueryAnalysis.prepareFailed(
+            "SELECT id FROM t WHERE id = ?", null, List.of((DbType<?>) PgTypes.text), failure);
+
+    assertFalse("prepareFailed analysis should be !succeeded", analysis.succeeded());
+    assertEquals(
+        "allErrors should contain exactly the PrepareFailure", 1, analysis.allErrors().size());
+    assertTrue(
+        "error should be PrepareFailure",
+        analysis.allErrors().getFirst() instanceof AlignmentError.PrepareFailure);
+
+    String report = analysis.report();
+    assertTrue("report mentions prepare failure", report.contains("Prepare failed"));
+    assertTrue("report includes SQLSTATE", report.contains("42883"));
+    assertTrue(
+        "report includes driver message",
+        report.contains("operator does not exist: integer = text"));
+    assertTrue("report includes parsed hint", report.contains("Change the parameter type"));
+  }
+
+  @Test
+  public void parsePgPrepareHint_matches_operator_does_not_exist() {
+    String msg = "ERROR: operator does not exist: integer = text\n  Hint: ...";
+    String hint = QueryAnalyzer.parsePgPrepareHint(msg);
+    assertNotNull("should parse a hint for the operator-mismatch pattern", hint);
+    assertTrue("hint names the expected (column) type", hint.contains("integer"));
+    assertTrue("hint names the declared (param) type", hint.contains("text"));
+  }
+
+  @Test
+  public void parsePgPrepareHint_returns_null_for_unrelated_messages() {
+    assertNull(QueryAnalyzer.parsePgPrepareHint(null));
+    assertNull(QueryAnalyzer.parsePgPrepareHint("syntax error at or near \"SELEKT\""));
+    assertNull(QueryAnalyzer.parsePgPrepareHint("column \"foo\" does not exist"));
   }
 }

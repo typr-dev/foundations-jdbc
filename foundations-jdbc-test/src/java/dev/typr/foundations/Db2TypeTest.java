@@ -31,13 +31,13 @@ public class Db2TypeTest {
 
   static RowCodec<Item> itemCodec =
       RowCodec.<Item>builder()
-          .field(Db2Types.varchar(100), Item::name)
+          .field(Db2Types.varcharOf(100), Item::name)
           .field(Db2Types.integer, Item::quantity)
           .build(Item::new);
 
   static RowCodecNamed<Item> namedItemCodec =
       RowCodec.<Item>namedBuilder()
-          .field("name", Db2Types.varchar(100), Item::name)
+          .field("name", Db2Types.varcharOf(100), Item::name)
           .field("quantity", Db2Types.integer, Item::quantity)
           .build(Item::new);
 
@@ -74,16 +74,17 @@ public class Db2TypeTest {
           new Db2TypeAndExample<>(Db2Types.bigint, 0L), // Edge case: zero
 
           // ==================== Fixed-Point Types ====================
-          new Db2TypeAndExample<>(Db2Types.decimal(10, 2), new BigDecimal("12345.67")),
+          new Db2TypeAndExample<>(Db2Types.decimalOf(10, 2), new BigDecimal("12345.67")),
           new Db2TypeAndExample<>(
-              Db2Types.decimal(10, 2), new BigDecimal("0.00")), // Edge case: zero (with scale)
-          new Db2TypeAndExample<>(Db2Types.decimal(10, 2), new BigDecimal("-99999.99")), // Negative
+              Db2Types.decimalOf(10, 2), new BigDecimal("0.00")), // Edge case: zero (with scale)
           new Db2TypeAndExample<>(
-              Db2Types.decimal(10, 2), new BigDecimal("12345678.90")), // With precision
+              Db2Types.decimalOf(10, 2), new BigDecimal("-99999.99")), // Negative
+          new Db2TypeAndExample<>(
+              Db2Types.decimalOf(10, 2), new BigDecimal("12345678.90")), // With precision
 
           // DECFLOAT - DB2-specific decimal floating point
           new Db2TypeAndExample<>(Db2Types.decfloat, new BigDecimal("3.141592653589793")),
-          new Db2TypeAndExample<>(Db2Types.decfloat(16), new BigDecimal("1.234567890123456E10")),
+          new Db2TypeAndExample<>(Db2Types.decfloatOf(16), new BigDecimal("1.234567890123456E10")),
 
           // ==================== Floating-Point Types ====================
           new Db2TypeAndExample<>(Db2Types.real, 3.14159f),
@@ -104,31 +105,31 @@ public class Db2TypeTest {
           new Db2TypeAndExample<>(Db2Types.boolean_, false),
 
           // ==================== String Types (SBCS) ====================
-          new Db2TypeAndExample<>(Db2Types.char_(10), "Hello     ")
+          new Db2TypeAndExample<>(Db2Types.char_Of(10), "Hello     ")
               .noJsonDb(), // DB2 JSON trims trailing spaces from CHAR
-          new Db2TypeAndExample<>(Db2Types.char_(5), "12345"), // Exact length, no trailing spaces
-          new Db2TypeAndExample<>(Db2Types.varchar(255), "Hello, DB2!"),
-          new Db2TypeAndExample<>(Db2Types.varchar(255), ""), // Edge case: empty string
-          new Db2TypeAndExample<>(Db2Types.varchar(100), "Variable length string"),
+          new Db2TypeAndExample<>(Db2Types.char_Of(5), "12345"), // Exact length, no trailing spaces
+          new Db2TypeAndExample<>(Db2Types.varcharOf(255), "Hello, DB2!"),
+          new Db2TypeAndExample<>(Db2Types.varcharOf(255), ""), // Edge case: empty string
+          new Db2TypeAndExample<>(Db2Types.varcharOf(100), "Variable length string"),
           new Db2TypeAndExample<>(
-              Db2Types.varchar(255), "Special chars: äöü ñ 中文"), // Unicode in VARCHAR
+              Db2Types.varcharOf(255), "Special chars: äöü ñ 中文"), // Unicode in VARCHAR
           new Db2TypeAndExample<>(Db2Types.clob, "This is a CLOB value with more text."),
 
           // ==================== String Types (DBCS - Double-Byte) ====================
           // GRAPHIC/VARGRAPHIC not supported by DB2's JSON_OBJECT (SQLCODE=-171)
-          new Db2TypeAndExample<>(Db2Types.graphic(5), "ＡＢＣＤＥ").noJsonDb(), // Full-width chars
-          new Db2TypeAndExample<>(Db2Types.vargraphic(50), "日本語テスト").noJsonDb(), // Japanese
-          new Db2TypeAndExample<>(Db2Types.vargraphic(50), "中文测试").noJsonDb(), // Chinese
+          new Db2TypeAndExample<>(Db2Types.graphicOf(5), "ＡＢＣＤＥ").noJsonDb(), // Full-width chars
+          new Db2TypeAndExample<>(Db2Types.vargraphicOf(50), "日本語テスト").noJsonDb(), // Japanese
+          new Db2TypeAndExample<>(Db2Types.vargraphicOf(50), "中文测试").noJsonDb(), // Chinese
           new Db2TypeAndExample<>(Db2Types.dbclob, "Double-byte CLOB content: 한글"),
 
           // ==================== Binary Types ====================
-          new Db2TypeAndExample<>(Db2Types.binary(4), new byte[] {0x01, 0x02, 0x03, 0x04}),
+          new Db2TypeAndExample<>(Db2Types.binaryOf(4), new byte[] {0x01, 0x02, 0x03, 0x04}),
           new Db2TypeAndExample<>(
-              Db2Types.varbinary(100),
+              Db2Types.varbinaryOf(100),
               new byte[] {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF}),
-          new Db2TypeAndExample<>(Db2Types.varbinary(100), new byte[] {}), // Edge case: empty
+          new Db2TypeAndExample<>(Db2Types.varbinaryOf(100), new byte[] {}), // Edge case: empty
           new Db2TypeAndExample<>(
-              Db2Types.varbinary(100),
+              Db2Types.varbinaryOf(100),
               new byte[] {0x00, 0x7F, (byte) 0x80, (byte) 0xFF}), // Boundary bytes
           new Db2TypeAndExample<>(
                   Db2Types.blob, new byte[] {0x42, 0x4C, 0x4F, 0x42}) // "BLOB" in hex
@@ -145,7 +146,7 @@ public class Db2TypeTest {
           new Db2TypeAndExample<>(
               Db2Types.timestamp, LocalDateTime.of(1970, 1, 1, 0, 0, 0)), // Edge case: epoch
           new Db2TypeAndExample<>(
-              Db2Types.timestamp(6),
+              Db2Types.timestampOf(6),
               LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)), // Microseconds
 
           // ==================== Special Types ====================

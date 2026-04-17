@@ -13,13 +13,14 @@ import javax.sql.DataSource;
  * A pooled connection source using HikariCP.
  *
  * <p>This class wraps a HikariDataSource and implements {@link ConnectionSource} for unified API
- * with {@link dev.typr.foundations.connect.SimpleDataSource}.
+ * with {@link
+ * dev.typr.foundations.connect.ConnectionSource#of(dev.typr.foundations.connect.DatabaseConfig)}.
  *
  * <p>Example usage:
  *
  * <pre>{@code
  * var ds = PooledDataSource.create(
- *     PostgresConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
+ *     PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build(),
  *     ConnectionSettings.builder()
  *         .transactionIsolation(TransactionIsolation.READ_UNCOMMITTED)
  *         .build(),

@@ -73,11 +73,11 @@ public class BatchOperationTest {
       // empty batch
       String t6 = t();
       conn.createStatement().execute("CREATE TABLE " + t6 + " (name VARCHAR, quantity INTEGER)");
-      int[] empty =
+      List<Integer> empty =
           Fragment.of("INSERT INTO " + t6 + " (name, quantity) VALUES (?, ?)")
               .updateMany(ip, Collections.<Item>emptyIterator())
               .run(conn);
-      assertEquals(0, empty.length);
+      assertEquals(0, empty.size());
     }
   }
 
@@ -344,8 +344,8 @@ public class BatchOperationTest {
       Connection conn, RowCodecNamed<Item> parser, String table, int expectedCount)
       throws SQLException {
     Fragment insert = Fragment.of("INSERT INTO " + table + " (name, quantity) VALUES (?, ?)");
-    int[] counts = insert.updateMany(parser, ITEMS.iterator()).run(conn);
-    assertEquals(expectedCount, counts.length);
+    List<Integer> counts = insert.updateMany(parser, ITEMS.iterator()).run(conn);
+    assertEquals(expectedCount, counts.size());
 
     List<Item> result =
         Fragment.of("SELECT name, quantity FROM " + table + " ORDER BY name")
@@ -371,8 +371,8 @@ public class BatchOperationTest {
             .append(")")
             .update();
 
-    int[] counts = template.onMany(ID_ITEMS.iterator()).run(conn);
-    assertEquals(expectedCount, counts.length);
+    List<Integer> counts = template.onMany(ID_ITEMS.iterator()).run(conn);
+    assertEquals(expectedCount, counts.size());
 
     List<IdItem> result =
         Fragment.of("SELECT id, name, quantity FROM " + table + " ORDER BY id")
@@ -401,8 +401,8 @@ public class BatchOperationTest {
             new IdItem(0, "widget", 100),
             new IdItem(0, "gadget", 200),
             new IdItem(0, "doohickey", 300));
-    int[] counts = template.onMany(items.iterator()).run(conn);
-    assertEquals(3, counts.length);
+    List<Integer> counts = template.onMany(items.iterator()).run(conn);
+    assertEquals(3, counts.size());
 
     List<IdItem> result =
         Fragment.of("SELECT id, name, quantity FROM " + table + " ORDER BY id")

@@ -1,15 +1,12 @@
 package dev.typr.foundationskt.docs.duckdb
 
 import dev.typr.foundationskt.*
-import dev.typr.foundationskt.data.*
-import java.util.UUID
 
 @Suppress("unused")
 class ArrayTypes {
     //start
-    // Any type can be made into an array with .array()
-    val intArray: DuckDbType<Array<Int>> = DuckDbTypes.integer.array()
-    val strArray: DuckDbType<Array<String>> = DuckDbTypes.varchar.array()
-    val uuidArray: DuckDbType<Array<UUID>> = DuckDbTypes.uuid.array()
+    // Fixed-size ARRAY — every row must have exactly `size` elements.
+    val embedding: DuckDbType<List<Float>> = DuckDbTypes.float_.array(1536)
+    val rgb: DuckDbType<List<Int>> = DuckDbTypes.integer.array(3)
     //stop
 }

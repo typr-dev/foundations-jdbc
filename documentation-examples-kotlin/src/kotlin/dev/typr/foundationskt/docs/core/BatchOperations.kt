@@ -24,14 +24,14 @@ class BatchOperations {
     val insertAll: RowTemplate.Update<Product> =
         Fragment.insertInto("product", productCodec)
 
-    fun insertProducts(products: List<Product>): IntArray =
+    fun insertProducts(products: List<Product>): List<Int> =
         insertAll.onMany(products.iterator()).run(conn)
 
     // Batch insert — skip auto-generated ID column
     val insertAutoId: RowTemplate.Update<Product> =
         Fragment.insertInto("product", productCodec, "id")
 
-    fun insertProductsAutoId(products: List<Product>): IntArray =
+    fun insertProductsAutoId(products: List<Product>): List<Int> =
         insertAutoId.onMany(products.iterator()).run(conn)
     //stop
 }

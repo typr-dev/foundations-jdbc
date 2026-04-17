@@ -289,7 +289,7 @@ public class ErrorMessageTest {
                 .run(conn);
 
             // Try to read VARCHAR 'created_at' as timestamptz - this will fail
-            record UserRow(Integer id, String name, java.time.OffsetDateTime createdAt) {}
+            record UserRow(Integer id, String name, java.time.Instant createdAt) {}
             return Fragment.of("SELECT id, name, created_at FROM users")
                 .query(
                     RowCodec.<UserRow>builder()

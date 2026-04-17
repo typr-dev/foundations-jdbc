@@ -7,9 +7,9 @@ import dev.typr.foundations.Db2Types;
 public class StringTypesSingleByte {
   // start
   Db2Type<String> charType = Db2Types.char_;
-  Db2Type<String> char10 = Db2Types.char_(10);
+  Db2Type<String> char10 = Db2Types.char_Of(10);
   Db2Type<String> varcharType = Db2Types.varchar;
-  Db2Type<String> varchar255 = Db2Types.varchar(255);
+  Db2Type<String> varchar255 = Db2Types.varcharOf(255);
   Db2Type<String> clobType = Db2Types.clob;
   // stop
 }

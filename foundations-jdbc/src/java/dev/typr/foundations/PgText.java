@@ -41,16 +41,16 @@ public abstract class PgText<A> implements DbText<A> {
         });
   }
 
-  public PgText<A[]> array() {
-    return array(',');
+  public PgText<java.util.List<A>> list() {
+    return list(',');
   }
 
   /**
-   * Internal: array encoding with a specific delimiter. The delimiter is a property of the element
-   * type (geometric types use ';', everything else ','). Users should call {@link #array()} which
-   * uses the correct delimiter via {@link PgType#array()}.
+   * Internal: list/array encoding with a specific delimiter. The delimiter is a property of the
+   * element type (geometric types use ';', everything else ','). Users should call {@link #list()}
+   * which uses the correct delimiter via {@link PgType#array()}.
    */
-  PgText<A[]> array(char delimiter) {
+  PgText<java.util.List<A>> list(char delimiter) {
     var self = this;
     return PgText.instance(
         (as, sb) -> {

@@ -5,7 +5,7 @@ import dev.typr.foundationssc.data.*
 @SuppressWarnings(Array("unused"))
 object StringTypes:
   // start
-  val charType: SqlServerType[String] = SqlServerTypes.char_(10)
-  val varcharType: SqlServerType[String] = SqlServerTypes.varchar(255)
+  val charType: SqlServerType[String] = SqlServerTypes.char_Of(10)
+  val varcharType: SqlServerType[String] = SqlServerTypes.varcharOf(255)
   val varcharMax: SqlServerType[String] = SqlServerTypes.varcharMax
   // stop

@@ -1,10 +1,9 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.connect.ConnectionSource;
 import dev.typr.foundations.connect.DuckDbConfig;
-import dev.typr.foundations.connect.SingleConnectionDataSource;
 import java.math.BigDecimal;
 import java.sql.*;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 
@@ -29,17 +28,17 @@ public class StructArrayBlogTest {
 
   record Skill(String name, int level) {}
 
-  record Employee(String name, String role, Skill[] skills) {}
+  record Employee(String name, String role, List<Skill> skills) {}
 
-  record Department(String name, Employee[] members) {}
+  record Department(String name, List<Employee> members) {}
 
   // stop:blog-domain-types
 
   record Customer(int id, String name, String email, Address shippingAddress) {}
 
-  record Product(int id, String name, BigDecimal price, String[] tags) {}
+  record Product(int id, String name, BigDecimal price, List<String> tags) {}
 
-  record Order(int id, int customerId, LineItem[] items) {}
+  record Order(int id, int customerId, List<LineItem> items) {}
 
   // ======================================================================
   //  POSTGRESQL TYPES
@@ -65,7 +64,7 @@ public class StructArrayBlogTest {
               .field("unit_price", PgTypes.numeric, LineItem::unitPrice)
               .build(LineItem::new));
 
-  static final PgType<LineItem[]> pgLineItemArrayType = pgLineItemType.array();
+  static final PgType<List<LineItem>> pgLineItemArrayType = pgLineItemType.array();
   // stop:blog-pg-structs
 
   // start:blog-pg-deep-nesting
@@ -165,8 +164,8 @@ public class StructArrayBlogTest {
       OracleTypes.compositeOf(
           "BLOG_ADDRESS_T",
           RowCodec.<OracleAddress>namedBuilder()
-              .field("STREET", OracleTypes.varchar2(100), OracleAddress::street)
-              .field("CITY", OracleTypes.varchar2(50), OracleAddress::city)
+              .field("STREET", OracleTypes.varchar2Of(100), OracleAddress::street)
+              .field("CITY", OracleTypes.varchar2Of(50), OracleAddress::city)
               .build(OracleAddress::new));
 
   static final OracleType<OracleLineItem> oracleLineItemType =
@@ -189,7 +188,7 @@ public class StructArrayBlogTest {
       OracleTypes.compositeOf(
           "BLOG_SKILL_T",
           RowCodec.<OracleSkill>namedBuilder()
-              .field("NAME", OracleTypes.varchar2(50), OracleSkill::name)
+              .field("NAME", OracleTypes.varchar2Of(50), OracleSkill::name)
               .field("LEVEL_NUM", OracleTypes.numberInt, OracleSkill::level)
               .build(OracleSkill::new));
 
@@ -200,8 +199,8 @@ public class StructArrayBlogTest {
       OracleTypes.compositeOf(
           "BLOG_EMPLOYEE_T",
           RowCodec.<OracleEmployee>namedBuilder()
-              .field("NAME", OracleTypes.varchar2(100), OracleEmployee::name)
-              .field("ROLE_NAME", OracleTypes.varchar2(50), OracleEmployee::role)
+              .field("NAME", OracleTypes.varchar2Of(100), OracleEmployee::name)
+              .field("ROLE_NAME", OracleTypes.varchar2Of(50), OracleEmployee::role)
               .field("SKILLS", oracleSkillsType, OracleEmployee::skills)
               .build(OracleEmployee::new));
 
@@ -375,7 +374,7 @@ public class StructArrayBlogTest {
           }
 
           record OrderWithCustomer(
-              int orderId, String customer, Address address, LineItem[] items) {}
+              int orderId, String customer, Address address, List<LineItem> items) {}
 
           var codec =
               RowCodec.<OrderWithCustomer>namedBuilder()
@@ -412,7 +411,7 @@ public class StructArrayBlogTest {
     subsection("Array parameters: WHERE id = ANY(?)");
     tx.execute(
         conn -> {
-          var ids = new Integer[] {1, 3, 5};
+          var ids = List.of(1, 3, 5);
           var products =
               Fragment.of("SELECT id, name, price, tags FROM products WHERE id = ANY(")
                   .value(PgTypes.int4.array(), ids)
@@ -420,8 +419,7 @@ public class StructArrayBlogTest {
                   .query(pgProductCodec.all())
                   .run(conn);
           for (var p : products)
-            System.out.println(
-                "  " + p.name() + " ($" + p.price() + ") " + Arrays.toString(p.tags()));
+            System.out.println("  " + p.name() + " ($" + p.price() + ") " + p.tags());
           return null;
         });
 
@@ -444,10 +442,10 @@ public class StructArrayBlogTest {
 
           for (var row : departments) {
             var dept = row.data();
-            System.out.println("  " + dept.name() + " (" + dept.members().length + " people)");
+            System.out.println("  " + dept.name() + " (" + dept.members().size() + " people)");
             for (var emp : dept.members()) {
               var skillStr =
-                  Arrays.stream(emp.skills())
+                  emp.skills().stream()
                       .map(s -> s.name() + ":" + s.level())
                       .reduce((a, b) -> a + ", " + b)
                       .orElse("");
@@ -465,15 +463,15 @@ public class StructArrayBlogTest {
           var dept =
               new Department(
                   "Data Science",
-                  new Employee[] {
-                    new Employee(
-                        "Frank",
-                        "Lead",
-                        new Skill[] {
-                          new Skill("Python", 9), new Skill("SQL", 8), new Skill("Statistics", 7)
-                        }),
-                    new Employee("Grace", "Senior", new Skill[] {new Skill("R", 8)})
-                  });
+                  List.of(
+                      new Employee(
+                          "Frank",
+                          "Lead",
+                          List.of(
+                              new Skill("Python", 9),
+                              new Skill("SQL", 8),
+                              new Skill("Statistics", 7))),
+                      new Employee("Grace", "Senior", List.of(new Skill("R", 8)))));
 
           Fragment.of("INSERT INTO departments (data) VALUES (")
               .value(pgDepartmentType, dept)
@@ -495,9 +493,9 @@ public class StructArrayBlogTest {
                 "    "
                     + emp.name()
                     + " — "
-                    + emp.skills().length
+                    + emp.skills().size()
                     + " skill(s): "
-                    + Arrays.stream(emp.skills())
+                    + emp.skills().stream()
                         .map(Skill::name)
                         .reduce((a, b) -> a + ", " + b)
                         .orElse(""));
@@ -509,11 +507,9 @@ public class StructArrayBlogTest {
     subsection("UNNEST: batch insert from parallel arrays");
     tx.execute(
         conn -> {
-          var names = new String[] {"Laptop Stand", "Cable Organizer", "Desk Pad"};
+          var names = List.of("Laptop Stand", "Cable Organizer", "Desk Pad");
           var prices =
-              new BigDecimal[] {
-                new BigDecimal("39.99"), new BigDecimal("12.99"), new BigDecimal("24.95")
-              };
+              List.of(new BigDecimal("39.99"), new BigDecimal("12.99"), new BigDecimal("24.95"));
           int n =
               Fragment.of("INSERT INTO products (name, price) SELECT * FROM unnest(")
                   .value(PgTypes.text.array(), names)
@@ -557,7 +553,7 @@ public class StructArrayBlogTest {
           conn.commit();
 
           // No CREATE TYPE needed — anonymous records work directly
-          record NormOrder(int id, String customer, LineItem[] items) {}
+          record NormOrder(int id, String customer, List<LineItem> items) {}
 
           var codec =
               RowCodec.<NormOrder>namedBuilder()
@@ -601,7 +597,7 @@ public class StructArrayBlogTest {
   // ======================================================================
 
   void testDuckDb() {
-    var tx = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build()).transactor();
+    var tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor();
 
     tx.execute(
         conn -> {

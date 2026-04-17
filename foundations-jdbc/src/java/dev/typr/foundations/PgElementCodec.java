@@ -3,7 +3,7 @@ package dev.typr.foundations;
 import java.util.function.Function;
 
 /**
- * Describes how to read elements of a PostgreSQL array.
+ * Describes how to read a single element of a PostgreSQL collection (array).
  *
  * <p>Two variants:
  *
@@ -13,34 +13,34 @@ import java.util.function.Function;
  *       JDBC's {@code Array.getArray()} fails or loses precision (bit, time, money).
  * </ul>
  */
-public sealed interface PgArrayCodec<A> {
+public sealed interface PgElementCodec<A> {
 
-  <B> PgArrayCodec<B> map(Function<A, B> f);
+  <B> PgElementCodec<B> map(Function<A, B> f);
 
-  record OfElement<A>(Function<Object, A> converter) implements PgArrayCodec<A> {
+  record OfElement<A>(Function<Object, A> converter) implements PgElementCodec<A> {
     @Override
-    public <B> PgArrayCodec<B> map(Function<A, B> f) {
+    public <B> PgElementCodec<B> map(Function<A, B> f) {
       return new OfElement<>(obj -> f.apply(converter.apply(obj)));
     }
   }
 
-  record OfText<A>() implements PgArrayCodec<A> {
+  record OfText<A>() implements PgElementCodec<A> {
     @Override
-    public <B> PgArrayCodec<B> map(Function<A, B> f) {
+    public <B> PgElementCodec<B> map(Function<A, B> f) {
       return new OfText<>();
     }
   }
 
   @SuppressWarnings("unchecked")
-  static <A> PgArrayCodec<A> cast() {
+  static <A> PgElementCodec<A> cast() {
     return new OfElement<>(obj -> (A) obj);
   }
 
-  static <A> PgArrayCodec<A> of(Function<Object, A> converter) {
+  static <A> PgElementCodec<A> of(Function<Object, A> converter) {
     return new OfElement<>(converter);
   }
 
-  static <A> PgArrayCodec<A> pgObject(SqlFunction<String, A> constructor) {
+  static <A> PgElementCodec<A> pgObject(SqlFunction<String, A> constructor) {
     return new OfElement<>(
         obj -> {
           try {
@@ -51,11 +51,11 @@ public sealed interface PgArrayCodec<A> {
         });
   }
 
-  static <A> PgArrayCodec<A> fromString(Function<String, A> constructor) {
+  static <A> PgElementCodec<A> fromString(Function<String, A> constructor) {
     return new OfElement<>(obj -> constructor.apply((String) obj));
   }
 
-  static <A> PgArrayCodec<A> textParsed() {
+  static <A> PgElementCodec<A> textParsed() {
     return new OfText<>();
   }
 }

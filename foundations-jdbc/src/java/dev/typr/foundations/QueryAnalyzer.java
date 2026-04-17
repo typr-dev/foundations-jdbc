@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class QueryAnalyzer {
 
@@ -102,7 +104,14 @@ public final class QueryAnalyzer {
         Fragment templateFragment = t.continuation().fragment();
         List<DbType<?>> paramTypes = templateFragment.parameterTypes();
         String sql = templateFragment.render();
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        PreparedStatement ps;
+        try {
+          ps = conn.prepareStatement(sql);
+        } catch (SQLException prepareEx) {
+          r.add(QueryAnalysis.prepareFailed(sql, null, paramTypes, toPrepareFailure(prepareEx)));
+          yield r;
+        }
+        try (ps) {
           List<JdbcMeta.ParameterMeta> paramMeta = JdbcMeta.extractParameters(ps);
           List<JdbcMeta.ColumnMeta> colMeta = JdbcMeta.extractColumns(ps);
           boolean paramMetaAvailable = !paramMeta.isEmpty() || paramTypes.isEmpty();
@@ -114,6 +123,8 @@ public final class QueryAnalyzer {
           List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> colAlignment =
               Alignment.align(columnTypes, colMeta);
           r.add(new QueryAnalysis(sql, null, paramAlignment, colAlignment, paramMetaAvailable));
+        } catch (SQLException metaEx) {
+          r.add(QueryAnalysis.prepareFailed(sql, null, paramTypes, toPrepareFailure(metaEx)));
         }
         yield r;
       }
@@ -148,7 +159,13 @@ public final class QueryAnalyzer {
     List<DbType<?>> paramTypes = fragment.parameterTypes();
     List<DbType<?>> columnTypes = extractColumnTypes(parser);
 
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+    PreparedStatement ps;
+    try {
+      ps = conn.prepareStatement(sql);
+    } catch (SQLException prepareEx) {
+      return QueryAnalysis.prepareFailed(sql, name, paramTypes, toPrepareFailure(prepareEx));
+    }
+    try (ps) {
       List<JdbcMeta.ParameterMeta> paramMeta = JdbcMeta.extractParameters(ps);
       List<JdbcMeta.ColumnMeta> colMeta = JdbcMeta.extractColumns(ps);
 
@@ -160,6 +177,10 @@ public final class QueryAnalyzer {
           Alignment.align(columnTypes, colMeta);
 
       return new QueryAnalysis(sql, name, paramAlignment, colAlignment, paramMetaAvailable);
+    } catch (SQLException metaEx) {
+      // prepare() succeeded but metadata extraction failed — still report as a prepare-phase
+      // failure so the user gets a structured exception instead of a raw DatabaseException.
+      return QueryAnalysis.prepareFailed(sql, name, paramTypes, toPrepareFailure(metaEx));
     }
   }
 
@@ -174,7 +195,13 @@ public final class QueryAnalyzer {
     String sql = fragment.render();
     List<DbType<?>> paramTypes = fragment.parameterTypes();
 
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+    PreparedStatement ps;
+    try {
+      ps = conn.prepareStatement(sql);
+    } catch (SQLException prepareEx) {
+      return QueryAnalysis.prepareFailed(sql, name, paramTypes, toPrepareFailure(prepareEx));
+    }
+    try (ps) {
       List<JdbcMeta.ParameterMeta> paramMeta = JdbcMeta.extractParameters(ps);
       boolean paramMetaAvailable = !paramMeta.isEmpty() || paramTypes.isEmpty();
 
@@ -182,7 +209,42 @@ public final class QueryAnalyzer {
           Alignment.align(paramTypes, paramMeta);
 
       return new QueryAnalysis(sql, name, paramAlignment, List.of(), paramMetaAvailable);
+    } catch (SQLException metaEx) {
+      return QueryAnalysis.prepareFailed(sql, name, paramTypes, toPrepareFailure(metaEx));
     }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Prepare-time failure helpers
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  private static AlignmentError.PrepareFailure toPrepareFailure(SQLException ex) {
+    String msg = ex.getMessage();
+    return new AlignmentError.PrepareFailure(ex.getSQLState(), msg, parsePgPrepareHint(msg));
+  }
+
+  /**
+   * Best-effort parse of PostgreSQL's "operator does not exist: {@code <lhs>} {@code <op>} {@code
+   * <rhs>}" message. When it matches, produce a hint that mirrors the structured
+   * ParameterTypeMismatch report — "The column type appears to be X but your declared type is Y".
+   */
+  private static final Pattern PG_OPERATOR_MISMATCH =
+      Pattern.compile("operator does not exist: (\\S+)\\s+\\S+\\s+(\\S+)");
+
+  static String parsePgPrepareHint(String driverMessage) {
+    if (driverMessage == null) return null;
+    Matcher m = PG_OPERATOR_MISMATCH.matcher(driverMessage);
+    if (m.find()) {
+      String expected = m.group(1);
+      String provided = m.group(2);
+      if (expected.equals(provided)) return null;
+      return "The column type is '"
+          + expected
+          + "' but the declared parameter type is '"
+          + provided
+          + "'. Change the parameter type to match the column.";
+    }
+    return null;
   }
 
   @SuppressWarnings("rawtypes")

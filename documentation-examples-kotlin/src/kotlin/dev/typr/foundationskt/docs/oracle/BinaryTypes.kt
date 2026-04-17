@@ -7,7 +7,7 @@ import dev.typr.foundationskt.data.*
 class BinaryTypes {
     //start
     val rawType: OracleType<ByteArray> = OracleTypes.raw
-    val raw100: OracleType<ByteArray> = OracleTypes.raw(100)  // RAW(100)
+    val raw100: OracleType<ByteArray> = OracleTypes.rawOf(100)  // RAW(100)
 
     // Non-empty variant
     val rawNonEmpty: OracleType<NonEmptyBlob> = OracleTypes.rawNonEmpty(100)

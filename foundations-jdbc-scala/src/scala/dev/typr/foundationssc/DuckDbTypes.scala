@@ -17,124 +17,76 @@ class DuckDbTypes {
   val double_ : DuckDbType[Double] = DuckDbType(JavaDuckDbTypes.double_.transform(d => d, d => d))
   val boolean_ : DuckDbType[Boolean] = DuckDbType(JavaDuckDbTypes.boolean_.transform(b => b, b => b))
 
+  /** Alias for [[boolean_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val bool: DuckDbType[Boolean] = boolean_
+
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
   val decimal: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.decimal.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
   val numeric: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.numeric.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  // Array types - convert Java boxed arrays to Scala native arrays
-  val tinyintArray: DuckDbType[Array[Byte]] = DuckDbType(
-    JavaDuckDbTypes.tinyintArray.transform(
-      arr => arr.map(_.byteValue()),
-      arr => arr.map(java.lang.Byte.valueOf)
-    )
-  )
-  val smallintArray: DuckDbType[Array[Short]] = DuckDbType(
-    JavaDuckDbTypes.smallintArray.transform(
-      arr => arr.map(_.shortValue()),
-      arr => arr.map(java.lang.Short.valueOf)
-    )
-  )
-  val integerArray: DuckDbType[Array[Int]] = DuckDbType(
-    JavaDuckDbTypes.integerArray.transform(
-      arr => arr.map(_.intValue()),
-      arr => arr.map(java.lang.Integer.valueOf)
-    )
-  )
-  val bigintArray: DuckDbType[Array[Long]] = DuckDbType(
-    JavaDuckDbTypes.bigintArray.transform(
-      arr => arr.map(_.longValue()),
-      arr => arr.map(java.lang.Long.valueOf)
-    )
-  )
-  val floatArray: DuckDbType[Array[Float]] = DuckDbType(
-    JavaDuckDbTypes.floatArray.transform(
-      arr => arr.map(_.floatValue()),
-      arr => arr.map(java.lang.Float.valueOf)
-    )
-  )
-  val doubleArray: DuckDbType[Array[Double]] = DuckDbType(
-    JavaDuckDbTypes.doubleArray.transform(
-      arr => arr.map(_.doubleValue()),
-      arr => arr.map(java.lang.Double.valueOf)
-    )
-  )
-  val booleanArray: DuckDbType[Array[Boolean]] = DuckDbType(
-    JavaDuckDbTypes.booleanArray.transform(
-      arr => arr.map(_.booleanValue()),
-      arr => arr.map(java.lang.Boolean.valueOf)
-    )
-  )
-  val decimalArray: DuckDbType[Array[BigDecimal]] = DuckDbType(
-    JavaDuckDbTypes.decimalArray.transform(
-      arr => arr.map(BigDecimal(_)),
-      arr => arr.map(_.bigDecimal)
-    )
-  )
+  // Pre-defined boxed-array values removed; users call `.list` or `.array(n)` on the scalar type
+  // to obtain a DuckDbType[List[T]].
 
   // Forward all other types directly from Java
-  val hugeint = DuckDbType(JavaDuckDbTypes.hugeint)
-  val utinyint = DuckDbType(JavaDuckDbTypes.utinyint)
-  val usmallint = DuckDbType(JavaDuckDbTypes.usmallint)
-  val uinteger = DuckDbType(JavaDuckDbTypes.uinteger)
-  val ubigint = DuckDbType(JavaDuckDbTypes.ubigint)
-  val uhugeint = DuckDbType(JavaDuckDbTypes.uhugeint)
-  val real = DuckDbType(JavaDuckDbTypes.real)
-  val float4 = DuckDbType(JavaDuckDbTypes.float4)
-  val float8 = DuckDbType(JavaDuckDbTypes.float8)
-  val varchar = DuckDbType(JavaDuckDbTypes.varchar)
-  val text = DuckDbType(JavaDuckDbTypes.text)
-  val string = DuckDbType(JavaDuckDbTypes.string)
-  val char_ = DuckDbType(JavaDuckDbTypes.char_)
-  val bpchar = DuckDbType(JavaDuckDbTypes.bpchar)
-  val blob = DuckDbType(JavaDuckDbTypes.blob)
-  val bytea = DuckDbType(JavaDuckDbTypes.bytea)
-  val binary = DuckDbType(JavaDuckDbTypes.binary)
-  val varbinary = DuckDbType(JavaDuckDbTypes.varbinary)
-  val bit = DuckDbType(JavaDuckDbTypes.bit)
-  val bitstring = DuckDbType(JavaDuckDbTypes.bitstring)
-  val date = DuckDbType(JavaDuckDbTypes.date)
-  val time = DuckDbType(JavaDuckDbTypes.time)
-  val timestamp = DuckDbType(JavaDuckDbTypes.timestamp)
-  val datetime = DuckDbType(JavaDuckDbTypes.datetime)
-  val timestamptz = DuckDbType(JavaDuckDbTypes.timestamptz)
-  val timetz = DuckDbType(JavaDuckDbTypes.timetz)
-  val timestamp_s = DuckDbType(JavaDuckDbTypes.timestamp_s)
-  val timestamp_ms = DuckDbType(JavaDuckDbTypes.timestamp_ms)
-  val timestamp_ns = DuckDbType(JavaDuckDbTypes.timestamp_ns)
-  val interval = DuckDbType(JavaDuckDbTypes.interval)
-  val uuid = DuckDbType(JavaDuckDbTypes.uuid)
-  val json = DuckDbType(JavaDuckDbTypes.json)
-  val hugeintArray = DuckDbType(JavaDuckDbTypes.hugeintArray)
-  val utinyintArray = DuckDbType(JavaDuckDbTypes.utinyintArray)
-  val usmallintArray = DuckDbType(JavaDuckDbTypes.usmallintArray)
-  val uintegerArray = DuckDbType(JavaDuckDbTypes.uintegerArray)
-  val ubigintArray = DuckDbType(JavaDuckDbTypes.ubigintArray)
-  val varcharArray = DuckDbType(JavaDuckDbTypes.varcharArray)
-  // blobArray removed: BLOB[] not supported (binary can't be serialized in DuckDBUserArray)
-  val dateArray = DuckDbType(JavaDuckDbTypes.dateArray)
-  val timeArray = DuckDbType(JavaDuckDbTypes.timeArray)
-  val timestampArray = DuckDbType(JavaDuckDbTypes.timestampArray)
-  val timestamptzArray = DuckDbType(JavaDuckDbTypes.timestamptzArray)
-  val intervalArray = DuckDbType(JavaDuckDbTypes.intervalArray)
-  val uuidArray = DuckDbType(JavaDuckDbTypes.uuidArray)
-  val jsonArray = DuckDbType(JavaDuckDbTypes.jsonArray)
-  val unknown = DuckDbType(JavaDuckDbTypes.unknown)
+  val hugeint: DuckDbType[java.math.BigInteger] = DuckDbType(JavaDuckDbTypes.hugeint)
+  val utinyint: DuckDbType[dev.typr.foundations.data.Uint1] = DuckDbType(JavaDuckDbTypes.utinyint)
+  val usmallint: DuckDbType[dev.typr.foundations.data.Uint2] = DuckDbType(JavaDuckDbTypes.usmallint)
+  val uinteger: DuckDbType[dev.typr.foundations.data.Uint4] = DuckDbType(JavaDuckDbTypes.uinteger)
+  val ubigint: DuckDbType[dev.typr.foundations.data.Uint8] = DuckDbType(JavaDuckDbTypes.ubigint)
+  val uhugeint: DuckDbType[java.math.BigInteger] = DuckDbType(JavaDuckDbTypes.uhugeint)
+  val real: DuckDbType[java.lang.Float] = DuckDbType(JavaDuckDbTypes.real)
+  val float4: DuckDbType[java.lang.Float] = DuckDbType(JavaDuckDbTypes.float4)
+  val float8: DuckDbType[java.lang.Double] = DuckDbType(JavaDuckDbTypes.float8)
+  val varchar: DuckDbType[String] = DuckDbType(JavaDuckDbTypes.varchar)
+  val text: DuckDbType[String] = DuckDbType(JavaDuckDbTypes.text)
+  val string: DuckDbType[String] = DuckDbType(JavaDuckDbTypes.string)
+  val char_ : DuckDbType[String] = DuckDbType(JavaDuckDbTypes.char_)
+
+  /** Alias for [[char_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val character: DuckDbType[String] = char_
+  val bpchar: DuckDbType[String] = DuckDbType(JavaDuckDbTypes.bpchar)
+  val blob: DuckDbType[Array[Byte]] = DuckDbType(JavaDuckDbTypes.blob)
+  val bytea: DuckDbType[Array[Byte]] = DuckDbType(JavaDuckDbTypes.bytea)
+  val binary: DuckDbType[Array[Byte]] = DuckDbType(JavaDuckDbTypes.binary)
+  val varbinary: DuckDbType[Array[Byte]] = DuckDbType(JavaDuckDbTypes.varbinary)
+  val bit: DuckDbType[String] = DuckDbType(JavaDuckDbTypes.bit)
+  val bitstring: DuckDbType[String] = DuckDbType(JavaDuckDbTypes.bitstring)
+  val date: DuckDbType[java.time.LocalDate] = DuckDbType(JavaDuckDbTypes.date)
+  val time: DuckDbType[java.time.LocalTime] = DuckDbType(JavaDuckDbTypes.time)
+  val timestamp: DuckDbType[java.time.LocalDateTime] = DuckDbType(JavaDuckDbTypes.timestamp)
+  val datetime: DuckDbType[java.time.LocalDateTime] = DuckDbType(JavaDuckDbTypes.datetime)
+  val timestamptz: DuckDbType[java.time.Instant] = DuckDbType(JavaDuckDbTypes.timestamptz)
+  val timetz: DuckDbType[java.time.OffsetTime] = DuckDbType(JavaDuckDbTypes.timetz)
+  val timestamp_s: DuckDbType[java.time.LocalDateTime] = DuckDbType(JavaDuckDbTypes.timestamp_s)
+  val timestamp_ms: DuckDbType[java.time.LocalDateTime] = DuckDbType(JavaDuckDbTypes.timestamp_ms)
+  val timestamp_ns: DuckDbType[java.time.LocalDateTime] = DuckDbType(JavaDuckDbTypes.timestamp_ns)
+  val interval: DuckDbType[java.time.Duration] = DuckDbType(JavaDuckDbTypes.interval)
+  val uuid: DuckDbType[java.util.UUID] = DuckDbType(JavaDuckDbTypes.uuid)
+  val json: DuckDbType[dev.typr.foundations.data.Json] = DuckDbType(JavaDuckDbTypes.json)
+  // Pre-defined array-of-T values removed; users call `.list` or `.array(n)` on the scalar type.
+  val unknown: DuckDbType[dev.typr.foundations.data.Unknown] = DuckDbType(JavaDuckDbTypes.unknown)
 
   // Forward static methods with Scala type conversion
-  def decimal(precision: Int, scale: Int): DuckDbType[BigDecimal] =
-    DuckDbType(JavaDuckDbTypes.decimal(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def decimalOf(precision: Int, scale: Int): DuckDbType[BigDecimal] =
+    DuckDbType(JavaDuckDbTypes.decimalOf(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def varchar(length: Int): DuckDbType[String] =
-    DuckDbType(JavaDuckDbTypes.varchar(length))
+  def varcharOf(length: Int): DuckDbType[String] =
+    DuckDbType(JavaDuckDbTypes.varcharOf(length))
 
-  def char_(length: Int): DuckDbType[String] =
-    DuckDbType(JavaDuckDbTypes.char_(length))
+  def char_Of(length: Int): DuckDbType[String] =
+    DuckDbType(JavaDuckDbTypes.char_Of(length))
 
-  def bit(length: Int): DuckDbType[String] =
-    DuckDbType(JavaDuckDbTypes.bit(length))
+  def bitOf(length: Int): DuckDbType[String] =
+    DuckDbType(JavaDuckDbTypes.bitOf(length))
 
   def ofEnum[E <: Enum[E]](enumTypeName: String, fromString: java.util.function.Function[String, E]): DuckDbType[E] =
     DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, fromString))
+
+  def ofEnum[E](enumTypeName: String, values: Array[E]): DuckDbType[E] =
+    ofEnum(enumTypeName, values, ((e: E) => e.toString): java.util.function.Function[E, String])
+
+  def ofEnum[E](enumTypeName: String, values: Array[E], name: java.util.function.Function[E, String]): DuckDbType[E] =
+    DuckDbType(JavaDuckDbTypes.ofEnum(enumTypeName, values.asInstanceOf[Array[Object & E]], name))
 
   // Composite (STRUCT) types
 

@@ -23,11 +23,18 @@ Inside the interpolation block, you can embed:
 
 ## Builder Pattern
 
-The builder pattern works in all languages and is useful for constructing fragments programmatically:
+The builder pattern works in all languages and is useful for constructing fragments programmatically. Start from `Fragment.of("SELECT …")` (or `Fragment.builder()` for an empty start) and chain `.value(type, x)` / `.append(fragment)`:
 
 <Snippet file="core/FragmentBuilderBasic" />
 
-For parameterized templates with unfilled parameter holes, see [Templates](./templates) (Advanced).
+:::note `.value()` binds, `.param()` creates a hole
+The vocabulary matters because both occupy the same SQL `?` position:
+
+- `.value(type, x)` — **bound value**, immediately captured into the Fragment. Produces a ready-to-execute `Operation`.
+- `.param(type)` — **parameter hole**, filled later. Produces a `Template` — see [Templates](./templates).
+
+`.param(type, value)` does not exist — if you know the value, use `.value(type, value)`.
+:::
 
 :::tip Which style should I use?
 - **Kotlin** — Use `sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [Templates](./templates) (Advanced).
@@ -46,3 +53,17 @@ The same approach works for UPDATE statements — build a list of assignments an
 <Snippet file="core/FragmentCombinators" />
 
 Other useful combinators: `Fragment.and()`, `Fragment.or()`, `Fragment.whereOr()`, `Fragment.orderBy()`, `Fragment.comma()`, `Fragment.parentheses()`.
+
+## IN-clause helper
+
+For `IN` clauses against dialects without native array types (MariaDB, SQL Server, Oracle, DB2), `Fragment.valuesList(type, values)` emits `(?, ?, …)` with each value bound as a typed parameter:
+
+```java
+Fragment.of("SELECT * FROM emp WHERE id IN ")
+    .append(Fragment.valuesList(MariaTypes.int_, List.of(1, 2, 3)))
+// SELECT * FROM emp WHERE id IN (?, ?, ?)
+```
+
+On PostgreSQL or DuckDB, prefer the native array idiom: `.value(int4.array(), ids)` with `WHERE id = ANY(?)`.
+
+`valuesList` throws `IllegalArgumentException` on an empty list — an empty `IN()` is SQL-invalid, so the caller has to branch (typically: return an empty result without issuing the query).

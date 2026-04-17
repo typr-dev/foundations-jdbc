@@ -8,7 +8,7 @@ typealias DatabaseKind = dev.typr.foundations.connect.DatabaseKind
 typealias TransactionIsolation = dev.typr.foundations.connect.TransactionIsolation
 
 // PostgreSQL
-typealias PostgresConfig = dev.typr.foundations.connect.PostgresConfig
+typealias PgConfig = dev.typr.foundations.connect.PgConfig
 typealias PgSslMode = dev.typr.foundations.connect.PgSslMode
 typealias PgQueryMode = dev.typr.foundations.connect.PgQueryMode
 typealias PgAutosave = dev.typr.foundations.connect.PgAutosave
@@ -22,7 +22,7 @@ typealias PgChannelBinding = dev.typr.foundations.connect.PgChannelBinding
 typealias PgEscapeSyntaxCallMode = dev.typr.foundations.connect.PgEscapeSyntaxCallMode
 
 // MariaDB/MySQL
-typealias MariaDbConfig = dev.typr.foundations.connect.MariaDbConfig
+typealias MariaConfig = dev.typr.foundations.connect.MariaConfig
 typealias MariaSslMode = dev.typr.foundations.connect.MariaSslMode
 
 // DuckDB

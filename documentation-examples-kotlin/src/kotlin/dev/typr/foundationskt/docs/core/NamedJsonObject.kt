@@ -12,7 +12,7 @@ class NamedJsonObject {
         RowCodec.namedBuilder<OrderLine>()
             .field("product", DuckDbTypes.varchar, OrderLine::product)
             .field("qty", DuckDbTypes.integer, OrderLine::qty)
-            .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
+            .field("price", DuckDbTypes.decimalOf(10, 2), OrderLine::price)
             .build(::OrderLine)
 
     // Stores rows as positional JSON arrays: [["Widget", 3, 9.99], ...]

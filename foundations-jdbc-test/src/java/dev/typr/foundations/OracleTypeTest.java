@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -57,8 +58,8 @@ public class OracleTypeTest {
     return OracleTypes.compositeOf(
         "COORDINATES_T",
         RowCodec.<Coordinates>namedBuilder()
-            .field("LATITUDE", OracleTypes.number(9, 6), Coordinates::latitude)
-            .field("LONGITUDE", OracleTypes.number(9, 6), Coordinates::longitude)
+            .field("LATITUDE", OracleTypes.numberOf(9, 6), Coordinates::latitude)
+            .field("LONGITUDE", OracleTypes.numberOf(9, 6), Coordinates::longitude)
             .build(Coordinates::new));
   }
 
@@ -67,8 +68,8 @@ public class OracleTypeTest {
     return OracleTypes.compositeOf(
         "ADDRESS_T",
         RowCodec.<Address>namedBuilder()
-            .field("STREET", OracleTypes.varchar2(100), Address::street)
-            .field("CITY", OracleTypes.varchar2(50), Address::city)
+            .field("STREET", OracleTypes.varchar2Of(100), Address::street)
+            .field("CITY", OracleTypes.varchar2Of(50), Address::city)
             .field("LOCATION", coordinatesType(), Address::location)
             .build(Address::new));
   }
@@ -85,13 +86,13 @@ public class OracleTypeTest {
 
   static RowCodec<OracleItem> oracleItemCodec =
       RowCodec.<OracleItem>builder()
-          .field(OracleTypes.varchar2(100), OracleItem::name)
+          .field(OracleTypes.varchar2Of(100), OracleItem::name)
           .field(OracleTypes.numberInt, OracleItem::quantity)
           .build(OracleItem::new);
 
   static RowCodecNamed<OracleItem> namedOracleItemCodec =
       RowCodec.<OracleItem>namedBuilder()
-          .field("name", OracleTypes.varchar2(100), OracleItem::name)
+          .field("name", OracleTypes.varchar2Of(100), OracleItem::name)
           .field("quantity", OracleTypes.numberInt, OracleItem::quantity)
           .build(OracleItem::new);
 
@@ -108,7 +109,7 @@ public class OracleTypeTest {
       Double binaryDoubleField,
       LocalDateTime dateField,
       LocalDateTime timestampField,
-      OffsetDateTime timestampTzField,
+      ZonedDateTime timestampTzField,
       Instant timestampLtzField,
       OracleIntervalYM intervalYmField,
       OracleIntervalDS intervalDsField,
@@ -128,7 +129,7 @@ public class OracleTypeTest {
       Optional<Double> binaryDoubleField,
       Optional<LocalDateTime> dateField,
       Optional<LocalDateTime> timestampField,
-      Optional<OffsetDateTime> timestampTzField,
+      Optional<ZonedDateTime> timestampTzField,
       Optional<Instant> timestampLtzField,
       Optional<OracleIntervalYM> intervalYmField,
       Optional<OracleIntervalDS> intervalDsField,
@@ -151,7 +152,7 @@ public class OracleTypeTest {
       Double binaryDoubleField,
       LocalDateTime dateField,
       LocalDateTime timestampField,
-      OffsetDateTime timestampTzField,
+      ZonedDateTime timestampTzField,
       Instant timestampLtzField,
       OracleIntervalYM intervalYmField,
       OracleIntervalDS intervalDsField,
@@ -171,7 +172,7 @@ public class OracleTypeTest {
       Optional<Double> binaryDoubleField,
       Optional<LocalDateTime> dateField,
       Optional<LocalDateTime> timestampField,
-      Optional<OffsetDateTime> timestampTzField,
+      Optional<ZonedDateTime> timestampTzField,
       Optional<Instant> timestampLtzField,
       Optional<OracleIntervalYM> intervalYmField,
       Optional<OracleIntervalDS> intervalDsField,
@@ -189,19 +190,20 @@ public class OracleTypeTest {
       boolean hasIdentity,
       boolean streamingWorks,
       boolean jsonRoundtripWorks,
+      boolean supportsComposite, // If true, auto-derive OBJECT/VARRAY/NESTED TABLE wrappers
       List<String>
           setupSql // Optional SQL statements to run before test (for type definitions, etc.)
       ) {
     public OracleTypeAndExample(OracleType<A> type, A example) {
-      this(type, example, null, false, true, true, true, List.of());
+      this(type, example, null, false, true, true, true, true, List.of());
     }
 
     public OracleTypeAndExample(OracleType<A> type, A example, A expectedRoundtrip) {
-      this(type, example, expectedRoundtrip, true, true, true, true, List.of());
+      this(type, example, expectedRoundtrip, true, true, true, true, true, List.of());
     }
 
     public OracleTypeAndExample(OracleType<A> type, A example, List<String> setupSql) {
-      this(type, example, null, false, true, true, true, setupSql);
+      this(type, example, null, false, true, true, true, true, setupSql);
     }
 
     public OracleTypeAndExample<A> noStreaming() {
@@ -213,6 +215,7 @@ public class OracleTypeTest {
           hasIdentity,
           false,
           jsonRoundtripWorks,
+          supportsComposite,
           setupSql);
     }
 
@@ -225,6 +228,7 @@ public class OracleTypeTest {
           false,
           streamingWorks,
           jsonRoundtripWorks,
+          supportsComposite,
           setupSql);
     }
 
@@ -236,6 +240,20 @@ public class OracleTypeTest {
           useExpectedRoundtrip,
           hasIdentity,
           streamingWorks,
+          false,
+          supportsComposite,
+          setupSql);
+    }
+
+    public OracleTypeAndExample<A> noComposite() {
+      return new OracleTypeAndExample<>(
+          type,
+          example,
+          expectedRoundtrip,
+          useExpectedRoundtrip,
+          hasIdentity,
+          streamingWorks,
+          jsonRoundtripWorks,
           false,
           setupSql);
     }
@@ -272,10 +290,10 @@ public class OracleTypeTest {
           new OracleTypeAndExample<>(OracleTypes.numberLong, 0L),
 
           // NUMBER with precision and scale
-          new OracleTypeAndExample<>(OracleTypes.number(10, 2), new BigDecimal("12345678.90")),
-          new OracleTypeAndExample<>(OracleTypes.number(10, 2), new BigDecimal("-99999999.99")),
+          new OracleTypeAndExample<>(OracleTypes.numberOf(10, 2), new BigDecimal("12345678.90")),
+          new OracleTypeAndExample<>(OracleTypes.numberOf(10, 2), new BigDecimal("-99999999.99")),
           new OracleTypeAndExample<>(
-              OracleTypes.number(38, 10),
+              OracleTypes.numberOf(38, 10),
               new BigDecimal("1234567890123456789012345678.1234567890")),
 
           // BINARY_FLOAT - 32-bit IEEE 754
@@ -295,21 +313,21 @@ public class OracleTypeTest {
 
           // FLOAT (ANSI type mapped to NUMBER)
           new OracleTypeAndExample<>(OracleTypes.float_, 42.42),
-          new OracleTypeAndExample<>(OracleTypes.float_(63), 123.456), // REAL equivalent
+          new OracleTypeAndExample<>(OracleTypes.float_Of(63), 123.456), // REAL equivalent
 
           // ═══════════════════════════════════════════════════════════════════════════
           // Character Types
           // ═══════════════════════════════════════════════════════════════════════════
 
           // VARCHAR2
-          new OracleTypeAndExample<>(OracleTypes.varchar2(100), "Hello, Oracle!"),
-          new OracleTypeAndExample<>(OracleTypes.varchar2(100), "", (String) null)
+          new OracleTypeAndExample<>(OracleTypes.varchar2Of(100), "Hello, Oracle!"),
+          new OracleTypeAndExample<>(OracleTypes.varchar2Of(100), "", (String) null)
               .noJsonRoundtrip(), // Oracle quirk: empty string → NULL
           new OracleTypeAndExample<>(
-              OracleTypes.varchar2(100), "Unicode: \u00e9\u00e8\u00ea \u4e2d\u6587"),
-          new OracleTypeAndExample<>(OracleTypes.varchar2(100), "Line1\nLine2\tTabbed"),
-          new OracleTypeAndExample<>(OracleTypes.varchar2(100), "Quote\"Test'Single"),
-          new OracleTypeAndExample<>(OracleTypes.varchar2(100), "Special chars: ,.;{}[]-//#"),
+              OracleTypes.varchar2Of(100), "Unicode: \u00e9\u00e8\u00ea \u4e2d\u6587"),
+          new OracleTypeAndExample<>(OracleTypes.varchar2Of(100), "Line1\nLine2\tTabbed"),
+          new OracleTypeAndExample<>(OracleTypes.varchar2Of(100), "Quote\"Test'Single"),
+          new OracleTypeAndExample<>(OracleTypes.varchar2Of(100), "Special chars: ,.;{}[]-//#"),
 
           // VARCHAR2 with NonEmptyString (for NOT NULL columns)
           new OracleTypeAndExample<>(
@@ -319,8 +337,9 @@ public class OracleTypeTest {
 
           // CHAR (fixed-length, blank-padded)
           new OracleTypeAndExample<>(
-              OracleTypes.char_(10), "hello     "), // Note: CHAR pads with spaces
-          new OracleTypeAndExample<>(OracleTypes.char_(5), "abc  "), // May be trimmed on comparison
+              OracleTypes.char_Of(10), "hello     "), // Note: CHAR pads with spaces
+          new OracleTypeAndExample<>(
+              OracleTypes.char_Of(5), "abc  "), // May be trimmed on comparison
 
           // CHAR with PaddedString (for NOT NULL columns)
           new OracleTypeAndExample<>(OracleTypes.charPadded(10), PaddedString.force("hello", 10)),
@@ -329,15 +348,16 @@ public class OracleTypeTest {
 
           // NVARCHAR2 (National character set)
           new OracleTypeAndExample<>(
-              OracleTypes.nvarchar2(100), "Unicode text: \u0391\u0392\u0393"),
-          new OracleTypeAndExample<>(OracleTypes.nvarchar2(100), "Emoji: \uD83D\uDE00\uD83C\uDF89"),
+              OracleTypes.nvarchar2Of(100), "Unicode text: \u0391\u0392\u0393"),
+          new OracleTypeAndExample<>(
+              OracleTypes.nvarchar2Of(100), "Emoji: \uD83D\uDE00\uD83C\uDF89"),
 
           // NVARCHAR2 with NonEmptyString (for NOT NULL columns)
           new OracleTypeAndExample<>(
               OracleTypes.nvarchar2NonEmpty(100), NonEmptyString.force("NonEmpty NVARCHAR2")),
 
           // NCHAR
-          new OracleTypeAndExample<>(OracleTypes.nchar(10), "test      "),
+          new OracleTypeAndExample<>(OracleTypes.ncharOf(10), "test      "),
 
           // NCHAR with PaddedString (for NOT NULL columns)
           new OracleTypeAndExample<>(
@@ -373,13 +393,13 @@ public class OracleTypeTest {
 
           // RAW
           new OracleTypeAndExample<>(
-              OracleTypes.raw(100), new byte[] {0x01, 0x02, 0x03, (byte) 0xFF}),
-          new OracleTypeAndExample<>(OracleTypes.raw(100), new byte[] {}, (byte[]) null)
+              OracleTypes.rawOf(100), new byte[] {0x01, 0x02, 0x03, (byte) 0xFF}),
+          new OracleTypeAndExample<>(OracleTypes.rawOf(100), new byte[] {}, (byte[]) null)
               .noJsonRoundtrip(), // Oracle quirk: empty byte array → NULL
           new OracleTypeAndExample<>(
-              OracleTypes.raw(100), new byte[] {0x00, 0x00, 0x00}), // Edge case: zeros
+              OracleTypes.rawOf(100), new byte[] {0x00, 0x00, 0x00}), // Edge case: zeros
           new OracleTypeAndExample<>(
-              OracleTypes.raw(100),
+              OracleTypes.rawOf(100),
               new byte[] {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF}),
 
           // BLOB - Binary Large Object (cannot be used as comparison key)
@@ -413,23 +433,47 @@ public class OracleTypeTest {
           new OracleTypeAndExample<>(
               OracleTypes.timestamp, LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)),
           new OracleTypeAndExample<>(
-              OracleTypes.timestamp(6), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)),
+              OracleTypes.timestampOf(6), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000)),
           new OracleTypeAndExample<>(
-              OracleTypes.timestamp(9), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456789)),
+              OracleTypes.timestampOf(9), LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456789)),
           new OracleTypeAndExample<>(
               OracleTypes.timestamp, LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0)), // Edge case: epoch
 
-          // TIMESTAMP WITH TIME ZONE
+          // TIMESTAMP WITH TIME ZONE — fixed offsets
           new OracleTypeAndExample<>(
               OracleTypes.timestampWithTimeZone,
-              OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
+              ZonedDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
           new OracleTypeAndExample<>(
               OracleTypes.timestampWithTimeZone,
-              OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)),
+              ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)),
           new OracleTypeAndExample<>(
               OracleTypes.timestampWithTimeZone,
-              OffsetDateTime.of(
+              ZonedDateTime.of(
                   2024, 6, 15, 14, 30, 45, 123456000, ZoneOffset.ofHoursMinutes(-5, -30))),
+
+          // TIMESTAMP WITH TIME ZONE — named zone regions (the whole point of ZonedDateTime
+          // vs OffsetDateTime — these would lose their region identity under OffsetDateTime
+          // and freeze to whatever offset was in effect at the moment).
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(
+                  2024, 1, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"))), // PST
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(
+                  2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"))), // PDT
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(2024, 6, 15, 9, 0, 0, 0, java.time.ZoneId.of("Europe/Berlin"))),
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(2024, 3, 10, 15, 0, 0, 0, java.time.ZoneId.of("Asia/Tokyo"))),
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(2024, 12, 31, 23, 59, 59, 999000000, java.time.ZoneId.of("UTC"))),
+          new OracleTypeAndExample<>(
+              OracleTypes.timestampWithTimeZone,
+              ZonedDateTime.of(2024, 10, 20, 6, 15, 0, 0, java.time.ZoneId.of("Australia/Sydney"))),
 
           // TIMESTAMP WITH LOCAL TIME ZONE
           new OracleTypeAndExample<>(
@@ -542,35 +586,38 @@ public class OracleTypeTest {
 
           // VARRAY example - phone_list (max 5 elements) - cannot be used as comparison key
           new OracleTypeAndExample<>(
-              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
               List.of("555-1234", "555-5678", "555-9999"),
               null,
               false,
               false,
               true,
               true,
+              false, // supportsComposite — already composite
               List.of("CREATE OR REPLACE TYPE PHONE_LIST AS VARRAY(5) OF VARCHAR2(20)")),
 
           // VARRAY edge case - single element
           new OracleTypeAndExample<>(
-              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
               List.of("555-0000"),
               null,
               false,
               false,
               true,
               true,
+              false, // supportsComposite — already composite
               List.of("CREATE OR REPLACE TYPE PHONE_LIST AS VARRAY(5) OF VARCHAR2(20)")),
 
           // VARRAY edge case - max size (5 elements)
           new OracleTypeAndExample<>(
-              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
               List.of("555-1111", "555-2222", "555-3333", "555-4444", "555-5555"),
               null,
               false,
               false,
               true,
               true,
+              false, // supportsComposite — already composite
               List.of("CREATE OR REPLACE TYPE PHONE_LIST AS VARRAY(5) OF VARCHAR2(20)")),
 
           // NESTED TABLE example - order_items_t with nested OBJECT type
@@ -645,10 +692,11 @@ public class OracleTypeTest {
                   OracleTypes.compositeOf(
                       "TEST_ALLTYPES",
                       RowCodec.<AllTypesStruct>namedBuilder()
-                          .field("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
-                          .field("NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
-                          .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
-                          .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
+                          .field("VARCHAR_FIELD", OracleTypes.varchar2Of(100), s -> s.varcharField)
+                          .field(
+                              "NVARCHAR_FIELD", OracleTypes.nvarchar2Of(100), s -> s.nvarcharField)
+                          .field("CHAR_FIELD", OracleTypes.char_Of(10), s -> s.charField)
+                          .field("NCHAR_FIELD", OracleTypes.ncharOf(10), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
                           .field("NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
                           .field(
@@ -682,7 +730,7 @@ public class OracleTypeTest {
                           .field("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
                           .field(
                               "VARRAY_FIELD",
-                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
                               s -> s.varrayField)
                           .build(AllTypesStruct::new)),
                   new AllTypesStruct(
@@ -697,7 +745,7 @@ public class OracleTypeTest {
                       2.718,
                       LocalDateTime.of(2024, 6, 15, 14, 30, 45),
                       LocalDateTime.of(2024, 6, 15, 14, 30, 45, 123456000),
-                      OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2)),
+                      ZonedDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2)),
                       Instant.parse("2024-06-15T11:30:45Z"),
                       new OracleIntervalYM(2, 5),
                       new OracleIntervalDS(3, 14, 30, 45, 123456000),
@@ -736,13 +784,15 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES_OPT",
                       RowCodec.<AllTypesStructOptional>namedBuilder()
                           .field(
-                              "VARCHAR_FIELD", OracleTypes.varchar2(100).opt(), s -> s.varcharField)
+                              "VARCHAR_FIELD",
+                              OracleTypes.varchar2Of(100).opt(),
+                              s -> s.varcharField)
                           .field(
                               "NVARCHAR_FIELD",
-                              OracleTypes.nvarchar2(100).opt(),
+                              OracleTypes.nvarchar2Of(100).opt(),
                               s -> s.nvarcharField)
-                          .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
-                          .field("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
+                          .field("CHAR_FIELD", OracleTypes.char_Of(10).opt(), s -> s.charField)
+                          .field("NCHAR_FIELD", OracleTypes.ncharOf(10).opt(), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
                           .field(
                               "NUMBER_INT_FIELD",
@@ -783,7 +833,7 @@ public class OracleTypeTest {
                               "NESTED_OBJECT_FIELD", addressType().opt(), s -> s.nestedObjectField)
                           .field(
                               "VARRAY_FIELD",
-                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)).opt(),
+                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)).opt(),
                               s -> s.varrayField)
                           .build(AllTypesStructOptional::new)),
                   new AllTypesStructOptional(
@@ -799,7 +849,7 @@ public class OracleTypeTest {
                       Optional.of(LocalDateTime.of(2024, 6, 15, 14, 30, 45)),
                       Optional.empty(), // Test null timestampField
                       Optional.of(
-                          OffsetDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
+                          ZonedDateTime.of(2024, 6, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
                       Optional.of(Instant.parse("2024-06-15T11:30:45Z")),
                       Optional.of(new OracleIntervalYM(2, 5)),
                       Optional.empty(), // Test null intervalDsField
@@ -844,10 +894,11 @@ public class OracleTypeTest {
                   OracleTypes.compositeOf(
                       "TEST_ALLTYPES_NOLOBS",
                       RowCodec.<AllTypesStructNoLobs>namedBuilder()
-                          .field("VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
-                          .field("NVARCHAR_FIELD", OracleTypes.nvarchar2(100), s -> s.nvarcharField)
-                          .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
-                          .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
+                          .field("VARCHAR_FIELD", OracleTypes.varchar2Of(100), s -> s.varcharField)
+                          .field(
+                              "NVARCHAR_FIELD", OracleTypes.nvarchar2Of(100), s -> s.nvarcharField)
+                          .field("CHAR_FIELD", OracleTypes.char_Of(10), s -> s.charField)
+                          .field("NCHAR_FIELD", OracleTypes.ncharOf(10), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
                           .field("NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
                           .field(
@@ -881,7 +932,7 @@ public class OracleTypeTest {
                           .field("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
                           .field(
                               "VARRAY_FIELD",
-                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
                               s -> s.varrayField)
                           .build(AllTypesStructNoLobs::new)),
                   new AllTypesStructNoLobs(
@@ -896,7 +947,7 @@ public class OracleTypeTest {
                       2.718281828,
                       LocalDateTime.of(2024, 3, 15, 14, 30),
                       LocalDateTime.of(2024, 3, 15, 14, 30, 45, 123456789),
-                      OffsetDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2)),
+                      ZonedDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2)),
                       Instant.parse("2024-03-15T11:30:45Z"),
                       new OracleIntervalYM(2, 6),
                       new OracleIntervalDS(5, 12, 30, 45, 123456000),
@@ -933,13 +984,15 @@ public class OracleTypeTest {
                       "TEST_ALLTYPES_NOLOBS_OPT",
                       RowCodec.<AllTypesStructNoLobsOptional>namedBuilder()
                           .field(
-                              "VARCHAR_FIELD", OracleTypes.varchar2(100).opt(), s -> s.varcharField)
+                              "VARCHAR_FIELD",
+                              OracleTypes.varchar2Of(100).opt(),
+                              s -> s.varcharField)
                           .field(
                               "NVARCHAR_FIELD",
-                              OracleTypes.nvarchar2(100).opt(),
+                              OracleTypes.nvarchar2Of(100).opt(),
                               s -> s.nvarcharField)
-                          .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
-                          .field("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
+                          .field("CHAR_FIELD", OracleTypes.char_Of(10).opt(), s -> s.charField)
+                          .field("NCHAR_FIELD", OracleTypes.ncharOf(10).opt(), s -> s.ncharField)
                           .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
                           .field(
                               "NUMBER_INT_FIELD",
@@ -980,7 +1033,7 @@ public class OracleTypeTest {
                               "NESTED_OBJECT_FIELD", addressType().opt(), s -> s.nestedObjectField)
                           .field(
                               "VARRAY_FIELD",
-                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)).opt(),
+                              OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)).opt(),
                               s -> s.varrayField)
                           .build(AllTypesStructNoLobsOptional::new)),
                   new AllTypesStructNoLobsOptional(
@@ -996,7 +1049,7 @@ public class OracleTypeTest {
                       Optional.of(LocalDateTime.of(2024, 3, 15, 14, 30)),
                       Optional.empty(),
                       Optional.of(
-                          OffsetDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
+                          ZonedDateTime.of(2024, 3, 15, 14, 30, 45, 0, ZoneOffset.ofHours(2))),
                       Optional.of(Instant.parse("2024-03-15T11:30:45Z")),
                       Optional.of(new OracleIntervalYM(2, 6)),
                       Optional.empty(),
@@ -1037,13 +1090,13 @@ public class OracleTypeTest {
                           "TEST_ALLTYPES_NOLOBS",
                           RowCodec.<AllTypesStructNoLobs>namedBuilder()
                               .field(
-                                  "VARCHAR_FIELD", OracleTypes.varchar2(100), s -> s.varcharField)
+                                  "VARCHAR_FIELD", OracleTypes.varchar2Of(100), s -> s.varcharField)
                               .field(
                                   "NVARCHAR_FIELD",
-                                  OracleTypes.nvarchar2(100),
+                                  OracleTypes.nvarchar2Of(100),
                                   s -> s.nvarcharField)
-                              .field("CHAR_FIELD", OracleTypes.char_(10), s -> s.charField)
-                              .field("NCHAR_FIELD", OracleTypes.nchar(10), s -> s.ncharField)
+                              .field("CHAR_FIELD", OracleTypes.char_Of(10), s -> s.charField)
+                              .field("NCHAR_FIELD", OracleTypes.ncharOf(10), s -> s.ncharField)
                               .field("NUMBER_FIELD", OracleTypes.number, s -> s.numberField)
                               .field(
                                   "NUMBER_INT_FIELD", OracleTypes.numberInt, s -> s.numberIntField)
@@ -1081,7 +1134,7 @@ public class OracleTypeTest {
                               .field("NESTED_OBJECT_FIELD", addressType(), s -> s.nestedObjectField)
                               .field(
                                   "VARRAY_FIELD",
-                                  OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)),
+                                  OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20)),
                                   s -> s.varrayField)
                               .build(AllTypesStructNoLobs::new))),
                   List.of(
@@ -1097,7 +1150,7 @@ public class OracleTypeTest {
                           1.11,
                           LocalDateTime.of(2024, 1, 1, 10, 0),
                           LocalDateTime.of(2024, 1, 1, 10, 0, 0, 111000000),
-                          OffsetDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC),
+                          ZonedDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC),
                           Instant.parse("2024-01-01T07:00:00Z"),
                           new OracleIntervalYM(1, 1),
                           new OracleIntervalDS(1, 1, 1, 1, 111000000),
@@ -1115,7 +1168,7 @@ public class OracleTypeTest {
                           2.22,
                           LocalDateTime.of(2024, 2, 2, 20, 0),
                           LocalDateTime.of(2024, 2, 2, 20, 0, 0, 222000000),
-                          OffsetDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(-5)),
+                          ZonedDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(-5)),
                           Instant.parse("2024-02-02T17:00:00Z"),
                           new OracleIntervalYM(2, 2),
                           new OracleIntervalDS(2, 2, 2, 2, 222000000),
@@ -1162,14 +1215,15 @@ public class OracleTypeTest {
                           RowCodec.<AllTypesStructNoLobsOptional>namedBuilder()
                               .field(
                                   "VARCHAR_FIELD",
-                                  OracleTypes.varchar2(100).opt(),
+                                  OracleTypes.varchar2Of(100).opt(),
                                   s -> s.varcharField)
                               .field(
                                   "NVARCHAR_FIELD",
-                                  OracleTypes.nvarchar2(100).opt(),
+                                  OracleTypes.nvarchar2Of(100).opt(),
                                   s -> s.nvarcharField)
-                              .field("CHAR_FIELD", OracleTypes.char_(10).opt(), s -> s.charField)
-                              .field("NCHAR_FIELD", OracleTypes.nchar(10).opt(), s -> s.ncharField)
+                              .field("CHAR_FIELD", OracleTypes.char_Of(10).opt(), s -> s.charField)
+                              .field(
+                                  "NCHAR_FIELD", OracleTypes.ncharOf(10).opt(), s -> s.ncharField)
                               .field("NUMBER_FIELD", OracleTypes.number.opt(), s -> s.numberField)
                               .field(
                                   "NUMBER_INT_FIELD",
@@ -1214,7 +1268,8 @@ public class OracleTypeTest {
                                   s -> s.nestedObjectField)
                               .field(
                                   "VARRAY_FIELD",
-                                  OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(20)).opt(),
+                                  OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(20))
+                                      .opt(),
                                   s -> s.varrayField)
                               .build(AllTypesStructNoLobsOptional::new))),
                   List.of(
@@ -1230,7 +1285,7 @@ public class OracleTypeTest {
                           Optional.of(1.11),
                           Optional.of(LocalDateTime.of(2024, 1, 1, 10, 0)),
                           Optional.empty(),
-                          Optional.of(OffsetDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC)),
+                          Optional.of(ZonedDateTime.of(2024, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC)),
                           Optional.of(Instant.parse("2024-01-01T07:00:00Z")),
                           Optional.of(new OracleIntervalYM(1, 1)),
                           Optional.empty(),
@@ -1250,7 +1305,7 @@ public class OracleTypeTest {
                           Optional.of(LocalDateTime.of(2024, 2, 2, 20, 0)),
                           Optional.of(LocalDateTime.of(2024, 2, 2, 20, 0, 0, 222000000)),
                           Optional.of(
-                              OffsetDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(-5))),
+                              ZonedDateTime.of(2024, 2, 2, 20, 0, 0, 0, ZoneOffset.ofHours(-5))),
                           Optional.of(Instant.parse("2024-02-02T17:00:00Z")),
                           Optional.of(new OracleIntervalYM(2, 2)),
                           Optional.of(new OracleIntervalDS(2, 2, 2, 2, 222000000)),
@@ -1727,7 +1782,8 @@ public class OracleTypeTest {
       // NESTED TABLE columns require STORE AS clause
       String createTableDDL = "CREATE TABLE " + tableName + " (v " + sqlType + ")";
       if (sqlType.contains("ORDER_ITEMS_T")
-          || sqlType.contains("_NESTED_TABLE")) { // Nested table type
+          || sqlType.contains("_NESTED_TABLE")
+          || sqlType.endsWith("_NT")) { // Nested table type
         createTableDDL += " NESTED TABLE v STORE AS " + tableName + "_STORAGE";
       }
       stmt.execute(createTableDDL);
@@ -1882,7 +1938,641 @@ public class OracleTypeTest {
   static <A> void assertEquals(A actual, A expected, String message) {
     if (!areEqual(actual, expected)) {
       throw new RuntimeException(
-          message + ": actual='" + format(actual) + "' expected='" + format(expected) + "'");
+          message
+              + ": actual='"
+              + format(actual)
+              + "' ("
+              + (actual == null ? "null" : actual.getClass().getSimpleName())
+              + ") expected='"
+              + format(expected)
+              + "' ("
+              + (expected == null ? "null" : expected.getClass().getSimpleName())
+              + ")");
+    }
+  }
+
+  // ==================== Gap coverage tests ====================
+
+  @Test
+  public void testNullAndEmptyCollection() {
+    // NULL collection at the column level (valid). Oracle rejects NULL OBJECT entries inside
+    // VARRAY/NESTED TABLE with ORA-22805, so this test deliberately covers the cases that are
+    // valid: NULL whole-collection and empty collection.
+    record Item(String name, Integer qty) {}
+    OracleType<Item> itemType =
+        OracleTypes.compositeOf(
+            "GAP_ITEM_T",
+            RowCodec.<Item>namedBuilder()
+                .field("NAME", OracleTypes.varchar2Of(50), Item::name)
+                .field("QTY", OracleTypes.numberInt, Item::qty)
+                .build(Item::new));
+    OracleType<List<Item>> itemVArray = OracleVArray.of("GAP_ITEM_VA", 10, itemType);
+    OracleType<List<Item>> itemNestedTable = OracleNestedTable.of("GAP_ITEM_NT", itemType);
+
+    var pool = Containers.oraclePool();
+    pool.transactor(Transactor.testStrategy())
+        .execute(
+            conn -> {
+              var stmt = conn.createStatement();
+              tryExec(stmt, "DROP TABLE gap_null_collection_t CASCADE CONSTRAINTS");
+              tryExec(stmt, "DROP TYPE GAP_ITEM_VA FORCE");
+              tryExec(stmt, "DROP TYPE GAP_ITEM_NT FORCE");
+              tryExec(stmt, "DROP TYPE GAP_ITEM_T FORCE");
+              stmt.execute("CREATE TYPE GAP_ITEM_T AS OBJECT (NAME VARCHAR2(50), QTY NUMBER)");
+              stmt.execute("CREATE TYPE GAP_ITEM_VA AS VARRAY(10) OF GAP_ITEM_T");
+              stmt.execute("CREATE TYPE GAP_ITEM_NT AS TABLE OF GAP_ITEM_T");
+              stmt.execute(
+                  "CREATE TABLE gap_null_collection_t (id NUMBER, va GAP_ITEM_VA, nt GAP_ITEM_NT)"
+                      + " NESTED TABLE nt STORE AS gap_null_nt_store");
+
+              var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
+
+              // Row 1: NULL collections (whole column NULL)
+              var ps1 = raw.prepareStatement("INSERT INTO gap_null_collection_t VALUES (?, ?, ?)");
+              ps1.setInt(1, 1);
+              itemVArray.opt().write().set(ps1, 2, java.util.Optional.empty());
+              itemNestedTable.opt().write().set(ps1, 3, java.util.Optional.empty());
+              ps1.executeUpdate();
+
+              // Row 2: empty collections
+              var ps2 = raw.prepareStatement("INSERT INTO gap_null_collection_t VALUES (?, ?, ?)");
+              ps2.setInt(1, 2);
+              itemVArray.write().set(ps2, 2, List.of());
+              itemNestedTable.write().set(ps2, 3, List.of());
+              ps2.executeUpdate();
+
+              // Row 3: populated
+              var ps3 = raw.prepareStatement("INSERT INTO gap_null_collection_t VALUES (?, ?, ?)");
+              ps3.setInt(1, 3);
+              List<Item> items = List.of(new Item("Keyboard", 1), new Item("Mouse", 2));
+              itemVArray.write().set(ps3, 2, items);
+              itemNestedTable.write().set(ps3, 3, items);
+              ps3.executeUpdate();
+              conn.commit();
+
+              var rs =
+                  conn.createStatement()
+                      .executeQuery("SELECT id, va, nt FROM gap_null_collection_t ORDER BY id");
+              // Row 1 - NULL collections
+              if (!rs.next()) throw new AssertionError("no row 1");
+              var va1 = itemVArray.opt().read().read(rs, 2);
+              var nt1 = itemNestedTable.opt().read().read(rs, 3);
+              if (va1.isPresent())
+                throw new AssertionError("expected NULL VARRAY, got " + va1.get());
+              if (nt1.isPresent()) throw new AssertionError("expected NULL NT, got " + nt1.get());
+
+              // Row 2 - empty collections. Oracle returns NULL for empty VARRAY/NESTED TABLE
+              // (this is a well-known Oracle quirk — an empty VARRAY and a NULL one are
+              // indistinguishable through JDBC), so we test with the opt() read to tolerate both.
+              if (!rs.next()) throw new AssertionError("no row 2");
+              var va2 = itemVArray.opt().read().read(rs, 2);
+              var nt2 = itemNestedTable.opt().read().read(rs, 3);
+              if (va2.isPresent() && !va2.get().isEmpty())
+                throw new AssertionError("row 2 VARRAY should be empty or null, got " + va2.get());
+              if (nt2.isPresent() && !nt2.get().isEmpty())
+                throw new AssertionError("row 2 NT should be empty or null, got " + nt2.get());
+
+              // Row 3 - populated
+              if (!rs.next()) throw new AssertionError("no row 3");
+              var va3 = itemVArray.read().read(rs, 2);
+              var nt3 = itemNestedTable.read().read(rs, 3);
+              if (va3.size() != 2) throw new AssertionError("row 3 VARRAY size: " + va3.size());
+              if (!va3.get(0).name().equals("Keyboard"))
+                throw new AssertionError(va3.get(0).name());
+              if (nt3.size() != 2) throw new AssertionError("row 3 NT size: " + nt3.size());
+              System.out.println(
+                  "NULL/empty VARRAY and NESTED TABLE roundtrip OK"
+                      + " (Oracle: null elements inside collections are rejected as ORA-22805)");
+              return null;
+            });
+  }
+
+  @Test
+  public void testFourLevelNesting() {
+    // 4 levels: NESTED TABLE<Country> where Country has VARRAY<Region> where Region has
+    // NESTED TABLE<City> where City has scalars. Exercises recursion through all collection
+    // kinds at deeper than 3 levels.
+    record City(String name, Integer population) {}
+    record Region(String name, List<City> cities) {}
+    record Country(String name, List<Region> regions) {}
+
+    OracleType<City> cityType =
+        OracleTypes.compositeOf(
+            "GAP_CITY_T",
+            RowCodec.<City>namedBuilder()
+                .field("NAME", OracleTypes.varchar2Of(50), City::name)
+                .field("POPULATION", OracleTypes.numberInt, City::population)
+                .build(City::new));
+    OracleType<List<City>> citiesType = OracleNestedTable.of("GAP_CITY_NT", cityType);
+    OracleType<Region> regionType =
+        OracleTypes.compositeOf(
+            "GAP_REGION_T",
+            RowCodec.<Region>namedBuilder()
+                .field("NAME", OracleTypes.varchar2Of(50), Region::name)
+                .field("CITIES", citiesType, Region::cities)
+                .build(Region::new));
+    OracleType<List<Region>> regionsType = OracleVArray.of("GAP_REGION_VA", 10, regionType);
+    OracleType<Country> countryType =
+        OracleTypes.compositeOf(
+            "GAP_COUNTRY_T",
+            RowCodec.<Country>namedBuilder()
+                .field("NAME", OracleTypes.varchar2Of(50), Country::name)
+                .field("REGIONS", regionsType, Country::regions)
+                .build(Country::new));
+    OracleType<List<Country>> countriesType = OracleNestedTable.of("GAP_COUNTRY_NT", countryType);
+
+    var pool = Containers.oraclePool();
+    pool.transactor(Transactor.testStrategy())
+        .execute(
+            conn -> {
+              var stmt = conn.createStatement();
+              tryExec(stmt, "DROP TABLE gap_four_level_t CASCADE CONSTRAINTS");
+              tryExec(stmt, "DROP TYPE GAP_COUNTRY_NT FORCE");
+              tryExec(stmt, "DROP TYPE GAP_COUNTRY_T FORCE");
+              tryExec(stmt, "DROP TYPE GAP_REGION_VA FORCE");
+              tryExec(stmt, "DROP TYPE GAP_REGION_T FORCE");
+              tryExec(stmt, "DROP TYPE GAP_CITY_NT FORCE");
+              tryExec(stmt, "DROP TYPE GAP_CITY_T FORCE");
+              stmt.execute(
+                  "CREATE TYPE GAP_CITY_T AS OBJECT (NAME VARCHAR2(50), POPULATION NUMBER)");
+              stmt.execute("CREATE TYPE GAP_CITY_NT AS TABLE OF GAP_CITY_T");
+              stmt.execute(
+                  "CREATE TYPE GAP_REGION_T AS OBJECT (NAME VARCHAR2(50), CITIES GAP_CITY_NT)");
+              stmt.execute("CREATE TYPE GAP_REGION_VA AS VARRAY(10) OF GAP_REGION_T");
+              stmt.execute(
+                  "CREATE TYPE GAP_COUNTRY_T AS OBJECT (NAME VARCHAR2(50), REGIONS GAP_REGION_VA)");
+              stmt.execute("CREATE TYPE GAP_COUNTRY_NT AS TABLE OF GAP_COUNTRY_T");
+              stmt.execute(
+                  "CREATE TABLE gap_four_level_t (cs GAP_COUNTRY_NT)"
+                      + " NESTED TABLE cs STORE AS gap_four_cs_store");
+
+              var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
+              List<Country> countries =
+                  List.of(
+                      new Country(
+                          "Norway",
+                          List.of(
+                              new Region("Oslo", List.of(new City("Oslo", 700_000))),
+                              new Region(
+                                  "Vestland",
+                                  List.of(
+                                      new City("Bergen", 285_000),
+                                      new City("Haugesund", 37_000))))));
+              var ps = raw.prepareStatement("INSERT INTO gap_four_level_t VALUES (?)");
+              countriesType.write().set(ps, 1, countries);
+              ps.executeUpdate();
+              conn.commit();
+
+              var rs = conn.createStatement().executeQuery("SELECT cs FROM gap_four_level_t");
+              if (!rs.next()) throw new AssertionError("no row");
+              List<Country> decoded = countriesType.read().read(rs, 1);
+
+              if (decoded.size() != 1) throw new AssertionError("countries: " + decoded.size());
+              Country c = decoded.get(0);
+              if (!c.name().equals("Norway")) throw new AssertionError(c.name());
+              if (c.regions().size() != 2)
+                throw new AssertionError("regions: " + c.regions().size());
+              Region vestland = c.regions().get(1);
+              if (vestland.cities().size() != 2)
+                throw new AssertionError("cities: " + vestland.cities().size());
+              if (!vestland.cities().get(0).name().equals("Bergen"))
+                throw new AssertionError(vestland.cities().get(0).name());
+              System.out.println(
+                  "4-level nesting NESTED TABLE→OBJECT→VARRAY→OBJECT→NESTED TABLE OK");
+              return null;
+            });
+  }
+
+  // ==================== Auto-derived composite matrix ====================
+  //
+  // For every scalar in All that has supportsComposite=true, we auto-derive three shapes —
+  // single-attribute OBJECT, VARRAY, NESTED TABLE — and run the usual testCase roundtrip.
+  // The testCase harness already handles setupSql, nested-table STORE AS, etc., so each
+  // derivation is just a new OracleTypeAndExample<?> with its own setupSql.
+  //
+  // Purpose: catch top-level-vs-composite asymmetry bugs (like the numberAsInt-in-STRUCT
+  // bug: BigDecimal cast to Integer/Long worked at top level but blew up inside STRUCT
+  // attribute reads).
+
+  /** Wraps a scalar as the sole VAL attribute of an auto-generated OBJECT type. */
+  static <A> OracleTypeAndExample<Tuple.Tuple1<A>> toObjectAttrExample(
+      OracleTypeAndExample<A> scalar, String objectTypeName) {
+    String elementSql = scalar.type.typename().sqlType();
+    RowCodecNamed<Tuple.Tuple1<A>> codec =
+        RowCodec.<Tuple.Tuple1<A>>namedBuilder()
+            .field("VAL", scalar.type, Tuple.Tuple1::_1)
+            .build(v -> new Tuple.Tuple1.Impl<>(v));
+    OracleType<Tuple.Tuple1<A>> objType = OracleTypes.compositeOf(objectTypeName, codec);
+    Tuple.Tuple1<A> example = new Tuple.Tuple1.Impl<>(scalar.example);
+
+    List<String> setup = new ArrayList<>(scalar.setupSql);
+    setup.add("DROP TYPE " + objectTypeName + " FORCE");
+    setup.add("CREATE TYPE " + objectTypeName + " AS OBJECT (VAL " + elementSql + ")");
+    return new OracleTypeAndExample<>(objType, example, setup).noIdentity();
+  }
+
+  /** Wraps a scalar as the element type of an auto-generated VARRAY. */
+  static <A> OracleTypeAndExample<List<A>> toVArrayExample(
+      OracleTypeAndExample<A> scalar, String varrayTypeName) {
+    String elementSql = scalar.type.typename().sqlType();
+    OracleType<List<A>> vaType = OracleVArray.of(varrayTypeName, 5, scalar.type);
+    List<A> example = List.of(scalar.example);
+
+    List<String> setup = new ArrayList<>(scalar.setupSql);
+    setup.add("DROP TYPE " + varrayTypeName + " FORCE");
+    setup.add("CREATE TYPE " + varrayTypeName + " AS VARRAY(5) OF " + elementSql);
+    return new OracleTypeAndExample<>(vaType, example, setup).noIdentity();
+  }
+
+  /** Wraps a scalar as the element type of an auto-generated NESTED TABLE. */
+  static <A> OracleTypeAndExample<List<A>> toNestedTableExample(
+      OracleTypeAndExample<A> scalar, String ntTypeName) {
+    String elementSql = scalar.type.typename().sqlType();
+    OracleType<List<A>> ntType = OracleNestedTable.of(ntTypeName, scalar.type);
+    List<A> example = List.of(scalar.example);
+
+    List<String> setup = new ArrayList<>(scalar.setupSql);
+    setup.add("DROP TYPE " + ntTypeName + " FORCE");
+    setup.add("CREATE TYPE " + ntTypeName + " AS TABLE OF " + elementSql);
+    return new OracleTypeAndExample<>(ntType, example, setup).noIdentity();
+  }
+
+  /**
+   * Scalars Oracle accepts inside OBJECT/VARRAY/NESTED TABLE columns. Excludes:
+   *
+   * <ul>
+   *   <li>Oracle limitations (genuinely unavailable as user-type attributes / VARRAY elements):
+   *       LOBs, JSON, INTERVAL, TIME ZONE variants, BOOLEAN (native).
+   *   <li>Types that are themselves composite (TEST_ALLTYPES, ADDRESS_T, PHONE_LIST, etc.).
+   * </ul>
+   */
+  private static boolean scalarSupportsAutoComposite(String sqlType) {
+    if (sqlType.contains("CLOB") || sqlType.contains("BLOB")) return false;
+    if (sqlType.startsWith("RAW")) return false;
+    if (sqlType.equals("JSON") || sqlType.contains("JSON")) return false;
+    if (sqlType.contains("INTERVAL")) return false;
+    if (sqlType.contains("TIME ZONE")) return false;
+    if (sqlType.contains("BOOLEAN")) return false;
+    if (sqlType.contains("_T") || sqlType.contains("PHONE_LIST")) return false;
+    if (sqlType.startsWith("TEST_")) return false;
+    return true;
+  }
+
+  @Test
+  public void testScalarInsideComposites() {
+    // For every supported scalar, auto-derive OBJECT / VARRAY / NESTED TABLE wrappers
+    // and roundtrip each. Catches any bug where a scalar's top-level read differs from
+    // its inside-composite read path (regression guard for the numberAsInt-in-STRUCT fix).
+    var derived = new ArrayList<OracleTypeAndExample<?>>();
+    var seenSqlTypes = new HashSet<String>();
+    int idx = 0;
+    for (OracleTypeAndExample<?> scalar : All) {
+      if (!scalar.supportsComposite) continue;
+      if (scalar.example == null) continue;
+      if (scalar.useExpectedRoundtrip) continue;
+      String sqlType = scalar.type.typename().sqlType();
+      if (!scalarSupportsAutoComposite(sqlType)) continue;
+      if (!seenSqlTypes.add(sqlType)) continue;
+
+      String suffix = "AUTO" + (idx++);
+      derived.add(toObjectAttrExample(scalar, "GAP_" + suffix + "_T"));
+      derived.add(toVArrayExample(scalar, "GAP_" + suffix + "_VA"));
+      derived.add(toNestedTableExample(scalar, "GAP_" + suffix + "_NT"));
+    }
+
+    System.out.println(
+        "Auto-derived "
+            + derived.size()
+            + " composite tests from "
+            + seenSqlTypes.size()
+            + " unique scalar types");
+
+    // Phase 1: create every needed OBJECT/VARRAY/NT type upfront (sequential to avoid races).
+    withConnection(
+        conn -> {
+          var executed = new HashSet<String>();
+          for (OracleTypeAndExample<?> t : derived) {
+            try (var stmt = conn.createStatement()) {
+              for (String sql : t.setupSql) {
+                if (!executed.add(sql)) continue;
+                try {
+                  stmt.execute(sql);
+                } catch (SQLException e) {
+                  // Ignore 955 (name exists), 2303 (type has dependents), 4043 (type missing
+                  // on DROP), 942 (table missing)
+                  if (!e.getMessage().contains("ORA-00955")
+                      && !e.getMessage().contains("ORA-02303")
+                      && !e.getMessage().contains("ORA-04043")
+                      && !e.getMessage().contains("ORA-00942")) {
+                    throw e;
+                  }
+                }
+              }
+            }
+          }
+          conn.commit();
+          return null;
+        });
+
+    // Phase 2: run each derived test in parallel against the pool.
+    var failures =
+        derived.parallelStream()
+            .flatMap(
+                t -> {
+                  var errs = new ArrayList<String>();
+                  try {
+                    withConnection(
+                        conn -> {
+                          testCase(conn, t);
+                          return null;
+                        });
+                  } catch (Throwable ex) {
+                    errs.add(
+                        "Composite FAILED " + t.type.typename().sqlType() + ": " + ex.getMessage());
+                  }
+                  return errs.stream();
+                })
+            .toList();
+
+    if (!failures.isEmpty()) {
+      throw new AssertionError(
+          "Composite derivation failures ("
+              + failures.size()
+              + "):\n  "
+              + String.join("\n  ", failures));
+    }
+  }
+
+  @Test
+  public void testNumberAsIntInsideStruct() {
+    // numberAsInt(p) / numberAsLong(p) must read correctly as an attribute of an OBJECT.
+    // Regression test: the prior implementation cast the JDBC value directly to Integer/Long,
+    // which worked at top-level (driver unboxed eagerly) but threw
+    // "class java.math.BigDecimal cannot be cast to class java.lang.Integer" inside STRUCT
+    // attribute decoding, where the driver always hands BigDecimal regardless of precision.
+    record Score(String name, int points, long total) {}
+    OracleType<Score> scoreType =
+        OracleTypes.compositeOf(
+            "GAP_SCORE_T",
+            RowCodec.<Score>namedBuilder()
+                .field("NAME", OracleTypes.varchar2Of(50), Score::name)
+                .field("POINTS", OracleTypes.numberAsInt(5), Score::points)
+                .field("TOTAL", OracleTypes.numberAsLong(15), Score::total)
+                .build(Score::new));
+
+    // Write via Oracle's STRUCT constructor SQL (no PreparedStatement binding so we don't need
+    // the Hikari pool's OracleConnection unwrap dance). The fix under test is on the READ path.
+    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    Score expected = new Score("alice", 42, 12_345_678_901L);
+    Score decoded =
+        tx.execute(
+            conn -> {
+              tryRun(conn, Fragment.of("DROP TABLE gap_score_holder CASCADE CONSTRAINTS"));
+              tryRun(conn, Fragment.of("DROP TYPE GAP_SCORE_T FORCE"));
+              Fragment.of(
+                      "CREATE TYPE GAP_SCORE_T AS OBJECT ("
+                          + "NAME VARCHAR2(50), POINTS NUMBER(5), TOTAL NUMBER(15))")
+                  .execute()
+                  .run(conn);
+              Fragment.of("CREATE TABLE gap_score_holder (s GAP_SCORE_T)").execute().run(conn);
+              Fragment.of(
+                      "INSERT INTO gap_score_holder VALUES (GAP_SCORE_T('alice', 42, 12345678901))")
+                  .execute()
+                  .run(conn);
+              return Fragment.of("SELECT s FROM gap_score_holder")
+                  .queryExactlyOne(scoreType)
+                  .run(conn);
+            });
+    if (!expected.equals(decoded)) {
+      throw new AssertionError("mismatch: " + decoded + " vs " + expected);
+    }
+  }
+
+  /**
+   * TIMESTAMP WITH TIME ZONE must preserve *named zone regions*, not just their current offset.
+   *
+   * <p>This is the whole reason the library maps Oracle TSTZ to {@link ZonedDateTime} rather than
+   * {@link OffsetDateTime}. The 13-byte on-disk TSTZ format holds either a fixed offset or a region
+   * name; {@code ZonedDateTime} can represent both, while {@code OffsetDateTime} collapses every
+   * region to its current offset — which loses DST-awareness on later reads.
+   *
+   * <p>Scenarios covered:
+   *
+   * <ol>
+   *   <li>Named zone region ({@code America/Los_Angeles}) in winter (PST, UTC-8)
+   *   <li>Same named region in summer (PDT, UTC-7) — verifies the zone ID itself is persisted, not
+   *       the current offset
+   *   <li>Fixed offset ({@code +05:30} — India) — verifies the offset path still works
+   *   <li>Region round-trip then rendering: reloading the value into a different session TZ should
+   *       yield the same instant AND the same zone ID
+   * </ol>
+   */
+  @Test
+  public void testTimestampWithTimeZonePreservesZoneRegion() {
+    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    String table = uniqueTableName("zdt_region");
+
+    var winterLA =
+        ZonedDateTime.of(2024, 1, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+    var summerLA =
+        ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+    var berlin = ZonedDateTime.of(2024, 6, 15, 9, 0, 0, 0, java.time.ZoneId.of("Europe/Berlin"));
+    var tokyo = ZonedDateTime.of(2024, 3, 10, 15, 0, 0, 0, java.time.ZoneId.of("Asia/Tokyo"));
+    var fixedOffset = ZonedDateTime.of(2024, 6, 15, 14, 30, 0, 0, ZoneOffset.ofHoursMinutes(5, 30));
+
+    List<ZonedDateTime> samples = List.of(winterLA, summerLA, berlin, tokyo, fixedOffset);
+
+    // CREATE + INSERT + SELECT all in one tx — testStrategy rolls back on exit, so multi-tx
+    // splits would lose the inserts before the read.
+    List<ZonedDateTime> roundTripped =
+        tx.execute(
+            conn -> {
+              Fragment.of(
+                      "CREATE TABLE "
+                          + table
+                          + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
+                  .execute()
+                  .run(conn);
+              for (int i = 0; i < samples.size(); i++) {
+                Fragment.builder()
+                    .append("INSERT INTO " + table + " (id, ts) VALUES (")
+                    .value(OracleTypes.numberAsInt(5), i)
+                    .append(", ")
+                    .value(OracleTypes.timestampWithTimeZone, samples.get(i))
+                    .append(")")
+                    .execute()
+                    .run(conn);
+              }
+              return Fragment.of("SELECT ts FROM " + table + " ORDER BY id")
+                  .queryAll(OracleTypes.timestampWithTimeZone)
+                  .run(conn);
+            });
+
+    for (int i = 0; i < samples.size(); i++) {
+      ZonedDateTime expected = samples.get(i);
+      ZonedDateTime actual = roundTripped.get(i);
+
+      // Instant must match exactly — that's the basic "same moment in time" check.
+      if (!expected.toInstant().equals(actual.toInstant())) {
+        throw new AssertionError(
+            "Instant mismatch for "
+                + expected
+                + " → "
+                + actual
+                + " (instants "
+                + expected.toInstant()
+                + " vs "
+                + actual.toInstant()
+                + ")");
+      }
+
+      // Zone identity must match — the whole point of using ZonedDateTime.
+      if (!expected.getZone().equals(actual.getZone())) {
+        throw new AssertionError(
+            "Zone mismatch for "
+                + expected
+                + " → "
+                + actual
+                + " (zones "
+                + expected.getZone()
+                + " vs "
+                + actual.getZone()
+                + ")");
+      }
+    }
+
+    // DST-awareness: winter and summer values at the same named region should have
+    // *different* offsets at their respective instants, even though the zone ID is the same.
+    // This is the specific behavior that OffsetDateTime can't express.
+    if (winterLA.getOffset().equals(summerLA.getOffset())) {
+      throw new AssertionError(
+          "Sanity check failed — winter/summer LA should have different offsets");
+    }
+    int winterIdx = samples.indexOf(winterLA);
+    int summerIdx = samples.indexOf(summerLA);
+    if (!roundTripped.get(winterIdx).getOffset().equals(winterLA.getOffset())) {
+      throw new AssertionError("Winter LA lost its DST offset: " + roundTripped.get(winterIdx));
+    }
+    if (!roundTripped.get(summerIdx).getOffset().equals(summerLA.getOffset())) {
+      throw new AssertionError("Summer LA lost its DST offset: " + roundTripped.get(summerIdx));
+    }
+  }
+
+  /**
+   * Session-timezone independence: the same row should decode to the same {@link ZonedDateTime}
+   * (same instant, same zone) regardless of which timezone the reading session is configured with.
+   * Region names must survive unchanged; fixed offsets must survive unchanged.
+   */
+  @Test
+  public void testTimestampWithTimeZoneIsSessionTzIndependent() {
+    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    String table = uniqueTableName("zdt_session");
+
+    var value =
+        ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+
+    // Setup + all session-TZ reads in one tx block — testStrategy rolls back on exit so the
+    // table doesn't outlive the test.
+    tx.execute(
+        conn -> {
+          Fragment.of("CREATE TABLE " + table + " (ts TIMESTAMP WITH TIME ZONE)")
+              .execute()
+              .run(conn);
+          Fragment.builder()
+              .append("INSERT INTO " + table + " (ts) VALUES (")
+              .value(OracleTypes.timestampWithTimeZone, value)
+              .append(")")
+              .execute()
+              .run(conn);
+          for (String sessionTz :
+              List.of("UTC", "America/New_York", "Asia/Tokyo", "Europe/Berlin")) {
+            Fragment.of("ALTER SESSION SET TIME_ZONE = '" + sessionTz + "'").execute().run(conn);
+            ZonedDateTime decoded =
+                Fragment.of("SELECT ts FROM " + table)
+                    .queryExactlyOne(OracleTypes.timestampWithTimeZone)
+                    .run(conn);
+            if (!decoded.toInstant().equals(value.toInstant())) {
+              throw new AssertionError(
+                  "Session TZ "
+                      + sessionTz
+                      + ": instant mismatch: "
+                      + decoded.toInstant()
+                      + " vs "
+                      + value.toInstant());
+            }
+            if (!decoded.getZone().equals(value.getZone())) {
+              throw new AssertionError(
+                  "Session TZ "
+                      + sessionTz
+                      + ": zone mismatch: "
+                      + decoded.getZone()
+                      + " vs "
+                      + value.getZone());
+            }
+          }
+          return null;
+        });
+  }
+
+  /** Nullable column and null round-trip for TIMESTAMP WITH TIME ZONE → Optional<ZonedDateTime>. */
+  @Test
+  public void testTimestampWithTimeZoneNullable() {
+    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    String table = uniqueTableName("zdt_null");
+
+    var value =
+        ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
+
+    List<Optional<ZonedDateTime>> decoded =
+        tx.execute(
+            conn -> {
+              Fragment.of(
+                      "CREATE TABLE "
+                          + table
+                          + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
+                  .execute()
+                  .run(conn);
+              Fragment.builder()
+                  .append("INSERT INTO " + table + " (id, ts) VALUES (1, ")
+                  .value(OracleTypes.timestampWithTimeZone, value)
+                  .append(")")
+                  .execute()
+                  .run(conn);
+              Fragment.of("INSERT INTO " + table + " (id, ts) VALUES (2, NULL)")
+                  .execute()
+                  .run(conn);
+              return Fragment.of("SELECT ts FROM " + table + " ORDER BY id")
+                  .queryAll(OracleTypes.timestampWithTimeZone.opt())
+                  .run(conn);
+            });
+
+    if (decoded.size() != 2) {
+      throw new AssertionError("Expected 2 rows, got " + decoded.size());
+    }
+    if (decoded.get(0).isEmpty()) {
+      throw new AssertionError("Non-null row decoded as empty");
+    }
+    if (!decoded.get(0).get().toInstant().equals(value.toInstant())
+        || !decoded.get(0).get().getZone().equals(value.getZone())) {
+      throw new AssertionError("Non-null round-trip mismatch: " + decoded.get(0).get());
+    }
+    if (decoded.get(1).isPresent()) {
+      throw new AssertionError("NULL row decoded as present: " + decoded.get(1));
+    }
+  }
+
+  private static void tryRun(java.sql.Connection conn, Fragment fragment) {
+    try {
+      fragment.execute().run(conn);
+    } catch (Exception ignored) {
+      // best-effort cleanup
+    }
+  }
+
+  private static void tryExec(java.sql.Statement stmt, String sql) {
+    try {
+      stmt.execute(sql);
+    } catch (SQLException ignored) {
     }
   }
 
@@ -1907,6 +2597,13 @@ public class OracleTypeTest {
     if (expected instanceof OffsetDateTime && actual instanceof OffsetDateTime) {
       return ((OffsetDateTime) actual).toInstant().equals(((OffsetDateTime) expected).toInstant());
     }
+    // For ZonedDateTime, compare by instant only in this shared helper — Oracle's JSON_OBJECT
+    // renders TSTZ values in ISO_OFFSET_DATE_TIME format, stripping the zone region before the
+    // library ever sees the JSON. The native (non-JSON) TSTZ round-trip is covered separately
+    // in testTimestampWithTimeZonePreservesZoneRegion, which asserts zone identity explicitly.
+    if (expected instanceof ZonedDateTime && actual instanceof ZonedDateTime) {
+      return ((ZonedDateTime) actual).toInstant().equals(((ZonedDateTime) expected).toInstant());
+    }
 
     // For Json, parse and compare structures (Oracle normalizes JSON formatting)
     if (expected instanceof Json && actual instanceof Json) {
@@ -1918,6 +2615,26 @@ public class OracleTypeTest {
         // If parsing fails, fall back to string comparison
         return ((Json) actual).value().equals(((Json) expected).value());
       }
+    }
+
+    // Drill into List (element-wise) and Tuple (component-wise) so auto-derived composite
+    // wrappers get the same scalar-specific equality as top-level (BigDecimal.compareTo,
+    // byte[] via Arrays.equals, etc.).
+    if (expected instanceof List<?> expList && actual instanceof List<?> actList) {
+      if (expList.size() != actList.size()) return false;
+      for (int i = 0; i < expList.size(); i++) {
+        if (!areEqual(actList.get(i), expList.get(i))) return false;
+      }
+      return true;
+    }
+    if (expected instanceof Tuple expTuple && actual instanceof Tuple actTuple) {
+      Object[] expArr = expTuple.asArray();
+      Object[] actArr = actTuple.asArray();
+      if (expArr.length != actArr.length) return false;
+      for (int i = 0; i < expArr.length; i++) {
+        if (!areEqual(actArr[i], expArr[i])) return false;
+      }
+      return true;
     }
 
     return actual.equals(expected);

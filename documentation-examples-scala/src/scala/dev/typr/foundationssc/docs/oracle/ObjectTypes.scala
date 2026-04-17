@@ -15,8 +15,8 @@ object ObjectTypes:
       "COORDINATES_T",
       RowCodec
         .namedBuilder[Coordinates]()
-        .field("LATITUDE", OracleTypes.number(9, 6), (c: Coordinates) => c.latitude)
-        .field("LONGITUDE", OracleTypes.number(9, 6), (c: Coordinates) => c.longitude)
+        .field("LATITUDE", OracleTypes.numberOf(9, 6), (c: Coordinates) => c.latitude)
+        .field("LONGITUDE", OracleTypes.numberOf(9, 6), (c: Coordinates) => c.longitude)
         .build((lat: java.math.BigDecimal, lon: java.math.BigDecimal) => Coordinates(lat, lon))
     )
 
@@ -32,8 +32,8 @@ object ObjectTypes:
       "ADDRESS_T",
       RowCodec
         .namedBuilder[Address]()
-        .field("STREET", OracleTypes.varchar2(100), (a: Address) => a.street)
-        .field("CITY", OracleTypes.varchar2(50), (a: Address) => a.city)
+        .field("STREET", OracleTypes.varchar2Of(100), (a: Address) => a.street)
+        .field("CITY", OracleTypes.varchar2Of(50), (a: Address) => a.city)
         .field("LOCATION", coordinatesType, (a: Address) => a.location)
         .build((street: String, city: String, loc: Coordinates) => Address(street, city, loc))
     )

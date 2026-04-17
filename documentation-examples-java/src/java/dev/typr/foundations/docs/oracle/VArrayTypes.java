@@ -10,7 +10,7 @@ public class VArrayTypes {
   // start
   // CREATE TYPE phone_list AS VARRAY(5) OF VARCHAR2(25);
   static final OracleType<List<String>> phoneList =
-      OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2(25));
+      OracleVArray.of("PHONE_LIST", 5, OracleTypes.varchar2Of(25));
 
   // CREATE TYPE score_array AS VARRAY(100) OF NUMBER;
   static final OracleType<List<java.math.BigDecimal>> scores =

@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 import org.postgresql.geometric.*;
 import org.postgresql.util.PGInterval;
 
@@ -37,27 +36,27 @@ public interface PgJson<A> extends DbJson<A> {
     };
   }
 
-  default PgJson<A[]> array(IntFunction<A[]> arrayFactory) {
+  default PgJson<List<A>> list() {
     PgJson<A> self = this;
     return new PgJson<>() {
       @Override
-      public JsonValue toJson(A[] value) {
-        List<JsonValue> elements = new ArrayList<>(value.length);
+      public JsonValue toJson(List<A> value) {
+        List<JsonValue> elements = new ArrayList<>(value.size());
         for (A elem : value) {
-          elements.add(self.toJson(elem));
+          elements.add(elem == null ? JsonValue.JNull.INSTANCE : self.toJson(elem));
         }
         return new JsonValue.JArray(elements);
       }
 
       @Override
-      public A[] fromJson(JsonValue json) {
+      public List<A> fromJson(JsonValue json) {
         if (!(json instanceof JsonValue.JArray(List<JsonValue> values))) {
           throw new IllegalArgumentException(
               "Expected JSON array, got: " + json.getClass().getSimpleName());
         }
-        A[] result = arrayFactory.apply(values.size());
-        for (int i = 0; i < values.size(); i++) {
-          result[i] = self.fromJson(values.get(i));
+        List<A> result = new ArrayList<>(values.size());
+        for (JsonValue v : values) {
+          result.add(v instanceof JsonValue.JNull ? null : self.fromJson(v));
         }
         return result;
       }
@@ -750,175 +749,6 @@ public interface PgJson<A> extends DbJson<A> {
               throw new IllegalArgumentException(
                   "Expected string or null in hstore, got: "
                       + e.getValue().getClass().getSimpleName());
-            }
-          }
-          return result;
-        }
-      };
-
-  // Unboxed primitive array types - no boxing overhead
-  PgJson<boolean[]> boolArrayUnboxed =
-      new PgJson<>() {
-        @Override
-        public JsonValue toJson(boolean[] arr) {
-          List<JsonValue> elements = new ArrayList<>(arr.length);
-          for (boolean v : arr) {
-            elements.add(JsonValue.JBool.of(v));
-          }
-          return new JsonValue.JArray(elements);
-        }
-
-        @Override
-        public boolean[] fromJson(JsonValue json) {
-          if (!(json instanceof JsonValue.JArray(List<JsonValue> values))) {
-            throw new IllegalArgumentException("Expected JSON array for boolean[]");
-          }
-          boolean[] result = new boolean[values.size()];
-          for (int i = 0; i < values.size(); i++) {
-            if (values.get(i) instanceof JsonValue.JBool(boolean value)) {
-              result[i] = value;
-            } else {
-              throw new IllegalArgumentException("Expected boolean in array");
-            }
-          }
-          return result;
-        }
-      };
-
-  PgJson<short[]> shortArrayUnboxed =
-      new PgJson<>() {
-        @Override
-        public JsonValue toJson(short[] arr) {
-          List<JsonValue> elements = new ArrayList<>(arr.length);
-          for (short v : arr) {
-            elements.add(JsonValue.JNumber.of(v));
-          }
-          return new JsonValue.JArray(elements);
-        }
-
-        @Override
-        public short[] fromJson(JsonValue json) {
-          if (!(json instanceof JsonValue.JArray(List<JsonValue> values))) {
-            throw new IllegalArgumentException("Expected JSON array for short[]");
-          }
-          short[] result = new short[values.size()];
-          for (int i = 0; i < values.size(); i++) {
-            if (values.get(i) instanceof JsonValue.JNumber(String value)) {
-              result[i] = Short.parseShort(value);
-            } else {
-              throw new IllegalArgumentException("Expected number in array");
-            }
-          }
-          return result;
-        }
-      };
-
-  PgJson<int[]> intArrayUnboxed =
-      new PgJson<>() {
-        @Override
-        public JsonValue toJson(int[] arr) {
-          List<JsonValue> elements = new ArrayList<>(arr.length);
-          for (int v : arr) {
-            elements.add(JsonValue.JNumber.of(v));
-          }
-          return new JsonValue.JArray(elements);
-        }
-
-        @Override
-        public int[] fromJson(JsonValue json) {
-          if (!(json instanceof JsonValue.JArray(List<JsonValue> values))) {
-            throw new IllegalArgumentException("Expected JSON array for int[]");
-          }
-          int[] result = new int[values.size()];
-          for (int i = 0; i < values.size(); i++) {
-            if (values.get(i) instanceof JsonValue.JNumber(String value)) {
-              result[i] = Integer.parseInt(value);
-            } else {
-              throw new IllegalArgumentException("Expected number in array");
-            }
-          }
-          return result;
-        }
-      };
-
-  PgJson<long[]> longArrayUnboxed =
-      new PgJson<>() {
-        @Override
-        public JsonValue toJson(long[] arr) {
-          List<JsonValue> elements = new ArrayList<>(arr.length);
-          for (long v : arr) {
-            elements.add(JsonValue.JNumber.of(v));
-          }
-          return new JsonValue.JArray(elements);
-        }
-
-        @Override
-        public long[] fromJson(JsonValue json) {
-          if (!(json instanceof JsonValue.JArray(List<JsonValue> values))) {
-            throw new IllegalArgumentException("Expected JSON array for long[]");
-          }
-          long[] result = new long[values.size()];
-          for (int i = 0; i < values.size(); i++) {
-            if (values.get(i) instanceof JsonValue.JNumber(String value)) {
-              result[i] = Long.parseLong(value);
-            } else {
-              throw new IllegalArgumentException("Expected number in array");
-            }
-          }
-          return result;
-        }
-      };
-
-  PgJson<float[]> floatArrayUnboxed =
-      new PgJson<>() {
-        @Override
-        public JsonValue toJson(float[] arr) {
-          List<JsonValue> elements = new ArrayList<>(arr.length);
-          for (float v : arr) {
-            elements.add(JsonValue.JNumber.of(v));
-          }
-          return new JsonValue.JArray(elements);
-        }
-
-        @Override
-        public float[] fromJson(JsonValue json) {
-          if (!(json instanceof JsonValue.JArray(List<JsonValue> values))) {
-            throw new IllegalArgumentException("Expected JSON array for float[]");
-          }
-          float[] result = new float[values.size()];
-          for (int i = 0; i < values.size(); i++) {
-            if (values.get(i) instanceof JsonValue.JNumber(String value)) {
-              result[i] = Float.parseFloat(value);
-            } else {
-              throw new IllegalArgumentException("Expected number in array");
-            }
-          }
-          return result;
-        }
-      };
-
-  PgJson<double[]> doubleArrayUnboxed =
-      new PgJson<>() {
-        @Override
-        public JsonValue toJson(double[] arr) {
-          List<JsonValue> elements = new ArrayList<>(arr.length);
-          for (double v : arr) {
-            elements.add(JsonValue.JNumber.of(v));
-          }
-          return new JsonValue.JArray(elements);
-        }
-
-        @Override
-        public double[] fromJson(JsonValue json) {
-          if (!(json instanceof JsonValue.JArray(List<JsonValue> values))) {
-            throw new IllegalArgumentException("Expected JSON array for double[]");
-          }
-          double[] result = new double[values.size()];
-          for (int i = 0; i < values.size(); i++) {
-            if (values.get(i) instanceof JsonValue.JNumber(String value)) {
-              result[i] = Double.parseDouble(value);
-            } else {
-              throw new IllegalArgumentException("Expected number in array");
             }
           }
           return result;

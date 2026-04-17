@@ -104,6 +104,23 @@ public final class AnalyzableScanner {
           List.of(),
           errors,
           result);
+      // After the instance sweep, also scan statics on the same class: `static final
+      // Operation<…>` fields AND `static Operation<…> …()` methods. Instance-path helpers
+      // skip both (isAnalyzableMethod rejects static; collectAnalyzables skips static fields),
+      // so without this sweep, static members on a normally-instantiable class are invisible
+      // to scan().
+      //
+      // Exclusions:
+      //   - Scala `$` classes — already handled via MODULE$ instance scan; their statics are
+      //     just forwarders to the same members, double-counting would result.
+      //   - Scala 3 `object X` facade classes (non-$ companion to the Scala object) — scanning
+      //     their static method forwarders would double-count against the MODULE$ instance
+      //     scan that already covered the vals/defs.
+      //   - Kotlin objects — vals are private static fields PLUS a public instance getter; the
+      //     getter path already covers them.
+      if (!clazz.getName().endsWith("$") && !isKotlinObject(clazz) && !isScalaObject(clazz)) {
+        collectStaticAnalyzables(clazz, result);
+      }
     }
 
     if (!errors.isEmpty()) throwScanErrors(errors);
@@ -142,6 +159,9 @@ public final class AnalyzableScanner {
           instanceDirectives,
           errors,
           result);
+      if (!clazz.getName().endsWith("$")) {
+        collectStaticAnalyzables(clazz, result);
+      }
     }
 
     for (var directive : directiveList) {
@@ -247,7 +267,7 @@ public final class AnalyzableScanner {
       List<Result> result) {
     boolean isScalaObject = clazz.getName().endsWith("$");
 
-    for (var field : clazz.getDeclaredFields()) {
+    for (var field : declaredFieldsOrEmpty(clazz)) {
       boolean isStatic = Modifier.isStatic(field.getModifiers());
       if (isStatic && !isScalaObject) continue;
       if ("MODULE$".equals(field.getName())) continue;
@@ -257,6 +277,10 @@ public final class AnalyzableScanner {
       try {
         value = isStatic ? field.get(null) : field.get(instance);
       } catch (IllegalAccessException e) {
+        continue;
+      } catch (LinkageError le) {
+        // Class init triggered by field.get() may fail if the initializer references
+        // classes not on this classpath (e.g. private Kotlin ThreadLocal state). Skip.
         continue;
       }
       if (value == null) continue;
@@ -277,6 +301,50 @@ public final class AnalyzableScanner {
   // --- Static field and method scanning (Kotlin file-facade classes) ---
 
   private static void collectStaticAnalyzables(Class<?> clazz, List<Result> result) {
+    var fieldNames = collectStaticFieldAnalyzables(clazz, result);
+    collectStaticMethodAnalyzables(clazz, fieldNames, result);
+  }
+
+  /**
+   * Heuristic: a Scala {@code object X} in package {@code p} compiles to both {@code p.X} (a facade
+   * class with static forwarders) and {@code p.X$} (the actual singleton, with a {@code public
+   * static final X$ MODULE$} field). When we're scanning the facade {@code p.X}, we want to skip
+   * the static-method sweep because the MODULE$ instance scan on {@code p.X$} already covers every
+   * val/def via the Scala singleton instance.
+   */
+  private static boolean isScalaObject(Class<?> clazz) {
+    try {
+      var companion = Class.forName(clazz.getName() + "$");
+      var f = companion.getDeclaredField("MODULE$");
+      return Modifier.isStatic(f.getModifiers()) && f.getType() == companion;
+    } catch (ClassNotFoundException | NoSuchFieldException ignored) {
+      return false;
+    }
+  }
+
+  /**
+   * Heuristic: a Kotlin {@code object X} compiles to a class with a {@code public static final X
+   * INSTANCE} field. Used to skip the static-field sweep on Kotlin objects, since their {@code
+   * val}s end up as private static fields PLUS a public instance getter; the instance-path getter
+   * scan already covers them, so sweeping statics would double-count.
+   */
+  private static boolean isKotlinObject(Class<?> clazz) {
+    try {
+      var f = clazz.getDeclaredField("INSTANCE");
+      return Modifier.isStatic(f.getModifiers()) && f.getType() == clazz;
+    } catch (NoSuchFieldException e) {
+      return false;
+    }
+  }
+
+  /**
+   * Scan static fields for Analyzable values and return the set of field names collected.
+   *
+   * <p>Used both by the static-only path (classes we couldn't instantiate) and by the instance
+   * path, so that Java classes like {@code public final class UserRepo { static final
+   * Operation<...> q = ...; }} still have their static fields discovered.
+   */
+  private static Set<String> collectStaticFieldAnalyzables(Class<?> clazz, List<Result> result) {
     var simpleName = clazz.getSimpleName();
     if (simpleName.endsWith("Kt")) {
       simpleName = simpleName.substring(0, simpleName.length() - 2);
@@ -284,7 +352,7 @@ public final class AnalyzableScanner {
 
     var fieldNames = new HashSet<String>();
 
-    for (var field : clazz.getDeclaredFields()) {
+    for (var field : declaredFieldsOrEmpty(clazz)) {
       if (!Modifier.isStatic(field.getModifiers())) continue;
 
       field.setAccessible(true);
@@ -292,6 +360,9 @@ public final class AnalyzableScanner {
       try {
         value = field.get(null);
       } catch (IllegalAccessException e) {
+        continue;
+      } catch (LinkageError le) {
+        // Class init triggered by field.get() may fail. Skip this class quietly.
         continue;
       }
       if (value == null) continue;
@@ -307,10 +378,22 @@ public final class AnalyzableScanner {
         }
       }
     }
+    return fieldNames;
+  }
 
-    // Also scan public static methods (Kotlin top-level functions)
-    for (var method : clazz.getDeclaredMethods()) {
-      if (!isStaticAnalyzableMethod(method)) continue;
+  /** Scan public static methods for Analyzable return values (Kotlin top-level functions). */
+  private static void collectStaticMethodAnalyzables(
+      Class<?> clazz, Set<String> fieldNames, List<Result> result) {
+    var simpleName = clazz.getSimpleName();
+    if (simpleName.endsWith("Kt")) {
+      simpleName = simpleName.substring(0, simpleName.length() - 2);
+    }
+    for (var method : declaredMethodsOrEmpty(clazz)) {
+      try {
+        if (!isStaticAnalyzableMethod(method)) continue;
+      } catch (LinkageError ignored) {
+        continue;
+      }
       if (method.getParameterCount() == 0 && isGetterForField(method.getName(), fieldNames))
         continue;
 
@@ -330,36 +413,85 @@ public final class AnalyzableScanner {
         var value = method.invoke(null, args);
         var analyzable = toAnalyzable(value);
         if (analyzable != null) {
-          result.add(new Result(simpleName, method.getName(), analyzable));
+          result.add(new Result(simpleName, reportMemberName(method.getName(), clazz), analyzable));
         }
       } catch (Exception ignored) {
       }
     }
   }
 
+  /** Getting declared methods can throw on classpath issues; fall back to an empty array. */
+  private static Method[] declaredMethodsOrEmpty(Class<?> clazz) {
+    try {
+      return clazz.getDeclaredMethods();
+    } catch (LinkageError ignored) {
+      return new Method[0];
+    }
+  }
+
+  /** Getting declared fields can throw on classpath issues (missing field types); fall back. */
+  private static java.lang.reflect.Field[] declaredFieldsOrEmpty(Class<?> clazz) {
+    try {
+      return clazz.getDeclaredFields();
+    } catch (LinkageError ignored) {
+      return new java.lang.reflect.Field[0];
+    }
+  }
+
+  /**
+   * Report-friendly name for a discovered member. Kotlin `val` and `var` properties compile to JVM
+   * getter methods (`val foo` → `getFoo()`). When the declaring class carries the {@code
+   * kotlin.Metadata} annotation, strip the `get` prefix and lower-case the first letter, so reports
+   * say "UserRepo.findById" instead of "UserRepo.getFindById".
+   */
+  private static String reportMemberName(String methodName, Class<?> declaringClass) {
+    if (!isKotlinClass(declaringClass)) return methodName;
+    if (methodName.length() > 3
+        && methodName.startsWith("get")
+        && Character.isUpperCase(methodName.charAt(3))) {
+      return Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+    }
+    return methodName;
+  }
+
+  private static boolean isKotlinClass(Class<?> clazz) {
+    try {
+      for (var annotation : clazz.getAnnotations()) {
+        if ("kotlin.Metadata".equals(annotation.annotationType().getName())) return true;
+      }
+    } catch (Throwable ignored) {
+    }
+    return false;
+  }
+
   private static boolean isStaticAnalyzableMethod(Method method) {
     int mods = method.getModifiers();
-    if (!Modifier.isPublic(mods)) return false;
+    // Visibility is not a criterion — the scanner is a test-scope tool and unlocks
+    // private/package-private members via setAccessible(true) before invocation.
     if (!Modifier.isStatic(mods)) return false;
     if (method.isSynthetic() || method.isBridge()) return false;
-    if (method.getParameterCount() > 10) return false;
-
-    var returnType = method.getReturnType();
-    if (Analyzable.class.isAssignableFrom(returnType)) return true;
-
     try {
-      returnType.getMethod("getAnalyzable");
-      return true;
-    } catch (NoSuchMethodException ignored) {
-    }
+      if (method.getParameterCount() > 10) return false;
 
-    try {
-      returnType.getMethod("analyzable");
-      return true;
-    } catch (NoSuchMethodException ignored) {
-    }
+      var returnType = method.getReturnType();
+      if (Analyzable.class.isAssignableFrom(returnType)) return true;
 
-    return false;
+      try {
+        returnType.getMethod("getAnalyzable");
+        return true;
+      } catch (NoSuchMethodException ignored) {
+      }
+
+      try {
+        returnType.getMethod("analyzable");
+        return true;
+      } catch (NoSuchMethodException ignored) {
+      }
+
+      return false;
+    } catch (LinkageError ignored) {
+      return false;
+    }
   }
 
   // --- Method scanning ---
@@ -374,8 +506,13 @@ public final class AnalyzableScanner {
       List<Result> result) {
     var consumed = new HashSet<ScanDirective>();
 
-    for (var method : clazz.getDeclaredMethods()) {
-      if (!isAnalyzableMethod(method)) continue;
+    for (var method : declaredMethodsOrEmpty(clazz)) {
+      try {
+        if (!isAnalyzableMethod(method)) continue;
+      } catch (LinkageError ignored) {
+        // Private Kotlin methods may reference classes not on this project's classpath.
+        continue;
+      }
 
       var className = clazz.getName();
       var methodName = method.getName();
@@ -400,8 +537,10 @@ public final class AnalyzableScanner {
           var value = method.invoke(instance);
           var analyzable = toAnalyzable(value);
           if (analyzable != null) {
-            result.add(new Result(simpleName, methodName, analyzable));
+            result.add(new Result(simpleName, reportMemberName(methodName, clazz), analyzable));
           }
+        } catch (LinkageError ignored) {
+          // Skip — class loading failed, nothing to report.
         } catch (Exception e) {
           errors.add(
               formatMethodError(
@@ -416,6 +555,8 @@ public final class AnalyzableScanner {
       Object[] args;
       try {
         args = constructDummyArgs(method);
+      } catch (LinkageError ignored) {
+        continue; // parameter types unresolvable — skip quietly
       } catch (Exception e) {
         errors.add(
             formatMethodError(
@@ -431,8 +572,10 @@ public final class AnalyzableScanner {
         var value = method.invoke(instance, args);
         var analyzable = toAnalyzable(value);
         if (analyzable != null) {
-          result.add(new Result(simpleName, methodName, analyzable));
+          result.add(new Result(simpleName, reportMemberName(methodName, clazz), analyzable));
         }
+      } catch (LinkageError ignored) {
+        // Skip — class loading failed during invocation.
       } catch (Exception e) {
         errors.add(
             formatMethodError(
@@ -483,28 +626,36 @@ public final class AnalyzableScanner {
 
   private static boolean isAnalyzableMethod(Method method) {
     int mods = method.getModifiers();
-    if (!Modifier.isPublic(mods)) return false;
+    // Visibility is not a criterion — the scanner is a test-scope tool and unlocks
+    // private/package-private members via setAccessible(true) before invocation.
     if (Modifier.isStatic(mods)) return false;
     if (method.isSynthetic() || method.isBridge()) return false;
     if (method.getDeclaringClass() == Object.class) return false;
-    if (method.getParameterCount() > 10) return false;
-
-    var returnType = method.getReturnType();
-    if (Analyzable.class.isAssignableFrom(returnType)) return true;
-
+    // Private / package-private Kotlin methods may reference classes (e.g. kotlin.Unit) not
+    // present on the scanning classpath — introspecting their signature throws
+    // NoClassDefFoundError. Treat as "not analyzable" and continue.
     try {
-      returnType.getMethod("getAnalyzable");
-      return true;
-    } catch (NoSuchMethodException ignored) {
-    }
+      if (method.getParameterCount() > 10) return false;
 
-    try {
-      returnType.getMethod("analyzable");
-      return true;
-    } catch (NoSuchMethodException ignored) {
-    }
+      var returnType = method.getReturnType();
+      if (Analyzable.class.isAssignableFrom(returnType)) return true;
 
-    return false;
+      try {
+        returnType.getMethod("getAnalyzable");
+        return true;
+      } catch (NoSuchMethodException ignored) {
+      }
+
+      try {
+        returnType.getMethod("analyzable");
+        return true;
+      } catch (NoSuchMethodException ignored) {
+      }
+
+      return false;
+    } catch (LinkageError ignored) {
+      return false;
+    }
   }
 
   private static boolean isSkipped(

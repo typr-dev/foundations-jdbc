@@ -9,7 +9,7 @@ import java.time.LocalDate
 class TypeSafeDbTypes {
     //start
     // PostgreSQL types
-    val intArray: PgType<IntArray> = PgTypes.int4ArrayUnboxed
+    val intArray: PgType<List<Int>> = PgTypes.int4.array()
     val dateRange: PgType<Range<LocalDate>> = PgTypes.daterange
 
     // MariaDB types

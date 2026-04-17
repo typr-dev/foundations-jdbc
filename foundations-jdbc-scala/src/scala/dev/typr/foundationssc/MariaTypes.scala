@@ -13,11 +13,22 @@ class MariaTypes {
   val smallint: MariaType[Short] = MariaType(JavaMariaTypes.smallint.transform(s => s, s => s))
   val mediumint: MariaType[Int] = MariaType(JavaMariaTypes.mediumint.transform(i => i, i => i))
   val int_ : MariaType[Int] = MariaType(JavaMariaTypes.int_.transform(i => i, i => i))
+
+  /** Alias for [[int_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val integer: MariaType[Int] = int_
+
   val bigint: MariaType[Long] = MariaType(JavaMariaTypes.bigint.transform(l => l, l => l))
 
   // Floating point
   val float_ : MariaType[Float] = MariaType(JavaMariaTypes.float_.transform(f => f, f => f))
+
+  /** Alias for [[float_]] — aesthetic cross-palette naming. 4B IEEE 754. */
+  val float4: MariaType[Float] = float_
+
   val double_ : MariaType[Double] = MariaType(JavaMariaTypes.double_.transform(d => d, d => d))
+
+  /** Alias for [[double_]] — aesthetic, avoids the Java-keyword `_` suffix. 8B IEEE 754. */
+  val float8: MariaType[Double] = double_
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
   val decimal: MariaType[BigDecimal] = MariaType(JavaMariaTypes.decimal.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
@@ -28,71 +39,80 @@ class MariaTypes {
   val bit1: MariaType[Boolean] = MariaType(JavaMariaTypes.bit1.transform(b => b, b => b))
 
   // Forward all other types directly from Java
-  val tinyintUnsigned = MariaType(JavaMariaTypes.tinyintUnsigned)
-  val smallintUnsigned = MariaType(JavaMariaTypes.smallintUnsigned)
-  val mediumintUnsigned = MariaType(JavaMariaTypes.mediumintUnsigned)
-  val intUnsigned = MariaType(JavaMariaTypes.intUnsigned)
-  val bigintUnsigned = MariaType(JavaMariaTypes.bigintUnsigned)
-  val bit = MariaType(JavaMariaTypes.bit)
-  val char_ = MariaType(JavaMariaTypes.char_)
-  val varchar = MariaType(JavaMariaTypes.varchar)
-  val tinytext = MariaType(JavaMariaTypes.tinytext)
-  val text = MariaType(JavaMariaTypes.text)
-  val mediumtext = MariaType(JavaMariaTypes.mediumtext)
-  val longtext = MariaType(JavaMariaTypes.longtext)
-  val binary = MariaType(JavaMariaTypes.binary)
-  val varbinary = MariaType(JavaMariaTypes.varbinary)
-  val tinyblob = MariaType(JavaMariaTypes.tinyblob)
-  val blob = MariaType(JavaMariaTypes.blob)
-  val mediumblob = MariaType(JavaMariaTypes.mediumblob)
-  val longblob = MariaType(JavaMariaTypes.longblob)
-  val date = MariaType(JavaMariaTypes.date)
-  val time = MariaType(JavaMariaTypes.time)
-  val datetime = MariaType(JavaMariaTypes.datetime)
-  val timestamp = MariaType(JavaMariaTypes.timestamp)
-  val year = MariaType(JavaMariaTypes.year)
-  val set = MariaType(JavaMariaTypes.set)
-  val json = MariaType(JavaMariaTypes.json)
-  val inet4 = MariaType(JavaMariaTypes.inet4)
-  val inet6 = MariaType(JavaMariaTypes.inet6)
+  val tinyintUnsigned: MariaType[dev.typr.foundations.data.Uint1] = MariaType(JavaMariaTypes.tinyintUnsigned)
+  val smallintUnsigned: MariaType[dev.typr.foundations.data.Uint2] = MariaType(JavaMariaTypes.smallintUnsigned)
+  val mediumintUnsigned: MariaType[dev.typr.foundations.data.Uint4] = MariaType(JavaMariaTypes.mediumintUnsigned)
+  val intUnsigned: MariaType[dev.typr.foundations.data.Uint4] = MariaType(JavaMariaTypes.intUnsigned)
+  val bigintUnsigned: MariaType[dev.typr.foundations.data.Uint8] = MariaType(JavaMariaTypes.bigintUnsigned)
+  val bit: MariaType[Array[Byte]] = MariaType(JavaMariaTypes.bit)
+  val char_ : MariaType[String] = MariaType(JavaMariaTypes.char_)
+
+  /** Alias for [[char_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val character: MariaType[String] = char_
+  val varchar: MariaType[String] = MariaType(JavaMariaTypes.varchar)
+  val tinytext: MariaType[String] = MariaType(JavaMariaTypes.tinytext)
+  val text: MariaType[String] = MariaType(JavaMariaTypes.text)
+  val mediumtext: MariaType[String] = MariaType(JavaMariaTypes.mediumtext)
+  val longtext: MariaType[String] = MariaType(JavaMariaTypes.longtext)
+  val binary: MariaType[Array[Byte]] = MariaType(JavaMariaTypes.binary)
+  val varbinary: MariaType[Array[Byte]] = MariaType(JavaMariaTypes.varbinary)
+  val tinyblob: MariaType[Array[Byte]] = MariaType(JavaMariaTypes.tinyblob)
+  val blob: MariaType[Array[Byte]] = MariaType(JavaMariaTypes.blob)
+  val mediumblob: MariaType[Array[Byte]] = MariaType(JavaMariaTypes.mediumblob)
+  val longblob: MariaType[Array[Byte]] = MariaType(JavaMariaTypes.longblob)
+  val date: MariaType[java.time.LocalDate] = MariaType(JavaMariaTypes.date)
+  val time: MariaType[java.time.LocalTime] = MariaType(JavaMariaTypes.time)
+  val datetime: MariaType[java.time.LocalDateTime] = MariaType(JavaMariaTypes.datetime)
+  val timestamp: MariaType[java.time.LocalDateTime] = MariaType(JavaMariaTypes.timestamp)
+  val year: MariaType[java.time.Year] = MariaType(JavaMariaTypes.year)
+  val set: MariaType[dev.typr.foundations.data.maria.MariaSet] = MariaType(JavaMariaTypes.set)
+  val json: MariaType[dev.typr.foundations.data.Json] = MariaType(JavaMariaTypes.json)
+  val inet4: MariaType[dev.typr.foundations.data.maria.Inet4] = MariaType(JavaMariaTypes.inet4)
+  val inet6: MariaType[dev.typr.foundations.data.maria.Inet6] = MariaType(JavaMariaTypes.inet6)
   val uuid: MariaType[java.util.UUID] = MariaType(JavaMariaTypes.uuid)
-  val geometry = MariaType(JavaMariaTypes.geometry)
-  val point = MariaType(JavaMariaTypes.point)
-  val linestring = MariaType(JavaMariaTypes.linestring)
-  val polygon = MariaType(JavaMariaTypes.polygon)
-  val multipoint = MariaType(JavaMariaTypes.multipoint)
-  val multilinestring = MariaType(JavaMariaTypes.multilinestring)
-  val multipolygon = MariaType(JavaMariaTypes.multipolygon)
-  val geometrycollection = MariaType(JavaMariaTypes.geometrycollection)
-  val unknown = MariaType(JavaMariaTypes.unknown)
+  val geometry: MariaType[org.mariadb.jdbc.`type`.Geometry] = MariaType(JavaMariaTypes.geometry)
+  val point: MariaType[org.mariadb.jdbc.`type`.Point] = MariaType(JavaMariaTypes.point)
+  val linestring: MariaType[org.mariadb.jdbc.`type`.LineString] = MariaType(JavaMariaTypes.linestring)
+  val polygon: MariaType[org.mariadb.jdbc.`type`.Polygon] = MariaType(JavaMariaTypes.polygon)
+  val multipoint: MariaType[org.mariadb.jdbc.`type`.MultiPoint] = MariaType(JavaMariaTypes.multipoint)
+  val multilinestring: MariaType[org.mariadb.jdbc.`type`.MultiLineString] = MariaType(JavaMariaTypes.multilinestring)
+  val multipolygon: MariaType[org.mariadb.jdbc.`type`.MultiPolygon] = MariaType(JavaMariaTypes.multipolygon)
+  val geometrycollection: MariaType[org.mariadb.jdbc.`type`.GeometryCollection] = MariaType(JavaMariaTypes.geometrycollection)
+  val unknown: MariaType[dev.typr.foundations.data.Unknown] = MariaType(JavaMariaTypes.unknown)
 
   // Forward static methods with Scala type conversion
-  def decimal(precision: Int, scale: Int): MariaType[BigDecimal] =
-    MariaType(JavaMariaTypes.decimal(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def decimalOf(precision: Int, scale: Int): MariaType[BigDecimal] =
+    MariaType(JavaMariaTypes.decimalOf(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def char_(length: Int): MariaType[String] =
-    MariaType(JavaMariaTypes.char_(length))
+  def char_Of(length: Int): MariaType[String] =
+    MariaType(JavaMariaTypes.char_Of(length))
 
-  def varchar(length: Int): MariaType[String] =
-    MariaType(JavaMariaTypes.varchar(length))
+  def varcharOf(length: Int): MariaType[String] =
+    MariaType(JavaMariaTypes.varcharOf(length))
 
-  def binary(length: Int): MariaType[Array[Byte]] =
-    MariaType(JavaMariaTypes.binary(length))
+  def binaryOf(length: Int): MariaType[Array[Byte]] =
+    MariaType(JavaMariaTypes.binaryOf(length))
 
-  def varbinary(length: Int): MariaType[Array[Byte]] =
-    MariaType(JavaMariaTypes.varbinary(length))
+  def varbinaryOf(length: Int): MariaType[Array[Byte]] =
+    MariaType(JavaMariaTypes.varbinaryOf(length))
 
-  def time(fsp: Int): MariaType[java.time.LocalTime] =
-    MariaType(JavaMariaTypes.time(fsp))
+  def timeOf(fsp: Int): MariaType[java.time.LocalTime] =
+    MariaType(JavaMariaTypes.timeOf(fsp))
 
-  def datetime(fsp: Int): MariaType[java.time.LocalDateTime] =
-    MariaType(JavaMariaTypes.datetime(fsp))
+  def datetimeOf(fsp: Int): MariaType[java.time.LocalDateTime] =
+    MariaType(JavaMariaTypes.datetimeOf(fsp))
 
-  def timestamp(fsp: Int): MariaType[java.time.LocalDateTime] =
-    MariaType(JavaMariaTypes.timestamp(fsp))
+  def timestampOf(fsp: Int): MariaType[java.time.LocalDateTime] =
+    MariaType(JavaMariaTypes.timestampOf(fsp))
 
   def vector(dimension: Int): MariaType[dev.typr.foundations.data.Vector] =
     MariaType(JavaMariaTypes.vector(dimension))
+
+  def ofEnum[E <: AnyRef](values: Array[E]): MariaType[E] =
+    ofEnum(values, ((e: E) => e.toString): java.util.function.Function[E, String])
+
+  def ofEnum[E <: AnyRef](values: Array[E], name: java.util.function.Function[E, String]): MariaType[E] =
+    MariaType(JavaMariaTypes.ofEnum(values.asInstanceOf[Array[Object & E]], name))
 
   def ofEnum[E <: Enum[E]](sqlType: String, fromString: java.util.function.Function[String, E]): MariaType[E] =
     MariaType(JavaMariaTypes.ofEnum(sqlType, fromString))

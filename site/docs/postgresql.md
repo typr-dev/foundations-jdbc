@@ -8,6 +8,18 @@ import Snippet from '@site/src/components/Snippet';
 
 Foundations JDBC provides comprehensive support for all PostgreSQL data types, including the many exotic types that make PostgreSQL unique.
 
+## Setting `search_path`
+
+Use `PgConfig.Builder.currentSchema(...)` to set a comma-separated `search_path` at connection time — handy when your composite types, enums, or tables live in a non-`public` schema and you want to reference them unqualified in SQL:
+
+```java
+var config = PgConfig.builder("host", 5432, "db", "user", "pw")
+    .currentSchema("app,public")   // search_path = app, public
+    .build();
+```
+
+This maps to PostgreSQL's `currentSchema` connection property. For single-schema use, [`ConnectionSettings.schema(...)`](./transactors#connection-settings) also works but only accepts one name.
+
 ## Numeric Types
 
 | PostgreSQL Type | Java Type | Notes |
@@ -49,18 +61,26 @@ Foundations JDBC provides comprehensive support for all PostgreSQL data types, i
 
 <Snippet file="postgresql/BinaryTypes" />
 
-## Date/Time Types
+## Date/Time Types {#datetime-rationale}
 
 | PostgreSQL Type | Java Type | Notes |
 |-----------------|-----------|-------|
-| `date` | `LocalDate` | Date without time |
-| `time` | `LocalTime` | Time without timezone |
-| `timetz` | `OffsetTime` | Time with timezone |
-| `timestamp` | `LocalDateTime` | Date and time without timezone |
-| `timestamptz` | `Instant` | Date and time with timezone (stored as UTC) |
+| `date` | `LocalDate` | Naive date, no zone |
+| `time` | `LocalTime` | Naive time, no zone |
+| `timetz` | `OffsetTime` | Time with offset (rarely used in practice) |
+| `timestamp` | `LocalDateTime` | Naive timestamp, no zone |
+| `timestamptz` | `Instant` | **UTC instant** — see note below |
 | `interval` | `PGInterval` | Time duration |
 
 <Snippet file="postgresql/DateTimeTypes" />
+
+:::note `timestamptz` does not store a time zone
+PostgreSQL is explicit on this: for `timestamp with time zone`, "the value is stored internally as UTC, and the originally stated or assumed time zone is not retained" (from the [PostgreSQL docs](https://www.postgresql.org/docs/current/datatype-datetime.html)). The zone only affects how the value is rendered at read-time (always converted to the session `TimeZone` setting).
+
+Because the column genuinely stores a universal instant — not a zoned value — the library maps it to `java.time.Instant`. Any zone information must travel alongside the value in a separate column if you need it (same data-modelling approach as Jira, GitHub, and most other systems). Using `OffsetDateTime` here would suggest the stored value carries an offset, which it does not.
+
+This is the reference mapping for the whole library: DuckDB's `TIMESTAMPTZ` shares the same semantics and uses the same `Instant` mapping. SQL Server's `DATETIMEOFFSET` and Oracle's `TIMESTAMP WITH TIME ZONE` genuinely preserve offset/zone and therefore map differently — see each dialect's page for details.
+:::
 
 ## UUID Type
 
@@ -77,23 +97,34 @@ Foundations JDBC provides comprehensive support for all PostgreSQL data types, i
 | `json` | `Json` | Stored as-is, validated on input |
 | `jsonb` | `Jsonb` | Binary format, indexed, normalized |
 
+`Json` and `Jsonb` are distinct wrapper records around a `String` payload, so a single row with both a `json` and a `jsonb` column keeps its types straight. Wrap the raw JSON text at the edges:
+
+```java
+new Jsonb("{\"ok\":true}")     // java
+```
+```kotlin
+Jsonb("""{"ok":true}""")        // kotlin
+```
+
+A common first-run surprise is declaring `val payload: String` on a Kotlin data class and getting `actual type is 'String', but 'Jsonb!' was expected` — the Kotlin `!` just marks a platform type, the fix is the wrap above.
+
 <Snippet file="postgresql/JsonTypes" />
 
 ## Array Types
 
-Any PostgreSQL type can be used as an array — call `.array()` on the element type. Unboxed primitive array variants are also available for performance:
+Any PostgreSQL type can be used as an array — call `.array()` on the element type. The Java representation is always `List<T>`:
 
-| PostgreSQL Type | Java Type (Boxed) | Java Type (Unboxed) |
-|-----------------|-------------------|---------------------|
-| `int4[]` | `Integer[]` via `int4.array()` | `int[]` via `int4ArrayUnboxed` |
-| `int8[]` | `Long[]` via `int8.array()` | `long[]` via `int8ArrayUnboxed` |
-| `float4[]` | `Float[]` via `float4.array()` | `float[]` via `float4ArrayUnboxed` |
-| `float8[]` | `Double[]` via `float8.array()` | `double[]` via `float8ArrayUnboxed` |
-| `bool[]` | `Boolean[]` via `bool.array()` | `boolean[]` via `boolArrayUnboxed` |
-| `text[]` | `String[]` via `text.array()` | - |
-| `uuid[]` | `UUID[]` via `uuid.array()` | - |
+| PostgreSQL Type | Java Type |
+|-----------------|-----------|
+| `int4[]` | `List<Integer>` via `int4.array()` |
+| `int8[]` | `List<Long>` via `int8.array()` |
+| `float4[]` | `List<Float>` via `float4.array()` |
+| `float8[]` | `List<Double>` via `float8.array()` |
+| `bool[]` | `List<Boolean>` via `bool.array()` |
+| `text[]` | `List<String>` via `text.array()` |
+| `uuid[]` | `List<UUID>` via `uuid.array()` |
 
-This works for all types — `numeric.array()`, `timestamptz.array()`, `jsonb.array()`, custom enum types, composite types, etc.
+This works for all types — `numeric.array()`, `timestamptz.array()`, `jsonb.array()`, custom enum types, composite types, etc. Multi-dimensional arrays compose: `.array().array()` produces SQL `T[][]` with Java type `List<List<T>>`.
 
 <Snippet file="postgresql/ArrayTypes" />
 
@@ -114,7 +145,7 @@ PgType<LineItem> lineItemType = PgTypes.compositeOf(
 PgType<Address> addressType = PgTypes.compositeOf("address", addressCodec);
 
 // Array of composites — works like any other type
-PgType<LineItem[]> lineItemArrayType = lineItemType.array();
+PgType<List<LineItem>> lineItemArrayType = lineItemType.array();
 ```
 
 The same `RowCodecNamed` codec can be reused for flat row queries, composite types, JSON-encoded columns, and query analysis.
@@ -209,6 +240,10 @@ Types used internally by PostgreSQL:
 PostgreSQL enums are mapped to Java enums:
 
 <Snippet file="postgresql/EnumType" />
+
+:::note `sqlType` must match the `CREATE TYPE` name (schema-qualified if needed)
+The first argument to `ofEnum(sqlType, ...)` is the PostgreSQL type name used to cast bound parameters. Pass exactly the name that appears in `CREATE TYPE schema.color AS ENUM(...)` — including the schema prefix if the type isn't in `search_path`. A mismatch produces `type "color" does not exist` on the first insert.
+:::
 
 ## Custom Domain Types
 

@@ -9,7 +9,7 @@ class EnumType {
     // Define your Kotlin enum
     enum class Status { PENDING, ACTIVE, COMPLETED }
 
-    // Create MariaType for it
-    val statusType: MariaType<Status> = MariaTypes.ofEnum("status", Status::valueOf)
+    // Create MariaType — reified, derives ENUM literal automatically
+    val statusType: MariaType<Status> = MariaTypes.ofEnum<Status>()
     //stop
 }

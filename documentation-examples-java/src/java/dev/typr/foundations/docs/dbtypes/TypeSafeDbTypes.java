@@ -4,6 +4,7 @@ import dev.typr.foundations.*;
 import dev.typr.foundations.data.Json;
 import dev.typr.foundations.data.Range;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import org.postgresql.geometric.PGpoint;
 
@@ -11,7 +12,7 @@ import org.postgresql.geometric.PGpoint;
 public class TypeSafeDbTypes {
   // start
   // PostgreSQL types
-  PgType<int[]> intArray = PgTypes.int4ArrayUnboxed;
+  PgType<List<Integer>> intArray = PgTypes.int4.array();
   PgType<Range<LocalDate>> dateRange = PgTypes.daterange;
   PgType<PGpoint> point = PgTypes.point;
 

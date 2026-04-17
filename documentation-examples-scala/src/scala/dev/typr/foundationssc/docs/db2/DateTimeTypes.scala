@@ -10,5 +10,5 @@ object DateTimeTypes:
   val dateType: Db2Type[LocalDate] = Db2Types.date
   val timeType: Db2Type[LocalTime] = Db2Types.time
   val tsType: Db2Type[LocalDateTime] = Db2Types.timestamp
-  val ts6: Db2Type[LocalDateTime] = Db2Types.timestamp(6)
+  val ts6: Db2Type[LocalDateTime] = Db2Types.timestampOf(6)
   // stop

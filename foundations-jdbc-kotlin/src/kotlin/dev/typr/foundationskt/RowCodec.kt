@@ -28,11 +28,19 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
          */
         fun <T : Any> of(type: DbType<T>): RowCodec<T> = RowCodec(dev.typr.foundations.RowCodec.of(type.underlying))
 
-        fun <T0, T1> of(t0: DbType<T0>, t1: DbType<T1>): RowCodec<Tuple.Tuple2<T0, T1>> =
-            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying))
+        /** Two-column row codec yielding a Kotlin [Pair]. */
+        fun <T0, T1> of(t0: DbType<T0>, t1: DbType<T1>): RowCodec<Pair<T0, T1>> {
+            val javaResult: dev.typr.foundations.RowCodec<Tuple.Tuple2<T0, T1>> =
+                dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying)
+            return RowCodec(javaResult.to(Bijection.andToPair<T0, T1>()))
+        }
 
-        fun <T0, T1, T2> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>): RowCodec<Tuple.Tuple3<T0, T1, T2>> =
-            RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying))
+        /** Three-column row codec yielding a Kotlin [Triple]. */
+        fun <T0, T1, T2> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>): RowCodec<Triple<T0, T1, T2>> {
+            val javaResult: dev.typr.foundations.RowCodec<Tuple.Tuple3<T0, T1, T2>> =
+                dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying)
+            return RowCodec(javaResult.to(Bijection.tuple3ToTriple<T0, T1, T2>()))
+        }
 
         fun <T0, T1, T2, T3> of(t0: DbType<T0>, t1: DbType<T1>, t2: DbType<T2>, t3: DbType<T3>): RowCodec<Tuple.Tuple4<T0, T1, T2, T3>> =
             RowCodec(dev.typr.foundations.RowCodec.of(t0.underlying, t1.underlying, t2.underlying, t3.underlying))
@@ -110,8 +118,8 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
      * Compose with another parser for INNER JOIN results.
      * Returns Pair<Row, Row2>.
      */
-    fun <Row2 : Any> joined(other: RowCodec<Row2>): RowCodec<Pair<Row, Row2>> {
-        val javaResult = underlying.joined(other.underlying)
+    fun <Row2 : Any> join(other: RowCodec<Row2>): RowCodec<Pair<Row, Row2>> {
+        val javaResult = underlying.join(other.underlying)
         val converted = javaResult.to(Bijection.andToPair<Row, Row2>())
         return RowCodec(converted)
     }
@@ -120,9 +128,9 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
      * Compose with another parser for LEFT JOIN results.
      * Returns Pair<Row, Row2?> with nullable right side.
      */
-    fun <Row2 : Any> leftJoined(other: RowCodec<Row2>?): RowCodec<Pair<Row, Row2?>> {
+    fun <Row2 : Any> leftJoin(other: RowCodec<Row2>?): RowCodec<Pair<Row, Row2?>> {
         val javaResult: dev.typr.foundations.RowCodec<dev.typr.foundations.Tuple.Tuple2<Row, Optional<Row2>>> =
-            underlying.leftJoined(other?.underlying)
+            underlying.leftJoin(other?.underlying)
         val converted = javaResult.to(Bijection.leftJoinToNullable<Row, Row2>())
         return RowCodec(converted)
     }
@@ -131,9 +139,9 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
      * Compose with another parser for RIGHT JOIN results.
      * Returns Pair<Row?, Row2> with nullable left side.
      */
-    fun <Row2 : Any> rightJoined(other: RowCodec<Row2>): RowCodec<Pair<Row?, Row2>> {
+    fun <Row2 : Any> rightJoin(other: RowCodec<Row2>): RowCodec<Pair<Row?, Row2>> {
         val javaResult: dev.typr.foundations.RowCodec<dev.typr.foundations.Tuple.Tuple2<Optional<Row>, Row2>> =
-            underlying.rightJoined(other.underlying)
+            underlying.rightJoin(other.underlying)
         val converted = javaResult.to(Bijection.rightJoinToNullable<Row, Row2>())
         return RowCodec(converted)
     }
@@ -142,9 +150,9 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
      * Compose with another parser for FULL OUTER JOIN results.
      * Returns Pair<Row?, Row2?> with both sides nullable.
      */
-    fun <Row2 : Any> fullJoined(other: RowCodec<Row2>): RowCodec<Pair<Row?, Row2?>> {
+    fun <Row2 : Any> fullJoin(other: RowCodec<Row2>): RowCodec<Pair<Row?, Row2?>> {
         val javaResult: dev.typr.foundations.RowCodec<dev.typr.foundations.Tuple.Tuple2<Optional<Row>, Optional<Row2>>> =
-            underlying.fullJoined(other.underlying)
+            underlying.fullJoin(other.underlying)
         val converted = javaResult.to(Bijection.fullJoinToNullable<Row, Row2>())
         return RowCodec(converted)
     }
@@ -211,11 +219,48 @@ class RowCodecNamed<Row : Any>(
     val columnList: Fragment
         get() = Fragment(underlying.columnList())
 
-    fun columnList(alias: String): Fragment = Fragment(underlying.columnList(alias))
+    /**
+     * Return a copy of this codec where every column name is prefixed with `alias + "."`.
+     * Apply before a join to keep [columnList] unambiguous:
+     *
+     * ```kotlin
+     * empCodec.aliased("e").leftJoin(deptCodec.aliased("d"))
+     * ```
+     */
+    fun aliased(alias: String): RowCodecNamed<Row> = RowCodecNamed(underlying.aliased(alias))
 
+    /** Inner join that preserves column names. Returns a [RowCodecNamed]. */
     fun <Row2 : Any> join(other: RowCodecNamed<Row2>): RowCodecNamed<Pair<Row, Row2>> {
         val javaJoined = underlying.join(other.underlying)
         val converted = javaJoined.to(Bijection.andToPair<Row, Row2>())
+        return RowCodecNamed(converted)
+    }
+
+    /**
+     * Left join that preserves column names. Right-side columns are wrapped in .opt() so a row
+     * with all-null right-side columns decodes as null. Returns a [RowCodecNamed] so
+     * `columnList`, `Fragment.insertInto`, and JSON encoding keep working on the combined codec.
+     */
+    fun <Row2 : Any> leftJoin(other: RowCodecNamed<Row2>): RowCodecNamed<Pair<Row, Row2?>> {
+        val javaJoined = underlying.leftJoin(other.underlying)
+        val converted = javaJoined.to(Bijection.leftJoinToNullable<Row, Row2>())
+        return RowCodecNamed(converted)
+    }
+
+    /**
+     * Right join that preserves column names. Left-side columns are wrapped in .opt() so a row
+     * with all-null left-side columns decodes as null.
+     */
+    fun <Row2 : Any> rightJoin(other: RowCodecNamed<Row2>): RowCodecNamed<Pair<Row?, Row2>> {
+        val javaJoined = underlying.rightJoin(other.underlying)
+        val converted = javaJoined.to(Bijection.rightJoinToNullable<Row, Row2>())
+        return RowCodecNamed(converted)
+    }
+
+    /** Full outer join that preserves column names. Both sides are wrapped in .opt(). */
+    fun <Row2 : Any> fullJoin(other: RowCodecNamed<Row2>): RowCodecNamed<Pair<Row?, Row2?>> {
+        val javaJoined = underlying.fullJoin(other.underlying)
+        val converted = javaJoined.to(Bijection.fullJoinToNullable<Row, Row2>())
         return RowCodecNamed(converted)
     }
 

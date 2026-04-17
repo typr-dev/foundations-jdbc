@@ -13,7 +13,7 @@ object JsonCodecs:
       .builder[OrderLine]()
       .field(DuckDbTypes.varchar)(_.product)
       .field(DuckDbTypes.integer)(_.qty)
-      .field(DuckDbTypes.decimal(10, 2))(_.price)
+      .field(DuckDbTypes.decimalOf(10, 2))(_.price)
       .build(OrderLine.apply)
 
   // start

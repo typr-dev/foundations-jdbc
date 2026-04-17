@@ -8,6 +8,6 @@ import java.math.BigDecimal;
 public class FixedPointTypes {
   // start
   MariaType<BigDecimal> decimalType = MariaTypes.decimal;
-  MariaType<BigDecimal> preciseDecimal = MariaTypes.decimal(10, 2);
+  MariaType<BigDecimal> preciseDecimal = MariaTypes.decimalOf(10, 2);
   // stop
 }

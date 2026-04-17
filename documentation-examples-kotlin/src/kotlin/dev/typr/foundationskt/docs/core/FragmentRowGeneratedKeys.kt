@@ -22,9 +22,9 @@ class FragmentRowGeneratedKeys {
     //start
     // For databases without RETURNING (DB2, Oracle, SQL Server, MariaDB):
     fun insertGeneratedKey(product: Product): Int =
-        Fragment.insertIntoGeneratedKeys(
-                "product", productCodec, arrayOf("id"),
-                RowCodec.of(PgTypes.int4).exactlyOne(), "id")
+        Fragment.insertIntoGeneratedKey(
+                "product", productCodec, "id",
+                RowCodec.of(PgTypes.int4).exactlyOne())
             .on(product)
             .run(conn)
     //stop

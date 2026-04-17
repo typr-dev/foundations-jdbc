@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +73,7 @@ public interface OracleTypes {
           OracleOutParam.readLong);
 
   /** NUMBER with precision and scale factory methods */
-  static OracleType<BigDecimal> number(int precision) {
+  static OracleType<BigDecimal> numberOf(int precision) {
     return OracleType.of(
         OracleTypename.of("NUMBER", precision),
         OracleRead.readBigDecimal,
@@ -82,7 +82,7 @@ public interface OracleTypes {
         OracleOutParam.readBigDecimal);
   }
 
-  static OracleType<BigDecimal> number(int precision, int scale) {
+  static OracleType<BigDecimal> numberOf(int precision, int scale) {
     return OracleType.of(
         OracleTypename.of("NUMBER", precision, scale),
         OracleRead.readBigDecimal,
@@ -91,22 +91,18 @@ public interface OracleTypes {
         OracleOutParam.readBigDecimal);
   }
 
+  /**
+   * NUMBER(p,0) viewed as Java {@code int}. Implemented via {@code number(p).transform(...)} so the
+   * read path flows through {@code BigDecimal} uniformly — direct Integer casts break inside STRUCT
+   * attributes where the Oracle driver always hands BigDecimal regardless of precision.
+   */
   static OracleType<Integer> numberAsInt(int precision) {
-    return OracleType.of(
-        OracleTypename.of("NUMBER", precision),
-        OracleRead.readInteger,
-        OracleWrite.writeInteger,
-        OracleJson.int4,
-        OracleOutParam.readInteger);
+    return numberOf(precision).transform(BigDecimal::intValueExact, BigDecimal::valueOf);
   }
 
+  /** NUMBER(p,0) viewed as Java {@code long}. See {@link #numberAsInt(int)} for the rationale. */
   static OracleType<Long> numberAsLong(int precision) {
-    return OracleType.of(
-        OracleTypename.of("NUMBER", precision),
-        OracleRead.readLong,
-        OracleWrite.writeLong,
-        OracleJson.int8,
-        OracleOutParam.readLong);
+    return numberOf(precision).transform(BigDecimal::longValueExact, BigDecimal::valueOf);
   }
 
   /** BINARY_FLOAT - 32-bit IEEE 754 floating point. Range: +/-1.17549E-38 to +/-3.40282E+38 */
@@ -118,6 +114,9 @@ public interface OracleTypes {
           OracleJson.float4,
           OracleOutParam.readFloat);
 
+  /** Alias for {@link #binaryFloat} — aesthetic cross-palette naming. 4B IEEE 754. */
+  OracleType<Float> float4 = binaryFloat;
+
   /** BINARY_DOUBLE - 64-bit IEEE 754 floating point. Range: +/-2.22507E-308 to +/-1.79769E+308 */
   OracleType<Double> binaryDouble =
       OracleType.of(
@@ -126,6 +125,9 @@ public interface OracleTypes {
           OracleWrite.writeDouble,
           OracleJson.float8,
           OracleOutParam.readDouble);
+
+  /** Alias for {@link #binaryDouble} — aesthetic cross-palette naming. 8B IEEE 754. */
+  OracleType<Double> float8 = binaryDouble;
 
   /**
    * FLOAT(precision) - ANSI float type (actually maps to NUMBER internally). Binary precision 1-126
@@ -140,7 +142,7 @@ public interface OracleTypes {
               OracleOutParam.readDouble)
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("number")));
 
-  static OracleType<Double> float_(int binaryPrecision) {
+  static OracleType<Double> float_Of(int binaryPrecision) {
     return OracleType.of(
             OracleTypename.of("FLOAT", binaryPrecision),
             OracleRead.readDouble,
@@ -178,7 +180,7 @@ public interface OracleTypes {
           OracleJson.text,
           OracleOutParam.readString);
 
-  static OracleType<String> varchar2(int maxLength) {
+  static OracleType<String> varchar2Of(int maxLength) {
     return OracleType.of(
         OracleTypename.of("VARCHAR2", maxLength),
         OracleRead.readString,
@@ -210,7 +212,10 @@ public interface OracleTypes {
               OracleOutParam.readString)
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("varchar2")));
 
-  static OracleType<String> char_(int length) {
+  /** Alias for {@link #char_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  OracleType<String> character = char_;
+
+  static OracleType<String> char_Of(int length) {
     return OracleType.of(
             OracleTypename.of("CHAR", length),
             OracleRead.readString,
@@ -245,7 +250,7 @@ public interface OracleTypes {
           OracleJson.text,
           OracleOutParam.readString);
 
-  static OracleType<String> nvarchar2(int maxLength) {
+  static OracleType<String> nvarchar2Of(int maxLength) {
     return OracleType.of(
         OracleTypename.of("NVARCHAR2", maxLength),
         OracleRead.readString,
@@ -276,7 +281,7 @@ public interface OracleTypes {
           OracleJson.text,
           OracleOutParam.readString);
 
-  static OracleType<String> nchar(int length) {
+  static OracleType<String> ncharOf(int length) {
     return OracleType.of(
         OracleTypename.of("NCHAR", length),
         OracleRead.readString,
@@ -352,6 +357,9 @@ public interface OracleTypes {
           OracleJson.text,
           OracleOutParam.readString);
 
+  /** Alias for {@link #long_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  OracleType<String> longColumn = long_;
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Binary Types
   // ═══════════════════════════════════════════════════════════════════════════
@@ -368,7 +376,7 @@ public interface OracleTypes {
           OracleJson.bytea,
           OracleOutParam.readByteArray);
 
-  static OracleType<byte[]> raw(int maxLength) {
+  static OracleType<byte[]> rawOf(int maxLength) {
     return OracleType.of(
         OracleTypename.of("RAW", maxLength),
         OracleRead.readByteArray,
@@ -451,7 +459,7 @@ public interface OracleTypes {
           OracleJson.timestamp,
           OracleOutParam.readLocalDateTime);
 
-  static OracleType<LocalDateTime> timestamp(int fractionalSecondsPrecision) {
+  static OracleType<LocalDateTime> timestampOf(int fractionalSecondsPrecision) {
     return OracleType.of(
         OracleTypename.of("TIMESTAMP", fractionalSecondsPrecision),
         OracleRead.readTimestamp,
@@ -461,24 +469,35 @@ public interface OracleTypes {
   }
 
   /**
-   * TIMESTAMP WITH TIME ZONE - Timestamp with explicit timezone. Stores the time zone offset or
-   * region name.
+   * TIMESTAMP WITH TIME ZONE → {@link ZonedDateTime}.
+   *
+   * <p>Oracle's on-disk TSTZ format (13 bytes) can hold either a fixed time-zone offset or a named
+   * zone region (e.g. {@code America/Los_Angeles}). {@code ZonedDateTime} is the only {@code
+   * java.time} type that round-trips both — a fixed offset becomes a {@code ZonedDateTime} whose
+   * zone is a {@link java.time.ZoneOffset}, a named region becomes one whose zone is a {@code
+   * ZoneRegion}. Mapping to {@code OffsetDateTime} would silently discard the region and freeze the
+   * offset at its current DST state, so a value written as {@code 2024-01-15T10:00
+   * America/Los_Angeles} would come back as {@code 2024-01-15T10:00-08:00}, losing DST-awareness.
+   *
+   * <p>For an Oracle timestamp column that does not need region preservation, prefer {@link
+   * #timestampWithLocalTimeZone} — it is semantically simpler (a universal instant) and maps to
+   * {@code Instant}.
    */
-  OracleType<OffsetDateTime> timestampWithTimeZone =
+  OracleType<ZonedDateTime> timestampWithTimeZone =
       OracleType.of(
           "TIMESTAMP WITH TIME ZONE",
-          OracleRead.readOffsetDateTime,
+          OracleRead.readZonedDateTime,
           OracleWrite.writeTimestampWithTimeZone(),
           OracleJson.timestampWithTimeZone,
-          OracleOutParam.readOffsetDateTime);
+          OracleOutParam.readZonedDateTime);
 
-  static OracleType<OffsetDateTime> timestampWithTimeZone(int fractionalSecondsPrecision) {
+  static OracleType<ZonedDateTime> timestampWithTimeZone(int fractionalSecondsPrecision) {
     return OracleType.of(
         OracleTypename.of("TIMESTAMP(" + fractionalSecondsPrecision + ") WITH TIME ZONE"),
-        OracleRead.readOffsetDateTime,
+        OracleRead.readZonedDateTime,
         OracleWrite.writeTimestampWithTimeZone(),
         OracleJson.timestampWithTimeZone,
-        OracleOutParam.readOffsetDateTime);
+        OracleOutParam.readZonedDateTime);
   }
 
   /**
@@ -628,6 +647,9 @@ public interface OracleTypes {
           OracleJson.bool,
           OracleOutParam.readBoolean);
 
+  /** Alias for {@link #boolean_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  OracleType<Boolean> bool = boolean_;
+
   /**
    * NUMBER(1) as Boolean - Traditional Oracle boolean representation. 0 = false, 1 = true (or any
    * non-zero = true).
@@ -645,13 +667,30 @@ public interface OracleTypes {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * Create an OracleType for ENUM-like columns (stored as VARCHAR2 or NUMBER). Oracle doesn't have
-   * native ENUM type, so enums are typically stored as strings.
+   * Map enum values through an underlying OracleType. Oracle has no native ENUM — this wraps any
+   * column type (VARCHAR2, NUMBER, etc.) with a bidirectional mapping to/from enum constants.
    *
-   * @param sqlType The SQL type (e.g., "VARCHAR2(20)")
-   * @param fromString Function to convert string to enum value
-   * @param <E> The enum type
+   * <pre>{@code
+   * // Store as VARCHAR2
+   * OracleTypes.ofEnum(OracleTypes.varchar2Of(20), Status.values(), Enum::name)
+   *
+   * // Store as NUMBER (ordinal)
+   * OracleTypes.ofEnum(OracleTypes.numberInt, Status.values(), Status::ordinal)
+   * }</pre>
    */
+  static <E, U> OracleType<E> ofEnum(
+      OracleType<U> underlying, E[] values, Function<E, U> toUnderlying) {
+    return underlying.transform(reverseMap(values, toUnderlying), toUnderlying);
+  }
+
+  /** Convenience: store enum names as VARCHAR2, column width derived from longest name. */
+  static <E extends Enum<E>> OracleType<E> ofEnum(E[] values) {
+    int maxLen = 0;
+    for (E v : values) maxLen = Math.max(maxLen, v.name().length());
+    return ofEnum(varchar2Of(maxLen), values, Enum::name);
+  }
+
+  /** Legacy overload for custom string mapping. */
   static <E extends Enum<E>> OracleType<E> ofEnum(String sqlType, Function<String, E> fromString) {
     return OracleType.of(
         sqlType,
@@ -659,6 +698,16 @@ public interface OracleTypes {
         OracleWrite.writeString.contramap(Enum::name),
         OracleJson.text.transform(fromString::apply, Enum::name),
         OracleOutParam.readString.map(fromString::apply));
+  }
+
+  private static <E, U> SqlFunction<U, E> reverseMap(E[] values, Function<E, U> toUnderlying) {
+    var map = new java.util.HashMap<U, E>();
+    for (E v : values) map.put(toUnderlying.apply(v), v);
+    return u -> {
+      E result = map.get(u);
+      if (result == null) throw new IllegalArgumentException("No enum constant for: " + u);
+      return result;
+    };
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -756,8 +805,8 @@ public interface OracleTypes {
    * <pre>{@code
    * OracleType<Address> addressType = OracleTypes.compositeOf("ADDRESS_T",
    *     RowCodec.<Address>namedBuilder()
-   *         .field("STREET", OracleTypes.varchar2(100), Address::street)
-   *         .field("CITY", OracleTypes.varchar2(50), Address::city)
+   *         .field("STREET", OracleTypes.varchar2Of(100), Address::street)
+   *         .field("CITY", OracleTypes.varchar2Of(50), Address::city)
    *         .build(Address::new));
    * }</pre>
    */

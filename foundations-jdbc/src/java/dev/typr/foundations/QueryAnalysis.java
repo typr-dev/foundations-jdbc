@@ -16,14 +16,35 @@ public record QueryAnalysis(
     String queryName,
     List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
     List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
-    boolean parameterMetadataAvailable) {
+    boolean parameterMetadataAvailable,
+    AlignmentError.PrepareFailure prepareFailure) {
 
   public QueryAnalysis(
       String sql,
       List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
       List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
       boolean parameterMetadataAvailable) {
-    this(sql, null, parameterAlignment, columnAlignment, parameterMetadataAvailable);
+    this(sql, null, parameterAlignment, columnAlignment, parameterMetadataAvailable, null);
+  }
+
+  public QueryAnalysis(
+      String sql,
+      String queryName,
+      List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
+      List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
+      boolean parameterMetadataAvailable) {
+    this(sql, queryName, parameterAlignment, columnAlignment, parameterMetadataAvailable, null);
+  }
+
+  /** Construct a prepare-failure analysis (metadata couldn't be read — driver rejected the SQL). */
+  public static QueryAnalysis prepareFailed(
+      String sql,
+      String queryName,
+      List<DbType<?>> paramTypes,
+      AlignmentError.PrepareFailure failure) {
+    List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> declared = new ArrayList<>();
+    for (DbType<?> t : paramTypes) declared.add(new Alignment.LeftOnly<>(t));
+    return new QueryAnalysis(sql, queryName, declared, List.of(), false, failure);
   }
 
   public List<AlignmentError> parameterErrors() {
@@ -95,6 +116,7 @@ public record QueryAnalysis(
 
   public List<AlignmentError> allErrors() {
     List<AlignmentError> all = new ArrayList<>();
+    if (prepareFailure != null) all.add(prepareFailure);
     all.addAll(parameterErrors());
     all.addAll(columnErrors());
     return all;
@@ -127,6 +149,11 @@ public record QueryAnalysis(
     }
     b.plain("  ").gray(truncateSql(sql, 72)).newline().newline();
 
+    java.util.Set<Integer> paramErrorPositions = new java.util.HashSet<>();
+    for (AlignmentError e : parameterErrors()) paramErrorPositions.add(e.position());
+    java.util.Set<Integer> columnErrorPositions = new java.util.HashSet<>();
+    for (AlignmentError e : columnErrors()) columnErrorPositions.add(e.position());
+
     // Parameters section
     b.gray("┌─ ").bold("Parameters ");
     if (!parameterMetadataAvailable) {
@@ -138,7 +165,7 @@ public record QueryAnalysis(
     } else {
       for (int i = 0; i < parameterAlignment.size(); i++) {
         var align = parameterAlignment.get(i);
-        b.add(formatStyledAlignment(i + 1, align, true));
+        b.add(formatStyledAlignment(i + 1, align, true, paramErrorPositions));
       }
     }
     b.gray("└" + "─".repeat(78) + "┘").newline().newline();
@@ -150,7 +177,7 @@ public record QueryAnalysis(
     } else {
       for (int i = 0; i < columnAlignment.size(); i++) {
         var align = columnAlignment.get(i);
-        b.add(formatStyledAlignment(i + 1, align, false));
+        b.add(formatStyledAlignment(i + 1, align, false, columnErrorPositions));
       }
     }
     b.gray("└" + "─".repeat(78) + "┘").newline().newline();
@@ -187,9 +214,35 @@ public record QueryAnalysis(
     AnalysisOptions opts = declared.analysisOptions();
     if (opts.unchecked()) return;
 
-    String metaName = normalizeVendorTypeName(expected.vendorTypeName());
-    if (metaName.isEmpty() || "unknown".equals(metaName)) return;
+    String vendorText = expected.vendorTypeName();
+    if (vendorText == null || vendorText.isEmpty() || "unknown".equalsIgnoreCase(vendorText)) {
+      return;
+    }
 
+    // DuckDB: structural traversal. Parse the vendor typename into a DuckDbTypename tree and
+    // compare against the declared tree field-by-field / element-by-element.
+    if (declared.typename() instanceof DuckDbTypename<?>) {
+      DuckDbTypename<Object> parsed;
+      try {
+        parsed = DuckDbTypenameParser.parse(vendorText);
+      } catch (RuntimeException parseFail) {
+        return; // Don't block on vendor text we can't parse.
+      }
+      if (!duckDbMatchesTopLevel(declared, parsed)) {
+        errors.add(
+            new AlignmentError.ParameterTypeMismatch(
+                pos,
+                declared,
+                expected,
+                Set.of(declared.typename().sqlType().toLowerCase()),
+                "Declared " + declared.typename() + " does not match parameter type " + parsed));
+      }
+      return;
+    }
+
+    // Non-DuckDB DBs: string-normalize path (no tree parsers written yet for those).
+    String metaName = normalizeVendorTypeName(vendorText);
+    if (metaName.isEmpty()) return;
     Set<String> ours = normalizeVendorTypeNames(declared.vendorTypeNames());
     if (!ours.isEmpty() && !ours.contains(metaName)) {
       errors.add(
@@ -211,7 +264,34 @@ public record QueryAnalysis(
     AnalysisOptions opts = declared.analysisOptions();
     if (opts.unchecked()) return;
 
-    String metaName = normalizeVendorTypeName(returned.vendorTypeName());
+    String vendorText = returned.vendorTypeName();
+
+    if (declared.typename() instanceof DuckDbTypename<?>
+        && vendorText != null
+        && !vendorText.isEmpty()
+        && !"unknown".equalsIgnoreCase(vendorText)) {
+      DuckDbTypename<Object> parsed;
+      try {
+        parsed = DuckDbTypenameParser.parse(vendorText);
+      } catch (RuntimeException parseFail) {
+        checkColumnNullability(declared, returned, errors, nullabilityReliable, opts);
+        return;
+      }
+      if (!duckDbMatchesTopLevel(declared, parsed)) {
+        errors.add(
+            new AlignmentError.ColumnTypeMismatch(
+                pos,
+                returned.displayName(),
+                declared,
+                returned,
+                Set.of(declared.typename().sqlType().toLowerCase()),
+                "Declared " + declared.typename() + " does not match column type " + parsed));
+      }
+      checkColumnNullability(declared, returned, errors, nullabilityReliable, opts);
+      return;
+    }
+
+    String metaName = normalizeVendorTypeName(vendorText);
     if (!metaName.isEmpty() && !"unknown".equals(metaName)) {
       Set<String> ours = normalizeVendorTypeNames(declared.vendorTypeNames());
       if (!ours.isEmpty() && !ours.contains(metaName)) {
@@ -226,14 +306,118 @@ public record QueryAnalysis(
       }
     }
 
-    // Check nullability
+    checkColumnNullability(declared, returned, errors, nullabilityReliable, opts);
+  }
+
+  private void checkColumnNullability(
+      DbType<?> declared,
+      JdbcMeta.ColumnMeta returned,
+      List<AlignmentError> errors,
+      boolean nullabilityReliable,
+      AnalysisOptions opts) {
     if (!opts.nullableOk()
         && nullabilityReliable
         && returned.isNullabilityKnown()
         && returned.nullable() == ResultSetMetaData.columnNullable
         && !declared.isNullable()) {
-      errors.add(new AlignmentError.NullabilityMismatch(pos, returned.displayName(), declared));
+      errors.add(
+          new AlignmentError.NullabilityMismatch(
+              returned.position(), returned.displayName(), declared));
     }
+  }
+
+  /**
+   * Top-level match between a declared {@link DbType} and a parsed {@link DuckDbTypename}. Differs
+   * from {@link #duckDbTypenamesMatch} in that the TOP-LEVEL {@link DuckDbTypename.Base} case
+   * consults the declared type's {@link DbType#vendorTypeNames()} alias set — so user-named ENUM
+   * types ({@code color_enum} aliased to {@code enum}) and other declared aliases match the
+   * vendor-reported form. Nested Base nodes inside composites fall back to structural
+   * canonicalization since aliases only live on the outer {@code DbType}.
+   */
+  private static boolean duckDbMatchesTopLevel(DbType<?> declared, DuckDbTypename<?> parsed) {
+    DuckDbTypename<?> declaredTn = (DuckDbTypename<?>) declared.typename();
+    // Peel Opt wrappers — nullability is tracked separately.
+    DuckDbTypename<?> unwrappedDeclared =
+        (declaredTn instanceof DuckDbTypename.Opt<?> od) ? od.of() : declaredTn;
+    DuckDbTypename<?> unwrappedParsed =
+        (parsed instanceof DuckDbTypename.Opt<?> op) ? op.of() : parsed;
+    if (unwrappedDeclared instanceof DuckDbTypename.Base<?>
+        && unwrappedParsed instanceof DuckDbTypename.Base<?> pb) {
+      Set<String> declaredAliases = normalizeVendorTypeNames(declared.vendorTypeNames());
+      String parsedName = duckDbCanonicalBase(pb.sqlType());
+      if (declaredAliases.contains(parsedName)) return true;
+      for (String alias : declaredAliases) {
+        if (duckDbCanonicalBase(alias).equals(parsedName)) return true;
+      }
+      return false;
+    }
+    return duckDbTypenamesMatch(unwrappedDeclared, unwrappedParsed);
+  }
+
+  /**
+   * Structural compare of two DuckDB typenames. Walks STRUCT fields / UNION members / MAP key+value
+   * / LIST+ARRAY element recursively, comparing field names and types. {@link
+   * DuckDbTypename.StructOf#name} and {@link DuckDbTypename.UnionOf#name} are ignored — the driver
+   * never surfaces the user-given CREATE TYPE name through {@code getColumnTypeName}.
+   */
+  static boolean duckDbTypenamesMatch(DuckDbTypename<?> a, DuckDbTypename<?> b) {
+    if (a instanceof DuckDbTypename.Opt<?> oa) return duckDbTypenamesMatch(oa.of(), b);
+    if (b instanceof DuckDbTypename.Opt<?> ob) return duckDbTypenamesMatch(a, ob.of());
+    if (a instanceof DuckDbTypename.ListOf<?> la && b instanceof DuckDbTypename.ListOf<?> lb) {
+      return duckDbTypenamesMatch(la.elementType(), lb.elementType());
+    }
+    if (a instanceof DuckDbTypename.ArrayOf<?> aa && b instanceof DuckDbTypename.ArrayOf<?> ab) {
+      return aa.size() == ab.size() && duckDbTypenamesMatch(aa.elementType(), ab.elementType());
+    }
+    if (a instanceof DuckDbTypename.MapOf<?, ?> ma && b instanceof DuckDbTypename.MapOf<?, ?> mb) {
+      return duckDbTypenamesMatch(ma.keyType(), mb.keyType())
+          && duckDbTypenamesMatch(ma.valueType(), mb.valueType());
+    }
+    if (a instanceof DuckDbTypename.StructOf<?> sa && b instanceof DuckDbTypename.StructOf<?> sb) {
+      if (sa.fields().size() != sb.fields().size()) return false;
+      for (int i = 0; i < sa.fields().size(); i++) {
+        var fa = sa.fields().get(i);
+        var fb = sb.fields().get(i);
+        if (!fa.name().equals(fb.name())) return false;
+        if (!duckDbTypenamesMatch(fa.type(), fb.type())) return false;
+      }
+      return true;
+    }
+    if (a instanceof DuckDbTypename.UnionOf<?> ua && b instanceof DuckDbTypename.UnionOf<?> ub) {
+      if (ua.members().size() != ub.members().size()) return false;
+      for (int i = 0; i < ua.members().size(); i++) {
+        var ma = ua.members().get(i);
+        var mb = ub.members().get(i);
+        if (!ma.tag().equals(mb.tag())) return false;
+        if (!duckDbTypenamesMatch(ma.type(), mb.type())) return false;
+      }
+      return true;
+    }
+    if (a instanceof DuckDbTypename.Base<?> ba && b instanceof DuckDbTypename.Base<?> bb) {
+      return duckDbCanonicalBase(ba.sqlType()).equals(duckDbCanonicalBase(bb.sqlType()));
+    }
+    return false;
+  }
+
+  /**
+   * Canonicalize a DuckDB base type name so aliases that resolve to the same storage form match
+   * structurally. Mirrors the aliases set up in {@link DuckDbTypes} (e.g. {@code text}, {@code
+   * string}, {@code bpchar}, {@code char} all resolve to {@code varchar}).
+   */
+  private static String duckDbCanonicalBase(String sqlType) {
+    String head = normalizeVendorTypeName(sqlType);
+    return switch (head) {
+      case "text", "string", "char_", "bpchar", "char" -> "varchar";
+      case "float", "float4", "real" -> "float";
+      case "float8", "double" -> "double";
+      case "int", "int4" -> "integer";
+      case "int2" -> "smallint";
+      case "int8" -> "bigint";
+      case "int1" -> "tinyint";
+      case "bool" -> "boolean";
+      case "numeric" -> "decimal";
+      default -> head;
+    };
   }
 
   static Set<String> normalizeVendorTypeNames(Set<String> names) {
@@ -257,11 +441,26 @@ public record QueryAnalysis(
       lower = lower.substring(dotIdx + 1);
     }
 
-    // Preserve array suffix before stripping precision
-    String suffix = "";
-    if (lower.endsWith("[]")) {
-      suffix = "[]";
-      lower = lower.substring(0, lower.length() - 2);
+    // Peel trailing LIST/ARRAY suffixes — `[]`, `[]`-chains, and DuckDB fixed-size `[N]` — from
+    // the right so we can strip precision on the scalar head and re-append suffixes unchanged.
+    StringBuilder suffix = new StringBuilder();
+    while (true) {
+      int len = lower.length();
+      if (len >= 2 && lower.endsWith("[]")) {
+        suffix.insert(0, "[]");
+        lower = lower.substring(0, len - 2);
+        continue;
+      }
+      int close = lower.lastIndexOf(']');
+      if (close == len - 1) {
+        int open = lower.lastIndexOf('[');
+        if (open > 0 && lower.substring(open + 1, close).matches("\\d+")) {
+          suffix.insert(0, lower.substring(open));
+          lower = lower.substring(0, open);
+          continue;
+        }
+      }
+      break;
     }
 
     // Strip precision specifier like "varchar(255)" -> "varchar", "decimal(10,2)" -> "decimal"
@@ -271,12 +470,23 @@ public record QueryAnalysis(
     }
 
     // Handle PG array prefix: "_int4" -> "int4[]"
-    if (suffix.isEmpty() && lower.startsWith("_") && !lower.contains(" ")) {
+    if (suffix.length() == 0 && lower.startsWith("_") && !lower.contains(" ")) {
       lower = lower.substring(1);
-      suffix = "[]";
+      suffix.append("[]");
     }
 
-    return lower + suffix;
+    // PG stores all N-dim arrays under a single array type ({@code _T}, reported as
+    // {@code T[]}). Our declared typename can include an explicit {@code [][]…} chain to
+    // surface intent, but for analysis we must collapse pure {@code []} chains to a single
+    // {@code []} so declared multi-dim types match the returned vendor type. Fixed-size
+    // suffixes like {@code [N]} (DuckDB ARRAY) are preserved because they convey a real
+    // distinction at the storage layer.
+    String suffixStr = suffix.toString();
+    if (!suffixStr.isEmpty() && suffixStr.chars().allMatch(c -> c == '[' || c == ']')) {
+      suffixStr = "[]";
+    }
+
+    return lower + suffixStr;
   }
 
   private String truncateSql(String sql, int maxLen) {
@@ -287,34 +497,48 @@ public record QueryAnalysis(
     return oneLine.substring(0, maxLen - 3) + "...";
   }
 
-  private Str formatStyledAlignment(int pos, Alignment<DbType<?>, ?> align, boolean isParameter) {
-    boolean ok;
+  private Str formatStyledAlignment(
+      int pos,
+      Alignment<DbType<?>, ?> align,
+      boolean isParameter,
+      java.util.Set<Integer> errorPositions) {
+    boolean hasError = errorPositions.contains(pos);
+    boolean vendorMissing = false;
     String declared;
     String actual;
 
     switch (align) {
       case Alignment.Both(var d, var a) -> {
-        ok = true;
         declared = d.typename().sqlType();
         if (isParameter) {
           JdbcMeta.ParameterMeta pm = (JdbcMeta.ParameterMeta) a;
-          actual = pm.vendorTypeName();
+          String vendor = pm.vendorTypeName();
+          if (vendor == null || vendor.isEmpty()) {
+            vendorMissing = true;
+            actual = "(driver does not report)";
+          } else {
+            actual = vendor;
+          }
         } else {
           JdbcMeta.ColumnMeta cm = (JdbcMeta.ColumnMeta) a;
           actual = cm.displayName() + " : " + cm.vendorTypeName();
         }
       }
       case Alignment.LeftOnly(var d) -> {
-        ok = false;
         declared = d.typename().sqlType();
         actual = "(missing)";
       }
       case Alignment.RightOnly(var a) -> {
-        ok = false;
         declared = "(missing)";
         if (isParameter) {
           JdbcMeta.ParameterMeta pm = (JdbcMeta.ParameterMeta) a;
-          actual = pm.vendorTypeName();
+          String vendor = pm.vendorTypeName();
+          if (vendor == null || vendor.isEmpty()) {
+            vendorMissing = true;
+            actual = "(driver does not report)";
+          } else {
+            actual = vendor;
+          }
         } else {
           JdbcMeta.ColumnMeta cm = (JdbcMeta.ColumnMeta) a;
           actual = cm.displayName() + " : " + cm.vendorTypeName();
@@ -322,18 +546,22 @@ public record QueryAnalysis(
       }
     }
 
+    boolean skipped = (isParameter && !parameterMetadataAvailable) || vendorMissing;
+
     String label = isParameter ? "param" : "col";
     var b = Str.builder();
     b.gray("│  ");
-    if (ok) {
-      b.green("✓");
-    } else {
+    if (skipped) {
+      b.gray("·");
+    } else if (hasError) {
       b.red("✗");
+    } else {
+      b.green("✓");
     }
     b.plain(" " + label + "[").yellow(String.valueOf(pos)).plain("]: ");
 
     String declaredPadded = String.format("%-20s", declared);
-    if (ok || !declared.equals("(missing)")) {
+    if (!hasError || !declared.equals("(missing)")) {
       b.cyan(declaredPadded);
     } else {
       b.red(declaredPadded);
@@ -342,7 +570,7 @@ public record QueryAnalysis(
     b.gray(" → ");
 
     String actualPadded = String.format("%-30s", actual);
-    if (ok || !actual.equals("(missing)")) {
+    if (!hasError || !actual.equals("(missing)")) {
       b.plain(actualPadded);
     } else {
       b.red(actualPadded);

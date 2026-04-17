@@ -38,22 +38,66 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
     return columnNames;
   }
 
-  /** Comma-separated column names as a Fragment, useful for SQL SELECT lists. */
+  /**
+   * Comma-separated column names as a Fragment, useful for SQL SELECT lists.
+   *
+   * <p>Throws when the codec carries duplicate column names — which happens after {@link #join} /
+   * {@link #leftJoin} if the left and right sides share any column name. Call {@link
+   * #aliased(String)} on each side <em>before</em> the join to qualify columns with a table prefix:
+   *
+   * <pre>{@code
+   * var joined = empCodec.aliased("e").leftJoin(deptCodec.aliased("d"));
+   * // joined.columnList() -> "e.id, e.name, ..., d.id, d.name"
+   * var q = Fragment.of("SELECT ").append(joined.columnList())
+   *     .append(" FROM emp e LEFT JOIN dept d ON e.department = d.name")
+   *     .query(joined.all());
+   * }</pre>
+   *
+   * If you don't need named decoding, fall back to {@link RowCodec#leftJoin} which is positional
+   * and doesn't carry names.
+   */
   public Fragment columnList() {
+    var duplicates = findDuplicateNames();
+    if (!duplicates.isEmpty()) {
+      throw new IllegalStateException(
+          "RowCodecNamed.columnList() has duplicate column names "
+              + duplicates
+              + " (typically from a join of codecs sharing a column name). Call .aliased(\"x\") "
+              + "on each side before composing, or fall back to RowCodec.leftJoin for a "
+              + "positional result.");
+    }
     return Fragment.comma(columnNames.stream().map(Fragment::of).toList());
   }
 
   /**
-   * Comma-separated column names prefixed with a table alias, e.g. {@code v.id, v.name,
-   * v.capacity}.
+   * Return a copy of this codec where every column name is prefixed with {@code alias + "."}. Use
+   * before a join to keep {@link #columnList()} unambiguous:
+   *
+   * <pre>{@code
+   * empCodec.aliased("e").leftJoin(deptCodec.aliased("d"))
+   * }</pre>
+   *
+   * <p>The aliased codec's {@code columnList} is SELECT-friendly but not INSERT-friendly (an {@code
+   * INSERT INTO tbl (e.id, ...)} is almost never what you want). For INSERTs use the unaliased
+   * codec.
    */
-  public Fragment columnList(String alias) {
-    return Fragment.comma(
-        columnNames.stream().map(name -> Fragment.of(alias + "." + name)).toList());
+  public RowCodecNamed<Row> aliased(String alias) {
+    var prefixed = new ArrayList<String>(columnNames.size());
+    for (var name : columnNames) prefixed.add(alias + "." + name);
+    return new RowCodecNamed<>(prefixed, columns(), decode(), encode());
+  }
+
+  private List<String> findDuplicateNames() {
+    var seen = new java.util.HashSet<String>();
+    var dupes = new java.util.LinkedHashSet<String>();
+    for (var name : columnNames) {
+      if (!seen.add(name)) dupes.add(name);
+    }
+    return List.copyOf(dupes);
   }
 
   @Override
-  public RowCodec<Optional<Row>> opt() {
+  public RowCodecNamed<Optional<Row>> opt() {
     List<DbType<?>> optColumns = new ArrayList<>(columns().size());
     for (int i = 0; i < columns().size(); i++) {
       optColumns.add(columns().get(i).opt());
@@ -134,5 +178,33 @@ public final class RowCodecNamed<Row> extends RowCodec<Row> {
           return allValues;
         };
     return new RowCodecNamed<>(allNames, allColumns, joinDecode, joinEncode);
+  }
+
+  /**
+   * Left join that preserves column names. Wraps every column on the right side in {@code .opt()}
+   * so a row with all-null right-side columns decodes as {@code Optional.empty()}.
+   *
+   * <p>Unlike the positional {@link RowCodec#leftJoin}, this returns a {@link RowCodecNamed} so
+   * {@code columnList()}, {@code Fragment.insertInto}, and JSON encoding continue to work on the
+   * combined codec.
+   */
+  public <Row2> RowCodecNamed<Tuple.Tuple2<Row, Optional<Row2>>> leftJoin(
+      RowCodecNamed<Row2> right) {
+    return this.join(right.opt());
+  }
+
+  /**
+   * Right join that preserves column names. Wraps every column on the left side in {@code .opt()}
+   * so a row with all-null left-side columns decodes as {@code Optional.empty()}.
+   */
+  public <Row2> RowCodecNamed<Tuple.Tuple2<Optional<Row>, Row2>> rightJoin(
+      RowCodecNamed<Row2> right) {
+    return this.opt().join(right);
+  }
+
+  /** Full outer join that preserves column names. Both sides are wrapped in {@code .opt()}. */
+  public <Row2> RowCodecNamed<Tuple.Tuple2<Optional<Row>, Optional<Row2>>> fullJoin(
+      RowCodecNamed<Row2> right) {
+    return this.opt().join(right.opt());
   }
 }

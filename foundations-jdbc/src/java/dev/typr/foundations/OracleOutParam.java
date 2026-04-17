@@ -77,6 +77,12 @@ public interface OracleOutParam<A> extends DbOutParam<A> {
   OracleOutParam<OffsetDateTime> readOffsetDateTime =
       of(2014, (stmt, i) -> stmt.getObject(i, OffsetDateTime.class));
 
+  // Oracle TIMESTAMP WITH TIME ZONE — uses ZonedDateTime to preserve named zone regions
+  // (e.g. "America/Los_Angeles"), which OffsetDateTime would discard. Matches
+  // OracleRead.readZonedDateTime — see that field for the full rationale.
+  OracleOutParam<ZonedDateTime> readZonedDateTime =
+      of(2014, (stmt, i) -> stmt.getObject(i, ZonedDateTime.class));
+
   // Oracle JSON type code = 2016 (oracle.jdbc.OracleTypes.JSON)
   OracleOutParam<String> readJsonAsString = of(2016, CallableStatement::getString);
 

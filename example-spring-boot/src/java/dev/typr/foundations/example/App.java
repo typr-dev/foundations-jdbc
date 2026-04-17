@@ -3,8 +3,8 @@ package dev.typr.foundations.example;
 import dev.typr.foundations.AnalyzableScanner;
 import dev.typr.foundations.QueryChecker;
 import dev.typr.foundations.Transactor;
+import dev.typr.foundations.connect.ConnectionSource;
 import dev.typr.foundations.connect.DuckDbConfig;
-import dev.typr.foundations.connect.SingleConnectionDataSource;
 import javax.sql.DataSource;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,7 +20,7 @@ public class App {
 
   @Bean
   DataSource dataSource() {
-    return SingleConnectionDataSource.create(DuckDbConfig.inMemory().build());
+    return ConnectionSource.of(DuckDbConfig.inMemory().build());
   }
 
   @Bean

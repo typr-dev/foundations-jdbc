@@ -99,80 +99,6 @@ public interface PgOutParam<A> extends DbOutParam<A> {
             return obj == null ? null : obj.toString();
           });
 
-  // Unboxed primitive array readers
-  PgOutParam<boolean[]> readBooleanArrayUnboxed =
-      of(
-          Types.ARRAY,
-          (stmt, i) -> {
-            java.sql.Array arr = stmt.getArray(i);
-            if (arr == null) return null;
-            Object[] objects = (Object[]) arr.getArray();
-            boolean[] result = new boolean[objects.length];
-            for (int j = 0; j < objects.length; j++) result[j] = (Boolean) objects[j];
-            return result;
-          });
-
-  PgOutParam<short[]> readShortArrayUnboxed =
-      of(
-          Types.ARRAY,
-          (stmt, i) -> {
-            java.sql.Array arr = stmt.getArray(i);
-            if (arr == null) return null;
-            Object[] objects = (Object[]) arr.getArray();
-            short[] result = new short[objects.length];
-            for (int j = 0; j < objects.length; j++) result[j] = ((Number) objects[j]).shortValue();
-            return result;
-          });
-
-  PgOutParam<int[]> readIntArrayUnboxed =
-      of(
-          Types.ARRAY,
-          (stmt, i) -> {
-            java.sql.Array arr = stmt.getArray(i);
-            if (arr == null) return null;
-            Object[] objects = (Object[]) arr.getArray();
-            int[] result = new int[objects.length];
-            for (int j = 0; j < objects.length; j++) result[j] = ((Number) objects[j]).intValue();
-            return result;
-          });
-
-  PgOutParam<long[]> readLongArrayUnboxed =
-      of(
-          Types.ARRAY,
-          (stmt, i) -> {
-            java.sql.Array arr = stmt.getArray(i);
-            if (arr == null) return null;
-            Object[] objects = (Object[]) arr.getArray();
-            long[] result = new long[objects.length];
-            for (int j = 0; j < objects.length; j++) result[j] = ((Number) objects[j]).longValue();
-            return result;
-          });
-
-  PgOutParam<float[]> readFloatArrayUnboxed =
-      of(
-          Types.ARRAY,
-          (stmt, i) -> {
-            java.sql.Array arr = stmt.getArray(i);
-            if (arr == null) return null;
-            Object[] objects = (Object[]) arr.getArray();
-            float[] result = new float[objects.length];
-            for (int j = 0; j < objects.length; j++) result[j] = ((Number) objects[j]).floatValue();
-            return result;
-          });
-
-  PgOutParam<double[]> readDoubleArrayUnboxed =
-      of(
-          Types.ARRAY,
-          (stmt, i) -> {
-            java.sql.Array arr = stmt.getArray(i);
-            if (arr == null) return null;
-            Object[] objects = (Object[]) arr.getArray();
-            double[] result = new double[objects.length];
-            for (int j = 0; j < objects.length; j++)
-              result[j] = ((Number) objects[j]).doubleValue();
-            return result;
-          });
-
   @SuppressWarnings("unchecked")
   PgOutParam<java.util.Map<String, String>> readMapStringString =
       of(Types.OTHER, (stmt, i) -> (java.util.Map<String, String>) stmt.getObject(i));
@@ -252,46 +178,45 @@ public interface PgOutParam<A> extends DbOutParam<A> {
     };
   }
 
-  /** Read array from CallableStatement - PostgreSQL returns Array object. */
-  static <T> PgOutParam<T[]> array(java.util.function.IntFunction<T[]> arrayFactory) {
+  /** Read a PG array from CallableStatement as {@code List<T>}. Preserves null elements. */
+  static <T> PgOutParam<java.util.List<T>> list() {
     return of(
         Types.ARRAY,
         (stmt, i) -> {
           var arr = stmt.getArray(i);
           if (arr == null) return null;
           Object[] objects = (Object[]) arr.getArray();
-          T[] result = arrayFactory.apply(objects.length);
-          for (int j = 0; j < objects.length; j++) {
+          java.util.List<T> result = new java.util.ArrayList<>(objects.length);
+          for (Object o : objects) {
             @SuppressWarnings("unchecked")
-            T element = (T) objects[j];
-            result[j] = element;
+            T element = (T) o;
+            result.add(element);
           }
           return result;
         });
   }
 
-  /** Read array from CallableStatement with element parsing via PGobject text. */
-  static <T> PgOutParam<T[]> parsedArray(
-      java.util.function.IntFunction<T[]> arrayFactory, SqlFunction<String, T> parseElement) {
+  /** Read a PG array from CallableStatement with element text parsing. */
+  static <T> PgOutParam<java.util.List<T>> parsedList(SqlFunction<String, T> parseElement) {
     return of(
         Types.ARRAY,
         (stmt, i) -> {
           var arr = stmt.getArray(i);
           if (arr == null) return null;
           Object[] objects = (Object[]) arr.getArray();
-          T[] result = arrayFactory.apply(objects.length);
-          for (int j = 0; j < objects.length; j++) {
-            if (objects[j] == null) {
-              result[j] = null;
+          java.util.List<T> result = new java.util.ArrayList<>(objects.length);
+          for (Object o : objects) {
+            if (o == null) {
+              result.add(null);
               continue;
             }
             String text;
-            if (objects[j] instanceof org.postgresql.util.PGobject pg) {
+            if (o instanceof org.postgresql.util.PGobject pg) {
               text = pg.getValue();
             } else {
-              text = objects[j].toString();
+              text = o.toString();
             }
-            result[j] = parseElement.apply(text);
+            result.add(parseElement.apply(text));
           }
           return result;
         });

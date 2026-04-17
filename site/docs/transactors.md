@@ -52,10 +52,11 @@ var tx = pool.transactor();
 
 ## Single Connection Mode
 
-`SingleConnectionDataSource` reuses one connection across all calls — needed for DuckDB in-memory, where each new connection creates a separate database:
+When a config requires single-connection mode (e.g. DuckDB in-memory), `ConnectionSource.of()` automatically reuses one connection across all callers — no special setup needed. DuckDB in-memory creates a separate database per connection, so this is detected and handled transparently:
 
 ```java
-var ds = SingleConnectionDataSource.create(config);
+// DuckDB in-memory: single-connection mode is automatic
+var ds = ConnectionSource.of(DuckDbConfig.inMemory().build());
 var tx = ds.transactor();
 ```
 
@@ -65,13 +66,16 @@ The default strategy wraps each call in a transaction. Pass a different built-in
 
 | Strategy | Behavior |
 |----------|----------|
-| `defaultStrategy()` | begin, commit, close |
+| `defaultStrategy()` | begin, commit on success, rollback on error, close |
 | `autoCommitStrategy()` | no transaction management, just close |
-| `rollbackOnErrorStrategy()` | begin, commit on success, rollback on error, close |
-| `testStrategy()` | begin, **rollback** (not commit), close — keeps test data isolated |
+| `testStrategy()` | begin, **rollback** on success or error, close — keeps test data isolated |
 
 ```java
 var tx = Transactor.create(config, Transactor.testStrategy());
 ```
+
+:::warning testStrategy is for tests only
+`testStrategy()` rolls back every `execute` / `transact`, including ones that succeeded — **nothing persists**. If you copy this into a script, a tutorial, a migration, or any production code, your DDL and INSERTs will silently disappear. For anything that should persist, use `defaultStrategy()`.
+:::
 
 Strategies can be thoroughly customized with composable hooks for transaction lifecycle and observability. See [Strategies](./strategies) for details.

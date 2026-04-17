@@ -9,7 +9,7 @@ class EnumType {
     // Define your Kotlin enum
     enum class Status { PENDING, ACTIVE, COMPLETED }
 
-    // Create a PgType for it
-    val statusType: PgType<Status> = PgTypes.ofEnum("status", Status::valueOf)
+    // Create a PgType — reified, no arguments beyond the SQL type name
+    val statusType: PgType<Status> = PgTypes.ofEnum<Status>("status")
     //stop
 }

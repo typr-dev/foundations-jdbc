@@ -13,7 +13,7 @@ import java.util.Map;
  * @see <a href="https://mariadb.com/kb/en/about-mariadb-connector-j/">MariaDB Connector/J
  *     Documentation</a>
  */
-public final class MariaDbConfig implements DatabaseConfig {
+public final class MariaConfig implements DatabaseConfig {
 
   private final String host;
   private final int port;
@@ -134,7 +134,7 @@ public final class MariaDbConfig implements DatabaseConfig {
   // Escape hatch
   private final Map<String, String> extraProperties;
 
-  private MariaDbConfig(Builder b) {
+  private MariaConfig(Builder b) {
     this.host = b.host;
     this.port = b.port;
     this.database = b.database;
@@ -431,7 +431,7 @@ public final class MariaDbConfig implements DatabaseConfig {
     return props;
   }
 
-  /** Builder for MariaDbConfig with typed methods for all JDBC driver properties. */
+  /** Builder for MariaConfig with typed methods for all JDBC driver properties. */
   public static final class Builder {
     private final String host;
     private final int port;
@@ -1564,12 +1564,12 @@ public final class MariaDbConfig implements DatabaseConfig {
     }
 
     /**
-     * Build the MariaDbConfig.
+     * Build the MariaConfig.
      *
-     * @return immutable MariaDbConfig
+     * @return immutable MariaConfig
      */
-    public MariaDbConfig build() {
-      return new MariaDbConfig(this);
+    public MariaConfig build() {
+      return new MariaConfig(this);
     }
   }
 }

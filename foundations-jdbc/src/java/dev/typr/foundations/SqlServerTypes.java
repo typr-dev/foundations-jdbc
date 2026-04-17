@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 /**
  * SQL Server type definitions for the typr-runtime-java library.
@@ -47,6 +48,9 @@ public interface SqlServerTypes {
           SqlServerJson.int4,
           SqlServerOutParam.readInteger);
 
+  /** Alias for {@link #int_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  SqlServerType<Integer> integer = int_;
+
   SqlServerType<Long> bigint =
       SqlServerType.of(
           "BIGINT",
@@ -67,7 +71,7 @@ public interface SqlServerTypes {
 
   SqlServerType<BigDecimal> numeric = decimal.renamed("NUMERIC");
 
-  static SqlServerType<BigDecimal> decimal(int precision, int scale) {
+  static SqlServerType<BigDecimal> decimalOf(int precision, int scale) {
     return SqlServerType.of(
         SqlServerTypename.of("DECIMAL", precision, scale),
         SqlServerRead.readBigDecimal,
@@ -76,8 +80,8 @@ public interface SqlServerTypes {
         SqlServerOutParam.readBigDecimal);
   }
 
-  static SqlServerType<BigDecimal> numeric(int precision, int scale) {
-    return decimal(precision, scale).renamed("NUMERIC");
+  static SqlServerType<BigDecimal> numericOf(int precision, int scale) {
+    return decimalOf(precision, scale).renamed("NUMERIC");
   }
 
   SqlServerType<BigDecimal> money =
@@ -106,6 +110,9 @@ public interface SqlServerTypes {
           SqlServerJson.float4,
           SqlServerOutParam.readFloat);
 
+  /** Alias for {@link #real} — aesthetic cross-palette naming. 4B IEEE 754. */
+  SqlServerType<Float> float4 = real;
+
   SqlServerType<Double> float_ =
       SqlServerType.of(
           "FLOAT",
@@ -113,6 +120,12 @@ public interface SqlServerTypes {
           SqlServerWrite.writeDouble,
           SqlServerJson.float8,
           SqlServerOutParam.readDouble);
+
+  /**
+   * Alias for {@link #float_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754
+   * (FLOAT ≡ FLOAT(53)).
+   */
+  SqlServerType<Double> float8 = float_;
 
   // ==================== Boolean Type ====================
 
@@ -134,7 +147,10 @@ public interface SqlServerTypes {
           SqlServerJson.text,
           SqlServerOutParam.readString);
 
-  static SqlServerType<String> char_(int length) {
+  /** Alias for {@link #char_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  SqlServerType<String> character = char_;
+
+  static SqlServerType<String> char_Of(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("CHAR", length),
         SqlServerRead.readString,
@@ -151,7 +167,7 @@ public interface SqlServerTypes {
           SqlServerJson.text,
           SqlServerOutParam.readString);
 
-  static SqlServerType<String> varchar(int length) {
+  static SqlServerType<String> varcharOf(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("VARCHAR", length),
         SqlServerRead.readString,
@@ -180,7 +196,7 @@ public interface SqlServerTypes {
           SqlServerJson.text,
           SqlServerOutParam.readString);
 
-  static SqlServerType<String> nchar(int length) {
+  static SqlServerType<String> ncharOf(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("NCHAR", length),
         SqlServerRead.readString,
@@ -197,7 +213,7 @@ public interface SqlServerTypes {
           SqlServerJson.text,
           SqlServerOutParam.readString);
 
-  static SqlServerType<String> nvarchar(int length) {
+  static SqlServerType<String> nvarcharOf(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("NVARCHAR", length),
         SqlServerRead.readString,
@@ -226,7 +242,7 @@ public interface SqlServerTypes {
           SqlServerJson.bytea,
           SqlServerOutParam.readByteArray);
 
-  static SqlServerType<byte[]> binary(int length) {
+  static SqlServerType<byte[]> binaryOf(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("BINARY", length),
         SqlServerRead.readByteArray,
@@ -243,7 +259,7 @@ public interface SqlServerTypes {
           SqlServerJson.bytea,
           SqlServerOutParam.readByteArray);
 
-  static SqlServerType<byte[]> varbinary(int length) {
+  static SqlServerType<byte[]> varbinaryOf(int length) {
     return SqlServerType.of(
         SqlServerTypename.of("VARBINARY", length),
         SqlServerRead.readByteArray,
@@ -273,7 +289,7 @@ public interface SqlServerTypes {
           SqlServerJson.time,
           SqlServerOutParam.readLocalTime);
 
-  static SqlServerType<LocalTime> time(int scale) {
+  static SqlServerType<LocalTime> timeOf(int scale) {
     return SqlServerType.of(
         SqlServerTypename.of("TIME", scale),
         SqlServerRead.readTime,
@@ -309,7 +325,7 @@ public interface SqlServerTypes {
           SqlServerJson.timestamp,
           SqlServerOutParam.readLocalDateTime);
 
-  static SqlServerType<LocalDateTime> datetime2(int scale) {
+  static SqlServerType<LocalDateTime> datetime2Of(int scale) {
     return SqlServerType.of(
         SqlServerTypename.of("DATETIME2", scale),
         SqlServerRead.readTimestamp,
@@ -327,7 +343,7 @@ public interface SqlServerTypes {
           SqlServerJson.timestamptz,
           SqlServerOutParam.readOffsetDateTime);
 
-  static SqlServerType<OffsetDateTime> datetimeoffset(int scale) {
+  static SqlServerType<OffsetDateTime> datetimeoffsetOf(int scale) {
     return SqlServerType.of(
         SqlServerTypename.of("DATETIMEOFFSET", scale),
         SqlServerRead.readOffsetDateTime,
@@ -472,5 +488,41 @@ public interface SqlServerTypes {
     return json.transform(
         j -> rowJson.fromJson(JsonValue.parse(j.value())),
         list -> new Json(rowJson.toJson(list).encode()));
+  }
+
+  // ==================== ENUM Type ====================
+
+  /**
+   * Map enum values through an underlying SqlServerType. SQL Server has no native ENUM — this wraps
+   * any column type (NVARCHAR, INT, etc.) with a bidirectional mapping to/from enum constants.
+   *
+   * <pre>{@code
+   * // Store as string (NVARCHAR)
+   * SqlServerTypes.ofEnum(SqlServerTypes.nvarchar, Status.values(), Enum::name)
+   *
+   * // Store as integer
+   * SqlServerTypes.ofEnum(SqlServerTypes.int_, Status.values(), Status::ordinal)
+   * }</pre>
+   */
+  static <E, U> SqlServerType<E> ofEnum(
+      SqlServerType<U> underlying, E[] values, Function<E, U> toUnderlying) {
+    return underlying.transform(reverseMap(values, toUnderlying), toUnderlying);
+  }
+
+  /** Convenience: store enum names as NVARCHAR, column width derived from longest name. */
+  static <E extends Enum<E>> SqlServerType<E> ofEnum(E[] values) {
+    int maxLen = 0;
+    for (E v : values) maxLen = Math.max(maxLen, v.name().length());
+    return ofEnum(nvarcharOf(maxLen), values, Enum::name);
+  }
+
+  private static <E, U> SqlFunction<U, E> reverseMap(E[] values, Function<E, U> toUnderlying) {
+    var map = new java.util.HashMap<U, E>();
+    for (E v : values) map.put(toUnderlying.apply(v), v);
+    return u -> {
+      E result = map.get(u);
+      if (result == null) throw new IllegalArgumentException("No enum constant for: " + u);
+      return result;
+    };
   }
 }

@@ -22,7 +22,7 @@ public class DbJsonRowTest {
       RowCodec.<OrderLine>namedBuilder()
           .field("product", DuckDbTypes.varchar, OrderLine::product)
           .field("qty", DuckDbTypes.integer, OrderLine::qty)
-          .field("price", DuckDbTypes.decimal(10, 2), OrderLine::price)
+          .field("price", DuckDbTypes.decimalOf(10, 2), OrderLine::price)
           .build(OrderLine::new);
 
   static final DbJson<List<OrderLine>> linesCodec = DbJsonRow.jsonArray(lineCodec).list();

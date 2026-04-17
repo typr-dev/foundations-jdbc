@@ -11,9 +11,20 @@ class SqlServerTypes {
   // Primitives - convert Java boxed types to Scala native types
   val smallint: SqlServerType[Short] = SqlServerType(JavaSqlServerTypes.smallint.transform(s => s, s => s))
   val int_ : SqlServerType[Int] = SqlServerType(JavaSqlServerTypes.int_.transform(i => i, i => i))
+
+  /** Alias for [[int_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val integer: SqlServerType[Int] = int_
+
   val bigint: SqlServerType[Long] = SqlServerType(JavaSqlServerTypes.bigint.transform(l => l, l => l))
   val real: SqlServerType[Float] = SqlServerType(JavaSqlServerTypes.real.transform(f => f, f => f))
+
+  /** Alias for [[real]] — aesthetic cross-palette naming. 4B IEEE 754. */
+  val float4: SqlServerType[Float] = real
+
   val float_ : SqlServerType[Double] = SqlServerType(JavaSqlServerTypes.float_.transform(d => d, d => d))
+
+  /** Alias for [[float_]] — aesthetic, avoids the Java-keyword `_` suffix. 8B IEEE 754 (FLOAT ≡ FLOAT(53)). */
+  val float8: SqlServerType[Double] = float_
   val bit: SqlServerType[Boolean] = SqlServerType(JavaSqlServerTypes.bit.transform(b => b, b => b))
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
@@ -23,70 +34,73 @@ class SqlServerTypes {
   val smallmoney: SqlServerType[BigDecimal] = SqlServerType(JavaSqlServerTypes.smallmoney.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Forward all other types directly from Java
-  val tinyint = SqlServerType(JavaSqlServerTypes.tinyint)
-  val char_ = SqlServerType(JavaSqlServerTypes.char_)
-  val varchar = SqlServerType(JavaSqlServerTypes.varchar)
-  val varcharMax = SqlServerType(JavaSqlServerTypes.varcharMax)
-  val text = SqlServerType(JavaSqlServerTypes.text)
-  val nchar = SqlServerType(JavaSqlServerTypes.nchar)
-  val nvarchar = SqlServerType(JavaSqlServerTypes.nvarchar)
-  val nvarcharMax = SqlServerType(JavaSqlServerTypes.nvarcharMax)
-  val ntext = SqlServerType(JavaSqlServerTypes.ntext)
-  val binary = SqlServerType(JavaSqlServerTypes.binary)
-  val varbinary = SqlServerType(JavaSqlServerTypes.varbinary)
-  val varbinaryMax = SqlServerType(JavaSqlServerTypes.varbinaryMax)
-  val image = SqlServerType(JavaSqlServerTypes.image)
-  val date = SqlServerType(JavaSqlServerTypes.date)
-  val time = SqlServerType(JavaSqlServerTypes.time)
-  val datetime = SqlServerType(JavaSqlServerTypes.datetime)
-  val smalldatetime = SqlServerType(JavaSqlServerTypes.smalldatetime)
-  val datetime2 = SqlServerType(JavaSqlServerTypes.datetime2)
-  val datetimeoffset = SqlServerType(JavaSqlServerTypes.datetimeoffset)
-  val uniqueidentifier = SqlServerType(JavaSqlServerTypes.uniqueidentifier)
-  val xml = SqlServerType(JavaSqlServerTypes.xml)
-  val json = SqlServerType(JavaSqlServerTypes.json)
-  val vector = SqlServerType(JavaSqlServerTypes.vector)
-  val rowversion = SqlServerType(JavaSqlServerTypes.rowversion)
-  val timestamp = SqlServerType(JavaSqlServerTypes.timestamp)
-  val hierarchyid = SqlServerType(JavaSqlServerTypes.hierarchyid)
-  val sqlVariant = SqlServerType(JavaSqlServerTypes.sqlVariant)
-  val geography = SqlServerType(JavaSqlServerTypes.geography)
-  val geometry = SqlServerType(JavaSqlServerTypes.geometry)
-  val unknown = SqlServerType(JavaSqlServerTypes.unknown)
+  val tinyint: SqlServerType[dev.typr.foundations.data.Uint1] = SqlServerType(JavaSqlServerTypes.tinyint)
+  val char_ : SqlServerType[String] = SqlServerType(JavaSqlServerTypes.char_)
+
+  /** Alias for [[char_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val character: SqlServerType[String] = char_
+  val varchar: SqlServerType[String] = SqlServerType(JavaSqlServerTypes.varchar)
+  val varcharMax: SqlServerType[String] = SqlServerType(JavaSqlServerTypes.varcharMax)
+  val text: SqlServerType[String] = SqlServerType(JavaSqlServerTypes.text)
+  val nchar: SqlServerType[String] = SqlServerType(JavaSqlServerTypes.nchar)
+  val nvarchar: SqlServerType[String] = SqlServerType(JavaSqlServerTypes.nvarchar)
+  val nvarcharMax: SqlServerType[String] = SqlServerType(JavaSqlServerTypes.nvarcharMax)
+  val ntext: SqlServerType[String] = SqlServerType(JavaSqlServerTypes.ntext)
+  val binary: SqlServerType[Array[Byte]] = SqlServerType(JavaSqlServerTypes.binary)
+  val varbinary: SqlServerType[Array[Byte]] = SqlServerType(JavaSqlServerTypes.varbinary)
+  val varbinaryMax: SqlServerType[Array[Byte]] = SqlServerType(JavaSqlServerTypes.varbinaryMax)
+  val image: SqlServerType[Array[Byte]] = SqlServerType(JavaSqlServerTypes.image)
+  val date: SqlServerType[java.time.LocalDate] = SqlServerType(JavaSqlServerTypes.date)
+  val time: SqlServerType[java.time.LocalTime] = SqlServerType(JavaSqlServerTypes.time)
+  val datetime: SqlServerType[java.time.LocalDateTime] = SqlServerType(JavaSqlServerTypes.datetime)
+  val smalldatetime: SqlServerType[java.time.LocalDateTime] = SqlServerType(JavaSqlServerTypes.smalldatetime)
+  val datetime2: SqlServerType[java.time.LocalDateTime] = SqlServerType(JavaSqlServerTypes.datetime2)
+  val datetimeoffset: SqlServerType[java.time.OffsetDateTime] = SqlServerType(JavaSqlServerTypes.datetimeoffset)
+  val uniqueidentifier: SqlServerType[java.util.UUID] = SqlServerType(JavaSqlServerTypes.uniqueidentifier)
+  val xml: SqlServerType[dev.typr.foundations.data.Xml] = SqlServerType(JavaSqlServerTypes.xml)
+  val json: SqlServerType[dev.typr.foundations.data.Json] = SqlServerType(JavaSqlServerTypes.json)
+  val vector: SqlServerType[Array[Byte]] = SqlServerType(JavaSqlServerTypes.vector)
+  val rowversion: SqlServerType[Array[Byte]] = SqlServerType(JavaSqlServerTypes.rowversion)
+  val timestamp: SqlServerType[Array[Byte]] = SqlServerType(JavaSqlServerTypes.timestamp)
+  val hierarchyid: SqlServerType[dev.typr.foundations.data.HierarchyId] = SqlServerType(JavaSqlServerTypes.hierarchyid)
+  val sqlVariant: SqlServerType[AnyRef] = SqlServerType(JavaSqlServerTypes.sqlVariant)
+  val geography: SqlServerType[com.microsoft.sqlserver.jdbc.Geography] = SqlServerType(JavaSqlServerTypes.geography)
+  val geometry: SqlServerType[com.microsoft.sqlserver.jdbc.Geometry] = SqlServerType(JavaSqlServerTypes.geometry)
+  val unknown: SqlServerType[dev.typr.foundations.data.Unknown] = SqlServerType(JavaSqlServerTypes.unknown)
 
   // Forward static methods with Scala type conversion
-  def decimal(precision: Int, scale: Int): SqlServerType[BigDecimal] =
-    SqlServerType(JavaSqlServerTypes.decimal(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def decimalOf(precision: Int, scale: Int): SqlServerType[BigDecimal] =
+    SqlServerType(JavaSqlServerTypes.decimalOf(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def numeric(precision: Int, scale: Int): SqlServerType[BigDecimal] =
-    SqlServerType(JavaSqlServerTypes.numeric(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
+  def numericOf(precision: Int, scale: Int): SqlServerType[BigDecimal] =
+    SqlServerType(JavaSqlServerTypes.numericOf(precision, scale).transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
-  def char_(length: Int): SqlServerType[String] =
-    SqlServerType(JavaSqlServerTypes.char_(length))
+  def char_Of(length: Int): SqlServerType[String] =
+    SqlServerType(JavaSqlServerTypes.char_Of(length))
 
-  def varchar(length: Int): SqlServerType[String] =
-    SqlServerType(JavaSqlServerTypes.varchar(length))
+  def varcharOf(length: Int): SqlServerType[String] =
+    SqlServerType(JavaSqlServerTypes.varcharOf(length))
 
-  def nchar(length: Int): SqlServerType[String] =
-    SqlServerType(JavaSqlServerTypes.nchar(length))
+  def ncharOf(length: Int): SqlServerType[String] =
+    SqlServerType(JavaSqlServerTypes.ncharOf(length))
 
-  def nvarchar(length: Int): SqlServerType[String] =
-    SqlServerType(JavaSqlServerTypes.nvarchar(length))
+  def nvarcharOf(length: Int): SqlServerType[String] =
+    SqlServerType(JavaSqlServerTypes.nvarcharOf(length))
 
-  def binary(length: Int): SqlServerType[Array[Byte]] =
-    SqlServerType(JavaSqlServerTypes.binary(length))
+  def binaryOf(length: Int): SqlServerType[Array[Byte]] =
+    SqlServerType(JavaSqlServerTypes.binaryOf(length))
 
-  def varbinary(length: Int): SqlServerType[Array[Byte]] =
-    SqlServerType(JavaSqlServerTypes.varbinary(length))
+  def varbinaryOf(length: Int): SqlServerType[Array[Byte]] =
+    SqlServerType(JavaSqlServerTypes.varbinaryOf(length))
 
-  def time(scale: Int): SqlServerType[java.time.LocalTime] =
-    SqlServerType(JavaSqlServerTypes.time(scale))
+  def timeOf(scale: Int): SqlServerType[java.time.LocalTime] =
+    SqlServerType(JavaSqlServerTypes.timeOf(scale))
 
-  def datetime2(scale: Int): SqlServerType[java.time.LocalDateTime] =
-    SqlServerType(JavaSqlServerTypes.datetime2(scale))
+  def datetime2Of(scale: Int): SqlServerType[java.time.LocalDateTime] =
+    SqlServerType(JavaSqlServerTypes.datetime2Of(scale))
 
-  def datetimeoffset(scale: Int): SqlServerType[java.time.OffsetDateTime] =
-    SqlServerType(JavaSqlServerTypes.datetimeoffset(scale))
+  def datetimeoffsetOf(scale: Int): SqlServerType[java.time.OffsetDateTime] =
+    SqlServerType(JavaSqlServerTypes.datetimeoffsetOf(scale))
 
   // JSON-encoded row types
 
@@ -115,6 +129,15 @@ class SqlServerTypes {
           slist => java.util.List.copyOf(scala.jdk.CollectionConverters.SeqHasAsJava(slist).asJava)
         )
     )
+  def ofEnum[E <: AnyRef, U](underlying: SqlServerType[U], values: Array[E], toUnderlying: java.util.function.Function[E, U]): SqlServerType[E] =
+    SqlServerType(JavaSqlServerTypes.ofEnum(underlying.underlying, values.asInstanceOf[Array[Object & E]], toUnderlying))
+
+  def ofEnum[E <: Enum[E]](values: Array[E]): SqlServerType[E] =
+    SqlServerType(JavaSqlServerTypes.ofEnum(values))
+
+  def ofEnum[E <: AnyRef](values: Array[E]): SqlServerType[E] =
+    ofEnum(SqlServerTypes.nvarchar, values, ((e: E) => e.toString): java.util.function.Function[E, String])
+
 }
 
 object SqlServerTypes extends SqlServerTypes

@@ -180,8 +180,10 @@ object Operation {
     override def run(conn: Connection): Out = underlying.run(conn)
   }
 
-  class UpdateMany[Row](val underlying: dev.typr.foundations.Operation.UpdateMany[Row]) extends Operation[Array[Int]] {
-    override def run(conn: Connection): Array[Int] = underlying.run(conn)
+  class UpdateMany[Row](val underlying: dev.typr.foundations.Operation.UpdateMany[Row]) extends Operation[List[Int]] {
+    import _root_.scala.jdk.CollectionConverters.*
+    override def run(conn: Connection): List[Int] =
+      underlying.run(conn).asScala.iterator.map(_.intValue).toList
   }
 
   class UpdateManyReturning[Row](val underlying: dev.typr.foundations.Operation.UpdateManyReturning[Row]) extends Operation[List[Row]] {
@@ -194,8 +196,10 @@ object Operation {
     override def run(conn: Connection): List[Row] = underlying.run(conn).asScala.toList
   }
 
-  class UpdateManyTemplate[Row](val underlying: dev.typr.foundations.Operation.UpdateManyTemplate[Row]) extends Operation[Array[Int]] {
-    override def run(conn: Connection): Array[Int] = underlying.run(conn)
+  class UpdateManyTemplate[Row](val underlying: dev.typr.foundations.Operation.UpdateManyTemplate[Row]) extends Operation[List[Int]] {
+    import _root_.scala.jdk.CollectionConverters.*
+    override def run(conn: Connection): List[Int] =
+      underlying.run(conn).asScala.iterator.map(_.intValue).toList
   }
 
   class StreamingCopy(val underlying: dev.typr.foundations.Operation[java.lang.Long]) extends Operation[Long] {

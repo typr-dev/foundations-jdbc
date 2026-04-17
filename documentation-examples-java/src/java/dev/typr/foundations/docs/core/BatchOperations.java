@@ -24,14 +24,14 @@ public class BatchOperations {
   // Batch insert — all columns as parameters
   RowTemplate.Update<Product> insertAll = Fragment.insertInto("product", productCodec);
 
-  int[] insertProducts(List<Product> products) {
+  List<Integer> insertProducts(List<Product> products) {
     return insertAll.onMany(products.iterator()).run(conn);
   }
 
   // Batch insert — skip auto-generated ID column
   RowTemplate.Update<Product> insertAutoId = Fragment.insertInto("product", productCodec, "id");
 
-  int[] insertProductsAutoId(List<Product> products) {
+  List<Integer> insertProductsAutoId(List<Product> products) {
     return insertAutoId.onMany(products.iterator()).run(conn);
   }
   // stop

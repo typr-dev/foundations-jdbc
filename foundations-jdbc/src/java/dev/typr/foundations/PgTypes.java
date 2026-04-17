@@ -31,7 +31,7 @@ public interface PgTypes {
           PgJson.numeric,
           PgOutParam.readBigDecimal,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ',');
   PgType<Boolean> bool =
       new PgType<>(
@@ -43,26 +43,12 @@ public interface PgTypes {
           PgJson.bool,
           PgOutParam.readBoolean,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
-          ',');
-
-  @SuppressWarnings("unchecked")
-  PgType<boolean[]> boolArrayUnboxed =
-      new PgType<>(
-          (PgTypename<boolean[]>) (PgTypename<?>) PgTypename.of("bool").array(),
-          PgRead.readBooleanArrayUnboxed,
-          PgWrite.writeBooleanArrayUnboxed,
-          PgText.boolArrayUnboxed,
-          PgCompositeText.boolArrayUnboxed,
-          PgJson.boolArrayUnboxed,
-          PgOutParam.readBooleanArrayUnboxed,
-          AnalysisOptions.EMPTY,
-          Optional.empty(),
+          Optional.of(PgElementCodec.cast()),
           ',');
 
   PgType<Bit> bit = bitType("bit");
 
-  static PgType<Bit> bit(int n) {
+  static PgType<Bit> bitOf(int n) {
     return new PgType<>(
         PgTypename.of("bit", n),
         PgRead.bitString.map(Bit::new),
@@ -72,7 +58,7 @@ public interface PgTypes {
         PgJson.bit,
         PgOutParam.bitString(Bit::new),
         AnalysisOptions.EMPTY,
-        Optional.of(PgArrayCodec.textParsed()),
+        Optional.of(PgElementCodec.textParsed()),
         ',');
   }
 
@@ -86,7 +72,7 @@ public interface PgTypes {
         PgJson.bit,
         PgOutParam.bitString(Bit::new),
         AnalysisOptions.EMPTY,
-        Optional.of(PgArrayCodec.textParsed()),
+        Optional.of(PgElementCodec.textParsed()),
         ',');
   }
 
@@ -102,21 +88,7 @@ public interface PgTypes {
           PgJson.float8,
           PgOutParam.readDouble,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
-          ',');
-
-  @SuppressWarnings("unchecked")
-  PgType<double[]> float8ArrayUnboxed =
-      new PgType<>(
-          (PgTypename<double[]>) (PgTypename<?>) PgTypename.of("float8").array(),
-          PgRead.readDoubleArrayUnboxed,
-          PgWrite.writeDoubleArrayUnboxed,
-          PgText.doubleArrayUnboxed,
-          PgCompositeText.doubleArrayUnboxed,
-          PgJson.doubleArrayUnboxed,
-          PgOutParam.readDoubleArrayUnboxed,
-          AnalysisOptions.EMPTY,
-          Optional.empty(),
+          Optional.of(PgElementCodec.cast()),
           ',');
 
   PgType<Float> float4 =
@@ -129,21 +101,7 @@ public interface PgTypes {
           PgJson.float4,
           PgOutParam.readFloat,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
-          ',');
-
-  @SuppressWarnings("unchecked")
-  PgType<float[]> float4ArrayUnboxed =
-      new PgType<>(
-          (PgTypename<float[]>) (PgTypename<?>) PgTypename.of("float4").array(),
-          PgRead.readFloatArrayUnboxed,
-          PgWrite.writeFloatArrayUnboxed,
-          PgText.floatArrayUnboxed,
-          PgCompositeText.floatArrayUnboxed,
-          PgJson.floatArrayUnboxed,
-          PgOutParam.readFloatArrayUnboxed,
-          AnalysisOptions.EMPTY,
-          Optional.empty(),
+          Optional.of(PgElementCodec.cast()),
           ',');
 
   PgType<Inet> inet = ofPgObject("inet", Inet::new, Inet::value, PgJson.inet);
@@ -164,7 +122,7 @@ public interface PgTypes {
           PgJson.timestamptz,
           PgOutParam.readInstant,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.of(obj -> ((java.sql.Timestamp) obj).toInstant())),
+          Optional.of(PgElementCodec.of(obj -> ((java.sql.Timestamp) obj).toInstant())),
           ',');
   PgType<Int2Vector> int2vector =
       ofPgObject("int2vector", Int2Vector::new, Int2Vector::value, PgJson.int2vector);
@@ -178,29 +136,15 @@ public interface PgTypes {
           PgJson.int4,
           PgOutParam.readInteger,
           AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("serial")),
-          Optional.of(PgArrayCodec.cast()),
-          ',');
-
-  @SuppressWarnings("unchecked")
-  PgType<int[]> int4ArrayUnboxed =
-      new PgType<>(
-          (PgTypename<int[]>) (PgTypename<?>) PgTypename.of("int4").array(),
-          PgRead.readIntArrayUnboxed,
-          PgWrite.writeIntArrayUnboxed,
-          PgText.intArrayUnboxed,
-          PgCompositeText.intArrayUnboxed,
-          PgJson.intArrayUnboxed,
-          PgOutParam.readIntArrayUnboxed,
-          AnalysisOptions.EMPTY,
-          Optional.empty(),
+          Optional.of(PgElementCodec.cast()),
           ',');
 
   PgType<Json> json =
       ofPgObject("json", Json::new, Json::value, PgJson.json)
-          .withArrayCodec(PgArrayCodec.fromString(Json::new));
+          .withArrayCodec(PgElementCodec.fromString(Json::new));
   PgType<Jsonb> jsonb =
       ofPgObject("jsonb", Jsonb::new, Jsonb::value, PgJson.jsonb)
-          .withArrayCodec(PgArrayCodec.fromString(Jsonb::new));
+          .withArrayCodec(PgElementCodec.fromString(Jsonb::new));
   PgType<LocalDate> date =
       new PgType<>(
           PgTypename.of("date"),
@@ -211,7 +155,7 @@ public interface PgTypes {
           PgJson.date,
           PgOutParam.readLocalDate,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.of(obj -> ((java.sql.Date) obj).toLocalDate())),
+          Optional.of(PgElementCodec.of(obj -> ((java.sql.Date) obj).toLocalDate())),
           ',');
   PgType<LocalDateTime> timestamp =
       new PgType<>(
@@ -225,7 +169,7 @@ public interface PgTypes {
           PgJson.timestamp,
           PgOutParam.readLocalDateTime,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.of(obj -> ((java.sql.Timestamp) obj).toLocalDateTime())),
+          Optional.of(PgElementCodec.of(obj -> ((java.sql.Timestamp) obj).toLocalDateTime())),
           ',');
   PgType<LocalTime> time =
       new PgType<>(
@@ -237,7 +181,7 @@ public interface PgTypes {
           PgJson.time,
           PgOutParam.readLocalTime,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.textParsed()),
+          Optional.of(PgElementCodec.textParsed()),
           ',');
   PgType<Long> int8 =
       new PgType<>(
@@ -249,21 +193,7 @@ public interface PgTypes {
           PgJson.int8,
           PgOutParam.readLong,
           AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("bigserial")),
-          Optional.of(PgArrayCodec.cast()),
-          ',');
-
-  @SuppressWarnings("unchecked")
-  PgType<long[]> int8ArrayUnboxed =
-      new PgType<>(
-          (PgTypename<long[]>) (PgTypename<?>) PgTypename.of("int8").array(),
-          PgRead.readLongArrayUnboxed,
-          PgWrite.writeLongArrayUnboxed,
-          PgText.longArrayUnboxed,
-          PgCompositeText.longArrayUnboxed,
-          PgJson.longArrayUnboxed,
-          PgOutParam.readLongArrayUnboxed,
-          AnalysisOptions.EMPTY,
-          Optional.empty(),
+          Optional.of(PgElementCodec.cast()),
           ',');
 
   PgType<Oid> oid =
@@ -276,7 +206,7 @@ public interface PgTypes {
           PgJson.text.transform(s -> new Oid(Long.parseLong(s)), o -> Long.toString(o.value())),
           PgOutParam.readLong.map(Oid::new),
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.of(obj -> new Oid(((Number) obj).longValue()))),
+          Optional.of(PgElementCodec.of(obj -> new Oid(((Number) obj).longValue()))),
           ',');
 
   PgType<Map<String, String>> hstore =
@@ -301,7 +231,7 @@ public interface PgTypes {
           PgJson.money,
           PgOutParam.readDouble.map(Money::new),
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.textParsed()),
+          Optional.of(PgElementCodec.textParsed()),
           ',');
   PgType<String> name =
       new PgType<>(
@@ -313,7 +243,7 @@ public interface PgTypes {
           PgJson.text,
           PgOutParam.readString,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ',');
   PgType<OffsetTime> timetz =
       new PgType<>(
@@ -325,7 +255,7 @@ public interface PgTypes {
           PgJson.timetz,
           PgOutParam.readOffsetTime,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.textParsed()),
+          Optional.of(PgElementCodec.textParsed()),
           ',');
   PgType<OidVector> oidvector =
       ofPgObject("oidvector", OidVector::new, OidVector::value, PgJson.oidvector);
@@ -339,7 +269,7 @@ public interface PgTypes {
           PgJson.interval,
           PgOutParam.castTo(PGInterval.class),
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ',');
   PgType<PGbox> box =
       new PgType<>(
@@ -351,7 +281,7 @@ public interface PgTypes {
           PgJson.box,
           PgOutParam.castTo(PGbox.class),
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ';');
   PgType<PGcircle> circle =
       new PgType<>(
@@ -363,7 +293,7 @@ public interface PgTypes {
           PgJson.circle,
           PgOutParam.castTo(PGcircle.class),
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ';');
   PgType<PGline> line =
       new PgType<>(
@@ -375,7 +305,7 @@ public interface PgTypes {
           PgJson.line,
           PgOutParam.castTo(PGline.class),
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ';');
   PgType<PGlseg> lseg =
       new PgType<>(
@@ -387,7 +317,7 @@ public interface PgTypes {
           PgJson.lseg,
           PgOutParam.castTo(PGlseg.class),
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ';');
   PgType<PGpath> path =
       new PgType<>(
@@ -399,7 +329,7 @@ public interface PgTypes {
           PgJson.path,
           PgOutParam.castTo(PGpath.class),
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ';');
   PgType<PGpoint> point =
       new PgType<>(
@@ -411,7 +341,7 @@ public interface PgTypes {
           PgJson.point,
           PgOutParam.castTo(PGpoint.class),
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ';');
   PgType<PGpolygon> polygon =
       new PgType<>(
@@ -423,7 +353,7 @@ public interface PgTypes {
           PgJson.polygon,
           PgOutParam.castTo(PGpolygon.class),
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ';');
   PgType<PgNodeTree> pgNodeTree =
       ofPgObject(
@@ -457,7 +387,7 @@ public interface PgTypes {
           PgJson.int2,
           PgOutParam.readShort,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ',');
   PgType<Short> smallint =
       int2.withTypename(PgTypename.of("smallint"))
@@ -465,28 +395,6 @@ public interface PgTypes {
   PgType<Short> smallserial =
       int2.withTypename(PgTypename.of("smallserial"))
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("int2")));
-
-  @SuppressWarnings("unchecked")
-  PgType<short[]> int2ArrayUnboxed =
-      new PgType<>(
-          (PgTypename<short[]>) (PgTypename<?>) PgTypename.of("int2").array(),
-          PgRead.readShortArrayUnboxed,
-          PgWrite.writeShortArrayUnboxed,
-          PgText.shortArrayUnboxed,
-          PgCompositeText.shortArrayUnboxed,
-          PgJson.shortArrayUnboxed,
-          PgOutParam.readShortArrayUnboxed,
-          AnalysisOptions.EMPTY,
-          Optional.empty(),
-          ',');
-
-  @SuppressWarnings("unchecked")
-  PgType<short[]> smallintArrayUnboxed =
-      int2ArrayUnboxed
-          .renamed("smallint")
-          .withAnalysis(
-              AnalysisOptions.EMPTY.withVendorTypeNames(
-                  (PgTypename<short[]>) (PgTypename<?>) PgTypename.of("int2").array()));
 
   PgType<String> bpchar =
       new PgType<>(
@@ -498,7 +406,7 @@ public interface PgTypes {
           PgJson.text,
           PgOutParam.readString,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ',');
   PgType<String> text =
       new PgType<>(
@@ -510,7 +418,7 @@ public interface PgTypes {
           PgJson.text,
           PgOutParam.readString,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ',');
   PgType<UUID> uuid =
       new PgType<>(
@@ -522,7 +430,7 @@ public interface PgTypes {
           PgJson.uuid,
           PgOutParam.readUUID,
           AnalysisOptions.EMPTY,
-          Optional.of(PgArrayCodec.cast()),
+          Optional.of(PgElementCodec.cast()),
           ',');
   PgType<Xid> xid = ofPgObject("xid", Xid::new, Xid::value, PgJson.xid);
   PgType<Xml> xml =
@@ -535,7 +443,7 @@ public interface PgTypes {
               PgJson.text,
               PgOutParam.readString,
               AnalysisOptions.EMPTY,
-              Optional.of(PgArrayCodec.of(obj -> ((PGobject) obj).getValue())),
+              Optional.of(PgElementCodec.of(obj -> ((PGobject) obj).getValue())),
               ',')
           .transform(Xml::new, Xml::value);
   PgType<Vector> vector =
@@ -548,7 +456,7 @@ public interface PgTypes {
               PgJson.text,
               PgOutParam.readString,
               AnalysisOptions.EMPTY,
-              Optional.of(PgArrayCodec.of(obj -> ((PGobject) obj).getValue())),
+              Optional.of(PgElementCodec.of(obj -> ((PGobject) obj).getValue())),
               ',')
           .transform(Vector::new, Vector::value);
   PgType<Unknown> unknown =
@@ -561,7 +469,7 @@ public interface PgTypes {
               PgJson.text,
               PgOutParam.readString,
               AnalysisOptions.EMPTY,
-              Optional.<PgArrayCodec<String>>empty(),
+              Optional.<PgElementCodec<String>>empty(),
               ',')
           .transform(Unknown::new, Unknown::value);
   PgType<byte[]> bytea =
@@ -592,17 +500,50 @@ public interface PgTypes {
       rangeType("tstzrange", RangeParser.TIMESTAMPTZ_PARSER, Range.TIMESTAMPTZ, PgJson.tstzrange);
 
   static <E extends Enum<E>> PgType<E> ofEnum(String sqlType, Function<String, E> fromString) {
+    return ofEnumImpl(sqlType, fromString, Enum::name);
+  }
+
+  /**
+   * Create a PgType for ENUM columns from a values array. No reflection.
+   *
+   * @param sqlType the PostgreSQL type name (e.g., "status")
+   * @param values all enum constants (e.g., {@code Status.values()})
+   */
+  static <E extends Enum<E>> PgType<E> ofEnum(String sqlType, E[] values) {
+    return ofEnumImpl(sqlType, enumFromString(values, Enum::name), Enum::name);
+  }
+
+  /**
+   * Create a PgType for ENUM columns from a values array and a name function. No {@code Enum} bound
+   * required — works with Scala 3 enums and other constant sets.
+   */
+  static <E> PgType<E> ofEnum(String sqlType, E[] values, Function<E, String> name) {
+    return ofEnumImpl(sqlType, enumFromString(values, name), name);
+  }
+
+  private static <E> PgType<E> ofEnumImpl(
+      String sqlType, Function<String, E> fromString, Function<E, String> name) {
     return new PgType<>(
         PgTypename.of(sqlType),
         PgRead.readString.map(fromString::apply),
-        PgWrite.writeString.contramap(Enum::name),
-        PgText.textString.contramap(Enum::name),
-        PgCompositeText.text.transform(fromString::apply, Enum::name),
-        PgJson.text.transform(fromString::apply, Enum::name),
+        PgWrite.writeString.contramap(name::apply),
+        PgText.textString.contramap(name::apply),
+        PgCompositeText.text.transform(fromString::apply, name::apply),
+        PgJson.text.transform(fromString::apply, name::apply),
         PgOutParam.readString.map(fromString::apply),
         AnalysisOptions.EMPTY,
-        Optional.of(PgArrayCodec.fromString(fromString::apply)),
+        Optional.of(PgElementCodec.fromString(fromString::apply)),
         ',');
+  }
+
+  private static <E> Function<String, E> enumFromString(E[] values, Function<E, String> name) {
+    var map = new java.util.HashMap<String, E>();
+    for (E v : values) map.put(name.apply(v), v);
+    return s -> {
+      E result = map.get(s);
+      if (result == null) throw new IllegalArgumentException("No enum constant: " + s);
+      return result;
+    };
   }
 
   static <T> PgType<T> ofPgObject(
@@ -627,14 +568,14 @@ public interface PgTypes {
         json,
         PgOutParam.pgObject(constructor),
         AnalysisOptions.EMPTY,
-        Optional.of(PgArrayCodec.pgObject(constructor)),
+        Optional.of(PgElementCodec.pgObject(constructor)),
         ',');
   }
 
   // Default record type for generic composite/record columns
   PgType<Record> record = ofPgObject("record", Record::new, Record::value, PgJson.record);
 
-  static PgType<Record> record(String sqlType) {
+  static PgType<Record> recordOf(String sqlType) {
     return ofPgObject(sqlType, Record::new, Record::value, PgJson.record);
   }
 
@@ -648,11 +589,11 @@ public interface PgTypes {
         json,
         PgOutParam.castTo(clazz),
         AnalysisOptions.EMPTY,
-        Optional.of(PgArrayCodec.cast()),
+        Optional.of(PgElementCodec.cast()),
         ',');
   }
 
-  static PgType<String> bpchar(int precision) {
+  static PgType<String> bpcharOf(int precision) {
     return new PgType<>(
         PgTypename.of("bpchar", precision),
         PgRead.readString,
@@ -662,7 +603,7 @@ public interface PgTypes {
         PgJson.text,
         PgOutParam.readString,
         AnalysisOptions.EMPTY,
-        Optional.of(PgArrayCodec.cast()),
+        Optional.of(PgElementCodec.cast()),
         ',');
   }
 
@@ -689,7 +630,7 @@ public interface PgTypes {
         PgOutParam.pgObject(str -> RangeParser.parse(str, valueParser, rangeFactory)),
         AnalysisOptions.EMPTY,
         Optional.of(
-            PgArrayCodec.of(
+            PgElementCodec.of(
                 obj -> {
                   try {
                     return RangeParser.parse(
@@ -879,7 +820,7 @@ public interface PgTypes {
         pgJson,
         pgOutParam,
         AnalysisOptions.EMPTY,
-        Optional.of(PgArrayCodec.of(obj -> parseFromText.apply(obj.toString()))),
+        Optional.of(PgElementCodec.of(obj -> parseFromText.apply(obj.toString()))),
         ',');
   }
 

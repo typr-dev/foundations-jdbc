@@ -4,10 +4,10 @@ import dev.typr.foundationskt.*
 import dev.typr.foundationskt.connect.*
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.OffsetDateTime
+import java.time.Instant
 
 fun main() {
-    val ds = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build())
+    val ds = ConnectionSource.of(DuckDbConfig.inMemory().build())
     val tx = ds.transactor(Transactor.autoCommitStrategy())
 
     // ── Apply schema ────────────────────────────────────────────────
@@ -38,7 +38,7 @@ fun main() {
         ),
         eventTitle = "Kotlin Night Live",
         eventDescription = "An evening of live coding and music",
-        eventDate = OffsetDateTime.parse("2026-03-15T19:00:00Z"),
+        eventDate = Instant.parse("2026-03-15T19:00:00Z"),
         doorOpen = LocalDate.of(2026, 3, 15),
         basePrice = Money(BigDecimal("49.99")),
         eventTags = listOf("kotlin", "live-coding", "music")

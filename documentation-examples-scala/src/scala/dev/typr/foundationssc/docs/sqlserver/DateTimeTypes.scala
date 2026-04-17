@@ -9,7 +9,7 @@ object DateTimeTypes:
   // start
   val dateType: SqlServerType[LocalDate] = SqlServerTypes.date
   val timeType: SqlServerType[LocalTime] = SqlServerTypes.time
-  val time3: SqlServerType[LocalTime] = SqlServerTypes.time(3) // TIME(3)
+  val time3: SqlServerType[LocalTime] = SqlServerTypes.timeOf(3) // TIME(3)
 
   // Legacy types
   val datetimeType: SqlServerType[LocalDateTime] = SqlServerTypes.datetime
@@ -17,9 +17,9 @@ object DateTimeTypes:
 
   // Modern types (recommended)
   val datetime2Type: SqlServerType[LocalDateTime] = SqlServerTypes.datetime2
-  val datetime2_3: SqlServerType[LocalDateTime] = SqlServerTypes.datetime2(3)
+  val datetime2_3: SqlServerType[LocalDateTime] = SqlServerTypes.datetime2Of(3)
 
   // Timezone-aware
   val dtoType: SqlServerType[OffsetDateTime] = SqlServerTypes.datetimeoffset
-  val dto3: SqlServerType[OffsetDateTime] = SqlServerTypes.datetimeoffset(3)
+  val dto3: SqlServerType[OffsetDateTime] = SqlServerTypes.datetimeoffsetOf(3)
   // stop

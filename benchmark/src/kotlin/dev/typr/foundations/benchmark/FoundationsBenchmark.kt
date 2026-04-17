@@ -2,7 +2,7 @@ package dev.typr.foundations.benchmark
 
 import dev.typr.foundationskt.*
 
-class FoundationsBenchmark(ds: dev.typr.foundations.connect.SingleConnectionDataSource) : LibraryBenchmark {
+class FoundationsBenchmark(ds: dev.typr.foundations.connect.ConnectionSource) : LibraryBenchmark {
     override val name = "Foundations JDBC"
 
     private val tx = Transactor(ds.transactor(dev.typr.foundations.Transactor.autoCommitStrategy()))

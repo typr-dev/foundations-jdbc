@@ -7,8 +7,8 @@ import dev.typr.foundations.OracleTypes;
 public class StringTypes {
   // start
   OracleType<String> varcharType = OracleTypes.varchar2;
-  OracleType<String> varchar100 = OracleTypes.varchar2(100);
-  OracleType<String> charType = OracleTypes.char_(10);
-  OracleType<String> nvarcharType = OracleTypes.nvarchar2(100);
+  OracleType<String> varchar100 = OracleTypes.varchar2Of(100);
+  OracleType<String> charType = OracleTypes.char_Of(10);
+  OracleType<String> nvarcharType = OracleTypes.nvarchar2Of(100);
   // stop
 }

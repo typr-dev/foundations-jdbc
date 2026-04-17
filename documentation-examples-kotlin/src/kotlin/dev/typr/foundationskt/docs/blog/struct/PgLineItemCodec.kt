@@ -15,6 +15,6 @@ class PgLineItemCodec {
         .build(::LineItem)
 
     val lineItemType: PgType<LineItem> = PgTypes.compositeOf(lineItemCodec)
-    val lineItemArrayType: PgType<Array<LineItem>> = lineItemType.array()
+    val lineItemArrayType: PgType<List<LineItem>> = lineItemType.array()
     //stop
 }

@@ -21,16 +21,16 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
   }
 
   /**
-   * Create a LIST type from this element type. For example, VARCHAR becomes VARCHAR[] (or
-   * LIST(VARCHAR)).
+   * Create a LIST type from this element type. LIST is variable-length. For example, VARCHAR
+   * becomes VARCHAR[] (or LIST(VARCHAR)).
    */
   DuckDbTypename<java.util.List<A>> list();
 
   /**
-   * Create an array type from this element type (for Java array compatibility). Uses the same SQL
-   * representation as list() but with Java arrays.
+   * Create a fixed-size ARRAY type from this element type with the given cardinality. For example,
+   * FLOAT becomes FLOAT[3] for a 3D vector. Every row has exactly {@code size} elements.
    */
-  DuckDbTypename<A[]> array();
+  DuckDbTypename<java.util.List<A>> array(int size);
 
   /**
    * Create a MAP type from this key type and another value type. For example,
@@ -55,6 +55,20 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     return (DuckDbTypename<B>) this;
   }
 
+  /**
+   * Whether this typename is constructed from other typenames (LIST, ARRAY, MAP, STRUCT, UNION).
+   * {@link Base} and {@link Opt}-of-scalar are leaves. Lets callers walk the typename tree
+   * polymorphically without {@code instanceof}.
+   */
+  default boolean isConstructed() {
+    return false;
+  }
+
+  /** Whether this typename represents a nullable SQL value. Only {@link Opt} is nullable. */
+  default boolean isNullable() {
+    return false;
+  }
+
   // ==================== Implementations ====================
 
   /** Base type with optional precision and scale. Examples: VARCHAR, DECIMAL(10,2), INTEGER */
@@ -75,13 +89,18 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
+    public String toString() {
+      return sqlType();
+    }
+
+    @Override
     public DuckDbTypename<java.util.List<A>> list() {
       return new ListOf<>(this);
     }
 
     @Override
-    public DuckDbTypename<A[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<A>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override
@@ -108,8 +127,18 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
    */
   record ListOf<A>(DuckDbTypename<A> elementType) implements DuckDbTypename<java.util.List<A>> {
     @Override
+    public boolean isConstructed() {
+      return true;
+    }
+
+    @Override
     public String sqlType() {
       return elementType.sqlType() + "[]";
+    }
+
+    @Override
+    public String toString() {
+      return elementType + "[]";
     }
 
     @Override
@@ -119,8 +148,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<java.util.List<A>[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<java.util.List<A>>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override
@@ -147,8 +176,18 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
   record MapOf<K, V>(DuckDbTypename<K> keyType, DuckDbTypename<V> valueType)
       implements DuckDbTypename<java.util.Map<K, V>> {
     @Override
+    public boolean isConstructed() {
+      return true;
+    }
+
+    @Override
     public String sqlType() {
       return "MAP(" + keyType.sqlType() + ", " + valueType.sqlType() + ")";
+    }
+
+    @Override
+    public String toString() {
+      return "MAP(" + keyType + ", " + valueType + ")";
     }
 
     @Override
@@ -157,8 +196,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<java.util.Map<K, V>[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<java.util.Map<K, V>>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override
@@ -192,8 +231,18 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
   record ArrayOf<A>(DuckDbTypename<A> elementType, int size)
       implements DuckDbTypename<java.util.List<A>> {
     @Override
+    public boolean isConstructed() {
+      return true;
+    }
+
+    @Override
     public String sqlType() {
       return elementType.sqlType() + "[" + size + "]";
+    }
+
+    @Override
+    public String toString() {
+      return elementType + "[" + size + "]";
     }
 
     @Override
@@ -202,8 +251,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<java.util.List<A>[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<java.util.List<A>>> array(int outerSize) {
+      return new ArrayOf<>(this, outerSize);
     }
 
     @Override
@@ -228,6 +277,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     public record StructField(String name, DuckDbTypename<?> type) {}
 
     @Override
+    public boolean isConstructed() {
+      return true;
+    }
+
+    @Override
     public String sqlType() {
       StringBuilder sb = new StringBuilder("STRUCT(");
       for (int i = 0; i < fields.size(); i++) {
@@ -243,6 +297,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
       }
       sb.append(")");
       return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+      return name;
     }
 
     private static boolean needsQuoting(String name) {
@@ -262,8 +321,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<A[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<A>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override
@@ -293,6 +352,11 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     public record UnionMember(String tag, DuckDbTypename<?> type) {}
 
     @Override
+    public boolean isConstructed() {
+      return true;
+    }
+
+    @Override
     public String sqlType() {
       StringBuilder sb = new StringBuilder("UNION(");
       for (int i = 0; i < members.size(); i++) {
@@ -305,13 +369,18 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
+    public String toString() {
+      return name;
+    }
+
+    @Override
     public DuckDbTypename<java.util.List<A>> list() {
       return new ListOf<>(this);
     }
 
     @Override
-    public DuckDbTypename<A[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<A>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override
@@ -339,8 +408,23 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
   /** Optional wrapper (nullable type). The SQL type is the same as the underlying type. */
   record Opt<A>(DuckDbTypename<A> of) implements DuckDbTypename<Optional<A>> {
     @Override
+    public boolean isConstructed() {
+      return of.isConstructed();
+    }
+
+    @Override
+    public boolean isNullable() {
+      return true;
+    }
+
+    @Override
     public String sqlType() {
       return of.sqlType();
+    }
+
+    @Override
+    public String toString() {
+      return of.toString();
     }
 
     @Override
@@ -349,8 +433,8 @@ public sealed interface DuckDbTypename<A> extends DbTypename<A> {
     }
 
     @Override
-    public DuckDbTypename<Optional<A>[]> array() {
-      return new ListOf<>(this).as();
+    public DuckDbTypename<java.util.List<Optional<A>>> array(int size) {
+      return new ArrayOf<>(this, size);
     }
 
     @Override

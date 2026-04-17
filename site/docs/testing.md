@@ -13,7 +13,7 @@ foundations-jdbc is designed to be tested against a real database. Use `testStra
 `Transactor.testStrategy()` wraps each call in a transaction and **rolls back** instead of committing. Your tests run against real SQL without leaving data behind:
 
 ```kotlin
-val tx = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build())
+val tx = ConnectionSource.of(DuckDbConfig.inMemory().build())
     .transactor(Transactor.testStrategy())
 ```
 
@@ -34,7 +34,7 @@ DuckDB runs in-memory with zero setup — ideal for fast unit tests:
 ```kotlin
 class MyRepoTest {
     companion object {
-        private val tx = SingleConnectionDataSource.create(
+        private val tx = ConnectionSource.of(
             DuckDbConfig.inMemory().build()
         ).transactor(Transactor.testStrategy())
 
@@ -66,8 +66,8 @@ For databases that need a server, use [Testcontainers](https://testcontainers.co
 
 ```kotlin
 companion object {
-    private val tx = SimpleDataSource.create(
-        PostgresConfig.builder("localhost", 5432, "testdb", "test", "test").build()
+    private val tx = ConnectionSource.of(
+        PgConfig.builder("localhost", 5432, "testdb", "test", "test").build()
     ).transactor(Transactor.testStrategy())
 }
 ```

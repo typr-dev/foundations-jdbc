@@ -92,14 +92,22 @@ Foundations JDBC provides comprehensive support for SQL Server data types, inclu
 
 | SQL Server Type | Java Type | Precision | Notes |
 |-----------------|-----------|-----------|-------|
-| `DATE` | `LocalDate` | Day | Date only |
-| `TIME` | `LocalTime` | 100ns | Time only |
-| `DATETIME` | `LocalDateTime` | 3.33ms | Legacy |
-| `SMALLDATETIME` | `LocalDateTime` | Minute | Legacy |
-| `DATETIME2` | `LocalDateTime` | 100ns | Modern |
-| `DATETIMEOFFSET` | `OffsetDateTime` | 100ns | With timezone |
+| `DATE` | `LocalDate` | Day | Naive date, no zone |
+| `TIME` | `LocalTime` | 100ns | Naive time, no zone |
+| `DATETIME` | `LocalDateTime` | 3.33ms | Legacy naive timestamp |
+| `SMALLDATETIME` | `LocalDateTime` | Minute | Legacy naive timestamp |
+| `DATETIME2` | `LocalDateTime` | 100ns | Modern naive timestamp |
+| `DATETIMEOFFSET` | `OffsetDateTime` | 100ns | **Preserves offset** — see note below |
 
 <Snippet file="sqlserver/DateTimeTypes" />
+
+:::note `DATETIMEOFFSET` → `OffsetDateTime` (genuinely stores the offset)
+Unlike PostgreSQL's `timestamptz` or DuckDB's `TIMESTAMPTZ`, SQL Server's `DATETIMEOFFSET` really does store the offset value byte-for-byte (`-14:00` to `+14:00`). From Microsoft's docs: "Time zone offset aware and preservation: Yes… The time zone offset is preserved in the database for retrieval."
+
+`OffsetDateTime` is the matching Java type — a timestamp plus a fixed numeric offset, no DST awareness (SQL Server's own docs: "Daylight saving aware: No"). Since SQL Server can only store an offset (not a named zone like `America/Los_Angeles`), `OffsetDateTime` captures exactly what the column holds — using `ZonedDateTime` would suggest the library can preserve zone regions, which the storage cannot.
+
+If you need UTC-only "instant" semantics instead, use `DATETIME2` + a separate offset column, or normalize client-side before insert.
+:::
 
 ## UNIQUEIDENTIFIER (UUID/GUID)
 

@@ -7,6 +7,6 @@ import dev.typr.foundationskt.data.*
 class StringTypes {
     //start
     val varcharType: DuckDbType<String> = DuckDbTypes.varchar
-    val charType: DuckDbType<String> = DuckDbTypes.char_(10)
+    val charType: DuckDbType<String> = DuckDbTypes.char_Of(10)
     //stop
 }

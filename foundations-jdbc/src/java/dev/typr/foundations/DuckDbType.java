@@ -1,5 +1,7 @@
 package dev.typr.foundations;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -8,6 +10,13 @@ import java.util.function.Function;
  * Combines DuckDB type name, read, write, stringification, and JSON encoding for a type. Similar to
  * PgType but for DuckDB. Note: DuckDB doesn't support text-based streaming inserts via JDBC (like
  * PostgreSQL's COPY), so there is no DuckDbText component.
+ *
+ * <p>Every type also carries two pre-built parameters for composition: {@link
+ * #structAttributeEncoder} — how a value of this type encodes as a wire attribute when it sits
+ * inside a composite ({@code DuckDBUserStruct} attribute, {@code DuckDBUserArray} element, {@code
+ * DuckDBMap} entry) — and {@link #listWrite} — the {@link DuckDbWrite} for a {@code List<A>} column
+ * when values of this type are the elements. Both are set at construction time so {@link #list} /
+ * {@link #array} / {@code compositeOf} / {@code mapTo} never need to introspect the typename.
  */
 public record DuckDbType<A>(
     DuckDbTypename<A> typename,
@@ -15,11 +24,42 @@ public record DuckDbType<A>(
     DuckDbWrite<A> write,
     DuckDbStringifier<A> stringifier,
     DuckDbJson<A> duckDbJson,
-    DuckDbMapSupport<A> mapSupport,
     AnalysisOptions analysisOptions,
-    java.util.Optional<DuckDbArrayCodec<A>> arrayCodec,
-    java.util.Optional<DuckDbListCodec<A>> listCodec)
+    DuckDbWrite<List<A>> listWrite,
+    Function<A, Object> structAttributeEncoder)
     implements DbType<A> {
+
+  public DuckDbType<A> withStructAttributeEncoder(Function<A, Object> encoder) {
+    return new DuckDbType<>(
+        typename, read, write, stringifier, duckDbJson, analysisOptions, listWrite, encoder);
+  }
+
+  public DuckDbType<A> withListWrite(DuckDbWrite<List<A>> listWrite) {
+    return new DuckDbType<>(
+        typename,
+        read,
+        write,
+        stringifier,
+        duckDbJson,
+        analysisOptions,
+        listWrite,
+        structAttributeEncoder);
+  }
+
+  /**
+   * Replace the list-write strategy by describing the element codec. Native codecs use JDBC's
+   * {@code createArrayOf} fast path; SQL-literal codecs cast a text array literal on the way in.
+   */
+  public DuckDbType<A> withListCodec(DuckDbListCodec<A> codec) {
+    String sqlType = typename.sqlType();
+    DuckDbWrite<List<A>> newListWrite =
+        switch (codec) {
+          case DuckDbListCodec.Native<A> n -> DuckDbWrite.writeList(sqlType, n.arrayFactory());
+          case DuckDbListCodec.SqlLiteral<A> ignored ->
+              DuckDbWrite.writeListViaSqlLiteral(sqlType, stringifier);
+        };
+    return withListWrite(newListWrite);
+  }
 
   @Override
   public Optional<DbOutParam<A>> outParam() {
@@ -28,7 +68,7 @@ public record DuckDbType<A>(
 
   @Override
   public boolean isNullable() {
-    return typename instanceof DuckDbTypename.Opt;
+    return typename.isNullable();
   }
 
   @Override
@@ -45,6 +85,11 @@ public record DuckDbType<A>(
     return Set.copyOf(all);
   }
 
+  @Override
+  public String toString() {
+    return "DuckDB(" + typename + ")";
+  }
+
   public DuckDbType<A> unchecked() {
     return withAnalysis(analysisOptions.withUnchecked());
   }
@@ -55,34 +100,7 @@ public record DuckDbType<A>(
 
   public DuckDbType<A> withAnalysis(AnalysisOptions opts) {
     return new DuckDbType<>(
-        typename, read, write, stringifier, duckDbJson, mapSupport, opts, arrayCodec, listCodec);
-  }
-
-  /** Remove array support from this type. */
-  public DuckDbType<A> noArraySupport() {
-    return new DuckDbType<>(
-        typename,
-        read,
-        write,
-        stringifier,
-        duckDbJson,
-        mapSupport,
-        analysisOptions,
-        java.util.Optional.empty(),
-        listCodec);
-  }
-
-  public DuckDbType<A> withListCodec(DuckDbListCodec<A> codec) {
-    return new DuckDbType<>(
-        typename,
-        read,
-        write,
-        stringifier,
-        duckDbJson,
-        mapSupport,
-        analysisOptions,
-        arrayCodec,
-        java.util.Optional.of(codec));
+        typename, read, write, stringifier, duckDbJson, opts, listWrite, structAttributeEncoder);
   }
 
   public Fragment.Value<A> encode(A value) {
@@ -96,10 +114,9 @@ public record DuckDbType<A>(
         write,
         stringifier,
         duckDbJson,
-        mapSupport,
         analysisOptions,
-        defaultArrayCodec(read, stringifier),
-        listCodec);
+        DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier),
+        structAttributeEncoder);
   }
 
   public DuckDbType<A> withTypename(String sqlType) {
@@ -121,10 +138,9 @@ public record DuckDbType<A>(
         write,
         stringifier,
         duckDbJson,
-        mapSupport,
         analysisOptions,
-        defaultArrayCodec(read, stringifier),
-        listCodec);
+        listWrite,
+        structAttributeEncoder);
   }
 
   public DuckDbType<A> withWrite(DuckDbWrite<A> write) {
@@ -134,10 +150,9 @@ public record DuckDbType<A>(
         write,
         stringifier,
         duckDbJson,
-        mapSupport,
         analysisOptions,
-        defaultArrayCodec(read, stringifier),
-        listCodec);
+        listWrite,
+        structAttributeEncoder);
   }
 
   public DuckDbType<A> withStringifier(DuckDbStringifier<A> stringifier) {
@@ -147,10 +162,9 @@ public record DuckDbType<A>(
         write,
         stringifier,
         duckDbJson,
-        mapSupport,
         analysisOptions,
-        defaultArrayCodec(read, stringifier),
-        listCodec);
+        DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier),
+        structAttributeEncoder);
   }
 
   public DuckDbType<A> withJson(DuckDbJson<A> json) {
@@ -160,59 +174,87 @@ public record DuckDbType<A>(
         write,
         stringifier,
         json,
-        mapSupport,
         analysisOptions,
-        defaultArrayCodec(read, stringifier),
-        listCodec);
+        listWrite,
+        structAttributeEncoder);
   }
 
   @Override
   public DuckDbType<Optional<A>> opt() {
+    Function<A, Object> innerEncoder = structAttributeEncoder;
+    Function<Optional<A>, Object> optEncoder = opt -> opt.map(innerEncoder).orElse(null);
+    DuckDbStringifier<Optional<A>> optStringifier = stringifier.opt();
     return new DuckDbType<>(
         typename.opt(),
         read.opt(),
         write.opt(typename),
-        stringifier.opt(),
+        optStringifier,
         duckDbJson.opt(),
-        DuckDbMapSupport.cast(),
         analysisOptions,
-        java.util.Optional.empty(),
-        java.util.Optional.empty());
+        DuckDbWrite.writeListViaSqlLiteral(typename.opt().sqlType(), optStringifier),
+        optEncoder);
   }
 
-  public DuckDbType<java.util.List<A>> list() {
-    DuckDbTypename<java.util.List<A>> listTypename = typename.list();
-    java.util.function.Function<Object, A> fromElem =
-        listCodec
-            .<java.util.function.Function<Object, A>>map(DuckDbListCodec::fromElement)
-            .orElse(mapSupport::fromMap);
-    DuckDbRead<java.util.List<A>> listRead =
+  /**
+   * Variable-length LIST of this element type. DuckDB renders as {@code T[]}. Every row can have a
+   * different number of elements.
+   */
+  public DuckDbType<List<A>> list() {
+    return buildCollection(typename.list(), DuckDbTypename::list);
+  }
+
+  /**
+   * Fixed-size ARRAY of this element type with the given cardinality. DuckDB renders as {@code
+   * T[size]} and enforces that every row has exactly {@code size} elements. Use this for embedding
+   * vectors and similar dense, fixed-shape tensors.
+   */
+  public DuckDbType<List<A>> array(int size) {
+    return buildCollection(typename.array(size), t -> t.array(size));
+  }
+
+  /**
+   * Shared machinery behind {@link #list()} and {@link #array(int)}. The element's own {@link
+   * #listWrite} drives binding of a single list value; the resulting list type carries a {@link
+   * DuckDBUserArray}-based listWrite of its own so a second {@link #list}/{@link #array} call
+   * (list-of-list) composes without dispatch.
+   */
+  private DuckDbType<List<A>> buildCollection(
+      DuckDbTypename<List<A>> collectionTypename,
+      java.util.function.Function<DuckDbTypename<?>, DuckDbTypename<?>> wrapAlias) {
+    java.util.function.Function<Object, List<A>> fromArray =
+        raw -> {
+          if (raw == null) return null;
+          if (!(raw instanceof java.sql.Array arr)) {
+            throw new IllegalArgumentException(
+                "Expected java.sql.Array for list/array, got: " + raw.getClass());
+          }
+          try {
+            Object[] elements = (Object[]) arr.getArray();
+            List<A> result = new java.util.ArrayList<>(elements.length);
+            for (Object elem : elements) result.add(this.read.fromJdbcValue(elem));
+            return result;
+          } catch (java.sql.SQLException e) {
+            throw new DatabaseException(e);
+          }
+        };
+    DuckDbRead<List<A>> collRead =
         DuckDbRead.of(
             (rs, idx) -> {
               java.sql.Array arr = rs.getArray(idx);
               if (arr == null) return null;
-              Object[] elements = (Object[]) arr.getArray();
-              java.util.List<A> result = new java.util.ArrayList<>(elements.length);
-              for (Object elem : elements) {
-                result.add(fromElem.apply(elem));
-              }
-              return result;
-            });
-    DuckDbWrite<java.util.List<A>> listWrite =
-        listCodec
-            .<DuckDbWrite<java.util.List<A>>>map(
-                codec ->
-                    switch (codec) {
-                      case DuckDbListCodec.Native<A> n ->
-                          DuckDbWrite.writeList(typename.sqlType(), n.arrayFactory());
-                      case DuckDbListCodec.SqlLiteral<A> ignored ->
-                          DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier);
-                    })
-            .orElse(
-                typename instanceof DuckDbTypename.UnionOf
-                    ? DuckDbWrite.writeListInline(typename.sqlType(), stringifier)
-                    : DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), stringifier));
-    DuckDbStringifier<java.util.List<A>> listStringifier =
+              return fromArray.apply(arr);
+            },
+            fromArray);
+
+    // The element's own listWrite IS the write for this list type. No dispatch here — whichever
+    // strategy (SQL literal / Native setArray / DuckDBUserArray / inline-SQL for UNION) the
+    // element carries is the correct one by construction.
+    DuckDbWrite<List<A>> collWrite = this.listWrite;
+
+    final String elementSqlType = typename.sqlType();
+    final Function<A, Object> elementEncoder = this.structAttributeEncoder;
+
+    DuckDbStringifier<List<A>> collStringifier =
         DuckDbStringifier.instance(
             (list, sb, quoted) -> {
               if (list.isEmpty()) {
@@ -228,271 +270,85 @@ public record DuckDbType<A>(
               }
               sb.append("]");
             });
-    return new DuckDbType<>(
-        listTypename.as(),
-        listRead,
-        listWrite,
-        listStringifier,
-        duckDbJson.list(),
-        DuckDbMapSupport.cast(),
-        analysisOptions,
-        java.util.Optional.empty(),
-        java.util.Optional.empty());
-  }
 
-  @SuppressWarnings("unchecked")
-  public DuckDbType<A[]> array() {
-    if (typename instanceof DuckDbTypename.ListOf || typename instanceof DuckDbTypename.ArrayOf) {
-      throw new IllegalStateException(
-          "Nested arrays are not supported. Cannot call .array() on " + typename.sqlType());
-    }
-    DuckDbArrayCodec<A> codec =
-        arrayCodec.orElseThrow(
-            () ->
-                new IllegalStateException(
-                    "Array not supported for "
-                        + typename.sqlType()
-                        + ". This type does not provide a DuckDbArrayCodec."));
-    DuckDbTypename<A[]> arrayTypename = typename.array();
-    DuckDbRead<A[]> arrayRead =
-        DuckDbRead.of(
-            (rs, idx) -> {
-              java.sql.Array arr = rs.getArray(idx);
-              if (arr == null) return null;
-              Object[] elements = (Object[]) arr.getArray();
-              @SuppressWarnings("unchecked")
-              A[] result = (A[]) new Object[elements.length];
-              for (int i = 0; i < elements.length; i++) {
-                result[i] = codec.fromElement().apply(elements[i]);
-              }
-              return result;
-            });
-    DuckDbWrite<A[]> arrayWrite =
-        DuckDbWrite.primitive(
-            (ps, idx, arr) -> {
-              if (arr == null) {
-                ps.setNull(idx, java.sql.Types.ARRAY);
-              } else {
-                String[] strings = new String[arr.length];
-                for (int i = 0; i < arr.length; i++) {
-                  strings[i] = codec.toElement().apply(arr[i]);
-                }
-                ps.setObject(idx, new org.duckdb.user.DuckDBUserArray(typename.sqlType(), strings));
-              }
-            });
-    DuckDbStringifier<A[]> arrayStringifier =
-        DuckDbStringifier.instance(
-            (arr, sb, quoted) -> {
-              if (arr.length == 0) {
-                sb.append("[]");
-                return;
-              }
-              sb.append("[");
-              boolean first = true;
-              for (A elem : arr) {
-                if (!first) sb.append(", ");
-                first = false;
-                stringifier.unsafeEncode(elem, sb, true);
-              }
-              sb.append("]");
-            });
-    DuckDbJson<A[]> arrayJson =
-        new DuckDbJson<>() {
-          private final DuckDbJson<java.util.List<A>> listJson = duckDbJson.list();
-
-          @Override
-          public dev.typr.foundations.data.JsonValue toJson(A[] value) {
-            return listJson.toJson(java.util.Arrays.asList(value));
-          }
-
-          @Override
-          @SuppressWarnings("unchecked")
-          public A[] fromJson(dev.typr.foundations.data.JsonValue json) {
-            java.util.List<A> list = listJson.fromJson(json);
-            return (A[]) list.toArray();
-          }
+    Function<List<A>, Object> collEncoder =
+        list -> {
+          if (list == null) return null;
+          Object[] encoded = new Object[list.size()];
+          for (int i = 0; i < list.size(); i++) encoded[i] = elementEncoder.apply(list.get(i));
+          return new org.duckdb.user.DuckDBUserArray(elementSqlType, encoded);
         };
+
+    // The list type itself is a composite — when nested further ({@code .list().list()}), the
+    // outer layer needs the DuckDBUserArray path keyed on this list's sqlType.
+    DuckDbWrite<List<List<A>>> outerListWrite =
+        DuckDbWrite.writeListOfUserArray(collectionTypename.sqlType(), collEncoder);
+
+    AnalysisOptions collOpts;
+    if (analysisOptions.vendorTypeNames().isEmpty()) {
+      collOpts = analysisOptions;
+    } else {
+      var wrapped = new java.util.HashSet<DbTypename<?>>();
+      for (var alias : analysisOptions.vendorTypeNames()) {
+        if (alias instanceof DuckDbTypename<?> duck) {
+          wrapped.add(wrapAlias.apply(duck));
+        } else {
+          wrapped.add(alias);
+        }
+      }
+      collOpts =
+          new AnalysisOptions(
+              Set.copyOf(wrapped), analysisOptions.nullableOk(), analysisOptions.unchecked());
+    }
+
     return new DuckDbType<>(
-        arrayTypename,
-        arrayRead,
-        arrayWrite,
-        arrayStringifier,
-        arrayJson,
-        DuckDbMapSupport.cast(),
-        analysisOptions.arrayForms(),
-        java.util.Optional.empty(),
-        java.util.Optional.empty());
+        collectionTypename,
+        collRead,
+        collWrite,
+        collStringifier,
+        duckDbJson.list(),
+        collOpts,
+        outerListWrite,
+        collEncoder);
   }
 
-  public <V> DuckDbType<java.util.Map<A, V>> mapTo(DuckDbType<V> valueType) {
-    DuckDbTypename<java.util.Map<A, V>> mapTypename = typename.mapTo(valueType.typename);
-    String sqlType = mapTypename.sqlType();
-    DuckDbRead<java.util.Map<A, V>> mapRead =
-        DuckDbRead.readMapWithSupport(mapSupport, valueType.mapSupport);
-    DuckDbWrite<java.util.Map<A, V>> mapWrite =
-        DuckDbWrite.writeMapViaSqlLiteral(sqlType, stringifier, valueType.stringifier);
-    DuckDbStringifier<java.util.Map<A, V>> mapStringifier =
-        DuckDbStringifier.instance(
-            (map, sb, quoted) -> {
-              if (map.isEmpty()) {
-                sb.append("{}");
-                return;
-              }
-              sb.append("{");
-              boolean first = true;
-              for (var entry : map.entrySet()) {
-                if (!first) sb.append(", ");
-                first = false;
-                stringifier.unsafeEncode(entry.getKey(), sb, true);
-                sb.append(": ");
-                valueType.stringifier.unsafeEncode(entry.getValue(), sb, true);
-              }
-              sb.append("}");
-            });
-    return new DuckDbType<>(
-        mapTypename,
-        mapRead,
-        mapWrite,
-        mapStringifier,
-        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbMapSupport.cast(),
-        analysisOptions,
-        java.util.Optional.empty(),
-        java.util.Optional.empty()); // MAP[] not supported by DuckDB JDBC
-  }
-
-  public <V> DuckDbType<java.util.Map<A, V>> mapToNative(
-      DuckDbType<V> valueType, Class<A> keyClass, Class<V> valueClass) {
-    DuckDbTypename<java.util.Map<A, V>> mapTypename = typename.mapTo(valueType.typename);
-    String sqlType = mapTypename.sqlType();
-    DuckDbRead<java.util.Map<A, V>> mapRead =
-        DuckDbRead.readMap(read, keyClass, valueType.read, valueClass);
-    DuckDbWrite<java.util.Map<A, V>> mapWrite = DuckDbWrite.writeMap(sqlType);
-    DuckDbStringifier<java.util.Map<A, V>> mapStringifier =
-        DuckDbStringifier.instance(
-            (map, sb, quoted) -> {
-              if (map.isEmpty()) {
-                sb.append("{}");
-                return;
-              }
-              sb.append("{");
-              boolean first = true;
-              for (var entry : map.entrySet()) {
-                if (!first) sb.append(", ");
-                first = false;
-                stringifier.unsafeEncode(entry.getKey(), sb, true);
-                sb.append(": ");
-                valueType.stringifier.unsafeEncode(entry.getValue(), sb, true);
-              }
-              sb.append("}");
-            });
-    return new DuckDbType<>(
-        mapTypename,
-        mapRead,
-        mapWrite,
-        mapStringifier,
-        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbMapSupport.cast(),
-        analysisOptions,
-        java.util.Optional.empty(),
-        java.util.Optional.empty()); // MAP[] not supported by DuckDB JDBC
-  }
-
-  public <V> DuckDbType<java.util.Map<A, V>> mapToViaSqlLiteral(
-      DuckDbType<V> valueType,
-      Class<A> keyClass,
-      Class<V> valueClass,
-      DuckDbStringifier<A> keyStringifier,
-      DuckDbStringifier<V> valueStringifier) {
-    DuckDbTypename<java.util.Map<A, V>> mapTypename = typename.mapTo(valueType.typename);
-    String sqlType = mapTypename.sqlType();
-    DuckDbRead<java.util.Map<A, V>> mapRead =
-        DuckDbRead.readMap(read, keyClass, valueType.read, valueClass);
-    DuckDbWrite<java.util.Map<A, V>> mapWrite =
-        DuckDbWrite.writeMapViaSqlLiteral(sqlType, keyStringifier, valueStringifier);
-    DuckDbStringifier<java.util.Map<A, V>> mapStringifier =
-        DuckDbStringifier.instance(
-            (map, sb, quoted) -> {
-              if (map.isEmpty()) {
-                sb.append("{}");
-                return;
-              }
-              sb.append("{");
-              boolean first = true;
-              for (var entry : map.entrySet()) {
-                if (!first) sb.append(", ");
-                first = false;
-                keyStringifier.unsafeEncode(entry.getKey(), sb, true);
-                sb.append(": ");
-                valueStringifier.unsafeEncode(entry.getValue(), sb, true);
-              }
-              sb.append("}");
-            });
-    return new DuckDbType<>(
-        mapTypename,
-        mapRead,
-        mapWrite,
-        mapStringifier,
-        DuckDbTypes.mapJson(duckDbJson, valueType.duckDbJson),
-        DuckDbMapSupport.cast(),
-        analysisOptions,
-        java.util.Optional.empty(),
-        java.util.Optional.empty()); // MAP[] not supported by DuckDB JDBC
+  /** Build a {@code MAP(A, V)} DuckDB type. See {@link DuckDbMapSupport} for the impl details. */
+  public <V> DuckDbType<Map<A, V>> mapTo(DuckDbType<V> valueType) {
+    return DuckDbMapSupport.mapType(this, valueType);
   }
 
   public <B> DuckDbType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
-    Function<A, B> fUnchecked =
-        a -> {
-          try {
-            return f.apply(a);
-          } catch (java.sql.SQLException e) {
-            throw new DatabaseException(e);
-          }
-        };
+    DuckDbStringifier<B> newStringifier = stringifier.contramap(g);
+    Function<A, Object> innerEncoder = structAttributeEncoder;
     return new DuckDbType<>(
         typename.as(),
         read.map(f),
         write.contramap(g),
-        stringifier.contramap(g),
+        newStringifier,
         duckDbJson.transform(f, g),
-        mapSupport.transform(fUnchecked, g),
         analysisOptions,
-        arrayCodec.map(c -> c.map(fUnchecked, g)),
-        listCodec.map(c -> c.map(fUnchecked, g)));
+        DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), newStringifier),
+        b -> innerEncoder.apply(g.apply(b)));
   }
 
   @Override
   public <B> DuckDbType<B> to(Bijection<A, B> bijection) {
+    DuckDbStringifier<B> newStringifier = stringifier.contramap(bijection::from);
+    Function<A, Object> innerEncoder = structAttributeEncoder;
     return new DuckDbType<>(
         typename.as(),
         read.map(bijection::underlying),
         write.contramap(bijection::from),
-        stringifier.contramap(bijection::from),
+        newStringifier,
         duckDbJson.transform(bijection::underlying, bijection::from),
-        mapSupport.transform(bijection::underlying, bijection::from),
         analysisOptions,
-        arrayCodec.map(c -> c.map(bijection::underlying, bijection::from)),
-        listCodec.map(c -> c.map(bijection::underlying, bijection::from)));
-  }
-
-  /** Default arrayCodec derived from read + stringifier. */
-  static <A> java.util.Optional<DuckDbArrayCodec<A>> defaultArrayCodec(
-      DuckDbRead<A> r, DuckDbStringifier<A> s) {
-    return java.util.Optional.of(DuckDbArrayCodec.fromReadAndStringifier(r, s));
+        DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), newStringifier),
+        b -> innerEncoder.apply(bijection.from(b)));
   }
 
   public static <A> DuckDbType<A> of(
       String tpe, DuckDbRead<A> r, DuckDbWrite<A> w, DuckDbStringifier<A> s, DuckDbJson<A> j) {
-    return new DuckDbType<>(
-        DuckDbTypename.of(tpe),
-        r,
-        w,
-        s,
-        j,
-        DuckDbMapSupport.cast(),
-        AnalysisOptions.EMPTY,
-        defaultArrayCodec(r, s),
-        java.util.Optional.empty());
+    return of(DuckDbTypename.of(tpe), r, w, s, j);
   }
 
   public static <A> DuckDbType<A> of(
@@ -507,9 +363,13 @@ public record DuckDbType<A>(
         w,
         s,
         j,
-        DuckDbMapSupport.cast(),
         AnalysisOptions.EMPTY,
-        defaultArrayCodec(r, s),
-        java.util.Optional.empty());
+        DuckDbWrite.writeListViaSqlLiteral(typename.sqlType(), s),
+        // Scalar default: identity. The Java value is what DuckDB's JNI binds directly in
+        // DuckDBUserStruct attribute / DuckDBUserArray element / DuckDBMap entry position.
+        // Scalars whose native Java representation the driver doesn't accept (UUID, Duration,
+        // LocalTime, Json, BigInteger, …) override explicitly with {@code
+        // withStructAttributeEncoder(stringifier.asWireEncoder())}.
+        a -> a);
   }
 }

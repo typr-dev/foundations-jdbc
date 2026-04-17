@@ -38,13 +38,15 @@ This is equivalent to `.update().voided()`.
 
 ## Running Operations
 
-Use a [Transactor](./transactors) to obtain a connection, run the operation, and handle commit/rollback automatically:
+Use a [Transactor](./transactors) to obtain a connection, run the operation, and handle commit/rollback automatically.
+
+For a **single operation**, call `.transact(tx)` on it directly — the Transactor borrows a connection, runs the operation, commits on success, rolls back on failure, and closes the connection.
+
+For **multiple operations in one transaction**, call `.run(conn)` on each inside a `tx.execute(conn -> …)` (Java) / `tx.transact { conn -> … }` (Kotlin/Scala) block — all `.run` calls share the same connection and therefore the same transaction:
 
 <Snippet file="core/ExecuteTransact" />
 
-For multiple operations in a single transaction, call `.run(conn)` on each one inside the same block:
-
-<Snippet file="core/ManualTransaction" />
+If you need even finer control — running a composed operation tree inside a broader block — see [Composing Operations](./composing-operations).
 
 For void operations — DDL, schema setup, or any connection-consuming function that doesn't return a value — use `executeVoid`:
 

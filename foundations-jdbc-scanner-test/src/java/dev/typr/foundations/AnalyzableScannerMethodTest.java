@@ -40,12 +40,45 @@ class AnalyzableScannerMethodTest {
   }
 
   @Test
-  void skipsPrivateStaticNonAnalyzable() {
+  void findsPrivateMethods() {
+    // The scanner is a test-scope tool — private / package-private methods are fair game and
+    // get unlocked via setAccessible(true). Keeping them hidden was a footgun for callers whose
+    // repo classes weren't deliberately public.
     var results = AnalyzableScanner.scanDetailed("dev.typr.foundations.fixtures.methods");
     var names = fieldNames(results);
-    assertFalse(names.contains("privateMethod"), "should not find private method");
-    assertFalse(names.contains("staticMethod"), "should not find static method");
+    assertTrue(names.contains("privateMethod"), "should find private method via reflection");
+  }
+
+  @Test
+  void skipsStaticNonAnalyzable() {
+    var results = AnalyzableScanner.scanDetailed("dev.typr.foundations.fixtures.methods");
+    var names = fieldNames(results);
     assertFalse(names.contains("notAnalyzable"), "should not find non-analyzable method");
+  }
+
+  @Test
+  void findsStaticAnalyzableFields() {
+    var results = AnalyzableScanner.scanDetailed("dev.typr.foundations.fixtures.methods");
+    var names = fieldNames(results);
+    assertTrue(
+        names.contains("staticField"),
+        "should discover `static final Operation` fields on Java classes with a no-arg ctor");
+  }
+
+  @Test
+  void findsStaticAnalyzableMethods() {
+    // Static methods on a normally-instantiable class (no-arg ctor, instance path picks it up)
+    // used to be silently dropped — the instance path rejects static members and the static
+    // path only ran when instantiation failed. Fixed: the static-methods sweep runs after the
+    // instance sweep on every Java class.
+    var results = AnalyzableScanner.scanDetailed("dev.typr.foundations.fixtures.methods");
+    var names = fieldNames(results);
+    assertTrue(
+        names.contains("staticMethod"),
+        "should discover no-arg static Operation methods on Java classes with a no-arg ctor");
+    assertTrue(
+        names.contains("staticMethodWithArgs"),
+        "should discover parameterized static Operation methods (scanner dummy-constructs args)");
   }
 
   // --- Dummy arg construction (unit tests) ---

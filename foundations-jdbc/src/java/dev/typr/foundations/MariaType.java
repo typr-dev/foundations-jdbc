@@ -42,6 +42,11 @@ public record MariaType<A>(
     return Set.copyOf(all);
   }
 
+  @Override
+  public String toString() {
+    return "MariaDB(" + typename + ")";
+  }
+
   public MariaType<A> unchecked() {
     return withAnalysis(analysisOptions.withUnchecked());
   }

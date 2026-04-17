@@ -1,9 +1,9 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.internal.arrayMap;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -15,7 +15,12 @@ public sealed interface PgWrite<A> extends DbWrite<A> permits PgWrite.Instance {
   // combinators
   PgWrite<Optional<A>> opt(PgTypename<A> typename);
 
-  PgWrite<A[]> array(PgTypename<A> typename);
+  /**
+   * Build a writer for {@code List<A>} bound as a PG array (SQL {@code T[]}). Each element is
+   * converted via this writer's pre-bind transformation. Use {@code createArrayOf(typename, ...)}
+   * against the JDBC connection; nested arrays recurse by calling {@code .list()} twice.
+   */
+  PgWrite<List<A>> list(PgTypename<A> typename);
 
   <B> PgWrite<B> contramap(Function<B, A> f);
 
@@ -40,14 +45,21 @@ public sealed interface PgWrite<A> extends DbWrite<A> permits PgWrite.Instance {
           a -> a.orElse(null));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public PgWrite<A[]> array(PgTypename<A> typename) {
-      return new Instance<A[], Object[]>(
+    public PgWrite<List<A>> list(PgTypename<A> typename) {
+      return new Instance<List<A>, Object[]>(
           (ps, index, us) ->
               ps.setArray(
                   index, ps.getConnection().createArrayOf(typename.sqlTypeNoPrecision(), us)),
-          as -> arrayMap.map(as, f, (Class<U>) Object.class));
+          list -> {
+            if (list == null) return null;
+            Object[] result = new Object[list.size()];
+            for (int i = 0; i < list.size(); i++) {
+              A elem = list.get(i);
+              result[i] = elem == null ? null : f.apply(elem);
+            }
+            return result;
+          });
     }
 
     @Override
@@ -80,14 +92,6 @@ public sealed interface PgWrite<A> extends DbWrite<A> permits PgWrite.Instance {
   }
 
   PgWrite<byte[]> writeByteArray = primitive(PreparedStatement::setObject);
-
-  // Unboxed (primitive) array writers
-  PgWrite<boolean[]> writeBooleanArrayUnboxed = primitive(PreparedStatement::setObject);
-  PgWrite<short[]> writeShortArrayUnboxed = primitive(PreparedStatement::setObject);
-  PgWrite<int[]> writeIntArrayUnboxed = primitive(PreparedStatement::setObject);
-  PgWrite<long[]> writeLongArrayUnboxed = primitive(PreparedStatement::setObject);
-  PgWrite<float[]> writeFloatArrayUnboxed = primitive(PreparedStatement::setObject);
-  PgWrite<double[]> writeDoubleArrayUnboxed = primitive(PreparedStatement::setObject);
 
   PgWrite<Boolean> writeBoolean = primitive(PreparedStatement::setBoolean);
   PgWrite<BigDecimal> writeBigDecimal = primitive(PreparedStatement::setBigDecimal);

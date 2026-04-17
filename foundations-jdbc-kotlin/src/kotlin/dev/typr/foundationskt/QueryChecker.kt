@@ -13,13 +13,11 @@ class QueryChecker(val underlying: dev.typr.foundations.QueryChecker) {
     fun analyzeAll(vararg analyzables: Analyzable): CheckReport =
         analyzeAll(analyzables.toList())
 
-    fun checkAll(analyzables: List<Analyzable>) {
+    fun checkAll(analyzables: List<Analyzable>): CheckReport =
         underlying.checkAll(analyzables.map { it.analyzable })
-    }
 
-    fun checkAll(vararg analyzables: Analyzable) {
+    fun checkAll(vararg analyzables: Analyzable): CheckReport =
         checkAll(analyzables.toList())
-    }
 
     fun checkRoutine(def: dev.typr.foundations.RoutineDef) {
         underlying.checkRoutine(def)

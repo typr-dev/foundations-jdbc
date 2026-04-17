@@ -6,5 +6,5 @@ import dev.typr.foundationssc.data.*
 object FixedPointTypes:
   // start
   val decimalType: MariaType[BigDecimal] = MariaTypes.decimal
-  val preciseDecimal: MariaType[BigDecimal] = MariaTypes.decimal(10, 2)
+  val preciseDecimal: MariaType[BigDecimal] = MariaTypes.decimalOf(10, 2)
   // stop

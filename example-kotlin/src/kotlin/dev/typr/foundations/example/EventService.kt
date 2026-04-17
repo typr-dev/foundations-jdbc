@@ -3,7 +3,7 @@ package dev.typr.foundations.example
 import dev.typr.foundationskt.Transactor
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.OffsetDateTime
+import java.time.Instant
 
 class EventService(private val tx: Transactor) {
 
@@ -13,7 +13,7 @@ class EventService(private val tx: Transactor) {
 
     fun createVenueWithEvent(
         venue: Venue,
-        eventTitle: String, eventDescription: String?, eventDate: OffsetDateTime, doorOpen: LocalDate,
+        eventTitle: String, eventDescription: String?, eventDate: Instant, doorOpen: LocalDate,
         basePrice: Money, eventTags: List<String>
     ): Pair<Venue, Event> = tx.transact { conn ->
         val created = VenueRepo.createVenue.on(venue).run(conn)

@@ -202,6 +202,15 @@ public sealed interface Fragment {
     return new Literal(value);
   }
 
+  /**
+   * Empty starting point for the fluent builder pattern — equivalent to {@code Fragment.of("")}.
+   * Use when your first call is {@code .value(...)} or {@code .append(...)} and there is no leading
+   * SQL literal.
+   */
+  static Literal builder() {
+    return new Literal("");
+  }
+
   static <Row> RowTemplate.Update<Row> insertInto(
       String table, RowCodecNamed<Row> codec, String... except) {
     return of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
@@ -269,6 +278,19 @@ public sealed interface Fragment {
 
   static Fragment empty() {
     return EMPTY;
+  }
+
+  /**
+   * Emit {@code DROP TABLE IF EXISTS <table>}. Works on PostgreSQL, DuckDB, MariaDB, MySQL, SQL
+   * Server (2016+), Oracle (23c+) and DB2 (11.5.4+).
+   *
+   * <p>On DB2 older than 11.5.4 (no native {@code IF EXISTS} support), wrap the plain {@code DROP
+   * TABLE <table>} in a try/catch for SQLSTATE 42704 ("undefined name").
+   *
+   * @param table the unqualified or schema-qualified table name
+   */
+  static Operation.Execute dropTableIfExists(String table) {
+    return new Operation.Execute(of("DROP TABLE IF EXISTS " + table));
   }
 
   static Literal quotedDouble(String value) {
@@ -542,6 +564,28 @@ public sealed interface Fragment {
   /** Returns `f1, f2, ... fn`. */
   static Fragment comma(List<? extends Fragment> fs) {
     return join(fs, of(", "));
+  }
+
+  /**
+   * Returns {@code (?, ?, ...)} with each element bound as a typed parameter. Useful for {@code IN}
+   * clauses on dialects without native array types (MariaDB, SQL Server, Oracle, pre-23c; DB2):
+   * {@code Fragment.of("WHERE id IN ").append(Fragment.valuesList(MariaTypes.int_, ids))}.
+   *
+   * <p>On PostgreSQL/DuckDB prefer the array idiom: {@code .value(int4.array(), ids)} with {@code =
+   * ANY(?)}.
+   *
+   * @throws IllegalArgumentException if {@code values} is empty — an empty {@code IN()} is
+   *     SQL-invalid, so the caller must branch (e.g. return no rows without issuing the query).
+   */
+  static <A> Fragment valuesList(DbType<A> type, Iterable<? extends A> values) {
+    var parts = new java.util.ArrayList<Fragment>();
+    for (A v : values) parts.add(Fragment.value(v, type));
+    if (parts.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Fragment.valuesList requires at least one value — an empty IN() clause is SQL-invalid. "
+              + "Branch on the caller side (return empty list without issuing the query).");
+    }
+    return parentheses(comma(parts));
   }
 
   /** Returns `ORDER BY f1, f2, ... fn` or the empty fragment if `fs` is empty. */

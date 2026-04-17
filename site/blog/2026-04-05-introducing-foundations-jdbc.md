@@ -78,7 +78,7 @@ import dev.typr.foundationskt.*
 import dev.typr.foundationskt.connect.*
 
 fun main() {
-    val tx = SingleConnectionDataSource.create(
+    val tx = ConnectionSource.of(
         DuckDbConfig.inMemory().build()
     ).transactor()
 

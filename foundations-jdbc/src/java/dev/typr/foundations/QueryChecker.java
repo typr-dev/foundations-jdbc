@@ -15,15 +15,15 @@ public interface QueryChecker {
     List<QueryAnalysis> analyses =
         transactor().execute(conn -> QueryAnalyzer.analyze(analyzable, conn));
     StringBuilder errors = new StringBuilder();
-    int errorCount = 0;
+    List<QueryAnalysis> failed = new ArrayList<>();
     for (QueryAnalysis analysis : analyses) {
       if (!analysis.succeeded()) {
-        errorCount++;
+        failed.add(analysis);
         errors.append("\n\n").append(analysis.report());
       }
     }
-    if (errorCount > 0) {
-      throw new AssertionError("Query type check failed:" + errors);
+    if (!failed.isEmpty()) {
+      throw new QueryCheckFailedException(failed, "Query type check failed:" + errors);
     }
   }
 
@@ -32,7 +32,8 @@ public interface QueryChecker {
         transactor()
             .execute(conn -> QueryAnalyzer.analyzeFragmentAndParser(fragment, parser, conn));
     if (!analysis.succeeded()) {
-      throw new AssertionError("Query type check failed:\n" + analysis.report());
+      throw new QueryCheckFailedException(
+          List.of(analysis), "Query type check failed:\n" + analysis.report());
     }
   }
 
@@ -53,12 +54,14 @@ public interface QueryChecker {
     return analyzeAll(List.of(analyzables));
   }
 
-  default void checkAll(List<? extends Analyzable> analyzables) {
-    analyzeAll(analyzables).assertAllSucceeded();
+  default CheckReport checkAll(List<? extends Analyzable> analyzables) {
+    CheckReport report = analyzeAll(analyzables);
+    report.assertAllSucceeded();
+    return report;
   }
 
-  default void checkAll(Analyzable... analyzables) {
-    checkAll(List.of(analyzables));
+  default CheckReport checkAll(Analyzable... analyzables) {
+    return checkAll(List.of(analyzables));
   }
 
   default void checkRoutine(RoutineDef def) {
@@ -69,7 +72,8 @@ public interface QueryChecker {
     RoutineAnalysis analysis =
         transactor().execute(conn -> RoutineAnalyzer.analyzeProcedure(procedure, conn));
     if (!analysis.succeeded()) {
-      throw new AssertionError("Routine analysis failed:\n" + analysis.report());
+      throw new RoutineCheckFailedException(
+          analysis, "Routine analysis failed:\n" + analysis.report());
     }
   }
 }

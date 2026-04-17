@@ -69,6 +69,9 @@ public interface MariaTypes {
               MariaOutParam.readInteger)
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("integer")));
 
+  /** Alias for {@link #int_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  MariaType<Integer> integer = int_;
+
   MariaType<Long> bigint =
       MariaType.of(
           "BIGINT",
@@ -142,7 +145,7 @@ public interface MariaTypes {
           .renamed("NUMERIC")
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("decimal")));
 
-  static MariaType<BigDecimal> decimal(int precision, int scale) {
+  static MariaType<BigDecimal> decimalOf(int precision, int scale) {
     return MariaType.of(
         MariaTypename.of("DECIMAL", precision, scale),
         MariaRead.readBigDecimal,
@@ -161,6 +164,11 @@ public interface MariaTypes {
           MariaJson.float4,
           MariaOutParam.readFloat);
 
+  /**
+   * Alias for {@link #float_} — aesthetic, avoids the Java-keyword {@code _} suffix. 4B IEEE 754.
+   */
+  MariaType<Float> float4 = float_;
+
   MariaType<Double> double_ =
       MariaType.of(
           "DOUBLE",
@@ -168,6 +176,11 @@ public interface MariaTypes {
           MariaWrite.writeDouble,
           MariaJson.float8,
           MariaOutParam.readDouble);
+
+  /**
+   * Alias for {@link #double_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754.
+   */
+  MariaType<Double> float8 = double_;
 
   // ==================== Boolean Type ====================
 
@@ -209,6 +222,9 @@ public interface MariaTypes {
           MariaJson.text,
           MariaOutParam.readString);
 
+  /** Alias for {@link #char_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  MariaType<String> character = char_;
+
   MariaType<String> varchar =
       MariaType.of(
           "VARCHAR",
@@ -249,7 +265,7 @@ public interface MariaTypes {
           MariaJson.text,
           MariaOutParam.readString);
 
-  static MariaType<String> char_(int length) {
+  static MariaType<String> char_Of(int length) {
     return MariaType.of(
         MariaTypename.of("CHAR", length),
         MariaRead.readString,
@@ -258,7 +274,7 @@ public interface MariaTypes {
         MariaOutParam.readString);
   }
 
-  static MariaType<String> varchar(int length) {
+  static MariaType<String> varcharOf(int length) {
     return MariaType.of(
         MariaTypename.of("VARCHAR", length),
         MariaRead.readString,
@@ -317,7 +333,7 @@ public interface MariaTypes {
           MariaJson.bytea,
           MariaOutParam.readByteArray);
 
-  static MariaType<byte[]> binary(int length) {
+  static MariaType<byte[]> binaryOf(int length) {
     return MariaType.of(
         MariaTypename.of("BINARY", length),
         MariaRead.readByteArray,
@@ -326,7 +342,7 @@ public interface MariaTypes {
         MariaOutParam.readByteArray);
   }
 
-  static MariaType<byte[]> varbinary(int length) {
+  static MariaType<byte[]> varbinaryOf(int length) {
     return MariaType.of(
         MariaTypename.of("VARBINARY", length),
         MariaRead.readByteArray,
@@ -377,7 +393,7 @@ public interface MariaTypes {
           MariaJson.int4.transform(Year::of, Year::getValue),
           MariaOutParam.readYear);
 
-  static MariaType<LocalTime> time(int fsp) {
+  static MariaType<LocalTime> timeOf(int fsp) {
     return MariaType.of(
         MariaTypename.of("TIME", fsp),
         MariaRead.readLocalTime,
@@ -386,7 +402,7 @@ public interface MariaTypes {
         MariaOutParam.readLocalTime);
   }
 
-  static MariaType<LocalDateTime> datetime(int fsp) {
+  static MariaType<LocalDateTime> datetimeOf(int fsp) {
     return MariaType.of(
         MariaTypename.of("DATETIME", fsp),
         MariaRead.readLocalDateTime,
@@ -395,7 +411,7 @@ public interface MariaTypes {
         MariaOutParam.readLocalDateTime);
   }
 
-  static MariaType<LocalDateTime> timestamp(int fsp) {
+  static MariaType<LocalDateTime> timestampOf(int fsp) {
     return MariaType.of(
         MariaTypename.of("TIMESTAMP", fsp),
         MariaRead.readLocalDateTime,
@@ -407,20 +423,61 @@ public interface MariaTypes {
   // ==================== ENUM Type ====================
 
   /**
-   * Create a MariaType for ENUM columns. MariaDB ENUMs are read/written as strings.
+   * Create a MariaType for an ENUM column from a values array. No reflection — derives the {@code
+   * ENUM('A','B','C')} SQL literal from the array. The column DDL must list the same values in the
+   * same order.
    *
-   * @param fromString function to convert string to enum value
-   * @param <E> the enum type
-   * @return MariaType for the enum
+   * <pre>{@code
+   * enum OrderState { PENDING, SHIPPED, DELIVERED }
+   * var state = MariaTypes.ofEnum(OrderState.values());
+   * // column must be: state ENUM('PENDING','SHIPPED','DELIVERED')
+   * }</pre>
+   */
+  static <E extends Enum<E>> MariaType<E> ofEnum(E[] values) {
+    return ofEnum(values, Enum::name);
+  }
+
+  /**
+   * Create a MariaType for an ENUM column from a values array and a name function. No {@code Enum}
+   * bound — works with Scala 3 enums and other constant sets.
+   */
+  static <E> MariaType<E> ofEnum(E[] values, Function<E, String> name) {
+    var literal = new StringBuilder("ENUM(");
+    for (int i = 0; i < values.length; i++) {
+      if (i > 0) literal.append(',');
+      literal.append('\'').append(name.apply(values[i])).append('\'');
+    }
+    literal.append(')');
+    return ofEnum(literal.toString(), enumFromString(values, name), name);
+  }
+
+  /**
+   * Create a MariaType for an ENUM column with an explicit SQL literal and a custom mapping. Use
+   * when the database labels differ from the Java enum's constant names.
    */
   static <E extends Enum<E>> MariaType<E> ofEnum(String sqlType, Function<String, E> fromString) {
+    return ofEnum(sqlType, fromString, Enum::name);
+  }
+
+  static <E> MariaType<E> ofEnum(
+      String sqlType, Function<String, E> fromString, Function<E, String> name) {
     return MariaType.<E>of(
             sqlType,
             MariaRead.readString.map(fromString::apply),
-            MariaWrite.writeString.contramap(Enum::name),
-            MariaJson.text.transform(fromString::apply, Enum::name),
+            MariaWrite.writeString.contramap(name::apply),
+            MariaJson.text.transform(fromString::apply, name::apply),
             MariaOutParam.readString.map(fromString::apply))
         .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("char")));
+  }
+
+  private static <E> Function<String, E> enumFromString(E[] values, Function<E, String> name) {
+    var map = new java.util.HashMap<String, E>();
+    for (E v : values) map.put(name.apply(v), v);
+    return s -> {
+      E result = map.get(s);
+      if (result == null) throw new IllegalArgumentException("No enum constant: " + s);
+      return result;
+    };
   }
 
   // ==================== SET Type ====================

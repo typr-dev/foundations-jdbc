@@ -1,5 +1,5 @@
 $schema: https://raw.githubusercontent.com/oyvindberg/bleep/master/schema.json
-$version: 1.0.0-M7
+$version: 1.0.0-M8
 jvm:
   name: temurin:21
 projects:
@@ -87,7 +87,6 @@ projects:
 
   foundations-jdbc-scala:
     dependencies:
-    - org.scala-lang:scala3-library_3:3.3.4
     - configuration: provided
       module: org.postgresql:postgresql:42.7.3
     - configuration: provided
@@ -231,7 +230,6 @@ projects:
 
   documentation-examples-scala:
     dependencies:
-    - org.scala-lang:scala3-library_3:3.3.4
     - configuration: provided
       module: org.postgresql:postgresql:42.7.3
     - configuration: provided
@@ -266,6 +264,7 @@ projects:
     - com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
     - com.ibm.db2:jcc:11.5.9.0
     - io.opentelemetry:opentelemetry-api:1.45.0
+    - org.jetbrains.kotlin:kotlin-stdlib:2.3.0
     dependsOn:
     - foundations-jdbc
     - foundations-jdbc-otel
@@ -320,11 +319,11 @@ templates:
     extends: template-common
     scala:
       options: -release 21
-      version: 3.3.4
+      version: 3.8.3
   template-scala-3-scripts:
     extends: template-common
     scala:
-      options: -release 21 -source 3.4
+      options: -release 21
       version: 3.8.3
   template-kotlin:
     kotlin:

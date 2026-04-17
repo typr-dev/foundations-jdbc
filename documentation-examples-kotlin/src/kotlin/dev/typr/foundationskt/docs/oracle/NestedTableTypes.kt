@@ -20,9 +20,9 @@ class NestedTableTypes {
         OracleTypes.compositeOf(
             "ORDER_ITEM_T",
             RowCodec.namedBuilder<OrderItem>()
-                .field("PRODUCT_NAME", OracleTypes.varchar2(100), OrderItem::productName)
+                .field("PRODUCT_NAME", OracleTypes.varchar2Of(100), OrderItem::productName)
                 .field("QUANTITY", OracleTypes.numberAsInt(10), OrderItem::quantity)
-                .field("UNIT_PRICE", OracleTypes.number(12, 2), OrderItem::unitPrice)
+                .field("UNIT_PRICE", OracleTypes.numberOf(12, 2), OrderItem::unitPrice)
                 .build(::OrderItem))
 
     // CREATE TYPE order_items_t AS TABLE OF order_item_t;

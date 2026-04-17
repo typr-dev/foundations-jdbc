@@ -7,7 +7,7 @@ import dev.typr.foundationskt.data.*
 class StringTypesDoubleByte {
     //start
     val graphicType: Db2Type<String> = Db2Types.graphic
-    val graphic10: Db2Type<String> = Db2Types.graphic(10)
+    val graphic10: Db2Type<String> = Db2Types.graphicOf(10)
     val vargraphicType: Db2Type<String> = Db2Types.vargraphic
     val dbclobType: Db2Type<String> = Db2Types.dbclob
     //stop

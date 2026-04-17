@@ -82,41 +82,30 @@ public class PgTypeTest {
     }
   }
 
-  /** Auto-generate a singleton array test entry for one element entry. */
-  @SuppressWarnings("unchecked")
-  static <A> PgTypeAndExample<A[]> singletonArrayEntry(PgTypeAndExample<A> elem) {
-    A example = elem.example();
-    A[] singleton = (A[]) java.lang.reflect.Array.newInstance(example.getClass(), 1);
-    singleton[0] = example;
+  /** Auto-generate a singleton list test entry for one element entry. */
+  static <A> PgTypeAndExample<List<A>> singletonListEntry(PgTypeAndExample<A> elem) {
     return new PgTypeAndExample<>(
         elem.type().array(),
-        singleton,
+        List.of(elem.example()),
         elem.hasIdentity(),
         elem.streamingWorks(),
         elem.compositeTextWorks());
   }
 
-  /** Auto-generate an empty array test entry for a type (once per type). */
-  @SuppressWarnings("unchecked")
-  static <A> PgTypeAndExample<A[]> emptyArrayEntry(PgTypeAndExample<A> elem) {
-    A[] empty = (A[]) java.lang.reflect.Array.newInstance(elem.example().getClass(), 0);
+  /** Auto-generate an empty list test entry for a type (once per type). */
+  static <A> PgTypeAndExample<List<A>> emptyListEntry(PgTypeAndExample<A> elem) {
     return new PgTypeAndExample<>(
         elem.type().array(),
-        empty,
+        List.of(),
         elem.hasIdentity(),
         elem.streamingWorks(),
         elem.compositeTextWorks());
   }
 
-  /** Auto-generate a multi-element array test entry combining all examples for a type. */
-  @SuppressWarnings("unchecked")
-  static <A> PgTypeAndExample<A[]> multiArrayEntry(List<PgTypeAndExample<A>> sameTypeEntries) {
+  /** Auto-generate a multi-element list test entry combining all examples for a type. */
+  static <A> PgTypeAndExample<List<A>> multiListEntry(List<PgTypeAndExample<A>> sameTypeEntries) {
     var first = sameTypeEntries.get(0);
-    Class<?> elementClass = first.example().getClass();
-    A[] values = (A[]) java.lang.reflect.Array.newInstance(elementClass, sameTypeEntries.size());
-    for (int i = 0; i < sameTypeEntries.size(); i++) {
-      values[i] = sameTypeEntries.get(i).example();
-    }
+    List<A> values = sameTypeEntries.stream().map(PgTypeAndExample::example).toList();
     return new PgTypeAndExample<>(
         first.type().array(),
         values,
@@ -125,8 +114,24 @@ public class PgTypeTest {
         first.compositeTextWorks());
   }
 
-  /** Should we auto-generate array test entries for this scalar entry? */
-  static boolean hasArraySupport(PgTypeAndExample<?> elem) {
+  /**
+   * Auto-generate a nested list test entry (PG multi-dim array): List of single-element lists.
+   * Composite-text round-trip is skipped — SQL literal encoding of nested arrays is type-specific
+   * and covered by dedicated tests; the {@code .array().array()} combinator is verified via the
+   * native {@code createArrayOf} path instead.
+   */
+  static <A> PgTypeAndExample<List<List<A>>> nestedListEntry(PgTypeAndExample<A> elem) {
+    return new PgTypeAndExample<>(
+            elem.type().array().array(),
+            List.of(List.of(elem.example())),
+            elem.hasIdentity(),
+            elem.streamingWorks(),
+            elem.compositeTextWorks())
+        .noCompositeText();
+  }
+
+  /** Should we auto-generate list test entries for this scalar entry? */
+  static boolean hasListSupport(PgTypeAndExample<?> elem) {
     return elem.type().pgArrayCodec().isPresent()
         && !elem.type().typename().sqlType().contains("[]");
   }
@@ -139,14 +144,12 @@ public class PgTypeTest {
           // ==================== Boolean Types ====================
           new PgTypeAndExample<>(PgTypes.bool, true),
           new PgTypeAndExample<>(PgTypes.bool, false),
-          new PgTypeAndExample<>(PgTypes.boolArrayUnboxed, new boolean[] {true, false}),
-          new PgTypeAndExample<>(PgTypes.boolArrayUnboxed, new boolean[] {}),
 
           // ==================== Bit String Types ====================
           new PgTypeAndExample<>(PgTypes.bit, new Bit("1")),
           new PgTypeAndExample<>(PgTypes.bit, new Bit("0")),
-          new PgTypeAndExample<>(PgTypes.bit(8), new Bit("10110011")),
-          new PgTypeAndExample<>(PgTypes.bit(8), new Bit("00000000")),
+          new PgTypeAndExample<>(PgTypes.bitOf(8), new Bit("10110011")),
+          new PgTypeAndExample<>(PgTypes.bitOf(8), new Bit("00000000")),
           new PgTypeAndExample<>(PgTypes.varbit, new Varbit("1")),
           new PgTypeAndExample<>(PgTypes.varbit, new Varbit("101")),
           new PgTypeAndExample<>(PgTypes.varbit, new Varbit("00000000")),
@@ -171,7 +174,7 @@ public class PgTypeTest {
               .noIdentity(),
 
           // ==================== Character Types ====================
-          new PgTypeAndExample<>(PgTypes.bpchar(5), "377  "),
+          new PgTypeAndExample<>(PgTypes.bpcharOf(5), "377  "),
           new PgTypeAndExample<>(PgTypes.bpchar, "377"),
           new PgTypeAndExample<>(PgTypes.bpchar, ""),
           new PgTypeAndExample<>(PgTypes.text, ",.;{}[]-//#®✅"),
@@ -206,36 +209,25 @@ public class PgTypeTest {
           new PgTypeAndExample<>(PgTypes.int2, Short.MIN_VALUE),
           new PgTypeAndExample<>(PgTypes.int2, Short.MAX_VALUE),
           new PgTypeAndExample<>(PgTypes.int2, (short) 0),
-          new PgTypeAndExample<>(PgTypes.int2ArrayUnboxed, new short[] {42}),
-          new PgTypeAndExample<>(PgTypes.int2ArrayUnboxed, new short[] {}),
           new PgTypeAndExample<>(PgTypes.int4, 42),
           new PgTypeAndExample<>(PgTypes.int4, Integer.MIN_VALUE),
           new PgTypeAndExample<>(PgTypes.int4, Integer.MAX_VALUE),
           new PgTypeAndExample<>(PgTypes.int4, 0),
-          new PgTypeAndExample<>(PgTypes.int4ArrayUnboxed, new int[] {42}),
-          new PgTypeAndExample<>(PgTypes.int4ArrayUnboxed, new int[] {}),
           new PgTypeAndExample<>(PgTypes.int8, 42L),
           new PgTypeAndExample<>(PgTypes.int8, Long.MIN_VALUE),
           new PgTypeAndExample<>(PgTypes.int8, Long.MAX_VALUE),
           new PgTypeAndExample<>(PgTypes.int8, 0L),
-          new PgTypeAndExample<>(PgTypes.int8ArrayUnboxed, new long[] {42L}),
-          new PgTypeAndExample<>(PgTypes.int8ArrayUnboxed, new long[] {}),
           new PgTypeAndExample<>(PgTypes.float4, 42.42f),
           new PgTypeAndExample<>(PgTypes.float4, 0.0f),
           new PgTypeAndExample<>(PgTypes.float4, 1.0E-38f),
-          new PgTypeAndExample<>(PgTypes.float4ArrayUnboxed, new float[] {42.42f}),
-          new PgTypeAndExample<>(PgTypes.float4ArrayUnboxed, new float[] {}),
           new PgTypeAndExample<>(PgTypes.float8, 42.42),
           new PgTypeAndExample<>(PgTypes.float8, 0.0),
           new PgTypeAndExample<>(PgTypes.float8, Double.MAX_VALUE),
-          new PgTypeAndExample<>(PgTypes.float8ArrayUnboxed, new double[] {42.42}),
-          new PgTypeAndExample<>(PgTypes.float8ArrayUnboxed, new double[] {}),
           new PgTypeAndExample<>(PgTypes.numeric, new BigDecimal("0.002")),
           new PgTypeAndExample<>(PgTypes.numeric, BigDecimal.ZERO),
           new PgTypeAndExample<>(PgTypes.numeric, new BigDecimal("-99999999999999.999999999999")),
           new PgTypeAndExample<>(PgTypes.numeric, new BigDecimal("99999999999999.999999999999")),
           new PgTypeAndExample<>(PgTypes.smallint, (short) 42),
-          new PgTypeAndExample<>(PgTypes.smallintArrayUnboxed, new short[] {42}),
           new PgTypeAndExample<>(PgTypes.money, new Money("42.22")),
           new PgTypeAndExample<>(PgTypes.money, new Money("0.00")),
           new PgTypeAndExample<>(PgTypes.money, new Money("-999.99")),
@@ -396,34 +388,33 @@ public class PgTypeTest {
   private List<PgTypeAndExample<?>> buildAll() {
     var out = new java.util.ArrayList<PgTypeAndExample<?>>(Elements);
 
-    // Per-entry singleton array tests (edge-case values through the array codec)
+    // Per-entry singleton list tests (edge-case values through the element codec)
     for (var e : Elements) {
-      if (hasArraySupport(e)) {
-        out.add(singletonArrayEntry((PgTypeAndExample) e));
+      if (hasListSupport(e)) {
+        out.add(singletonListEntry((PgTypeAndExample) e));
       }
     }
 
-    // Group entries for per-type array tests (multi + empty).
+    // Group entries for per-type list tests (multi + empty + nested).
     // Key by (sqlType, example class) so transformed types (e.g. jsonArrayEncoded<Item>)
     // don't collide with their base type (json<Json>) even though both have sqlType="json".
     var byType = new java.util.LinkedHashMap<String, List<PgTypeAndExample<?>>>();
     for (var e : Elements) {
-      if (hasArraySupport(e)) {
+      if (hasListSupport(e)) {
         String key = e.type().typename().sqlType() + "#" + e.example().getClass().getName();
         byType.computeIfAbsent(key, k -> new java.util.ArrayList<>()).add(e);
       }
     }
     for (var group : byType.values()) {
       var first = (PgTypeAndExample) group.get(0);
-      // Skip multi-element test for types with non-standard array delimiter (geometric types
-      // use ';'). COPY/text escaping for those has quoting quirks — singleton tests still
-      // cover element encoding, and multi-element adds little for types where the only
-      // difference is the delimiter character.
       char delim = ((PgType<?>) first.type()).arrayDelimiter();
       if (delim == ',' && group.size() > 1) {
-        out.add(multiArrayEntry((List) group));
+        out.add(multiListEntry((List) group));
       }
-      out.add(emptyArrayEntry(first));
+      out.add(emptyListEntry(first));
+      if (delim == ',') {
+        out.add(nestedListEntry(first));
+      }
     }
 
     return List.copyOf(out);

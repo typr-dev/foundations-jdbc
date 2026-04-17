@@ -8,7 +8,7 @@ object TransactorSetup:
   // PostgreSQL
   val pgTx =
     Transactor.create(
-      PostgresConfig
+      PgConfig
         .builder("localhost", 5432, "mydb", "user", "pass")
         .sslmode(PgSslMode.REQUIRE)
         .build()
@@ -31,7 +31,7 @@ object TransactorSetup:
   // MariaDB / MySQL
   val mariaTx =
     Transactor.create(
-      MariaDbConfig
+      MariaConfig
         .builder("localhost", 3306, "mydb", "user", "pass")
         .build()
     )
@@ -45,12 +45,12 @@ object TransactorSetup:
         .build()
     )
 
-  // SQL Server
+  // SQL Server — .encrypt(FALSE) for local dev (self-signed cert); use TRUE + trusted cert in prod
   val mssqlTx =
     Transactor.create(
       SqlServerConfig
         .builder("localhost", 1433, "mydb", "user", "pass")
-        .encrypt(SqlServerEncrypt.TRUE)
+        .encrypt(SqlServerEncrypt.FALSE)
         .build()
     )
 

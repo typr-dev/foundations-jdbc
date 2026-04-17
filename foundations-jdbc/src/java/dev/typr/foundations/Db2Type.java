@@ -42,6 +42,11 @@ public record Db2Type<A>(
     return Set.copyOf(all);
   }
 
+  @Override
+  public String toString() {
+    return "DB2(" + typename + ")";
+  }
+
   public Db2Type<A> unchecked() {
     return withAnalysis(analysisOptions.withUnchecked());
   }

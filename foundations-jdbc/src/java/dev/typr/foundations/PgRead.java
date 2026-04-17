@@ -1,24 +1,15 @@
 package dev.typr.foundations;
 
-import dev.typr.foundations.data.Json;
-import dev.typr.foundations.data.Jsonb;
-import dev.typr.foundations.data.Money;
-import dev.typr.foundations.internal.arrayMap;
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.function.IntFunction;
-import org.postgresql.jdbc.PgArray;
 import org.postgresql.util.PGobject;
 
 /**
@@ -156,78 +147,39 @@ public sealed interface PgRead<A> extends DbRead<A>
     return of((rs, i) -> cls.cast(rs.getObject(i)));
   }
 
-  PgRead<PgArray> readPgArray = of((rs, i) -> (PgArray) rs.getArray(i));
-
-  @SuppressWarnings("unchecked")
-  static <A> PgRead<A[]> massageJdbcArrayTo(Class<A[]> arrayCls) {
-    return readPgArray.map(
-        sqlArray -> {
-          Object arrayObj = sqlArray.getArray();
-          // if the array is already of the correct type, just return it
-          if (arrayCls.isInstance(arrayObj)) return arrayCls.cast(arrayObj);
-          // if the array is an Object[], we need to copy elements manually
-          Object[] array = (Object[]) arrayObj;
-          Class<?> componentType = arrayCls.getComponentType();
-          A[] result = (A[]) Array.newInstance(componentType, array.length);
-          for (int i = 0; i < array.length; i++) {
-            result[i] = (A) array[i];
-          }
+  /**
+   * Read a PG array column as a {@link List}, converting each element via the supplied converter.
+   * Null array → {@code null}; null elements inside the array are preserved as {@code null}.
+   * Returned list is the internal {@link ArrayList} — callers should treat it as read-only by
+   * convention (we deliberately don't wrap because {@code List.copyOf} rejects null elements).
+   */
+  static <A> PgRead<List<A>> readElementList(Function<Object, A> converter) {
+    return of(
+        (rs, idx) -> {
+          java.sql.Array arr = rs.getArray(idx);
+          if (arr == null) return null;
+          Object[] elements = (Object[]) arr.getArray();
+          List<A> result = new ArrayList<>(elements.length);
+          for (Object elem : elements) result.add(elem == null ? null : converter.apply(elem));
           return result;
         });
   }
 
   /**
-   * Read an array where JDBC driver returns Object[] containing elements that need casting. Used
-   * for PostgreSQL geometric types (box[], circle[], etc.) where driver returns PGobject[].
+   * Read a PG array column of a composite type as a {@link List}, parsing each element text via the
+   * supplied {@link PgCompositeText} decoder. Used when JDBC's {@code Array.getArray()} path loses
+   * precision or fails (bit, time, money, composite records).
    */
-  @SuppressWarnings("unchecked")
-  static <A> PgRead<A[]> castJdbcArrayTo(Class<A> elementCls) {
-    return readPgArray.map(
-        sqlArray -> {
-          Object[] array = (Object[]) sqlArray.getArray();
-          A[] result = (A[]) Array.newInstance(elementCls, array.length);
-          for (int i = 0; i < array.length; i++) {
-            result[i] = elementCls.cast(array[i]);
-          }
-          return result;
-        });
-  }
-
-  @SuppressWarnings("unchecked")
-  static <T> PgRead<T[]> pgObjectArray(Function<String, T> fromString, Class<T> clazz) {
-    return readPgArray.map(
-        sqlArray -> {
-          Object[] objects = (Object[]) sqlArray.getArray();
-          T[] array = (T[]) Array.newInstance(clazz, objects.length);
-          for (int i = 0; i < objects.length; i++) {
-            PGobject object = (PGobject) objects[i];
-            array[i] = fromString.apply(object.getValue());
-          }
-          return array;
-        });
-  }
-
-  /**
-   * Create a reader for arrays of composite types. PostgreSQL returns composite arrays as a string
-   * in array format, e.g., {"(field1,field2)","(field3,field4)"}. We parse this using
-   * PgRecordParser.parseArray and decode each element with the composite's text decoder.
-   *
-   * @param decoder the composite text decoder for the element type
-   * @param arrayFactory factory to create arrays of the element type
-   * @return a PgRead for arrays of the composite type
-   */
-  static <T> PgRead<T[]> readCompositeArray(
-      PgCompositeText<T> decoder, IntFunction<T[]> arrayFactory) {
+  static <A> PgRead<List<A>> readCompositeList(PgCompositeText<A> decoder) {
     return readString.map(
         arrayText -> {
           if (arrayText == null) return null;
-          java.util.List<String> elements = PgRecordParser.parseArray(arrayText);
-          T[] array = arrayFactory.apply(elements.size());
-          for (int i = 0; i < elements.size(); i++) {
-            String elementText = elements.get(i);
-            array[i] = elementText == null ? null : decoder.decode(elementText);
+          List<String> elements = PgRecordParser.parseArray(arrayText);
+          List<A> result = new ArrayList<>(elements.size());
+          for (String elementText : elements) {
+            result.add(elementText == null ? null : decoder.decode(elementText));
           }
-          return array;
+          return result;
         });
   }
 
@@ -235,18 +187,19 @@ public sealed interface PgRead<A> extends DbRead<A>
   // This reader handles both cases by using getString() which works for all bit types.
   PgRead<String> bitString = of(ResultSet::getString);
 
-  static <T> PgRead<T[]> bitStringArray(Function<String, T> fromString, Class<T> clazz) {
+  /**
+   * Parse a PG array literal (as returned as text by the driver for types where the binary
+   * conversion loses precision, e.g. bit strings) into a {@link List} using the supplied
+   * per-element function. Null array → {@code null}; null elements preserved.
+   */
+  static <A> PgRead<List<A>> readBitStringList(Function<String, A> fromString) {
     return readString.map(
         arrayText -> {
           if (arrayText == null) return null;
-          java.util.List<String> elements = PgRecordParser.parseArray(arrayText);
-          @SuppressWarnings("unchecked")
-          T[] array = (T[]) Array.newInstance(clazz, elements.size());
-          for (int i = 0; i < elements.size(); i++) {
-            String elem = elements.get(i);
-            array[i] = elem == null ? null : fromString.apply(elem);
-          }
-          return array;
+          List<String> elements = PgRecordParser.parseArray(arrayText);
+          List<A> result = new ArrayList<>(elements.size());
+          for (String elem : elements) result.add(elem == null ? null : fromString.apply(elem));
+          return result;
         });
   }
 
@@ -264,67 +217,23 @@ public sealed interface PgRead<A> extends DbRead<A>
 
   PgRead<OffsetDateTime> readOffsetDateTime =
       of((rs, idx) -> rs.getObject(idx, OffsetDateTime.class));
-  PgRead<java.sql.Timestamp[]> readTimestampArray = massageJdbcArrayTo(java.sql.Timestamp[].class);
-  PgRead<java.sql.Date[]> readDateArray = massageJdbcArrayTo(java.sql.Date[].class);
   PgRead<String> readString = of(ResultSet::getString);
-  PgRead<String[]> readStringArray = PgRead.massageJdbcArrayTo(String[].class);
-
   PgRead<BigDecimal> readBigDecimal = of(ResultSet::getBigDecimal);
-  PgRead<BigDecimal[]> readBigDecimalArray = PgRead.massageJdbcArrayTo(BigDecimal[].class);
   PgRead<Boolean> readBoolean = of(ResultSet::getBoolean);
-  PgRead<Boolean[]> readBooleanArray = PgRead.massageJdbcArrayTo(Boolean[].class);
   PgRead<Byte> readByte = of(ResultSet::getByte);
   PgRead<byte[]> readByteArray = castJdbcObjectTo(byte[].class);
   PgRead<Double> readDouble = of(ResultSet::getDouble);
-  PgRead<Double[]> readDoubleArray = PgRead.massageJdbcArrayTo(Double[].class);
   PgRead<Float> readFloat = of(ResultSet::getFloat);
-  PgRead<Float[]> readFloatArray = PgRead.massageJdbcArrayTo(Float[].class);
   PgRead<Instant> readInstant = readOffsetDateTime.map(OffsetDateTime::toInstant);
-  PgRead<Instant[]> readInstantArray =
-      readTimestampArray.map(
-          ts -> Arrays.stream(ts).map(java.sql.Timestamp::toInstant).toArray(Instant[]::new));
   PgRead<Integer> readInteger = of(ResultSet::getInt);
-  PgRead<Integer[]> readIntegerArray = PgRead.massageJdbcArrayTo(Integer[].class);
-  PgRead<Json[]> readJsonArray =
-      PgRead.readStringArray.map(as -> arrayMap.map(as, Json::new, Json.class));
-  PgRead<Jsonb[]> readJsonbArray =
-      PgRead.readStringArray.map(as -> arrayMap.map(as, Jsonb::new, Jsonb.class));
   PgRead<LocalDate> readLocalDate = of((rs, idx) -> rs.getObject(idx, LocalDate.class));
-  PgRead<LocalDate[]> readLocalDateArray =
-      readDateArray.map(
-          dates -> Arrays.stream(dates).map(java.sql.Date::toLocalDate).toArray(LocalDate[]::new));
   PgRead<LocalDateTime> readLocalDateTime = of((rs, idx) -> rs.getObject(idx, LocalDateTime.class));
-  PgRead<LocalDateTime[]> readLocalDateTimeArray =
-      readTimestampArray.map(
-          ts ->
-              Arrays.stream(ts)
-                  .map(java.sql.Timestamp::toLocalDateTime)
-                  .toArray(LocalDateTime[]::new));
   PgRead<LocalTime> readLocalTime = of((rs, idx) -> rs.getObject(idx, LocalTime.class));
-  PgRead<LocalTime[]> readLocalTimeArray = readString.map(Impl::parseLocalTimeArray);
   PgRead<Long> readLong = of(ResultSet::getLong);
-  PgRead<Long[]> readLongArray = PgRead.massageJdbcArrayTo(Long[].class);
   PgRead<OffsetTime> readOffsetTime = of((rs, idx) -> rs.getObject(idx, OffsetTime.class));
-  PgRead<OffsetTime[]> readOffsetTimeArray = readString.map(Impl::parseOffsetTimeArray);
   PgRead<Short> readShort = of(ResultSet::getShort);
-  PgRead<Short[]> readShortArray = PgRead.massageJdbcArrayTo(Short[].class);
-
-  // Unboxed (primitive) array readers - convert from boxed arrays returned by JDBC
-  PgRead<boolean[]> readBooleanArrayUnboxed = readBooleanArray.map(Impl::unboxBooleanArray);
-  PgRead<short[]> readShortArrayUnboxed = readShortArray.map(Impl::unboxShortArray);
-  PgRead<int[]> readIntArrayUnboxed = readIntegerArray.map(Impl::unboxIntArray);
-  PgRead<long[]> readLongArrayUnboxed = readLongArray.map(Impl::unboxLongArray);
-  PgRead<float[]> readFloatArrayUnboxed = readFloatArray.map(Impl::unboxFloatArray);
-  PgRead<double[]> readDoubleArrayUnboxed = readDoubleArray.map(Impl::unboxDoubleArray);
 
   PgRead<UUID> readUUID = readString.map(UUID::fromString);
-  PgRead<Money[]> readMoneyArray =
-      PgRead.readString.map(
-          str -> {
-            if (str.equals("{}")) return new Money[0];
-            return arrayMap.map(
-                str.substring(1, str.length() - 1).split(","), Money::new, Money.class);
-          });
   PgRead<Map<String, String>> readMapStringString =
       PgRead.of(
           (rs, i) -> {
@@ -332,150 +241,4 @@ public sealed interface PgRead<A> extends DbRead<A>
             if (obj == null) return null;
             return (Map<String, String>) obj;
           });
-
-  interface Impl {
-    // postgres driver throws away all precision after whole seconds !?!
-    static LocalTime[] parseLocalTimeArray(String str) {
-      if (str == null) return null;
-      if (str.equals("{}")) return new LocalTime[0];
-      if (str.charAt(0) != '{' || str.charAt(str.length() - 1) != '}')
-        throw new IllegalArgumentException("Invalid array format");
-      String[] strings = str.substring(1, str.length() - 1).split(",");
-      LocalTime[] ret = new LocalTime[strings.length];
-      for (int i = 0; i < strings.length; i++) {
-        ret[i] = LocalTime.parse(strings[i]);
-      }
-      return ret;
-    }
-
-    DateTimeFormatter offsetTimeParser =
-        new DateTimeFormatterBuilder()
-            .appendPattern("HH:mm:ss")
-            .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true)
-            .appendPattern("X")
-            .toFormatter();
-
-    static OffsetTime[] parseOffsetTimeArray(String str) {
-      if (str == null) return null;
-      if (str.equals("{}")) return new OffsetTime[0];
-      if (str.charAt(0) != '{' || str.charAt(str.length() - 1) != '}')
-        throw new IllegalArgumentException("Invalid array format");
-      String[] strings = str.substring(1, str.length() - 1).split(",");
-      var ret = new OffsetTime[strings.length];
-      for (int i = 0; i < strings.length; i++) {
-        ret[i] = OffsetTime.parse(strings[i], offsetTimeParser);
-      }
-      return ret;
-    }
-
-    // Unboxing methods - convert boxed arrays to primitive arrays
-    static boolean[] unboxBooleanArray(Boolean[] boxed) {
-      if (boxed == null) return null;
-      boolean[] unboxed = new boolean[boxed.length];
-      for (int i = 0; i < boxed.length; i++) {
-        unboxed[i] = boxed[i];
-      }
-      return unboxed;
-    }
-
-    static short[] unboxShortArray(Short[] boxed) {
-      if (boxed == null) return null;
-      short[] unboxed = new short[boxed.length];
-      for (int i = 0; i < boxed.length; i++) {
-        unboxed[i] = boxed[i];
-      }
-      return unboxed;
-    }
-
-    static int[] unboxIntArray(Integer[] boxed) {
-      if (boxed == null) return null;
-      int[] unboxed = new int[boxed.length];
-      for (int i = 0; i < boxed.length; i++) {
-        unboxed[i] = boxed[i];
-      }
-      return unboxed;
-    }
-
-    static long[] unboxLongArray(Long[] boxed) {
-      if (boxed == null) return null;
-      long[] unboxed = new long[boxed.length];
-      for (int i = 0; i < boxed.length; i++) {
-        unboxed[i] = boxed[i];
-      }
-      return unboxed;
-    }
-
-    static float[] unboxFloatArray(Float[] boxed) {
-      if (boxed == null) return null;
-      float[] unboxed = new float[boxed.length];
-      for (int i = 0; i < boxed.length; i++) {
-        unboxed[i] = boxed[i];
-      }
-      return unboxed;
-    }
-
-    static double[] unboxDoubleArray(Double[] boxed) {
-      if (boxed == null) return null;
-      double[] unboxed = new double[boxed.length];
-      for (int i = 0; i < boxed.length; i++) {
-        unboxed[i] = boxed[i];
-      }
-      return unboxed;
-    }
-
-    // Boxing methods - convert primitive arrays to boxed arrays
-    static Boolean[] boxBooleanArray(boolean[] unboxed) {
-      if (unboxed == null) return null;
-      Boolean[] boxed = new Boolean[unboxed.length];
-      for (int i = 0; i < unboxed.length; i++) {
-        boxed[i] = unboxed[i];
-      }
-      return boxed;
-    }
-
-    static Short[] boxShortArray(short[] unboxed) {
-      if (unboxed == null) return null;
-      Short[] boxed = new Short[unboxed.length];
-      for (int i = 0; i < unboxed.length; i++) {
-        boxed[i] = unboxed[i];
-      }
-      return boxed;
-    }
-
-    static Integer[] boxIntArray(int[] unboxed) {
-      if (unboxed == null) return null;
-      Integer[] boxed = new Integer[unboxed.length];
-      for (int i = 0; i < unboxed.length; i++) {
-        boxed[i] = unboxed[i];
-      }
-      return boxed;
-    }
-
-    static Long[] boxLongArray(long[] unboxed) {
-      if (unboxed == null) return null;
-      Long[] boxed = new Long[unboxed.length];
-      for (int i = 0; i < unboxed.length; i++) {
-        boxed[i] = unboxed[i];
-      }
-      return boxed;
-    }
-
-    static Float[] boxFloatArray(float[] unboxed) {
-      if (unboxed == null) return null;
-      Float[] boxed = new Float[unboxed.length];
-      for (int i = 0; i < unboxed.length; i++) {
-        boxed[i] = unboxed[i];
-      }
-      return boxed;
-    }
-
-    static Double[] boxDoubleArray(double[] unboxed) {
-      if (unboxed == null) return null;
-      Double[] boxed = new Double[unboxed.length];
-      for (int i = 0; i < unboxed.length; i++) {
-        boxed[i] = unboxed[i];
-      }
-      return boxed;
-    }
-  }
 }

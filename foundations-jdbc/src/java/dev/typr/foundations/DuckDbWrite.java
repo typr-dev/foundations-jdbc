@@ -79,6 +79,14 @@ public sealed interface DuckDbWrite<A> extends DbWrite<A>
   // TIME - use setString to avoid timezone issues with java.sql.Time
   DuckDbWrite<LocalTime> writeLocalTime = writeString.contramap(LocalTime::toString);
 
+  // TIMETZ / TIME WITH TIME ZONE — OffsetTime.toString() emits "HH:mm" when seconds are zero,
+  // but DuckDB's parser requires "HH:mm:ss". Format with a pattern that always includes
+  // seconds and the offset.
+  java.time.format.DateTimeFormatter DUCKDB_TIMETZ_FMT =
+      java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss[.SSSSSS]xxx");
+  DuckDbWrite<OffsetTime> writeOffsetTime =
+      writeString.contramap(ot -> ot.format(DUCKDB_TIMETZ_FMT));
+
   // INTERVAL/Duration - use setString with duration format (HH:MM:SS)
   DuckDbWrite<Duration> writeDuration =
       writeString.contramap(
@@ -116,6 +124,26 @@ public sealed interface DuckDbWrite<A> extends DbWrite<A>
         });
   }
 
+  /**
+   * Write a LIST whose elements are encoded to wire objects via a supplied encoder. The wire
+   * objects (DuckDBUserStruct, DuckDBUserArray, DuckDBMap, or stringified scalars) are wrapped in a
+   * DuckDBUserArray bound via setObject. Used by every composite type's list-binding — the
+   * element's own {@code structAttributeEncoder} is the encoder.
+   */
+  static <E> DuckDbWrite<java.util.List<E>> writeListOfUserArray(
+      String elementSqlType, Function<E, Object> encoder) {
+    return primitive(
+        (ps, idx, list) -> {
+          if (list == null) {
+            ps.setNull(idx, java.sql.Types.ARRAY);
+          } else {
+            Object[] encoded = new Object[list.size()];
+            for (int i = 0; i < list.size(); i++) encoded[i] = encoder.apply(list.get(i));
+            ps.setObject(idx, new org.duckdb.user.DuckDBUserArray(elementSqlType, encoded));
+          }
+        });
+  }
+
   // ==================== SQL Literal-Based List Writers ====================
   // These types require string conversion because DuckDB JNI doesn't handle them
   // directly or has bugs (e.g., UUID byte-ordering). ~33% overhead at 100k rows.
@@ -142,62 +170,6 @@ public sealed interface DuckDbWrite<A> extends DbWrite<A>
             org.duckdb.user.DuckDBUserArray userArray =
                 new org.duckdb.user.DuckDBUserArray(typeName, array);
             ps.setObject(idx, userArray);
-          }
-        });
-  }
-
-  /**
-   * Write a MAP with typed keys and values using DuckDBMap. DuckDB JDBC natively supports DuckDBMap
-   * via setObject().
-   *
-   * @param sqlTypeName the full DuckDB type name (e.g., "MAP(VARCHAR, INTEGER)")
-   * @param <K> key type
-   * @param <V> value type
-   * @return writer for Map
-   */
-  static <K, V> DuckDbWrite<java.util.Map<K, V>> writeMap(String sqlTypeName) {
-    return primitive(
-        (ps, idx, map) -> {
-          if (map == null) {
-            ps.setNull(idx, java.sql.Types.OTHER);
-          } else {
-            org.duckdb.user.DuckDBMap<K, V> duckDbMap =
-                new org.duckdb.user.DuckDBMap<>(sqlTypeName, map);
-            ps.setObject(idx, duckDbMap);
-          }
-        });
-  }
-
-  /**
-   * Write a MAP with typed keys and values using DuckDBMap, converting via DuckDbStringifier. All
-   * keys and values are converted to String. DuckDB parses them based on the type name. Uses
-   * unquoted format (quoted=false) suitable for DuckDBMap.
-   *
-   * @param sqlTypeName the full DuckDB type name (e.g., "MAP(UUID, TIME)")
-   * @param keyStringifier how to format keys
-   * @param valueStringifier how to format values
-   * @param <K> key type
-   * @param <V> value type
-   * @return writer for Map
-   */
-  static <K, V> DuckDbWrite<java.util.Map<K, V>> writeMapViaSqlLiteral(
-      String sqlTypeName,
-      DuckDbStringifier<K> keyStringifier,
-      DuckDbStringifier<V> valueStringifier) {
-    return primitive(
-        (ps, idx, map) -> {
-          if (map == null) {
-            ps.setNull(idx, java.sql.Types.OTHER);
-          } else {
-            java.util.Map<String, String> wireMap = new java.util.LinkedHashMap<>();
-            for (var entry : map.entrySet()) {
-              wireMap.put(
-                  keyStringifier.encode(entry.getKey(), false),
-                  valueStringifier.encode(entry.getValue(), false));
-            }
-            org.duckdb.user.DuckDBMap<String, String> duckDbMap =
-                new org.duckdb.user.DuckDBMap<>(sqlTypeName, wireMap);
-            ps.setObject(idx, duckDbMap);
           }
         });
   }

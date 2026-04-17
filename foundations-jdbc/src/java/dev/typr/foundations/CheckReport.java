@@ -13,40 +13,62 @@ public record CheckReport(List<QueryAnalysis> analyses) {
 
   public void assertAllSucceeded() {
     StringBuilder errors = new StringBuilder();
-    int errorCount = 0;
+    List<QueryAnalysis> failed = new java.util.ArrayList<>();
     int idx = 0;
     for (var analysis : analyses) {
       idx++;
       if (!analysis.succeeded()) {
-        errorCount++;
+        failed.add(analysis);
         errors.append("\n\n--- Query ").append(idx).append(" ---\n");
         errors.append(analysis.report());
       }
     }
-    if (errorCount > 0) {
-      throw new AssertionError(errorCount + " queries failed type checking:" + errors);
+    if (!failed.isEmpty()) {
+      throw new QueryCheckFailedException(
+          failed, failed.size() + " queries failed type checking:" + errors);
     }
   }
 
   public Str styledSummary() {
     var b = Str.builder();
+    long ddlCount = 0;
     for (var a : analyses) {
-      if (a.succeeded()) {
-        b.green("  ✓ ");
+      boolean isDdl = isDdl(a);
+      if (!a.succeeded()) {
+        b.red("  ✗ ").plain(displayName(a));
+      } else if (isDdl) {
+        ddlCount++;
+        b.gray("  · ").gray(displayName(a)).gray(" (DDL)");
       } else {
-        b.red("  ✗ ");
+        b.green("  ✓ ").plain(displayName(a));
       }
-      b.plain(displayName(a)).newline();
+      b.newline();
     }
     long failed = analyses.stream().filter(a -> !a.succeeded()).count();
+    long checked = analyses.size() - ddlCount;
     b.newline();
     if (failed == 0) {
-      b.boldGreen("All " + analyses.size() + " queries passed.");
+      if (ddlCount == 0) {
+        b.boldGreen("All " + analyses.size() + " queries passed.");
+      } else {
+        b.boldGreen("All " + checked + " queries passed")
+            .gray(" (" + ddlCount + " DDL skipped)")
+            .boldGreen(".");
+      }
     } else {
-      b.boldRed(failed + " of " + analyses.size() + " queries failed.");
+      b.boldRed(failed + " of " + checked + " queries failed.");
     }
     b.newline();
     return b.build();
+  }
+
+  /**
+   * A statement with no declared parameters and no declared columns is DDL (CREATE TABLE, DROP,
+   * ALTER). The analyzer trivially passes these since there's nothing to align — but they dilute
+   * the "N queries passed" signal, so we tag them out of the headline count.
+   */
+  private static boolean isDdl(QueryAnalysis a) {
+    return a.parameterAlignment().isEmpty() && a.columnAlignment().isEmpty();
   }
 
   public String summary() {

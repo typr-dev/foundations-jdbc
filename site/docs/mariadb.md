@@ -99,13 +99,23 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 
 | MariaDB Type | Java Type | Notes |
 |--------------|-----------|-------|
-| `DATE` | `LocalDate` | Date only |
-| `TIME` | `LocalTime` | Time only |
-| `DATETIME` | `LocalDateTime` | Date and time |
-| `TIMESTAMP` | `LocalDateTime` | With auto-update |
+| `DATE` | `LocalDate` | Naive date, no zone |
+| `TIME` | `LocalTime` | Naive time, no zone |
+| `DATETIME` | `LocalDateTime` | Naive timestamp, no zone |
+| `TIMESTAMP` | `LocalDateTime` | Session-TZ converted — see note below |
 | `YEAR` | `Year` | 4-digit year |
 
 <Snippet file="mariadb/DateTimeTypes" />
+
+:::note MariaDB has no zone-preserving timestamp type
+None of MariaDB's temporal types store time-zone information in the column itself:
+- `DATE`, `TIME`, `DATETIME` are naive — the value you write is the value you read back verbatim, whatever zone the writer was in.
+- `TIMESTAMP` is stored as UTC seconds internally but is converted to and from the session's `time_zone` variable on every read/write. Two clients with different session timezones see different wall-clock values for the same row — round-trip stability depends on `time_zone` being set consistently.
+
+All four map to `LocalDateTime` (or `LocalDate`/`LocalTime`) because `LocalDateTime` is the Java type that matches the naive-wall-clock semantic. `Instant`, `OffsetDateTime`, and `ZonedDateTime` would all misrepresent what the column holds.
+
+For application-level "point in time" values, the idiomatic approach on MariaDB is either: (a) `DATETIME` with all writes normalized to UTC in application code, or (b) `BIGINT` epoch milliseconds. Neither matches a single built-in MariaDB type cleanly.
+:::
 
 ## ENUM Type
 
@@ -114,6 +124,24 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 | `ENUM('a','b','c')` | Java Enum |
 
 <Snippet file="mariadb/EnumType" />
+
+:::tip The `values()`-based factory derives everything
+MariaDB/MySQL enums aren't named types — they're declared inline on the column. The `values()`-based factory derives the full `ENUM('A','B','C')` literal automatically:
+
+```java
+MariaTypes.ofEnum(State.values())          // Java
+```
+```kotlin
+MariaTypes.ofEnum<State>()                 // Kotlin (reified)
+```
+```scala
+MariaTypes.ofEnum(State.values)            // Scala 3
+```
+
+The column DDL must match the derived literal — `ENUM('PENDING','ACTIVE','COMPLETED')` in declaration order, using each constant's name.
+
+Fall back to the string-based overload `ofEnum("ENUM('pending',…)", s -> State.valueOf(s.toUpperCase()))` when the database labels differ from the Java enum's `name()` values (e.g. lowercase labels in the DB).
+:::
 
 ## SET Type
 

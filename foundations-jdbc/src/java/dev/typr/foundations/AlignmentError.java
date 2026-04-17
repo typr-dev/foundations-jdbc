@@ -128,6 +128,46 @@ public sealed interface AlignmentError {
     }
   }
 
+  /**
+   * The prepared-statement call itself failed — the driver rejected the SQL before we could query
+   * its parameter/column metadata. Typical on PostgreSQL when the declared parameter type is
+   * incompatible with the column's type (e.g., binding {@code text} to an {@code int4} column),
+   * producing {@code operator does not exist: integer = text} at prepare time.
+   *
+   * <p>{@code position} is 0 since we don't know which parameter the driver objected to.
+   */
+  record PrepareFailure(String sqlState, String driverMessage, String parsedHint)
+      implements AlignmentError {
+    @Override
+    public int position() {
+      return 0;
+    }
+
+    @Override
+    public Str styledMessage() {
+      var b = Str.builder();
+      b.plain("Prepare failed: the database rejected the statement before parameter metadata")
+          .newline()
+          .gray("   │ ")
+          .plain("could be read. This usually means a declared parameter type is")
+          .newline()
+          .gray("   │ ")
+          .plain("incompatible with the column being compared.")
+          .newline()
+          .gray("   │ ")
+          .plain("SQLSTATE: ")
+          .yellow(sqlState == null ? "(unknown)" : sqlState)
+          .newline()
+          .gray("   │ ")
+          .plain("Driver:   ")
+          .red(driverMessage == null ? "(no message)" : driverMessage);
+      if (parsedHint != null && !parsedHint.isEmpty()) {
+        b.newline().gray("   └ ").plain(parsedHint);
+      }
+      return b.build();
+    }
+  }
+
   record NullabilityMismatch(int position, String columnName, DbType<?> type)
       implements AlignmentError {
     @Override

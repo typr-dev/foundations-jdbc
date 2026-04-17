@@ -25,10 +25,10 @@ public class ComposingCodecs {
 
   // start
   // Inner join — both sides always present
-  RowCodec<Tuple.Tuple2<ProductRow, CategoryRow>> innerJoined = productCodec.joined(categoryCodec);
+  RowCodec<Tuple.Tuple2<ProductRow, CategoryRow>> innerJoined = productCodec.join(categoryCodec);
 
   // Left join — right side is Optional (nullable in Kotlin, Option in Scala)
   RowCodec<Tuple.Tuple2<ProductRow, Optional<CategoryRow>>> leftJoined =
-      productCodec.leftJoined(categoryCodec);
+      productCodec.leftJoin(categoryCodec);
   // stop
 }

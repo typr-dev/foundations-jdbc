@@ -15,7 +15,7 @@ object NamedJsonObject:
       .namedBuilder[OrderLine]()
       .field("product", DuckDbTypes.varchar)(_.product)
       .field("qty", DuckDbTypes.integer)(_.qty)
-      .field("price", DuckDbTypes.decimal(10, 2))(_.price)
+      .field("price", DuckDbTypes.decimalOf(10, 2))(_.price)
       .build(OrderLine.apply)
 
   // Stores rows as positional JSON arrays

@@ -16,7 +16,7 @@ public class DateTimeTypes {
   MariaType<Year> yearType = MariaTypes.year;
 
   // With fractional seconds precision
-  MariaType<LocalTime> timeFsp = MariaTypes.time(6);
-  MariaType<LocalDateTime> dtFsp = MariaTypes.datetime(3);
+  MariaType<LocalTime> timeFsp = MariaTypes.timeOf(6);
+  MariaType<LocalDateTime> dtFsp = MariaTypes.datetimeOf(3);
   // stop
 }

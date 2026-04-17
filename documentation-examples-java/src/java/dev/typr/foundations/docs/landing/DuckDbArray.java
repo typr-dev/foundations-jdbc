@@ -11,10 +11,10 @@ public class DuckDbArray {
   Transactor tx = null; // placeholder
 
   // start
-  // DuckDB arrays are first-class typed values
-  List<String[]> getTagSets() {
+  // DuckDB LIST columns are first-class typed values
+  List<List<String>> getTagSets() {
     return Fragment.of("SELECT tags FROM posts WHERE published = true")
-        .query(RowCodec.of(DuckDbTypes.varchar.array()).all())
+        .query(RowCodec.of(DuckDbTypes.varchar.list()).all())
         .transact(tx);
   }
   // stop

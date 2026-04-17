@@ -7,7 +7,7 @@ class ArrayParameter {
     val tx: Transactor = null!! // placeholder
 
     //start
-    fun fetchProducts(ids: Array<Int>): List<String> =
+    fun fetchProducts(ids: List<Int>): List<String> =
         sql { "SELECT name FROM products WHERE id = ANY(${PgTypes.int4.array()(ids)})" }
             .queryAll(RowCodec.of(PgTypes.text))
             .transact(tx)
