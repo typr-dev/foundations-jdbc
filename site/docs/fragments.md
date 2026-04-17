@@ -53,3 +53,17 @@ The same approach works for UPDATE statements — build a list of assignments an
 <Snippet file="core/FragmentCombinators" />
 
 Other useful combinators: `Fragment.and()`, `Fragment.or()`, `Fragment.whereOr()`, `Fragment.orderBy()`, `Fragment.comma()`, `Fragment.parentheses()`.
+
+## IN-clause helper
+
+For `IN` clauses against dialects without native array types (MariaDB, SQL Server, Oracle, DB2), `Fragment.valuesList(type, values)` emits `(?, ?, …)` with each value bound as a typed parameter:
+
+```java
+Fragment.of("SELECT * FROM emp WHERE id IN ")
+    .append(Fragment.valuesList(MariaTypes.int_, List.of(1, 2, 3)))
+// SELECT * FROM emp WHERE id IN (?, ?, ?)
+```
+
+On PostgreSQL or DuckDB, prefer the native array idiom: `.value(int4.array(), ids)` with `WHERE id = ANY(?)`.
+
+`valuesList` throws `IllegalArgumentException` on an empty list — an empty `IN()` is SQL-invalid, so the caller has to branch (typically: return an empty result without issuing the query).
