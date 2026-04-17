@@ -17,16 +17,29 @@ class OracleTypes {
   val numberInt: OracleType[Int] = OracleType(JavaOracleTypes.numberInt.transform(i => i, i => i))
   val numberLong: OracleType[Long] = OracleType(JavaOracleTypes.numberLong.transform(l => l, l => l))
   val binaryFloat: OracleType[Float] = OracleType(JavaOracleTypes.binaryFloat.transform(f => f, f => f))
+
+  /** Alias for [[binaryFloat]] — aesthetic cross-palette naming. 4B IEEE 754. */
+  val float4: OracleType[Float] = binaryFloat
+
   val binaryDouble: OracleType[Double] = OracleType(JavaOracleTypes.binaryDouble.transform(d => d, d => d))
+
+  /** Alias for [[binaryDouble]] — aesthetic cross-palette naming. 8B IEEE 754. */
+  val float8: OracleType[Double] = binaryDouble
   val float_ : OracleType[Double] = OracleType(JavaOracleTypes.float_.transform(d => d, d => d))
   val real: OracleType[Double] = OracleType(JavaOracleTypes.real.transform(d => d, d => d))
   val doublePrecision: OracleType[Double] = OracleType(JavaOracleTypes.doublePrecision.transform(d => d, d => d))
   val boolean_ : OracleType[Boolean] = OracleType(JavaOracleTypes.boolean_.transform(b => b, b => b))
+
+  /** Alias for [[boolean_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val bool: OracleType[Boolean] = boolean_
   val numberAsBoolean: OracleType[Boolean] = OracleType(JavaOracleTypes.numberAsBoolean.transform(b => b, b => b))
 
   // Forward all other types directly from Java
   val varchar2 = OracleType(JavaOracleTypes.varchar2)
   val char_ = OracleType(JavaOracleTypes.char_)
+
+  /** Alias for [[char_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val character = char_
   val nvarchar2 = OracleType(JavaOracleTypes.nvarchar2)
   val nchar = OracleType(JavaOracleTypes.nchar)
   val clob = OracleType(JavaOracleTypes.clob)
@@ -34,6 +47,9 @@ class OracleTypes {
   val nclob = OracleType(JavaOracleTypes.nclob)
   val nclobNonEmpty = OracleType(JavaOracleTypes.nclobNonEmpty)
   val long_ = OracleType(JavaOracleTypes.long_)
+
+  /** Alias for [[long_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val longColumn = long_
   val raw = OracleType(JavaOracleTypes.raw)
   val blob = OracleType(JavaOracleTypes.blob)
   val blobNonEmpty = OracleType(JavaOracleTypes.blobNonEmpty)

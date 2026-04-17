@@ -17,6 +17,9 @@ class DuckDbTypes {
   val double_ : DuckDbType[Double] = DuckDbType(JavaDuckDbTypes.double_.transform(d => d, d => d))
   val boolean_ : DuckDbType[Boolean] = DuckDbType(JavaDuckDbTypes.boolean_.transform(b => b, b => b))
 
+  /** Alias for [[boolean_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val bool: DuckDbType[Boolean] = boolean_
+
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
   val decimal: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.decimal.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
   val numeric: DuckDbType[BigDecimal] = DuckDbType(JavaDuckDbTypes.numeric.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
@@ -38,6 +41,9 @@ class DuckDbTypes {
   val text = DuckDbType(JavaDuckDbTypes.text)
   val string = DuckDbType(JavaDuckDbTypes.string)
   val char_ = DuckDbType(JavaDuckDbTypes.char_)
+
+  /** Alias for [[char_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val character = char_
   val bpchar = DuckDbType(JavaDuckDbTypes.bpchar)
   val blob = DuckDbType(JavaDuckDbTypes.blob)
   val bytea = DuckDbType(JavaDuckDbTypes.bytea)

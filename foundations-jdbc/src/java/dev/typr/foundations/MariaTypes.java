@@ -69,6 +69,9 @@ public interface MariaTypes {
               MariaOutParam.readInteger)
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(MariaTypename.of("integer")));
 
+  /** Alias for {@link #int_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  MariaType<Integer> integer = int_;
+
   MariaType<Long> bigint =
       MariaType.of(
           "BIGINT",
@@ -161,6 +164,9 @@ public interface MariaTypes {
           MariaJson.float4,
           MariaOutParam.readFloat);
 
+  /** Alias for {@link #float_} — aesthetic, avoids the Java-keyword {@code _} suffix. 4B IEEE 754. */
+  MariaType<Float> float4 = float_;
+
   MariaType<Double> double_ =
       MariaType.of(
           "DOUBLE",
@@ -168,6 +174,9 @@ public interface MariaTypes {
           MariaWrite.writeDouble,
           MariaJson.float8,
           MariaOutParam.readDouble);
+
+  /** Alias for {@link #double_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754. */
+  MariaType<Double> float8 = double_;
 
   // ==================== Boolean Type ====================
 
@@ -208,6 +217,9 @@ public interface MariaTypes {
           MariaWrite.writeString,
           MariaJson.text,
           MariaOutParam.readString);
+
+  /** Alias for {@link #char_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  MariaType<String> character = char_;
 
   MariaType<String> varchar =
       MariaType.of(

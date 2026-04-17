@@ -13,11 +13,22 @@ class MariaTypes {
   val smallint: MariaType[Short] = MariaType(JavaMariaTypes.smallint.transform(s => s, s => s))
   val mediumint: MariaType[Int] = MariaType(JavaMariaTypes.mediumint.transform(i => i, i => i))
   val int_ : MariaType[Int] = MariaType(JavaMariaTypes.int_.transform(i => i, i => i))
+
+  /** Alias for [[int_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val integer: MariaType[Int] = int_
+
   val bigint: MariaType[Long] = MariaType(JavaMariaTypes.bigint.transform(l => l, l => l))
 
   // Floating point
   val float_ : MariaType[Float] = MariaType(JavaMariaTypes.float_.transform(f => f, f => f))
+
+  /** Alias for [[float_]] — aesthetic cross-palette naming. 4B IEEE 754. */
+  val float4: MariaType[Float] = float_
+
   val double_ : MariaType[Double] = MariaType(JavaMariaTypes.double_.transform(d => d, d => d))
+
+  /** Alias for [[double_]] — aesthetic, avoids the Java-keyword `_` suffix. 8B IEEE 754. */
+  val float8: MariaType[Double] = double_
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
   val decimal: MariaType[BigDecimal] = MariaType(JavaMariaTypes.decimal.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
@@ -35,6 +46,9 @@ class MariaTypes {
   val bigintUnsigned = MariaType(JavaMariaTypes.bigintUnsigned)
   val bit = MariaType(JavaMariaTypes.bit)
   val char_ = MariaType(JavaMariaTypes.char_)
+
+  /** Alias for [[char_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val character = char_
   val varchar = MariaType(JavaMariaTypes.varchar)
   val tinytext = MariaType(JavaMariaTypes.tinytext)
   val text = MariaType(JavaMariaTypes.text)

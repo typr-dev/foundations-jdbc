@@ -185,6 +185,9 @@ public interface DuckDbTypes {
               DuckDbJson.bool)
           .withListCodec(DuckDbListCodec.nativeCodec(Boolean[]::new));
 
+  /** Alias for {@link #boolean_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  DuckDbType<Boolean> bool = boolean_;
+
   // ==================== String Types ====================
 
   DuckDbType<String> varchar =
@@ -208,6 +211,9 @@ public interface DuckDbTypes {
       varchar
           .renamed("CHAR")
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(DuckDbTypename.of("varchar")));
+
+  /** Alias for {@link #char_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  DuckDbType<String> character = char_;
   DuckDbType<String> bpchar =
       varchar
           .renamed("BPCHAR")

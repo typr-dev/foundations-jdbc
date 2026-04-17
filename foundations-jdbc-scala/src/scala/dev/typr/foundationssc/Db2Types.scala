@@ -14,9 +14,20 @@ class Db2Types {
   val int_ : Db2Type[Int] = Db2Type(JavaDb2Types.int_.transform(i => i, i => i))
   val bigint: Db2Type[Long] = Db2Type(JavaDb2Types.bigint.transform(l => l, l => l))
   val real: Db2Type[Float] = Db2Type(JavaDb2Types.real.transform(f => f, f => f))
+
+  /** Alias for [[real]] — aesthetic cross-palette naming. 4B IEEE 754. */
+  val float4: Db2Type[Float] = real
+
   val double_ : Db2Type[Double] = Db2Type(JavaDb2Types.double_.transform(d => d, d => d))
+
+  /** Alias for [[double_]] — aesthetic, avoids the Java-keyword `_` suffix. 8B IEEE 754. */
+  val float8: Db2Type[Double] = double_
+
   val float_ : Db2Type[Double] = Db2Type(JavaDb2Types.float_.transform(d => d, d => d))
   val boolean_ : Db2Type[Boolean] = Db2Type(JavaDb2Types.boolean_.transform(b => b, b => b))
+
+  /** Alias for [[boolean_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val bool: Db2Type[Boolean] = boolean_
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
   val decimal: Db2Type[BigDecimal] = Db2Type(JavaDb2Types.decimal.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))

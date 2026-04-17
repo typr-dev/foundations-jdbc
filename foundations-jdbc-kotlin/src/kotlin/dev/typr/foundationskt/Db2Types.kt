@@ -16,9 +16,20 @@ open class Db2Types {
     open val int_: Db2Type<Int> = Db2Type(JavaDb2Types.int_.transform(SqlFunction { it }, { it }))
     open val bigint: Db2Type<Long> = Db2Type(JavaDb2Types.bigint.transform(SqlFunction { it }, { it }))
     open val real: Db2Type<Float> = Db2Type(JavaDb2Types.real.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [real] — aesthetic cross-palette naming. 4B IEEE 754. */
+    open val float4: Db2Type<Float> = real
+
     open val double_: Db2Type<Double> = Db2Type(JavaDb2Types.double_.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [double_] — aesthetic, avoids the Java-keyword `_` suffix. 8B IEEE 754. */
+    open val float8: Db2Type<Double> = double_
+
     open val float_: Db2Type<Double> = Db2Type(JavaDb2Types.float_.transform(SqlFunction { it }, { it }))
     open val boolean_: Db2Type<Boolean> = Db2Type(JavaDb2Types.boolean_.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [boolean_] — aesthetic, avoids the Java-keyword `_` suffix. */
+    open val bool: Db2Type<Boolean> = boolean_
 
     // Forward all other types directly from Java
     open val decimal = Db2Type(JavaDb2Types.decimal)

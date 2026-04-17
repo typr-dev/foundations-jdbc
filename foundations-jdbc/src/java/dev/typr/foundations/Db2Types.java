@@ -102,6 +102,9 @@ public interface Db2Types {
       Db2Type.of(
           "REAL", Db2Read.readFloat, Db2Write.writeFloat, Db2Json.float4, Db2OutParam.readFloat);
 
+  /** Alias for {@link #real} — aesthetic cross-palette naming. 4B IEEE 754. */
+  Db2Type<Float> float4 = real;
+
   Db2Type<Double> double_ =
       Db2Type.of(
           "DOUBLE",
@@ -109,6 +112,9 @@ public interface Db2Types {
           Db2Write.writeDouble,
           Db2Json.float8,
           Db2OutParam.readDouble);
+
+  /** Alias for {@link #double_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754. */
+  Db2Type<Double> float8 = double_;
 
   Db2Type<Double> float_ =
       double_
@@ -125,6 +131,9 @@ public interface Db2Types {
           Db2Write.writeBoolean,
           Db2Json.bool,
           Db2OutParam.readBoolean);
+
+  /** Alias for {@link #boolean_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  Db2Type<Boolean> bool = boolean_;
 
   // ==================== String Types (SBCS - Single-Byte) ====================
 

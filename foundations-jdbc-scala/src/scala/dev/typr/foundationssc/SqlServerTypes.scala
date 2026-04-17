@@ -11,9 +11,20 @@ class SqlServerTypes {
   // Primitives - convert Java boxed types to Scala native types
   val smallint: SqlServerType[Short] = SqlServerType(JavaSqlServerTypes.smallint.transform(s => s, s => s))
   val int_ : SqlServerType[Int] = SqlServerType(JavaSqlServerTypes.int_.transform(i => i, i => i))
+
+  /** Alias for [[int_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val integer: SqlServerType[Int] = int_
+
   val bigint: SqlServerType[Long] = SqlServerType(JavaSqlServerTypes.bigint.transform(l => l, l => l))
   val real: SqlServerType[Float] = SqlServerType(JavaSqlServerTypes.real.transform(f => f, f => f))
+
+  /** Alias for [[real]] — aesthetic cross-palette naming. 4B IEEE 754. */
+  val float4: SqlServerType[Float] = real
+
   val float_ : SqlServerType[Double] = SqlServerType(JavaSqlServerTypes.float_.transform(d => d, d => d))
+
+  /** Alias for [[float_]] — aesthetic, avoids the Java-keyword `_` suffix. 8B IEEE 754 (FLOAT ≡ FLOAT(53)). */
+  val float8: SqlServerType[Double] = float_
   val bit: SqlServerType[Boolean] = SqlServerType(JavaSqlServerTypes.bit.transform(b => b, b => b))
 
   // BigDecimal - convert Java BigDecimal to Scala BigDecimal
@@ -25,6 +36,9 @@ class SqlServerTypes {
   // Forward all other types directly from Java
   val tinyint = SqlServerType(JavaSqlServerTypes.tinyint)
   val char_ = SqlServerType(JavaSqlServerTypes.char_)
+
+  /** Alias for [[char_]] — aesthetic, avoids the Java-keyword `_` suffix. */
+  val character = char_
   val varchar = SqlServerType(JavaSqlServerTypes.varchar)
   val varcharMax = SqlServerType(JavaSqlServerTypes.varcharMax)
   val text = SqlServerType(JavaSqlServerTypes.text)

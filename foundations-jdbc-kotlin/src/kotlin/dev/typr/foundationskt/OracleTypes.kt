@@ -14,11 +14,21 @@ open class OracleTypes {
     open val numberInt: OracleType<Int> = OracleType(JavaOracleTypes.numberInt.transform(SqlFunction { it }, { it }))
     open val numberLong: OracleType<Long> = OracleType(JavaOracleTypes.numberLong.transform(SqlFunction { it }, { it }))
     open val binaryFloat: OracleType<Float> = OracleType(JavaOracleTypes.binaryFloat.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [binaryFloat] — aesthetic cross-palette naming. 4B IEEE 754. */
+    open val float4: OracleType<Float> = binaryFloat
+
     open val binaryDouble: OracleType<Double> = OracleType(JavaOracleTypes.binaryDouble.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [binaryDouble] — aesthetic cross-palette naming. 8B IEEE 754. */
+    open val float8: OracleType<Double> = binaryDouble
     open val float_: OracleType<Double> = OracleType(JavaOracleTypes.float_.transform(SqlFunction { it }, { it }))
     open val real: OracleType<Double> = OracleType(JavaOracleTypes.real.transform(SqlFunction { it }, { it }))
     open val doublePrecision: OracleType<Double> = OracleType(JavaOracleTypes.doublePrecision.transform(SqlFunction { it }, { it }))
     open val boolean_: OracleType<Boolean> = OracleType(JavaOracleTypes.boolean_.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [boolean_] — aesthetic, avoids the Java-keyword `_` suffix. */
+    open val bool: OracleType<Boolean> = boolean_
     open val numberAsBoolean: OracleType<Boolean> = OracleType(JavaOracleTypes.numberAsBoolean.transform(SqlFunction { it }, { it }))
 
     // Forward all other types directly from Java
@@ -27,6 +37,9 @@ open class OracleTypes {
     open val smallint = OracleType(JavaOracleTypes.smallint)
     open val varchar2 = OracleType(JavaOracleTypes.varchar2)
     open val char_ = OracleType(JavaOracleTypes.char_)
+
+    /** Alias for [char_] — aesthetic, avoids the Java-keyword `_` suffix. */
+    open val character = char_
     open val nvarchar2 = OracleType(JavaOracleTypes.nvarchar2)
     open val nchar = OracleType(JavaOracleTypes.nchar)
     open val clob = OracleType(JavaOracleTypes.clob)
@@ -34,6 +47,9 @@ open class OracleTypes {
     open val nclob = OracleType(JavaOracleTypes.nclob)
     open val nclobNonEmpty = OracleType(JavaOracleTypes.nclobNonEmpty)
     open val long_ = OracleType(JavaOracleTypes.long_)
+
+    /** Alias for [long_] — aesthetic, avoids the Java-keyword `_` suffix. */
+    open val longColumn = long_
     open val raw = OracleType(JavaOracleTypes.raw)
     open val blob = OracleType(JavaOracleTypes.blob)
     open val blobNonEmpty = OracleType(JavaOracleTypes.blobNonEmpty)

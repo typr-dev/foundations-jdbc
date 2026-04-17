@@ -19,6 +19,9 @@ open class DuckDbTypes {
     open val double_: DuckDbType<Double> = DuckDbType(JavaDuckDbTypes.double_.transform({ it }, { it }))
     open val boolean_: DuckDbType<Boolean> = DuckDbType(JavaDuckDbTypes.boolean_.transform({ it }, { it }))
 
+    /** Alias for [boolean_] — aesthetic, avoids the Java-keyword `_` suffix. */
+    open val bool: DuckDbType<Boolean> = boolean_
+
 
     // Forward all other types directly from Java
     open val decimal = DuckDbType(JavaDuckDbTypes.decimal)
@@ -36,6 +39,9 @@ open class DuckDbTypes {
     open val text = DuckDbType(JavaDuckDbTypes.text)
     open val string = DuckDbType(JavaDuckDbTypes.string)
     open val char_ = DuckDbType(JavaDuckDbTypes.char_)
+
+    /** Alias for [char_] — aesthetic, avoids the Java-keyword `_` suffix. */
+    open val character = char_
     open val bpchar = DuckDbType(JavaDuckDbTypes.bpchar)
     open val blob = DuckDbType(JavaDuckDbTypes.blob)
     open val bytea = DuckDbType(JavaDuckDbTypes.bytea)

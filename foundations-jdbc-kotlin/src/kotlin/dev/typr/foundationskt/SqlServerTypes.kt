@@ -13,9 +13,20 @@ open class SqlServerTypes {
     // Primitives - convert Java boxed types to Kotlin native types
     open val smallint: SqlServerType<Short> = SqlServerType(JavaSqlServerTypes.smallint.transform(SqlFunction { it }, { it }))
     open val int_: SqlServerType<Int> = SqlServerType(JavaSqlServerTypes.int_.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [int_] — aesthetic, avoids the Java-keyword `_` suffix. */
+    open val integer: SqlServerType<Int> = int_
+
     open val bigint: SqlServerType<Long> = SqlServerType(JavaSqlServerTypes.bigint.transform(SqlFunction { it }, { it }))
     open val real: SqlServerType<Float> = SqlServerType(JavaSqlServerTypes.real.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [real] — aesthetic cross-palette naming. 4B IEEE 754. */
+    open val float4: SqlServerType<Float> = real
+
     open val float_: SqlServerType<Double> = SqlServerType(JavaSqlServerTypes.float_.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [float_] — aesthetic, avoids the Java-keyword `_` suffix. 8B IEEE 754 (FLOAT ≡ FLOAT(53)). */
+    open val float8: SqlServerType<Double> = float_
     open val bit: SqlServerType<Boolean> = SqlServerType(JavaSqlServerTypes.bit.transform(SqlFunction { it }, { it }))
 
     // Forward all other types directly from Java
@@ -25,6 +36,9 @@ open class SqlServerTypes {
     open val money = SqlServerType(JavaSqlServerTypes.money)
     open val smallmoney = SqlServerType(JavaSqlServerTypes.smallmoney)
     open val char_ = SqlServerType(JavaSqlServerTypes.char_)
+
+    /** Alias for [char_] — aesthetic, avoids the Java-keyword `_` suffix. */
+    open val character = char_
     open val varchar = SqlServerType(JavaSqlServerTypes.varchar)
     open val varcharMax = SqlServerType(JavaSqlServerTypes.varcharMax)
     open val text = SqlServerType(JavaSqlServerTypes.text)

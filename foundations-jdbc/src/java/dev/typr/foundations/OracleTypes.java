@@ -114,6 +114,9 @@ public interface OracleTypes {
           OracleJson.float4,
           OracleOutParam.readFloat);
 
+  /** Alias for {@link #binaryFloat} — aesthetic cross-palette naming. 4B IEEE 754. */
+  OracleType<Float> float4 = binaryFloat;
+
   /** BINARY_DOUBLE - 64-bit IEEE 754 floating point. Range: +/-2.22507E-308 to +/-1.79769E+308 */
   OracleType<Double> binaryDouble =
       OracleType.of(
@@ -122,6 +125,9 @@ public interface OracleTypes {
           OracleWrite.writeDouble,
           OracleJson.float8,
           OracleOutParam.readDouble);
+
+  /** Alias for {@link #binaryDouble} — aesthetic cross-palette naming. 8B IEEE 754. */
+  OracleType<Double> float8 = binaryDouble;
 
   /**
    * FLOAT(precision) - ANSI float type (actually maps to NUMBER internally). Binary precision 1-126
@@ -205,6 +211,9 @@ public interface OracleTypes {
               OracleJson.text,
               OracleOutParam.readString)
           .withAnalysis(AnalysisOptions.EMPTY.withVendorTypeNames(OracleTypename.of("varchar2")));
+
+  /** Alias for {@link #char_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  OracleType<String> character = char_;
 
   static OracleType<String> char_Of(int length) {
     return OracleType.of(
@@ -347,6 +356,9 @@ public interface OracleTypes {
           OracleWrite.writeString,
           OracleJson.text,
           OracleOutParam.readString);
+
+  /** Alias for {@link #long_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  OracleType<String> longColumn = long_;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Binary Types
@@ -623,6 +635,9 @@ public interface OracleTypes {
           OracleWrite.writeBoolean,
           OracleJson.bool,
           OracleOutParam.readBoolean);
+
+  /** Alias for {@link #boolean_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  OracleType<Boolean> bool = boolean_;
 
   /**
    * NUMBER(1) as Boolean - Traditional Oracle boolean representation. 0 = false, 1 = true (or any

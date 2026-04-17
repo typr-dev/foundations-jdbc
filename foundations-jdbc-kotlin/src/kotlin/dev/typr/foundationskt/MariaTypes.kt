@@ -15,9 +15,20 @@ open class MariaTypes {
     open val smallint: MariaType<Short> = MariaType(JavaMariaTypes.smallint.transform(SqlFunction { it }, { it }))
     open val mediumint: MariaType<Int> = MariaType(JavaMariaTypes.mediumint.transform(SqlFunction { it }, { it }))
     open val int_: MariaType<Int> = MariaType(JavaMariaTypes.int_.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [int_] — aesthetic, avoids the Java-keyword `_` suffix. */
+    open val integer: MariaType<Int> = int_
+
     open val bigint: MariaType<Long> = MariaType(JavaMariaTypes.bigint.transform(SqlFunction { it }, { it }))
     open val float_: MariaType<Float> = MariaType(JavaMariaTypes.float_.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [float_] — aesthetic cross-palette naming. 4B IEEE 754. */
+    open val float4: MariaType<Float> = float_
+
     open val double_: MariaType<Double> = MariaType(JavaMariaTypes.double_.transform(SqlFunction { it }, { it }))
+
+    /** Alias for [double_] — aesthetic, avoids the Java-keyword `_` suffix. 8B IEEE 754. */
+    open val float8: MariaType<Double> = double_
     open val bool: MariaType<Boolean> = MariaType(JavaMariaTypes.bool.transform(SqlFunction { it }, { it }))
     open val bit1: MariaType<Boolean> = MariaType(JavaMariaTypes.bit1.transform(SqlFunction { it }, { it }))
 
@@ -31,6 +42,9 @@ open class MariaTypes {
     open val bigintUnsigned = MariaType(JavaMariaTypes.bigintUnsigned)
     open val bit = MariaType(JavaMariaTypes.bit)
     open val char_ = MariaType(JavaMariaTypes.char_)
+
+    /** Alias for [char_] — aesthetic, avoids the Java-keyword `_` suffix. */
+    open val character = char_
     open val varchar = MariaType(JavaMariaTypes.varchar)
     open val tinytext = MariaType(JavaMariaTypes.tinytext)
     open val text = MariaType(JavaMariaTypes.text)

@@ -47,6 +47,9 @@ public interface SqlServerTypes {
           SqlServerJson.int4,
           SqlServerOutParam.readInteger);
 
+  /** Alias for {@link #int_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  SqlServerType<Integer> integer = int_;
+
   SqlServerType<Long> bigint =
       SqlServerType.of(
           "BIGINT",
@@ -106,6 +109,9 @@ public interface SqlServerTypes {
           SqlServerJson.float4,
           SqlServerOutParam.readFloat);
 
+  /** Alias for {@link #real} — aesthetic cross-palette naming. 4B IEEE 754. */
+  SqlServerType<Float> float4 = real;
+
   SqlServerType<Double> float_ =
       SqlServerType.of(
           "FLOAT",
@@ -113,6 +119,9 @@ public interface SqlServerTypes {
           SqlServerWrite.writeDouble,
           SqlServerJson.float8,
           SqlServerOutParam.readDouble);
+
+  /** Alias for {@link #float_} — aesthetic, avoids the Java-keyword {@code _} suffix. 8B IEEE 754 (FLOAT ≡ FLOAT(53)). */
+  SqlServerType<Double> float8 = float_;
 
   // ==================== Boolean Type ====================
 
@@ -133,6 +142,9 @@ public interface SqlServerTypes {
           SqlServerWrite.writeString,
           SqlServerJson.text,
           SqlServerOutParam.readString);
+
+  /** Alias for {@link #char_} — aesthetic, avoids the Java-keyword {@code _} suffix. */
+  SqlServerType<String> character = char_;
 
   static SqlServerType<String> char_Of(int length) {
     return SqlServerType.of(
