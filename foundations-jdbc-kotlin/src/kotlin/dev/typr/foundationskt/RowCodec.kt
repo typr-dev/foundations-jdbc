@@ -219,7 +219,15 @@ class RowCodecNamed<Row : Any>(
     val columnList: Fragment
         get() = Fragment(underlying.columnList())
 
-    fun columnList(alias: String): Fragment = Fragment(underlying.columnList(alias))
+    /**
+     * Return a copy of this codec where every column name is prefixed with `alias + "."`.
+     * Apply before a join to keep [columnList] unambiguous:
+     *
+     * ```kotlin
+     * empCodec.aliased("e").leftJoinedNamed(deptCodec.aliased("d"))
+     * ```
+     */
+    fun aliased(alias: String): RowCodecNamed<Row> = RowCodecNamed(underlying.aliased(alias))
 
     fun <Row2 : Any> join(other: RowCodecNamed<Row2>): RowCodecNamed<Pair<Row, Row2>> {
         val javaJoined = underlying.join(other.underlying)

@@ -62,11 +62,38 @@ Row codecs compose for joins. Given a `productCodec` and a `categoryCodec`, comb
 
 The result type is `Tuple2<A, B>` in Java (with `._1()` and `._2()` accessors), `Pair<A, B>` in Kotlin, and a tuple `(A, B)` in Scala. Left join wraps the right side in `Optional` (or nullable in Kotlin, `Option` in Scala).
 
-Named codecs also have a `.join()` method that preserves column names through the composition, so the combined codec can still be used with `columnList()`, `Fragment.insertInto()`, and JSON encoding.
+Named codecs also have `.join()` and `.leftJoinedNamed()` methods that preserve column names through the composition, so the combined codec can still be used with `columnList()`, `Fragment.insertInto()`, and JSON encoding.
 
 The same `Tuple` types appear whenever the library needs to return multiple values without a dedicated record type — `RowCodec.of(type1, type2, ...)` for multi-column ad-hoc queries, `.combine()` for composed operations, and `.joined()` for joins all return `TupleN`. Accessors are 1-based: `._1()`, `._2()`, `._3()`, etc.
 
 This is why row codecs use index-based reading rather than column names. When you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
+
+### Disambiguating duplicate column names with `.aliased()`
+
+If the two sides of a named join share any column name (the common `id`, `name`, `created_at` case), the joined codec's `columnList()` concatenates the names and throws:
+
+```
+RowCodecNamed.columnList() has duplicate column names [id, name]
+(typically from a join of codecs sharing a column name). Call .aliased("x")
+on each side before composing, ...
+```
+
+Call `.aliased("alias")` on each side *before* composing. Aliasing prefixes every column name with `alias.`, so the joined codec has unambiguous entries (`e.id, e.name, ..., d.id, d.name`) and `columnList()` is usable directly in the SELECT:
+
+```java
+var joined = empCodec.aliased("e").leftJoinedNamed(deptCodec.aliased("d"));
+Fragment.of("SELECT ")
+    .append(joined.columnList())
+    .append(" FROM emp e LEFT JOIN dept d ON e.department = d.name")
+    .query(joined.all());
+```
+```kotlin
+val joined = empCodec.aliased("e").leftJoinedNamed(deptCodec.aliased("d"))
+sql { "SELECT ${joined.columnList} FROM emp e LEFT JOIN dept d ON e.department = d.name" }
+    .query(joined.all())
+```
+
+An aliased codec is SELECT-friendly but not INSERT-friendly — use the unaliased codec for `Fragment.insertInto(table, codec)`.
 
 ## Result Modes
 
