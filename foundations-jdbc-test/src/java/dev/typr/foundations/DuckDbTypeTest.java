@@ -57,7 +57,6 @@ public class DuckDbTypeTest {
   DuckDbType<Person> personType =
       DuckDbTypes.compositeOf(
           "Person",
-          Person[]::new,
           RowCodec.<Person>namedBuilder()
               .field("name", DuckDbTypes.varchar, Person::name)
               .field("age", DuckDbTypes.integer, Person::age)
@@ -71,7 +70,6 @@ public class DuckDbTypeTest {
   DuckDbType<WithOpt> withOptType =
       DuckDbTypes.compositeOf(
           "with_opt",
-          WithOpt[]::new,
           RowCodec.<WithOpt>namedBuilder()
               .field("name", DuckDbTypes.varchar, WithOpt::name)
               .field("nickname", DuckDbTypes.varchar.opt(), WithOpt::nickname)
@@ -83,35 +81,10 @@ public class DuckDbTypeTest {
   DuckDbType<PersonWithHobbies> personWithHobbiesType =
       DuckDbTypes.compositeOf(
           "person_hobbies",
-          PersonWithHobbies[]::new,
           RowCodec.<PersonWithHobbies>namedBuilder()
               .field("name", DuckDbTypes.varchar, PersonWithHobbies::name)
               .field("hobbies", DuckDbTypes.varchar.list(), PersonWithHobbies::hobbies)
               .build(PersonWithHobbies::new));
-
-  /** Struct with an array-of-scalar field (previously broke at read time). */
-  record PersonWithTags(String name, String[] tags) {
-    @Override
-    public boolean equals(Object o) {
-      return o instanceof PersonWithTags p
-          && name.equals(p.name)
-          && Arrays.equals(tags, p.tags);
-    }
-
-    @Override
-    public int hashCode() {
-      return java.util.Objects.hash(name, Arrays.hashCode(tags));
-    }
-  }
-
-  DuckDbType<PersonWithTags> personWithTagsType =
-      DuckDbTypes.compositeOf(
-          "person_tags",
-          PersonWithTags[]::new,
-          RowCodec.<PersonWithTags>namedBuilder()
-              .field("name", DuckDbTypes.varchar, PersonWithTags::name)
-              .field("tags", DuckDbTypes.varchar.array(), PersonWithTags::tags)
-              .build(PersonWithTags::new));
 
   /** Struct-containing-struct (2-level nesting). */
   record Employee(String role, Person person) {}
@@ -119,7 +92,6 @@ public class DuckDbTypeTest {
   DuckDbType<Employee> employeeType =
       DuckDbTypes.compositeOf(
           "employee",
-          Employee[]::new,
           RowCodec.<Employee>namedBuilder()
               .field("role", DuckDbTypes.varchar, Employee::role)
               .field("person", personType, Employee::person)
@@ -131,32 +103,20 @@ public class DuckDbTypeTest {
   DuckDbType<Team> teamType =
       DuckDbTypes.compositeOf(
           "team",
-          Team[]::new,
           RowCodec.<Team>namedBuilder()
               .field("name", DuckDbTypes.varchar, Team::name)
               .field("members", personType.list(), Team::members)
               .build(Team::new));
 
-  /** Struct with array-of-struct field. */
-  record TeamArr(String name, Person[] members) {
-    @Override
-    public boolean equals(Object o) {
-      return o instanceof TeamArr t && name.equals(t.name) && Arrays.equals(members, t.members);
-    }
-
-    @Override
-    public int hashCode() {
-      return java.util.Objects.hash(name, Arrays.hashCode(members));
-    }
-  }
+  /** Struct with fixed-size ARRAY of structs (DuckDB's ARRAY(T, N), distinct from LIST). */
+  record TeamArr(String name, List<Person> members) {}
 
   DuckDbType<TeamArr> teamArrType =
       DuckDbTypes.compositeOf(
           "team_arr",
-          TeamArr[]::new,
           RowCodec.<TeamArr>namedBuilder()
               .field("name", DuckDbTypes.varchar, TeamArr::name)
-              .field("members", personType.array(), TeamArr::members)
+              .field("members", personType.array(2), TeamArr::members)
               .build(TeamArr::new));
 
   /** Struct with list-of-struct-containing-list-of-struct (3-level deep). */
@@ -165,7 +125,6 @@ public class DuckDbTypeTest {
   DuckDbType<Company> companyType =
       DuckDbTypes.compositeOf(
           "company",
-          Company[]::new,
           RowCodec.<Company>namedBuilder()
               .field("name", DuckDbTypes.varchar, Company::name)
               .field("teams", teamType.list(), Company::teams)
@@ -219,14 +178,23 @@ public class DuckDbTypeTest {
       return new DuckDbTypeAndExample<>(type, example, false);
     }
 
-    boolean supportsArray() {
-      return type.arrayCodec().isPresent();
-    }
-
     boolean supportsList() {
       return type.listCodec().isPresent()
           && !(type.typename() instanceof DuckDbTypename.ListOf)
           && !(type.typename() instanceof DuckDbTypename.ArrayOf);
+    }
+
+    // Nested LIST/ARRAY wraps each inner collection as a DuckDBUserArray whose elements are the
+    // scalar's Java representation. DuckDB's driver only understands a subset of Java types in
+    // that path — types that require string-based parsing (INTERVAL, UUID, JSON) or have no
+    // native parameter-binding (HUGEINT/BigInteger, TIME/LocalTime) don't round-trip here.
+    boolean supportsNested() {
+      if (!supportsList()) return false;
+      String sql = type.typename().sqlType();
+      return switch (sql) {
+        case "INTERVAL", "UUID", "JSON", "HUGEINT", "UHUGEINT", "TIME", "TIMETZ" -> false;
+        default -> !sql.startsWith("DECIMAL"); // precision normalization differs nested
+      };
     }
   }
 
@@ -576,13 +544,6 @@ public class DuckDbTypeTest {
           new DuckDbTypeAndExample<>(
                   personWithHobbiesType, new PersonWithHobbies("Bob", List.of()))
               .noIdentity(),
-          // Struct with String[] field
-          new DuckDbTypeAndExample<>(
-                  personWithTagsType, new PersonWithTags("Alice", new String[] {"admin", "user"}))
-              .noIdentity(),
-          new DuckDbTypeAndExample<>(
-                  personWithTagsType, new PersonWithTags("Bob", new String[] {}))
-              .noIdentity(),
           // Struct-in-struct (2-level)
           new DuckDbTypeAndExample<>(
                   employeeType, new Employee("Engineer", new Person("Alice", 30)))
@@ -594,13 +555,11 @@ public class DuckDbTypeTest {
                       "Platform", List.of(new Person("Alice", 30), new Person("Bob", 25))))
               .noIdentity(),
           new DuckDbTypeAndExample<>(teamType, new Team("Empty", List.of())).noIdentity(),
-          // Struct with array-of-struct field
+          // Struct with fixed-size ARRAY-of-struct field
           new DuckDbTypeAndExample<>(
                   teamArrType,
                   new TeamArr(
-                      "Platform", new Person[] {new Person("Alice", 30), new Person("Bob", 25)}))
-              .noIdentity(),
-          new DuckDbTypeAndExample<>(teamArrType, new TeamArr("Empty", new Person[] {}))
+                      "Platform", List.of(new Person("Alice", 30), new Person("Bob", 25))))
               .noIdentity(),
           // 3-level deep: struct → list of struct with list-of-struct field
           new DuckDbTypeAndExample<>(
@@ -653,12 +612,25 @@ public class DuckDbTypeTest {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  static <A> DuckDbTypeAndExample<A[]> toArrayExample(DuckDbTypeAndExample<A> scalar) {
-    DuckDbType<A[]> arrayType = scalar.type.array();
-    A[] arr = (A[]) java.lang.reflect.Array.newInstance(scalar.example.getClass(), 1);
-    arr[0] = scalar.example;
-    return new DuckDbTypeAndExample<>(arrayType, arr).noIdentity();
+  static <A> DuckDbTypeAndExample<java.util.List<A>> toArrayExample(
+      DuckDbTypeAndExample<A> scalar) {
+    DuckDbType<java.util.List<A>> arrayType = scalar.type.array(1);
+    return new DuckDbTypeAndExample<>(arrayType, java.util.List.of(scalar.example)).noIdentity();
+  }
+
+  static <A> void tryDerive(
+      DuckDbTypeAndExample<A> scalar,
+      java.util.function.Function<DuckDbTypeAndExample<A>, DuckDbTypeAndExample<?>> derive,
+      java.util.List<DuckDbTypeAndExample<?>> out) {
+    try {
+      out.add(derive.apply(scalar));
+    } catch (Exception e) {
+      System.out.println(
+          "  Skipping derived test for "
+              + scalar.type.typename().sqlType()
+              + ": "
+              + e.getMessage());
+    }
   }
 
   static <A> DuckDbTypeAndExample<java.util.List<A>> toListExample(DuckDbTypeAndExample<A> scalar) {
@@ -666,72 +638,66 @@ public class DuckDbTypeTest {
     return new DuckDbTypeAndExample<>(listType, java.util.List.of(scalar.example)).noIdentity();
   }
 
+  static <A> DuckDbTypeAndExample<java.util.List<java.util.List<A>>> toNestedListExample(
+      DuckDbTypeAndExample<A> scalar) {
+    DuckDbType<java.util.List<java.util.List<A>>> nestedType = scalar.type.list().list();
+    return new DuckDbTypeAndExample<>(nestedType, java.util.List.of(java.util.List.of(scalar.example)))
+        .noIdentity();
+  }
+
+  static <A> DuckDbTypeAndExample<java.util.List<java.util.List<A>>> toNestedArrayExample(
+      DuckDbTypeAndExample<A> scalar) {
+    DuckDbType<java.util.List<java.util.List<A>>> nestedType = scalar.type.array(1).array(1);
+    return new DuckDbTypeAndExample<>(nestedType, java.util.List.of(java.util.List.of(scalar.example)))
+        .noIdentity();
+  }
+
+  static <A> DuckDbTypeAndExample<java.util.List<java.util.List<A>>> toArrayOfListExample(
+      DuckDbTypeAndExample<A> scalar) {
+    DuckDbType<java.util.List<java.util.List<A>>> nestedType = scalar.type.list().array(1);
+    return new DuckDbTypeAndExample<>(nestedType, java.util.List.of(java.util.List.of(scalar.example)))
+        .noIdentity();
+  }
+
   @Test
   public void test() {
     System.out.println("Testing DuckDB type codecs...\n");
 
-    // Derive array tests from every scalar type
-    // Derive array tests: wrap every type with supportsArray=true in a single-element array
-    var arrayExamples =
-        All.stream()
-            .filter(t -> t.supportsArray())
-            .collect(
-                Collectors.toMap(
-                    t -> t.type.typename().sqlType(),
-                    t -> t,
-                    (a, b) -> a)) // deduplicate by type name (keep first example per type)
-            .values()
-            .stream()
-            .map(
-                t -> {
-                  try {
-                    return toArrayExample(t);
-                  } catch (Exception e) {
-                    System.out.println(
-                        "  Skipping array test for "
-                            + t.type.typename().sqlType()
-                            + ": "
-                            + e.getMessage());
-                    return null;
-                  }
-                })
-            .filter(t -> t != null)
-            .toList();
-    System.out.println(
-        "Generated "
-            + arrayExamples.size()
-            + " array type tests from "
-            + All.size()
-            + " scalar types");
-
-    // Derive list tests: wrap every type with supportsList=true in a single-element list
-    var listExamples =
+    // Deduplicate eligible scalars by SQL type — single example per scalar type.
+    var scalars =
         All.stream()
             .filter(t -> t.supportsList())
             .collect(Collectors.toMap(t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
-            .values()
-            .stream()
-            .map(
-                t -> {
-                  try {
-                    return toListExample(t);
-                  } catch (Exception e) {
-                    System.out.println(
-                        "  Skipping list test for "
-                            + t.type.typename().sqlType()
-                            + ": "
-                            + e.getMessage());
-                    return null;
-                  }
-                })
-            .filter(t -> t != null)
-            .toList();
-    System.out.println("Generated " + listExamples.size() + " list type tests\n");
+            .values();
+
+    var listExamples = new ArrayList<DuckDbTypeAndExample<?>>();
+    var arrayExamples = new ArrayList<DuckDbTypeAndExample<?>>();
+    var nestedListExamples = new ArrayList<DuckDbTypeAndExample<?>>();
+    var nestedArrayExamples = new ArrayList<DuckDbTypeAndExample<?>>();
+    var arrayOfListExamples = new ArrayList<DuckDbTypeAndExample<?>>();
+    for (var s : scalars) {
+      tryDerive(s, DuckDbTypeTest::toListExample, listExamples);
+      tryDerive(s, DuckDbTypeTest::toArrayExample, arrayExamples);
+      if (s.supportsNested()) {
+        tryDerive(s, DuckDbTypeTest::toNestedListExample, nestedListExamples);
+        tryDerive(s, DuckDbTypeTest::toNestedArrayExample, nestedArrayExamples);
+        tryDerive(s, DuckDbTypeTest::toArrayOfListExample, arrayOfListExamples);
+      }
+    }
+
+    System.out.println("Generated " + listExamples.size() + " LIST type tests");
+    System.out.println("Generated " + arrayExamples.size() + " ARRAY(size) type tests");
+    System.out.println("Generated " + nestedListExamples.size() + " LIST-of-LIST tests");
+    System.out.println("Generated " + nestedArrayExamples.size() + " ARRAY-of-ARRAY tests");
+    System.out.println("Generated " + arrayOfListExamples.size() + " ARRAY-of-LIST tests\n");
 
     var allWithArrays = new ArrayList<DuckDbTypeAndExample<?>>();
     allWithArrays.addAll(All);
-    allWithArrays.addAll(arrayExamples);
     allWithArrays.addAll(listExamples);
+    allWithArrays.addAll(arrayExamples);
+    allWithArrays.addAll(nestedListExamples);
+    allWithArrays.addAll(nestedArrayExamples);
+    allWithArrays.addAll(arrayOfListExamples);
 
     // Test JSON roundtrip first (no database connection needed) - parallel
     System.out.println("=== JSON Roundtrip Tests (parallel) ===");

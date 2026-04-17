@@ -81,19 +81,19 @@ Foundations JDBC provides comprehensive support for all PostgreSQL data types, i
 
 ## Array Types
 
-Any PostgreSQL type can be used as an array — call `.array()` on the element type. Unboxed primitive array variants are also available for performance:
+Any PostgreSQL type can be used as an array — call `.array()` on the element type. The Java representation is always `List<T>`:
 
-| PostgreSQL Type | Java Type (Boxed) | Java Type (Unboxed) |
-|-----------------|-------------------|---------------------|
-| `int4[]` | `Integer[]` via `int4.array()` | `int[]` via `int4ArrayUnboxed` |
-| `int8[]` | `Long[]` via `int8.array()` | `long[]` via `int8ArrayUnboxed` |
-| `float4[]` | `Float[]` via `float4.array()` | `float[]` via `float4ArrayUnboxed` |
-| `float8[]` | `Double[]` via `float8.array()` | `double[]` via `float8ArrayUnboxed` |
-| `bool[]` | `Boolean[]` via `bool.array()` | `boolean[]` via `boolArrayUnboxed` |
-| `text[]` | `String[]` via `text.array()` | - |
-| `uuid[]` | `UUID[]` via `uuid.array()` | - |
+| PostgreSQL Type | Java Type |
+|-----------------|-----------|
+| `int4[]` | `List<Integer>` via `int4.array()` |
+| `int8[]` | `List<Long>` via `int8.array()` |
+| `float4[]` | `List<Float>` via `float4.array()` |
+| `float8[]` | `List<Double>` via `float8.array()` |
+| `bool[]` | `List<Boolean>` via `bool.array()` |
+| `text[]` | `List<String>` via `text.array()` |
+| `uuid[]` | `List<UUID>` via `uuid.array()` |
 
-This works for all types — `numeric.array()`, `timestamptz.array()`, `jsonb.array()`, custom enum types, composite types, etc.
+This works for all types — `numeric.array()`, `timestamptz.array()`, `jsonb.array()`, custom enum types, composite types, etc. Multi-dimensional arrays compose: `.array().array()` produces SQL `T[][]` with Java type `List<List<T>>`.
 
 <Snippet file="postgresql/ArrayTypes" />
 
@@ -114,7 +114,7 @@ PgType<LineItem> lineItemType = PgTypes.compositeOf(
 PgType<Address> addressType = PgTypes.compositeOf("address", addressCodec);
 
 // Array of composites — works like any other type
-PgType<LineItem[]> lineItemArrayType = lineItemType.array();
+PgType<List<LineItem>> lineItemArrayType = lineItemType.array();
 ```
 
 The same `RowCodecNamed` codec can be reused for flat row queries, composite types, JSON-encoded columns, and query analysis.

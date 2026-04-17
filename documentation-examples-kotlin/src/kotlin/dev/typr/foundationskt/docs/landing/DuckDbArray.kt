@@ -1,17 +1,16 @@
 package dev.typr.foundationskt.docs.landing
 
 import dev.typr.foundationskt.*
-import dev.typr.foundationskt.data.*
 
 @Suppress("unused")
 class DuckDbArray {
     lateinit var tx: Transactor
 
     //start
-    // DuckDB arrays are first-class typed values
-    fun getTagSets(): List<Array<String>> =
+    // DuckDB LIST columns are first-class typed values
+    fun getTagSets(): List<List<String>> =
         sql { "SELECT tags FROM posts WHERE published = true" }
-            .query(RowCodec.of(DuckDbTypes.varchar.array()).all())
+            .query(RowCodec.of(DuckDbTypes.varchar.list()).all())
             .transact(tx)
     //stop
 }

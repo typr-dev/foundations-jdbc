@@ -222,7 +222,7 @@ public record DuckDbType<A>(
    * different number of elements.
    */
   public DuckDbType<List<A>> list() {
-    return buildCollection(typename.list());
+    return buildCollection(typename.list(), DuckDbTypename::list);
   }
 
   /**
@@ -231,7 +231,7 @@ public record DuckDbType<A>(
    * vectors and similar dense, fixed-shape tensors.
    */
   public DuckDbType<List<A>> array(int size) {
-    return buildCollection(typename.array(size));
+    return buildCollection(typename.array(size), t -> t.array(size));
   }
 
   /**
@@ -239,11 +239,11 @@ public record DuckDbType<A>(
    * org.duckdb.user.DuckDBUserArray} with per-element-encoded values; DuckDB's column type decides
    * whether it's a variable-length LIST or a fixed-length ARRAY.
    */
-  private DuckDbType<List<A>> buildCollection(DuckDbTypename<List<A>> collectionTypename) {
-    java.util.function.Function<Object, A> fromElem =
-        listCodec
-            .<java.util.function.Function<Object, A>>map(DuckDbListCodec::fromElement)
-            .orElse(mapSupport::fromMap);
+  private DuckDbType<List<A>> buildCollection(
+      DuckDbTypename<List<A>> collectionTypename,
+      java.util.function.Function<DuckDbTypename<?>, DuckDbTypename<?>> wrapAlias) {
+    final DuckDbRead<A> elemRead = this.read;
+    java.util.function.Function<Object, A> fromElem = elemRead::fromJdbcValue;
     java.util.function.Function<Object, List<A>> fromArray =
         raw -> {
           if (raw == null) return null;
@@ -269,14 +269,18 @@ public record DuckDbType<A>(
             },
             fromArray);
 
-    final boolean compositeElement = typename instanceof DuckDbTypename.StructOf;
+    final boolean nestedCollection =
+        typename instanceof DuckDbTypename.StructOf
+            || typename instanceof DuckDbTypename.ListOf
+            || typename instanceof DuckDbTypename.ArrayOf;
     final String elementSqlType = typename.sqlType();
     final Function<A, Object> elementEncoder = this.structAttributeEncoder;
     DuckDbWrite<List<A>> collWrite;
-    if (compositeElement) {
-      // Composite element types bypass DuckDB's SQL-literal parser — each element becomes a
-      // DuckDBUserStruct carried inside a DuckDBUserArray. Required to avoid quote-mangling of
-      // nested VARCHAR[] inside struct fields.
+    if (nestedCollection) {
+      // Composite / nested-collection element types bypass DuckDB's SQL-literal parser — each
+      // element is bound via its structAttributeEncoder and carried inside a DuckDBUserArray.
+      // Required to avoid quote-mangling of nested VARCHAR[] inside struct fields and to support
+      // arbitrary nesting of LIST/ARRAY.
       collWrite =
           DuckDbWrite.primitive(
               (ps, idx, list) -> {
@@ -332,6 +336,23 @@ public record DuckDbType<A>(
           return new org.duckdb.user.DuckDBUserArray(elementSqlType, encoded);
         };
 
+    AnalysisOptions collOpts;
+    if (analysisOptions.vendorTypeNames().isEmpty()) {
+      collOpts = analysisOptions;
+    } else {
+      var wrapped = new java.util.HashSet<DbTypename<?>>();
+      for (var alias : analysisOptions.vendorTypeNames()) {
+        if (alias instanceof DuckDbTypename<?> duck) {
+          wrapped.add(wrapAlias.apply(duck));
+        } else {
+          wrapped.add(alias);
+        }
+      }
+      collOpts =
+          new AnalysisOptions(
+              Set.copyOf(wrapped), analysisOptions.nullableOk(), analysisOptions.unchecked());
+    }
+
     return new DuckDbType<>(
         collectionTypename,
         collRead,
@@ -339,7 +360,7 @@ public record DuckDbType<A>(
         collStringifier,
         duckDbJson.list(),
         DuckDbMapSupport.cast(),
-        analysisOptions,
+        collOpts,
         Optional.empty(),
         collEncoder);
   }

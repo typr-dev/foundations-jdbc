@@ -127,31 +127,42 @@ Foundations JDBC provides comprehensive support for DuckDB's rich type system, i
 
 <Snippet file="duckdb/EnumType" />
 
-## Array Types
-
-Any type can be converted to an array type using `.array()`:
-
-| DuckDB Type | Java Type |
-|-------------|-----------|
-| `INTEGER[]` | `Integer[]` |
-| `VARCHAR[]` | `String[]` |
-| `BOOLEAN[]` | `Boolean[]` |
-| ... | ... |
-
-<Snippet file="duckdb/ArrayTypes" />
-
 ## LIST Types
 
-Any type can be made into a list with `.list()`:
+Any type can be made into a variable-length list with `.list()`. DuckDB renders as `T[]` and the Java representation is `List<T>`:
 
 | DuckDB Type | Java Type | Created via |
 |-------------|-----------|-------------|
-| `LIST<INTEGER>` | `List<Integer>` | `integer.list()` |
-| `LIST<VARCHAR>` | `List<String>` | `varchar.list()` |
-| `LIST<DATE>` | `List<LocalDate>` | `date.list()` |
+| `INTEGER[]` | `List<Integer>` | `integer.list()` |
+| `VARCHAR[]` | `List<String>` | `varchar.list()` |
+| `DATE[]` | `List<LocalDate>` | `date.list()` |
 | ... | ... | `anyType.list()` |
 
 <Snippet file="duckdb/ListTypes" />
+
+## ARRAY Types
+
+Fixed-size arrays use `.array(size)`. DuckDB enforces that every row has exactly `size` elements — ideal for embeddings, RGB colors, or any dense fixed-shape tensor. The Java representation is still `List<T>`:
+
+| DuckDB Type | Java Type | Created via |
+|-------------|-----------|-------------|
+| `FLOAT[1536]` | `List<Float>` | `float_.array(1536)` |
+| `INTEGER[3]` | `List<Integer>` | `integer.array(3)` |
+
+<Snippet file="duckdb/ArrayTypes" />
+
+## Nested Collections
+
+LIST and ARRAY compose freely in any combination:
+
+| SQL Type | Java Type | Created via |
+|----------|-----------|-------------|
+| `T[][]` | `List<List<T>>` | `t.list().list()` |
+| `T[m][n]` | `List<List<T>>` | `t.array(n).array(m)` |
+| `T[][n]` | `List<List<T>>` | `t.list().array(n)` |
+| `T[m][]` | `List<List<T>>` | `t.array(m).list()` |
+
+<Snippet file="duckdb/NestedCollections" />
 
 ## MAP Types
 
@@ -175,11 +186,11 @@ DuckDbType<Person> personType = DuckDbTypes.compositeOf("person",
         .field("age", DuckDbTypes.integer, Person::age)
         .build(Person::new));
 
-// Array of structs
-DuckDbType<Person[]> personArrayType = personType.array();
-
-// List of structs
+// List of structs (variable-length)
 DuckDbType<List<Person>> personListType = personType.list();
+
+// Fixed-size array of structs (e.g. always 3 members)
+DuckDbType<List<Person>> trioType = personType.array(3);
 ```
 
 ## UNION Types

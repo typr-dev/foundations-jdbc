@@ -2,14 +2,13 @@ package dev.typr.foundations.docs.duckdb;
 
 import dev.typr.foundations.DuckDbType;
 import dev.typr.foundations.DuckDbTypes;
-import java.util.UUID;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class ArrayTypes {
   // start
-  // Any type can be made into an array with .array()
-  DuckDbType<Integer[]> intArray = DuckDbTypes.integer.array();
-  DuckDbType<String[]> strArray = DuckDbTypes.varchar.array();
-  DuckDbType<UUID[]> uuidArray = DuckDbTypes.uuid.array();
+  // Fixed-size ARRAY — every row must have exactly `size` elements.
+  DuckDbType<List<Float>> embedding = DuckDbTypes.float_.array(1536);
+  DuckDbType<List<Integer>> rgb = DuckDbTypes.integer.array(3);
   // stop
 }

@@ -262,11 +262,26 @@ public record QueryAnalysis(
       lower = lower.substring(dotIdx + 1);
     }
 
-    // Preserve array suffix before stripping precision
-    String suffix = "";
-    if (lower.endsWith("[]")) {
-      suffix = "[]";
-      lower = lower.substring(0, lower.length() - 2);
+    // Peel trailing LIST/ARRAY suffixes — `[]`, `[]`-chains, and DuckDB fixed-size `[N]` — from
+    // the right so we can strip precision on the scalar head and re-append suffixes unchanged.
+    StringBuilder suffix = new StringBuilder();
+    while (true) {
+      int len = lower.length();
+      if (len >= 2 && lower.endsWith("[]")) {
+        suffix.insert(0, "[]");
+        lower = lower.substring(0, len - 2);
+        continue;
+      }
+      int close = lower.lastIndexOf(']');
+      if (close == len - 1) {
+        int open = lower.lastIndexOf('[');
+        if (open > 0 && lower.substring(open + 1, close).matches("\\d+")) {
+          suffix.insert(0, lower.substring(open));
+          lower = lower.substring(0, open);
+          continue;
+        }
+      }
+      break;
     }
 
     // Strip precision specifier like "varchar(255)" -> "varchar", "decimal(10,2)" -> "decimal"
@@ -276,12 +291,23 @@ public record QueryAnalysis(
     }
 
     // Handle PG array prefix: "_int4" -> "int4[]"
-    if (suffix.isEmpty() && lower.startsWith("_") && !lower.contains(" ")) {
+    if (suffix.length() == 0 && lower.startsWith("_") && !lower.contains(" ")) {
       lower = lower.substring(1);
-      suffix = "[]";
+      suffix.append("[]");
     }
 
-    return lower + suffix;
+    // PG stores all N-dim arrays under a single array type ({@code _T}, reported as
+    // {@code T[]}). Our declared typename can include an explicit {@code [][]…} chain to
+    // surface intent, but for analysis we must collapse pure {@code []} chains to a single
+    // {@code []} so declared multi-dim types match the returned vendor type. Fixed-size
+    // suffixes like {@code [N]} (DuckDB ARRAY) are preserved because they convey a real
+    // distinction at the storage layer.
+    String suffixStr = suffix.toString();
+    if (!suffixStr.isEmpty() && suffixStr.chars().allMatch(c -> c == '[' || c == ']')) {
+      suffixStr = "[]";
+    }
+
+    return lower + suffixStr;
   }
 
   private String truncateSql(String sql, int maxLen) {

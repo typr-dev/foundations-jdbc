@@ -79,7 +79,7 @@ Then build the codec and query — three objects, each self-contained:
 
 ```kotlin
 data class Order(val id: Int, val name: String, val email: String,
-                 val items: Array<LineItem>, val discount: String?)
+                 val items: List<LineItem>, val discount: String?)
 
 val orderCodec = RowCodec.namedBuilder<Order>()
     .field("id", PgTypes.int4, Order::id)

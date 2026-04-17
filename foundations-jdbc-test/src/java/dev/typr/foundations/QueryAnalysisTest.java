@@ -50,7 +50,7 @@ public class QueryAnalysisTest {
 
   record DateTimeTypes(LocalDate d, LocalTime t, LocalDateTime ts, OffsetDateTime tstz) {}
 
-  record ArrayTypes(Integer[] ints, String[] strs) {}
+  record ArrayTypes(List<Integer> ints, List<String> strs) {}
 
   record DecDoubleInt(BigDecimal sum, Double avg, Long cnt) {}
 
@@ -613,8 +613,8 @@ public class QueryAnalysisTest {
 
           RowCodec<ArrayTypes> parser =
               RowCodec.<ArrayTypes>builder()
-                  .field(DuckDbTypes.integerArray, ArrayTypes::ints)
-                  .field(DuckDbTypes.varcharArray, ArrayTypes::strs)
+                  .field(DuckDbTypes.integer.list(), ArrayTypes::ints)
+                  .field(DuckDbTypes.varchar.list(), ArrayTypes::strs)
                   .build(ArrayTypes::new);
 
           Fragment fragment = Fragment.of("SELECT int_arr, str_arr FROM array_types");

@@ -255,36 +255,84 @@ public record PgType<A>(
         (codec instanceof PgElementCodec.OfText)
             ? PgRead.readCompositeList(pgCompositeText)
             : PgRead.readElementList(elementConverter);
-    // Nested-array support: the resulting PgType<List<A>> needs its own pgArrayCodec so that
-    // a further .array() call (producing PgType<List<List<A>>>) can decode sub-arrays.
-    PgElementCodec<List<A>> nestedCodec =
-        PgElementCodec.of(
-            obj -> {
-              if (obj == null) return null;
-              if (!(obj instanceof java.sql.Array subArr)) {
-                throw new IllegalArgumentException(
-                    "Expected java.sql.Array for nested PG array element, got: " + obj.getClass());
-              }
-              try {
-                Object[] subElements = (Object[]) subArr.getArray();
-                List<A> inner = new java.util.ArrayList<>(subElements.length);
-                if (elementConverter != null) {
-                  for (Object e : subElements) inner.add(e == null ? null : elementConverter.apply(e));
-                } else {
-                  // OfText: shouldn't normally combine with nesting, but handle gracefully.
-                  for (Object e : subElements) {
-                    inner.add(e == null ? null : pgCompositeText.decode(e.toString()));
+    // Nested-array support: the resulting PgType<List<A>> needs its own pgArrayCodec so a
+    // further .array() call (producing PgType<List<List<A>>>) can decode sub-arrays. If the
+    // scalar used OfText (bit, time, timetz, money, ranges) we keep the outer as OfText too
+    // — pgCompositeText.list(',') composes naturally at every depth. For OfElement types we
+    // recurse via java.sql.Array/Object[] since PG JDBC returns multi-dim arrays as
+    // Object[][…] (every level is an Object[], never a java.sql.Array).
+    final PgElementCodec<List<A>> nestedCodec;
+    if (codec instanceof PgElementCodec.OfText) {
+      nestedCodec = PgElementCodec.textParsed();
+    } else {
+      nestedCodec =
+          PgElementCodec.of(
+              obj -> {
+                if (obj == null) return null;
+                Object[] subElements;
+                if (obj instanceof java.sql.Array subArr) {
+                  try {
+                    subElements = (Object[]) subArr.getArray();
+                  } catch (java.sql.SQLException ex) {
+                    throw new DatabaseException(ex);
                   }
+                } else if (obj instanceof Object[] arr) {
+                  subElements = arr;
+                } else {
+                  throw new IllegalArgumentException(
+                      "Expected java.sql.Array or Object[] for nested PG array element, got: "
+                          + obj.getClass());
+                }
+                List<A> inner = new java.util.ArrayList<>(subElements.length);
+                for (Object e : subElements) {
+                  inner.add(e == null ? null : elementConverter.apply(e));
                 }
                 return inner;
-              } catch (java.sql.SQLException ex) {
-                throw new DatabaseException(ex);
-              }
-            });
+              });
+    }
+    PgWrite<List<A>> listWrite;
+    if (typename instanceof PgTypename.ArrayOf<?>) {
+      // Nested case. PG JDBC's createArrayOf only accepts the scalar type name plus a
+      // (possibly multi-dim) Object[] payload; chaining `createArrayOf("int4[]", ...)` is not
+      // supported. Peel ArrayOf wrappers to the scalar, then build the nested Object[][…]
+      // payload via the existing write's pre-bind converter.
+      PgTypename<?> scalarTypename = typename;
+      while (scalarTypename instanceof PgTypename.ArrayOf<?> arr) {
+        scalarTypename = arr.of();
+      }
+      final String scalarSqlType = scalarTypename.sqlTypeNoPrecision();
+      final PgWrite<A> innerWrite = this.write;
+      // innerWrite.f is A→Object[] for single-level, or List<A>→Object[] (with nested inner)
+      // for deeper nesting; applying it to each outer element produces the next inner Object[].
+      final Function<A, Object> innerElementConverter;
+      if (innerWrite instanceof PgWrite.Instance<A, ?> i) {
+        @SuppressWarnings("unchecked")
+        Function<A, Object> f = (Function<A, Object>) i.f();
+        innerElementConverter = f;
+      } else {
+        innerElementConverter = a -> a;
+      }
+      listWrite =
+          PgWrite.primitive(
+              (ps, idx, list) -> {
+                if (list == null) {
+                  ps.setNull(idx, 0, scalarSqlType + "[]");
+                } else {
+                  Object[] values = new Object[list.size()];
+                  for (int i = 0; i < list.size(); i++) {
+                    A elem = list.get(i);
+                    values[i] = elem == null ? null : innerElementConverter.apply(elem);
+                  }
+                  ps.setArray(idx, ps.getConnection().createArrayOf(scalarSqlType, values));
+                }
+              });
+    } else {
+      listWrite = write.list(typename);
+    }
     return new PgType<>(
         typename.array(),
         listRead,
-        write.list(typename),
+        listWrite,
         pgText.list(arrayDelimiter),
         pgCompositeText.list(arrayDelimiter),
         pgJson.list(),
