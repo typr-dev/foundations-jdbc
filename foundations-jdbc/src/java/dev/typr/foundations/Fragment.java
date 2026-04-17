@@ -202,6 +202,15 @@ public sealed interface Fragment {
     return new Literal(value);
   }
 
+  /**
+   * Empty starting point for the fluent builder pattern — equivalent to {@code Fragment.of("")}.
+   * Use when your first call is {@code .value(...)} or {@code .append(...)} and there is no
+   * leading SQL literal.
+   */
+  static Literal builder() {
+    return new Literal("");
+  }
+
   static <Row> RowTemplate.Update<Row> insertInto(
       String table, RowCodecNamed<Row> codec, String... except) {
     return of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
