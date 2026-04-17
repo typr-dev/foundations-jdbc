@@ -50,6 +50,20 @@ final class DuckDbMapSupport {
             (map, sb, quoted) ->
                 stringify(map, sb, keyType.stringifier(), valueType.stringifier()));
 
+    // Composite-as-attribute encoder: when this MAP type is itself the value of an outer MAP,
+    // LIST, ARRAY or STRUCT, it gets bound as a DuckDBMap object via the same native path
+    // composites use. Mirrors the structAttributeEncoder produced by `compositeOf` for STRUCT
+    // and `buildCollection` for LIST/ARRAY.
+    Function<Map<K, V>, Object> attributeEncoder =
+        map -> {
+          if (map == null) return null;
+          var wireMap = new LinkedHashMap<Object, Object>();
+          for (var entry : map.entrySet()) {
+            wireMap.put(keyEncoder.apply(entry.getKey()), valueEncoder.apply(entry.getValue()));
+          }
+          return new org.duckdb.user.DuckDBMap<>(sqlType, wireMap);
+        };
+
     return new DuckDbType<>(
         typename,
         read,
@@ -57,7 +71,8 @@ final class DuckDbMapSupport {
         stringifier,
         DuckDbTypes.mapJson(keyType.duckDbJson(), valueType.duckDbJson()),
         AnalysisOptions.EMPTY,
-        Optional.empty());
+        Optional.empty(),
+        attributeEncoder);
   }
 
   /**
@@ -70,7 +85,8 @@ final class DuckDbMapSupport {
     boolean nativelyBindable =
         tn instanceof DuckDbTypename.StructOf
             || tn instanceof DuckDbTypename.ListOf
-            || tn instanceof DuckDbTypename.ArrayOf;
+            || tn instanceof DuckDbTypename.ArrayOf
+            || tn instanceof DuckDbTypename.MapOf;
     if (nativelyBindable) {
       return type.structAttributeEncoder();
     }

@@ -236,7 +236,8 @@ public record DuckDbType<A>(
     final boolean nestedCollection =
         typename instanceof DuckDbTypename.StructOf
             || typename instanceof DuckDbTypename.ListOf
-            || typename instanceof DuckDbTypename.ArrayOf;
+            || typename instanceof DuckDbTypename.ArrayOf
+            || typename instanceof DuckDbTypename.MapOf;
     final String elementSqlType = typename.sqlType();
     final Function<A, Object> elementEncoder = this.structAttributeEncoder;
     DuckDbWrite<List<A>> collWrite;

@@ -497,6 +497,46 @@ public class DuckDbTypeTest {
                   DuckDbTypes.varchar.mapTo(DuckDbTypes.integer).opt(),
                   java.util.Optional.of(java.util.Map.of("present", 1)))
               .noIdentity(),
+          // MAP with LIST values — value side is composite.
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.varchar.mapTo(DuckDbTypes.integer.list()),
+                  java.util.Map.of("primes", List.of(2, 3, 5, 7), "evens", List.of(2, 4, 6)))
+              .noIdentity(),
+          // MAP with ARRAY(size) values — value side is fixed-size composite.
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.varchar.mapTo(DuckDbTypes.integer.array(3)),
+                  java.util.Map.of("rgb1", List.of(255, 0, 0), "rgb2", List.of(0, 255, 0)))
+              .noIdentity(),
+          // MAP with STRUCT values — value side is composite (and contains a VARCHAR[] field).
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.varchar.mapTo(personWithHobbiesType),
+                  java.util.Map.of(
+                      "alice", new PersonWithHobbies("Alice", List.of("reading", "hiking"))))
+              .noIdentity(),
+          // Nested MAP — MAP value is itself a MAP.
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.varchar.mapTo(DuckDbTypes.varchar.mapTo(DuckDbTypes.integer)),
+                  java.util.Map.of("counts", java.util.Map.of("a", 1, "b", 2)))
+              .noIdentity(),
+          // LIST of MAP — composing MAP into a list.
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.varchar.mapTo(DuckDbTypes.integer).list(),
+                  List.of(java.util.Map.of("k1", 1), java.util.Map.of("k2", 2)))
+              .noIdentity(),
+          // MAP with LIST keys — composite key side.
+          new DuckDbTypeAndExample<>(
+                  DuckDbTypes.varchar.list().mapTo(DuckDbTypes.integer),
+                  java.util.Map.of(List.of("a", "b"), 1, List.of("c"), 2))
+              .noIdentity(),
+          // MAP with STRUCT keys — composite key side.
+          new DuckDbTypeAndExample<>(
+                  personType.mapTo(DuckDbTypes.varchar),
+                  java.util.Map.of(new Person("Alice", 30), "v1", new Person("Bob", 25), "v2"))
+              .noIdentity(),
+          // STRUCT containing a MAP field — composite-of-MAP as a top-level value.
+          new DuckDbTypeAndExample<>(
+                  configType, new Config(java.util.Map.of("max_conn", 100, "min_conn", 5)))
+              .noIdentity(),
 
           // ==================== LIST Types with complex element types ====================
           // String-converted types (~33% overhead at 100k rows, but required for correctness)
