@@ -45,12 +45,12 @@ object TransactorSetup:
         .build()
     )
 
-  // SQL Server
+  // SQL Server — .encrypt(FALSE) for local dev (self-signed cert); use TRUE + trusted cert in prod
   val mssqlTx =
     Transactor.create(
       SqlServerConfig
         .builder("localhost", 1433, "mydb", "user", "pass")
-        .encrypt(SqlServerEncrypt.TRUE)
+        .encrypt(SqlServerEncrypt.FALSE)
         .build()
     )
 

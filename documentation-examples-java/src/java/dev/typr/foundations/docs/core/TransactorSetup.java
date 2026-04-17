@@ -32,11 +32,13 @@ public class TransactorSetup {
               .serviceName("XEPDB1")
               .build());
 
-  // SQL Server
+  // SQL Server — .encrypt(FALSE) is correct for local dev against the default container image
+  // (self-signed cert, no trust chain). Production should use .encrypt(TRUE) with a trusted
+  // certificate; the handshake failure against localhost is otherwise inscrutable.
   Transactor mssqlTx =
       Transactor.create(
           SqlServerConfig.builder("localhost", 1433, "mydb", "user", "pass")
-              .encrypt(SqlServerEncrypt.TRUE)
+              .encrypt(SqlServerEncrypt.FALSE)
               .build());
 
   // DB2
