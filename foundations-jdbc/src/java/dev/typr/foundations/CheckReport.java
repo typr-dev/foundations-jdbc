@@ -13,18 +13,19 @@ public record CheckReport(List<QueryAnalysis> analyses) {
 
   public void assertAllSucceeded() {
     StringBuilder errors = new StringBuilder();
-    int errorCount = 0;
+    List<QueryAnalysis> failed = new java.util.ArrayList<>();
     int idx = 0;
     for (var analysis : analyses) {
       idx++;
       if (!analysis.succeeded()) {
-        errorCount++;
+        failed.add(analysis);
         errors.append("\n\n--- Query ").append(idx).append(" ---\n");
         errors.append(analysis.report());
       }
     }
-    if (errorCount > 0) {
-      throw new AssertionError(errorCount + " queries failed type checking:" + errors);
+    if (!failed.isEmpty()) {
+      throw new QueryCheckFailedException(
+          failed, failed.size() + " queries failed type checking:" + errors);
     }
   }
 
