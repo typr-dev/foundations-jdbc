@@ -250,6 +250,23 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
                 "Cannot convert " + obj.getClass() + " to LocalDateTime");
           });
 
+  // TIMETZ / TIME WITH TIME ZONE — the DuckDB JDBC driver returns java.time.OffsetTime with
+  // the original offset preserved. rs.getObject(i, OffsetTime.class) is not supported by the
+  // driver, so we read the raw Object and cast.
+  DuckDbRead<OffsetTime> readOffsetTime =
+      of(
+          (rs, idx) -> {
+            Object obj = rs.getObject(idx);
+            if (obj == null) return null;
+            if (obj instanceof OffsetTime ot) return ot;
+            throw new SQLException("Cannot convert " + obj.getClass() + " to OffsetTime");
+          },
+          obj -> {
+            if (obj instanceof OffsetTime ot) return ot;
+            throw new IllegalArgumentException(
+                "Cannot convert " + obj.getClass() + " to OffsetTime");
+          });
+
   DuckDbRead<OffsetDateTime> readOffsetDateTime =
       of(
           (rs, idx) -> {

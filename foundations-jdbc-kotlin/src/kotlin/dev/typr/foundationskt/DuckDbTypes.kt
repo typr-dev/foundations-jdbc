@@ -54,7 +54,7 @@ open class DuckDbTypes {
     open val timestamp: DuckDbType<java.time.LocalDateTime> = DuckDbType(JavaDuckDbTypes.timestamp)
     open val datetime: DuckDbType<java.time.LocalDateTime> = DuckDbType(JavaDuckDbTypes.datetime)
     open val timestamptz: DuckDbType<java.time.Instant> = DuckDbType(JavaDuckDbTypes.timestamptz)
-    open val timetz: DuckDbType<java.time.OffsetDateTime> = DuckDbType(JavaDuckDbTypes.timetz)
+    open val timetz: DuckDbType<java.time.OffsetTime> = DuckDbType(JavaDuckDbTypes.timetz)
     open val timestamp_s: DuckDbType<java.time.LocalDateTime> = DuckDbType(JavaDuckDbTypes.timestamp_s)
     open val timestamp_ms: DuckDbType<java.time.LocalDateTime> = DuckDbType(JavaDuckDbTypes.timestamp_ms)
     open val timestamp_ns: DuckDbType<java.time.LocalDateTime> = DuckDbType(JavaDuckDbTypes.timestamp_ns)

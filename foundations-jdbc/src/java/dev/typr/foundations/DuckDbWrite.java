@@ -79,6 +79,14 @@ public sealed interface DuckDbWrite<A> extends DbWrite<A>
   // TIME - use setString to avoid timezone issues with java.sql.Time
   DuckDbWrite<LocalTime> writeLocalTime = writeString.contramap(LocalTime::toString);
 
+  // TIMETZ / TIME WITH TIME ZONE — OffsetTime.toString() emits "HH:mm" when seconds are zero,
+  // but DuckDB's parser requires "HH:mm:ss". Format with a pattern that always includes
+  // seconds and the offset.
+  java.time.format.DateTimeFormatter DUCKDB_TIMETZ_FMT =
+      java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss[.SSSSSS]xxx");
+  DuckDbWrite<OffsetTime> writeOffsetTime =
+      writeString.contramap(ot -> ot.format(DUCKDB_TIMETZ_FMT));
+
   // INTERVAL/Duration - use setString with duration format (HH:MM:SS)
   DuckDbWrite<Duration> writeDuration =
       writeString.contramap(

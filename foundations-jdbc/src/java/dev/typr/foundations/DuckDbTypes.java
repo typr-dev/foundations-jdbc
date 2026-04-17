@@ -326,15 +326,20 @@ public interface DuckDbTypes {
               DuckDbJson.timestamptz)
           .transform(OffsetDateTime::toInstant, i -> i.atOffset(ZoneOffset.UTC));
 
-  // Time with timezone - represented as OffsetTime
-  DuckDbType<OffsetDateTime> timetz =
+  // TIME WITH TIME ZONE → OffsetTime.
+  //
+  // Unlike TIMESTAMPTZ (which stores UTC microseconds and discards the offset), DuckDB's TIMETZ
+  // does preserve the offset — values round-trip through the JDBC driver with their original
+  // offset intact (verified empirically against duckdb_jdbc 1.1.x). The CLI renders TIMETZ in
+  // session timezone which can make it look lossy, but that's display-only.
+  DuckDbType<OffsetTime> timetz =
       DuckDbType.of(
               "TIME WITH TIME ZONE",
-              DuckDbRead.readOffsetDateTime,
-              DuckDbWrite.passObjectToJdbc(),
-              DuckDbStringifier.timestamptz,
-              DuckDbJson.timestamptz)
-          .withStructAttributeEncoder(DuckDbStringifier.timestamptz.asWireEncoder());
+              DuckDbRead.readOffsetTime,
+              DuckDbWrite.writeOffsetTime,
+              DuckDbStringifier.timetz,
+              DuckDbJson.timetz)
+          .withStructAttributeEncoder(DuckDbStringifier.timetz.asWireEncoder());
 
   // Timestamp variants with different precisions
   DuckDbType<LocalDateTime> timestamp_s = timestamp.renamed("TIMESTAMP_S");

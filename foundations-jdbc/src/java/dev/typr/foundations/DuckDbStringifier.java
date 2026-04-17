@@ -133,6 +133,18 @@ public abstract class DuckDbStringifier<A> {
             if (quoted) sb.append("'");
           });
 
+  // OffsetTime.toString() omits seconds when zero; DuckDB requires them.
+  public static final java.time.format.DateTimeFormatter TIMETZ_FMT =
+      java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss[.SSSSSS]xxx");
+
+  public static final DuckDbStringifier<OffsetTime> timetz =
+      instance(
+          (ot, sb, quoted) -> {
+            if (quoted) sb.append("'");
+            sb.append(ot.format(TIMETZ_FMT));
+            if (quoted) sb.append("'");
+          });
+
   public static final DuckDbStringifier<Duration> interval =
       instance(
           (d, sb, quoted) -> {

@@ -56,7 +56,7 @@ class DuckDbTypes {
   val timestamp: DuckDbType[java.time.LocalDateTime] = DuckDbType(JavaDuckDbTypes.timestamp)
   val datetime: DuckDbType[java.time.LocalDateTime] = DuckDbType(JavaDuckDbTypes.datetime)
   val timestamptz: DuckDbType[java.time.Instant] = DuckDbType(JavaDuckDbTypes.timestamptz)
-  val timetz: DuckDbType[java.time.OffsetDateTime] = DuckDbType(JavaDuckDbTypes.timetz)
+  val timetz: DuckDbType[java.time.OffsetTime] = DuckDbType(JavaDuckDbTypes.timetz)
   val timestamp_s: DuckDbType[java.time.LocalDateTime] = DuckDbType(JavaDuckDbTypes.timestamp_s)
   val timestamp_ms: DuckDbType[java.time.LocalDateTime] = DuckDbType(JavaDuckDbTypes.timestamp_ms)
   val timestamp_ns: DuckDbType[java.time.LocalDateTime] = DuckDbType(JavaDuckDbTypes.timestamp_ns)

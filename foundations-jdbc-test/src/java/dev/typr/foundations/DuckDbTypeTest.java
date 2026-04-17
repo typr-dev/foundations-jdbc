@@ -340,6 +340,17 @@ public class DuckDbTypeTest {
               DuckDbTypes.timestamptz,
               Instant.parse("2024-06-15T14:30:45Z")),
 
+          // Time with timezone — DuckDB TIMETZ preserves the offset (distinct from TIMESTAMPTZ).
+          new DuckDbTypeAndExample<>(
+              DuckDbTypes.timetz,
+              OffsetTime.of(14, 30, 45, 0, ZoneOffset.ofHours(2))),
+          new DuckDbTypeAndExample<>(
+              DuckDbTypes.timetz,
+              OffsetTime.of(9, 15, 30, 0, ZoneOffset.ofHoursMinutes(-5, -30))),
+          new DuckDbTypeAndExample<>(
+              DuckDbTypes.timetz,
+              OffsetTime.of(23, 59, 59, 0, ZoneOffset.UTC)),
+
           // ==================== Interval Type ====================
           new DuckDbTypeAndExample<>(DuckDbTypes.interval, Duration.ofHours(2).plusMinutes(30)),
           new DuckDbTypeAndExample<>(DuckDbTypes.interval, Duration.ofDays(5)),

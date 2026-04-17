@@ -104,6 +104,8 @@ DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so
 Despite the SQL keyword, DuckDB does **not** store any zone or offset with a `TIMESTAMPTZ` value — it stores an `INT64` count of microseconds since the Unix epoch (see the [DuckDB timestamp docs](https://duckdb.org/docs/sql/data_types/timestamp)). The original offset or region is used only for parsing on input, then discarded. Reads render the instant in the session timezone, which is a display convenience, not persisted state.
 
 Because the storage *is* a universal instant, the library maps this column to `java.time.Instant` — the Java type with the same semantics. Using `OffsetDateTime` would surface the JDBC driver's cosmetic "render in session offset" output as if it were data. `Instant` is identical in spirit to PostgreSQL's `timestamptz` mapping ([see `postgresql.md`](./postgresql#datetime-rationale)).
+
+**Note:** `TIME WITH TIME ZONE` (TIMETZ) is a distinct case: DuckDB's JDBC driver *does* preserve the original offset on round-trip (verified empirically), so that column maps to `OffsetTime`, not `Instant`. The DuckDB CLI renders TIMETZ in session-TZ which can make it look normalized, but that's display-only.
 :::
 
 ### Timestamp Precision Variants

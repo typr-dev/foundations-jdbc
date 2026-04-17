@@ -365,6 +365,23 @@ public interface DuckDbJson<A> extends DbJson<A> {
         }
       };
 
+  DuckDbJson<OffsetTime> timetz =
+      new DuckDbJson<>() {
+        @Override
+        public JsonValue toJson(OffsetTime value) {
+          return new JsonValue.JString(value.toString());
+        }
+
+        @Override
+        public OffsetTime fromJson(JsonValue json) {
+          if (json instanceof JsonValue.JString s) {
+            return OffsetTime.parse(s.value());
+          }
+          throw new IllegalArgumentException(
+              "Expected string for timetz, got: " + json.getClass().getSimpleName());
+        }
+      };
+
   DuckDbJson<Duration> interval =
       new DuckDbJson<>() {
         @Override
