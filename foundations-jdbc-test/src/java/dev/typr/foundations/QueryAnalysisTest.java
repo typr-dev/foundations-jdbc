@@ -1554,14 +1554,64 @@ public class QueryAnalysisTest {
         });
   }
 
-  // No test for INSERT parameter-side struct mismatch on DuckDB — the driver reports no
-  // parameter metadata for INSERTs, so the analyzer can't see the parameter type at all
-  // regardless of what the declared codec says. The checkParameterTypes structural-parser
-  // path is live; it just has nothing to check against on DuckDB. This is the same reason
-  // the user's abosleuth "type → type2" change didn't fail QueryChecker — the INSERT
-  // template is the only analyzer-visible target there. To catch this class of bug on
-  // DuckDB we'd need the analyzer to cross-reference INSERT target columns via a phantom
-  // SELECT; not implemented yet.
+  @Test
+  public void testStructAnalysis_insertParameterMismatch_viaPhantomSelect() {
+    // DuckDB reports no parameter metadata for INSERTs. The analyzer falls back to a phantom
+    // SELECT of the target columns so struct-field mismatches in INSERT parameters can still
+    // be caught. Declared codec has field "years" but the DB column has "age".
+    record PersonWrong(String name, Integer years) {}
+    RowCodecNamed<PersonWrong> wrongCodec =
+        RowCodec.<PersonWrong>namedBuilder()
+            .field("name", DuckDbTypes.varchar, PersonWrong::name)
+            .field("years", DuckDbTypes.integer, PersonWrong::years)
+            .build(PersonWrong::new);
+    DuckDbType<PersonWrong> wrongType = DuckDbTypes.compositeOf("person_wrong", wrongCodec);
+    record InsertRow(Integer id, PersonWrong p) {}
+    RowCodecNamed<InsertRow> insertCodec =
+        RowCodec.<InsertRow>namedBuilder()
+            .field("id", DuckDbTypes.integer, InsertRow::id)
+            .field("p", wrongType, InsertRow::p)
+            .build(InsertRow::new);
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  "CREATE TEMP TABLE t_phantom (id INTEGER, p STRUCT(name VARCHAR, age INTEGER))");
+          RowTemplate.Update<InsertRow> template =
+              Fragment.insertInto("t_phantom", insertCodec);
+          var analysis = QueryAnalyzer.analyze(template, conn).getFirst();
+          assertFalse(
+              "expected phantom-SELECT fallback to catch struct-field mismatch, got:\n"
+                  + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
+
+  @Test
+  public void testStructAnalysis_insertParameterMatch_viaPhantomSelect() {
+    // Positive case: declared codec's struct matches the DB column's struct. Phantom-SELECT
+    // fallback should not produce spurious errors.
+    record OkRow(Integer id, Person p) {}
+    RowCodecNamed<OkRow> okCodec =
+        RowCodec.<OkRow>namedBuilder()
+            .field("id", DuckDbTypes.integer, OkRow::id)
+            .field("p", personType, OkRow::p)
+            .build(OkRow::new);
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute(
+                  "CREATE TEMP TABLE t_ok (id INTEGER, p STRUCT(name VARCHAR, age INTEGER))");
+          RowTemplate.Update<OkRow> template = Fragment.insertInto("t_ok", okCodec);
+          var analysis = QueryAnalyzer.analyze(template, conn).getFirst();
+          assertTrue(
+              "expected matching INSERT via phantom SELECT to succeed, got:\n"
+                  + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
 
   @Test
   public void testStructAnalysis_nestedStructMismatchAtInnerField() {

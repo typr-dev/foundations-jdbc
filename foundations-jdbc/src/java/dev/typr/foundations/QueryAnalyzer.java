@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public final class QueryAnalyzer {
 
@@ -176,12 +177,87 @@ public final class QueryAnalyzer {
 
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
       List<JdbcMeta.ParameterMeta> paramMeta = JdbcMeta.extractParameters(ps);
+
+      // Phantom-SELECT fallback: when the driver reports no USABLE parameter metadata but we
+      // have declared parameters AND the SQL is an INSERT with an explicit column list, probe
+      // the target columns via SELECT metadata — that's the metadata path DuckDB does populate.
+      // Lets the analyzer catch STRUCT-field mismatches on INSERT parameters that would
+      // otherwise be invisible.
+      //
+      // "Not usable" means: the driver returned a parameter count that matches the declared
+      // params but every entry has a null/empty vendor type name (DuckDB) OR the count is zero
+      // while we have declared params.
+      if (!paramTypes.isEmpty() && !paramMetaHasVendorNames(paramMeta)) {
+        Optional<List<JdbcMeta.ParameterMeta>> phantom =
+            phantomInsertParameterMeta(sql, paramTypes.size(), conn);
+        if (phantom.isPresent()) {
+          paramMeta = phantom.get();
+        }
+      }
+
       boolean paramMetaAvailable = !paramMeta.isEmpty() || paramTypes.isEmpty();
 
       List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> paramAlignment =
           Alignment.align(paramTypes, paramMeta);
 
       return new QueryAnalysis(sql, name, paramAlignment, List.of(), paramMetaAvailable);
+    }
+  }
+
+  private static boolean paramMetaHasVendorNames(List<JdbcMeta.ParameterMeta> paramMeta) {
+    if (paramMeta.isEmpty()) return false;
+    for (JdbcMeta.ParameterMeta pm : paramMeta) {
+      String v = pm.vendorTypeName();
+      if (v != null && !v.isEmpty()) return true;
+    }
+    return false;
+  }
+
+  private static final java.util.regex.Pattern INSERT_COLUMN_LIST =
+      java.util.regex.Pattern.compile(
+          "^\\s*INSERT\\s+INTO\\s+(\"[^\"]+\"|[a-zA-Z_][\\w.]*)\\s*\\(([^)]+)\\)\\s+VALUES\\b",
+          java.util.regex.Pattern.CASE_INSENSITIVE);
+
+  /**
+   * If {@code sql} is an {@code INSERT INTO <table> (<cols>) VALUES ...} statement, prepare a
+   * {@code SELECT <cols> FROM <table>} and return per-column metadata as synthetic
+   * ParameterMeta (one entry per parameter position). When the parameter count doesn't match
+   * the column list (e.g. a literal was used for one column) or the probe fails for any other
+   * reason, returns {@code Optional.empty()} so the caller falls back to the driver's own
+   * (empty) parameter metadata.
+   */
+  private static Optional<List<JdbcMeta.ParameterMeta>> phantomInsertParameterMeta(
+      String sql, int expectedParamCount, Connection conn) {
+    var m = INSERT_COLUMN_LIST.matcher(sql);
+    if (!m.find()) {
+      return Optional.empty();
+    }
+    String table = m.group(1);
+    String[] rawCols = m.group(2).split(",");
+    if (rawCols.length != expectedParamCount) {
+      return Optional.empty();
+    }
+    StringBuilder selectSql = new StringBuilder("SELECT ");
+    for (int i = 0; i < rawCols.length; i++) {
+      if (i > 0) selectSql.append(", ");
+      selectSql.append(rawCols[i].trim());
+    }
+    selectSql.append(" FROM ").append(table);
+    try (PreparedStatement probe = conn.prepareStatement(selectSql.toString())) {
+      List<JdbcMeta.ColumnMeta> columns = JdbcMeta.extractColumns(probe);
+      if (columns.size() != expectedParamCount) {
+        return Optional.empty();
+      }
+      List<JdbcMeta.ParameterMeta> synthetic = new java.util.ArrayList<>(columns.size());
+      for (int i = 0; i < columns.size(); i++) {
+        JdbcMeta.ColumnMeta c = columns.get(i);
+        synthetic.add(
+            new JdbcMeta.ParameterMeta(
+                i + 1, c.jdbcType(), c.vendorTypeName(), c.nullable()));
+      }
+      return Optional.of(synthetic);
+    } catch (SQLException ignored) {
+      return Optional.empty();
     }
   }
 
