@@ -23,9 +23,11 @@ public record DuckDbType<A>(
     implements DbType<A> {
 
   /**
-   * Convenience constructor that defaults the struct-attribute encoder to identity. Safe for scalar
-   * types whose Java representation is directly bindable as a {@link
-   * org.duckdb.user.DuckDBUserStruct} attribute.
+   * Convenience constructor that defaults the struct-attribute encoder to the stringifier's text
+   * form — the JNI-safe binding for scalars inside DuckDBUserStruct / DuckDBUserArray /
+   * DuckDBMap, including scalars whose Java representation (UUID, Duration, LocalTime, Json,
+   * BigInteger, …) the driver's native-object path doesn't accept. Composite types override via
+   * the long constructor.
    */
   public DuckDbType(
       DuckDbTypename<A> typename,
@@ -35,7 +37,15 @@ public record DuckDbType<A>(
       DuckDbJson<A> duckDbJson,
       AnalysisOptions analysisOptions,
       Optional<DuckDbListCodec<A>> listCodec) {
-    this(typename, read, write, stringifier, duckDbJson, analysisOptions, listCodec, a -> a);
+    this(
+        typename,
+        read,
+        write,
+        stringifier,
+        duckDbJson,
+        analysisOptions,
+        listCodec,
+        value -> stringifier.encode(value, false));
   }
 
   public DuckDbType<A> withStructAttributeEncoder(Function<A, Object> encoder) {

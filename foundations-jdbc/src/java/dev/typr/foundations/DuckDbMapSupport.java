@@ -35,8 +35,8 @@ final class DuckDbMapSupport {
     DuckDbTypename<Map<K, V>> typename = keyType.typename().mapTo(valueType.typename());
     String sqlType = typename.sqlType();
 
-    Function<K, Object> keyEncoder = entryEncoder(keyType);
-    Function<V, Object> valueEncoder = entryEncoder(valueType);
+    Function<K, Object> keyEncoder = keyType.structAttributeEncoder();
+    Function<V, Object> valueEncoder = valueType.structAttributeEncoder();
 
     DuckDbRead<Map<K, V>> read =
         DuckDbRead.of((rs, idx) -> readJdbcMap(rs, idx, keyType.read(), valueType.read()));
@@ -73,11 +73,6 @@ final class DuckDbMapSupport {
         AnalysisOptions.EMPTY,
         Optional.empty(),
         attributeEncoder);
-  }
-
-  /** Pick the wire encoding via polymorphic dispatch on the typename. */
-  private static <A> Function<A, Object> entryEncoder(DuckDbType<A> type) {
-    return type.typename().wireEncoder(type);
   }
 
   private static <K, V> Map<K, V> readJdbcMap(
