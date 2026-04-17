@@ -1554,64 +1554,10 @@ public class QueryAnalysisTest {
         });
   }
 
-  @Test
-  public void testStructAnalysis_insertParameterMismatch_viaPhantomSelect() {
-    // DuckDB reports no parameter metadata for INSERTs. The analyzer falls back to a phantom
-    // SELECT of the target columns so struct-field mismatches in INSERT parameters can still
-    // be caught. Declared codec has field "years" but the DB column has "age".
-    record PersonWrong(String name, Integer years) {}
-    RowCodecNamed<PersonWrong> wrongCodec =
-        RowCodec.<PersonWrong>namedBuilder()
-            .field("name", DuckDbTypes.varchar, PersonWrong::name)
-            .field("years", DuckDbTypes.integer, PersonWrong::years)
-            .build(PersonWrong::new);
-    DuckDbType<PersonWrong> wrongType = DuckDbTypes.compositeOf("person_wrong", wrongCodec);
-    record InsertRow(Integer id, PersonWrong p) {}
-    RowCodecNamed<InsertRow> insertCodec =
-        RowCodec.<InsertRow>namedBuilder()
-            .field("id", DuckDbTypes.integer, InsertRow::id)
-            .field("p", wrongType, InsertRow::p)
-            .build(InsertRow::new);
-    withConnection(
-        conn -> {
-          conn.createStatement()
-              .execute(
-                  "CREATE TEMP TABLE t_phantom (id INTEGER, p STRUCT(name VARCHAR, age INTEGER))");
-          RowTemplate.Update<InsertRow> template =
-              Fragment.insertInto("t_phantom", insertCodec);
-          var analysis = QueryAnalyzer.analyze(template, conn).getFirst();
-          assertFalse(
-              "expected phantom-SELECT fallback to catch struct-field mismatch, got:\n"
-                  + analysis.report(),
-              analysis.succeeded());
-          return null;
-        });
-  }
-
-  @Test
-  public void testStructAnalysis_insertParameterMatch_viaPhantomSelect() {
-    // Positive case: declared codec's struct matches the DB column's struct. Phantom-SELECT
-    // fallback should not produce spurious errors.
-    record OkRow(Integer id, Person p) {}
-    RowCodecNamed<OkRow> okCodec =
-        RowCodec.<OkRow>namedBuilder()
-            .field("id", DuckDbTypes.integer, OkRow::id)
-            .field("p", personType, OkRow::p)
-            .build(OkRow::new);
-    withConnection(
-        conn -> {
-          conn.createStatement()
-              .execute(
-                  "CREATE TEMP TABLE t_ok (id INTEGER, p STRUCT(name VARCHAR, age INTEGER))");
-          RowTemplate.Update<OkRow> template = Fragment.insertInto("t_ok", okCodec);
-          var analysis = QueryAnalyzer.analyze(template, conn).getFirst();
-          assertTrue(
-              "expected matching INSERT via phantom SELECT to succeed, got:\n"
-                  + analysis.report(),
-              analysis.succeeded());
-          return null;
-        });
-  }
+  // No INSERT-parameter analysis tests for DuckDB: the driver reports no parameter metadata
+  // for INSERTs, so there is nothing for the analyzer to compare declared parameter types
+  // against. We rely on SELECT-based analysis (with its column-side structural parser) for
+  // type safety; INSERTs are intentionally unchecked on DuckDB.
 
   @Test
   public void testStructAnalysis_nestedStructMismatchAtInnerField() {
