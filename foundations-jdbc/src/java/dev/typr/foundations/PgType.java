@@ -47,6 +47,11 @@ public record PgType<A>(
     return Set.copyOf(all);
   }
 
+  @Override
+  public String toString() {
+    return "PostgreSQL(" + typename.sqlType() + ")";
+  }
+
   public PgType<A> unchecked() {
     return withAnalysis(analysisOptions.withUnchecked());
   }

@@ -67,6 +67,11 @@ public record DuckDbType<A>(
     return Set.copyOf(all);
   }
 
+  @Override
+  public String toString() {
+    return "DuckDB(" + typename.sqlType() + ")";
+  }
+
   public DuckDbType<A> unchecked() {
     return withAnalysis(analysisOptions.withUnchecked());
   }

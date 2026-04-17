@@ -42,6 +42,11 @@ public record SqlServerType<A>(
     return Set.copyOf(all);
   }
 
+  @Override
+  public String toString() {
+    return "SQLServer(" + typename.sqlType() + ")";
+  }
+
   public SqlServerType<A> unchecked() {
     return withAnalysis(analysisOptions.withUnchecked());
   }

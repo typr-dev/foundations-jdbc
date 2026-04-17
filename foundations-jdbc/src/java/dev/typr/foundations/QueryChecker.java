@@ -53,12 +53,14 @@ public interface QueryChecker {
     return analyzeAll(List.of(analyzables));
   }
 
-  default void checkAll(List<? extends Analyzable> analyzables) {
-    analyzeAll(analyzables).assertAllSucceeded();
+  default CheckReport checkAll(List<? extends Analyzable> analyzables) {
+    CheckReport report = analyzeAll(analyzables);
+    report.assertAllSucceeded();
+    return report;
   }
 
-  default void checkAll(Analyzable... analyzables) {
-    checkAll(List.of(analyzables));
+  default CheckReport checkAll(Analyzable... analyzables) {
+    return checkAll(List.of(analyzables));
   }
 
   default void checkRoutine(RoutineDef def) {

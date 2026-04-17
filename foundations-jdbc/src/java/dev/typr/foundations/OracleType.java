@@ -42,6 +42,11 @@ public record OracleType<A>(
     return Set.copyOf(all);
   }
 
+  @Override
+  public String toString() {
+    return "Oracle(" + typename.sqlType() + ")";
+  }
+
   public OracleType<A> unchecked() {
     return withAnalysis(analysisOptions.withUnchecked());
   }
