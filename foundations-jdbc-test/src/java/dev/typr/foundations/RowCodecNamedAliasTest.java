@@ -67,7 +67,7 @@ public class RowCodecNamedAliasTest {
   public void columnListOnDuplicateJoinThrowsWithDuplicateNames() {
     // empCodec and deptCodec share "id" and "name" — calling columnList() without
     // aliasing first should throw with an actionable message.
-    var joined = empCodec.leftJoinedNamed(deptCodec);
+    var joined = empCodec.leftJoin(deptCodec);
     try {
       joined.columnList();
       fail("expected IllegalStateException on duplicate column names");
@@ -80,7 +80,7 @@ public class RowCodecNamedAliasTest {
 
   @Test
   public void aliasBeforeJoinResolvesDuplicatesAndRendersQualifiedSql() {
-    var joined = empCodec.aliased("e").leftJoinedNamed(deptCodec.aliased("d"));
+    var joined = empCodec.aliased("e").leftJoin(deptCodec.aliased("d"));
     assertEquals(
         List.of("e.id", "e.name", "e.department", "d.id", "d.name"), joined.columnNames());
     assertEquals(

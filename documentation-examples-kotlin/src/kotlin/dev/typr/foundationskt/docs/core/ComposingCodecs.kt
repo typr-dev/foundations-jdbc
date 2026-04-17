@@ -23,10 +23,10 @@ class ComposingCodecs {
     //start
     // Inner join — both sides always present
     val innerJoined: RowCodec<Pair<ProductRow, CategoryRow>> =
-        productCodec.joined(categoryCodec)
+        productCodec.join(categoryCodec)
 
     // Left join — right side is nullable
     val leftJoined: RowCodec<Pair<ProductRow, CategoryRow?>> =
-        productCodec.leftJoined(categoryCodec)
+        productCodec.leftJoin(categoryCodec)
     //stop
 }

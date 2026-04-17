@@ -10,17 +10,17 @@ import _root_.scala.jdk.OptionConverters.*
   */
 class RowCodec[Row](val underlying: dev.typr.foundations.RowCodec[Row]) {
 
-  def joined[Row2](other: RowCodec[Row2]): RowCodec[(Row, Row2)] =
-    new RowCodec(underlying.joined(other.underlying).to(Bijections.andToTuple[Row, Row2]))
+  def join[Row2](other: RowCodec[Row2]): RowCodec[(Row, Row2)] =
+    new RowCodec(underlying.join(other.underlying).to(Bijections.andToTuple[Row, Row2]))
 
-  def leftJoined[Row2](other: RowCodec[Row2]): RowCodec[(Row, Option[Row2])] =
-    new RowCodec(underlying.leftJoined(other.underlying).to(Bijections.leftJoinToTuple[Row, Row2]))
+  def leftJoin[Row2](other: RowCodec[Row2]): RowCodec[(Row, Option[Row2])] =
+    new RowCodec(underlying.leftJoin(other.underlying).to(Bijections.leftJoinToTuple[Row, Row2]))
 
-  def rightJoined[Row2](other: RowCodec[Row2]): RowCodec[(Option[Row], Row2)] =
-    new RowCodec(underlying.rightJoined(other.underlying).to(Bijections.rightJoinToTuple[Row, Row2]))
+  def rightJoin[Row2](other: RowCodec[Row2]): RowCodec[(Option[Row], Row2)] =
+    new RowCodec(underlying.rightJoin(other.underlying).to(Bijections.rightJoinToTuple[Row, Row2]))
 
-  def fullJoined[Row2](other: RowCodec[Row2]): RowCodec[(Option[Row], Option[Row2])] =
-    new RowCodec(underlying.fullJoined(other.underlying).to(Bijections.fullJoinToTuple[Row, Row2]))
+  def fullJoin[Row2](other: RowCodec[Row2]): RowCodec[(Option[Row], Option[Row2])] =
+    new RowCodec(underlying.fullJoin(other.underlying).to(Bijections.fullJoinToTuple[Row, Row2]))
 
   /** Parse all rows from a ResultSet. Returns Scala List instead of java.util.List.
     */
@@ -76,17 +76,27 @@ class RowCodecNamed[Row](override val underlying: dev.typr.foundations.RowCodecN
     * Apply before a join to keep `columnList` unambiguous:
     *
     * {{{
-    * empCodec.aliased("e").leftJoinedNamed(deptCodec.aliased("d"))
+    * empCodec.aliased("e").leftJoin(deptCodec.aliased("d"))
     * }}}
     */
   def aliased(alias: String): RowCodecNamed[Row] =
     new RowCodecNamed(underlying.aliased(alias))
 
+  /** Inner join that preserves column names. Returns a RowCodecNamed. */
   def join[Row2](other: RowCodecNamed[Row2]): RowCodecNamed[(Row, Row2)] =
     new RowCodecNamed(underlying.join(other.underlying).to(Bijections.andToTuple[Row, Row2]))
 
-  def leftJoinedNamed[Row2](other: RowCodecNamed[Row2]): RowCodecNamed[(Row, Option[Row2])] =
-    new RowCodecNamed(underlying.leftJoinedNamed(other.underlying).to(Bijections.leftJoinToTuple[Row, Row2]))
+  /** Left join that preserves column names. Right-side columns are wrapped in .opt(). */
+  def leftJoin[Row2](other: RowCodecNamed[Row2]): RowCodecNamed[(Row, Option[Row2])] =
+    new RowCodecNamed(underlying.leftJoin(other.underlying).to(Bijections.leftJoinToTuple[Row, Row2]))
+
+  /** Right join that preserves column names. Left-side columns are wrapped in .opt(). */
+  def rightJoin[Row2](other: RowCodecNamed[Row2]): RowCodecNamed[(Option[Row], Row2)] =
+    new RowCodecNamed(underlying.rightJoin(other.underlying).to(Bijections.rightJoinToTuple[Row, Row2]))
+
+  /** Full outer join that preserves column names. Both sides are wrapped in .opt(). */
+  def fullJoin[Row2](other: RowCodecNamed[Row2]): RowCodecNamed[(Option[Row], Option[Row2])] =
+    new RowCodecNamed(underlying.fullJoin(other.underlying).to(Bijections.fullJoinToTuple[Row, Row2]))
 
   def to[Row2](forward: Row => Row2, backward: Row2 => Row): RowCodecNamed[Row2] =
     new RowCodecNamed(underlying.to(dev.typr.foundations.Bijection.of[Row, Row2](r => forward(r), r2 => backward(r2))))

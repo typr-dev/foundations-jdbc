@@ -26,6 +26,6 @@ class ProductRowCodec {
 
     // Compose codecs for joins
     val joined: RowCodec<Pair<Product, Category?>> =
-        productCodec.leftJoined(categoryRowCodec)
+        productCodec.leftJoin(categoryRowCodec)
     //stop
 }

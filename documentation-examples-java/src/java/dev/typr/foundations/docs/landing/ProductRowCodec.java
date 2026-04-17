@@ -31,6 +31,6 @@ public class ProductRowCodec {
 
   // Compose codecs for joins
   static RowCodec<Tuple.Tuple2<Product, Optional<Category>>> joined =
-      productCodec.leftJoined(categoryRowCodec);
+      productCodec.leftJoin(categoryRowCodec);
   // stop
 }

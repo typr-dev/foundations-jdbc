@@ -26,5 +26,5 @@ object ProductRowCodec:
 
   // Compose codecs for joins
   val joined: RowCodec[(Product, Option[Category])] =
-    productCodec.leftJoined(categoryRowCodec)
+    productCodec.leftJoin(categoryRowCodec)
   // stop

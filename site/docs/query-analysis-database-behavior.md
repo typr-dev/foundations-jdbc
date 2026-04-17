@@ -83,7 +83,7 @@ FROM parent p LEFT JOIN child c ON p.id = c.parent_id
 
 This means the analyzer **will not catch** a missing `.opt()` on the outer side of a join in PostgreSQL. Your code will compile and pass analysis, but fail at runtime with a `NullPointerException` if the join doesn't match.
 
-**Workaround:** When using outer joins with PostgreSQL, always use the joined codec APIs (`.leftJoined()`, `.rightJoined()`, `.fullJoined()`) which produce `Optional`-wrapped types regardless of what the database reports.
+**Workaround:** When using outer joins with PostgreSQL, always use the joined codec APIs (`.leftJoin()`, `.rightJoin()`, `.fullJoin()`) which produce `Optional`-wrapped types regardless of what the database reports.
 
 ### Irrelevant (DuckDB)
 
