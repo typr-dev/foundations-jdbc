@@ -53,7 +53,6 @@ class AnalyzableScannerMethodTest {
   void skipsStaticNonAnalyzable() {
     var results = AnalyzableScanner.scanDetailed("dev.typr.foundations.fixtures.methods");
     var names = fieldNames(results);
-    assertFalse(names.contains("staticMethod"), "should not find instance-scan static method");
     assertFalse(names.contains("notAnalyzable"), "should not find non-analyzable method");
   }
 
@@ -64,6 +63,22 @@ class AnalyzableScannerMethodTest {
     assertTrue(
         names.contains("staticField"),
         "should discover `static final Operation` fields on Java classes with a no-arg ctor");
+  }
+
+  @Test
+  void findsStaticAnalyzableMethods() {
+    // Static methods on a normally-instantiable class (no-arg ctor, instance path picks it up)
+    // used to be silently dropped — the instance path rejects static members and the static
+    // path only ran when instantiation failed. Fixed: the static-methods sweep runs after the
+    // instance sweep on every Java class.
+    var results = AnalyzableScanner.scanDetailed("dev.typr.foundations.fixtures.methods");
+    var names = fieldNames(results);
+    assertTrue(
+        names.contains("staticMethod"),
+        "should discover no-arg static Operation methods on Java classes with a no-arg ctor");
+    assertTrue(
+        names.contains("staticMethodWithArgs"),
+        "should discover parameterized static Operation methods (scanner dummy-constructs args)");
   }
 
   // --- Dummy arg construction (unit tests) ---

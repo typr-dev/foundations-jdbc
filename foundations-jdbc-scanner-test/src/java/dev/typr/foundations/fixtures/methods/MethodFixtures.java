@@ -34,6 +34,10 @@ public class MethodFixtures {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }
 
+  public static Operation<List<Integer>> staticMethodWithArgs(int limit, String name) {
+    return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
+  }
+
   public String notAnalyzable() {
     return "hello";
   }

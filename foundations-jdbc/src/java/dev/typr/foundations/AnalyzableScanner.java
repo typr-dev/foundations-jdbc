@@ -104,14 +104,22 @@ public final class AnalyzableScanner {
           List.of(),
           errors,
           result);
-      // Java classes also emit `static final Operation` FIELDS. collectAnalyzables skips
-      // statics for non-Scala-object classes, so we also sweep static fields here. Static
-      // methods on instance-scan classes stay skipped — they're picked up on the static-only
-      // path. Skip for Scala objects (`$`-suffixed — statics land via collectAnalyzables'
-      // isScalaObject branch) and Kotlin objects (vals are private-static fields PLUS a
-      // public instance getter; the getter path already covers them).
-      if (!clazz.getName().endsWith("$") && !isKotlinObject(clazz)) {
-        collectStaticFieldAnalyzables(clazz, result);
+      // After the instance sweep, also scan statics on the same class: `static final
+      // Operation<…>` fields AND `static Operation<…> …()` methods. Instance-path helpers
+      // skip both (isAnalyzableMethod rejects static; collectAnalyzables skips static fields),
+      // so without this sweep, static members on a normally-instantiable class are invisible
+      // to scan().
+      //
+      // Exclusions:
+      //   - Scala `$` classes — already handled via MODULE$ instance scan; their statics are
+      //     just forwarders to the same members, double-counting would result.
+      //   - Scala 3 `object X` facade classes (non-$ companion to the Scala object) — scanning
+      //     their static method forwarders would double-count against the MODULE$ instance
+      //     scan that already covered the vals/defs.
+      //   - Kotlin objects — vals are private static fields PLUS a public instance getter; the
+      //     getter path already covers them.
+      if (!clazz.getName().endsWith("$") && !isKotlinObject(clazz) && !isScalaObject(clazz)) {
+        collectStaticAnalyzables(clazz, result);
       }
     }
 
@@ -295,6 +303,23 @@ public final class AnalyzableScanner {
   private static void collectStaticAnalyzables(Class<?> clazz, List<Result> result) {
     var fieldNames = collectStaticFieldAnalyzables(clazz, result);
     collectStaticMethodAnalyzables(clazz, fieldNames, result);
+  }
+
+  /**
+   * Heuristic: a Scala {@code object X} in package {@code p} compiles to both {@code p.X} (a
+   * facade class with static forwarders) and {@code p.X$} (the actual singleton, with a
+   * {@code public static final X$ MODULE$} field). When we're scanning the facade {@code p.X},
+   * we want to skip the static-method sweep because the MODULE$ instance scan on {@code p.X$}
+   * already covers every val/def via the Scala singleton instance.
+   */
+  private static boolean isScalaObject(Class<?> clazz) {
+    try {
+      var companion = Class.forName(clazz.getName() + "$");
+      var f = companion.getDeclaredField("MODULE$");
+      return Modifier.isStatic(f.getModifiers()) && f.getType() == companion;
+    } catch (ClassNotFoundException | NoSuchFieldException ignored) {
+      return false;
+    }
   }
 
   /**
