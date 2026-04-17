@@ -1412,4 +1412,104 @@ public class QueryAnalysisTest {
   public void testNormalizeVendorTypeName_trimWhitespace() {
     assertEquals("integer", QueryAnalysis.normalizeVendorTypeName("  INTEGER  "));
   }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Composite (STRUCT) structural matching — DuckDbTypenameParser end-to-end
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  record Person(String name, Integer age) {}
+
+  static final DuckDbType<Person> personType =
+      DuckDbTypes.compositeOf(
+          "person",
+          RowCodec.<Person>namedBuilder()
+              .field("name", DuckDbTypes.varchar, Person::name)
+              .field("age", DuckDbTypes.integer, Person::age)
+              .build(Person::new));
+
+  @Test
+  public void testStructAnalysis_matchingFields() {
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute("CREATE TEMP TABLE t (p STRUCT(name VARCHAR, age INTEGER))");
+          RowCodec<Person> parser = RowCodec.of(personType);
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT p FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertTrue(
+              "expected structural match, got:\n" + analysis.report(), analysis.succeeded());
+          return null;
+        });
+  }
+
+  @Test
+  public void testStructAnalysis_wrongFieldName() {
+    // Declared STRUCT field is "age" but the DB column has "years". The parser-based path
+    // catches this — string-normalize alone would not (both normalize to "struct").
+    record PersonWrong(String name, Integer years) {}
+    DuckDbType<PersonWrong> wrongType =
+        DuckDbTypes.compositeOf(
+            "person_wrong",
+            RowCodec.<PersonWrong>namedBuilder()
+                .field("name", DuckDbTypes.varchar, PersonWrong::name)
+                .field("years", DuckDbTypes.integer, PersonWrong::years)
+                .build(PersonWrong::new));
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute("CREATE TEMP TABLE t (p STRUCT(name VARCHAR, age INTEGER))");
+          RowCodec<PersonWrong> parser = RowCodec.of(wrongType);
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT p FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertFalse(
+              "expected struct-field mismatch to fail analysis, got:\n" + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
+
+  @Test
+  public void testStructAnalysis_wrongFieldType() {
+    // Declared STRUCT field "age" is INTEGER but DB column has BIGINT.
+    record PersonBig(String name, Long age) {}
+    DuckDbType<PersonBig> bigType =
+        DuckDbTypes.compositeOf(
+            "person_big",
+            RowCodec.<PersonBig>namedBuilder()
+                .field("name", DuckDbTypes.varchar, PersonBig::name)
+                .field("age", DuckDbTypes.bigint, PersonBig::age)
+                .build(PersonBig::new));
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute("CREATE TEMP TABLE t (p STRUCT(name VARCHAR, age INTEGER))");
+          RowCodec<PersonBig> parser = RowCodec.of(bigType);
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT p FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertFalse(
+              "expected struct-field-type mismatch to fail analysis, got:\n" + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
+
+  @Test
+  public void testStructAnalysis_listOfStructMatches() {
+    withConnection(
+        conn -> {
+          conn.createStatement()
+              .execute("CREATE TEMP TABLE t (ps STRUCT(name VARCHAR, age INTEGER)[])");
+          RowCodec<List<Person>> parser = RowCodec.of(personType.list());
+          var analysis =
+              QueryAnalyzer.analyze(Fragment.of("SELECT ps FROM t").query(parser.all()), conn)
+                  .getFirst();
+          assertTrue(
+              "expected structural match on struct[], got:\n" + analysis.report(),
+              analysis.succeeded());
+          return null;
+        });
+  }
 }

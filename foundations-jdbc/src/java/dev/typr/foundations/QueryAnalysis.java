@@ -216,28 +216,43 @@ public record QueryAnalysis(
     AnalysisOptions opts = declared.analysisOptions();
     if (opts.unchecked()) return;
 
-    String metaName = normalizeVendorTypeName(returned.vendorTypeName());
+    // For DuckDB composites, the normalize path below strips everything after the first '('
+    // — so every STRUCT / MAP / UNION always normalizes to "struct"/"map"/"union" and passes
+    // the string check regardless of field names or types. Run the structural parser first so
+    // field-level mismatches get caught.
+    String vendorText = returned.vendorTypeName();
+    if (declared.typename() instanceof DuckDbTypename<?> declaredTn
+        && vendorText != null
+        && (vendorText.contains("STRUCT(")
+            || vendorText.contains("MAP(")
+            || vendorText.contains("UNION("))) {
+      try {
+        DuckDbTypename<Object> parsed = DuckDbTypenameParser.parse(vendorText);
+        if (duckDbTypenamesMatch(declaredTn, parsed)) {
+          checkColumnNullability(declared, returned, errors, nullabilityReliable, opts);
+          return;
+        }
+        errors.add(
+            new AlignmentError.ColumnTypeMismatch(
+                pos,
+                returned.displayName(),
+                declared,
+                returned,
+                Set.of(declared.typename().sqlType().toLowerCase()),
+                "The declared composite type does not match the returned vendor type \""
+                    + vendorText
+                    + "\""));
+        checkColumnNullability(declared, returned, errors, nullabilityReliable, opts);
+        return;
+      } catch (RuntimeException parseFail) {
+        // fall through to string-based path
+      }
+    }
+
+    String metaName = normalizeVendorTypeName(vendorText);
     if (!metaName.isEmpty() && !"unknown".equals(metaName)) {
       Set<String> ours = normalizeVendorTypeNames(declared.vendorTypeNames());
       if (!ours.isEmpty() && !ours.contains(metaName)) {
-        // For DuckDB composites, ResultSetMetaData returns the fully-expanded STRUCT(...) —
-        // which never matches our sqlType() verbatim if field names were quoted or whitespace
-        // differs. Parse both sides into the DuckDbTypename tree and compare structurally.
-        if (declared.typename() instanceof DuckDbTypename<?> declaredTn
-            && returned.vendorTypeName() != null
-            && (returned.vendorTypeName().contains("STRUCT(")
-                || returned.vendorTypeName().contains("MAP(")
-                || returned.vendorTypeName().contains("UNION("))) {
-          try {
-            DuckDbTypename<Object> parsed =
-                DuckDbTypenameParser.parse(returned.vendorTypeName());
-            if (duckDbTypenamesMatch(declaredTn, parsed)) {
-              return; // structural match — no error
-            }
-          } catch (RuntimeException parseFail) {
-            // fall through to string-mismatch error below
-          }
-        }
         errors.add(
             new AlignmentError.ColumnTypeMismatch(
                 pos,
@@ -249,13 +264,21 @@ public record QueryAnalysis(
       }
     }
 
-    // Check nullability
+    checkColumnNullability(declared, returned, errors, nullabilityReliable, opts);
+  }
+
+  private void checkColumnNullability(
+      DbType<?> declared,
+      JdbcMeta.ColumnMeta returned,
+      List<AlignmentError> errors,
+      boolean nullabilityReliable,
+      AnalysisOptions opts) {
     if (!opts.nullableOk()
         && nullabilityReliable
         && returned.isNullabilityKnown()
         && returned.nullable() == ResultSetMetaData.columnNullable
         && !declared.isNullable()) {
-      errors.add(new AlignmentError.NullabilityMismatch(pos, returned.displayName(), declared));
+      errors.add(new AlignmentError.NullabilityMismatch(returned.position(), returned.displayName(), declared));
     }
   }
 
@@ -299,13 +322,30 @@ public record QueryAnalysis(
       return true;
     }
     if (a instanceof DuckDbTypename.Base<?> ba && b instanceof DuckDbTypename.Base<?> bb) {
-      // Normalize vendor names (e.g. declared "TEXT" aliased to "VARCHAR", default DECIMAL
-      // precision). Fall back to string equality of sqlType for the common path.
-      String aNorm = normalizeVendorTypeName(ba.sqlType());
-      String bNorm = normalizeVendorTypeName(bb.sqlType());
-      return aNorm.equals(bNorm);
+      return duckDbCanonicalBase(ba.sqlType()).equals(duckDbCanonicalBase(bb.sqlType()));
     }
     return false;
+  }
+
+  /**
+   * Canonicalize a DuckDB base type name so aliases that resolve to the same storage form match
+   * structurally. Mirrors the aliases set up in {@link DuckDbTypes} (e.g. {@code text},
+   * {@code string}, {@code bpchar}, {@code char} all resolve to {@code varchar}).
+   */
+  private static String duckDbCanonicalBase(String sqlType) {
+    String head = normalizeVendorTypeName(sqlType);
+    return switch (head) {
+      case "text", "string", "char_", "bpchar", "char" -> "varchar";
+      case "float", "float4", "real" -> "float";
+      case "float8", "double" -> "double";
+      case "int", "int4" -> "integer";
+      case "int2" -> "smallint";
+      case "int8" -> "bigint";
+      case "int1" -> "tinyint";
+      case "bool" -> "boolean";
+      case "numeric" -> "decimal";
+      default -> head;
+    };
   }
 
   static Set<String> normalizeVendorTypeNames(Set<String> names) {
