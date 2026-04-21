@@ -24,17 +24,17 @@ This means foundations-jdbc's API works identically across Java, Kotlin, and Sca
 
 ```java
 // Java — same API, same code, regardless of thread type
-myQuery.transact(tx);
+myQuery.transactRead(tx);
 ```
 
 ```kotlin
 // Kotlin — no suspend, no withContext, no dispatcher
-myQuery.transact(tx)
+myQuery.transactRead(tx)
 ```
 
 ```scala
 // Scala — no IO.blocking, no effect wrapper
-myQuery.transact(tx)
+myQuery.transactRead(tx)
 ```
 
 ## Framework Configuration
@@ -56,7 +56,7 @@ All request threads become virtual. No code changes needed — your existing `Tr
 @RunOnVirtualThread
 @GET
 public List<Product> findAll() {
-    return selectAll.transact(tx);
+    return selectAll.transactRead(tx);
 }
 ```
 
@@ -67,7 +67,7 @@ embeddedServer(Netty, port = 8080) {
     routing {
         get("/products") {
             // Already on a virtual thread if using virtual thread executor
-            call.respond(selectAll.transact(tx))
+            call.respond(selectAll.transactRead(tx))
         }
     }
 }.start()
@@ -79,7 +79,7 @@ embeddedServer(Netty, port = 8080) {
 var executor = Executors.newVirtualThreadPerTaskExecutor();
 
 executor.submit(() -> {
-    var result = myQuery.transact(tx);
+    var result = myQuery.transactRead(tx);
     // ...
 });
 ```
@@ -91,7 +91,7 @@ If you use an effect system, foundations-jdbc's blocking API integrates through 
 ### Cats Effect (3.6+)
 
 ```scala
-IO.blocking { myQuery.transact(tx) }
+IO.blocking { myQuery.transactRead(tx) }
 ```
 
 Cats Effect 3.6+ detects when `IO.blocking` is already running on a virtual thread and blocks in-place — no thread shift, no overhead.
@@ -99,7 +99,7 @@ Cats Effect 3.6+ detects when `IO.blocking` is already running on a virtual thre
 ### ZIO (2.1+)
 
 ```scala
-ZIO.attemptBlocking { myQuery.transact(tx) }
+ZIO.attemptBlocking { myQuery.transactRead(tx) }
 ```
 
 Enable the virtual thread executor for blocking operations:
@@ -119,7 +119,7 @@ val vtDispatcher = Executors.newVirtualThreadPerTaskExecutor()
     .asCoroutineDispatcher()
 
 withContext(vtDispatcher) {
-    myQuery.transact(tx)
+    myQuery.transactRead(tx)
 }
 ```
 

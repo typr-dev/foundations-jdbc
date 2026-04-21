@@ -123,6 +123,14 @@ public interface Bijection<T, TT> {
     return from -> of(to, from);
   }
 
+  static <T> Bijection<java.util.Optional<T>, T> optionalToNullable() {
+    return of(opt -> opt.orElse(null), java.util.Optional::ofNullable);
+  }
+
+  static <A, B> Bijection<Tuple.Tuple2<A, B>, Tuple.Tuple2<A, B>> tuple2Identity() {
+    return identity();
+  }
+
   // Common bijections
   static Bijection<Boolean, String> booleanToString() {
     return of(b -> b ? "true" : "false", "true"::equalsIgnoreCase);

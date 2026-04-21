@@ -7,7 +7,7 @@ import dev.typr.foundationskt.data.*
 class Interpolatedsql {
     //start
     object debugListener : QueryListener {
-        override fun beforeQuery(sql: String, name: String?) {}
+        override fun beforeQuery(sql: String, name: java.util.Optional<String>) {}
         override fun afterQuery(event: QueryEvent) {
             println(event.interpolatedSql())
         }

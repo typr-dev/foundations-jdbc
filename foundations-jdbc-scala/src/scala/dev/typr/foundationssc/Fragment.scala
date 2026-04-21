@@ -22,35 +22,35 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
 
   def ++(other: Fragment): Fragment = append(other)
 
-  def query[T](parser: ResultSetParser[T]): Operation.Query[T] =
-    Operation.Query(this, parser)
+  def query[T](parser: ResultSetParser[T]): OperationRead.Query[T] =
+    OperationRead.Query(this, parser)
 
-  def queryExactlyOne[T](tpe: DbType[T]): Operation.Query[T] =
+  def queryExactlyOne[T](tpe: DbType[T]): OperationRead.Query[T] =
     query(RowCodec.of(tpe).exactlyOne())
 
-  def queryExactlyOne[T](codec: RowCodec[T]): Operation.Query[T] =
+  def queryExactlyOne[T](codec: RowCodec[T]): OperationRead.Query[T] =
     query(codec.exactlyOne())
 
-  def queryAll[T](tpe: DbType[T]): Operation.Query[List[T]] =
+  def queryAll[T](tpe: DbType[T]): OperationRead.Query[List[T]] =
     query(RowCodec.of(tpe).all())
 
-  def queryAll[T](codec: RowCodec[T]): Operation.Query[List[T]] =
+  def queryAll[T](codec: RowCodec[T]): OperationRead.Query[List[T]] =
     query(codec.all())
 
-  def queryMaxOne[T](tpe: DbType[T]): Operation.Query[Option[T]] =
+  def queryMaxOne[T](tpe: DbType[T]): OperationRead.Query[Option[T]] =
     query(RowCodec.of(tpe).maxOne())
 
-  def queryMaxOne[T](codec: RowCodec[T]): Operation.Query[Option[T]] =
+  def queryMaxOne[T](codec: RowCodec[T]): OperationRead.Query[Option[T]] =
     query(codec.maxOne())
 
   def update(): Operation.Update =
-    Operation.Update(this)
+    new Operation.Update(new dev.typr.foundations.Operation.Update(underlying))
 
   def execute(): Operation.Execute =
     new Operation.Execute(new dev.typr.foundations.Operation.Execute(underlying))
 
   def updateReturning[T](parser: ResultSetParser[T]): Operation.UpdateReturning[T] =
-    Operation.UpdateReturning(this, parser)
+    new Operation.UpdateReturning(new dev.typr.foundations.Operation.UpdateReturning(underlying, parser.underlying))
 
   def updateReturningGeneratedKeys[T](columnNames: Array[String], parser: ResultSetParser[T]): Operation.UpdateReturningGeneratedKeys[T] =
     new Operation.UpdateReturningGeneratedKeys(underlying.updateReturningGeneratedKeys(columnNames, parser.underlying))
@@ -70,11 +70,11 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
     new Operation.UpdateReturningEach(underlying.updateReturningEach(parser.underlying, rows.asJava))
   }
 
-  def streamingQuery[T](codec: RowCodec[T], fetchSize: Int): Operation.Streaming[T] =
-    new Operation.Streaming(underlying.streamingQuery(codec.underlying, fetchSize))
+  def streamingQuery[T](codec: RowCodec[T], fetchSize: Int): OperationRead.Streaming[T] =
+    new OperationRead.Streaming(underlying.streamingQuery(codec.underlying, fetchSize))
 
-  def streamingQuery[T](tpe: DbType[T], fetchSize: Int): Operation.Streaming[T] =
-    new Operation.Streaming(underlying.streamingQuery(tpe.underlying, fetchSize))
+  def streamingQuery[T](tpe: DbType[T], fetchSize: Int): OperationRead.Streaming[T] =
+    new OperationRead.Streaming(underlying.streamingQuery(tpe.underlying, fetchSize))
 
   def append(s: String): Fragment = new Fragment(underlying.append(s))
 
@@ -98,25 +98,38 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
     new ParamBuilders.ParamBuilder1(underlying.param(dbType.underlying))
 
   def optionally(inner: Fragment): ParamBuilders.ParamBuilder1[Boolean] =
-    new ParamBuilders.ParamBuilder1(underlying.optionally(inner.underlying))
+    new ParamBuilders.ParamBuilder1(
+      ParamBuilders.createOps1(
+        underlying.optionally(inner.underlying),
+        dev.typr.foundations.Bijection.of[java.lang.Boolean, Boolean]((jb: java.lang.Boolean) => jb: Boolean, (sb: Boolean) => sb: java.lang.Boolean)
+      )
+    )
 
   def optionally[A](builder: ParamBuilders.ParamBuilder1[A]): ParamBuilders.ParamBuilder1[Option[A]] =
-    new ParamBuilders.ParamBuilder1(
-      underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder1[A]]),
-      List(Some(OptionallyTransforms.optionToOptional))
-    )
+    val innerFrag = builder.ops.buildDone()
+    val newFrag = underlying.append(dev.typr.foundations.Fragment.Optionally(innerFrag, dev.typr.foundations.Fragment.countParams(innerFrag)))
+    val newJava = new dev.typr.foundations.ParamBuilders.ParamBuilder1[java.util.Optional[A]](newFrag, null)
+    new ParamBuilders.ParamBuilder1(ParamBuilders.createOps1(newJava, Bijections.optionalToOption[A]))
 
   def optionally[A, B](builder: ParamBuilders.ParamBuilder2[A, B]): ParamBuilders.ParamBuilder1[Option[(A, B)]] =
-    new ParamBuilders.ParamBuilder1(
-      underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder2[A, B]]),
-      List(Some(OptionallyTransforms.optionTupleToOptionalTuple2))
+    val innerFrag = builder.ops.buildDone()
+    val newFrag = underlying.append(dev.typr.foundations.Fragment.Optionally(innerFrag, dev.typr.foundations.Fragment.countParams(innerFrag)))
+    val newJava = new dev.typr.foundations.ParamBuilders.ParamBuilder1[java.util.Optional[dev.typr.foundations.Tuple.Tuple2[A, B]]](newFrag, null)
+    val bij = dev.typr.foundations.Bijection.of[java.util.Optional[dev.typr.foundations.Tuple.Tuple2[A, B]], Option[(A, B)]](
+      (opt: java.util.Optional[dev.typr.foundations.Tuple.Tuple2[A, B]]) => if opt.isPresent then Some((opt.get._1(), opt.get._2())) else None,
+      (v: Option[(A, B)]) => { import _root_.scala.jdk.OptionConverters.*; v.map(t => dev.typr.foundations.Tuple.of(t._1, t._2)).toJava }
     )
+    new ParamBuilders.ParamBuilder1(ParamBuilders.createOps1(newJava, bij))
 
   def optionally[A, B, C](builder: ParamBuilders.ParamBuilder3[A, B, C]): ParamBuilders.ParamBuilder1[Option[(A, B, C)]] =
-    new ParamBuilders.ParamBuilder1(
-      underlying.optionally(builder.underlying.asInstanceOf[dev.typr.foundations.ParamBuilders.ParamBuilder3[A, B, C]]),
-      List(Some(OptionallyTransforms.optionTupleToOptionalTuple3))
+    val innerFrag = builder.ops.buildDone()
+    val newFrag = underlying.append(dev.typr.foundations.Fragment.Optionally(innerFrag, dev.typr.foundations.Fragment.countParams(innerFrag)))
+    val newJava = new dev.typr.foundations.ParamBuilders.ParamBuilder1[java.util.Optional[dev.typr.foundations.Tuple.Tuple3[A, B, C]]](newFrag, null)
+    val bij = dev.typr.foundations.Bijection.of[java.util.Optional[dev.typr.foundations.Tuple.Tuple3[A, B, C]], Option[(A, B, C)]](
+      (opt: java.util.Optional[dev.typr.foundations.Tuple.Tuple3[A, B, C]]) => if opt.isPresent then Some((opt.get._1(), opt.get._2(), opt.get._3())) else None,
+      (v: Option[(A, B, C)]) => { import _root_.scala.jdk.OptionConverters.*; v.map(t => dev.typr.foundations.Tuple.of(t._1, t._2, t._3)).toJava }
     )
+    new ParamBuilders.ParamBuilder1(ParamBuilders.createOps1(newJava, bij))
 }
 
 object Fragment {
@@ -266,33 +279,18 @@ object Fragment {
       dev.typr.foundations.Fragment.insertIntoGeneratedKeys(table, codec.underlying, Array(generatedColumn), parser.underlying, generatedColumn)
     )
 
+  def upsert[Row](table: String, codec: RowCodecNamed[Row], conflictColumns: String*): RowTemplate.Update[Row] =
+    new RowTemplate.Update(dev.typr.foundations.Fragment.upsert(table, codec.underlying, conflictColumns*))
+
+  def upsertReturning[Row](table: String, codec: RowCodecNamed[Row], conflictColumns: String*): RowTemplate.Query[Row, Row] =
+    new RowTemplate.Query(dev.typr.foundations.Fragment.upsertReturning(table, codec.underlying, conflictColumns*))
+
+  def insertIgnore[Row](table: String, codec: RowCodecNamed[Row], conflictColumns: String*): RowTemplate.Update[Row] =
+    new RowTemplate.Update(dev.typr.foundations.Fragment.insertIgnore(table, codec.underlying, conflictColumns*))
+
   def row[Row](codec: RowCodecNamed[Row], row: Row, except: String*): Fragment =
     new Fragment(dev.typr.foundations.Fragment.EMPTY.row(codec.underlying, row, except*))
 
   def valuesList[A](dbType: DbType[A], values: Iterable[A]): Fragment =
     new Fragment(dev.typr.foundations.Fragment.valuesList(dbType.underlying, values.asJava))
 }
-
-private[foundationssc] object OptionallyTransforms:
-  val optionToOptional: AnyRef => AnyRef = { v =>
-    import _root_.scala.jdk.OptionConverters.*
-    v.asInstanceOf[Option[?]].toJava
-  }
-
-  val optionTupleToOptionalTuple2: AnyRef => AnyRef = { v =>
-    import _root_.scala.jdk.OptionConverters.*
-    v.asInstanceOf[Option[(?, ?)]]
-      .map { case (a, b) =>
-        dev.typr.foundations.Tuple.of(a.asInstanceOf[AnyRef], b.asInstanceOf[AnyRef])
-      }
-      .toJava
-  }
-
-  val optionTupleToOptionalTuple3: AnyRef => AnyRef = { v =>
-    import _root_.scala.jdk.OptionConverters.*
-    v.asInstanceOf[Option[(?, ?, ?)]]
-      .map { case (a, b, c) =>
-        dev.typr.foundations.Tuple.of(a.asInstanceOf[AnyRef], b.asInstanceOf[AnyRef], c.asInstanceOf[AnyRef])
-      }
-      .toJava
-  }

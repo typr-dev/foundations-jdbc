@@ -2,6 +2,16 @@ package dev.typr.foundationskt
 
 import dev.typr.foundations.SqlFunction
 import dev.typr.foundations.MariaTypes as JavaMariaTypes
+import dev.typr.foundationskt.data.Json
+import dev.typr.foundationskt.data.Uint1
+import dev.typr.foundationskt.data.Uint2
+import dev.typr.foundationskt.data.Uint4
+import dev.typr.foundationskt.data.Uint8
+import dev.typr.foundationskt.data.Unknown
+import dev.typr.foundationskt.data.Inet4
+import dev.typr.foundationskt.data.Inet6
+import dev.typr.foundationskt.data.MariaSet
+import dev.typr.foundationskt.data.Vector
 
 /**
  * Kotlin-friendly MariaType instances that use Kotlin types instead of Java boxed types.
@@ -35,11 +45,11 @@ open class MariaTypes {
     // Forward all other types directly from Java (including BigDecimal which stays as java.math.BigDecimal in Kotlin)
     open val decimal: MariaType<java.math.BigDecimal> = MariaType(JavaMariaTypes.decimal)
     open val numeric: MariaType<java.math.BigDecimal> = MariaType(JavaMariaTypes.numeric)
-    open val tinyintUnsigned: MariaType<dev.typr.foundations.data.Uint1> = MariaType(JavaMariaTypes.tinyintUnsigned)
-    open val smallintUnsigned: MariaType<dev.typr.foundations.data.Uint2> = MariaType(JavaMariaTypes.smallintUnsigned)
-    open val mediumintUnsigned: MariaType<dev.typr.foundations.data.Uint4> = MariaType(JavaMariaTypes.mediumintUnsigned)
-    open val intUnsigned: MariaType<dev.typr.foundations.data.Uint4> = MariaType(JavaMariaTypes.intUnsigned)
-    open val bigintUnsigned: MariaType<dev.typr.foundations.data.Uint8> = MariaType(JavaMariaTypes.bigintUnsigned)
+    open val tinyintUnsigned: MariaType<Uint1> = MariaType(JavaMariaTypes.tinyintUnsigned)
+    open val smallintUnsigned: MariaType<Uint2> = MariaType(JavaMariaTypes.smallintUnsigned)
+    open val mediumintUnsigned: MariaType<Uint4> = MariaType(JavaMariaTypes.mediumintUnsigned)
+    open val intUnsigned: MariaType<Uint4> = MariaType(JavaMariaTypes.intUnsigned)
+    open val bigintUnsigned: MariaType<Uint8> = MariaType(JavaMariaTypes.bigintUnsigned)
     open val bit: MariaType<ByteArray> = MariaType(JavaMariaTypes.bit)
     open val char_: MariaType<String> = MariaType(JavaMariaTypes.char_)
 
@@ -61,10 +71,10 @@ open class MariaTypes {
     open val datetime: MariaType<java.time.LocalDateTime> = MariaType(JavaMariaTypes.datetime)
     open val timestamp: MariaType<java.time.LocalDateTime> = MariaType(JavaMariaTypes.timestamp)
     open val year: MariaType<java.time.Year> = MariaType(JavaMariaTypes.year)
-    open val set: MariaType<dev.typr.foundations.data.maria.MariaSet> = MariaType(JavaMariaTypes.set)
-    open val json: MariaType<dev.typr.foundations.data.Json> = MariaType(JavaMariaTypes.json)
-    open val inet4: MariaType<dev.typr.foundations.data.maria.Inet4> = MariaType(JavaMariaTypes.inet4)
-    open val inet6: MariaType<dev.typr.foundations.data.maria.Inet6> = MariaType(JavaMariaTypes.inet6)
+    open val set: MariaType<MariaSet> = MariaType(JavaMariaTypes.set)
+    open val json: MariaType<Json> = MariaType(JavaMariaTypes.json)
+    open val inet4: MariaType<Inet4> = MariaType(JavaMariaTypes.inet4)
+    open val inet6: MariaType<Inet6> = MariaType(JavaMariaTypes.inet6)
     open val uuid: MariaType<java.util.UUID> = MariaType(JavaMariaTypes.uuid)
     open val geometry: MariaType<org.mariadb.jdbc.type.Geometry> = MariaType(JavaMariaTypes.geometry)
     open val point: MariaType<org.mariadb.jdbc.type.Point> = MariaType(JavaMariaTypes.point)
@@ -74,7 +84,7 @@ open class MariaTypes {
     open val multilinestring: MariaType<org.mariadb.jdbc.type.MultiLineString> = MariaType(JavaMariaTypes.multilinestring)
     open val multipolygon: MariaType<org.mariadb.jdbc.type.MultiPolygon> = MariaType(JavaMariaTypes.multipolygon)
     open val geometrycollection: MariaType<org.mariadb.jdbc.type.GeometryCollection> = MariaType(JavaMariaTypes.geometrycollection)
-    open val unknown: MariaType<dev.typr.foundations.data.Unknown> = MariaType(JavaMariaTypes.unknown)
+    open val unknown: MariaType<Unknown> = MariaType(JavaMariaTypes.unknown)
 
     // Parameterized methods
     open fun decimalOf(precision: Int, scale: Int): MariaType<java.math.BigDecimal> = MariaType(JavaMariaTypes.decimalOf(precision, scale))
@@ -93,7 +103,7 @@ open class MariaTypes {
 
     open fun timestampOf(fsp: Int): MariaType<java.time.LocalDateTime> = MariaType(JavaMariaTypes.timestampOf(fsp))
 
-    open fun vector(dimension: Int): MariaType<dev.typr.foundations.data.Vector> = MariaType(JavaMariaTypes.vector(dimension))
+    open fun vector(dimension: Int): MariaType<Vector> = MariaType(JavaMariaTypes.vector(dimension))
 
     /**
      * Create a MariaType for an ENUM column, deriving the SQL literal from the enum class.

@@ -202,7 +202,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       val retType = outType(o)
       s"""    /** Procedure definition with $i input(s) and $o output(s). */
          |    interface Def${i}_${o}$tpDecl : dev.typr.foundations.RoutineDef {
-         |        fun call(${callParams(i)}): ProcedureOp<$retType>
+         |        fun call(${callParams(i)}): Operation<$retType>
          |        override fun procedure(): dev.typr.foundations.Procedure<*>
          |    }""".stripMargin
     }
@@ -249,11 +249,11 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       val lambdaParams = if (i == 0) " ->" else s" ${callParams(i)} ->"
 
       val procOpExpr = o match {
-        case 0 => s"ProcedureOp.mapped(javaProc.call($javaCallArgs)) { _ -> }"
-        case 1 => s"ProcedureOp.direct(javaProc.call($javaCallArgs))"
-        case 2 => s"ProcedureOp.mapped(javaProc.call($javaCallArgs)) { t -> Pair(t._1(), t._2()) }"
-        case 3 => s"ProcedureOp.mapped(javaProc.call($javaCallArgs)) { t -> Triple(t._1(), t._2(), t._3()) }"
-        case _ => s"ProcedureOp.direct(javaProc.call($javaCallArgs))"
+        case 0 => s"Operation.JavaWrapped(javaProc.call($javaCallArgs)).map { }"
+        case 1 => s"Operation.JavaWrapped(javaProc.call($javaCallArgs))"
+        case 2 => s"Operation.JavaWrapped(javaProc.call($javaCallArgs)).map { t -> Pair(t._1(), t._2()) }"
+        case 3 => s"Operation.JavaWrapped(javaProc.call($javaCallArgs)).map { t -> Triple(t._1(), t._2(), t._3()) }"
+        case _ => s"Operation.JavaWrapped(javaProc.call($javaCallArgs))"
       }
 
       s"""    class Builder_${i}_${o}$tpDecl internal constructor(
@@ -263,7 +263,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
          |        fun build(): Def${i}_${o}$tpDecl {
          |            val javaProc = underlying.build()
          |            return object : Def${i}_${o}$tpDecl {
-         |                override fun call($callParamsStr): ProcedureOp<$retType> =
+         |                override fun call($callParamsStr): Operation<$retType> =
          |                    $procOpExpr
          |                override fun procedure(): dev.typr.foundations.Procedure<*> = javaProc.procedure()
          |            }
@@ -322,7 +322,7 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       val tp = iParams(i) ::: List("R")
       s"""    /** Function definition with $i input(s). */
          |    interface Def$i${typeParamDecl(tp)} : dev.typr.foundations.RoutineDef {
-         |        fun call(${callParams(i)}): ProcedureOp<R>
+         |        fun call(${callParams(i)}): Operation<R>
          |        override fun procedure(): dev.typr.foundations.Procedure<*>
          |    }""".stripMargin
     }
@@ -350,8 +350,8 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
          |        fun build(): Def$i$tpDecl {
          |            val javaFn = underlying.build()
          |            return object : Def$i$tpDecl {
-         |                override fun call($callParamsStr): ProcedureOp<R> =
-         |                    ProcedureOp.direct(javaFn.call($javaCallArgs))
+         |                override fun call($callParamsStr): Operation<R> =
+         |                    Operation.JavaWrapped(javaFn.call($javaCallArgs))
          |                override fun procedure(): dev.typr.foundations.Procedure<*> = javaFn.procedure()
          |            }
          |        }
@@ -454,149 +454,107 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       val range = 0.until(n)
       val tparams = range.map(i => s"P$i").mkString(", ")
       val allTparams = s"$tparams, Out"
-      val stars = range.map(_ => "*").mkString(", ")
-      val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-      val transformLines = range
-        .map { i =>
-          s"            val v$i: Any? = _transforms[$i]?.invoke(p$i) ?: p$i"
-        }
-        .mkString("\n")
-      val valuesList = range.map(i => s"v$i").mkString(", ")
-
+      val inType = inputType(n)
       val fromFnParams = range.map(i => s"f$i: (T) -> P$i").mkString(", ")
       val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
+      val fromTupleArgs = if (n == 1) fromApplyArgs else s"dev.typr.foundations.Tuple.of($fromApplyArgs)"
 
-      if (n == 1) {
-        s"""|    class Query1<P0, Out>(
-            |        private val _java: dev.typr.foundations.Template.Query1<*, Out>,
-            |        private val _transforms: List<((Any?) -> Any?)?>
-            |    ) : Template<P0, Out>() {
-            |        constructor(j: dev.typr.foundations.Template.Query1<*, Out>) : this(j, listOf(null))
+      val onMultiArg =
+        if (n == 1) ""
+        else {
+          val onParams = range.map(i => s"p$i: P$i").mkString(", ")
+          val onArgs = range.map(i => s"p$i").mkString(", ")
+          s"""
             |
-            |        override val underlying: dev.typr.foundations.Template<*, *> get() = _java
-            |
-            |        override fun on(input: P0): Operation.Query<Out> {
-            |            val v0: Any? = _transforms[0]?.invoke(input) ?: input
-            |            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
-            |                _java.fragment(), listOf(v0).iterator())
-            |            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
-            |        }
-            |
-            |        fun <T> from($fromFnParams): From<T, Out> =
-            |            From(dev.typr.foundations.Template.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
-            |    }""".stripMargin
-      } else {
-        val inType = inputType(n)
-        val tupleDecompose = range.map(i => s"input._${i + 1}()").mkString(", ")
+            |        fun on($onParams): OperationRead<Out> =
+            |            on(dev.typr.foundations.Tuple.of($onArgs))"""
+        }
 
-        s"""|    class Query$n<$allTparams>(
-            |        private val _java: dev.typr.foundations.Template.Query$n<$stars, Out>,
-            |        private val _transforms: List<((Any?) -> Any?)?>
-            |    ) : Template<$inType, Out>() {
-            |        constructor(j: dev.typr.foundations.Template.Query$n<$stars, Out>) : this(j, List($n) { null })
-            |
-            |        override val underlying: dev.typr.foundations.Template<*, *> get() = _java
-            |
-            |        override fun on(input: $inType): Operation.Query<Out> =
-            |            on($tupleDecompose)
-            |
-            |        fun on($onParams): Operation.Query<Out> {
-            |$transformLines
-            |            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
-            |                _java.fragment(), listOf($valuesList).iterator())
-            |            return Operation.Query(dev.typr.foundations.Operation.Query(resolved, _java.parser()))
-            |        }
-            |
-            |        fun <T> from($fromFnParams): From<T, Out> =
-            |            From(dev.typr.foundations.Template.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
-            |    }""".stripMargin
-      }
+      s"""|    class Query$n<$allTparams>(
+          |        override val underlying: dev.typr.foundations.TemplateRead<$inType, Out>
+          |    ) : TemplateRead<$inType, Out> {
+          |        override fun on(input: $inType): OperationRead<Out> =
+          |            OperationRead.JavaWrapped(underlying.on(input))$onMultiArg
+          |
+          |        fun <T> from($fromFnParams): TemplateRead.FromRead<T, Out> =
+          |            TemplateRead.FromRead(dev.typr.foundations.TemplateRead.FromRead(underlying) { t -> underlying.on($fromTupleArgs) })
+          |    }""".stripMargin
     }
 
     val updateClasses = 1.to(maxArity).map { n =>
       val range = 0.until(n)
       val tparams = range.map(i => s"P$i").mkString(", ")
-      val stars = range.map(_ => "*").mkString(", ")
-      val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-      val transformLines = range
-        .map { i =>
-          s"            val v$i: Any? = _transforms[$i]?.invoke(p$i) ?: p$i"
-        }
-        .mkString("\n")
-      val valuesList = range.map(i => s"v$i").mkString(", ")
-
+      val inType = inputType(n)
       val fromFnParams = range.map(i => s"f$i: (T) -> P$i").mkString(", ")
       val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
+      val fromTupleArgs = if (n == 1) fromApplyArgs else s"dev.typr.foundations.Tuple.of($fromApplyArgs)"
 
-      if (n == 1) {
-        s"""|    class Update1<P0>(
-            |        private val _java: dev.typr.foundations.Template.Update1<*>,
-            |        private val _transforms: List<((Any?) -> Any?)?>
-            |    ) : Template<P0, Int>() {
-            |        constructor(j: dev.typr.foundations.Template.Update1<*>) : this(j, listOf(null))
+      val onMultiArg =
+        if (n == 1) ""
+        else {
+          val onParams = range.map(i => s"p$i: P$i").mkString(", ")
+          val onArgs = range.map(i => s"p$i").mkString(", ")
+          s"""
             |
-            |        override val underlying: dev.typr.foundations.Template<*, *> get() = _java
-            |
-            |        override fun on(input: P0): Operation.Update {
-            |            val v0: Any? = _transforms[0]?.invoke(input) ?: input
-            |            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
-            |                _java.fragment(), listOf(v0).iterator())
-            |            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
-            |        }
-            |
-            |        fun <T> from($fromFnParams): From<T, Int> =
-            |            From(dev.typr.foundations.Template.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
-            |    }""".stripMargin
-      } else {
-        val inType = inputType(n)
-        val tupleDecompose = range.map(i => s"input._${i + 1}()").mkString(", ")
+            |        fun on($onParams): Operation<Int> =
+            |            on(dev.typr.foundations.Tuple.of($onArgs))"""
+        }
 
-        s"""|    class Update$n<$tparams>(
-            |        private val _java: dev.typr.foundations.Template.Update$n<$stars>,
-            |        private val _transforms: List<((Any?) -> Any?)?>
-            |    ) : Template<$inType, Int>() {
-            |        constructor(j: dev.typr.foundations.Template.Update$n<$stars>) : this(j, List($n) { null })
-            |
-            |        override val underlying: dev.typr.foundations.Template<*, *> get() = _java
-            |
-            |        override fun on(input: $inType): Operation.Update =
-            |            on($tupleDecompose)
-            |
-            |        fun on($onParams): Operation.Update {
-            |$transformLines
-            |            val resolved = dev.typr.foundations.OptionallyResolver.resolve(
-            |                _java.fragment(), listOf($valuesList).iterator())
-            |            return Operation.Update(dev.typr.foundations.Operation.Update(resolved))
-            |        }
-            |
-            |        fun <T> from($fromFnParams): From<T, Int> =
-            |            From(dev.typr.foundations.Template.From(_java) { t -> on($fromApplyArgs).underlying }) { t -> on($fromApplyArgs) }
-            |    }""".stripMargin
-      }
+      s"""|    class Update$n<$tparams>(
+          |        override val underlying: dev.typr.foundations.Template<$inType, Int>
+          |    ) : Template<$inType, Int> {
+          |        override fun on(input: $inType): Operation<Int> =
+          |            Operation.JavaWrapped(underlying.on(input))$onMultiArg
+          |
+          |        fun <T> from($fromFnParams): Template.From<T, Int> =
+          |            Template.From(dev.typr.foundations.Template.From(underlying) { t -> underlying.on($fromTupleArgs) })
+          |    }""".stripMargin
     }
 
     s"""|@file:Suppress("unused")
         |package dev.typr.foundationskt
         |
-        |sealed class Template<In, Out> : Analyzable {
-        |    abstract val underlying: dev.typr.foundations.Template<*, *>
+        |interface Template<In, Out> : Analyzable {
+        |    val underlying: dev.typr.foundations.Template<In, Out>
         |
         |    override val analyzable: dev.typr.foundations.Analyzable get() = underlying
         |
-        |    abstract fun on(input: In): Operation<Out>
+        |    fun on(input: In): Operation<Out> = Operation.JavaWrapped(underlying.on(input))
         |
         |    fun fragment(): Fragment = Fragment(underlying.fragment())
-        |
-        |${queryClasses.mkString("\n\n")}
         |
         |${updateClasses.mkString("\n\n")}
         |
         |    class From<T, Out>(
-        |        private val _java: dev.typr.foundations.Template.From<T, *>,
-        |        private val _resolver: (T) -> Operation<Out>
-        |    ) : Template<T, Out>() {
-        |        override val underlying: dev.typr.foundations.Template<*, *> get() = _java
-        |        override fun on(input: T): Operation<Out> = _resolver(input)
+        |        override val underlying: dev.typr.foundations.Template.From<T, Out>
+        |    ) : Template<T, Out> {
+        |        override fun on(input: T): Operation<Out> = Operation.JavaWrapped(underlying.on(input))
+        |    }
+        |
+        |    class Contramapped<In2, In, Out>(
+        |        override val underlying: dev.typr.foundations.Template.Contramapped<In2, In, Out>
+        |    ) : Template<In2, Out> {
+        |        override fun on(input: In2): Operation<Out> = Operation.JavaWrapped(underlying.on(input))
+        |    }
+        |}
+        |
+        |interface TemplateRead<In, Out> : Template<In, Out> {
+        |    override val underlying: dev.typr.foundations.TemplateRead<In, Out>
+        |
+        |    override fun on(input: In): OperationRead<Out> = OperationRead.JavaWrapped(underlying.on(input))
+        |
+        |${queryClasses.mkString("\n\n")}
+        |
+        |    class FromRead<T, Out>(
+        |        override val underlying: dev.typr.foundations.TemplateRead.FromRead<T, Out>
+        |    ) : TemplateRead<T, Out> {
+        |        override fun on(input: T): OperationRead<Out> = OperationRead.JavaWrapped(underlying.on(input))
+        |    }
+        |
+        |    class ContramappedRead<In2, In, Out>(
+        |        override val underlying: dev.typr.foundations.TemplateRead.ContramappedRead<In2, In, Out>
+        |    ) : TemplateRead<In2, Out> {
+        |        override fun on(input: In2): OperationRead<Out> = OperationRead.JavaWrapped(underlying.on(input))
         |    }
         |}
         |""".stripMargin
@@ -609,56 +567,127 @@ object SourcegenKotlin extends BleepCodegenScript("SourcegenKotlin") {
       val range = 0.until(n)
       val tparams = range.map(i => s"P$i").mkString(", ")
       val stars = range.map(_ => "*").mkString(", ")
+      val jtparams = range.map(i => s"JP$i").mkString(", ")
+      val allImplTparams = range.map(i => s"P$i, JP$i").mkString(", ")
+      val implOutJava = range.map(i => s"P$i, out Any?").mkString(", ")
+      val bijections = range.map(i => s"b$i").mkString(", ")
+      val bijectionFields = range.map(i => s"val b$i: dev.typr.foundations.Bijection<JP$i, P$i>").mkString(", ")
+      val bijectionParams = range.map(i => s"b$i: dev.typr.foundations.Bijection<JP$i, P$i>").mkString(", ")
+      val identityBijections = range.map(_ => "dev.typr.foundations.Bijection.identity()").mkString(", ")
+
+      // contramapInput function: converts Kotlin input to Java input
+      val contramapBody = if (n == 1) {
+        "b0.from(input)"
+      } else {
+        val components = range.map(i => s"b$i.from(input._${i + 1}())")
+        s"dev.typr.foundations.Tuple.of(${components.mkString(", ")})"
+      }
+      val kotlinInputType = if (n == 1) "P0" else s"dev.typr.foundations.Tuple.Tuple$n<$tparams>"
 
       val nextParamMethod = if (n < maxArity) {
         s"""|
             |        fun <P$n> param(type: DbType<P$n>): ParamBuilder${n + 1}<$tparams, P$n> =
-            |            ParamBuilder${n + 1}(underlying.param(type.underlying), transforms + listOf(null))""".stripMargin
+            |            _queryFn.param(type.underlying, dev.typr.foundations.Bijection.identity<P$n>())""".stripMargin
       } else ""
 
       val optionallyMethods = if (n < maxArity) {
         s"""|
             |        fun optionally(inner: Fragment): ParamBuilder${n + 1}<$tparams, Boolean> =
-            |            ParamBuilder${n + 1}(underlying.optionally(inner.underlying), transforms + listOf(null))
+            |            _queryFn.optionallyFragment(inner.underlying)
             |
-            |        @Suppress("UNCHECKED_CAST")
             |        fun <A : Any> optionally(builder: ParamBuilder1<A>): ParamBuilder${n + 1}<$tparams, A?> =
-            |            ParamBuilder${n + 1}(
-            |                underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder1<A>),
-            |                transforms + listOf(OptionallyTransforms.nullableToOptional))
+            |            _queryFn.optionally1(builder._queryFn)
             |
-            |        @Suppress("UNCHECKED_CAST")
             |        fun <A : Any, B : Any> optionally(builder: ParamBuilder2<A, B>): ParamBuilder${n + 1}<$tparams, Pair<A, B>?> =
-            |            ParamBuilder${n + 1}(
-            |                underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder2<A, B>),
-            |                transforms + listOf(OptionallyTransforms.pairToOptionalTuple2))
+            |            _queryFn.optionally2(builder._queryFn)
             |
-            |        @Suppress("UNCHECKED_CAST")
             |        fun <A : Any, B : Any, C : Any> optionally(builder: ParamBuilder3<A, B, C>): ParamBuilder${n + 1}<$tparams, Triple<A, B, C>?> =
-            |            ParamBuilder${n + 1}(
-            |                underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
-            |                transforms + listOf(OptionallyTransforms.tripleToOptionalTuple3))""".stripMargin
+            |            _queryFn.optionally3(builder._queryFn)""".stripMargin
       } else ""
 
-      s"""|    class ParamBuilder$n<$tparams>(
-          |        internal val underlying: dev.typr.foundations.ParamBuilders.ParamBuilder$n<$stars>,
-          |        internal val transforms: List<((Any?) -> Any?)?>
+      // The key insight: ParamBuilderOps captures the typed Java builder and bijections
+      // in its closure. All methods work on typed values. The user-facing class delegates.
+      s"""|    internal interface ParamBuilder${n}Ops<$tparams> {
+          |        fun appendStr(s: String): ParamBuilder$n<$tparams>
+          |        fun <T> addValue(type: dev.typr.foundations.DbType<T>, value: T): ParamBuilder$n<$tparams>
+          |        fun appendFrag(other: dev.typr.foundations.Fragment): ParamBuilder$n<$tparams>
+          |${
+           if (n < maxArity)
+             s"""        fun <P$n> param(type: dev.typr.foundations.DbType<P$n>, bij: dev.typr.foundations.Bijection<P$n, P$n>): ParamBuilder${n + 1}<$tparams, P$n>
+          |        fun optionallyFragment(inner: dev.typr.foundations.Fragment): ParamBuilder${n + 1}<$tparams, Boolean>
+          |        fun <A : Any> optionally1(inner: ParamBuilder1Ops<A>): ParamBuilder${n + 1}<$tparams, A?>
+          |        fun <A : Any, B : Any> optionally2(inner: ParamBuilder2Ops<A, B>): ParamBuilder${n + 1}<$tparams, Pair<A, B>?>
+          |        fun <A : Any, B : Any, C : Any> optionally3(inner: ParamBuilder3Ops<A, B, C>): ParamBuilder${n + 1}<$tparams, Triple<A, B, C>?>"""
+           else ""
+         }
+          |        fun <Out> buildQuery(parser: dev.typr.foundations.ResultSetParser<Out>): TemplateRead.Query$n<$tparams, Out>
+          |        fun buildUpdate(): Template.Update$n<$tparams>
+          |        fun buildDone(): dev.typr.foundations.Fragment
+          |        val javaUnderlying: dev.typr.foundations.ParamBuilders.ParamBuilder$n<$stars>
+          |    }
+          |
+          |    internal fun <$allImplTparams> createOps$n(
+          |        underlying: dev.typr.foundations.ParamBuilders.ParamBuilder$n<$jtparams>,
+          |        $bijectionParams
+          |    ): ParamBuilder${n}Ops<$tparams> = object : ParamBuilder${n}Ops<$tparams> {
+          |        override fun appendStr(s: String) = ParamBuilder$n(createOps$n(underlying.append(s), $bijections))
+          |        override fun <T> addValue(type: dev.typr.foundations.DbType<T>, value: T) = ParamBuilder$n(createOps$n(underlying.value(type, value), $bijections))
+          |        override fun appendFrag(other: dev.typr.foundations.Fragment) = ParamBuilder$n(createOps$n(underlying.append(other), $bijections))
+          |${
+           if (n < maxArity) s"""        override fun <P$n> param(type: dev.typr.foundations.DbType<P$n>, bij: dev.typr.foundations.Bijection<P$n, P$n>) =
+          |            ParamBuilder${n + 1}(createOps${n + 1}(underlying.param(type), $bijections, bij))
+          |        override fun optionallyFragment(inner: dev.typr.foundations.Fragment) =
+          |            ParamBuilder${n + 1}(createOps${n + 1}(underlying.optionally(inner), $bijections, dev.typr.foundations.Bijection.identity()))
+          |        override fun <A : Any> optionally1(inner: ParamBuilder1Ops<A>): ParamBuilder${n + 1}<$tparams, A?> {
+          |            val innerFrag = inner.buildDone()
+          |            val newFrag = underlying.fragment().append(dev.typr.foundations.Fragment.Optionally(innerFrag, dev.typr.foundations.Fragment.countParams(innerFrag)))
+          |            val newJava = dev.typr.foundations.ParamBuilders.ParamBuilder${n + 1}<$jtparams, java.util.Optional<A>>(newFrag, ${range
+               .map(i => s"underlying.p${i}Type()")
+               .mkString(", ")}, null)
+          |            return ParamBuilder${n + 1}(createOps${n + 1}(newJava, $bijections, dev.typr.foundations.Bijection.optionalToNullable<A>()))
+          |        }
+          |        override fun <A : Any, B : Any> optionally2(inner: ParamBuilder2Ops<A, B>): ParamBuilder${n + 1}<$tparams, Pair<A, B>?> {
+          |            val innerFrag = inner.buildDone()
+          |            val newFrag = underlying.fragment().append(dev.typr.foundations.Fragment.Optionally(innerFrag, dev.typr.foundations.Fragment.countParams(innerFrag)))
+          |            val newJava = dev.typr.foundations.ParamBuilders.ParamBuilder${n + 1}<$jtparams, java.util.Optional<dev.typr.foundations.Tuple.Tuple2<A, B>>>(newFrag, ${range
+               .map(i => s"underlying.p${i}Type()")
+               .mkString(", ")}, null)
+          |            return ParamBuilder${n + 1}(createOps${n + 1}(newJava, $bijections,
+          |                dev.typr.foundations.Bijection.optionalToNullable<dev.typr.foundations.Tuple.Tuple2<A, B>>().andThen(Bijection.andToPair())))
+          |        }
+          |        override fun <A : Any, B : Any, C : Any> optionally3(inner: ParamBuilder3Ops<A, B, C>): ParamBuilder${n + 1}<$tparams, Triple<A, B, C>?> {
+          |            val innerFrag = inner.buildDone()
+          |            val newFrag = underlying.fragment().append(dev.typr.foundations.Fragment.Optionally(innerFrag, dev.typr.foundations.Fragment.countParams(innerFrag)))
+          |            val newJava = dev.typr.foundations.ParamBuilders.ParamBuilder${n + 1}<$jtparams, java.util.Optional<dev.typr.foundations.Tuple.Tuple3<A, B, C>>>(newFrag, ${range
+               .map(i => s"underlying.p${i}Type()")
+               .mkString(", ")}, null)
+          |            return ParamBuilder${n + 1}(createOps${n + 1}(newJava, $bijections,
+          |                dev.typr.foundations.Bijection.optionalToNullable<dev.typr.foundations.Tuple.Tuple3<A, B, C>>().andThen(
+          |                    dev.typr.foundations.Bijection.of({ t: dev.typr.foundations.Tuple.Tuple3<A, B, C> -> Triple(t._1(), t._2(), t._3()) },
+          |                        { t: Triple<A, B, C> -> dev.typr.foundations.Tuple.of(t.first, t.second, t.third) }))))
+          |        }"""
+           else ""
+         }
+          |        override fun <Out> buildQuery(parser: dev.typr.foundations.ResultSetParser<Out>): TemplateRead.Query$n<$tparams, Out> =
+          |            TemplateRead.Query$n(underlying.query(parser).contramapInput { input: $kotlinInputType -> $contramapBody })
+          |        override fun buildUpdate(): Template.Update$n<$tparams> =
+          |            Template.Update$n(underlying.update().contramapInput { input: $kotlinInputType -> $contramapBody })
+          |        override fun buildDone() = underlying.done()
+          |        override val javaUnderlying: dev.typr.foundations.ParamBuilders.ParamBuilder$n<$stars> get() = underlying
+          |    }
+          |
+          |    class ParamBuilder$n<$tparams> internal constructor(
+          |        internal val _queryFn: ParamBuilder${n}Ops<$tparams>
           |    ) {
-          |        constructor(u: dev.typr.foundations.ParamBuilders.ParamBuilder$n<$stars>) : this(u, List($n) { null })
+          |        constructor(j: dev.typr.foundations.ParamBuilders.ParamBuilder$n<$tparams>) : this(createOps$n(j, $identityBijections))
           |
-          |        fun append(s: String): ParamBuilder$n<$tparams> = ParamBuilder$n(underlying.append(s), transforms)
-          |
-          |        fun <T> value(type: DbType<T>, value: T): ParamBuilder$n<$tparams> = ParamBuilder$n(underlying.value(type.underlying, value), transforms)
-          |
-          |        fun append(fragment: Fragment): ParamBuilder$n<$tparams> = ParamBuilder$n(underlying.append(fragment.underlying), transforms)
+          |        fun append(s: String): ParamBuilder$n<$tparams> = _queryFn.appendStr(s)
+          |        fun <T> value(type: DbType<T>, value: T): ParamBuilder$n<$tparams> = _queryFn.addValue(type.underlying, value)
+          |        fun append(fragment: Fragment): ParamBuilder$n<$tparams> = _queryFn.appendFrag(fragment.underlying)
           |$nextParamMethod$optionallyMethods
-          |        fun <Out> query(parser: ResultSetParser<Out>): Template.Query$n<$tparams, Out> =
-          |            Template.Query$n(underlying.query(parser.underlying), transforms)
-          |
-          |        fun update(): Template.Update$n<$tparams> =
-          |            Template.Update$n(underlying.update(), transforms)
-          |
-          |        fun done(): Fragment = Fragment(underlying.done())
+          |        fun <Out> query(parser: ResultSetParser<Out>): TemplateRead.Query$n<$tparams, Out> = _queryFn.buildQuery(parser.underlying)
+          |        fun update(): Template.Update$n<$tparams> = _queryFn.buildUpdate()
+          |        fun done(): Fragment = Fragment(_queryFn.buildDone())
           |    }""".stripMargin
     }
 

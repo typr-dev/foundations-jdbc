@@ -9,12 +9,8 @@ class Bijection<A, B>(val underlying: dev.typr.foundations.Bijection<A, B>) {
     fun inverse(): Bijection<B, A> = Bijection(underlying.inverse())
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         internal fun <T> optionalToNullable(): dev.typr.foundations.Bijection<Optional<T>, T?> =
-            dev.typr.foundations.Bijection.of(
-                { opt: Optional<T> -> opt.orElse(null) },
-                { nullable: T? -> Optional.ofNullable(nullable) as Optional<T> }
-            )
+            dev.typr.foundations.Bijection.optionalToNullable<T>()
 
         internal fun <A, B> andToPair(): dev.typr.foundations.Bijection<Tuple.Tuple2<A, B>, Pair<A, B>> =
             dev.typr.foundations.Bijection.of(

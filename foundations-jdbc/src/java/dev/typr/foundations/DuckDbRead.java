@@ -107,7 +107,7 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
                       : NonNullable.this.fromJdbcValue(obj);
               return f.apply(base);
             } catch (SQLException e) {
-              throw new DatabaseException(e);
+              throw new DatabaseException.Jdbc(e);
             }
           });
     }
@@ -173,7 +173,7 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
       try {
         return f.apply(underlying.fromJdbcValue(obj));
       } catch (java.sql.SQLException e) {
-        throw new DatabaseException(e);
+        throw new DatabaseException.Jdbc(e);
       }
     }
 
@@ -221,7 +221,7 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
               try {
                 return blob.getBytes(1, (int) blob.length());
               } catch (java.sql.SQLException e) {
-                throw new DatabaseException(e);
+                throw new DatabaseException.Jdbc(e);
               }
             }
             throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to byte[]");
@@ -351,7 +351,7 @@ public sealed interface DuckDbRead<A> extends DbRead<A>
               try {
                 return blob.getBytes(1, (int) blob.length());
               } catch (java.sql.SQLException e) {
-                throw new DatabaseException(e);
+                throw new DatabaseException.Jdbc(e);
               }
             }
             throw new IllegalArgumentException("Cannot convert " + obj.getClass() + " to byte[]");

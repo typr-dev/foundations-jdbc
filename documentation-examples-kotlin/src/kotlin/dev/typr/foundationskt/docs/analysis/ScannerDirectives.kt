@@ -7,10 +7,10 @@ class ScannerDirectives {
     private lateinit var transactor: Transactor
 
     class ReportRepo {
-        fun generateReport(onProgress: Runnable): Operation<List<String>> =
+        fun generateReport(onProgress: Runnable): OperationRead<List<String>> =
             sql { "SELECT name FROM reports" }.queryAll(PgTypes.text)
 
-        fun allReports(): Operation<List<String>> =
+        fun allReports(): OperationRead<List<String>> =
             sql { "SELECT name FROM reports" }.queryAll(PgTypes.text)
     }
 

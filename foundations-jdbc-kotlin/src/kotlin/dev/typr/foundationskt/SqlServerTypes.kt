@@ -1,7 +1,7 @@
 package dev.typr.foundationskt
 
-import dev.typr.foundations.SqlFunction
 import dev.typr.foundations.SqlServerTypes as JavaSqlServerTypes
+import dev.typr.foundationskt.data.*
 
 /**
  * Kotlin-friendly SqlServerType instances that use Kotlin types instead of Java boxed types.
@@ -30,7 +30,7 @@ open class SqlServerTypes {
     open val bit: SqlServerType<Boolean> = SqlServerType(JavaSqlServerTypes.bit.transform(SqlFunction { it }, { it }))
 
     // Forward all other types directly from Java
-    open val tinyint: SqlServerType<dev.typr.foundations.data.Uint1> = SqlServerType(JavaSqlServerTypes.tinyint)
+    open val tinyint: SqlServerType<Uint1> = SqlServerType(JavaSqlServerTypes.tinyint)
     open val decimal: SqlServerType<java.math.BigDecimal> = SqlServerType(JavaSqlServerTypes.decimal)
     open val numeric: SqlServerType<java.math.BigDecimal> = SqlServerType(JavaSqlServerTypes.numeric)
     open val money: SqlServerType<java.math.BigDecimal> = SqlServerType(JavaSqlServerTypes.money)
@@ -57,16 +57,16 @@ open class SqlServerTypes {
     open val datetime2: SqlServerType<java.time.LocalDateTime> = SqlServerType(JavaSqlServerTypes.datetime2)
     open val datetimeoffset: SqlServerType<java.time.OffsetDateTime> = SqlServerType(JavaSqlServerTypes.datetimeoffset)
     open val uniqueidentifier: SqlServerType<java.util.UUID> = SqlServerType(JavaSqlServerTypes.uniqueidentifier)
-    open val xml: SqlServerType<dev.typr.foundations.data.Xml> = SqlServerType(JavaSqlServerTypes.xml)
-    open val json: SqlServerType<dev.typr.foundations.data.Json> = SqlServerType(JavaSqlServerTypes.json)
+    open val xml: SqlServerType<Xml> = SqlServerType(JavaSqlServerTypes.xml)
+    open val json: SqlServerType<Json> = SqlServerType(JavaSqlServerTypes.json)
     open val vector: SqlServerType<ByteArray> = SqlServerType(JavaSqlServerTypes.vector)
     open val rowversion: SqlServerType<ByteArray> = SqlServerType(JavaSqlServerTypes.rowversion)
     open val timestamp: SqlServerType<ByteArray> = SqlServerType(JavaSqlServerTypes.timestamp)
-    open val hierarchyid: SqlServerType<dev.typr.foundations.data.HierarchyId> = SqlServerType(JavaSqlServerTypes.hierarchyid)
+    open val hierarchyid: SqlServerType<HierarchyId> = SqlServerType(JavaSqlServerTypes.hierarchyid)
     open val sqlVariant: SqlServerType<Any> = SqlServerType(JavaSqlServerTypes.sqlVariant)
     open val geography: SqlServerType<com.microsoft.sqlserver.jdbc.Geography> = SqlServerType(JavaSqlServerTypes.geography)
     open val geometry: SqlServerType<com.microsoft.sqlserver.jdbc.Geometry> = SqlServerType(JavaSqlServerTypes.geometry)
-    open val unknown: SqlServerType<dev.typr.foundations.data.Unknown> = SqlServerType(JavaSqlServerTypes.unknown)
+    open val unknown: SqlServerType<Unknown> = SqlServerType(JavaSqlServerTypes.unknown)
 
     // Parameterized methods
     open fun decimalOf(precision: Int, scale: Int): SqlServerType<java.math.BigDecimal> = SqlServerType(JavaSqlServerTypes.decimalOf(precision, scale))

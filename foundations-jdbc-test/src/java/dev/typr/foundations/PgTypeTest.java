@@ -1,11 +1,11 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.connect.PgConfig;
 import dev.typr.foundations.data.*;
 import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.Vector;
+import dev.typr.foundations.internal.ArrParser;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -122,12 +122,7 @@ public class PgTypeTest {
    */
   static <A> PgTypeAndExample<List<List<A>>> nestedListEntry(PgTypeAndExample<A> elem) {
     return new PgTypeAndExample<>(
-            elem.type().array().array(),
-            List.of(List.of(elem.example())),
-            elem.hasIdentity(),
-            elem.streamingWorks(),
-            elem.compositeTextWorks())
-        .noCompositeText();
+        elem.type().array().array(), List.of(List.of(elem.example())), false, false, false);
   }
 
   /** Should we auto-generate list test entries for this scalar entry? */
@@ -421,8 +416,10 @@ public class PgTypeTest {
   }
 
   static <T> void withConnection(SqlFunction<Connection, T> f) {
-    Containers.postgresTransactor().execute(f);
+    Containers.postgresTransactor().transact(f);
   }
+
+  // ==================== JDBC Test ====================
 
   @Test
   public void test() {
@@ -431,11 +428,18 @@ public class PgTypeTest {
     System.out.println(ArrParser.parse(Arr.of(1, 2, 3, 4).encode(Object::toString)));
     System.out.println(ArrParser.parse("{{\"a\",\"b\"},{\"c\",\"d \\\",d\"}}"));
 
-    // Test JSON roundtrip (no DB connection needed) - parallel
+    // JSON roundtrip (in-memory + DB verification)
     System.out.println("\n=== JSON Roundtrip Tests (parallel) ===");
-    All.parallelStream().forEach(PgTypeTest::testJsonRoundtrip);
+    All.parallelStream()
+        .forEach(
+            t ->
+                withConnection(
+                    conn -> {
+                      testJsonRoundtrip(TestTransactor.fromConnection(conn.unwrap()), t);
+                      return null;
+                    }));
 
-    // Run all DB tests in parallel
+    // All DB tests via shared Transactor methods
     System.out.println("\n=== DB Roundtrip Tests (parallel) ===");
     var failures =
         All.parallelStream()
@@ -443,12 +447,13 @@ public class PgTypeTest {
                 t -> {
                   var errors = new ArrayList<String>();
 
-                  // Native type roundtrip test
+                  // Native roundtrip (batch insert + select)
                   try {
                     withConnection(
                         conn -> {
-                          conn.unwrap(PgConnection.class).setPrepareThreshold(0);
-                          testCase(conn, t);
+                          conn.unwrap().unwrap(PgConnection.class).setPrepareThreshold(0);
+                          var exec = TestTransactor.fromConnection(conn.unwrap());
+                          testNativeRoundtrip(exec, t);
                           return null;
                         });
                   } catch (Exception e) {
@@ -459,11 +464,30 @@ public class PgTypeTest {
                             + e.getMessage());
                   }
 
-                  // JSON DB roundtrip test
+                  // Streaming COPY roundtrip
+                  if (t.streamingWorks) {
+                    try {
+                      withConnection(
+                          conn -> {
+                            var exec = TestTransactor.fromConnection(conn.unwrap());
+                            testStreamingCopyRoundtrip(exec, t);
+                            return null;
+                          });
+                    } catch (Exception e) {
+                      errors.add(
+                          "Streaming test FAILED "
+                              + t.type.typename().sqlType()
+                              + ": "
+                              + e.getMessage());
+                    }
+                  }
+
+                  // JSON DB roundtrip
                   try {
                     withConnection(
                         conn -> {
-                          testJsonDbRoundtrip(conn, t);
+                          var exec = TestTransactor.fromConnection(conn.unwrap());
+                          testJsonDbRoundtrip(exec, t);
                           return null;
                         });
                   } catch (Exception e) {
@@ -492,7 +516,8 @@ public class PgTypeTest {
                   try {
                     withConnection(
                         conn -> {
-                          testCompositeDbRoundtrip(conn, t);
+                          var exec = TestTransactor.fromConnection(conn.unwrap());
+                          testCompositeDbRoundtrip(exec, t);
                           return null;
                         });
                     return java.util.stream.Stream.<String>empty();
@@ -506,11 +531,12 @@ public class PgTypeTest {
                 })
             .toList();
 
-    // Test comprehensive composite with all supported types
+    // Comprehensive composite test
     System.out.println("\n=== Comprehensive Composite Type Test ===");
     withConnection(
         conn -> {
-          testComprehensiveComposite(conn);
+          var exec = TestTransactor.fromConnection(conn.unwrap());
+          testComprehensiveComposite(exec);
           return null;
         });
 
@@ -530,7 +556,8 @@ public class PgTypeTest {
                   try {
                     withConnection(
                         conn -> {
-                          testCallRoundtrip(conn, t);
+                          var exec = TestTransactor.fromConnection(conn.unwrap());
+                          testFunctionCallRoundtrip(exec, t);
                           return null;
                         });
                   } catch (Exception e) {
@@ -567,8 +594,34 @@ public class PgTypeTest {
                 })
             .toList();
 
-    // Query analysis tests - deduplicated by SQL type, run in parallel
-    System.out.println("\n=== Query Analysis Tests (parallel) ===");
+    // Stored procedure roundtrip (via Procedure.buildFunction + Transactor)
+    System.out.println("\n=== Procedure Roundtrip Tests (parallel) ===");
+    var procFailures =
+        All.stream()
+            .collect(
+                java.util.stream.Collectors.toMap(
+                    t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+            .values()
+            .parallelStream()
+            .flatMap(
+                t -> {
+                  try {
+                    withConnection(
+                        conn -> {
+                          testProcedureCallRoundtrip(
+                              TestTransactor.fromConnection(conn.unwrap()), t);
+                          return null;
+                        });
+                    return java.util.stream.Stream.<String>empty();
+                  } catch (Exception e) {
+                    return java.util.stream.Stream.of(
+                        "Proc test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+                  }
+                })
+            .toList();
+
+    // Query analysis tests (JDBC-only: needs Connection for QueryAnalyzer)
+    System.out.println("\n=== Query Analysis Tests (JDBC-only, parallel) ===");
     var analysisFailures =
         All.stream()
             .collect(
@@ -597,6 +650,7 @@ public class PgTypeTest {
     allFailures.addAll(failures);
     allFailures.addAll(compositeFailures);
     allFailures.addAll(callFailures);
+    allFailures.addAll(procFailures);
     allFailures.addAll(analysisFailures);
 
     System.out.println("\n=====================================");
@@ -610,15 +664,129 @@ public class PgTypeTest {
     System.out.println("=====================================");
   }
 
-  // Test type wrapped in a composite, roundtripped through the database
-  static <A> void testCompositeDbRoundtrip(Connection conn, PgTypeAndExample<A> t)
-      throws SQLException {
-    // Skip types that don't support composite text encoding
-    if (!t.compositeTextWorks) {
-      return;
-    }
 
-    // Check if the type's PgCompositeText implementation works
+  static <A> java.util.stream.Stream<String> runTest(
+      PgTypeAndExample<A> t, String phase, Runnable test) {
+    try {
+      test.run();
+      return java.util.stream.Stream.empty();
+    } catch (Exception e) {
+      return java.util.stream.Stream.of(
+          phase + " FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+    }
+  }
+
+  // ==================== Shared Test Methods (Transactor) ====================
+
+  static <A> void testNativeRoundtrip(Transactor exec, PgTypeAndExample<A> t) {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("test");
+
+    exec.execute(Fragment.of("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")").execute());
+    try {
+      batchInsert(exec, t.type, tableName, t.example);
+
+      RowCodec<TestPair<A>> pairCodec =
+          RowCodec.<TestPair<A>>builder()
+              .field(t.type, TestPair::t0)
+              .field(t.type.opt(), TestPair::t1)
+              .build(TestPair::new);
+
+      Fragment selectFrag;
+      if (t.hasIdentity) {
+        selectFrag =
+            Fragment.of("SELECT v, null::" + sqlType + " FROM " + tableName + " WHERE v = ")
+                .append(Fragment.encode(t.type, t.example));
+      } else {
+        selectFrag = Fragment.of("SELECT v, null::" + sqlType + " FROM " + tableName);
+      }
+
+      List<TestPair<A>> rows = exec.execute(selectFrag.query(pairCodec.all()));
+      if (rows.isEmpty()) throw new RuntimeException("No rows returned");
+      assertEquals(rows.getFirst().t0(), t.example);
+      if (!rows.getFirst().t1().equals(Optional.empty())) {
+        throw new RuntimeException("Expected Optional.empty() for null column");
+      }
+    } finally {
+      exec.execute(Fragment.of("DROP TABLE IF EXISTS " + tableName).execute());
+    }
+  }
+
+  static <A> void testStreamingCopyRoundtrip(Transactor exec, PgTypeAndExample<A> t) {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("stream");
+
+    exec.execute(Fragment.of("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")").execute());
+    try {
+      Operation<Long> copyOp =
+          StreamingInsert.of(
+              "COPY " + tableName + "(v) FROM STDIN",
+              100,
+              List.of(t.example).iterator(),
+              t.type.pgText());
+      exec.execute(copyOp);
+
+      List<A> rows =
+          exec.execute(Fragment.of("SELECT v FROM " + tableName).query(RowCodec.of(t.type).all()));
+
+      if (rows.isEmpty()) throw new RuntimeException("No rows returned after COPY");
+      if (t.hasIdentity && !areEqual(rows.getFirst(), t.example)) {
+        throw new RuntimeException(
+            "Streaming COPY roundtrip failed: expected '"
+                + format(t.example)
+                + "' got '"
+                + format(rows.getFirst())
+                + "'");
+      }
+    } finally {
+      exec.execute(Fragment.of("DROP TABLE IF EXISTS " + tableName).execute());
+    }
+  }
+
+  static <A> void testJsonDbRoundtrip(Transactor exec, PgTypeAndExample<A> t) {
+    PgJson<A> jsonCodec = t.type.pgJson();
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("test_json_rt");
+
+    exec.execute(Fragment.of("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")").execute());
+    try {
+      exec.execute(
+          Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+              .append(Fragment.encode(t.type, t.example))
+              .append(Fragment.of(")"))
+              .update());
+
+      List<String> jsonResults =
+          exec.execute(
+              Fragment.of("SELECT to_json(v) FROM " + tableName)
+                  .query(RowCodec.of(PgTypes.text).all()));
+
+      if (jsonResults.isEmpty()) throw new RuntimeException("No JSON rows returned");
+
+      String jsonFromDb = jsonResults.getFirst();
+      JsonValue parsed = JsonValue.parse(jsonFromDb);
+      A decoded = jsonCodec.fromJson(parsed);
+
+      if (t.hasIdentity && !areEqual(decoded, t.example)) {
+        throw new RuntimeException(
+            "JSON DB roundtrip failed for "
+                + sqlType
+                + ": expected '"
+                + format(t.example)
+                + "' but got '"
+                + format(decoded)
+                + "'");
+      }
+    } finally {
+      exec.execute(Fragment.of("DROP TABLE IF EXISTS " + tableName).execute());
+    }
+  }
+
+  record SingleFieldWrapper<A>(A value) {}
+
+  static <A> void testCompositeDbRoundtrip(Transactor exec, PgTypeAndExample<A> t) {
+    if (!t.compositeTextWorks) return;
+
     try {
       t.type.pgCompositeText().encode(t.example);
     } catch (UnsupportedOperationException e) {
@@ -640,13 +808,12 @@ public class PgTypeTest {
                 .replace("[", "_")
                 .replace("]", "_");
 
-    // Create composite type with single field
-    try {
-      conn.createStatement().execute("DROP TYPE IF EXISTS " + compositeTypeName + " CASCADE");
-      conn.createStatement()
-          .execute("CREATE TYPE " + compositeTypeName + " AS (wrapped_value " + sqlType + ")");
+    exec.execute(Fragment.of("DROP TYPE IF EXISTS " + compositeTypeName + " CASCADE").execute());
+    exec.execute(
+        Fragment.of("CREATE TYPE " + compositeTypeName + " AS (wrapped_value " + sqlType + ")")
+            .execute());
 
-      // Build composite PgType for this wrapper
+    try {
       PgType<SingleFieldWrapper<A>> wrapperType =
           PgTypes.compositeOf(
               compositeTypeName,
@@ -655,51 +822,42 @@ public class PgTypeTest {
                   .build(SingleFieldWrapper::new));
       String tableName = "test_composite_rt_" + uniqueId;
 
-      // Create temp table
-      conn.createStatement()
-          .execute("CREATE TEMP TABLE " + tableName + " (v " + compositeTypeName + ")");
+      exec.execute(
+          Fragment.of("CREATE TEMP TABLE " + tableName + " (v " + compositeTypeName + ")")
+              .execute());
 
       try {
-        // Insert value
         SingleFieldWrapper<A> original = new SingleFieldWrapper<>(t.example);
-        var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
-        wrapperType.write().set(insert, 1, original);
-        insert.execute();
-        insert.close();
+        exec.execute(
+            Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+                .append(Fragment.encode(wrapperType, original))
+                .append(Fragment.of(")"))
+                .update());
 
-        // Select back
-        var select = conn.prepareStatement("SELECT v FROM " + tableName);
-        select.execute();
-        var rs = select.getResultSet();
+        List<SingleFieldWrapper<A>> rows =
+            exec.execute(
+                Fragment.of("SELECT v FROM " + tableName).query(RowCodec.of(wrapperType).all()));
 
-        if (!rs.next()) {
-          throw new RuntimeException("No rows returned");
-        }
+        if (rows.isEmpty()) throw new RuntimeException("No rows returned");
 
-        SingleFieldWrapper<A> decoded = wrapperType.read().read(rs, 1);
-        select.close();
-
-        if (t.hasIdentity && !areEqual(decoded.value, t.example)) {
+        if (t.hasIdentity && !areEqual(rows.getFirst().value, t.example)) {
           throw new RuntimeException(
               "Composite DB roundtrip failed for "
                   + sqlType
                   + ": expected '"
                   + format(t.example)
                   + "' but got '"
-                  + format(decoded.value)
+                  + format(rows.getFirst().value)
                   + "'");
         }
       } finally {
-        conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+        exec.execute(Fragment.of("DROP TABLE IF EXISTS " + tableName).execute());
       }
     } finally {
-      conn.createStatement().execute("DROP TYPE IF EXISTS " + compositeTypeName + " CASCADE");
+      exec.execute(Fragment.of("DROP TYPE IF EXISTS " + compositeTypeName + " CASCADE").execute());
     }
   }
 
-  record SingleFieldWrapper<A>(A value) {}
-
-  // Test a comprehensive composite type with all commonly-used field types
   record ComprehensiveComposite(
       String textField,
       Integer int4Field,
@@ -714,28 +872,29 @@ public class PgTypeTest {
       LocalTime timeField,
       LocalDateTime timestampField) {}
 
-  static void testComprehensiveComposite(Connection conn) throws SQLException {
+  static void testComprehensiveComposite(Transactor exec) {
     String typeName = "test_comprehensive_composite";
 
-    conn.createStatement().execute("DROP TYPE IF EXISTS " + typeName + " CASCADE");
-    conn.createStatement()
-        .execute(
-            "CREATE TYPE "
-                + typeName
-                + " AS ("
-                + "text_field TEXT, "
-                + "int4_field INT4, "
-                + "int8_field INT8, "
-                + "int2_field INT2, "
-                + "float8_field FLOAT8, "
-                + "float4_field FLOAT4, "
-                + "bool_field BOOL, "
-                + "numeric_field NUMERIC, "
-                + "uuid_field UUID, "
-                + "date_field DATE, "
-                + "time_field TIME, "
-                + "timestamp_field TIMESTAMP"
-                + ")");
+    exec.execute(Fragment.of("DROP TYPE IF EXISTS " + typeName + " CASCADE").execute());
+    exec.execute(
+        Fragment.of(
+                "CREATE TYPE "
+                    + typeName
+                    + " AS ("
+                    + "text_field TEXT, "
+                    + "int4_field INT4, "
+                    + "int8_field INT8, "
+                    + "int2_field INT2, "
+                    + "float8_field FLOAT8, "
+                    + "float4_field FLOAT4, "
+                    + "bool_field BOOL, "
+                    + "numeric_field NUMERIC, "
+                    + "uuid_field UUID, "
+                    + "date_field DATE, "
+                    + "time_field TIME, "
+                    + "timestamp_field TIMESTAMP"
+                    + ")")
+            .execute());
 
     try {
       PgType<ComprehensiveComposite> compositeType =
@@ -757,10 +916,9 @@ public class PgTypeTest {
                       "timestamp_field", PgTypes.timestamp, ComprehensiveComposite::timestampField)
                   .build(ComprehensiveComposite::new));
 
-      conn.createStatement().execute("CREATE TEMP TABLE test_comp (v " + typeName + ")");
+      exec.execute(Fragment.of("CREATE TEMP TABLE test_comp (v " + typeName + ")").execute());
 
       try {
-        // Create test value with special characters
         ComprehensiveComposite original =
             new ComprehensiveComposite(
                 "Hello, \"World\"! (with special chars: \n\t\\)",
@@ -776,7 +934,6 @@ public class PgTypeTest {
                 LocalTime.of(14, 30, 45).truncatedTo(ChronoUnit.MICROS),
                 LocalDateTime.of(2024, 12, 25, 14, 30, 45).truncatedTo(ChronoUnit.MICROS));
 
-        // Test in-memory PgCompositeText roundtrip
         PgCompositeText<ComprehensiveComposite> compositeText = compositeType.pgCompositeText();
         String encoded = compositeText.encode(original).orElseThrow();
         ComprehensiveComposite decodedInMemory = compositeText.decode(encoded);
@@ -791,20 +948,19 @@ public class PgTypeTest {
               "In-memory roundtrip failed: expected " + original + " but got " + decodedInMemory);
         }
 
-        // Insert into database
-        var insert = conn.prepareStatement("INSERT INTO test_comp (v) VALUES (?)");
-        compositeType.write().set(insert, 1, original);
-        insert.execute();
-        insert.close();
+        exec.execute(
+            Fragment.of("INSERT INTO test_comp (v) VALUES (")
+                .append(Fragment.encode(compositeType, original))
+                .append(Fragment.of(")"))
+                .update());
 
-        // Read back
-        var select = conn.prepareStatement("SELECT v FROM test_comp");
-        select.execute();
-        var rs = select.getResultSet();
-        rs.next();
-        ComprehensiveComposite decoded = compositeType.read().read(rs, 1);
-        select.close();
+        List<ComprehensiveComposite> rows =
+            exec.execute(
+                Fragment.of("SELECT v FROM test_comp").query(RowCodec.of(compositeType).all()));
 
+        if (rows.isEmpty()) throw new RuntimeException("No rows returned");
+
+        ComprehensiveComposite decoded = rows.getFirst();
         System.out.println("Comprehensive composite DB roundtrip:");
         System.out.println("  Original: " + original);
         System.out.println("  Decoded:  " + decoded);
@@ -816,176 +972,81 @@ public class PgTypeTest {
 
         System.out.println("Comprehensive composite tests PASSED!");
       } finally {
-        conn.createStatement().execute("DROP TABLE IF EXISTS test_comp");
+        exec.execute(Fragment.of("DROP TABLE IF EXISTS test_comp").execute());
       }
     } finally {
-      conn.createStatement().execute("DROP TYPE IF EXISTS " + typeName + " CASCADE");
+      exec.execute(Fragment.of("DROP TYPE IF EXISTS " + typeName + " CASCADE").execute());
     }
   }
 
-  static <A> void testJsonRoundtrip(PgTypeAndExample<A> t) {
-    try {
-      PgJson<A> jsonCodec = t.type.pgJson();
-      A original = t.example;
-
-      // Test toJson -> encode -> parse -> fromJson roundtrip (in-memory)
-      JsonValue jsonValue = jsonCodec.toJson(original);
-      String encoded = jsonValue.encode();
-      JsonValue parsed = JsonValue.parse(encoded);
-      A decoded = jsonCodec.fromJson(parsed);
-
-      System.out.println(
-          "JSON roundtrip "
-              + t.type.typename().sqlType()
-              + ": "
-              + format(original)
-              + " -> "
-              + encoded
-              + " -> "
-              + format(decoded));
-
-      if (t.hasIdentity && !areEqual(decoded, original)) {
-        throw new RuntimeException(
-            "JSON roundtrip failed for "
-                + t.type.typename().sqlType()
-                + ": expected '"
-                + format(original)
-                + "' but got '"
-                + format(decoded)
-                + "'");
-      }
-    } catch (Exception e) {
-      throw new RuntimeException(
-          "JSON roundtrip test failed for " + t.type.typename().sqlType(), e);
-    }
-  }
-
-  // Test JSON roundtrip through the database - simulates MULTISET behavior
-  // Insert value into native column, read back as JSON using to_json(), parse back to value
-  static <A> void testJsonDbRoundtrip(Connection conn, PgTypeAndExample<A> t) throws SQLException {
-    PgJson<A> jsonCodec = t.type.pgJson();
-    A original = t.example;
+  static <A> void testFunctionCallRoundtrip(Transactor exec, PgTypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
-    String tableName = uniqueTableName("test_json_rt");
+    String safeName =
+        "fn_identity_"
+            + sqlType
+                .replace("(", "_")
+                .replace(")", "_")
+                .replace(",", "_")
+                .replace(" ", "_")
+                .replace("[", "_arr_")
+                .replace("]", "")
+                .replace("\"", "");
+    int uniqueId = tableCounter.incrementAndGet();
+    String funcName = safeName + "_" + uniqueId;
 
-    // Create temp table with the native type column
-    conn.createStatement().execute("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")");
-
+    exec.execute(
+        Fragment.of(
+                "CREATE OR REPLACE FUNCTION "
+                    + funcName
+                    + "(p "
+                    + sqlType
+                    + ") RETURNS "
+                    + sqlType
+                    + " AS $$ BEGIN RETURN p; END; $$ LANGUAGE plpgsql")
+            .execute());
     try {
-      // Insert value using native type
-      var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
-      t.type.write().set(insert, 1, original);
-      insert.execute();
-      insert.close();
+      var template =
+          Fragment.of("SELECT " + funcName + "(")
+              .param(t.type)
+              .append(Fragment.of(")"))
+              .query(RowCodec.of(t.type).all());
 
-      // Select back as JSON using to_json - this is what MULTISET does
-      var select = conn.prepareStatement("SELECT to_json(v) FROM " + tableName);
-      select.execute();
-      var rs = select.getResultSet();
+      List<A> results = exec.execute(template.on(t.example));
 
-      if (!rs.next()) {
-        throw new RuntimeException("No rows returned");
-      }
-
-      // Read the JSON string back from the database
-      String jsonFromDb = rs.getString(1);
-      select.close();
-
-      // Parse the JSON and convert back to value
-      JsonValue parsedFromDb = JsonValue.parse(jsonFromDb);
-      A decoded = jsonCodec.fromJson(parsedFromDb);
-
-      if (t.hasIdentity && !areEqual(decoded, original)) {
+      if (results.isEmpty()) throw new RuntimeException("No rows returned");
+      if (!areEqual(results.getFirst(), t.example)) {
         throw new RuntimeException(
-            "JSON DB roundtrip failed for "
+            "Function call roundtrip failed for "
                 + sqlType
                 + ": expected '"
-                + format(original)
+                + format(t.example)
                 + "' but got '"
-                + format(decoded)
+                + format(results.getFirst())
                 + "'");
       }
     } finally {
-      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+      exec.execute(Fragment.of("DROP FUNCTION IF EXISTS " + funcName).execute());
     }
   }
 
-  static <A> void testQueryAnalysis(Connection conn, PgTypeAndExample<A> t) throws SQLException {
-    String sqlType = t.type.typename().sqlType();
-    String tableName = uniqueTableName("qa");
-    conn.createStatement().execute("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")");
-    try {
-      RowCodec<A> parser = RowCodec.of(t.type);
-      Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
-      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
-      if (!analysis.succeeded()) {
-        throw new RuntimeException(
-            "Query analysis failed for " + sqlType + ":\n" + analysis.report());
-      }
-    } finally {
-      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
-    }
-  }
+  // ==================== Shared Helper Methods ====================
 
-  static <A> void batchInsert(Connection conn, DbType<A> type, String tableName, A value)
-      throws SQLException {
-    RowCodecNamed<A> parser =
+  static <A> void batchInsert(Transactor exec, DbType<A> type, String tableName, A value) {
+    RowCodecNamed<A> codec =
         RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
-    Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
-        .paramRow(parser)
-        .append(")")
-        .update()
-        .onMany(List.of(value).iterator())
-        .run(conn);
+    exec.execute(
+        Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+            .paramRow(codec)
+            .append(")")
+            .update()
+            .onMany(List.of(value).iterator()));
   }
 
-  static <A> void testCase(Connection conn, PgTypeAndExample<A> t) throws SQLException {
-    String tableName = uniqueTableName("test");
-    conn.createStatement()
-        .execute("create temp table " + tableName + " (v " + t.type.typename().sqlType() + ")");
-    A expected = t.example;
-    batchInsert(conn, t.type, tableName, expected);
-    if (t.streamingWorks) {
-      StreamingInsert.insert(
-          "COPY " + tableName + "(v) FROM STDIN",
-          100,
-          Arrays.asList(t.example).iterator(),
-          conn,
-          t.type.pgText());
-    }
+  // ==================== JDBC-Only Test Methods ====================
 
-    final PreparedStatement select;
-    if (t.hasIdentity) {
-      select = conn.prepareStatement("select v, null from " + tableName + " where v = ?");
-      t.type.write().set(select, 1, expected);
-    } else {
-      select = conn.prepareStatement("select v, null from " + tableName);
-    }
-
-    select.execute();
-    var rs = select.getResultSet();
-    List<TestPair<A>> rows =
-        RowCodec.<TestPair<A>>builder()
-            .field(t.type, TestPair::t0)
-            .field(t.type.opt(), TestPair::t1)
-            .build(TestPair::new)
-            .all()
-            .apply(rs);
-    select.close();
-    conn.createStatement().execute("drop table " + tableName + ";");
-    assertEquals(rows.get(0).t0(), expected);
-    if (t.streamingWorks) {
-      assertEquals(rows.get(1).t0(), expected);
-    }
-  }
-
-  // ==================== Stored Procedure Roundtrip ====================
-  // For each type, create a PL/pgSQL identity function, call it via Call.function(),
-  // and verify the value roundtrips through CallableStatement.
-
-  static <A> void testCallRoundtrip(Connection conn, PgTypeAndExample<A> t) throws SQLException {
+  static <A> void testProcedureCallRoundtrip(Transactor exec, PgTypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
     String safeName =
         "identity_"
@@ -1000,21 +1061,22 @@ public class PgTypeTest {
     int uniqueId = tableCounter.incrementAndGet();
     String funcName = safeName + "_" + uniqueId;
 
-    conn.createStatement()
-        .execute(
-            "CREATE OR REPLACE FUNCTION "
-                + funcName
-                + "(p "
-                + sqlType
-                + ") RETURNS "
-                + sqlType
-                + " AS $$ BEGIN RETURN p; END; $$ LANGUAGE plpgsql");
+    exec.execute(
+        Fragment.of(
+                "CREATE OR REPLACE FUNCTION "
+                    + funcName
+                    + "(p "
+                    + sqlType
+                    + ") RETURNS "
+                    + sqlType
+                    + " AS $$ BEGIN RETURN p; END; $$ LANGUAGE plpgsql")
+            .execute());
 
     try {
       Procedure<A> proc =
           Procedure.buildFunction(funcName, java.util.List.of(ParamDef.input(t.type)), t.type);
 
-      A result = proc.call(t.example).run(conn);
+      A result = exec.execute(proc.call(t.example));
 
       if (!areEqual(result, t.example)) {
         throw new RuntimeException(
@@ -1027,7 +1089,92 @@ public class PgTypeTest {
                 + "'");
       }
     } finally {
-      conn.createStatement().execute("DROP FUNCTION IF EXISTS " + funcName);
+      exec.execute(Fragment.of("DROP FUNCTION IF EXISTS " + funcName).execute());
+    }
+  }
+
+  static <A> void testQueryAnalysis(Connection conn, PgTypeAndExample<A> t) {
+    String sqlType = t.type.typename().sqlType();
+    String tableName = uniqueTableName("qa");
+    Fragment.of("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")").execute().run(conn);
+    try {
+      RowCodec<A> parser = RowCodec.of(t.type);
+      Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
+      QueryAnalysis analysis = QueryAnalyzer.analyze(fragment.query(parser.all()), conn).getFirst();
+      if (!analysis.succeeded()) {
+        throw new RuntimeException(
+            "Query analysis failed for " + sqlType + ":\n" + analysis.report());
+      }
+    } finally {
+      Fragment.of("DROP TABLE IF EXISTS " + tableName).execute().run(conn);
+    }
+  }
+
+  // ==================== In-Memory Tests ====================
+
+  static <A> void testJsonRoundtrip(Transactor exec, PgTypeAndExample<A> t) {
+    try {
+      PgJson<A> jsonCodec = t.type.pgJson();
+      A original = t.example;
+
+      // In-memory roundtrip: encode → parse → decode
+      JsonValue jsonValue = jsonCodec.toJson(original);
+      String encoded = jsonValue.encode();
+      JsonValue parsed = JsonValue.parse(encoded);
+      A decoded = jsonCodec.fromJson(parsed);
+
+      if (t.hasIdentity && !areEqual(decoded, original)) {
+        throw new RuntimeException(
+            "JSON roundtrip failed for "
+                + t.type.typename().sqlType()
+                + ": expected '"
+                + format(original)
+                + "' but got '"
+                + format(decoded)
+                + "'");
+      }
+
+      // DB verification: insert value, ask PG for to_json(), verify we can decode PG's JSON
+      String sqlType = t.type.typename().sqlType();
+      String tableName = uniqueTableName("test_json_mem");
+      exec.execute(
+          Fragment.of("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")").execute());
+      try {
+        exec.execute(
+            Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
+                .append(Fragment.encode(t.type, original))
+                .append(Fragment.of(")"))
+                .update());
+
+        List<String> jsonResults =
+            exec.execute(
+                Fragment.of("SELECT to_json(v) FROM " + tableName)
+                    .query(RowCodec.of(PgTypes.text).all()));
+
+        if (jsonResults.isEmpty()) throw new RuntimeException("No JSON rows returned from DB");
+
+        String jsonFromDb = jsonResults.getFirst();
+        JsonValue parsedFromDb = JsonValue.parse(jsonFromDb);
+        A decodedFromDb = jsonCodec.fromJson(parsedFromDb);
+
+        if (t.hasIdentity && !areEqual(decodedFromDb, original)) {
+          throw new RuntimeException(
+              "JSON DB roundtrip failed for "
+                  + sqlType
+                  + ": PG to_json() = '"
+                  + jsonFromDb
+                  + "', decoded = '"
+                  + format(decodedFromDb)
+                  + "', expected = '"
+                  + format(original)
+                  + "'");
+        }
+      } finally {
+        exec.execute(Fragment.of("DROP TABLE IF EXISTS " + tableName).execute());
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "JSON roundtrip test failed for " + t.type.typename().sqlType(), e);
     }
   }
 
@@ -1052,15 +1199,16 @@ public class PgTypeTest {
     int uniqueId = tableCounter.incrementAndGet();
     String procName = "out_" + safeName(sqlType) + "_" + uniqueId;
 
-    conn.createStatement()
-        .execute(
+    Fragment.of(
             "CREATE OR REPLACE PROCEDURE "
                 + procName
                 + "(IN i "
                 + sqlType
                 + ", OUT o "
                 + sqlType
-                + ") AS $$ BEGIN o := i; END; $$ LANGUAGE plpgsql");
+                + ") AS $$ BEGIN o := i; END; $$ LANGUAGE plpgsql")
+        .execute()
+        .run(conn);
 
     try {
       Procedure<A> proc =
@@ -1081,8 +1229,9 @@ public class PgTypeTest {
                 + "'");
       }
     } finally {
-      conn.createStatement()
-          .execute("DROP PROCEDURE IF EXISTS " + procName + "(" + sqlType + "," + sqlType + ")");
+      Fragment.of("DROP PROCEDURE IF EXISTS " + procName + "(" + sqlType + "," + sqlType + ")")
+          .execute()
+          .run(conn);
     }
   }
 
@@ -1096,13 +1245,14 @@ public class PgTypeTest {
     int uniqueId = tableCounter.incrementAndGet();
     String procName = "inout_" + safeName(sqlType) + "_" + uniqueId;
 
-    conn.createStatement()
-        .execute(
+    Fragment.of(
             "CREATE OR REPLACE PROCEDURE "
                 + procName
                 + "(INOUT p "
                 + sqlType
-                + ") AS $$ BEGIN END; $$ LANGUAGE plpgsql");
+                + ") AS $$ BEGIN END; $$ LANGUAGE plpgsql")
+        .execute()
+        .run(conn);
 
     try {
       Procedure<A> proc =
@@ -1122,9 +1272,11 @@ public class PgTypeTest {
                 + "'");
       }
     } finally {
-      conn.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName + "(" + sqlType + ")");
+      Fragment.of("DROP PROCEDURE IF EXISTS " + procName + "(" + sqlType + ")").execute().run(conn);
     }
   }
+
+  // ==================== Utility ====================
 
   static <A> void assertEquals(A actual, A expected) {
     if (!areEqual(actual, expected)) {

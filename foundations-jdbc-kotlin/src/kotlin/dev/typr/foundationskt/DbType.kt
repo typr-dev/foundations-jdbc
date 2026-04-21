@@ -5,8 +5,8 @@ open class DbType<T>(open val underlying: dev.typr.foundations.DbType<T>) {
     open fun opt(): DbType<T?> =
         DbType(underlying.opt().to(Bijection.optionalToNullable()))
 
-    open fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): DbType<B> =
-        DbType(underlying.to(bijection))
+    open fun <B> to(bijection: Bijection<T, B>): DbType<B> =
+        DbType(underlying.to(bijection.underlying))
 
     /** Whether this type allows null values. True for types created with [opt]. */
     fun isNullable(): Boolean = underlying.isNullable

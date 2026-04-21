@@ -6,11 +6,11 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class StrictFixtures {
 
-  public Operation<List<Integer>> uninvokable(Runnable r) {
+  public OperationRead<List<Integer>> uninvokable(Runnable r) {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }
 
-  public Operation<List<Integer>> workingMethod() {
+  public OperationRead<List<Integer>> workingMethod() {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }
 }

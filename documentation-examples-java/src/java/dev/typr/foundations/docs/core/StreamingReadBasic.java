@@ -10,10 +10,10 @@ public class StreamingReadBasic {
   // start
   // Stream rows lazily and materialize into a list
   List<String> allNames() {
-    Operation<Cursor<String>> streaming =
+    OperationRead<Cursor<String>> streaming =
         Fragment.of("SELECT name FROM users ORDER BY id").streamingQuery(PgTypes.text, 512);
 
-    return streaming.map(Cursor::toList).transact(tx);
+    return streaming.map(Cursor::toList).transactRead(tx);
   }
   // stop
 }

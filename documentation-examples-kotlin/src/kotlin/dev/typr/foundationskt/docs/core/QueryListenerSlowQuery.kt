@@ -9,7 +9,7 @@ class QueryListenerSlowQuery {
     //start
     fun slowQueryDetector(threshold: Duration): QueryListener =
         object : QueryListener {
-            override fun beforeQuery(sql: String, name: String?) {}
+            override fun beforeQuery(sql: String, name: java.util.Optional<String>) {}
             override fun afterQuery(event: QueryEvent) {
                 if (event.elapsed() > threshold) {
                     System.err.println("SLOW QUERY [${event.elapsed().toMillis()}ms]: ${event.interpolatedSql()}")

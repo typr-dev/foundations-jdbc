@@ -13,8 +13,8 @@ class DuckDbType<T>(override val underlying: dev.typr.foundations.DuckDbType<T>)
     override fun opt(): DuckDbType<T?> =
         DuckDbType(underlying.opt().to(Bijection.optionalToNullable()))
 
-    override fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): DuckDbType<B> =
-        DuckDbType(underlying.to(bijection))
+    override fun <B> to(bijection: Bijection<T, B>): DuckDbType<B> =
+        DuckDbType(underlying.to(bijection.underlying))
 
     fun <B> transform(f: (T) -> B, g: (B) -> T): DuckDbType<B> =
         DuckDbType(underlying.transform({ f(it) }, g))
@@ -30,7 +30,7 @@ class DuckDbType<T>(override val underlying: dev.typr.foundations.DuckDbType<T>)
 
     fun list(): DuckDbType<List<T>> = DuckDbType(underlying.list())
 
-    fun encode(value: T): dev.typr.foundations.Fragment.Value<T> = underlying.encode(value)
+    fun encode(value: T): Fragment = Fragment(underlying.encode(value))
 
     fun withTypename(typename: DuckDbTypename<T>): DuckDbType<T> = DuckDbType(underlying.withTypename(typename))
     fun withTypename(sqlType: String): DuckDbType<T> = DuckDbType(underlying.withTypename(sqlType))

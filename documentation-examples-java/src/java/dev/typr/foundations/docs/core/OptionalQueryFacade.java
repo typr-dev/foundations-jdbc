@@ -3,7 +3,7 @@ package dev.typr.foundations.docs.core;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
-import dev.typr.foundations.Template;
+import dev.typr.foundations.TemplateRead;
 import dev.typr.foundations.Transactor;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +26,7 @@ public class OptionalQueryFacade {
   record UserSearch(Optional<String> name, Optional<String> email, boolean activeOnly) {}
 
   // .from() maps getters to template params
-  private static final Template.From<UserSearch, List<User>> searchTemplate =
+  private static final TemplateRead.FromRead<UserSearch, List<User>> searchTemplate =
       Fragment.of(
               """
               SELECT id, name, email FROM users WHERE 1=1

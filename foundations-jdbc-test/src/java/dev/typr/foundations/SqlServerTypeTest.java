@@ -260,7 +260,7 @@ public class SqlServerTypeTest {
               .noIdentity());
 
   static void withConnection(SqlFunction<Connection, ?> f) {
-    Containers.sqlserverTransactor().execute(f);
+    Containers.sqlserverTransactor().transact(f);
   }
 
   @Test
@@ -397,11 +397,10 @@ public class SqlServerTypeTest {
     System.out.println("=====================================");
   }
 
-  static <A> void testQueryAnalysis(Connection conn, SqlServerTypeAndExample<A> t)
-      throws SQLException {
+  static <A> void testQueryAnalysis(Connection conn, SqlServerTypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("#qa");
-    conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
+    Fragment.of("CREATE TABLE " + tableName + " (v " + sqlType + ")").execute().run(conn);
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
@@ -411,15 +410,14 @@ public class SqlServerTypeTest {
             "Query analysis failed for " + sqlType + ":\n" + analysis.report());
       }
     } finally {
-      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+      Fragment.of("DROP TABLE IF EXISTS " + tableName).execute().run(conn);
     }
   }
 
-  static <A> void testQueryAnalysisWithParam(Connection conn, SqlServerTypeAndExample<A> t)
-      throws SQLException {
+  static <A> void testQueryAnalysisWithParam(Connection conn, SqlServerTypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("#qap");
-    conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
+    Fragment.of("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)").execute().run(conn);
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment =
@@ -430,7 +428,7 @@ public class SqlServerTypeTest {
             "Param analysis failed for " + sqlType + ":\n" + analysis.report());
       }
     } finally {
-      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+      Fragment.of("DROP TABLE IF EXISTS " + tableName).execute().run(conn);
     }
   }
 
@@ -474,12 +472,13 @@ public class SqlServerTypeTest {
 
   static <A> void testJdbcRoundtrip(Connection conn, SqlServerTypeAndExample<A> t)
       throws SQLException {
+    var jdbc = conn.unwrap();
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("#test");
 
     // Create temp table
     String createSql = "CREATE TABLE " + tableName + " (v " + sqlType + ")";
-    conn.createStatement().execute(createSql);
+    jdbc.createStatement().execute(createSql);
 
     try {
       batchInsert(conn, t.type, tableName, t.example);
@@ -494,10 +493,10 @@ public class SqlServerTypeTest {
               case "GEOMETRY" -> "WHERE v.STEquals(CAST(? AS GEOMETRY)) = 1";
               default -> "WHERE v = CAST(? AS " + sqlType + ")";
             };
-        select = conn.prepareStatement("SELECT v FROM " + tableName + " " + whereClause);
+        select = jdbc.prepareStatement("SELECT v FROM " + tableName + " " + whereClause);
         t.type.write().set(select, 1, t.example);
       } else {
-        select = conn.prepareStatement("SELECT v FROM " + tableName);
+        select = jdbc.prepareStatement("SELECT v FROM " + tableName);
       }
 
       select.execute();
@@ -516,28 +515,29 @@ public class SqlServerTypeTest {
         throw new RuntimeException("JDBC roundtrip failed for " + sqlType);
       }
     } finally {
-      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+      jdbc.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
     }
   }
 
   static <A> void testJsonDbRoundtrip(Connection conn, SqlServerTypeAndExample<A> t)
       throws SQLException {
+    var jdbc = conn.unwrap();
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("#test_json");
 
     // Create temp table
-    conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
+    jdbc.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
 
     try {
       // Insert value
-      var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
+      var insert = jdbc.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
       t.type.write().set(insert, 1, t.example);
       insert.execute();
       insert.close();
 
       // Select back as JSON using FOR JSON PATH
       var select =
-          conn.prepareStatement(
+          jdbc.prepareStatement(
               "SELECT v FROM " + tableName + " FOR JSON PATH, WITHOUT_ARRAY_WRAPPER");
       select.execute();
       var rs = select.getResultSet();
@@ -570,7 +570,7 @@ public class SqlServerTypeTest {
         throw new RuntimeException("JSON DB roundtrip failed for " + sqlType);
       }
     } finally {
-      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+      jdbc.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
     }
   }
 
@@ -579,6 +579,7 @@ public class SqlServerTypeTest {
 
   static <A> void testCallableRoundtrip(Connection conn, SqlServerTypeAndExample<A> t)
       throws SQLException {
+    var jdbc = conn.unwrap();
     String sqlType = t.type.typename().sqlType();
 
     if (UNSUPPORTED_PROC_PARAM_TYPES.contains(sqlType.toUpperCase())) {
@@ -596,7 +597,7 @@ public class SqlServerTypeTest {
             + ", @p_out "
             + sqlType
             + " OUTPUT AS BEGIN SET @p_out = @p_in; END";
-    conn.createStatement().execute(createSql);
+    jdbc.createStatement().execute(createSql);
 
     try {
       DbProcedure.Def1_1<A, A> proc =
@@ -616,7 +617,7 @@ public class SqlServerTypeTest {
         throw new RuntimeException("Callable roundtrip failed for " + sqlType);
       }
     } finally {
-      conn.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName);
+      jdbc.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName);
     }
   }
 

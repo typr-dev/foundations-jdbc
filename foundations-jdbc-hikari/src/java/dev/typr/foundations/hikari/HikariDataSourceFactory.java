@@ -105,7 +105,7 @@ public final class HikariDataSourceFactory {
     // Extra properties
     pool.extraProperties().forEach(hikari::addDataSourceProperty);
 
-    return new PooledDataSource(new HikariDataSource(hikari));
+    return new PooledDataSource(new HikariDataSource(hikari), config::mapException);
   }
 
   /**

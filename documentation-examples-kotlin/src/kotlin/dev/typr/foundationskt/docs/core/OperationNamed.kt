@@ -7,7 +7,7 @@ import java.time.Duration
 @Suppress("unused")
 class OperationNamed {
     //start
-    val users: Operation<List<String>> =
+    val users: OperationRead<List<String>> =
         sql { "SELECT name FROM users" }
             .query(RowCodec.of(PgTypes.text).all())
             .named("load-users")

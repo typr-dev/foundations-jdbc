@@ -9,7 +9,7 @@ public class QueryListenerMetrics {
   QueryListener metricsListener(/* MeterRegistry registry */ ) {
     return new QueryListener() {
       @Override
-      public void beforeQuery(String sql, String name) {}
+      public void beforeQuery(String sql, java.util.Optional<String> name) {}
 
       @Override
       public void afterQuery(QueryEvent event) {

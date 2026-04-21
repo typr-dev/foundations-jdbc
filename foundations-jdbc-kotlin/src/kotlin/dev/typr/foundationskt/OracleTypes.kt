@@ -1,7 +1,7 @@
 package dev.typr.foundationskt
 
-import dev.typr.foundations.SqlFunction
 import dev.typr.foundations.OracleTypes as JavaOracleTypes
+import dev.typr.foundationskt.data.*
 
 /**
  * Kotlin-friendly OracleType instances that use Kotlin types instead of Java boxed types.
@@ -43,28 +43,28 @@ open class OracleTypes {
     open val nvarchar2: OracleType<String> = OracleType(JavaOracleTypes.nvarchar2)
     open val nchar: OracleType<String> = OracleType(JavaOracleTypes.nchar)
     open val clob: OracleType<String> = OracleType(JavaOracleTypes.clob)
-    open val clobNonEmpty: OracleType<dev.typr.foundations.data.NonEmptyString> = OracleType(JavaOracleTypes.clobNonEmpty)
+    open val clobNonEmpty: OracleType<NonEmptyString> = OracleType(JavaOracleTypes.clobNonEmpty)
     open val nclob: OracleType<String> = OracleType(JavaOracleTypes.nclob)
-    open val nclobNonEmpty: OracleType<dev.typr.foundations.data.NonEmptyString> = OracleType(JavaOracleTypes.nclobNonEmpty)
+    open val nclobNonEmpty: OracleType<NonEmptyString> = OracleType(JavaOracleTypes.nclobNonEmpty)
     open val long_: OracleType<String> = OracleType(JavaOracleTypes.long_)
 
     /** Alias for [long_] — aesthetic, avoids the Java-keyword `_` suffix. */
     open val longColumn: OracleType<String> = long_
     open val raw: OracleType<ByteArray> = OracleType(JavaOracleTypes.raw)
     open val blob: OracleType<ByteArray> = OracleType(JavaOracleTypes.blob)
-    open val blobNonEmpty: OracleType<dev.typr.foundations.data.NonEmptyBlob> = OracleType(JavaOracleTypes.blobNonEmpty)
+    open val blobNonEmpty: OracleType<NonEmptyBlob> = OracleType(JavaOracleTypes.blobNonEmpty)
     open val longRaw: OracleType<ByteArray> = OracleType(JavaOracleTypes.longRaw)
     open val date: OracleType<java.time.LocalDateTime> = OracleType(JavaOracleTypes.date)
     open val timestamp: OracleType<java.time.LocalDateTime> = OracleType(JavaOracleTypes.timestamp)
     open val timestampWithTimeZone: OracleType<java.time.ZonedDateTime> = OracleType(JavaOracleTypes.timestampWithTimeZone)
     open val timestampWithLocalTimeZone: OracleType<java.time.Instant> = OracleType(JavaOracleTypes.timestampWithLocalTimeZone)
-    open val intervalYearToMonth: OracleType<dev.typr.foundations.data.OracleIntervalYM> = OracleType(JavaOracleTypes.intervalYearToMonth)
-    open val intervalDayToSecond: OracleType<dev.typr.foundations.data.OracleIntervalDS> = OracleType(JavaOracleTypes.intervalDayToSecond)
+    open val intervalYearToMonth: OracleType<OracleIntervalYM> = OracleType(JavaOracleTypes.intervalYearToMonth)
+    open val intervalDayToSecond: OracleType<OracleIntervalDS> = OracleType(JavaOracleTypes.intervalDayToSecond)
     open val rowId: OracleType<String> = OracleType(JavaOracleTypes.rowId)
     open val uRowId: OracleType<String> = OracleType(JavaOracleTypes.uRowId)
     open val xmlType: OracleType<String> = OracleType(JavaOracleTypes.xmlType)
-    open val json: OracleType<dev.typr.foundations.data.Json> = OracleType(JavaOracleTypes.json)
-    open val unknown: OracleType<dev.typr.foundations.data.Unknown> = OracleType(JavaOracleTypes.unknown)
+    open val json: OracleType<Json> = OracleType(JavaOracleTypes.json)
+    open val unknown: OracleType<Unknown> = OracleType(JavaOracleTypes.unknown)
 
     // Parameterized methods
     open fun numberOf(precision: Int): OracleType<java.math.BigDecimal> = OracleType(JavaOracleTypes.numberOf(precision))
@@ -82,23 +82,23 @@ open class OracleTypes {
 
     open fun varchar2Of(maxLength: Int): OracleType<String> = OracleType(JavaOracleTypes.varchar2Of(maxLength))
 
-    open fun varchar2NonEmpty(maxLength: Int): OracleType<dev.typr.foundations.data.NonEmptyString> = OracleType(JavaOracleTypes.varchar2NonEmpty(maxLength))
+    open fun varchar2NonEmpty(maxLength: Int): OracleType<NonEmptyString> = OracleType(JavaOracleTypes.varchar2NonEmpty(maxLength))
 
     open fun char_Of(length: Int): OracleType<String> = OracleType(JavaOracleTypes.char_Of(length))
 
-    open fun charPadded(length: Int): OracleType<dev.typr.foundations.data.PaddedString> = OracleType(JavaOracleTypes.charPadded(length))
+    open fun charPadded(length: Int): OracleType<PaddedString> = OracleType(JavaOracleTypes.charPadded(length))
 
     open fun nvarchar2Of(maxLength: Int): OracleType<String> = OracleType(JavaOracleTypes.nvarchar2Of(maxLength))
 
-    open fun nvarchar2NonEmpty(maxLength: Int): OracleType<dev.typr.foundations.data.NonEmptyString> = OracleType(JavaOracleTypes.nvarchar2NonEmpty(maxLength))
+    open fun nvarchar2NonEmpty(maxLength: Int): OracleType<NonEmptyString> = OracleType(JavaOracleTypes.nvarchar2NonEmpty(maxLength))
 
     open fun ncharOf(length: Int): OracleType<String> = OracleType(JavaOracleTypes.ncharOf(length))
 
-    open fun ncharPadded(length: Int): OracleType<dev.typr.foundations.data.PaddedString> = OracleType(JavaOracleTypes.ncharPadded(length))
+    open fun ncharPadded(length: Int): OracleType<PaddedString> = OracleType(JavaOracleTypes.ncharPadded(length))
 
     open fun rawOf(maxLength: Int): OracleType<ByteArray> = OracleType(JavaOracleTypes.rawOf(maxLength))
 
-    open fun rawNonEmpty(maxLength: Int): OracleType<dev.typr.foundations.data.NonEmptyBlob> = OracleType(JavaOracleTypes.rawNonEmpty(maxLength))
+    open fun rawNonEmpty(maxLength: Int): OracleType<NonEmptyBlob> = OracleType(JavaOracleTypes.rawNonEmpty(maxLength))
 
     open fun timestampOf(fractionalSecondsPrecision: Int): OracleType<java.time.LocalDateTime> = OracleType(JavaOracleTypes.timestampOf(fractionalSecondsPrecision))
 
@@ -108,9 +108,9 @@ open class OracleTypes {
     open fun timestampWithLocalTimeZone(fractionalSecondsPrecision: Int): OracleType<java.time.Instant> =
         OracleType(JavaOracleTypes.timestampWithLocalTimeZone(fractionalSecondsPrecision))
 
-    open fun intervalYearToMonth(yearPrecision: Int): OracleType<dev.typr.foundations.data.OracleIntervalYM> = OracleType(JavaOracleTypes.intervalYearToMonth(yearPrecision))
+    open fun intervalYearToMonth(yearPrecision: Int): OracleType<OracleIntervalYM> = OracleType(JavaOracleTypes.intervalYearToMonth(yearPrecision))
 
-    open fun intervalDayToSecond(dayPrecision: Int, fractionalSecondsPrecision: Int): OracleType<dev.typr.foundations.data.OracleIntervalDS> =
+    open fun intervalDayToSecond(dayPrecision: Int, fractionalSecondsPrecision: Int): OracleType<OracleIntervalDS> =
         OracleType(JavaOracleTypes.intervalDayToSecond(dayPrecision, fractionalSecondsPrecision))
 
     open fun uRowId(maxLength: Int): OracleType<String> = OracleType(JavaOracleTypes.uRowId(maxLength))

@@ -1,9 +1,6 @@
 package dev.typr.foundations;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public final class OptionallyResolver {
 
@@ -31,7 +28,7 @@ public final class OptionallyResolver {
             Tuple tuple = (Tuple) opt.get();
             Object[] arr = tuple.asArray();
             List<Object> flat = new ArrayList<>(arr.length);
-            for (Object v : arr) flat.add(v);
+            flat.addAll(Arrays.asList(arr));
             yield resolve(o.inner(), flat.iterator());
           } else {
             yield Fragment.EMPTY;

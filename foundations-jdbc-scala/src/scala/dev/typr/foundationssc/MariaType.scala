@@ -4,7 +4,7 @@ class MariaType[T](override val underlying: dev.typr.foundations.MariaType[T]) e
   override def opt: MariaType[Option[T]] =
     MariaType(underlying.opt().to(Bijections.optionalToOption))
 
-  override def to[B](bijection: dev.typr.foundations.Bijection[T, B]): MariaType[B] =
+  override def to[B](bijection: Bijection[T, B]): MariaType[B] =
     MariaType(underlying.to(bijection))
 
   def transform[B](f: T => B, g: B => T): MariaType[B] =

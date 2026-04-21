@@ -1,6 +1,7 @@
 package dev.typr.foundationssc
 
 import dev.typr.foundations.{DuckDbTypes => JavaDuckDbTypes}
+import dev.typr.foundations.data.{Json, Uint1, Uint2, Uint4, Uint8, Unknown}
 
 /** Scala-friendly DuckDbType instances that use Scala types instead of Java boxed types. All types from dev.typr.foundations.DuckDbTypes are available here,
   * with primitives and BigDecimal converted to Scala types.
@@ -29,10 +30,10 @@ class DuckDbTypes {
 
   // Forward all other types directly from Java
   val hugeint: DuckDbType[java.math.BigInteger] = DuckDbType(JavaDuckDbTypes.hugeint)
-  val utinyint: DuckDbType[dev.typr.foundations.data.Uint1] = DuckDbType(JavaDuckDbTypes.utinyint)
-  val usmallint: DuckDbType[dev.typr.foundations.data.Uint2] = DuckDbType(JavaDuckDbTypes.usmallint)
-  val uinteger: DuckDbType[dev.typr.foundations.data.Uint4] = DuckDbType(JavaDuckDbTypes.uinteger)
-  val ubigint: DuckDbType[dev.typr.foundations.data.Uint8] = DuckDbType(JavaDuckDbTypes.ubigint)
+  val utinyint: DuckDbType[Uint1] = DuckDbType(JavaDuckDbTypes.utinyint)
+  val usmallint: DuckDbType[Uint2] = DuckDbType(JavaDuckDbTypes.usmallint)
+  val uinteger: DuckDbType[Uint4] = DuckDbType(JavaDuckDbTypes.uinteger)
+  val ubigint: DuckDbType[Uint8] = DuckDbType(JavaDuckDbTypes.ubigint)
   val uhugeint: DuckDbType[java.math.BigInteger] = DuckDbType(JavaDuckDbTypes.uhugeint)
   val real: DuckDbType[java.lang.Float] = DuckDbType(JavaDuckDbTypes.real)
   val float4: DuckDbType[java.lang.Float] = DuckDbType(JavaDuckDbTypes.float4)
@@ -62,9 +63,9 @@ class DuckDbTypes {
   val timestamp_ns: DuckDbType[java.time.LocalDateTime] = DuckDbType(JavaDuckDbTypes.timestamp_ns)
   val interval: DuckDbType[java.time.Duration] = DuckDbType(JavaDuckDbTypes.interval)
   val uuid: DuckDbType[java.util.UUID] = DuckDbType(JavaDuckDbTypes.uuid)
-  val json: DuckDbType[dev.typr.foundations.data.Json] = DuckDbType(JavaDuckDbTypes.json)
+  val json: DuckDbType[Json] = DuckDbType(JavaDuckDbTypes.json)
   // Pre-defined array-of-T values removed; users call `.list` or `.array(n)` on the scalar type.
-  val unknown: DuckDbType[dev.typr.foundations.data.Unknown] = DuckDbType(JavaDuckDbTypes.unknown)
+  val unknown: DuckDbType[Unknown] = DuckDbType(JavaDuckDbTypes.unknown)
 
   // Forward static methods with Scala type conversion
   def decimalOf(precision: Int, scale: Int): DuckDbType[BigDecimal] =
@@ -127,9 +128,9 @@ class DuckDbTypes {
 
   /** JSON codec for Map[K, V] that serializes as a JSON object. */
   def mapJson[K, V](
-      keyJson: dev.typr.foundations.DuckDbJson[K],
-      valueJson: dev.typr.foundations.DuckDbJson[V]
-  ): dev.typr.foundations.DuckDbJson[Map[K, V]] =
+      keyJson: DuckDbJson[K],
+      valueJson: DuckDbJson[V]
+  ): DuckDbJson[Map[K, V]] =
     JavaDuckDbTypes
       .mapJson(keyJson, valueJson)
       .transform(

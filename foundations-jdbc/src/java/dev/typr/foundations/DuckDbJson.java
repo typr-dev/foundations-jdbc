@@ -100,7 +100,7 @@ public interface DuckDbJson<A> extends DbJson<A> {
         try {
           return f.apply(self.fromJson(json));
         } catch (java.sql.SQLException e) {
-          throw new DatabaseException(e);
+          throw new DatabaseException.Jdbc(e);
         }
       }
     };

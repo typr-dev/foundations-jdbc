@@ -16,12 +16,12 @@ public sealed interface Procedure<Out>
     permits Procedure.VoidProcedure, Procedure.OutProcedure, Procedure.FunctionProcedure {
 
   /**
-   * Create an {@link Operation} that calls this procedure with the given IN/INOUT parameter values.
+   * Create a {@link Operation} that calls this procedure with the given IN/INOUT parameter values.
    * Values must be provided in the same order as the {@code .in()} and {@code .inout()} calls
    * during definition.
    *
    * @param inValues the IN and INOUT parameter values, in declaration order
-   * @return an Operation that can be run or transacted
+   * @return a Operation that can be run or transacted
    */
   Operation<Out> call(Object... inValues);
 
@@ -120,116 +120,6 @@ public sealed interface Procedure<Out>
       implements Operation<Out> {
 
     @Override
-    public Out run(Connection conn) {
-      try {
-        boolean isPostgres = conn.getMetaData().getDatabaseProductName().startsWith("PostgreSQL");
-        if (isPostgres) {
-          return runPostgres(conn);
-        }
-        return runCallable(conn);
-      } catch (SQLException e) {
-        throw new DatabaseException(e);
-      }
-    }
-
-    private Out runPostgres(Connection conn) throws SQLException {
-      StringBuilder sb = new StringBuilder("CALL ");
-      sb.append(name);
-      sb.append('(');
-      for (int i = 0; i < params.size(); i++) {
-        if (i > 0) sb.append(", ");
-        sb.append('?');
-      }
-      sb.append(')');
-
-      String sql = Instrumentation.applyName(sb.toString(), conn);
-      Fragment syntheticFragment = Fragment.of(sb.toString());
-      return Instrumentation.instrumented(
-          conn,
-          syntheticFragment,
-          sql,
-          () -> {
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-              Instrumentation.applyTimeout(stmt, conn);
-              int valueIndex = 0;
-              for (int i = 0; i < params.size(); i++) {
-                ParamDef p = params.get(i);
-                int pos = i + 1;
-                if (p.isInput()) {
-                  @SuppressWarnings("unchecked")
-                  DbType<Object> type = (DbType<Object>) p.type();
-                  type.write().set(stmt, pos, inValues[valueIndex++]);
-                } else if (p.isOutput()) {
-                  // Pure OUT only — don't overwrite INOUT which was already set as input
-                  stmt.setNull(pos, java.sql.Types.NULL);
-                }
-              }
-              boolean hasResultSet = stmt.execute();
-              if (assembler != null && hasResultSet) {
-                try (ResultSet rs = stmt.getResultSet()) {
-                  if (rs.next()) {
-                    int outCount = 0;
-                    for (ParamDef p : params) {
-                      if (p.isOutput()) outCount++;
-                    }
-                    Object[] values = new Object[outCount];
-                    int outIdx = 0;
-                    int rsCol = 1;
-                    for (ParamDef p : params) {
-                      if (p.isOutput()) {
-                        values[outIdx++] = p.type().read().read(rs, rsCol++);
-                      }
-                    }
-                    return assembler.apply(values);
-                  }
-                }
-              }
-              @SuppressWarnings("unchecked")
-              Out voidResult = (Out) (Object) null;
-              return voidResult;
-            }
-          });
-    }
-
-    private Out runCallable(Connection conn) throws SQLException {
-      StringBuilder sb = new StringBuilder("{call ");
-      sb.append(name);
-      sb.append('(');
-      for (int i = 0; i < params.size(); i++) {
-        if (i > 0) sb.append(", ");
-        sb.append('?');
-      }
-      sb.append(")}");
-
-      String sql = Instrumentation.applyName(sb.toString(), conn);
-      Fragment syntheticFragment = Fragment.of(sb.toString());
-      return Instrumentation.instrumented(
-          conn,
-          syntheticFragment,
-          sql,
-          () -> {
-            try (CallableStatement stmt = conn.prepareCall(sql)) {
-              Instrumentation.applyTimeout(stmt, conn);
-              int valueIndex = 0;
-              for (int i = 0; i < params.size(); i++) {
-                ParamDef p = params.get(i);
-                int pos = i + 1;
-                if (p.isInput()) {
-                  @SuppressWarnings("unchecked")
-                  DbType<Object> type = (DbType<Object>) p.type();
-                  type.write().set(stmt, pos, inValues[valueIndex++]);
-                }
-                if (p.isOutput()) {
-                  p.outParam().register(stmt, pos);
-                }
-              }
-              stmt.execute();
-              return reader.apply(stmt);
-            }
-          });
-    }
-
-    @Override
     public String description(boolean verbose) {
       return "ProcedureCall: " + name;
     }
@@ -247,45 +137,6 @@ public sealed interface Procedure<Out>
   record FunctionCall<R>(
       String name, List<ParamDef> inParams, DbType<R> returnType, Object[] inValues)
       implements Operation<R> {
-
-    @Override
-    public R run(Connection conn) {
-      try {
-        StringBuilder sb = new StringBuilder("SELECT ");
-        sb.append(name);
-        sb.append('(');
-        for (int i = 0; i < inParams.size(); i++) {
-          if (i > 0) sb.append(", ");
-          sb.append('?');
-        }
-        sb.append(')');
-
-        String sql = Instrumentation.applyName(sb.toString(), conn);
-        Fragment syntheticFragment = Fragment.of(sb.toString());
-        return Instrumentation.instrumented(
-            conn,
-            syntheticFragment,
-            sql,
-            () -> {
-              try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                Instrumentation.applyTimeout(stmt, conn);
-                for (int i = 0; i < inParams.size(); i++) {
-                  @SuppressWarnings("unchecked")
-                  DbType<Object> type = (DbType<Object>) inParams.get(i).type();
-                  type.write().set(stmt, i + 1, inValues[i]);
-                }
-                try (ResultSet rs = stmt.executeQuery()) {
-                  if (!rs.next()) {
-                    throw new SQLException("Function " + name + " returned no rows");
-                  }
-                  return returnType.read().read(rs, 1);
-                }
-              }
-            });
-      } catch (SQLException e) {
-        throw new DatabaseException(e);
-      }
-    }
 
     @Override
     public String description(boolean verbose) {

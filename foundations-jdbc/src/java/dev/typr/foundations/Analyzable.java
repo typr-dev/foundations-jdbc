@@ -9,11 +9,13 @@ public sealed interface Analyzable permits Operation, Template, Analyzable.Named
 
   /**
    * Human-readable description of this analyzable. When the analyzable has a name (via {@link
-   * Named} or {@link Operation#named}), non-verbose returns just the name; verbose appends the
+   * Named} or {@link OperationRead#named}), non-verbose returns just the name; verbose appends the
    * underlying detailed rendering (rendered fragments, operation type, etc.). Unnamed analyzables
    * ignore {@code verbose} and always return the detailed rendering.
    */
-  String description(boolean verbose);
+  default String description(boolean verbose) {
+    return toString();
+  }
 
   /** Shorthand for {@code description(false)}. */
   default String description() {

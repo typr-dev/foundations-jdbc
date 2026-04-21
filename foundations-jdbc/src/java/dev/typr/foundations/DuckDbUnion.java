@@ -97,7 +97,7 @@ public record DuckDbUnion<A>(
             try {
               return reader.read(inferredTag, obj);
             } catch (java.sql.SQLException e) {
-              throw new DatabaseException(e);
+              throw new DatabaseException.Jdbc(e);
             }
           }
           throw new IllegalArgumentException(

@@ -2,7 +2,6 @@ package dev.typr.foundationskt.docs.core
 
 import dev.typr.foundationskt.*
 import java.math.BigDecimal
-import java.sql.Connection
 import java.time.Instant
 
 @Suppress("unused")
@@ -24,14 +23,14 @@ class BatchOperations {
     val insertAll: RowTemplate.Update<Product> =
         Fragment.insertInto("product", productCodec)
 
-    fun insertProducts(products: List<Product>): List<Int> =
+    fun insertProducts(products: List<Product>): IntArray? =
         insertAll.onMany(products.iterator()).run(conn)
 
     // Batch insert — skip auto-generated ID column
     val insertAutoId: RowTemplate.Update<Product> =
         Fragment.insertInto("product", productCodec, "id")
 
-    fun insertProductsAutoId(products: List<Product>): List<Int> =
+    fun insertProductsAutoId(products: List<Product>): IntArray? =
         insertAutoId.onMany(products.iterator()).run(conn)
     //stop
 }

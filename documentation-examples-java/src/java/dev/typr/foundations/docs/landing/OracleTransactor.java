@@ -20,7 +20,7 @@ public class OracleTransactor {
   String getGreeting() {
     return Fragment.of("SELECT 'Hello from Oracle' FROM dual")
         .query(RowCodec.of(OracleTypes.varchar2).exactlyOne())
-        .transact(tx);
+        .transactRead(tx);
   }
 
   // stop

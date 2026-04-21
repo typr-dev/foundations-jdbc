@@ -14,7 +14,7 @@ public class FirstQuery {
           .field("population", DuckDbTypes.integer, City::population)
           .build(City::new);
 
-  static final Operation<List<City>> findCities =
+  static final OperationRead<List<City>> findCities =
       Fragment.of("SELECT ")
           .append(cityCodec.columnList())
           .append(" FROM city ORDER BY population DESC")

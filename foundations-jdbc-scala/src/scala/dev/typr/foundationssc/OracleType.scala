@@ -4,7 +4,7 @@ class OracleType[T](override val underlying: dev.typr.foundations.OracleType[T])
   override def opt: OracleType[Option[T]] =
     OracleType(underlying.opt().to(Bijections.optionalToOption))
 
-  override def to[B](bijection: dev.typr.foundations.Bijection[T, B]): OracleType[B] =
+  override def to[B](bijection: Bijection[T, B]): OracleType[B] =
     OracleType(underlying.to(bijection))
 
   def transform[B](f: T => B, g: B => T): OracleType[B] =

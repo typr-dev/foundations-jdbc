@@ -1,7 +1,6 @@
 package dev.typr.foundations;
 
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Iterator;
 import org.postgresql.PGConnection;
@@ -14,16 +13,16 @@ public class StreamingInsert {
   }
 
   public static <T> long insertUnchecked(
-      String copyCommand, int batchSize, Iterator<T> rows, Connection c, PgText<T> T) {
+      String copyCommand, int batchSize, Iterator<T> rows, java.sql.Connection c, PgText<T> T) {
     try {
       return insert(copyCommand, batchSize, rows, c, T);
     } catch (SQLException e) {
-      throw new DatabaseException(e);
+      throw new DatabaseException.Jdbc(e);
     }
   }
 
   public static <T> long insert(
-      String copyCommand, int batchSize, Iterator<T> rows, Connection c, PgText<T> T)
+      String copyCommand, int batchSize, Iterator<T> rows, java.sql.Connection c, PgText<T> T)
       throws SQLException {
     var copyManager = c.unwrap(PGConnection.class).getCopyAPI();
 

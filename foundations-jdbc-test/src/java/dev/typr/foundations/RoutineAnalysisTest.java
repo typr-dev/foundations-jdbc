@@ -2,14 +2,13 @@ package dev.typr.foundations;
 
 import static org.junit.Assert.*;
 
-import java.sql.Connection;
 import java.util.List;
 import org.junit.Test;
 
 public class RoutineAnalysisTest {
 
-  static <T> T withConnection(SqlFunction<Connection, T> f) {
-    return Containers.postgresTransactor().execute(f);
+  static <T> T withConnection(SqlFunction<java.sql.Connection, T> f) {
+    return Containers.postgresTransactor().transact(mc -> f.apply(mc.unwrap()));
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

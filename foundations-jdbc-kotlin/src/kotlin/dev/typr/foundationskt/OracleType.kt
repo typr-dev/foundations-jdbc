@@ -5,8 +5,8 @@ class OracleType<T>(override val underlying: dev.typr.foundations.OracleType<T>)
     override fun opt(): OracleType<T?> =
         OracleType(underlying.opt().to(Bijection.optionalToNullable()))
 
-    override fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): OracleType<B> =
-        OracleType(underlying.to(bijection))
+    override fun <B> to(bijection: Bijection<T, B>): OracleType<B> =
+        OracleType(underlying.to(bijection.underlying))
 
     fun <B> transform(f: (T) -> B, g: (B) -> T): OracleType<B> =
         OracleType(underlying.transform(dev.typr.foundations.SqlFunction { f(it) }, g))

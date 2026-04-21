@@ -1,4 +1,5 @@
 package dev.typr.foundationssc.docs.analysis
+
 import dev.typr.foundationssc.*
 
 @SuppressWarnings(Array("unused"))

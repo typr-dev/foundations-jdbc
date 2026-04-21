@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.internal.Str;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import org.jetbrains.annotations.Nullable;

@@ -3,7 +3,7 @@ package dev.typr.foundations.example
 import dev.typr.foundationskt.*
 
 object VenueRepo {
-    val allVenues: Operation<List<Venue>> =
+    val allVenues: OperationRead<List<Venue>> =
         sql { "SELECT ${venueCodec.columnList} FROM venue ORDER BY name" }
             .query(venueCodec.all())
 

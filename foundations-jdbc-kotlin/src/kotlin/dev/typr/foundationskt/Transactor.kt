@@ -1,72 +1,53 @@
 @file:Suppress("unused")
 package dev.typr.foundationskt
 
-import java.sql.Connection
+class Transactor(val underlying: dev.typr.foundations.Transactor) : AutoCloseable {
 
-typealias Strategy = dev.typr.foundations.Transactor.Strategy
-
-class Transactor(val underlying: dev.typr.foundations.Transactor) {
-
-    constructor(connect: dev.typr.foundations.SqlSupplier<Connection>, strategy: Strategy) :
-        this(dev.typr.foundations.Transactor(connect, strategy))
-
-    fun <T> execute(operation: Operation<T>): T {
-        return underlying.execute(dev.typr.foundations.SqlFunction { conn -> operation.run(conn) })
-    }
+    fun <T> execute(operation: Operation<T>): T =
+        underlying.execute(operation.underlying)
 
     fun <T> transact(f: (Connection) -> T): T =
-        underlying.execute(dev.typr.foundations.SqlFunction(f))
+        underlying.transact { javaConn -> f(Connection(javaConn)) }
 
-    fun executeVoid(f: (Connection) -> Unit) {
-        underlying.executeVoid { conn -> f(conn) }
-    }
+    fun <T> transactRead(f: (ConnectionRead) -> T): T =
+        underlying.transactRead { javaConn -> f(ConnectionRead(javaConn)) }
 
-    fun withStrategy(override: Strategy): Transactor =
-        Transactor(underlying.withStrategy(override))
+    fun <T : Any> query(sql: Fragment, codec: RowCodec<T>): List<T> =
+        underlying.query(sql.underlying, codec.underlying)
+
+    fun <T : Any> queryFirst(sql: Fragment, codec: RowCodec<T>): T? =
+        underlying.queryFirst(sql.underlying, codec.underlying).orElse(null)
+
+    fun update(sql: Fragment): Int =
+        underlying.update(sql.underlying)
+
+    fun rollbackOnly(): Transactor =
+        Transactor(underlying.rollbackOnly())
+
+    fun withListener(listener: QueryListener): Transactor =
+        Transactor(underlying.withListener(listener))
 
     fun mergeListener(listener: QueryListener): Transactor =
         Transactor(underlying.mergeListener(listener))
 
-    fun <T> transact(override: Strategy, f: (Connection) -> T): T =
-        withStrategy(override).transact(f)
+    override fun close() = underlying.close()
 
     companion object {
+        /**
+         * Create a JDBC-backed transactor. The underlying Java transactor implements
+         * [dev.typr.foundations.TransactorJdbc] for raw JDBC access via `underlying`.
+         */
         @JvmStatic
         fun create(config: dev.typr.foundationskt.connect.DatabaseConfig): Transactor =
             Transactor(dev.typr.foundations.Transactor.create(config))
 
-        @JvmStatic
-        fun create(config: dev.typr.foundationskt.connect.DatabaseConfig, strategy: Strategy): Transactor =
-            Transactor(dev.typr.foundations.Transactor.create(config, strategy))
-
+        /**
+         * Create a JDBC-backed transactor. The underlying Java transactor implements
+         * [dev.typr.foundations.TransactorJdbc] for raw JDBC access via `underlying`.
+         */
         @JvmStatic
         fun create(config: dev.typr.foundationskt.connect.DatabaseConfig, settings: dev.typr.foundationskt.connect.ConnectionSettings): Transactor =
             Transactor(dev.typr.foundations.Transactor.create(config, settings))
 
-        @JvmStatic
-        fun create(config: dev.typr.foundationskt.connect.DatabaseConfig, settings: dev.typr.foundationskt.connect.ConnectionSettings, strategy: Strategy): Transactor =
-            Transactor(dev.typr.foundations.Transactor.create(config, settings, strategy))
-
-        /**
-         * Create a Transactor directly from an existing [dev.typr.foundationskt.connect.ConnectionSource].
-         * Useful when you already hold a [dev.typr.foundationskt.connect.ConnectionSource] from
-         * [dev.typr.foundationskt.connect.ConnectionSource.of] or a custom pool.
-         */
-        @JvmStatic
-        fun create(source: dev.typr.foundationskt.connect.ConnectionSource, strategy: Strategy): Transactor =
-            source.transactor(strategy)
-
-        @JvmStatic
-        fun create(source: dev.typr.foundationskt.connect.ConnectionSource): Transactor =
-            source.transactor()
-
-        @JvmStatic
-        fun defaultStrategy(): Strategy = dev.typr.foundations.Transactor.defaultStrategy()
-
-        @JvmStatic
-        fun autoCommitStrategy(): Strategy = dev.typr.foundations.Transactor.autoCommitStrategy()
-
-        @JvmStatic
-        fun testStrategy(): Strategy = dev.typr.foundations.Transactor.testStrategy()
     }
 }

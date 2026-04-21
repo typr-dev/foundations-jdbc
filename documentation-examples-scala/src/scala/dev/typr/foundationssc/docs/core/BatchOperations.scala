@@ -2,7 +2,6 @@ package dev.typr.foundationssc.docs.core
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.Connection
 import java.time.Instant
 
 @SuppressWarnings(Array("unused"))
@@ -24,13 +23,13 @@ object BatchOperations:
   val insertAll: RowTemplate.Update[Product] =
     Fragment.insertInto("product", productCodec)
 
-  def insertProducts(products: List[Product]): List[Int] =
+  def insertProducts(products: List[Product]): Option[Array[Int]] =
     insertAll.onMany(products.iterator).run(conn)
 
   // Batch insert — skip auto-generated ID column
   val insertAutoId: RowTemplate.Update[Product] =
     Fragment.insertInto("product", productCodec, "id")
 
-  def insertProductsAutoId(products: List[Product]): List[Int] =
+  def insertProductsAutoId(products: List[Product]): Option[Array[Int]] =
     insertAutoId.onMany(products.iterator).run(conn)
   // stop

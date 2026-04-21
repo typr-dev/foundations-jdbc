@@ -6,7 +6,6 @@ import dev.typr.foundations.data.OracleIntervalDS;
 import dev.typr.foundations.data.OracleIntervalYM;
 import dev.typr.foundations.data.PaddedString;
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -35,7 +34,7 @@ public sealed interface OracleWrite<A> extends DbWrite<A>
    * Convert a Java value to its Oracle SQL representation. - OBJECT types → oracle.sql.STRUCT -
    * ARRAY types → oracle.sql.ARRAY - Primitive types → value itself (identity)
    */
-  Object toOracleValue(A value, Connection conn) throws SQLException;
+  Object toOracleValue(A value, java.sql.Connection conn) throws SQLException;
 
   void set(PreparedStatement ps, int idx, A a) throws SQLException;
 
@@ -51,7 +50,7 @@ public sealed interface OracleWrite<A> extends DbWrite<A>
   /** For primitive types - toOracleValue is identity. */
   record Instance<A, U>(RawWriter<U> rawWriter, Function<A, U> f) implements OracleWrite<A> {
     @Override
-    public Object toOracleValue(A value, Connection conn) {
+    public Object toOracleValue(A value, java.sql.Connection conn) {
       if (value == null) return null;
       return f.apply(value); // Apply function to unwrap Optional or transform value
     }
@@ -78,10 +77,11 @@ public sealed interface OracleWrite<A> extends DbWrite<A>
   }
 
   /** For structured types (OBJECT, ARRAY) - requires conversion. */
-  record Structured<A>(SqlBiFunction<A, Connection, Object> converter, String typename, int sqlType)
+  record Structured<A>(
+      SqlBiFunction<A, java.sql.Connection, Object> converter, String typename, int sqlType)
       implements OracleWrite<A> {
     @Override
-    public Object toOracleValue(A value, Connection conn) throws SQLException {
+    public Object toOracleValue(A value, java.sql.Connection conn) throws SQLException {
       if (value == null) return null;
       return converter.apply(value, conn);
     }
@@ -109,7 +109,7 @@ public sealed interface OracleWrite<A> extends DbWrite<A>
                         try {
                           return converter.apply(v, conn);
                         } catch (SQLException e) {
-                          throw new DatabaseException(e);
+                          throw new DatabaseException.Jdbc(e);
                         }
                       })
                   .orElse(null),
@@ -132,7 +132,7 @@ public sealed interface OracleWrite<A> extends DbWrite<A>
    * and SQL type.
    */
   static <A> Structured<A> structured(
-      SqlBiFunction<A, Connection, Object> converter, String typename, int sqlType) {
+      SqlBiFunction<A, java.sql.Connection, Object> converter, String typename, int sqlType) {
     return new Structured<>(converter, typename, sqlType);
   }
 

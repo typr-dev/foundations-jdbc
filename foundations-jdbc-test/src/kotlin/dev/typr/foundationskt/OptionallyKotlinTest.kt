@@ -3,24 +3,24 @@ package dev.typr.foundationskt
 import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
-import java.sql.Connection
 import java.sql.DriverManager
 
 class OptionallyKotlinTest {
 
     companion object {
-        private lateinit var conn: Connection
+        private lateinit var conn: dev.typr.foundationskt.Connection
 
         @JvmStatic
         @BeforeClass
         fun setup() {
-            conn = DriverManager.getConnection("jdbc:duckdb:")
-            conn.createStatement().use { stmt ->
+            val jdbcConn = DriverManager.getConnection("jdbc:duckdb:")
+            jdbcConn.createStatement().use { stmt ->
                 stmt.execute("CREATE TABLE products (id INTEGER, name VARCHAR, price DECIMAL(10,2), active BOOLEAN)")
                 stmt.execute("INSERT INTO products VALUES (1, 'Widget', 9.99, true)")
                 stmt.execute("INSERT INTO products VALUES (2, 'Gadget', 19.99, true)")
                 stmt.execute("INSERT INTO products VALUES (3, 'Doohickey', 5.99, false)")
             }
+            conn = dev.typr.foundationskt.Connection(dev.typr.foundations.internal.ConnectionJdbc(jdbcConn))
         }
     }
 

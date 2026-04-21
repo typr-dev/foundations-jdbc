@@ -234,7 +234,7 @@ public record DuckDbType<A>(
             for (Object elem : elements) result.add(this.read.fromJdbcValue(elem));
             return result;
           } catch (java.sql.SQLException e) {
-            throw new DatabaseException(e);
+            throw new DatabaseException.Jdbc(e);
           }
         };
     DuckDbRead<List<A>> collRead =

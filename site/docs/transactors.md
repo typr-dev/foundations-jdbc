@@ -20,17 +20,7 @@ Each supported database has a typed config builder — your IDE will autocomplet
 
 Override connection-level defaults by passing `ConnectionSettings`:
 
-```java
-var settings = ConnectionSettings.builder()
-    .transactionIsolation(TransactionIsolation.READ_COMMITTED)
-    .readOnly(true)
-    .schema("app")
-    .connectionInitSql("SET search_path TO app")
-    .build();
-
-var tx = Transactor.create(config, settings);
-// or: Transactor.create(config, settings, strategy)
-```
+<Snippet file="core/ConnectionSettingsSetup" />
 
 | Setting | Description |
 |---------|-------------|
@@ -52,30 +42,55 @@ var tx = pool.transactor();
 
 ## Single Connection Mode
 
-When a config requires single-connection mode (e.g. DuckDB in-memory), `ConnectionSource.of()` automatically reuses one connection across all callers — no special setup needed. DuckDB in-memory creates a separate database per connection, so this is detected and handled transparently:
+`SingleConnectionDataSource` reuses one connection across all calls — needed for DuckDB in-memory, where each new connection creates a separate database:
 
 ```java
-// DuckDB in-memory: single-connection mode is automatic
-var ds = ConnectionSource.of(DuckDbConfig.inMemory().build());
+var ds = SingleConnectionDataSource.create(config);
 var tx = ds.transactor();
 ```
 
-## Strategies
+## Test Mode
 
-The default strategy wraps each call in a transaction. Pass a different built-in strategy to `Transactor.create()`:
-
-| Strategy | Behavior |
-|----------|----------|
-| `defaultStrategy()` | begin, commit on success, rollback on error, close |
-| `autoCommitStrategy()` | no transaction management, just close |
-| `testStrategy()` | begin, **rollback** on success or error, close — keeps test data isolated |
+Call `.rollbackOnly()` to roll back instead of committing — ideal for test isolation:
 
 ```java
-var tx = Transactor.create(config, Transactor.testStrategy());
+var tx = Transactor.create(config).rollbackOnly();
 ```
 
-:::warning testStrategy is for tests only
-`testStrategy()` rolls back every `execute` / `transact`, including ones that succeeded — **nothing persists**. If you copy this into a script, a tutorial, a migration, or any production code, your DDL and INSERTs will silently disappear. For anything that should persist, use `defaultStrategy()`.
-:::
+## Observability
 
-Strategies can be thoroughly customized with composable hooks for transaction lifecycle and observability. See [Strategies](./strategies) for details.
+Attach a `QueryListener` to observe all queries and transactions:
+
+```java
+var tx = Transactor.create(config).withListener(myListener);
+```
+
+See [Listener & Test Mode](./strategies) and [Observability](./observability) for details.
+
+## Raw JDBC Access
+
+`Transactor.create()` returns `TransactorJdbc` — a subtype of `Transactor` that exposes the underlying JDBC connection:
+
+```java
+TransactorJdbc tx = Transactor.create(config);
+
+// Raw JDBC when you need it
+tx.executeJdbc(conn -> {
+    var meta = conn.getMetaData();
+    return meta.getTables(null, null, "%", null);
+});
+```
+
+This is an escape hatch for vendor-specific JDBC extensions, `DatabaseMetaData`, advisory locks, or migration tooling. `executeJdbc` is only available on `TransactorJdbc`.
+
+For normal queries and updates, use the typed `OperationRead` / `Operation` API — it works identically across all backends.
+
+## Error Handling
+
+Database errors are thrown as `DatabaseException` — a sealed class with dialect-specific subtypes:
+
+- `DatabaseException.Postgres` — structured PostgreSQL error with all ErrorResponse fields (schema, table, constraint, position caret, etc.)
+- `DatabaseException.SqlServer` — structured SQL Server error with severity, procedure name, line number
+- `DatabaseException.Jdbc` — wraps `SQLException` for other databases
+
+See [Error Handling](./error-handling) for pattern matching examples and field details.

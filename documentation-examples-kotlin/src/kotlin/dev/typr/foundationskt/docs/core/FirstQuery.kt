@@ -14,7 +14,7 @@ object FirstQuery {
             .field("population", DuckDbTypes.integer, City::population)
             .build(::City)
 
-    val findCities: Operation<List<City>> =
+    val findCities: OperationRead<List<City>> =
         sql { "SELECT ${cityCodec.columnList} FROM city ORDER BY population DESC" }
             .query(cityCodec.all())
     //stop

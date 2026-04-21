@@ -47,7 +47,5 @@ object Schema {
         """
     )
 
-    fun apply(conn: Connection) {
-        DDL.forEach { Fragment.of(it).execute().run(conn) }
-    }
+    val create = Operation.allOf(*DDL.map { Fragment.of(it).execute() }.toTypedArray())
 }

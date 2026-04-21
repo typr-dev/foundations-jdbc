@@ -57,7 +57,7 @@ public class DbJsonRowTest {
     Json fromDb =
         Fragment.of("SELECT lines FROM orders")
             .query(RowCodec.of(DuckDbTypes.json).exactlyOne())
-            .transact(tx);
+            .transactRead(tx);
 
     List<OrderLine> decoded = linesCodec.fromJson(JsonValue.parse(fromDb.value()));
     assertEqual(original, decoded);
@@ -96,7 +96,7 @@ public class DbJsonRowTest {
                     + " FROM order_lines l WHERE l.customer_id = c.id) "
                     + "FROM customers c ORDER BY c.id")
             .query(customerCodec.all())
-            .transact(tx);
+            .transactRead(tx);
 
     // Alice has 2 order lines
     CustomerWithLines alice = customers.get(0);
@@ -140,7 +140,7 @@ public class DbJsonRowTest {
     Json fromDb =
         Fragment.of("SELECT lines FROM orders")
             .query(RowCodec.of(DuckDbTypes.json).exactlyOne())
-            .transact(tx);
+            .transactRead(tx);
 
     List<OrderLine> decoded = objectCodec.fromJson(JsonValue.parse(fromDb.value()));
     assertEqual(original, decoded);

@@ -4,7 +4,7 @@ import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.QueryChecker;
 import dev.typr.foundations.RowCodec;
-import dev.typr.foundations.Template;
+import dev.typr.foundations.TemplateRead;
 import dev.typr.foundations.Transactor;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +25,7 @@ public class OptionalQueryMulti {
 
   // start
   // Multiple optional filters — each independently present or absent
-  Template.Query3<Optional<String>, Optional<String>, Boolean, List<User>> search =
+  TemplateRead.Query3<Optional<String>, Optional<String>, Boolean, List<User>> search =
       Fragment.of(
               """
               SELECT id, name, email FROM users WHERE 1=1

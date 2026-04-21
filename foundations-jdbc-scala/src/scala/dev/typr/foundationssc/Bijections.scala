@@ -1,7 +1,6 @@
 package dev.typr.foundationssc
 
 import dev.typr.foundations.Bijection
-
 import java.util.Optional
 import _root_.scala.jdk.OptionConverters.*
 
@@ -16,70 +15,72 @@ object Bijections {
 
   def optionToOptional[T]: Bijection[Option[T], Optional[T]] = optionalToOption[T].inverse()
 
-  def andToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[A, B], (A, B)] = {
+  private[foundationssc] def andToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[A, B], (A, B)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple2[A, B], (A, B)](
       (t: dev.typr.foundations.Tuple.Tuple2[A, B]) => (t._1(), t._2()),
       (t: (A, B)) => dev.typr.foundations.Tuple.of(t._1, t._2)
     )
   }
 
-  def leftJoinToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[A, Optional[B]], (A, Option[B])] = {
+  private[foundationssc] def leftJoinToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[A, Optional[B]], (A, Option[B])] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple2[A, Optional[B]], (A, Option[B])](
       (t: dev.typr.foundations.Tuple.Tuple2[A, Optional[B]]) => (t._1(), t._2().toScala),
       (t: (A, Option[B])) => dev.typr.foundations.Tuple.of(t._1, t._2.toJava)
     )
   }
 
-  def rightJoinToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[Optional[A], B], (Option[A], B)] = {
+  private[foundationssc] def rightJoinToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[Optional[A], B], (Option[A], B)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple2[Optional[A], B], (Option[A], B)](
       (t: dev.typr.foundations.Tuple.Tuple2[Optional[A], B]) => (t._1().toScala, t._2()),
       (t: (Option[A], B)) => dev.typr.foundations.Tuple.of(t._1.toJava, t._2)
     )
   }
 
-  def fullJoinToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[Optional[A], Optional[B]], (Option[A], Option[B])] = {
+  private[foundationssc] def fullJoinToTuple[A, B]: Bijection[dev.typr.foundations.Tuple.Tuple2[Optional[A], Optional[B]], (Option[A], Option[B])] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple2[Optional[A], Optional[B]], (Option[A], Option[B])](
       (t: dev.typr.foundations.Tuple.Tuple2[Optional[A], Optional[B]]) => (t._1().toScala, t._2().toScala),
       (t: (Option[A], Option[B])) => dev.typr.foundations.Tuple.of(t._1.toJava, t._2.toJava)
     )
   }
 
-  def tupleToScala3[T0, T1, T2]: Bijection[dev.typr.foundations.Tuple.Tuple3[T0, T1, T2], (T0, T1, T2)] = {
+  private[foundationssc] def tupleToScala3[T0, T1, T2]: Bijection[dev.typr.foundations.Tuple.Tuple3[T0, T1, T2], (T0, T1, T2)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple3[T0, T1, T2], (T0, T1, T2)](
       (t: dev.typr.foundations.Tuple.Tuple3[T0, T1, T2]) => (t._1(), t._2(), t._3()),
       (t: (T0, T1, T2)) => dev.typr.foundations.Tuple.of(t._1, t._2, t._3)
     )
   }
 
-  def tupleToScala4[T0, T1, T2, T3]: Bijection[dev.typr.foundations.Tuple.Tuple4[T0, T1, T2, T3], (T0, T1, T2, T3)] = {
+  private[foundationssc] def tupleToScala4[T0, T1, T2, T3]: Bijection[dev.typr.foundations.Tuple.Tuple4[T0, T1, T2, T3], (T0, T1, T2, T3)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple4[T0, T1, T2, T3], (T0, T1, T2, T3)](
       (t: dev.typr.foundations.Tuple.Tuple4[T0, T1, T2, T3]) => (t._1(), t._2(), t._3(), t._4()),
       (t: (T0, T1, T2, T3)) => dev.typr.foundations.Tuple.of(t._1, t._2, t._3, t._4)
     )
   }
 
-  def tupleToScala5[T0, T1, T2, T3, T4]: Bijection[dev.typr.foundations.Tuple.Tuple5[T0, T1, T2, T3, T4], (T0, T1, T2, T3, T4)] = {
+  private[foundationssc] def tupleToScala5[T0, T1, T2, T3, T4]: Bijection[dev.typr.foundations.Tuple.Tuple5[T0, T1, T2, T3, T4], (T0, T1, T2, T3, T4)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple5[T0, T1, T2, T3, T4], (T0, T1, T2, T3, T4)](
       (t: dev.typr.foundations.Tuple.Tuple5[T0, T1, T2, T3, T4]) => (t._1(), t._2(), t._3(), t._4(), t._5()),
       (t: (T0, T1, T2, T3, T4)) => dev.typr.foundations.Tuple.of(t._1, t._2, t._3, t._4, t._5)
     )
   }
 
-  def tupleToScala6[T0, T1, T2, T3, T4, T5]: Bijection[dev.typr.foundations.Tuple.Tuple6[T0, T1, T2, T3, T4, T5], (T0, T1, T2, T3, T4, T5)] = {
+  private[foundationssc] def tupleToScala6[T0, T1, T2, T3, T4, T5]
+      : Bijection[dev.typr.foundations.Tuple.Tuple6[T0, T1, T2, T3, T4, T5], (T0, T1, T2, T3, T4, T5)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple6[T0, T1, T2, T3, T4, T5], (T0, T1, T2, T3, T4, T5)](
       (t: dev.typr.foundations.Tuple.Tuple6[T0, T1, T2, T3, T4, T5]) => (t._1(), t._2(), t._3(), t._4(), t._5(), t._6()),
       (t: (T0, T1, T2, T3, T4, T5)) => dev.typr.foundations.Tuple.of(t._1, t._2, t._3, t._4, t._5, t._6)
     )
   }
 
-  def tupleToScala7[T0, T1, T2, T3, T4, T5, T6]: Bijection[dev.typr.foundations.Tuple.Tuple7[T0, T1, T2, T3, T4, T5, T6], (T0, T1, T2, T3, T4, T5, T6)] = {
+  private[foundationssc] def tupleToScala7[T0, T1, T2, T3, T4, T5, T6]
+      : Bijection[dev.typr.foundations.Tuple.Tuple7[T0, T1, T2, T3, T4, T5, T6], (T0, T1, T2, T3, T4, T5, T6)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple7[T0, T1, T2, T3, T4, T5, T6], (T0, T1, T2, T3, T4, T5, T6)](
       (t: dev.typr.foundations.Tuple.Tuple7[T0, T1, T2, T3, T4, T5, T6]) => (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()),
       (t: (T0, T1, T2, T3, T4, T5, T6)) => dev.typr.foundations.Tuple.of(t._1, t._2, t._3, t._4, t._5, t._6, t._7)
     )
   }
 
-  def tupleToScala8[T0, T1, T2, T3, T4, T5, T6, T7]
+  private[foundationssc] def tupleToScala8[T0, T1, T2, T3, T4, T5, T6, T7]
       : Bijection[dev.typr.foundations.Tuple.Tuple8[T0, T1, T2, T3, T4, T5, T6, T7], (T0, T1, T2, T3, T4, T5, T6, T7)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple8[T0, T1, T2, T3, T4, T5, T6, T7], (T0, T1, T2, T3, T4, T5, T6, T7)](
       (t: dev.typr.foundations.Tuple.Tuple8[T0, T1, T2, T3, T4, T5, T6, T7]) => (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8()),
@@ -87,7 +88,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala9[T0, T1, T2, T3, T4, T5, T6, T7, T8]
+  private[foundationssc] def tupleToScala9[T0, T1, T2, T3, T4, T5, T6, T7, T8]
       : Bijection[dev.typr.foundations.Tuple.Tuple9[T0, T1, T2, T3, T4, T5, T6, T7, T8], (T0, T1, T2, T3, T4, T5, T6, T7, T8)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple9[T0, T1, T2, T3, T4, T5, T6, T7, T8], (T0, T1, T2, T3, T4, T5, T6, T7, T8)](
       (t: dev.typr.foundations.Tuple.Tuple9[T0, T1, T2, T3, T4, T5, T6, T7, T8]) => (t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), t._8(), t._9()),
@@ -95,7 +96,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala10[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]
+  private[foundationssc] def tupleToScala10[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]
       : Bijection[dev.typr.foundations.Tuple.Tuple10[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9], (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple10[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9], (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)](
       (t: dev.typr.foundations.Tuple.Tuple10[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]) =>
@@ -104,7 +105,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala11[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10]
+  private[foundationssc] def tupleToScala11[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10]
       : Bijection[dev.typr.foundations.Tuple.Tuple11[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10], (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple11[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10], (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)](
       (t: dev.typr.foundations.Tuple.Tuple11[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10]) =>
@@ -113,7 +114,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala12[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11]
+  private[foundationssc] def tupleToScala12[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11]
       : Bijection[dev.typr.foundations.Tuple.Tuple12[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11], (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)] = {
     Bijection.of[dev.typr.foundations.Tuple.Tuple12[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11], (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)](
       (t: dev.typr.foundations.Tuple.Tuple12[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11]) =>
@@ -123,7 +124,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala13[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12]: Bijection[
+  private[foundationssc] def tupleToScala13[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12]: Bijection[
     dev.typr.foundations.Tuple.Tuple13[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12],
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
   ] = {
@@ -136,7 +137,7 @@ object Bijections {
       )
   }
 
-  def tupleToScala14[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13]: Bijection[
+  private[foundationssc] def tupleToScala14[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13]: Bijection[
     dev.typr.foundations.Tuple.Tuple14[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13],
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
   ] = {
@@ -151,7 +152,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala15[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14]: Bijection[
+  private[foundationssc] def tupleToScala15[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14]: Bijection[
     dev.typr.foundations.Tuple.Tuple15[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14],
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
   ] = {
@@ -166,7 +167,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala16[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15]: Bijection[
+  private[foundationssc] def tupleToScala16[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15]: Bijection[
     dev.typr.foundations.Tuple.Tuple16[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15],
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
   ] = {
@@ -181,7 +182,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala17[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16]: Bijection[
+  private[foundationssc] def tupleToScala17[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16]: Bijection[
     dev.typr.foundations.Tuple.Tuple17[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16],
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
   ] = {
@@ -196,7 +197,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala18[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17]: Bijection[
+  private[foundationssc] def tupleToScala18[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17]: Bijection[
     dev.typr.foundations.Tuple.Tuple18[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17],
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
   ] = {
@@ -230,7 +231,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala19[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18]: Bijection[
+  private[foundationssc] def tupleToScala19[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18]: Bijection[
     dev.typr.foundations.Tuple.Tuple19[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18],
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
   ] = {
@@ -266,7 +267,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala20[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19]: Bijection[
+  private[foundationssc] def tupleToScala20[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19]: Bijection[
     dev.typr.foundations.Tuple.Tuple20[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19],
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
   ] = {
@@ -303,7 +304,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala21[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20]: Bijection[
+  private[foundationssc] def tupleToScala21[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20]: Bijection[
     dev.typr.foundations.Tuple.Tuple21[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20],
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
   ] = {
@@ -341,7 +342,7 @@ object Bijections {
     )
   }
 
-  def tupleToScala22[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21]: Bijection[
+  private[foundationssc] def tupleToScala22[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21]: Bijection[
     dev.typr.foundations.Tuple.Tuple22[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21],
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
   ] = {

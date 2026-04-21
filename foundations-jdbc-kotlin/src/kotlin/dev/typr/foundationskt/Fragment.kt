@@ -19,25 +19,25 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
 
     operator fun plus(other: Fragment): Fragment = append(other)
 
-    fun <T> query(parser: ResultSetParser<T>): Operation.Query<T> =
-        Operation.Query(dev.typr.foundations.Operation.Query(underlying, parser.underlying))
+    fun <T> query(parser: ResultSetParser<T>): OperationRead.Query<T> =
+        OperationRead.Query(dev.typr.foundations.OperationRead.Query(underlying, parser.underlying))
 
-    fun <T : Any> queryExactlyOne(type: DbType<T>): Operation.Query<T> =
+    fun <T : Any> queryExactlyOne(type: DbType<T>): OperationRead.Query<T> =
         query(RowCodec.of(type).exactlyOne())
 
-    fun <T : Any> queryExactlyOne(codec: RowCodec<T>): Operation.Query<T> =
+    fun <T : Any> queryExactlyOne(codec: RowCodec<T>): OperationRead.Query<T> =
         query(codec.exactlyOne())
 
-    fun <T : Any> queryAll(type: DbType<T>): Operation.Query<List<T>> =
+    fun <T : Any> queryAll(type: DbType<T>): OperationRead.Query<List<T>> =
         query(RowCodec.of(type).all())
 
-    fun <T : Any> queryAll(codec: RowCodec<T>): Operation.Query<List<T>> =
+    fun <T : Any> queryAll(codec: RowCodec<T>): OperationRead.Query<List<T>> =
         query(codec.all())
 
-    fun <T : Any> queryMaxOne(type: DbType<T>): Operation.Query<T?> =
+    fun <T : Any> queryMaxOne(type: DbType<T>): OperationRead.Query<T?> =
         query(RowCodec.of(type).maxOne())
 
-    fun <T : Any> queryMaxOne(codec: RowCodec<T>): Operation.Query<T?> =
+    fun <T : Any> queryMaxOne(codec: RowCodec<T>): OperationRead.Query<T?> =
         query(codec.maxOne())
 
     fun update(): Operation.Update =
@@ -61,11 +61,11 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun <Row : Any> updateReturningEach(parser: RowCodec<Row>, rows: Iterator<Row>): Operation.UpdateReturningEach<Row> =
         Operation.UpdateReturningEach(underlying.updateReturningEach(parser.underlying, rows))
 
-    fun <T : Any> streamingQuery(codec: RowCodec<T>, fetchSize: Int): Operation.Streaming<T> =
-        Operation.Streaming(underlying.streamingQuery(codec.underlying, fetchSize))
+    fun <T : Any> streamingQuery(codec: RowCodec<T>, fetchSize: Int): OperationRead.Streaming<T> =
+        OperationRead.Streaming(underlying.streamingQuery(codec.underlying, fetchSize))
 
-    fun <T : Any> streamingQuery(type: DbType<T>, fetchSize: Int): Operation.Streaming<T> =
-        Operation.Streaming(underlying.streamingQuery(type.underlying, fetchSize))
+    fun <T : Any> streamingQuery(type: DbType<T>, fetchSize: Int): OperationRead.Streaming<T> =
+        OperationRead.Streaming(underlying.streamingQuery(type.underlying, fetchSize))
 
     fun append(s: String): Fragment = Fragment(underlying.append(s))
 
@@ -89,23 +89,31 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun optionally(inner: Fragment): ParamBuilders.ParamBuilder1<Boolean> =
         ParamBuilders.ParamBuilder1(underlying.optionally(inner.underlying))
 
-    @Suppress("UNCHECKED_CAST")
-    fun <A : Any> optionally(builder: ParamBuilders.ParamBuilder1<A>): ParamBuilders.ParamBuilder1<A?> =
-        ParamBuilders.ParamBuilder1(
-            underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder1<A>),
-            listOf(OptionallyTransforms.nullableToOptional))
+    fun <A : Any> optionally(builder: ParamBuilders.ParamBuilder1<A>): ParamBuilders.ParamBuilder1<A?> {
+        val inner = builder._queryFn.buildDone()
+        val newFragment = underlying.append(dev.typr.foundations.Fragment.Optionally(inner, dev.typr.foundations.Fragment.countParams(inner)))
+        val newJava = dev.typr.foundations.ParamBuilders.ParamBuilder1<java.util.Optional<A>>(newFragment, null)
+        return ParamBuilders.ParamBuilder1(ParamBuilders.createOps1(newJava, dev.typr.foundations.Bijection.optionalToNullable<A>()))
+    }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <A : Any, B : Any> optionally(builder: ParamBuilders.ParamBuilder2<A, B>): ParamBuilders.ParamBuilder1<Pair<A, B>?> =
-        ParamBuilders.ParamBuilder1(
-            underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder2<A, B>),
-            listOf(OptionallyTransforms.pairToOptionalTuple2))
+    fun <A : Any, B : Any> optionally(builder: ParamBuilders.ParamBuilder2<A, B>): ParamBuilders.ParamBuilder1<Pair<A, B>?> {
+        val inner = builder._queryFn.buildDone()
+        val newFragment = underlying.append(dev.typr.foundations.Fragment.Optionally(inner, dev.typr.foundations.Fragment.countParams(inner)))
+        val newJava = dev.typr.foundations.ParamBuilders.ParamBuilder1<java.util.Optional<dev.typr.foundations.Tuple.Tuple2<A, B>>>(newFragment, null)
+        return ParamBuilders.ParamBuilder1(ParamBuilders.createOps1(newJava,
+            dev.typr.foundations.Bijection.optionalToNullable<dev.typr.foundations.Tuple.Tuple2<A, B>>().andThen(Bijection.andToPair())))
+    }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <A : Any, B : Any, C : Any> optionally(builder: ParamBuilders.ParamBuilder3<A, B, C>): ParamBuilders.ParamBuilder1<Triple<A, B, C>?> =
-        ParamBuilders.ParamBuilder1(
-            underlying.optionally(builder.underlying as dev.typr.foundations.ParamBuilders.ParamBuilder3<A, B, C>),
-            listOf(OptionallyTransforms.tripleToOptionalTuple3))
+    fun <A : Any, B : Any, C : Any> optionally(builder: ParamBuilders.ParamBuilder3<A, B, C>): ParamBuilders.ParamBuilder1<Triple<A, B, C>?> {
+        val inner = builder._queryFn.buildDone()
+        val newFragment = underlying.append(dev.typr.foundations.Fragment.Optionally(inner, dev.typr.foundations.Fragment.countParams(inner)))
+        val newJava = dev.typr.foundations.ParamBuilders.ParamBuilder1<java.util.Optional<dev.typr.foundations.Tuple.Tuple3<A, B, C>>>(newFragment, null)
+        return ParamBuilders.ParamBuilder1(ParamBuilders.createOps1(newJava,
+            dev.typr.foundations.Bijection.optionalToNullable<dev.typr.foundations.Tuple.Tuple3<A, B, C>>().andThen(
+                dev.typr.foundations.Bijection.of(
+                    { t: dev.typr.foundations.Tuple.Tuple3<A, B, C> -> Triple(t._1(), t._2(), t._3()) },
+                    { t: Triple<A, B, C> -> dev.typr.foundations.Tuple.of(t.first, t.second, t.third) }))))
+    }
 
     companion object {
         @JvmField
@@ -249,29 +257,38 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
                 table, codec.underlying, arrayOf(generatedColumn), parser.underlying, generatedColumn))
 
         @JvmStatic
+        fun <Row : Any> upsert(table: String, codec: RowCodecNamed<Row>, vararg conflictColumns: String): RowTemplate.Update<Row> =
+            RowTemplate.Update(dev.typr.foundations.Fragment.upsert(table, codec.underlying, *conflictColumns))
+
+        @JvmStatic
+        fun <Row : Any> upsertReturning(table: String, codec: RowCodecNamed<Row>, vararg conflictColumns: String): RowTemplate.Query<Row, Row> =
+            RowTemplate.Query(dev.typr.foundations.Fragment.upsertReturning(table, codec.underlying, *conflictColumns))
+
+        @JvmStatic
+        fun <Row : Any> insertIgnore(table: String, codec: RowCodecNamed<Row>, vararg conflictColumns: String): RowTemplate.Update<Row> =
+            RowTemplate.Update(dev.typr.foundations.Fragment.insertIgnore(table, codec.underlying, *conflictColumns))
+
+        @JvmStatic
         @JvmName("rowStatic")
         fun <Row : Any> row(codec: RowCodecNamed<Row>, row: Row, vararg except: String): Fragment =
             Fragment(dev.typr.foundations.Fragment.EMPTY.row(codec.underlying, row, *except))
     }
 }
 
-@Suppress("UNCHECKED_CAST")
 internal object OptionallyTransforms {
     val nullableToOptional: (Any?) -> Any? = { java.util.Optional.ofNullable(it) }
 
     val pairToOptionalTuple2: (Any?) -> Any? = { value ->
-        if (value != null) {
-            val p = value as Pair<Any?, Any?>
-            java.util.Optional.of(dev.typr.foundations.Tuple.of(p.first, p.second))
+        if (value is Pair<*, *>) {
+            java.util.Optional.of(dev.typr.foundations.Tuple.of(value.first, value.second))
         } else {
             java.util.Optional.empty<Any>()
         }
     }
 
     val tripleToOptionalTuple3: (Any?) -> Any? = { value ->
-        if (value != null) {
-            val t = value as Triple<Any?, Any?, Any?>
-            java.util.Optional.of(dev.typr.foundations.Tuple.of(t.first, t.second, t.third))
+        if (value is Triple<*, *, *>) {
+            java.util.Optional.of(dev.typr.foundations.Tuple.of(value.first, value.second, value.third))
         } else {
             java.util.Optional.empty<Any>()
         }

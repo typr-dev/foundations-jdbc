@@ -1,7 +1,6 @@
 package dev.typr.foundationssc.docs.core
 import dev.typr.foundationssc.*
 
-import java.sql.Connection
 import java.time.Instant
 
 @SuppressWarnings(Array("unused"))

@@ -63,9 +63,15 @@ class SqlBuilderTest {
         assertEquals("SELECT 1 + ?::INTEGER + ?::INTEGER", frag.render())
     }
 
+    private fun withDuckDb(block: (Connection) -> Unit) {
+        DriverManager.getConnection("jdbc:duckdb:").use { jdbcConn ->
+            block(Connection(dev.typr.foundations.internal.ConnectionJdbc(jdbcConn)))
+        }
+    }
+
     @Test
     fun inlineNestedSqlBlocksRuntime() {
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
+        withDuckDb { conn ->
             val frag = sql { "SELECT ${sql { "${DuckDbTypes.integer(10)} + ${DuckDbTypes.integer(20)}" }} + ${DuckDbTypes.integer(12)} AS answer" }
             val result = frag.query(RowCodec.of(DuckDbTypes.integer).exactlyOne()).run(conn)
             assertEquals(42, result)
@@ -116,7 +122,7 @@ class SqlBuilderTest {
 
     @Test
     fun runtimeExecution() {
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
+        withDuckDb { conn ->
             val frag = sql { "SELECT ${DuckDbTypes.integer(42)} AS answer" }
             val result = frag
                 .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
@@ -127,7 +133,7 @@ class SqlBuilderTest {
 
     @Test
     fun runtimeExecutionMultipleParams() {
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
+        withDuckDb { conn ->
             val frag = sql { "SELECT ${DuckDbTypes.integer(10)} + ${DuckDbTypes.integer(32)} AS answer" }
             val result = frag
                 .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
@@ -176,10 +182,11 @@ class SqlBuilderTest {
             .field("name", DuckDbTypes.varchar, Row::name)
             .build(::Row)
 
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
-            conn.createStatement().execute("CREATE TABLE test_users (id INTEGER, name VARCHAR)")
-            conn.createStatement().execute("INSERT INTO test_users VALUES (1, 'Alice'), (2, 'Bob')")
+        DriverManager.getConnection("jdbc:duckdb:").use { jdbcConn ->
+            jdbcConn.createStatement().execute("CREATE TABLE test_users (id INTEGER, name VARCHAR)")
+            jdbcConn.createStatement().execute("INSERT INTO test_users VALUES (1, 'Alice'), (2, 'Bob')")
 
+            val conn = Connection(dev.typr.foundations.internal.ConnectionJdbc(jdbcConn))
             val frag = sql { "SELECT ${parser.columnList} FROM test_users WHERE id = ${DuckDbTypes.integer(1)}" }
             val result = frag.query(parser.exactlyOne()).run(conn)
             assertEquals(1, result.id)
@@ -242,7 +249,8 @@ class SqlBuilderTest {
 
     @Test
     fun virtualThreadsWithDuckDbExecution() {
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
+        DriverManager.getConnection("jdbc:duckdb:").use { jdbcConn ->
+            val conn = Connection(dev.typr.foundations.internal.ConnectionJdbc(jdbcConn))
             val results = ConcurrentLinkedQueue<Pair<Int, Int>>()
 
             val threads = (0 until 1000).map { i ->
@@ -267,7 +275,8 @@ class SqlBuilderTest {
 
     @Test
     fun coroutinesWithDuckDbExecution() {
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
+        DriverManager.getConnection("jdbc:duckdb:").use { jdbcConn ->
+            val conn = Connection(dev.typr.foundations.internal.ConnectionJdbc(jdbcConn))
             val mutex = Mutex()
 
             val results = runBlocking {

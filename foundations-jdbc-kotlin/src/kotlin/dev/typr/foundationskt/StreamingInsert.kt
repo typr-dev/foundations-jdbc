@@ -9,14 +9,16 @@ object StreamingInsert {
     }
 
     @JvmStatic
-    fun <T> of(copyCommand: String, batchSize: Int, rows: Iterator<T>, text: dev.typr.foundations.PgText<T>): Operation.StreamingCopy =
-        Operation.StreamingCopy(dev.typr.foundations.StreamingInsert.of(copyCommand, batchSize, rows.asMutable(), text))
+    fun <T> of(copyCommand: String, batchSize: Int, rows: Iterator<T>, text: PgText<T>): Operation<Long> {
+        val javaOp = dev.typr.foundations.StreamingInsert.of(copyCommand, batchSize, rows.asMutable(), text)
+        return Operation.JavaWrapped(javaOp)
+    }
 
     @JvmStatic
-    fun <T> insert(copyCommand: String, batchSize: Int, rows: Iterator<T>, c: java.sql.Connection, t: dev.typr.foundations.PgText<T>): Long =
+    fun <T> insert(copyCommand: String, batchSize: Int, rows: Iterator<T>, c: java.sql.Connection, t: PgText<T>): Long =
         dev.typr.foundations.StreamingInsert.insert(copyCommand, batchSize, rows.asMutable(), c, t)
 
     @JvmStatic
-    fun <T> insertUnchecked(copyCommand: String, batchSize: Int, rows: Iterator<T>, c: java.sql.Connection, t: dev.typr.foundations.PgText<T>): Long =
+    fun <T> insertUnchecked(copyCommand: String, batchSize: Int, rows: Iterator<T>, c: java.sql.Connection, t: PgText<T>): Long =
         dev.typr.foundations.StreamingInsert.insertUnchecked(copyCommand, batchSize, rows.asMutable(), c, t)
 }

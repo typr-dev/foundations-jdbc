@@ -14,7 +14,7 @@ object ParameterizedQuery:
     .build(City.apply)
 
   // start
-  def findCityByName(name: String): Operation[Option[City]] =
+  def findCityByName(name: String): OperationRead[Option[City]] =
     sql"SELECT ${cityCodec.columnList} FROM city WHERE name = ${DuckDbTypes.text(name)}"
       .query(cityCodec.maxOne())
   // stop

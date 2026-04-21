@@ -25,7 +25,7 @@ object FragmentComposing:
   def cheaperThan(max: BigDecimal): Fragment =
     sql"price < ${PgTypes.numeric(max)}"
 
-  // Compose dynamically
+  // Compose dynamically — only include the filters that are present
   def query(): List[ProductRow] =
     val filters: List[Fragment] =
       List(
@@ -33,9 +33,7 @@ object FragmentComposing:
         maxPrice.map(cheaperThan)
       ).flatten
 
-    tx.transact { conn =>
-      sql"SELECT * FROM product ${Fragment.whereAnd(filters)}"
-        .query(rowCodec.all())
-        .run(conn)
-    }
+    sql"SELECT * FROM product ${Fragment.whereAnd(filters)}"
+      .query(rowCodec.all())
+      .transact(tx)
   // stop

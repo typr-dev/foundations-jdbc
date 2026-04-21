@@ -2,7 +2,6 @@ package dev.typr.foundations;
 
 import dev.typr.foundations.data.JsonValue;
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -185,7 +184,7 @@ public class Db2TypeTest {
   // Array operations in DB2 are handled via ARRAY data type in SQL PL only
 
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    return Containers.db2Transactor().execute(f);
+    return Containers.db2Transactor().transact(f);
   }
 
   @Test
@@ -330,15 +329,15 @@ public class Db2TypeTest {
    * Test JSON roundtrip in-memory. Returns true if test passed/skipped, false if type doesn't
    * support JSON.
    */
-  static <A> void testQueryAnalysis(Connection conn, Db2TypeAndExample<A> t) throws SQLException {
+  static <A> void testQueryAnalysis(Connection conn, Db2TypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("QA");
     try {
-      conn.createStatement().execute("DROP TABLE " + tableName);
-    } catch (SQLException e) {
+      Fragment.of("DROP TABLE " + tableName).execute().run(conn);
+    } catch (DatabaseException e) {
       // Table might not exist, ignore
     }
-    conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
+    Fragment.of("CREATE TABLE " + tableName + " (v " + sqlType + ")").execute().run(conn);
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
@@ -349,23 +348,22 @@ public class Db2TypeTest {
       }
     } finally {
       try {
-        conn.createStatement().execute("DROP TABLE " + tableName);
-      } catch (SQLException e) {
+        Fragment.of("DROP TABLE " + tableName).execute().run(conn);
+      } catch (DatabaseException e) {
         // Ignore cleanup errors
       }
     }
   }
 
-  static <A> void testQueryAnalysisWithParam(Connection conn, Db2TypeAndExample<A> t)
-      throws SQLException {
+  static <A> void testQueryAnalysisWithParam(Connection conn, Db2TypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("QAP");
     try {
-      conn.createStatement().execute("DROP TABLE " + tableName);
-    } catch (SQLException e) {
+      Fragment.of("DROP TABLE " + tableName).execute().run(conn);
+    } catch (DatabaseException e) {
       // Table might not exist, ignore
     }
-    conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
+    Fragment.of("CREATE TABLE " + tableName + " (v " + sqlType + " NOT NULL)").execute().run(conn);
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment =
@@ -377,8 +375,8 @@ public class Db2TypeTest {
       }
     } finally {
       try {
-        conn.createStatement().execute("DROP TABLE " + tableName);
-      } catch (SQLException e) {
+        Fragment.of("DROP TABLE " + tableName).execute().run(conn);
+      } catch (DatabaseException e) {
         // Ignore cleanup errors
       }
     }
@@ -433,6 +431,7 @@ public class Db2TypeTest {
    */
   static <A> boolean testJsonDbRoundtrip(Connection conn, Db2TypeAndExample<A> t)
       throws SQLException {
+    var jdbc = conn.unwrap();
     Db2Json<A> jsonCodec = t.type.db2Json();
     A original = t.example;
     String sqlType = t.type.typename().sqlType();
@@ -450,21 +449,21 @@ public class Db2TypeTest {
     // since GLOBAL TEMPORARY TABLE requires a user temporary tablespace
     String tableName = uniqueTableName("TYPR_JSON_RT");
     try {
-      conn.createStatement().execute("DROP TABLE " + tableName);
+      jdbc.createStatement().execute("DROP TABLE " + tableName);
     } catch (SQLException e) {
       // Table might not exist, ignore
     }
-    conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
+    jdbc.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
 
     try {
       // Insert value using native type
-      var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
+      var insert = jdbc.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
       t.type.write().set(insert, 1, original);
       insert.execute();
       insert.close();
 
       // Select back as JSON using JSON_OBJECT (DB2 syntax: KEY 'key' VALUE value)
-      var select = conn.prepareStatement("SELECT JSON_OBJECT(KEY 'v' VALUE v) FROM " + tableName);
+      var select = jdbc.prepareStatement("SELECT JSON_OBJECT(KEY 'v' VALUE v) FROM " + tableName);
       select.execute();
       var rs = select.getResultSet();
 
@@ -506,7 +505,7 @@ public class Db2TypeTest {
       return true;
     } finally {
       try {
-        conn.createStatement().execute("DROP TABLE " + tableName);
+        jdbc.createStatement().execute("DROP TABLE " + tableName);
       } catch (SQLException e) {
         // Ignore cleanup errors
       }
@@ -528,17 +527,18 @@ public class Db2TypeTest {
   }
 
   static <A> void testCase(Connection conn, Db2TypeAndExample<A> t) throws SQLException {
+    var jdbc = conn.unwrap();
     String sqlType = t.type.typename().sqlType();
 
     // Use a regular table instead of GLOBAL TEMPORARY TABLE
     // since GLOBAL TEMPORARY TABLE requires a user temporary tablespace
     String tableName = uniqueTableName("TYPR_TYPE");
     try {
-      conn.createStatement().execute("DROP TABLE " + tableName);
+      jdbc.createStatement().execute("DROP TABLE " + tableName);
     } catch (SQLException e) {
       // Table might not exist, ignore
     }
-    conn.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
+    jdbc.createStatement().execute("CREATE TABLE " + tableName + " (v " + sqlType + ")");
 
     try {
       A expected = t.example;
@@ -548,11 +548,11 @@ public class Db2TypeTest {
       final PreparedStatement select;
       if (t.hasIdentity) {
         select =
-            conn.prepareStatement(
+            jdbc.prepareStatement(
                 "SELECT v, CAST(NULL AS " + sqlType + ") FROM " + tableName + " WHERE v = ?");
         t.type.write().set(select, 1, expected);
       } else {
-        select = conn.prepareStatement("SELECT v, CAST(NULL AS " + sqlType + ") FROM " + tableName);
+        select = jdbc.prepareStatement("SELECT v, CAST(NULL AS " + sqlType + ") FROM " + tableName);
       }
 
       select.execute();
@@ -575,7 +575,7 @@ public class Db2TypeTest {
     } finally {
       // Drop temp table
       try {
-        conn.createStatement().execute("DROP TABLE " + tableName);
+        jdbc.createStatement().execute("DROP TABLE " + tableName);
       } catch (SQLException e) {
         // Ignore cleanup errors
       }
@@ -584,12 +584,13 @@ public class Db2TypeTest {
 
   static <A> void testCallableRoundtrip(Connection conn, Db2TypeAndExample<A> t)
       throws SQLException {
+    var jdbc = conn.unwrap();
     String sqlType = t.type.typename().sqlType();
     String procName = uniqueTableName("CP");
 
     DbProcedure.Def1_1<A, A> proc = DbProcedure.define(procName).input(t.type).out(t.type).build();
 
-    conn.createStatement()
+    jdbc.createStatement()
         .execute(
             "CREATE OR REPLACE PROCEDURE "
                 + procName
@@ -618,7 +619,7 @@ public class Db2TypeTest {
       }
     } finally {
       try {
-        conn.createStatement().execute("DROP PROCEDURE " + procName);
+        jdbc.createStatement().execute("DROP PROCEDURE " + procName);
       } catch (SQLException e) {
         // Ignore cleanup errors
       }

@@ -13,7 +13,7 @@ const config = {
   projectName: 'foundations-jdbc',
 
   customFields: {
-    jdbcVersion: '1.0.0-RC3',
+    jdbcVersion: '1.0.0-RC1',
   },
 
   onBrokenLinks: 'throw',
@@ -33,7 +33,11 @@ const config = {
           sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/typr-dev/foundations-jdbc/tree/main/site/',
         },
-        blog: {},
+        blog: {
+          showReadingTime: true,
+          blogSidebarTitle: 'All posts',
+          blogSidebarCount: 'ALL',
+        },
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -52,6 +56,11 @@ const config = {
             sidebarId: 'jdbcSidebar',
             position: 'left',
             label: 'Docs',
+          },
+          {
+            to: '/blog',
+            label: 'Blog',
+            position: 'left',
           },
           {
             href: 'https://github.com/typr-dev/foundations-jdbc',

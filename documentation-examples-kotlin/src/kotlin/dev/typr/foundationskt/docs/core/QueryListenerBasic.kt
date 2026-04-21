@@ -7,14 +7,14 @@ import dev.typr.foundationskt.data.*
 class QueryListenerBasic {
     //start
     object logger : QueryListener {
-        override fun beforeQuery(sql: String, name: String?) {
+        override fun beforeQuery(sql: String, name: java.util.Optional<String>) {
             println("Executing: $sql")
         }
         override fun afterQuery(event: QueryEvent) {
-            println("${event.name()} completed in ${event.elapsed().toMillis()}ms")
+            println("${event.name().orElse("unnamed")} completed in ${event.elapsed().toMillis()}ms")
         }
         override fun failedQuery(event: QueryEvent) {
-            System.err.println("${event.name()} failed after ${event.elapsed().toMillis()}ms: ${event.error()?.message}")
+            System.err.println("${event.name().orElse("unnamed")} failed after ${event.elapsed().toMillis()}ms: ${event.error().map { it.message }.orElse("unknown")}")
         }
     }
     //stop

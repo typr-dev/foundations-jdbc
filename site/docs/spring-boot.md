@@ -136,7 +136,7 @@ public class OrderService {
 
     public List<Order> listOrders() {
         // no @Transactional — the transactor manages its own transaction
-        return selectOrders.transact(tx);
+        return selectOrders.transactRead(tx);
     }
 }
 ```

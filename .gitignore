@@ -26,4 +26,5 @@ out/
 /testdb
 /testdb.wal
 
-showcase-generated
+showcase-generated/
+firebase-debug.log

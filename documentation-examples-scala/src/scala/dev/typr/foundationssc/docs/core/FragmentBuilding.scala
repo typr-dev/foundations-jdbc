@@ -3,7 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.Connection
 import java.time.Instant
 
 @SuppressWarnings(Array("unused"))

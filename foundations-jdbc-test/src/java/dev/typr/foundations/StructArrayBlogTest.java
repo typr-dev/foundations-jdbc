@@ -232,8 +232,9 @@ public class StructArrayBlogTest {
   void testPostgres() {
     var tx = Containers.postgresTransactor();
 
-    tx.execute(
-        conn -> {
+    tx.transact(
+        mc -> {
+          var conn = mc.unwrap();
           var stmt = conn.createStatement();
           stmt.execute("DROP TABLE IF EXISTS orders CASCADE");
           stmt.execute("DROP TABLE IF EXISTS products CASCADE");
@@ -344,8 +345,9 @@ public class StructArrayBlogTest {
 
     // 1. The JOIN contrast
     subsection("The JOIN contrast: flattened vs structured");
-    tx.execute(
-        conn -> {
+    tx.transact(
+        mc -> {
+          var conn = mc.unwrap();
           System.out.println("Flattened (6 rows, customer duplicated on every line):");
           var rs =
               conn.createStatement()
@@ -393,7 +395,7 @@ public class StructArrayBlogTest {
                       ORDER BY o.id\
                       """)
                   .query(codec.all())
-                  .run(conn);
+                  .run(mc);
 
           for (var o : structured) {
             System.out.println("  Order #" + o.orderId() + " — " + o.customer());
@@ -409,57 +411,52 @@ public class StructArrayBlogTest {
 
     // 2. Array parameters
     subsection("Array parameters: WHERE id = ANY(?)");
-    tx.execute(
-        conn -> {
-          var ids = List.of(1, 3, 5);
-          var products =
+    {
+      var ids = List.of(1, 3, 5);
+      var products =
+          tx.execute(
               Fragment.of("SELECT id, name, price, tags FROM products WHERE id = ANY(")
                   .value(PgTypes.int4.array(), ids)
                   .append(")")
-                  .query(pgProductCodec.all())
-                  .run(conn);
-          for (var p : products)
-            System.out.println("  " + p.name() + " ($" + p.price() + ") " + p.tags());
-          return null;
-        });
+                  .query(pgProductCodec.all()));
+      for (var p : products)
+        System.out.println("  " + p.name() + " ($" + p.price() + ") " + p.tags());
+    }
 
     // 3. Deep nesting: struct → array of structs → array of structs
     subsection("Deep nesting: Department → Employee[] → Skill[]");
-    tx.execute(
-        conn -> {
-          record DeptRow(int id, Department data) {}
+    {
+      record DeptRow(int id, Department data) {}
 
-          var codec =
-              RowCodec.<DeptRow>namedBuilder()
-                  .field("id", PgTypes.int4, DeptRow::id)
-                  .field("data", pgDepartmentType, DeptRow::data)
-                  .build(DeptRow::new);
+      var codec =
+          RowCodec.<DeptRow>namedBuilder()
+              .field("id", PgTypes.int4, DeptRow::id)
+              .field("data", pgDepartmentType, DeptRow::data)
+              .build(DeptRow::new);
 
-          var departments =
-              Fragment.of("SELECT id, data FROM departments ORDER BY id")
-                  .query(codec.all())
-                  .run(conn);
+      var departments =
+          tx.execute(
+              Fragment.of("SELECT id, data FROM departments ORDER BY id").query(codec.all()));
 
-          for (var row : departments) {
-            var dept = row.data();
-            System.out.println("  " + dept.name() + " (" + dept.members().size() + " people)");
-            for (var emp : dept.members()) {
-              var skillStr =
-                  emp.skills().stream()
-                      .map(s -> s.name() + ":" + s.level())
-                      .reduce((a, b) -> a + ", " + b)
-                      .orElse("");
-              System.out.println("    " + emp.name() + " (" + emp.role() + ") [" + skillStr + "]");
-            }
-          }
-          System.out.println("\n  2 departments, 2 rows. Each row carries the full team tree.");
-          return null;
-        });
+      for (var row : departments) {
+        var dept = row.data();
+        System.out.println("  " + dept.name() + " (" + dept.members().size() + " people)");
+        for (var emp : dept.members()) {
+          var skillStr =
+              emp.skills().stream()
+                  .map(s -> s.name() + ":" + s.level())
+                  .reduce((a, b) -> a + ", " + b)
+                  .orElse("");
+          System.out.println("    " + emp.name() + " (" + emp.role() + ") [" + skillStr + "]");
+        }
+      }
+      System.out.println("\n  2 departments, 2 rows. Each row carries the full team tree.");
+    }
 
     // 4. Writing deep nested structs
     subsection("Writing deep nested structs");
-    tx.execute(
-        conn -> {
+    tx.transact(
+        mc -> {
           var dept =
               new Department(
                   "Data Science",
@@ -473,18 +470,18 @@ public class StructArrayBlogTest {
                               new Skill("Statistics", 7))),
                       new Employee("Grace", "Senior", List.of(new Skill("R", 8)))));
 
-          Fragment.of("INSERT INTO departments (data) VALUES (")
-              .value(pgDepartmentType, dept)
-              .append(")")
-              .update()
-              .run(conn);
+          mc.execute(
+              Fragment.of("INSERT INTO departments (data) VALUES (")
+                  .value(pgDepartmentType, dept)
+                  .append(")")
+                  .update());
 
           // Read it back
           var readBack =
-              Fragment.of("SELECT data FROM departments WHERE (data).name = ")
-                  .value(PgTypes.text, "Data Science")
-                  .query(RowCodec.of(pgDepartmentType).all())
-                  .run(conn)
+              mc.execute(
+                      Fragment.of("SELECT data FROM departments WHERE (data).name = ")
+                          .value(PgTypes.text, "Data Science")
+                          .query(RowCodec.of(pgDepartmentType).all()))
                   .getFirst();
 
           System.out.println("  Wrote and read back: " + readBack.name());
@@ -505,27 +502,26 @@ public class StructArrayBlogTest {
 
     // 5. UNNEST batch insert
     subsection("UNNEST: batch insert from parallel arrays");
-    tx.execute(
-        conn -> {
-          var names = List.of("Laptop Stand", "Cable Organizer", "Desk Pad");
-          var prices =
-              List.of(new BigDecimal("39.99"), new BigDecimal("12.99"), new BigDecimal("24.95"));
-          int n =
+    {
+      var names = List.of("Laptop Stand", "Cable Organizer", "Desk Pad");
+      var prices =
+          List.of(new BigDecimal("39.99"), new BigDecimal("12.99"), new BigDecimal("24.95"));
+      int n =
+          tx.execute(
               Fragment.of("INSERT INTO products (name, price) SELECT * FROM unnest(")
                   .value(PgTypes.text.array(), names)
                   .append(", ")
                   .value(PgTypes.numeric.array(), prices)
                   .append(")")
-                  .update()
-                  .run(conn);
-          System.out.println("  Inserted " + n + " products via UNNEST");
-          return null;
-        });
+                  .update());
+      System.out.println("  Inserted " + n + " products via UNNEST");
+    }
 
     // 6. Ad-hoc structured queries on NORMAL TABLES (the main win)
     subsection("Ad-hoc structured result from normalized tables");
-    tx.execute(
-        conn -> {
+    tx.transact(
+        mc -> {
+          var conn = mc.unwrap();
           var stmt = conn.createStatement();
           // Normal tables — no composite types in storage
           stmt.execute("DROP TABLE IF EXISTS norm_order_lines CASCADE");
@@ -576,7 +572,7 @@ public class StructArrayBlogTest {
                       ORDER BY o.id\
                       """)
                   .query(codec.all())
-                  .run(conn);
+                  .run(mc);
 
           System.out.println("  Normal tables. No CREATE TYPE. Structured result via ARRAY():");
           for (var o : orders) {
@@ -599,7 +595,7 @@ public class StructArrayBlogTest {
   void testDuckDb() {
     var tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor();
 
-    tx.execute(
+    tx.executeJdbc(
         conn -> {
           var stmt = conn.createStatement();
           stmt.execute(
@@ -653,7 +649,7 @@ public class StructArrayBlogTest {
 
     // 1. Typed STRUCT reads
     subsection("DuckDB: orders with typed struct reads");
-    tx.execute(
+    tx.executeJdbc(
         conn -> {
           var rs =
               conn.createStatement()
@@ -672,7 +668,7 @@ public class StructArrayBlogTest {
 
     // 2. Deep nesting: STRUCT → STRUCT[] → STRUCT[]
     subsection("DuckDB: deep nesting STRUCT → STRUCT[] → STRUCT[]");
-    tx.execute(
+    tx.executeJdbc(
         conn -> {
           var rs = conn.createStatement().executeQuery("SELECT data FROM departments ORDER BY id");
           while (rs.next()) {
@@ -690,11 +686,12 @@ public class StructArrayBlogTest {
 
   void testOracle() {
     var pool = Containers.oraclePool();
-    var tx = pool.transactor(Transactor.testStrategy());
+    var tx = pool.transactor().rollbackOnly();
 
     // Setup types and table
-    tx.execute(
-        conn -> {
+    tx.transact(
+        mc -> {
+          var conn = mc.unwrap();
           var stmt = conn.createStatement();
           // Clean up (reverse dependency order)
           tryExec(stmt, "DROP TABLE blog_departments CASCADE CONSTRAINTS");
@@ -772,9 +769,11 @@ public class StructArrayBlogTest {
         });
 
     // Insert data — need raw connection for Oracle STRUCT creation
-    pool.transactor(Transactor.testStrategy())
-        .execute(
-            conn -> {
+    pool.transactor()
+        .rollbackOnly()
+        .transact(
+            mc -> {
+              var conn = mc.unwrap();
               var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
               // Insert customer with OBJECT type address
               var ps1 = raw.prepareStatement("INSERT INTO blog_customers VALUES (1, 'Alice', ?)");
@@ -796,8 +795,9 @@ public class StructArrayBlogTest {
 
     // Read back
     subsection("Oracle: OBJECT type (nested struct)");
-    tx.execute(
-        conn -> {
+    tx.transact(
+        mc -> {
+          var conn = mc.unwrap();
           var rs =
               conn.createStatement().executeQuery("SELECT id, name, address FROM blog_customers");
           while (rs.next()) {
@@ -809,8 +809,9 @@ public class StructArrayBlogTest {
         });
 
     subsection("Oracle: NESTED TABLE (array of objects)");
-    tx.execute(
-        conn -> {
+    tx.transact(
+        mc -> {
+          var conn = mc.unwrap();
           var rs =
               conn.createStatement().executeQuery("SELECT id, customer_id, items FROM blog_orders");
           while (rs.next()) {
@@ -827,9 +828,11 @@ public class StructArrayBlogTest {
 
     // Deep nesting: NESTED TABLE → OBJECT → VARRAY of OBJECT
     subsection("Oracle: deep nesting — NESTED TABLE → OBJECT → VARRAY of OBJECT");
-    pool.transactor(Transactor.testStrategy())
-        .execute(
-            conn -> {
+    pool.transactor()
+        .rollbackOnly()
+        .transact(
+            mc -> {
+              var conn = mc.unwrap();
               var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
 
               var engineering =
@@ -849,8 +852,9 @@ public class StructArrayBlogTest {
               return null;
             });
 
-    tx.execute(
-        conn -> {
+    tx.transact(
+        mc -> {
+          var conn = mc.unwrap();
           var rs =
               conn.createStatement().executeQuery("SELECT id, name, members FROM blog_departments");
           while (rs.next()) {

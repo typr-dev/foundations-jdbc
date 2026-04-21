@@ -2,6 +2,7 @@ package dev.typr.foundationskt
 
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.sql.DriverManager
 
@@ -22,17 +23,24 @@ class BatchOperationTest {
         .field("quantity", DuckDbTypes.integer, Product::quantity)
         .build(::Product)
 
+    private fun withDuckDb(block: (Connection, java.sql.Connection) -> Unit) {
+        DriverManager.getConnection("jdbc:duckdb:").use { jdbcConn ->
+            val conn = Connection(dev.typr.foundations.internal.ConnectionJdbc(jdbcConn))
+            block(conn, jdbcConn)
+        }
+    }
+
     @Test
     fun updateMany() {
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
-            conn.createStatement().execute("CREATE TABLE items (name VARCHAR, quantity INTEGER)")
+        withDuckDb { conn, jdbcConn ->
+            jdbcConn.createStatement().execute("CREATE TABLE items (name VARCHAR, quantity INTEGER)")
 
             val items = listOf(Item("apple", 10), Item("banana", 20), Item("cherry", 30))
 
             val insert = Fragment.of("INSERT INTO items (name, quantity) VALUES (?, ?)")
             val counts = insert.updateMany(itemCodec, items.iterator()).run(conn)
-
-            assertEquals(3, counts.size)
+            assertNotNull(counts)
+            assertEquals(3, counts!!.size)
 
             val result = Fragment.of("SELECT name, quantity FROM items ORDER BY name")
                 .query(itemCodec.all())
@@ -49,8 +57,8 @@ class BatchOperationTest {
 
     @Test
     fun updateReturningEach() {
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
-            conn.createStatement().execute("CREATE TABLE items (name VARCHAR, quantity INTEGER)")
+        withDuckDb { conn, jdbcConn ->
+            jdbcConn.createStatement().execute("CREATE TABLE items (name VARCHAR, quantity INTEGER)")
 
             val items = listOf(Item("apple", 10), Item("banana", 20))
 
@@ -67,8 +75,8 @@ class BatchOperationTest {
 
     @Test
     fun rowTemplateOnMany() {
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
-            conn.createStatement().execute("CREATE TABLE products (id INTEGER, name VARCHAR, quantity INTEGER)")
+        withDuckDb { conn, jdbcConn ->
+            jdbcConn.createStatement().execute("CREATE TABLE products (id INTEGER, name VARCHAR, quantity INTEGER)")
 
             val insertTemplate = Fragment.of("INSERT INTO products (")
                 .append(productCodec.columnList).append(") VALUES (")
@@ -83,7 +91,8 @@ class BatchOperationTest {
             )
 
             val counts = insertTemplate.onMany(products.iterator()).run(conn)
-            assertEquals(3, counts.size)
+            assertNotNull(counts)
+            assertEquals(3, counts!!.size)
 
             val result = Fragment.of("SELECT id, name, quantity FROM products ORDER BY id")
                 .query(productCodec.all())
@@ -101,9 +110,9 @@ class BatchOperationTest {
 
     @Test
     fun rowTemplateOnManySkippingColumns() {
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
-            conn.createStatement().execute("CREATE SEQUENCE product_seq START 1")
-            conn.createStatement().execute(
+        withDuckDb { conn, jdbcConn ->
+            jdbcConn.createStatement().execute("CREATE SEQUENCE product_seq START 1")
+            jdbcConn.createStatement().execute(
                 "CREATE TABLE products2 (id INTEGER DEFAULT nextval('product_seq'), name VARCHAR, quantity INTEGER)"
             )
 
@@ -119,7 +128,8 @@ class BatchOperationTest {
             )
 
             val counts = insertTemplate.onMany(products.iterator()).run(conn)
-            assertEquals(3, counts.size)
+            assertNotNull(counts)
+            assertEquals(3, counts!!.size)
 
             val result = Fragment.of("SELECT id, name, quantity FROM products2 ORDER BY id")
                 .query(productCodec.all())
@@ -136,19 +146,20 @@ class BatchOperationTest {
 
     @Test
     fun updateManyEmptyBatch() {
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
-            conn.createStatement().execute("CREATE TABLE items (name VARCHAR, quantity INTEGER)")
+        withDuckDb { conn, jdbcConn ->
+            jdbcConn.createStatement().execute("CREATE TABLE items (name VARCHAR, quantity INTEGER)")
 
             val insert = Fragment.of("INSERT INTO items (name, quantity) VALUES (?, ?)")
             val counts = insert.updateMany(itemCodec, emptyList<Item>().iterator()).run(conn)
-            assertEquals(0, counts.size)
+            assertNotNull(counts)
+            assertEquals(0, counts!!.size)
         }
     }
 
     @Test
     fun singleOnThenOnMany() {
-        DriverManager.getConnection("jdbc:duckdb:").use { conn ->
-            conn.createStatement().execute("CREATE TABLE products (id INTEGER, name VARCHAR, quantity INTEGER)")
+        withDuckDb { conn, jdbcConn ->
+            jdbcConn.createStatement().execute("CREATE TABLE products (id INTEGER, name VARCHAR, quantity INTEGER)")
 
             val insertTemplate = Fragment.of("INSERT INTO products (")
                 .append(productCodec.columnList).append(") VALUES (")

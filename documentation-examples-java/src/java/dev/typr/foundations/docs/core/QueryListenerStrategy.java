@@ -5,8 +5,9 @@ import dev.typr.foundations.Transactor;
 
 @SuppressWarnings("unused")
 public class QueryListenerStrategy {
+  Transactor tx = null; // placeholder
   QueryListener logger = QueryListener.NOOP; // placeholder
   // start
-  Transactor.Strategy strategy = Transactor.defaultStrategy().replaceListener(logger);
+  Transactor txWithListener = tx.withListener(logger);
   // stop
 }

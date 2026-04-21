@@ -1,6 +1,7 @@
 package dev.typr.foundationssc
 
 import dev.typr.foundations.{Db2Types => JavaDb2Types}
+import dev.typr.foundations.data.{Json, Unknown, Xml}
 
 /** Scala-friendly Db2Type instances that use Scala types instead of Java boxed types. All types from dev.typr.foundations.Db2Types are available here, with
   * primitives and BigDecimal converted to Scala types.
@@ -49,10 +50,10 @@ class Db2Types {
   val date: Db2Type[java.time.LocalDate] = Db2Type(JavaDb2Types.date)
   val time: Db2Type[java.time.LocalTime] = Db2Type(JavaDb2Types.time)
   val timestamp: Db2Type[java.time.LocalDateTime] = Db2Type(JavaDb2Types.timestamp)
-  val xml: Db2Type[dev.typr.foundations.data.Xml] = Db2Type(JavaDb2Types.xml)
+  val xml: Db2Type[Xml] = Db2Type(JavaDb2Types.xml)
   val rowid: Db2Type[Array[Byte]] = Db2Type(JavaDb2Types.rowid)
   val `object`: Db2Type[AnyRef] = Db2Type(JavaDb2Types.`object`)
-  val unknown: Db2Type[dev.typr.foundations.data.Unknown] = Db2Type(JavaDb2Types.unknown)
+  val unknown: Db2Type[Unknown] = Db2Type(JavaDb2Types.unknown)
 
   // Forward static methods with Scala type conversion
   def decimalOf(precision: Int, scale: Int): Db2Type[BigDecimal] =
@@ -94,7 +95,7 @@ class Db2Types {
   def timestampOf(scale: Int): Db2Type[java.time.LocalDateTime] =
     Db2Type(JavaDb2Types.timestampOf(scale))
 
-  val json: Db2Type[dev.typr.foundations.data.Json] = Db2Type(JavaDb2Types.json)
+  val json: Db2Type[Json] = Db2Type(JavaDb2Types.json)
 
   // JSON-encoded row types
 

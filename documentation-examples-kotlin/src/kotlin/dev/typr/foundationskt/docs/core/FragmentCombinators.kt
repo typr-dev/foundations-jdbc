@@ -1,7 +1,6 @@
 package dev.typr.foundationskt.docs.core
 
 import dev.typr.foundationskt.*
-import java.sql.Connection
 
 @Suppress("unused")
 class FragmentCombinators {

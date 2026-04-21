@@ -3,8 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.Connection
-
 @SuppressWarnings(Array("unused"))
 object SqlServerQuery:
   case class OrderRow(id: Int, name: String, price: BigDecimal)

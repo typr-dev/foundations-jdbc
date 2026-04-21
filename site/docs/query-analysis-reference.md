@@ -108,14 +108,14 @@ Preparing a statement and reading metadata is fast — milliseconds per query. Y
 ### QueryAnalyzer
 
 ```java
-// Analyze any Analyzable (Operation, Template, or named wrapper)
+// Analyze any Analyzable (OperationRead, Template, or named wrapper)
 static List<QueryAnalysis> analyze(Analyzable analyzable, Connection conn)
 
 // Analyze a template — expands all dynamic variants from .optionally()
 static List<QueryAnalysis> analyze(Template<?, ?> template, Connection conn)
 
 // Analyze an operation tree (handles composed operations from .combine(), .then(), etc.)
-static List<QueryAnalysis> analyze(Operation<?> operation, Connection conn)
+static List<QueryAnalysis> analyze(OperationRead<?> operation, Connection conn)
 
 // Low-level: analyze fragment + parser directly
 static QueryAnalysis analyzeFragmentAndParser(

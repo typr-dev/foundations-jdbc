@@ -19,12 +19,8 @@ class QueryChecker(val underlying: dev.typr.foundations.QueryChecker) {
     fun checkAll(vararg analyzables: Analyzable): CheckReport =
         checkAll(analyzables.toList())
 
-    fun checkRoutine(def: dev.typr.foundations.RoutineDef) {
+    fun checkRoutine(def: RoutineDef) {
         underlying.checkRoutine(def)
-    }
-
-    fun checkRoutine(procedure: Procedure<*>) {
-        underlying.checkRoutine(procedure.javaProcedure)
     }
 
     companion object {

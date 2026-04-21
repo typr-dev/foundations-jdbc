@@ -3,7 +3,7 @@ package dev.typr.foundations.docs.core;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
-import dev.typr.foundations.Template;
+import dev.typr.foundations.TemplateRead;
 import dev.typr.foundations.Transactor;
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class TemplateMixed {
   // start
   // Mix bound and unbound parameters in the same template.
   // Status is fixed at "active"; name filter and limit vary per call.
-  Template.Query2<String, Integer, List<User>> activeUsersByName =
+  TemplateRead.Query2<String, Integer, List<User>> activeUsersByName =
       Fragment.of(
               """
               SELECT id, name, status

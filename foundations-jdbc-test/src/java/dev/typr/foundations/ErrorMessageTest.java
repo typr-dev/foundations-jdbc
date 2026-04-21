@@ -41,7 +41,7 @@ public class ErrorMessageTest {
     var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
-      tx.execute(
+      tx.transact(
           conn -> {
             Fragment.of("CREATE TABLE test_err (id INTEGER, name VARCHAR)").update().run(conn);
             Fragment.of("INSERT INTO test_err VALUES (1, 'hello')").update().run(conn);
@@ -93,7 +93,7 @@ public class ErrorMessageTest {
     var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
-      tx.execute(
+      tx.transact(
           conn -> {
             Fragment.of("CREATE TABLE empty_table (id INTEGER)").update().run(conn);
 
@@ -119,7 +119,7 @@ public class ErrorMessageTest {
     var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
-      tx.execute(
+      tx.transact(
           conn -> {
             Fragment.of("CREATE TABLE multi_table (id INTEGER)").update().run(conn);
             Fragment.of("INSERT INTO multi_table VALUES (1), (2)").update().run(conn);
@@ -146,7 +146,7 @@ public class ErrorMessageTest {
     var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
-      tx.execute(
+      tx.transact(
           conn -> {
             Fragment.of("CREATE TABLE multi_table2 (id INTEGER)").update().run(conn);
             Fragment.of("INSERT INTO multi_table2 VALUES (1), (2)").update().run(conn);
@@ -278,7 +278,7 @@ public class ErrorMessageTest {
     var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
 
     try {
-      tx.execute(
+      tx.transact(
           conn -> {
             // Create table - simulate the landing page scenario
             Fragment.of("CREATE TABLE users (id INTEGER, name VARCHAR, created_at VARCHAR)")
@@ -304,8 +304,8 @@ public class ErrorMessageTest {
           });
       fail("Expected DatabaseException wrapping SqlResultParseException");
     } catch (DatabaseException de) {
-      assertTrue(de.getCause() instanceof RowCodec.SqlResultParseException);
-      var e = (RowCodec.SqlResultParseException) de.getCause();
+      assertTrue(de.getCause() instanceof SqlResultParseException);
+      var e = (SqlResultParseException) de.getCause();
       System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
       System.out.println("║  LANDING PAGE ERROR MESSAGE (copy this exactly)              ║");
       System.out.println("╚══════════════════════════════════════════════════════════════╝\n");

@@ -1,4 +1,4 @@
-package dev.typr.foundations;
+package dev.typr.foundations.internal;
 
 import java.util.ArrayList;
 import java.util.List;

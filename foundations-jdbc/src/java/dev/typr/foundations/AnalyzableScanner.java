@@ -193,8 +193,38 @@ public final class AnalyzableScanner {
   private static String describeOp(Object obj, int depth) {
     String indent = "  ".repeat(depth);
     return switch (obj) {
-      case Operation.Query<?> q -> indent + "Query: " + truncate(q.query().render());
+      case OperationRead.Query<?> q -> indent + "Query: " + truncate(q.query().render());
+      case OperationRead.Mapped<?, ?> m -> indent + "Mapped:\n" + describeOp(m.source(), depth + 1);
+      case OperationRead.Pure<?> p -> indent + "Pure(" + p.value() + ")";
+      case OperationRead.Combine<?, ?> w ->
+          indent
+              + "Combine:\n"
+              + describeOp(w.first(), depth + 1)
+              + "\n"
+              + describeOp(w.second(), depth + 1);
+      case OperationRead.IfEmpty<?> ie ->
+          indent
+              + "IfEmpty:\n"
+              + describeOp(ie.check(), depth + 1)
+              + "\n"
+              + describeOp(ie.fallback(), depth + 1);
+      case OperationRead.Then<?, ?> t ->
+          indent
+              + "Then:\n"
+              + describeOp(t.source(), depth + 1)
+              + "\n"
+              + indent
+              + "  -> "
+              + describeTemplate(t.continuation());
+      case OperationRead.Configured<?> c ->
+          indent
+              + "Configured"
+              + (c.name().map(n -> "[" + n + "]").orElse(""))
+              + ":\n"
+              + describeOp(c.inner(), depth + 1);
+      case OperationRead.Streaming<?> s -> indent + "Streaming: " + truncate(s.query().render());
       case Operation.Update u -> indent + "Update: " + truncate(u.query().render());
+      case Operation.Execute e -> indent + "Execute: " + truncate(e.query().render());
       case Operation.UpdateReturning<?> u ->
           indent + "UpdateReturning: " + truncate(u.query().render());
       case Operation.UpdateReturningGeneratedKeys<?> u ->
@@ -208,7 +238,14 @@ public final class AnalyzableScanner {
           indent + "UpdateManyTemplate: " + truncate(u.fragment().render());
       case Operation.StreamingCopy<?> s -> indent + "StreamingCopy: " + truncate(s.copyCommand());
       case Operation.Mapped<?, ?> m -> indent + "Mapped:\n" + describeOp(m.source(), depth + 1);
-      case Operation.Pure<?> p -> indent + "Pure(" + p.value() + ")";
+      case Operation.Then<?, ?> t ->
+          indent
+              + "Then:\n"
+              + describeOp(t.source(), depth + 1)
+              + "\n"
+              + indent
+              + "  -> "
+              + describeTemplate(t.continuation());
       case Operation.Combine<?, ?> w ->
           indent
               + "Combine:\n"
@@ -221,18 +258,10 @@ public final class AnalyzableScanner {
               + describeOp(ie.check(), depth + 1)
               + "\n"
               + describeOp(ie.fallback(), depth + 1);
-      case Operation.Then<?, ?, ?> t ->
-          indent
-              + "Then:\n"
-              + describeOp(t.source(), depth + 1)
-              + "\n"
-              + indent
-              + "  -> "
-              + describeTemplate(t.continuation());
       case Operation.Configured<?> c ->
           indent
               + "Configured"
-              + (c.name() != null ? "[" + c.name() + "]" : "")
+              + (c.name().map(n -> "[" + n + "]").orElse(""))
               + ":\n"
               + describeOp(c.inner(), depth + 1);
       case Procedure.ProcedureCall<?> p -> indent + "ProcedureCall: " + p.name();

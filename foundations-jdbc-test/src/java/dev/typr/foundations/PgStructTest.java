@@ -28,7 +28,7 @@ public class PgStructTest {
   @BeforeClass
   public static void setupSchema() {
     var pg = Containers.postgres();
-    try (Connection conn =
+    try (java.sql.Connection conn =
         DriverManager.getConnection(pg.getJdbcUrl(), pg.getUsername(), pg.getPassword())) {
       conn.setAutoCommit(true);
       try (Statement stmt = conn.createStatement()) {
@@ -144,8 +144,8 @@ public class PgStructTest {
               .field("y", PgTypes.float8, Point2D::y)
               .build(Point2D::new));
 
-  static <T> T withConnection(SqlFunction<Connection, T> f) {
-    return Containers.postgresTransactor().execute(f);
+  static <T> T withConnection(SqlFunction<java.sql.Connection, T> f) {
+    return Containers.postgresTransactor().transact(mc -> f.apply(mc.unwrap()));
   }
 
   @Test

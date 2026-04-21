@@ -25,7 +25,7 @@ class ComposingIfEmpty {
             .param(PgTypes.text)
             .query(userCodec.maxOne())
 
-    val createUser: Template.Query2<String, String, User> =
+    val createUser: TemplateRead.Query2<String, String, User> =
         sql { "INSERT INTO users(name, email) VALUES(" }
             .param(PgTypes.text)
             .append(", ")
