@@ -1,0 +1,34 @@
+{
+  "title": "Large Row Benchmark",
+  "timestamp": "2026-03-30T02:04:43.379165Z",
+  "sections": [
+    {
+      "title": "Local Large Row Read (20 cols)",
+      "description": "10000 tasks, 50 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(selectLargeById.on(42))",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":19828.1,"p50us":2256,"p95us":26460,"p99us":226623,"p999us":559415,"wallTimeMs":10012},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":20757.7,"p50us":2209,"p95us":31817,"p99us":206700,"p999us":519045,"wallTimeMs":10010},
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":24557.1,"p50us":6778,"p95us":15056,"p99us":49020,"p999us":92930,"wallTimeMs":10059},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":10094.9,"p50us":4743,"p95us":120127,"p99us":187957,"p999us":240648,"wallTimeMs":10017},
+        {"name":"Vert.x (async)","library":"Vert.x","opsPerSec":21665.1,"p50us":11116,"p95us":27361,"p99us":38240,"p999us":56000,"wallTimeMs":10013},
+        {"name":"Hibernate","library":"Hibernate","opsPerSec":21339.7,"p50us":2238,"p95us":47972,"p99us":139984,"p999us":342097,"wallTimeMs":10009}
+      ]
+    },
+    {
+      "title": "Large Row @ 10ms RTT (20 cols)",
+      "description": "1000 tasks, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(selectLargeById.on(42))",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":714.9,"p50us":13672,"p95us":1929379,"p99us":5481955,"p999us":10183770,"wallTimeMs":10291},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":718.9,"p50us":13475,"p95us":1979711,"p99us":5498732,"p999us":9512681,"wallTimeMs":10254},
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":10625.0,"p50us":18219,"p95us":23461,"p99us":26935,"p999us":61636,"wallTimeMs":10020},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":335.9,"p50us":32243,"p95us":1666187,"p99us":1875902,"p999us":1962934,"wallTimeMs":10609},
+        {"name":"Vert.x (async)","library":"Vert.x","opsPerSec":716.6,"p50us":358088,"p95us":669515,"p99us":721420,"p999us":741867,"wallTimeMs":10487},
+        {"name":"Hibernate","library":"Hibernate","opsPerSec":547.6,"p50us":17694,"p95us":2275409,"p99us":7491026,"p999us":10108272,"wallTimeMs":10302}
+      ]
+    }
+  ]
+}

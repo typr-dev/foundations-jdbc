@@ -447,15 +447,13 @@ public abstract class PgBinary<A> {
           long unixMicros = pgMicros + PG_EPOCH_MICROS;
           long epochSecond = Math.floorDiv(unixMicros, 1_000_000L);
           int nanos = (int) (Math.floorMod(unixMicros, 1_000_000L) * 1000);
-          return LocalDateTime.ofInstant(
-              Instant.ofEpochSecond(epochSecond, nanos), ZoneOffset.UTC);
+          return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSecond, nanos), ZoneOffset.UTC);
         }
 
         @Override
         public byte[] encode(LocalDateTime value) {
           Instant instant = value.toInstant(ZoneOffset.UTC);
-          long unixMicros =
-              instant.getEpochSecond() * 1_000_000L + instant.getNano() / 1000;
+          long unixMicros = instant.getEpochSecond() * 1_000_000L + instant.getNano() / 1000;
           long pgMicros = unixMicros - PG_EPOCH_MICROS;
           byte[] buf = new byte[8];
           writeInt64(buf, 0, pgMicros);
@@ -476,8 +474,7 @@ public abstract class PgBinary<A> {
 
         @Override
         public byte[] encode(Instant value) {
-          long unixMicros =
-              value.getEpochSecond() * 1_000_000L + value.getNano() / 1000;
+          long unixMicros = value.getEpochSecond() * 1_000_000L + value.getNano() / 1000;
           long pgMicros = unixMicros - PG_EPOCH_MICROS;
           byte[] buf = new byte[8];
           writeInt64(buf, 0, pgMicros);
@@ -506,9 +503,10 @@ public abstract class PgBinary<A> {
         public byte[] encode(PGInterval value) {
           byte[] buf = new byte[16];
           int months = value.getYears() * 12 + value.getMonths();
-          long micros = value.getHours() * 3_600_000_000L
-              + value.getMinutes() * 60_000_000L
-              + (long) (value.getSeconds() * 1_000_000);
+          long micros =
+              value.getHours() * 3_600_000_000L
+                  + value.getMinutes() * 60_000_000L
+                  + (long) (value.getSeconds() * 1_000_000);
           writeInt64(buf, 0, micros);
           writeInt32(buf, 8, value.getDays());
           writeInt32(buf, 12, months);
@@ -545,8 +543,7 @@ public abstract class PgBinary<A> {
           BigInteger unscaled = BigInteger.ZERO;
           for (int i = 0; i < ndigits; i++) {
             int digit = readInt16(raw, pos + i * 2) & 0xFFFF;
-            unscaled =
-                unscaled.multiply(BigInteger.valueOf(10000)).add(BigInteger.valueOf(digit));
+            unscaled = unscaled.multiply(BigInteger.valueOf(10000)).add(BigInteger.valueOf(digit));
           }
           if (sign == 0x4000) unscaled = unscaled.negate();
 
@@ -1076,8 +1073,7 @@ public abstract class PgBinary<A> {
   private static final int RANGE_UB_INF = 0x10;
 
   public static <T extends Comparable<? super T>> PgBinary<Range<T>> range(
-      PgBinary<T> elementBinary,
-      BiFunction<RangeBound<T>, RangeBound<T>, Range<T>> rangeFactory) {
+      PgBinary<T> elementBinary, BiFunction<RangeBound<T>, RangeBound<T>, Range<T>> rangeFactory) {
     return new PgBinary<>() {
       @Override
       public Range<T> decode(byte[] raw, int offset, int len) {
@@ -1179,16 +1175,25 @@ public abstract class PgBinary<A> {
         @Override
         public boolean[] decode(byte[] raw, int offset, int len) {
           int pos = offset;
-          int ndim = readInt32(raw, pos); pos += 4;
+          int ndim = readInt32(raw, pos);
+          pos += 4;
           pos += 4; // has_null
           pos += 4; // element OID
           if (ndim == 0) return new boolean[0];
           int total = 1;
-          for (int d = 0; d < ndim; d++) { total *= readInt32(raw, pos); pos += 4; pos += 4; }
+          for (int d = 0; d < ndim; d++) {
+            total *= readInt32(raw, pos);
+            pos += 4;
+            pos += 4;
+          }
           boolean[] result = new boolean[total];
           for (int i = 0; i < total; i++) {
-            int elemLen = readInt32(raw, pos); pos += 4;
-            if (elemLen >= 0) { result[i] = raw[pos] != 0; pos += elemLen; }
+            int elemLen = readInt32(raw, pos);
+            pos += 4;
+            if (elemLen >= 0) {
+              result[i] = raw[pos] != 0;
+              pos += elemLen;
+            }
           }
           return result;
         }
@@ -1197,14 +1202,21 @@ public abstract class PgBinary<A> {
         public byte[] encode(boolean[] value) {
           byte[] buf = new byte[20 + value.length * 5];
           int pos = 0;
-          writeInt32(buf, pos, value.length > 0 ? 1 : 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, value.length); pos += 4;
-          writeInt32(buf, pos, 1); pos += 4;
+          writeInt32(buf, pos, value.length > 0 ? 1 : 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, value.length);
+          pos += 4;
+          writeInt32(buf, pos, 1);
+          pos += 4;
           for (boolean b : value) {
-            writeInt32(buf, pos, 1); pos += 4;
-            buf[pos] = (byte) (b ? 1 : 0); pos += 1;
+            writeInt32(buf, pos, 1);
+            pos += 4;
+            buf[pos] = (byte) (b ? 1 : 0);
+            pos += 1;
           }
           return buf;
         }
@@ -1215,14 +1227,21 @@ public abstract class PgBinary<A> {
         @Override
         public short[] decode(byte[] raw, int offset, int len) {
           int pos = offset;
-          int ndim = readInt32(raw, pos); pos += 4;
-          pos += 4; pos += 4;
+          int ndim = readInt32(raw, pos);
+          pos += 4;
+          pos += 4;
+          pos += 4;
           if (ndim == 0) return new short[0];
           int total = 1;
-          for (int d = 0; d < ndim; d++) { total *= readInt32(raw, pos); pos += 4; pos += 4; }
+          for (int d = 0; d < ndim; d++) {
+            total *= readInt32(raw, pos);
+            pos += 4;
+            pos += 4;
+          }
           short[] result = new short[total];
           for (int i = 0; i < total; i++) {
-            int elemLen = readInt32(raw, pos); pos += 4;
+            int elemLen = readInt32(raw, pos);
+            pos += 4;
             if (elemLen >= 0) {
               result[i] = (short) (((raw[pos] & 0xFF) << 8) | (raw[pos + 1] & 0xFF));
               pos += elemLen;
@@ -1235,14 +1254,21 @@ public abstract class PgBinary<A> {
         public byte[] encode(short[] value) {
           byte[] buf = new byte[20 + value.length * 6];
           int pos = 0;
-          writeInt32(buf, pos, value.length > 0 ? 1 : 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, value.length); pos += 4;
-          writeInt32(buf, pos, 1); pos += 4;
+          writeInt32(buf, pos, value.length > 0 ? 1 : 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, value.length);
+          pos += 4;
+          writeInt32(buf, pos, 1);
+          pos += 4;
           for (short s : value) {
-            writeInt32(buf, pos, 2); pos += 4;
-            writeInt16(buf, pos, s); pos += 2;
+            writeInt32(buf, pos, 2);
+            pos += 4;
+            writeInt16(buf, pos, s);
+            pos += 2;
           }
           return buf;
         }
@@ -1253,15 +1279,25 @@ public abstract class PgBinary<A> {
         @Override
         public int[] decode(byte[] raw, int offset, int len) {
           int pos = offset;
-          int ndim = readInt32(raw, pos); pos += 4;
-          pos += 4; pos += 4;
+          int ndim = readInt32(raw, pos);
+          pos += 4;
+          pos += 4;
+          pos += 4;
           if (ndim == 0) return new int[0];
           int total = 1;
-          for (int d = 0; d < ndim; d++) { total *= readInt32(raw, pos); pos += 4; pos += 4; }
+          for (int d = 0; d < ndim; d++) {
+            total *= readInt32(raw, pos);
+            pos += 4;
+            pos += 4;
+          }
           int[] result = new int[total];
           for (int i = 0; i < total; i++) {
-            int elemLen = readInt32(raw, pos); pos += 4;
-            if (elemLen >= 0) { result[i] = readInt32(raw, pos); pos += elemLen; }
+            int elemLen = readInt32(raw, pos);
+            pos += 4;
+            if (elemLen >= 0) {
+              result[i] = readInt32(raw, pos);
+              pos += elemLen;
+            }
           }
           return result;
         }
@@ -1270,14 +1306,21 @@ public abstract class PgBinary<A> {
         public byte[] encode(int[] value) {
           byte[] buf = new byte[20 + value.length * 8];
           int pos = 0;
-          writeInt32(buf, pos, value.length > 0 ? 1 : 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, value.length); pos += 4;
-          writeInt32(buf, pos, 1); pos += 4;
+          writeInt32(buf, pos, value.length > 0 ? 1 : 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, value.length);
+          pos += 4;
+          writeInt32(buf, pos, 1);
+          pos += 4;
           for (int v : value) {
-            writeInt32(buf, pos, 4); pos += 4;
-            writeInt32(buf, pos, v); pos += 4;
+            writeInt32(buf, pos, 4);
+            pos += 4;
+            writeInt32(buf, pos, v);
+            pos += 4;
           }
           return buf;
         }
@@ -1288,15 +1331,25 @@ public abstract class PgBinary<A> {
         @Override
         public long[] decode(byte[] raw, int offset, int len) {
           int pos = offset;
-          int ndim = readInt32(raw, pos); pos += 4;
-          pos += 4; pos += 4;
+          int ndim = readInt32(raw, pos);
+          pos += 4;
+          pos += 4;
+          pos += 4;
           if (ndim == 0) return new long[0];
           int total = 1;
-          for (int d = 0; d < ndim; d++) { total *= readInt32(raw, pos); pos += 4; pos += 4; }
+          for (int d = 0; d < ndim; d++) {
+            total *= readInt32(raw, pos);
+            pos += 4;
+            pos += 4;
+          }
           long[] result = new long[total];
           for (int i = 0; i < total; i++) {
-            int elemLen = readInt32(raw, pos); pos += 4;
-            if (elemLen >= 0) { result[i] = readInt64(raw, pos); pos += elemLen; }
+            int elemLen = readInt32(raw, pos);
+            pos += 4;
+            if (elemLen >= 0) {
+              result[i] = readInt64(raw, pos);
+              pos += elemLen;
+            }
           }
           return result;
         }
@@ -1305,14 +1358,21 @@ public abstract class PgBinary<A> {
         public byte[] encode(long[] value) {
           byte[] buf = new byte[20 + value.length * 12];
           int pos = 0;
-          writeInt32(buf, pos, value.length > 0 ? 1 : 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, value.length); pos += 4;
-          writeInt32(buf, pos, 1); pos += 4;
+          writeInt32(buf, pos, value.length > 0 ? 1 : 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, value.length);
+          pos += 4;
+          writeInt32(buf, pos, 1);
+          pos += 4;
           for (long v : value) {
-            writeInt32(buf, pos, 8); pos += 4;
-            writeInt64(buf, pos, v); pos += 8;
+            writeInt32(buf, pos, 8);
+            pos += 4;
+            writeInt64(buf, pos, v);
+            pos += 8;
           }
           return buf;
         }
@@ -1323,15 +1383,25 @@ public abstract class PgBinary<A> {
         @Override
         public float[] decode(byte[] raw, int offset, int len) {
           int pos = offset;
-          int ndim = readInt32(raw, pos); pos += 4;
-          pos += 4; pos += 4;
+          int ndim = readInt32(raw, pos);
+          pos += 4;
+          pos += 4;
+          pos += 4;
           if (ndim == 0) return new float[0];
           int total = 1;
-          for (int d = 0; d < ndim; d++) { total *= readInt32(raw, pos); pos += 4; pos += 4; }
+          for (int d = 0; d < ndim; d++) {
+            total *= readInt32(raw, pos);
+            pos += 4;
+            pos += 4;
+          }
           float[] result = new float[total];
           for (int i = 0; i < total; i++) {
-            int elemLen = readInt32(raw, pos); pos += 4;
-            if (elemLen >= 0) { result[i] = readFloat32(raw, pos); pos += elemLen; }
+            int elemLen = readInt32(raw, pos);
+            pos += 4;
+            if (elemLen >= 0) {
+              result[i] = readFloat32(raw, pos);
+              pos += elemLen;
+            }
           }
           return result;
         }
@@ -1340,14 +1410,21 @@ public abstract class PgBinary<A> {
         public byte[] encode(float[] value) {
           byte[] buf = new byte[20 + value.length * 8];
           int pos = 0;
-          writeInt32(buf, pos, value.length > 0 ? 1 : 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, value.length); pos += 4;
-          writeInt32(buf, pos, 1); pos += 4;
+          writeInt32(buf, pos, value.length > 0 ? 1 : 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, value.length);
+          pos += 4;
+          writeInt32(buf, pos, 1);
+          pos += 4;
           for (float f : value) {
-            writeInt32(buf, pos, 4); pos += 4;
-            writeFloat32(buf, pos, f); pos += 4;
+            writeInt32(buf, pos, 4);
+            pos += 4;
+            writeFloat32(buf, pos, f);
+            pos += 4;
           }
           return buf;
         }
@@ -1358,15 +1435,25 @@ public abstract class PgBinary<A> {
         @Override
         public double[] decode(byte[] raw, int offset, int len) {
           int pos = offset;
-          int ndim = readInt32(raw, pos); pos += 4;
-          pos += 4; pos += 4;
+          int ndim = readInt32(raw, pos);
+          pos += 4;
+          pos += 4;
+          pos += 4;
           if (ndim == 0) return new double[0];
           int total = 1;
-          for (int d = 0; d < ndim; d++) { total *= readInt32(raw, pos); pos += 4; pos += 4; }
+          for (int d = 0; d < ndim; d++) {
+            total *= readInt32(raw, pos);
+            pos += 4;
+            pos += 4;
+          }
           double[] result = new double[total];
           for (int i = 0; i < total; i++) {
-            int elemLen = readInt32(raw, pos); pos += 4;
-            if (elemLen >= 0) { result[i] = readFloat64(raw, pos); pos += elemLen; }
+            int elemLen = readInt32(raw, pos);
+            pos += 4;
+            if (elemLen >= 0) {
+              result[i] = readFloat64(raw, pos);
+              pos += elemLen;
+            }
           }
           return result;
         }
@@ -1375,14 +1462,21 @@ public abstract class PgBinary<A> {
         public byte[] encode(double[] value) {
           byte[] buf = new byte[20 + value.length * 12];
           int pos = 0;
-          writeInt32(buf, pos, value.length > 0 ? 1 : 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, 0); pos += 4;
-          writeInt32(buf, pos, value.length); pos += 4;
-          writeInt32(buf, pos, 1); pos += 4;
+          writeInt32(buf, pos, value.length > 0 ? 1 : 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, 0);
+          pos += 4;
+          writeInt32(buf, pos, value.length);
+          pos += 4;
+          writeInt32(buf, pos, 1);
+          pos += 4;
           for (double d : value) {
-            writeInt32(buf, pos, 8); pos += 4;
-            writeFloat64(buf, pos, d); pos += 8;
+            writeInt32(buf, pos, 8);
+            pos += 4;
+            writeFloat64(buf, pos, d);
+            pos += 8;
           }
           return buf;
         }

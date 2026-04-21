@@ -1,0 +1,19 @@
+{
+  "title": "Readonly Latency Benchmark",
+  "timestamp": "2026-03-29T17:16:19.214595Z",
+  "sections": [
+    {
+      "title": "Readonly combine() vs sequential (5 queries, 10ms RTT)",
+      "description": "5 queries per task, 10 connections, 10ms RTT.",
+      "metricLabel": "ops/sec",
+      "code": "// readonly + combine: 5 queries fan out, ~1 RTT total\npool.readonlyTransact(conn -> conn.execute(\n    q1.combine(q2).combine(q3).combine(q4).combine(q5)\n));\n\n// sequential: 5 queries, 5 RTTs = ~50ms per task\npool.readonlyTransact(conn -> {\n    conn.queryFirst(sql1, codec);\n    conn.queryFirst(sql2, codec);\n    // ...\n});",
+      "results": [
+        {"name":"readonly + combine","library":"readonly + combine","opsPerSec":129.6,"p50us":740294,"p95us":1777336,"p99us":1941962,"p999us":2095054,"wallTimeMs":11389},
+        {"name":"readonly + sequential","library":"readonly + sequential","opsPerSec":99.3,"p50us":1665138,"p95us":3338665,"p99us":3965714,"p999us":4538236,"wallTimeMs":11695},
+        {"name":"mutable + combine","library":"mutable + combine","opsPerSec":45.2,"p50us":337379,"p95us":11802771,"p99us":12046041,"p999us":12113149,"wallTimeMs":12468},
+        {"name":"mutable + sequential","library":"mutable + sequential","opsPerSec":20.9,"p50us":582483,"p95us":15518924,"p99us":16500391,"p999us":16894656,"wallTimeMs":22926},
+        {"name":"Raw JDBC (5 queries)","library":"Raw JDBC","opsPerSec":13.5,"p50us":12423528,"p95us":24209522,"p99us":25316818,"p999us":25501368,"wallTimeMs":25537}
+      ]
+    }
+  ]
+}

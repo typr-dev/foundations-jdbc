@@ -1,0 +1,39 @@
+{
+  "title": "Transaction Latency Benchmark",
+  "timestamp": "2026-03-30T02:09:00.016381Z",
+  "sections": [
+    {
+      "title": "Single-Read Tx (local)",
+      "description": "Sequential execution, 200 ops x 5 iterations, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.transact(tx -> tx.execute(selectById.on(42)))",
+      "results": [
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":3367.0,"p50us":283,"p95us":397,"p99us":496,"p999us":626,"wallTimeMs":297},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":1210.7,"p50us":751,"p95us":1295,"p99us":2038,"p999us":5591,"wallTimeMs":826},
+        {"name":"Raw JDBC (tx)","library":"Raw JDBC","opsPerSec":2222.2,"p50us":421,"p95us":671,"p99us":794,"p999us":1116,"wallTimeMs":450}
+      ]
+    },
+    {
+      "title": "Single-Read Tx (2ms RTT)",
+      "description": "Sequential execution, 200 ops x 5 iterations, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.transact(tx -> tx.execute(selectById.on(42)))",
+      "results": [
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":262.5,"p50us":3569,"p95us":5177,"p99us":7483,"p999us":12075,"wallTimeMs":3809},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":119.0,"p50us":7794,"p95us":10764,"p99us":20578,"p999us":29720,"wallTimeMs":8402},
+        {"name":"Raw JDBC (tx)","library":"Raw JDBC","opsPerSec":146.2,"p50us":6246,"p95us":9117,"p99us":10895,"p999us":19562,"wallTimeMs":6839}
+      ]
+    },
+    {
+      "title": "Single-Read Tx (10ms RTT)",
+      "description": "Sequential execution, 200 ops x 5 iterations, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.transact(tx -> tx.execute(selectById.on(42)))",
+      "results": [
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":72.1,"p50us":13737,"p95us":15917,"p99us":18317,"p999us":21463,"wallTimeMs":13875},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":30.9,"p50us":32669,"p95us":36208,"p99us":38371,"p999us":45187,"wallTimeMs":32334},
+        {"name":"Raw JDBC (tx)","library":"Raw JDBC","opsPerSec":37.0,"p50us":26755,"p95us":30130,"p99us":32931,"p999us":39878,"wallTimeMs":27053}
+      ]
+    }
+  ]
+}

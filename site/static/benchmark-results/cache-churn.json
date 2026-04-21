@@ -1,0 +1,50 @@
+{
+  "title": "Cache Churn Benchmark",
+  "timestamp": "2026-03-30T02:07:22.549370Z",
+  "sections": [
+    {
+      "title": "8 Distinct Queries",
+      "description": "5000 tasks, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(queries[random.nextInt(workingSetSize)].on(id))",
+      "results": [
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":50234.5,"p50us":3538,"p95us":7102,"p99us":9871,"p999us":20463,"wallTimeMs":10003},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":8133.6,"p50us":1258,"p95us":121307,"p99us":167378,"p999us":246677,"wallTimeMs":10024},
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":17243.6,"p50us":573,"p95us":79822,"p99us":215482,"p999us":425459,"wallTimeMs":10013}
+      ]
+    },
+    {
+      "title": "64 Distinct Queries",
+      "description": "5000 tasks, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(queries[random.nextInt(workingSetSize)].on(id))",
+      "results": [
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":52588.6,"p50us":3495,"p95us":6283,"p99us":9338,"p999us":18038,"wallTimeMs":10005},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":8440.6,"p50us":1198,"p95us":121503,"p99us":153485,"p999us":217972,"wallTimeMs":10025},
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":18136.3,"p50us":553,"p95us":75563,"p99us":194641,"p999us":394002,"wallTimeMs":10012}
+      ]
+    },
+    {
+      "title": "256 Distinct Queries",
+      "description": "5000 tasks, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(queries[random.nextInt(workingSetSize)].on(id))",
+      "results": [
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":56485.6,"p50us":3311,"p95us":5681,"p99us":7278,"p999us":13221,"wallTimeMs":10002},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":8356.3,"p50us":1231,"p95us":107479,"p99us":127795,"p999us":137494,"wallTimeMs":10024},
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":18357.5,"p50us":545,"p95us":75169,"p99us":183762,"p999us":333447,"wallTimeMs":10012}
+      ]
+    },
+    {
+      "title": "1024 Distinct Queries",
+      "description": "5000 tasks, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(queries[random.nextInt(workingSetSize)].on(id))",
+      "results": [
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":55902.3,"p50us":3360,"p95us":5750,"p99us":7389,"p999us":11714,"wallTimeMs":10003},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":8199.4,"p50us":1252,"p95us":110624,"p99us":136445,"p999us":161742,"wallTimeMs":10025},
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":16654.5,"p50us":580,"p95us":80936,"p99us":229638,"p999us":474742,"wallTimeMs":10016}
+      ]
+    }
+  ]
+}

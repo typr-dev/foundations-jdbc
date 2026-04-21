@@ -1,0 +1,62 @@
+{
+  "title": "Batch Insert Benchmark",
+  "timestamp": "2026-03-30T01:55:37.601703Z",
+  "sections": [
+    {
+      "title": "batchSize=100, concurrency=1",
+      "description": "10000 total rows, 10000 rows/task.",
+      "metricLabel": "rows/sec",
+      "code": "pool.execute(StreamingInsert.of(\n    \"COPY bench_write (...) FROM STDIN\",\n    1000, rows.iterator(), pgText\n))",
+      "results": [
+        {"name":"Raw JDBC (batch)","library":"Raw JDBC","opsPerSec":54945.1,"p50us":181796,"p95us":197787,"p99us":197787,"p999us":197787,"wallTimeMs":182},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":138888.9,"p50us":72876,"p95us":80674,"p99us":80674,"p999us":80674,"wallTimeMs":72},
+        {"name":"Foundations+PgPipe (mutable batch)","library":"Foundations+PgPipe","opsPerSec":108695.7,"p50us":92536,"p95us":122028,"p99us":122028,"p999us":122028,"wallTimeMs":92},
+        {"name":"Foundations+PgPipe (mutable COPY)","library":"Foundations+PgPipe","opsPerSec":303030.3,"p50us":33144,"p95us":48431,"p99us":48431,"p999us":48431,"wallTimeMs":33},
+        {"name":"Vert.x (batch)","library":"Vert.x","opsPerSec":38022.8,"p50us":263454,"p95us":353894,"p99us":353894,"p999us":353894,"wallTimeMs":263},
+        {"name":"Hibernate (batch)","library":"Hibernate","opsPerSec":28248.6,"p50us":354418,"p95us":367525,"p99us":367525,"p999us":367525,"wallTimeMs":354}
+      ]
+    },
+    {
+      "title": "batchSize=100, concurrency=10",
+      "description": "10000 total rows, 1000 rows/task.",
+      "metricLabel": "rows/sec",
+      "code": "pool.execute(StreamingInsert.of(\n    \"COPY bench_write (...) FROM STDIN\",\n    1000, rows.iterator(), pgText\n))",
+      "results": [
+        {"name":"Raw JDBC (batch)","library":"Raw JDBC","opsPerSec":125000.0,"p50us":61079,"p95us":89325,"p99us":95748,"p999us":95748,"wallTimeMs":80},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":142857.1,"p50us":44826,"p95us":109510,"p99us":123600,"p999us":123600,"wallTimeMs":70},
+        {"name":"Foundations+PgPipe (mutable batch)","library":"Foundations+PgPipe","opsPerSec":103092.8,"p50us":94699,"p95us":108527,"p99us":108593,"p999us":108593,"wallTimeMs":97},
+        {"name":"Foundations+PgPipe (mutable COPY)","library":"Foundations+PgPipe","opsPerSec":227272.7,"p50us":42663,"p95us":56623,"p99us":56754,"p999us":56754,"wallTimeMs":44},
+        {"name":"Vert.x (batch)","library":"Vert.x","opsPerSec":100000.0,"p50us":97779,"p95us":135790,"p99us":137101,"p999us":137101,"wallTimeMs":100},
+        {"name":"Hibernate (batch)","library":"Hibernate","opsPerSec":70922.0,"p50us":133169,"p95us":197132,"p99us":201588,"p999us":201588,"wallTimeMs":141}
+      ]
+    },
+    {
+      "title": "batchSize=1000, concurrency=1",
+      "description": "10000 total rows, 10000 rows/task.",
+      "metricLabel": "rows/sec",
+      "code": "pool.execute(StreamingInsert.of(\n    \"COPY bench_write (...) FROM STDIN\",\n    1000, rows.iterator(), pgText\n))",
+      "results": [
+        {"name":"Raw JDBC (batch)","library":"Raw JDBC","opsPerSec":163934.4,"p50us":61210,"p95us":130875,"p99us":130875,"p999us":130875,"wallTimeMs":61},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":181818.2,"p50us":55771,"p95us":71041,"p99us":71041,"p999us":71041,"wallTimeMs":55},
+        {"name":"Foundations+PgPipe (mutable batch)","library":"Foundations+PgPipe","opsPerSec":101010.1,"p50us":99483,"p95us":128974,"p99us":128974,"p999us":128974,"wallTimeMs":99},
+        {"name":"Foundations+PgPipe (mutable COPY)","library":"Foundations+PgPipe","opsPerSec":204081.6,"p50us":49250,"p95us":65011,"p99us":65011,"p999us":65011,"wallTimeMs":49},
+        {"name":"Vert.x (batch)","library":"Vert.x","opsPerSec":69444.4,"p50us":144310,"p95us":153616,"p99us":153616,"p999us":153616,"wallTimeMs":144},
+        {"name":"Hibernate (batch)","library":"Hibernate","opsPerSec":21786.5,"p50us":459538,"p95us":719323,"p99us":719323,"p999us":719323,"wallTimeMs":459}
+      ]
+    },
+    {
+      "title": "batchSize=1000, concurrency=10",
+      "description": "10000 total rows, 1000 rows/task.",
+      "metricLabel": "rows/sec",
+      "code": "pool.execute(StreamingInsert.of(\n    \"COPY bench_write (...) FROM STDIN\",\n    1000, rows.iterator(), pgText\n))",
+      "results": [
+        {"name":"Raw JDBC (batch)","library":"Raw JDBC","opsPerSec":125000.0,"p50us":71892,"p95us":141426,"p99us":167641,"p999us":167641,"wallTimeMs":80},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":101010.1,"p50us":78381,"p95us":138805,"p99us":171311,"p999us":171311,"wallTimeMs":99},
+        {"name":"Foundations+PgPipe (mutable batch)","library":"Foundations+PgPipe","opsPerSec":86206.9,"p50us":108855,"p95us":123928,"p99us":125173,"p999us":125173,"wallTimeMs":116},
+        {"name":"Foundations+PgPipe (mutable COPY)","library":"Foundations+PgPipe","opsPerSec":250000.0,"p50us":37060,"p95us":49709,"p99us":49971,"p999us":49971,"wallTimeMs":40},
+        {"name":"Vert.x (batch)","library":"Vert.x","opsPerSec":123456.8,"p50us":78118,"p95us":83623,"p99us":83820,"p999us":83820,"wallTimeMs":81},
+        {"name":"Hibernate (batch)","library":"Hibernate","opsPerSec":56818.2,"p50us":151650,"p95us":222035,"p99us":222298,"p999us":222298,"wallTimeMs":176}
+      ]
+    }
+  ]
+}

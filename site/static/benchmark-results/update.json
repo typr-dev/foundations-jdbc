@@ -1,0 +1,45 @@
+{
+  "title": "UPDATE Benchmark",
+  "timestamp": "2026-03-30T02:01:40.605309Z",
+  "sections": [
+    {
+      "title": "Local UPDATE",
+      "description": "10000 tasks, 50 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(updateTemplate.on(newValue, newName, id))",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":16046.5,"p50us":3168,"p95us":63766,"p99us":151126,"p999us":348913,"wallTimeMs":10011},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":15590.6,"p50us":3233,"p95us":67371,"p99us":152698,"p999us":319029,"wallTimeMs":10017},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":7446.3,"p50us":6356,"p95us":135397,"p99us":201457,"p999us":503054,"wallTimeMs":10026},
+        {"name":"Vert.x (async)","library":"Vert.x","opsPerSec":16596.7,"p50us":15876,"p95us":29982,"p99us":35160,"p999us":45121,"wallTimeMs":10022},
+        {"name":"Hibernate","library":"Hibernate","opsPerSec":9336.2,"p50us":5210,"p95us":120979,"p99us":317194,"p999us":613941,"wallTimeMs":10014}
+      ]
+    },
+    {
+      "title": "UPDATE @ 10ms RTT",
+      "description": "1000 tasks, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(updateTemplate.on(newValue, newName, id))",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":685.6,"p50us":14376,"p95us":2106589,"p99us":5226102,"p999us":9923723,"wallTimeMs":10266},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":675.5,"p50us":14991,"p95us":1945108,"p99us":4404019,"p999us":6949961,"wallTimeMs":10256},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":323.5,"p50us":34537,"p95us":1550843,"p99us":1586495,"p999us":1608515,"wallTimeMs":10621},
+        {"name":"Vert.x (async)","library":"Vert.x","opsPerSec":687.4,"p50us":376700,"p95us":707264,"p99us":776994,"p999us":823132,"wallTimeMs":10203},
+        {"name":"Hibernate","library":"Hibernate","opsPerSec":362.3,"p50us":28393,"p95us":3267362,"p99us":6408896,"p999us":10141827,"wallTimeMs":10533}
+      ]
+    },
+    {
+      "title": "Scarce UPDATE",
+      "description": "5000 tasks, 5 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(updateTemplate.on(newValue, newName, id))",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":7276.9,"p50us":677,"p95us":163839,"p99us":661651,"p999us":1438646,"wallTimeMs":10029},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":7533.6,"p50us":665,"p95us":175505,"p99us":603455,"p999us":1216348,"wallTimeMs":10034},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":4540.4,"p50us":1181,"p95us":161218,"p99us":206307,"p999us":257294,"wallTimeMs":10042},
+        {"name":"Vert.x (async)","library":"Vert.x","opsPerSec":7974.5,"p50us":31309,"p95us":59408,"p99us":69926,"p999us":96206,"wallTimeMs":10052},
+        {"name":"Hibernate","library":"Hibernate","opsPerSec":5117.7,"p50us":950,"p95us":269484,"p99us":830996,"p999us":1642070,"wallTimeMs":10045}
+      ]
+    }
+  ]
+}

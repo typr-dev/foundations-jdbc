@@ -1,0 +1,46 @@
+---
+sidebar_position: 9
+---
+
+import BenchmarkResults from '@site/src/components/BenchmarkResults';
+
+# Benchmarks
+
+These benchmarks compare Foundations JDBC's wire-protocol pipelining (`PgPipelinePool`) against standard JDBC, Hibernate, and Vert.x on PostgreSQL. All benchmarks run automatically — `bleep run benchmark` regenerates the charts below with your own hardware.
+
+## Contenders
+
+| Name in charts | What it is |
+| :--- | :--- |
+| **Foundations+PgPipe** | Foundations type system + zero-dependency wire-protocol pipelining. The main contender. |
+| **Foundations+PgPipe (readonly)** | Same, using `readonlyTransact()` — no BEGIN/COMMIT, queries fan out across all connections. |
+| **Foundations+PgPipe (mutable)** | Same, using `transact()` — BEGIN/COMMIT on a reserved connection. |
+| **Foundations+PgPipe (combine)** | Multiple queries combined into a single round-trip via `combine()`. |
+| **Foundations+Hikari** | Same type system, but over standard JDBC + HikariCP connection pool. Shows the type system adds zero overhead. |
+| **Raw JDBC** | Hand-written `PreparedStatement` + HikariCP. The theoretical JDBC minimum. |
+| **Vert.x (async)** | Vert.x reactive PostgreSQL client using `CompletableFuture`. |
+| **Hibernate** | JPA entities + HikariCP. Representative ORM usage. |
+
+## What "10ms RTT" Means
+
+Many benchmarks use a **10ms round-trip time** via a TCP latency proxy. This simulates real-world cloud deployments where your application and database are in different availability zones — typical for AWS RDS, Google Cloud SQL, Azure Database, etc. On localhost the latency is negligible (~0.1ms), so local benchmarks show the raw per-query overhead rather than the network effect.
+
+---
+
+<BenchmarkResults />
+
+---
+
+## Methodology
+
+- **Database**: PostgreSQL 16
+- **Measurement**: Each contender runs for 10 seconds with 200 concurrent virtual threads. Total completed operations counted, per-operation latency recorded via HdrHistogram.
+- **Warmup**: 3 seconds of continuous operations discarded before measurement
+- **Latency proxy**: TCP proxy adding 5ms one-way delay (10ms round-trip)
+- **Data**: 10,000 rows, 6 columns (int, varchar, decimal, boolean, timestamp, varchar)
+- **Connection pools**: HikariCP for JDBC/Foundations/Hibernate, direct socket for PgPipe, Vert.x native pool
+- **Isolation**: Each benchmark suite runs in its own JVM subprocess
+
+:::note
+Numbers are representative — your results will vary with hardware, PostgreSQL configuration, and network topology. Run `bleep run benchmark` to generate results for your setup.
+:::

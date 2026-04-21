@@ -1,0 +1,138 @@
+{
+  "title": "Streaming Cursor Benchmark",
+  "timestamp": "2026-03-30T01:57:52.672149Z",
+  "sections": [
+    {
+      "title": "local, fetchSize=100, concurrency=1",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":2.6,"p50us":380370,"p95us":964165,"p99us":964165,"p999us":964165,"wallTimeMs":382},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":14.7,"p50us":68026,"p95us":84213,"p99us":84213,"p999us":84213,"wallTimeMs":68},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":10.1,"p50us":99418,"p95us":111476,"p99us":111476,"p999us":111476,"wallTimeMs":99}
+      ]
+    },
+    {
+      "title": "local, fetchSize=100, concurrency=10",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":60.2,"p50us":106561,"p95us":166068,"p99us":178257,"p999us":178257,"wallTimeMs":166},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":117.6,"p50us":79626,"p95us":88342,"p99us":88408,"p999us":88408,"wallTimeMs":85},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":64.5,"p50us":155058,"p95us":230948,"p99us":231211,"p999us":231211,"wallTimeMs":155}
+      ]
+    },
+    {
+      "title": "local, fetchSize=100, concurrency=50",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":104.4,"p50us":293601,"p95us":478674,"p99us":492830,"p999us":498597,"wallTimeMs":479},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":119.6,"p50us":412614,"p95us":455606,"p99us":456130,"p999us":456392,"wallTimeMs":418},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":107.5,"p50us":462684,"p95us":519307,"p99us":522190,"p999us":524550,"wallTimeMs":465}
+      ]
+    },
+    {
+      "title": "local, fetchSize=1000, concurrency=1",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":71.4,"p50us":14778,"p95us":14909,"p99us":14909,"p999us":14909,"wallTimeMs":14},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":38.5,"p50us":25968,"p95us":26230,"p99us":26230,"p999us":26230,"wallTimeMs":26},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":18.2,"p50us":55476,"p95us":57606,"p99us":57606,"p999us":57606,"wallTimeMs":55}
+      ]
+    },
+    {
+      "title": "local, fetchSize=1000, concurrency=10",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":106.4,"p50us":64946,"p95us":94306,"p99us":94961,"p999us":94961,"wallTimeMs":94},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":122.0,"p50us":80347,"p95us":82247,"p99us":82313,"p999us":82313,"wallTimeMs":82},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":122.0,"p50us":78774,"p95us":83755,"p99us":84606,"p999us":84606,"wallTimeMs":82}
+      ]
+    },
+    {
+      "title": "local, fetchSize=1000, concurrency=50",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":125.9,"p50us":242089,"p95us":396886,"p99us":400556,"p999us":408682,"wallTimeMs":397},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":131.2,"p50us":324009,"p95us":381943,"p99us":384827,"p999us":384827,"wallTimeMs":381},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":135.9,"p50us":360447,"p95us":384565,"p99us":385089,"p999us":385351,"wallTimeMs":368}
+      ]
+    },
+    {
+      "title": "2ms RTT, fetchSize=100, concurrency=1",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":2.2,"p50us":453246,"p95us":463208,"p99us":463208,"p999us":463208,"wallTimeMs":453},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":4.7,"p50us":211288,"p95us":213909,"p99us":213909,"p999us":213909,"wallTimeMs":211},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":1.9,"p50us":518520,"p95us":585629,"p99us":585629,"p999us":585629,"wallTimeMs":518}
+      ]
+    },
+    {
+      "title": "2ms RTT, fetchSize=100, concurrency=10",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":23.0,"p50us":431226,"p95us":445120,"p99us":449314,"p999us":449314,"wallTimeMs":435},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":53.2,"p50us":182583,"p95us":189923,"p99us":189923,"p999us":189923,"wallTimeMs":188},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":22.3,"p50us":444596,"p95us":452460,"p99us":452460,"p999us":452460,"wallTimeMs":448}
+      ]
+    },
+    {
+      "title": "2ms RTT, fetchSize=1000, concurrency=1",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":4.6,"p50us":219807,"p95us":219807,"p99us":219807,"p999us":219807,"wallTimeMs":219},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":4.8,"p50us":210894,"p95us":211812,"p99us":211812,"p999us":211812,"wallTimeMs":210},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":3.8,"p50us":264503,"p95us":272367,"p99us":272367,"p999us":272367,"wallTimeMs":264}
+      ]
+    },
+    {
+      "title": "2ms RTT, fetchSize=1000, concurrency=10",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":45.0,"p50us":216006,"p95us":227672,"p99us":241827,"p999us":241827,"wallTimeMs":222},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":48.8,"p50us":188743,"p95us":205651,"p99us":207224,"p999us":207224,"wallTimeMs":205},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":46.9,"p50us":206700,"p95us":212991,"p99us":213254,"p999us":213254,"wallTimeMs":213}
+      ]
+    },
+    {
+      "title": "10ms RTT, fetchSize=100, concurrency=1",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":0.5,"p50us":2088763,"p95us":2103443,"p99us":2103443,"p999us":2103443,"wallTimeMs":2088},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":1.0,"p50us":958922,"p95us":963641,"p99us":963641,"p999us":963641,"wallTimeMs":959},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":0.5,"p50us":2166358,"p95us":2233466,"p99us":2233466,"p999us":2233466,"wallTimeMs":2165}
+      ]
+    },
+    {
+      "title": "10ms RTT, fetchSize=1000, concurrency=1",
+      "description": "10000 rows, 3 iterations.",
+      "metricLabel": "scans/sec",
+      "code": "pool.execute(Operation.streaming(selectAll, codec, fetchSize))\n    .use(cursor -> {\n        while (cursor.hasNext()) cursor.next();\n    });",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":0.9,"p50us":1055916,"p95us":1064304,"p99us":1064304,"p999us":1064304,"wallTimeMs":1055},
+        {"name":"Foundations+PgPipe","library":"Foundations+PgPipe","opsPerSec":1.0,"p50us":986185,"p95us":1004011,"p99us":1004011,"p999us":1004011,"wallTimeMs":985},
+        {"name":"Vert.x (cursor)","library":"Vert.x","opsPerSec":0.9,"p50us":1088421,"p95us":1106247,"p99us":1106247,"p999us":1106247,"wallTimeMs":1088}
+      ]
+    }
+  ]
+}

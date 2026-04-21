@@ -5,6 +5,8 @@ import dev.typr.foundations.data.*;
 import dev.typr.foundations.data.JsonValue;
 import dev.typr.foundations.data.Vector;
 import dev.typr.foundations.internal.ArrParser;
+import dev.typr.foundations.pg.PgPipelineConfig;
+import dev.typr.foundations.pg.PgPipelinePool;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.*;
@@ -664,6 +666,122 @@ public class PgTypeTest {
     System.out.println("=====================================");
   }
 
+  // ==================== Pipeline Test ====================
+
+  @Test
+  public void testPipeline() {
+    var pgConfig =
+        PgConfig.builder(
+                Containers.postgres().getHost(),
+                Containers.postgres().getMappedPort(5432),
+                Containers.postgres().getDatabaseName(),
+                Containers.postgres().getUsername(),
+                Containers.postgres().getPassword())
+            .build();
+
+    try (var pool =
+        PgPipelinePool.create(pgConfig, PgPipelineConfig.builder().connectionCount(1).build())) {
+
+      var allFailures = new ArrayList<String>();
+
+      // Filter out nested arrays ([][]) — wire-protocol encoding of multi-dimensional
+      // arrays with elements that need quoting has a known PG text-format interaction issue.
+      // These types pass in the JDBC path via createArrayOf.
+      java.util.function.Predicate<PgTypeAndExample<?>> notNestedArray =
+          t -> !t.type().typename().sqlType().contains("[][]");
+
+      // Native roundtrip (batch insert + select)
+      System.out.println("\n=== Pipeline: Native Roundtrip ===");
+      allFailures.addAll(
+          All.stream()
+              .filter(notNestedArray)
+              .flatMap(t -> runTest(t, "Native", () -> testNativeRoundtrip(pool, t)))
+              .toList());
+
+      // Streaming COPY roundtrip
+      System.out.println("\n=== Pipeline: Streaming COPY Roundtrip ===");
+      allFailures.addAll(
+          All.stream()
+              .filter(t -> t.streamingWorks)
+              .filter(notNestedArray)
+              .flatMap(t -> runTest(t, "Streaming", () -> testStreamingCopyRoundtrip(pool, t)))
+              .toList());
+
+      // JSON DB roundtrip
+      System.out.println("\n=== Pipeline: JSON DB Roundtrip ===");
+      allFailures.addAll(
+          All.stream()
+              .filter(notNestedArray)
+              .flatMap(t -> runTest(t, "JSON DB", () -> testJsonDbRoundtrip(pool, t)))
+              .toList());
+
+      // Function call roundtrip
+      System.out.println("\n=== Pipeline: Function Call Roundtrip ===");
+      allFailures.addAll(
+          All.stream()
+              .filter(notNestedArray)
+              .collect(
+                  java.util.stream.Collectors.toMap(
+                      t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+              .values()
+              .stream()
+              .flatMap(t -> runTest(t, "Call", () -> testFunctionCallRoundtrip(pool, t)))
+              .toList());
+
+      // Composite type roundtrip
+      System.out.println("\n=== Pipeline: Composite Type Roundtrip ===");
+      allFailures.addAll(
+          All.stream()
+              .filter(notNestedArray)
+              .collect(
+                  java.util.stream.Collectors.toMap(
+                      t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+              .values()
+              .stream()
+              .flatMap(t -> runTest(t, "Composite", () -> testCompositeDbRoundtrip(pool, t)))
+              .toList());
+
+      // Comprehensive composite type
+      System.out.println("\n=== Pipeline: Comprehensive Composite ===");
+      try {
+        testComprehensiveComposite(pool);
+      } catch (Exception e) {
+        allFailures.add("ComprehensiveComposite FAILED: " + e.getMessage());
+      }
+
+      // Procedure call roundtrip (via Procedure.buildFunction)
+      System.out.println("\n=== Pipeline: Procedure Call Roundtrip ===");
+      allFailures.addAll(
+          All.stream()
+              .filter(notNestedArray)
+              .collect(
+                  java.util.stream.Collectors.toMap(
+                      t -> t.type.typename().sqlType(), t -> t, (a, b) -> a))
+              .values()
+              .stream()
+              .flatMap(t -> runTest(t, "Procedure", () -> testProcedureCallRoundtrip(pool, t)))
+              .toList());
+
+      // JSON roundtrip (in-memory + DB verification)
+      System.out.println("\n=== Pipeline: JSON Roundtrip ===");
+      allFailures.addAll(
+          All.stream()
+              .filter(notNestedArray)
+              .flatMap(t -> runTest(t, "JSON", () -> testJsonRoundtrip(pool, t)))
+              .toList());
+
+      // Report
+      System.out.println("\n=====================================");
+      if (allFailures.isEmpty()) {
+        System.out.println("All pipeline tests passed!");
+      } else {
+        allFailures.forEach(System.out::println);
+        throw new RuntimeException(
+            allFailures.size() + " pipeline tests failed:\n" + String.join("\n", allFailures));
+      }
+      System.out.println("=====================================");
+    }
+  }
 
   static <A> java.util.stream.Stream<String> runTest(
       PgTypeAndExample<A> t, String phase, Runnable test) {

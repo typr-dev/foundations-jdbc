@@ -1,0 +1,107 @@
+{
+  "title": "Transaction Benchmark",
+  "timestamp": "2026-03-30T01:55:00.500834Z",
+  "sections": [
+    {
+      "title": "Non-Transactional Point Reads",
+      "description": "5000 concurrent reads, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(selectById.on(42))",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":17525.0,"p50us":566,"p95us":77594,"p99us":194117,"p999us":380895,"wallTimeMs":10010},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":17115.0,"p50us":581,"p95us":80740,"p99us":202506,"p999us":389808,"wallTimeMs":10012},
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":50466.1,"p50us":3700,"p95us":6541,"p99us":8585,"p999us":15548,"wallTimeMs":10005},
+        {"name":"Vert.x (async)","library":"Vert.x","opsPerSec":16371.9,"p50us":14163,"p95us":27230,"p99us":35160,"p999us":265289,"wallTimeMs":10282},
+        {"name":"Hibernate","library":"Hibernate","opsPerSec":14904.8,"p50us":563,"p95us":72220,"p99us":162267,"p999us":1042808,"wallTimeMs":10018}
+      ]
+    },
+    {
+      "title": "Single-Read Transaction",
+      "description": "5000 concurrent single-read transactions, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.transact(tx -> tx.execute(selectById.on(42)))",
+      "results": [
+        {"name":"Raw JDBC (tx)","library":"Raw JDBC","opsPerSec":9933.5,"p50us":1003,"p95us":138805,"p99us":404750,"p999us":810549,"wallTimeMs":10020},
+        {"name":"Foundations+Hikari (tx)","library":"Foundations+Hikari","opsPerSec":9788.8,"p50us":1010,"p95us":138805,"p99us":415236,"p999us":824705,"wallTimeMs":10017},
+        {"name":"Foundations+PgPipe (tx)","library":"Foundations+PgPipe","opsPerSec":7177.5,"p50us":1263,"p95us":119144,"p99us":366215,"p999us":482082,"wallTimeMs":10031},
+        {"name":"Vert.x (tx)","library":"Vert.x","opsPerSec":6017.6,"p50us":41877,"p95us":81199,"p99us":96272,"p999us":134873,"wallTimeMs":10074},
+        {"name":"Hibernate (tx)","library":"Hibernate","opsPerSec":8091.0,"p50us":1171,"p95us":171180,"p99us":481296,"p999us":913309,"wallTimeMs":10020}
+      ]
+    },
+    {
+      "title": "Multi-Op Transaction (5 ops)",
+      "description": "5000 concurrent r-w-r-w-r transactions, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.transact(tx -> {\n    tx.execute(selectById.on(1));\n    tx.execute(insertRow.on(\"Widget\", price, true, now, \"Cat\"));\n    tx.execute(selectById.on(2));\n    tx.execute(insertRow.on(\"Gadget\", price, false, now, \"Cat\"));\n    tx.execute(selectById.on(3));\n});",
+      "results": [
+        {"name":"Raw JDBC (tx)","library":"Raw JDBC","opsPerSec":2589.7,"p50us":3729,"p95us":470810,"p99us":1853882,"p999us":3766484,"wallTimeMs":10075},
+        {"name":"Foundations+PgPipe (tx)","library":"Foundations+PgPipe","opsPerSec":2097.5,"p50us":4085,"p95us":546308,"p99us":832045,"p999us":883425,"wallTimeMs":10078},
+        {"name":"Vert.x (tx)","library":"Vert.x","opsPerSec":762.4,"p50us":135004,"p95us":2619342,"p99us":3636461,"p999us":4542431,"wallTimeMs":11172},
+        {"name":"Hibernate (tx)","library":"Hibernate","opsPerSec":2779.3,"p50us":3424,"p95us":487063,"p99us":1180696,"p999us":2212495,"wallTimeMs":10062}
+      ]
+    },
+    {
+      "title": "Realistic Mixed (80/20)",
+      "description": "5000 concurrent ops, 80% non-tx reads + 20% tx writes, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(selectById.on(42))                          // 80%\npool.transact(tx -> {                                    // 20%\n    tx.execute(selectById.on(42));\n    tx.execute(insertRow.on(\"Widget\", price, true, now, \"Cat\"));\n});",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":10982.7,"p50us":546,"p95us":111935,"p99us":419430,"p999us":907018,"wallTimeMs":10016},
+        {"name":"Foundations+PgPipe (mixed)","library":"Foundations+PgPipe","opsPerSec":15046.3,"p50us":663,"p95us":81788,"p99us":95551,"p999us":111411,"wallTimeMs":10050},
+        {"name":"Vert.x (async)","library":"Vert.x","opsPerSec":8817.7,"p50us":26345,"p95us":60588,"p99us":95617,"p999us":149028,"wallTimeMs":10002},
+        {"name":"Hibernate","library":"Hibernate","opsPerSec":6027.2,"p50us":897,"p95us":174456,"p99us":726663,"p999us":1991245,"wallTimeMs":10167}
+      ]
+    },
+    {
+      "title": "5 Sequential Reads",
+      "description": "5000 concurrent tasks, 5 reads per task, 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "for (int i = 0; i < 5; i++)\n    pool.execute(selectById.on(i));",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":1821.9,"p50us":4014,"p95us":449052,"p99us":2227175,"p999us":4366270,"wallTimeMs":10040},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":3231.2,"p50us":3442,"p95us":320339,"p99us":575143,"p999us":918028,"wallTimeMs":10043},
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":8078.7,"p50us":22085,"p95us":42532,"p99us":75169,"p999us":120455,"wallTimeMs":10027},
+        {"name":"Vert.x (async)","library":"Vert.x","opsPerSec":2876.5,"p50us":152698,"p95us":198443,"p99us":224264,"p999us":233046,"wallTimeMs":10102},
+        {"name":"Hibernate","library":"Hibernate","opsPerSec":1235.2,"p50us":8585,"p95us":1006632,"p99us":2279604,"p999us":4353687,"wallTimeMs":10089}
+      ]
+    },
+    {
+      "title": "ReadonlyTransact vs Transact",
+      "description": "5000 concurrent single-read tasks, 10 connections. Compares PgPipe readonly path (no BEGIN/COMMIT) vs mutable path (with tx).",
+      "metricLabel": "ops/sec",
+      "code": "// readonlyTransact: no BEGIN/COMMIT, any connection\npool.readonlyTransact(conn ->\n    conn.queryFirst(sql, codec)\n);\n\n// transact: BEGIN + query + COMMIT on reserved connection\npool.transact(conn ->\n    conn.execute(selectById.on(42))\n);",
+      "results": [
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":42814.8,"p50us":4055,"p95us":9003,"p99us":15122,"p999us":30703,"wallTimeMs":10004},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":6907.4,"p50us":1264,"p95us":169213,"p99us":315097,"p999us":452460,"wallTimeMs":10027},
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":0.0,"p50us":0,"p95us":0,"p99us":0,"p999us":0,"wallTimeMs":10005},
+        {"name":"Hibernate","library":"Hibernate","opsPerSec":0.0,"p50us":0,"p95us":0,"p99us":0,"p999us":0,"wallTimeMs":10004}
+      ]
+    },
+    {
+      "title": "Readonly combine() vs sequential (5 queries, local)",
+      "description": "5000 concurrent tasks, each running 5 queries. 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "// readonly + combine: 5 queries fan out across all connections\npool.readonlyTransact(conn -> conn.execute(\n    q1.combine(q2).combine(q3).combine(q4).combine(q5)\n));\n\n// readonly + sequential: 5 queries, one at a time, any connection\npool.readonlyTransact(conn -> {\n    conn.queryFirst(sql1, codec);\n    conn.queryFirst(sql2, codec);\n    // ...\n});\n\n// mutable + combine: 5 queries combined, on reserved connection\npool.transact(conn -> conn.execute(\n    q1.combine(q2).combine(q3).combine(q4).combine(q5)\n));",
+      "results": [
+        {"name":"readonly + combine","library":"readonly + combine","opsPerSec":2153.2,"p50us":30179,"p95us":86638,"p99us":113442,"p999us":153878,"wallTimeMs":10057},
+        {"name":"readonly + sequential","library":"readonly + sequential","opsPerSec":7806.9,"p50us":21544,"p95us":49086,"p99us":90374,"p999us":184156,"wallTimeMs":10017},
+        {"name":"mutable + combine","library":"mutable + combine","opsPerSec":1834.6,"p50us":3465,"p95us":734003,"p99us":2915041,"p999us":4158652,"wallTimeMs":10143},
+        {"name":"mutable + sequential","library":"mutable + sequential","opsPerSec":942.1,"p50us":7163,"p95us":1536163,"p99us":4378853,"p999us":5058330,"wallTimeMs":10102},
+        {"name":"Raw JDBC (5 queries)","library":"Raw JDBC","opsPerSec":0.0,"p50us":0,"p95us":0,"p99us":0,"p999us":0,"wallTimeMs":10005}
+      ]
+    },
+    {
+      "title": "Readonly combine() vs sequential (5 queries, 10ms RTT)",
+      "description": "5000 concurrent tasks, each running 5 queries through 10ms RTT proxy. 10 connections.",
+      "metricLabel": "ops/sec",
+      "code": "// readonly + combine @ 10ms RTT: 5 queries across all connections, ~1 RTT\npool.readonlyTransact(conn -> conn.execute(\n    q1.combine(q2).combine(q3).combine(q4).combine(q5)\n));\n\n// readonly + sequential @ 10ms RTT: 5 queries, 5 RTTs\npool.readonlyTransact(conn -> {\n    conn.queryFirst(sql1, codec);  // 10ms\n    conn.queryFirst(sql2, codec);  // 10ms\n    // ... total ~50ms\n});",
+      "results": [
+        {"name":"readonly + combine","library":"readonly + combine","opsPerSec":486.7,"p50us":161873,"p95us":202899,"p99us":213909,"p999us":226623,"wallTimeMs":10153},
+        {"name":"readonly + sequential","library":"readonly + sequential","opsPerSec":2123.5,"p50us":93388,"p95us":104857,"p99us":110034,"p999us":115998,"wallTimeMs":10101},
+        {"name":"mutable + combine","library":"mutable + combine","opsPerSec":283.3,"p50us":34471,"p95us":1952448,"p99us":2056257,"p999us":2089811,"wallTimeMs":10692},
+        {"name":"mutable + sequential","library":"mutable + sequential","opsPerSec":107.7,"p50us":721944,"p95us":4395630,"p99us":4496293,"p999us":4529848,"wallTimeMs":11805},
+        {"name":"Raw JDBC (5 queries)","library":"Raw JDBC","opsPerSec":143.7,"p50us":71761,"p95us":10234101,"p99us":11140071,"p999us":11316232,"wallTimeMs":11356}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "title": "Pipelining Advantage Benchmark",
+  "timestamp": "2026-03-30T01:45:38.762037Z",
+  "sections": [
+    {
+      "title": "Throughput @ 10ms RTT",
+      "description": "1000 point reads, 10 connections, 10ms simulated RTT.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(selectById.on(42))",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":744.0,"p50us":13156,"p95us":1780482,"p99us":4225761,"p999us":7365197,"wallTimeMs":10259},
+        {"name":"Foundations+Hikari","library":"Foundations+Hikari","opsPerSec":732.3,"p50us":13385,"p95us":1934622,"p99us":4676648,"p999us":7872708,"wallTimeMs":10249},
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":9889.5,"p50us":21020,"p95us":23789,"p99us":26902,"p999us":70844,"wallTimeMs":10025},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":329.1,"p50us":848822,"p95us":1042284,"p99us":1058013,"p999us":1069023,"wallTimeMs":10621},
+        {"name":"Hibernate","library":"Hibernate","opsPerSec":709.9,"p50us":15319,"p95us":1368391,"p99us":3512729,"p999us":5662310,"wallTimeMs":10246}
+      ]
+    },
+    {
+      "title": "combine() Fan-Out: 5 queries/tx",
+      "description": "1000 tasks, 10 connections, 10ms RTT.",
+      "metricLabel": "ops/sec",
+      "code": "pool.transact(tx -> tx.execute(\n    selectById.on(1)\n        .combine(selectById.on(2))\n        .combine(selectById.on(3))\n));",
+      "results": [
+        {"name":"Foundations+PgPipe (readonly combine)","library":"Foundations+PgPipe","opsPerSec":744.4,"p50us":111607,"p95us":154664,"p99us":174587,"p999us":191758,"wallTimeMs":10145},
+        {"name":"Foundations+PgPipe (mutable combine)","library":"Foundations+PgPipe","opsPerSec":278.8,"p50us":36929,"p95us":1789919,"p99us":1930428,"p999us":1977614,"wallTimeMs":10732},
+        {"name":"Foundations+PgPipe (seq)","library":"Foundations+PgPipe","opsPerSec":106.1,"p50us":1615855,"p95us":3986685,"p99us":4259315,"p999us":4370464,"wallTimeMs":11879},
+        {"name":"Raw JDBC (seq)","library":"Raw JDBC","opsPerSec":123.6,"p50us":82903,"p95us":10410262,"p99us":11324620,"p999us":11534335,"wallTimeMs":11555},
+        {"name":"Hibernate (seq)","library":"Hibernate","opsPerSec":117.1,"p50us":236716,"p95us":5679087,"p99us":8111783,"p999us":11131682,"wallTimeMs":11650}
+      ]
+    },
+    {
+      "title": "combine() Fan-Out: 10 queries/tx",
+      "description": "1000 tasks, 10 connections, 10ms RTT.",
+      "metricLabel": "ops/sec",
+      "code": "pool.transact(tx -> tx.execute(\n    selectById.on(1)\n        .combine(selectById.on(2))\n        .combine(selectById.on(3))\n));",
+      "results": [
+        {"name":"Foundations+PgPipe (readonly combine)","library":"Foundations+PgPipe","opsPerSec":581.3,"p50us":75431,"p95us":139984,"p99us":155844,"p999us":162136,"wallTimeMs":10060},
+        {"name":"Foundations+PgPipe (mutable combine)","library":"Foundations+PgPipe","opsPerSec":280.8,"p50us":32915,"p95us":3042967,"p99us":3118465,"p999us":3172990,"wallTimeMs":10714},
+        {"name":"Foundations+PgPipe (seq)","library":"Foundations+PgPipe","opsPerSec":47.3,"p50us":458751,"p95us":11265900,"p99us":11609833,"p999us":11668553,"wallTimeMs":14182},
+        {"name":"Raw JDBC (seq)","library":"Raw JDBC","opsPerSec":64.4,"p50us":163053,"p95us":11987320,"p99us":12834570,"p999us":13010731,"wallTimeMs":13037},
+        {"name":"Hibernate (seq)","library":"Hibernate","opsPerSec":66.2,"p50us":2694840,"p95us":8732540,"p99us":11559501,"p999us":12398362,"wallTimeMs":12832}
+      ]
+    },
+    {
+      "title": "3-op Transaction",
+      "description": "1000 tasks, 10 connections, 10ms RTT.",
+      "metricLabel": "ops/sec",
+      "code": "pool.transact(tx -> {\n    tx.execute(selectById.on(1));\n    tx.execute(insertRow.on(\"Widget\", price, true, now, \"Cat\"));\n    tx.execute(selectById.on(2));\n});",
+      "results": [
+        {"name":"Foundations+PgPipe (tx)","library":"Foundations+PgPipe","opsPerSec":157.1,"p50us":60260,"p95us":5083496,"p99us":5767167,"p999us":5834276,"wallTimeMs":11262},
+        {"name":"Raw JDBC (tx)","library":"Raw JDBC","opsPerSec":177.5,"p50us":54558,"p95us":10242490,"p99us":10829692,"p999us":10989076,"wallTimeMs":11002},
+        {"name":"Hibernate (tx)","library":"Hibernate","opsPerSec":168.6,"p50us":80543,"p95us":4550819,"p99us":6727663,"p999us":10133438,"wallTimeMs":11215}
+      ]
+    },
+    {
+      "title": "5-op Transaction",
+      "description": "1000 tasks, 10 connections, 10ms RTT.",
+      "metricLabel": "ops/sec",
+      "code": "pool.transact(tx -> {\n    tx.execute(selectById.on(1));\n    tx.execute(insertRow.on(\"Widget\", price, true, now, \"Cat\"));\n    tx.execute(selectById.on(2));\n});",
+      "results": [
+        {"name":"Foundations+PgPipe (tx)","library":"Foundations+PgPipe","opsPerSec":108.4,"p50us":2129657,"p95us":3303014,"p99us":3443523,"p999us":3466592,"wallTimeMs":11821},
+        {"name":"Raw JDBC (tx)","library":"Raw JDBC","opsPerSec":118.4,"p50us":85065,"p95us":11039408,"p99us":11634999,"p999us":11760828,"wallTimeMs":11770},
+        {"name":"Hibernate (tx)","library":"Hibernate","opsPerSec":138.9,"p50us":88211,"p95us":5368709,"p99us":8120172,"p999us":11425284,"wallTimeMs":11581}
+      ]
+    },
+    {
+      "title": "10-op Transaction",
+      "description": "1000 tasks, 10 connections, 10ms RTT.",
+      "metricLabel": "ops/sec",
+      "code": "pool.transact(tx -> {\n    tx.execute(selectById.on(1));\n    tx.execute(insertRow.on(\"Widget\", price, true, now, \"Cat\"));\n    tx.execute(selectById.on(2));\n});",
+      "results": [
+        {"name":"Foundations+PgPipe (tx)","library":"Foundations+PgPipe","opsPerSec":56.9,"p50us":2267021,"p95us":8283750,"p99us":8426356,"p999us":8527020,"wallTimeMs":13436},
+        {"name":"Raw JDBC (tx)","library":"Raw JDBC","opsPerSec":67.7,"p50us":152305,"p95us":12264144,"p99us":12817793,"p999us":12851347,"wallTimeMs":12850},
+        {"name":"Hibernate (tx)","library":"Hibernate","opsPerSec":73.2,"p50us":199884,"p95us":10880024,"p99us":11827937,"p999us":12037652,"wallTimeMs":12034}
+      ]
+    },
+    {
+      "title": "Extreme Scarcity (2 conns)",
+      "description": "1000 tasks, 2 connections, 10ms RTT.",
+      "metricLabel": "ops/sec",
+      "code": "pool.execute(selectById.on(42))",
+      "results": [
+        {"name":"Raw JDBC","library":"Raw JDBC","opsPerSec":142.3,"p50us":14049,"p95us":10796138,"p99us":11240734,"p999us":11366563,"wallTimeMs":11381},
+        {"name":"Foundations+PgPipe (readonly)","library":"Foundations+PgPipe","opsPerSec":9419.1,"p50us":22085,"p95us":25018,"p99us":27672,"p999us":31440,"wallTimeMs":10026},
+        {"name":"Foundations+PgPipe (mutable)","library":"Foundations+PgPipe","opsPerSec":63.5,"p50us":2560622,"p95us":6790578,"p99us":6928990,"p999us":7021264,"wallTimeMs":13123},
+        {"name":"Hibernate","library":"Hibernate","opsPerSec":128.6,"p50us":14409,"p95us":10569646,"p99us":11265900,"p999us":11408506,"wallTimeMs":11419}
+      ]
+    }
+  ]
+}

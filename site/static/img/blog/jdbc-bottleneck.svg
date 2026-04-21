@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 180" font-family="Inter, system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="idle" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#fecaca"/>
+      <stop offset="100%" stop-color="#fecaca"/>
+    </linearGradient>
+    <linearGradient id="active" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6b7280"/>
+      <stop offset="100%" stop-color="#4b5563"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Title -->
+  <text x="400" y="24" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">JDBC: One query at a time per connection</text>
+
+  <!-- Connection 1 -->
+  <text x="16" y="68" font-size="12" font-weight="500" fill="#6b7280">Conn 1</text>
+
+  <!-- Q1 -->
+  <rect x="80" y="50" width="60" height="28" rx="4" fill="#4b5563"/>
+  <text x="110" y="68" text-anchor="middle" font-size="11" font-weight="500" fill="white">Q1</text>
+
+  <!-- Wait 1 -->
+  <rect x="140" y="50" width="100" height="28" rx="0" fill="url(#idle)" opacity="0.6"/>
+  <text x="190" y="68" text-anchor="middle" font-size="10" fill="#dc2626" font-style="italic">idle (10ms RTT)</text>
+
+  <!-- R1 -->
+  <rect x="240" y="50" width="40" height="28" rx="4" fill="#059669"/>
+  <text x="260" y="68" text-anchor="middle" font-size="11" font-weight="500" fill="white">R1</text>
+
+  <!-- Q2 -->
+  <rect x="290" y="50" width="60" height="28" rx="4" fill="#4b5563"/>
+  <text x="320" y="68" text-anchor="middle" font-size="11" font-weight="500" fill="white">Q2</text>
+
+  <!-- Wait 2 -->
+  <rect x="350" y="50" width="100" height="28" rx="0" fill="url(#idle)" opacity="0.6"/>
+  <text x="400" y="68" text-anchor="middle" font-size="10" fill="#dc2626" font-style="italic">idle (10ms RTT)</text>
+
+  <!-- R2 -->
+  <rect x="450" y="50" width="40" height="28" rx="4" fill="#059669"/>
+  <text x="470" y="68" text-anchor="middle" font-size="11" font-weight="500" fill="white">R2</text>
+
+  <!-- Q3 -->
+  <rect x="500" y="50" width="60" height="28" rx="4" fill="#4b5563"/>
+  <text x="530" y="68" text-anchor="middle" font-size="11" font-weight="500" fill="white">Q3</text>
+
+  <!-- Wait 3 -->
+  <rect x="560" y="50" width="100" height="28" rx="0" fill="url(#idle)" opacity="0.6"/>
+  <text x="610" y="68" text-anchor="middle" font-size="10" fill="#dc2626" font-style="italic">idle (10ms RTT)</text>
+
+  <!-- R3 -->
+  <rect x="660" y="50" width="40" height="28" rx="4" fill="#059669"/>
+  <text x="680" y="68" text-anchor="middle" font-size="11" font-weight="500" fill="white">R3</text>
+
+  <!-- Timeline arrow -->
+  <line x1="80" y1="100" x2="720" y2="100" stroke="#d1d5db" stroke-width="1.5"/>
+  <polygon points="720,96 730,100 720,104" fill="#d1d5db"/>
+  <text x="740" y="104" font-size="10" fill="#9ca3af">time</text>
+
+  <!-- Total time bracket -->
+  <line x1="80" y1="120" x2="80" y2="135" stroke="#ef4444" stroke-width="1.5"/>
+  <line x1="80" y1="135" x2="700" y2="135" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="700" y1="120" x2="700" y2="135" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="390" y="155" text-anchor="middle" font-size="12" font-weight="600" fill="#ef4444">3 queries = 3 round-trips = 30ms</text>
+</svg>
