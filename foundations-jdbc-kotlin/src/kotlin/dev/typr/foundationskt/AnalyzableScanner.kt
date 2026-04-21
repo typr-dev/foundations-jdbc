@@ -1,4 +1,3 @@
-@file:Suppress("unused")
 package dev.typr.foundationskt
 
 object AnalyzableScanner {
@@ -30,19 +29,19 @@ object AnalyzableScanner {
 
 
     @JvmStatic
-    fun scanDetailed(packageName: String): List<dev.typr.foundations.AnalyzableScanner.Result> =
+    fun scanDetailed(packageName: String): List<AnalyzableScannerResult> =
         dev.typr.foundations.AnalyzableScanner.scanDetailed(packageName)
 
     @JvmStatic
-    fun scanDetailed(packageName: String, transactor: Transactor): List<dev.typr.foundations.AnalyzableScanner.Result> =
+    fun scanDetailed(packageName: String, transactor: Transactor): List<AnalyzableScannerResult> =
         dev.typr.foundations.AnalyzableScanner.scanDetailed(packageName, transactor.underlying)
 
     @JvmStatic
-    fun scanDetailed(packageName: String, vararg directives: ScanDirective): List<dev.typr.foundations.AnalyzableScanner.Result> =
+    fun scanDetailed(packageName: String, vararg directives: ScanDirective): List<AnalyzableScannerResult> =
         dev.typr.foundations.AnalyzableScanner.scanDetailed(packageName, *directives.map { it.toJava() }.toTypedArray())
 
     @JvmStatic
-    fun scanDetailed(packageName: String, transactor: Transactor, vararg directives: ScanDirective): List<dev.typr.foundations.AnalyzableScanner.Result> =
+    fun scanDetailed(packageName: String, transactor: Transactor, vararg directives: ScanDirective): List<AnalyzableScannerResult> =
         dev.typr.foundations.AnalyzableScanner.scanDetailed(packageName, transactor.underlying, *directives.map { it.toJava() }.toTypedArray())
 
     @JvmStatic

@@ -3,7 +3,7 @@ package dev.typr.foundations.example
 import dev.typr.foundationskt.*
 
 object EventRepo {
-    val allEvents: Operation<List<Event>> =
+    val allEvents: OperationRead<List<Event>> =
         sql { "SELECT ${eventCodec.columnList} FROM event ORDER BY date" }
             .query(eventCodec.all())
 
@@ -22,17 +22,17 @@ object EventRepo {
             .param(venueIdType)
             .query(eventCodec.all())
 
-    val createEvent: RowTemplate<Event, Event> =
+    val createEvent =
         Fragment.insertIntoReturning("event", eventCodec, "id")
 
-    val updateEventStatus: Template.Update2<EventStatus, EventId> =
+    val updateEventStatus =
         Fragment.of("UPDATE event SET status = ")
             .param(eventStatusType)
             .append(Fragment.of(" WHERE id = "))
             .param(eventIdType)
             .update()
 
-    val addEventRating: Template.Update2<Double, EventId> =
+    val addEventRating =
         Fragment.of("UPDATE event SET ratings = list_append(ratings, ")
             .param(DuckDbTypes.double_)
             .append(Fragment.of(") WHERE id = "))

@@ -12,14 +12,14 @@ object TemplateFrom:
   case class InsertUser(name: String, email: String)
 
   // .from() maps case class fields to template params
-  val insertUser: Template.From[InsertUser, Int] =
+  val insertUser: Template.From[InsertUser, Integer] =
     sql"INSERT INTO users(name, email) VALUES("
       .param(PgTypes.text)
       .append(", ")
       .param(PgTypes.text)
       .append(")")
       .update()
-      .from(_.name, _.email)
+      .from[InsertUser](_.name, _.email)
 
   // Callers pass the case class
   def createUser(): Int =

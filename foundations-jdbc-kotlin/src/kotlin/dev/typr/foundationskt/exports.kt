@@ -13,15 +13,23 @@ typealias QueryAnalysis = dev.typr.foundations.QueryAnalysis
 typealias CheckReport = dev.typr.foundations.CheckReport
 typealias QueryListener = dev.typr.foundations.QueryListener
 typealias QueryEvent = dev.typr.foundations.QueryEvent
+typealias TransactionEvent = dev.typr.foundations.TransactionEvent
+// Connection/ConnectionRead are wrapper classes in Connection.kt
 
 // Codec internals (needed for struct/array construction)
+typealias DuckDbJson<T> = dev.typr.foundations.DuckDbJson<T>
 typealias DbJson<T> = dev.typr.foundations.DbJson<T>
 typealias DbJsonRow = dev.typr.foundations.DbJsonRow
+typealias PgJson<T> = dev.typr.foundations.PgJson<T>
 typealias PgText<T> = dev.typr.foundations.PgText<T>
 typealias PgRead<T> = dev.typr.foundations.PgRead<T>
 typealias PgWrite<T> = dev.typr.foundations.PgWrite<T>
 typealias PgCompositeText<T> = dev.typr.foundations.PgCompositeText<T>
 typealias PgRecordParser = dev.typr.foundations.PgRecordParser
+
+// Procedures
+typealias ParamDefMode = dev.typr.foundations.ParamDef.Mode
+typealias RoutineDef = dev.typr.foundations.RoutineDef
 
 // Oracle collection wrappers (return Kotlin OracleType, not Java)
 object OracleNestedTable {
@@ -36,3 +44,6 @@ object OracleVArray {
 
 // Exceptions
 typealias DatabaseException = dev.typr.foundations.DatabaseException
+
+// Scanner results
+typealias AnalyzableScannerResult = dev.typr.foundations.AnalyzableScanner.Result

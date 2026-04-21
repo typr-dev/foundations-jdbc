@@ -1,11 +1,6 @@
 package dev.typr.foundations.docs.core;
 
-import dev.typr.foundations.Fragment;
-import dev.typr.foundations.Operation;
-import dev.typr.foundations.PgTypes;
-import dev.typr.foundations.RowCodec;
-import dev.typr.foundations.Template;
-import dev.typr.foundations.Transactor;
+import dev.typr.foundations.*;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
@@ -25,7 +20,7 @@ public class ComposingIfEmpty {
 
   // start
   // Find-or-create pattern
-  Template<String, Optional<User>> findUser =
+  TemplateRead.Query1<String, Optional<User>> findUser =
       Fragment.of(
               """
               SELECT id, name, email
@@ -34,7 +29,7 @@ public class ComposingIfEmpty {
           .param(PgTypes.text)
           .query(userCodec.maxOne());
 
-  Template.Query2<String, String, User> createUser =
+  TemplateRead.Query2<String, String, User> createUser =
       Fragment.of(
               """
               INSERT INTO users(name, email)
@@ -47,7 +42,7 @@ public class ComposingIfEmpty {
           .query(userCodec.exactlyOne());
 
   User findOrCreate() {
-    return Operation.ifEmpty(findUser.on(email), createUser.on(name, email)).transact(tx);
+    return OperationRead.ifEmpty(findUser.on(email), createUser.on(name, email)).transact(tx);
   }
   // stop
 }

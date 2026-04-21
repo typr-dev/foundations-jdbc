@@ -2,8 +2,6 @@ package dev.typr.foundationssc.docs.core
 import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 
-import java.sql.Connection
-
 @SuppressWarnings(Array("unused"))
 object FragmentCombinators:
   var conn: Connection = null // placeholder

@@ -1,35 +1,23 @@
 ---
-title: Strategies
+title: Listener & Test Mode
 ---
 
 import Snippet from '@site/src/components/Snippet';
 
-# Strategies
+# Listener & Test Mode
 
-A `Transactor.Strategy` defines hooks that wrap every execution. The [built-in strategies](./transactors#strategies) cover common patterns — this page covers customization.
+A `Transactor` supports two cross-cutting concerns that work regardless of backend (JDBC, PgPipelinePool, Spring):
 
-## Hook Lifecycle
+## Test Mode (Rollback Only)
 
-| Hook | When it runs |
-|------|-------------|
-| `onBegin` | Before your code — typically `setAutoCommit(false)` |
-| `onSuccess` | After your code succeeds — typically `commit` |
-| `onFailure` | When an exception is thrown (catch) — receives the connection and the throwable |
-| `onComplete` | In all cases (finally) — typically `close` |
-| `listener` | A `QueryListener` for observability (see [Observability](observability)) |
+Call `.rollbackOnly()` to make `transact()` roll back instead of committing. Your tests run real SQL without leaving data behind:
 
-## Custom Strategies
+<Snippet file="core/TransactorConfig" />
 
-Build a strategy from scratch using `replaceX` methods — each one sets a single hook:
+## Attaching a Listener
 
-<Snippet file="core/TransactorCustomStrategy" />
+`withListener()` sets the listener. `mergeListener()` composes with an existing one:
 
-## Strategy Merging
+<Snippet file="core/TransactorListener" />
 
-Use `mergeX` methods to compose hooks — both the existing and new hook run in order. `mergeListener` composes listeners:
-
-<Snippet file="core/StrategyMerge" />
-
-The `mergeListener` convenience on `Transactor` creates a derived transactor with the listener merged into its strategy:
-
-<Snippet file="core/StrategyOverride" />
+The listener receives both query-level and transaction-level callbacks. See [Observability](observability) for the full `QueryListener` interface.

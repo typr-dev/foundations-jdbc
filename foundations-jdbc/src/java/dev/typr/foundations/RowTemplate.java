@@ -3,20 +3,22 @@ package dev.typr.foundations;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public sealed interface RowTemplate<Row, Out> extends Template<Row, Out> {
+public sealed interface RowTemplate<Row, Out> extends Template<Row, Out>
+    permits RowTemplate.Query, RowTemplate.Update, RowTemplate.GeneratedKeys {
 
   record Query<Row, Out>(
       Fragment fragment,
       RowCodecNamed<Row> codec,
       int[] includedIndices,
       ResultSetParser<Out> resultParser)
-      implements RowTemplate<Row, Out> {
+      implements RowTemplate<Row, Out>, TemplateRead<Row, Out> {
     @Override
-    public Operation.Query<Out> on(Row row) {
+    public OperationRead.Query<Out> on(Row row) {
       Object[] encoded = codec.encode().apply(row);
       Object[] params = new Object[includedIndices.length];
       for (int i = 0; i < includedIndices.length; i++) params[i] = encoded[includedIndices[i]];
-      return new Operation.Query<>(fragment.fill(Arrays.asList(params).iterator()), resultParser);
+      return new OperationRead.Query<>(
+          fragment.fill(Arrays.asList(params).iterator()), resultParser);
     }
 
     @Override
@@ -33,7 +35,7 @@ public sealed interface RowTemplate<Row, Out> extends Template<Row, Out> {
   record Update<Row>(Fragment fragment, RowCodecNamed<Row> codec, int[] includedIndices)
       implements RowTemplate<Row, Integer> {
     @Override
-    public Operation.Update on(Row row) {
+    public Operation<Integer> on(Row row) {
       Object[] encoded = codec.encode().apply(row);
       Object[] params = new Object[includedIndices.length];
       for (int i = 0; i < includedIndices.length; i++) params[i] = encoded[includedIndices[i]];
@@ -63,7 +65,7 @@ public sealed interface RowTemplate<Row, Out> extends Template<Row, Out> {
       ResultSetParser<Out> resultParser)
       implements RowTemplate<Row, Out> {
     @Override
-    public Operation.UpdateReturningGeneratedKeys<Out> on(Row row) {
+    public Operation<Out> on(Row row) {
       Object[] encoded = codec.encode().apply(row);
       Object[] params = new Object[includedIndices.length];
       for (int i = 0; i < includedIndices.length; i++) params[i] = encoded[includedIndices[i]];

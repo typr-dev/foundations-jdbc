@@ -32,7 +32,7 @@ public class JsonAggregation {
             """)
         .value(DuckDbTypes.integer, customerId)
         .query(RowCodec.of(linesType).exactlyOne())
-        .transact(tx);
+        .transactRead(tx);
   }
   // stop
 }

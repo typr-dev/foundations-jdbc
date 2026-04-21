@@ -26,7 +26,7 @@ Each module includes everything you need — the Kotlin and Scala modules depend
 <TabItem value="java" label="Java">
 
 ```java
-import dev.typr.foundations.*;           // Core: Fragment, RowCodec, Operation, Transactor, *Types
+import dev.typr.foundations.*;           // Core: Fragment, RowCodec, OperationRead, Transactor, *Types
 import dev.typr.foundations.connect.*;    // Connection: ConnectionSource, *Config
 import dev.typr.foundations.data.*;       // Data types: Json, Range, Uint4, etc.
 ```
@@ -35,7 +35,7 @@ import dev.typr.foundations.data.*;       // Data types: Json, Range, Uint4, etc
 <TabItem value="kotlin" label="Kotlin">
 
 ```kotlin
-import dev.typr.foundationskt.*         // Core: Fragment, RowCodec, Operation, Transactor, *Types
+import dev.typr.foundationskt.*         // Core: Fragment, RowCodec, OperationRead, Transactor, *Types
 import dev.typr.foundationskt.connect.* // Connection: ConnectionSource, *Config
 import dev.typr.foundationskt.data.*    // Data types: Json, Range, Uint4, etc.
 ```
@@ -44,7 +44,7 @@ import dev.typr.foundationskt.data.*    // Data types: Json, Range, Uint4, etc.
 <TabItem value="scala" label="Scala">
 
 ```scala
-import dev.typr.foundationssc.*         // Core: Fragment, RowCodec, Operation, Transactor, *Types
+import dev.typr.foundationssc.*         // Core: Fragment, RowCodec, OperationRead, Transactor, *Types
 import dev.typr.foundationssc.connect.* // Connection: ConnectionSource, *Config
 import dev.typr.foundationssc.data.*    // Data types: Json, Range, Uint4, etc.
 ```

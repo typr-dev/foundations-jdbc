@@ -1,16 +1,16 @@
 package dev.typr.foundations.spring;
 
-import dev.typr.foundations.SqlConsumer;
-import dev.typr.foundations.Transactor;
-import dev.typr.foundations.Transactor.Strategy;
-import java.sql.Connection;
+import dev.typr.foundations.*;
+import dev.typr.foundations.internal.ConnectionJdbc;
+import dev.typr.foundations.internal.ConnectionReadJdbc;
 import java.sql.SQLException;
+import java.util.function.Function;
 import javax.sql.DataSource;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
- * Factory for creating Spring-aware {@link Transactor} instances.
+ * Factory for creating Spring-aware {@link dev.typr.foundations.Transactor} instances.
  *
  * <p>The transactor automatically adapts to the current Spring transaction context:
  *
@@ -30,81 +30,122 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  *     }
  * }
  * }</pre>
- *
- * <p>Then inject and use:
- *
- * <pre>{@code
- * @Service
- * public class OrderService {
- *     private final Transactor tx;
- *
- *     public OrderService(Transactor tx) {
- *         this.tx = tx;
- *     }
- *
- *     @Transactional
- *     public List<Order> getOrders() {
- *         return new Operation.Query<>(sql, parser).transact(tx);
- *     }
- * }
- * }</pre>
  */
 public final class SpringTransactor {
 
   private SpringTransactor() {}
 
   /**
-   * Create a Spring-aware transactor for the given datasource.
+   * Create a Spring-aware transactor with default exception mapping.
    *
-   * <p>The returned transactor automatically detects whether it's running inside a Spring
-   * {@code @Transactional} context and adapts its behavior accordingly.
+   * <p>For structured database-specific errors (e.g. PostgreSQL {@link
+   * DatabaseException.Postgres}), use {@link #create(DataSource, Function)} with the appropriate
+   * mapper (e.g. {@code config::mapException}).
    *
-   * @param dataSource the datasource to obtain connections from
-   * @return a transactor that integrates with Spring transaction management
+   * @param dataSource the Spring-managed DataSource
+   * @return a Spring-aware transactor
    */
-  public static Transactor create(DataSource dataSource) {
-    return new Transactor(() -> DataSourceUtils.getConnection(dataSource), strategy(dataSource));
+  public static TransactorJdbc create(DataSource dataSource) {
+    return new SpringSqlExecutor(dataSource, DatabaseException.Jdbc::new);
   }
 
-  private static Strategy strategy(DataSource dataSource) {
-    return Strategy.empty()
-        .replaceOnBegin(onBegin())
-        .replaceOnSuccess(onSuccess())
-        .replaceOnFailure(onFailure())
-        .replaceOnComplete(onComplete(dataSource));
+  /**
+   * Create a Spring-aware transactor with a custom exception mapper.
+   *
+   * <p>Use this overload to get structured database-specific errors:
+   *
+   * <pre>{@code
+   * var config = PgConfig.builder("localhost", 5432, "mydb", "user", "pass").build();
+   * var tx = SpringTransactor.create(dataSource, config::mapException);
+   * }</pre>
+   *
+   * @param dataSource the Spring-managed DataSource
+   * @param exceptionMapper maps {@link SQLException} to {@link DatabaseException}
+   * @return a Spring-aware transactor
+   */
+  public static TransactorJdbc create(
+      DataSource dataSource, Function<SQLException, DatabaseException> exceptionMapper) {
+    return new SpringSqlExecutor(dataSource, exceptionMapper);
   }
 
-  private static SqlConsumer<Connection> onBegin() {
-    return conn -> {
-      if (!TransactionSynchronizationManager.isActualTransactionActive()) {
-        conn.setAutoCommit(false);
-      }
-    };
-  }
+  private static final class SpringSqlExecutor
+      implements TransactorJdbc, dev.typr.foundations.RollbackCapable {
+    private final DataSource dataSource;
+    private final Function<SQLException, DatabaseException> exceptionMapper;
 
-  private static SqlConsumer<Connection> onSuccess() {
-    return conn -> {
-      if (!TransactionSynchronizationManager.isActualTransactionActive()) {
-        conn.commit();
-      }
-    };
-  }
+    SpringSqlExecutor(
+        DataSource dataSource, Function<SQLException, DatabaseException> exceptionMapper) {
+      this.dataSource = dataSource;
+      this.exceptionMapper = exceptionMapper;
+    }
 
-  private static dev.typr.foundations.SqlBiConsumer<Connection, Throwable> onFailure() {
-    return (conn, err) -> {};
-  }
+    @Override
+    public <T> T executeJdbc(SqlFunction<java.sql.Connection, T> operation) {
+      return withConnection(operation);
+    }
 
-  private static SqlConsumer<Connection> onComplete(DataSource dataSource) {
-    return conn -> {
-      if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+    @Override
+    public <T> T execute(Operation<T> op) {
+      return withConnection(conn -> new ConnectionJdbc(conn, exceptionMapper).execute(op));
+    }
+
+    @Override
+    public <T> T transact(SqlFunction<dev.typr.foundations.Connection, T> fn) {
+      return doTransact(fn, false);
+    }
+
+    @Override
+    public <T> T transactRollback(SqlFunction<dev.typr.foundations.Connection, T> fn) {
+      return doTransact(fn, true);
+    }
+
+    @Override
+    public <T> T transactRead(SqlFunction<ConnectionRead, T> fn) {
+      return withConnection(conn -> fn.apply(new ConnectionReadJdbc(conn, exceptionMapper)));
+    }
+
+    private <T> T doTransact(
+        SqlFunction<dev.typr.foundations.Connection, T> fn, boolean rollbackOnly) {
+      return withConnection(
+          conn -> {
+            boolean springManaged = TransactionSynchronizationManager.isActualTransactionActive();
+            if (!springManaged) {
+              conn.setAutoCommit(false);
+            }
+            T result = fn.apply(new ConnectionJdbc(conn, exceptionMapper));
+            if (!springManaged) {
+              if (rollbackOnly) {
+                conn.rollback();
+              } else {
+                conn.commit();
+              }
+            }
+            return result;
+          });
+    }
+
+    private <T> T withConnection(SqlFunction<java.sql.Connection, T> operation) {
+      try {
+        java.sql.Connection conn = DataSourceUtils.getConnection(dataSource);
         try {
-          if (!conn.isClosed() && !conn.getAutoCommit()) {
-            conn.rollback();
+          return operation.apply(conn);
+        } catch (SQLException | RuntimeException e) {
+          boolean springManaged = TransactionSynchronizationManager.isActualTransactionActive();
+          if (!springManaged) {
+            try {
+              if (!conn.isClosed() && !conn.getAutoCommit()) {
+                conn.rollback();
+              }
+            } catch (SQLException ignored) {
+            }
           }
-        } catch (SQLException ignored) {
+          throw e;
+        } finally {
+          DataSourceUtils.releaseConnection(conn, dataSource);
         }
+      } catch (SQLException e) {
+        throw exceptionMapper.apply(e);
       }
-      DataSourceUtils.releaseConnection(conn, dataSource);
-    };
+    }
   }
 }

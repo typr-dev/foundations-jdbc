@@ -8,11 +8,11 @@ import java.time.Instant
 
 fun main() {
     val ds = ConnectionSource.of(DuckDbConfig.inMemory().build())
-    val tx = ds.transactor(Transactor.autoCommitStrategy())
+    val tx = ds.transactor()
 
     // ── Apply schema ────────────────────────────────────────────────
     println("=== Applying schema ===")
-    tx.transact { conn -> Schema.apply(conn) }
+    Schema.create.transact(tx)
     println("Schema applied.\n")
 
     // ── Query analysis ──────────────────────────────────────────────

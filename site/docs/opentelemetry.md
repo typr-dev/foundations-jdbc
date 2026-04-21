@@ -10,7 +10,7 @@ The `foundations-jdbc-otel` module provides OpenTelemetry instrumentation for da
 
 ## Setup
 
-Add the `foundations-jdbc-otel` module to your project alongside the core library. Then create an `OtelQueryListener` and attach it to your transactor's strategy:
+Add the `foundations-jdbc-otel` module to your project alongside the core library. Then create an `OtelQueryListener` and attach it to your transactor:
 
 <Snippet file="otel/OtelSetup" />
 

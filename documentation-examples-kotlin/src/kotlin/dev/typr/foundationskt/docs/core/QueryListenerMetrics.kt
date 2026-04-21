@@ -8,7 +8,7 @@ class QueryListenerMetrics {
     //start
     fun metricsListener(/* registry: MeterRegistry */): QueryListener =
         object : QueryListener {
-            override fun beforeQuery(sql: String, name: String?) {}
+            override fun beforeQuery(sql: String, name: java.util.Optional<String>) {}
             override fun afterQuery(event: QueryEvent) {
                 // registry.timer("db.query",
                 //     "name", event.name(),

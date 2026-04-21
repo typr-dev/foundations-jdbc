@@ -97,12 +97,20 @@ This is the reference mapping for the whole library: DuckDB's `TIMESTAMPTZ` shar
 | `json` | `Json` | Stored as-is, validated on input |
 | `jsonb` | `Jsonb` | Binary format, indexed, normalized |
 
+:::tip Not String — wrapper types
+`PgTypes.json` is `PgType<Json>` and `PgTypes.jsonb` is `PgType<Jsonb>`. These are **not** `String` — they are single-field wrapper records (`record Json(String value)`, `record Jsonb(String value)`) from `dev.typr.foundations.data`. This means your record fields must be typed `Jsonb`/`Json`, not `String`.
+:::
+
 `Json` and `Jsonb` are distinct wrapper records around a `String` payload, so a single row with both a `json` and a `jsonb` column keeps its types straight. Wrap the raw JSON text at the edges:
 
 ```java
+import dev.typr.foundations.data.Jsonb;
+
 new Jsonb("{\"ok\":true}")     // java
 ```
 ```kotlin
+import dev.typr.foundations.data.Jsonb
+
 Jsonb("""{"ok":true}""")        // kotlin
 ```
 

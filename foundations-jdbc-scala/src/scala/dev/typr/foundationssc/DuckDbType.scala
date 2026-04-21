@@ -1,12 +1,10 @@
 package dev.typr.foundationssc
 
-import dev.typr.foundations.{AnalysisOptions, DuckDbJson, DuckDbListCodec, DuckDbRead, DuckDbStringifier, DuckDbTypename, DuckDbWrite}
-
 class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T]) extends DbType[T](underlying):
   override def opt: DuckDbType[Option[T]] =
     DuckDbType(underlying.opt().to(Bijections.optionalToOption))
 
-  override def to[B](bijection: dev.typr.foundations.Bijection[T, B]): DuckDbType[B] =
+  override def to[B](bijection: Bijection[T, B]): DuckDbType[B] =
     DuckDbType(underlying.to(bijection))
 
   def transform[B](f: T => B, g: B => T): DuckDbType[B] =
@@ -49,7 +47,7 @@ class DuckDbType[T](override val underlying: dev.typr.foundations.DuckDbType[T])
       )
   )
 
-  def encode(value: T): dev.typr.foundations.Fragment.Value[T] = underlying.encode(value)
+  def encode(value: T): Fragment = new Fragment(underlying.encode(value))
 
   def withTypename(typename: DuckDbTypename[T]): DuckDbType[T] = DuckDbType(underlying.withTypename(typename))
   def withTypename(sqlType: String): DuckDbType[T] = DuckDbType(underlying.withTypename(sqlType))

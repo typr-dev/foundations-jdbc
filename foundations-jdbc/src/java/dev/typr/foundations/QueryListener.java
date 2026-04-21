@@ -1,18 +1,22 @@
 package dev.typr.foundations;
 
-import org.jetbrains.annotations.Nullable;
+import java.util.Optional;
 
 public interface QueryListener {
-  void beforeQuery(String sql, @Nullable String name);
+  void beforeQuery(String sql, Optional<String> name);
 
   void afterQuery(QueryEvent event);
 
   void failedQuery(QueryEvent event);
 
+  default void afterTransaction(TransactionEvent event) {}
+
+  default void failedTransaction(TransactionEvent event) {}
+
   QueryListener NOOP =
       new QueryListener() {
         @Override
-        public void beforeQuery(String sql, @Nullable String name) {}
+        public void beforeQuery(String sql, Optional<String> name) {}
 
         @Override
         public void afterQuery(QueryEvent event) {}
@@ -30,7 +34,7 @@ public interface QueryListener {
     if (second == NOOP) return first;
     return new QueryListener() {
       @Override
-      public void beforeQuery(String sql, @Nullable String name) {
+      public void beforeQuery(String sql, Optional<String> name) {
         first.beforeQuery(sql, name);
         second.beforeQuery(sql, name);
       }
@@ -45,6 +49,18 @@ public interface QueryListener {
       public void failedQuery(QueryEvent event) {
         first.failedQuery(event);
         second.failedQuery(event);
+      }
+
+      @Override
+      public void afterTransaction(TransactionEvent event) {
+        first.afterTransaction(event);
+        second.afterTransaction(event);
+      }
+
+      @Override
+      public void failedTransaction(TransactionEvent event) {
+        first.failedTransaction(event);
+        second.failedTransaction(event);
       }
     };
   }

@@ -24,7 +24,7 @@ object VenueRepo:
   val insert: RowTemplate.Query[Venue, PersistedVenue] =
     Fragment.insertIntoReturning("venue", venueCodec, persistedVenueCodec)
 
-  val selectAll: Operation[List[PersistedVenue]] =
+  val selectAll: OperationRead[List[PersistedVenue]] =
     sql"SELECT ${persistedVenueCodec.columnList} FROM venue"
       .query(persistedVenueCodec.all())
 

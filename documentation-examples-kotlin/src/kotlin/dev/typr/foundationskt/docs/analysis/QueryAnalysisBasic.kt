@@ -18,7 +18,7 @@ class QueryAnalysisBasic {
 
     //start
     fun checkQueryManually() {
-        val query: Operation.Query<List<User>> =
+        val query: OperationRead.Query<List<User>> =
             sql { """
                 SELECT id, name, email
                 FROM users

@@ -40,6 +40,8 @@ Use a template with `.onMany()` to batch-insert or batch-update rows. The templa
 
 <Snippet file="core/BatchOperations" />
 
+`.onMany()` returns `Optional<int[]>` (Java), `IntArray?` (Kotlin), or `Option[Array[Int]]` (Scala). The result is present when the driver reports per-row affected counts, and empty when it reports `SUCCESS_NO_INFO` — which happens when the driver rewrites the batch into a multi-row statement (e.g. PostgreSQL with `reWriteBatchedInserts=true`). An empty result means all rows succeeded but individual counts are unavailable. PgPipe always returns per-row counts.
+
 Driver-level optimizations like `.reWriteBatchedInserts()` (PostgreSQL), `.useBulkStmts()` (MariaDB), and `.useBulkCopyForBatchInsert()` (SQL Server) must be enabled on the [connection config](./transactors#setting-up) for best performance.
 
 For PostgreSQL high-throughput inserts, use [streaming inserts](./streaming-inserts) with the COPY protocol instead.

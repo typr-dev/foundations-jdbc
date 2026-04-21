@@ -22,24 +22,25 @@ object EnumTypeTest:
   def main(args: Array[String]): Unit =
     val tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor()
 
-    tx.transact { conn =>
-      Fragment.of("CREATE TYPE status AS ENUM('PENDING', 'ACTIVE', 'COMPLETED')").execute().run(conn)
-      Fragment.of("CREATE TABLE enum_test (id INTEGER, status status)").execute().run(conn)
+    val setup =
+      Fragment
+        .of("CREATE TYPE status AS ENUM('PENDING', 'ACTIVE', 'COMPLETED')")
+        .execute()
+        .combine(Fragment.of("CREATE TABLE enum_test (id INTEGER, status status)").execute())
+        .combine(Fragment.of("INSERT INTO enum_test VALUES (1, ").value(duckStatus, Status.ACTIVE).append(")").execute())
+        .combine(Fragment.of("INSERT INTO enum_test VALUES (2, ").value(duckStatus, Status.PENDING).append(")").execute())
+        .voided()
 
-      Fragment.of("INSERT INTO enum_test VALUES (1, ").value(duckStatus, Status.ACTIVE).append(")").execute().run(conn)
-      Fragment.of("INSERT INTO enum_test VALUES (2, ").value(duckStatus, Status.PENDING).append(")").execute().run(conn)
+    val querySingle = Fragment.of("SELECT status FROM enum_test WHERE id = 1").queryExactlyOne(duckStatus)
+    val queryAll = Fragment.of("SELECT status FROM enum_test ORDER BY id").queryAll(duckStatus)
 
-      val result = Fragment
-        .of("SELECT status FROM enum_test WHERE id = 1")
-        .queryExactlyOne(duckStatus)
-        .run(conn)
-      assert(result == Status.ACTIVE, s"Expected ACTIVE, got $result")
+    val (result, all) = setup
+      .combine(querySingle)
+      .combine(queryAll)
+      .map { case ((_, result), all) => (result, all) }
+      .transact(tx)
 
-      val all = Fragment
-        .of("SELECT status FROM enum_test ORDER BY id")
-        .queryAll(duckStatus)
-        .run(conn)
-      assert(all == List(Status.ACTIVE, Status.PENDING), s"Expected [ACTIVE, PENDING], got $all")
-    }
+    assert(result == Status.ACTIVE, s"Expected ACTIVE, got $result")
+    assert(all == List(Status.ACTIVE, Status.PENDING), s"Expected [ACTIVE, PENDING], got $all")
 
     println("Scala 3 enum test passed — no extends java.lang.Enum needed!")

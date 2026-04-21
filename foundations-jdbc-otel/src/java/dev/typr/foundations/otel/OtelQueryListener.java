@@ -8,7 +8,6 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import java.time.Instant;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A {@link QueryListener} that creates OpenTelemetry spans for database queries.
@@ -52,7 +51,7 @@ public final class OtelQueryListener implements QueryListener {
   }
 
   @Override
-  public void beforeQuery(String sql, @Nullable String name) {
+  public void beforeQuery(String sql, java.util.Optional<String> name) {
     // No-op: spans are created entirely in afterQuery/failedQuery with backdated timestamps.
   }
 
@@ -70,7 +69,7 @@ public final class OtelQueryListener implements QueryListener {
     Instant endTime = Instant.now();
     Instant startTime = endTime.minus(event.elapsed());
 
-    String spanName = (event.name() != null && !event.name().isEmpty()) ? event.name() : "DB query";
+    String spanName = event.name().filter(n -> !n.isEmpty()).orElse("DB query");
 
     var spanBuilder =
         tracer
@@ -90,10 +89,15 @@ public final class OtelQueryListener implements QueryListener {
 
     Span span = spanBuilder.startSpan();
 
-    if (isError && event.error() != null) {
-      span.setStatus(StatusCode.ERROR, event.error().getMessage());
-      span.recordException(event.error());
-      span.setAttribute(ERROR_TYPE, event.error().getClass().getName());
+    if (isError) {
+      event
+          .error()
+          .ifPresent(
+              err -> {
+                span.setStatus(StatusCode.ERROR, err.getMessage());
+                span.recordException(err);
+                span.setAttribute(ERROR_TYPE, err.getClass().getName());
+              });
     }
 
     span.end(endTime);

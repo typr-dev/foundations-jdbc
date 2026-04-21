@@ -1,5 +1,6 @@
 package dev.typr.foundations.connect;
 
+import dev.typr.foundations.internal.PgErrorExtractor;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -245,6 +246,11 @@ public final class PgConfig implements DatabaseConfig {
   @Override
   public DatabaseKind kind() {
     return DatabaseKind.POSTGRESQL;
+  }
+
+  @Override
+  public dev.typr.foundations.DatabaseException mapException(java.sql.SQLException e) {
+    return PgErrorExtractor.mapException(e);
   }
 
   @Override

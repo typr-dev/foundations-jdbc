@@ -3,7 +3,6 @@ package dev.typr.foundationskt.docs.core
 import dev.typr.foundationskt.*
 import dev.typr.foundationskt.data.*
 import java.math.BigDecimal
-import java.sql.Connection
 import java.time.Instant
 
 @Suppress("unused")

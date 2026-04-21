@@ -4,12 +4,12 @@ title: Error Handling
 
 # Error Handling
 
-All execution-level methods (`transact()`, `execute()`, `run()`) throw `DatabaseException` — an **unchecked** exception that wraps the underlying `SQLException`. You never need `throws SQLException` on your method signatures.
+All execution-level methods (`transact()`, `transactRead()`, `execute()`, `run()`) throw `DatabaseException` — an **unchecked** exception that wraps the underlying `SQLException`. You never need `throws SQLException` on your method signatures.
 
 ```java
 // No throws declaration needed
 public List<User> listUsers() {
-    return selectAll.transact(tx);
+    return selectAll.transactRead(tx);
 }
 ```
 
@@ -58,7 +58,7 @@ Common SQL state classes:
 
 ## Where checked exceptions remain
 
-`SQLException` is still used in **implementation interfaces** (`DbRead`, `DbWrite`, `ResultSetParser`, `SqlFunction`) — these are where you interact with JDBC directly. The framework catches `SQLException` at the execution boundary (`transact()`, `execute()`, `run()`) and wraps it in `DatabaseException`.
+`SQLException` is still used in **implementation interfaces** (`DbRead`, `DbWrite`, `ResultSetParser`, `SqlFunction`) — these are where you interact with JDBC directly. The framework catches `SQLException` at the execution boundary (`transact()`, `transactRead()`, `execute()`, `run()`) and wraps it in `DatabaseException`.
 
 ## Spring integration
 

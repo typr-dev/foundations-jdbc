@@ -15,16 +15,16 @@ class OperationQueries {
 
     //start
     // Multi-column: pass a RowCodec with a result mode
-    val allUsers: Operation<List<User>> = fragment.query(userCodec.all())
-    val maybeUser: Operation<User?> = fragment.query(userCodec.maxOne())
-    val oneUser: Operation<User> = fragment.query(userCodec.exactlyOne())
+    val allUsers: OperationRead<List<User>> = fragment.query(userCodec.all())
+    val maybeUser: OperationRead<User?> = fragment.query(userCodec.maxOne())
+    val oneUser: OperationRead<User> = fragment.query(userCodec.exactlyOne())
 
     // Single-column: shorthand methods skip the codec
-    val allIds: Operation<List<Int>> =
+    val allIds: OperationRead<List<Int>> =
         sql { "SELECT id FROM users" }.queryAll(PgTypes.int4)
-    val maybeName: Operation<String?> =
+    val maybeName: OperationRead<String?> =
         sql { "SELECT name FROM users LIMIT 1" }.queryMaxOne(PgTypes.text)
-    val count: Operation<Int> =
+    val count: OperationRead<Int> =
         sql { "SELECT count(*) FROM users" }.queryExactlyOne(PgTypes.int4)
     //stop
 }

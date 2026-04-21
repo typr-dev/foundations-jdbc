@@ -12,7 +12,7 @@ object ComposingSequence:
     List("Alice", "Bob", "Charlie")
 
   def insertAll(): List[Int] =
-    val inserts: List[Operation[Int]] =
+    val inserts: List[OperationRead[Int]] =
       names.map { name =>
         sql"""INSERT INTO users(name)
               VALUES(${PgTypes.text(name)})
@@ -20,5 +20,5 @@ object ComposingSequence:
           .query(RowCodec.of(PgTypes.int4).exactlyOne())
       }
 
-    Operation.sequence(inserts).transact(tx)
+    OperationRead.sequence(inserts).transact(tx)
   // stop

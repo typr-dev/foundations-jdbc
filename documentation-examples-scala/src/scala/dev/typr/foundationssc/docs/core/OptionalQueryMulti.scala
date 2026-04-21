@@ -19,7 +19,7 @@ object OptionalQueryMulti:
 
   // start
   // Multiple optional filters - each independently present or absent
-  val search: Template.Query3[Option[String], Option[String], Boolean, List[User]] =
+  val search: TemplateRead.Query3[Option[String], Option[String], Boolean, List[User]] =
     sql"SELECT id, name, email FROM users WHERE 1=1"
       .optionally(sql" AND name ILIKE ".param(PgTypes.text))
       .optionally(sql" AND email ILIKE ".param(PgTypes.text))

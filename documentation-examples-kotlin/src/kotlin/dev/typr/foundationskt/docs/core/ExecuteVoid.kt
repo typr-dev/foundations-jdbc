@@ -8,10 +8,9 @@ class ExecuteVoid {
 
     //start
     fun applySchema() {
-        tx.executeVoid { conn ->
-            sql { "CREATE TABLE users (id INT, name VARCHAR(100))" }.execute().run(conn)
-            sql { "CREATE INDEX idx_users_name ON users (name)" }.execute().run(conn)
-        }
+        val createTable = Fragment.of("CREATE TABLE users (id INT, name VARCHAR(100))").execute()
+        val createIndex = Fragment.of("CREATE INDEX idx_users_name ON users (name)").execute()
+        tx.execute(Operation.allOf(createTable, createIndex))
     }
     //stop
 }

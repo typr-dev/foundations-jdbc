@@ -1,25 +1,26 @@
 @file:Suppress("unused")
 package dev.typr.foundationskt
 
-sealed class RowTemplate<Row : Any, Out> : Template<Row, Out>() {
-    abstract override val underlying: dev.typr.foundations.RowTemplate<*, *>
+sealed interface RowTemplate<Row : Any, Out> : Template<Row, Out> {
 
-    class Query<Row : Any, Out>(override val underlying: dev.typr.foundations.RowTemplate.Query<Row, Out>)
-        : RowTemplate<Row, Out>() {
-        override fun on(row: Row): Operation.Query<Out> = Operation.Query(underlying.on(row))
+    class Query<Row : Any, Out>(
+        override val underlying: dev.typr.foundations.RowTemplate.Query<Row, Out>
+    ) : RowTemplate<Row, Out>, TemplateRead<Row, Out> {
+        override fun on(input: Row): OperationRead.Query<Out> = OperationRead.Query(underlying.on(input))
     }
 
-    class Update<Row : Any>(override val underlying: dev.typr.foundations.RowTemplate.Update<Row>)
-        : RowTemplate<Row, Int>() {
-        override fun on(row: Row): Operation.Update = Operation.Update(underlying.on(row))
+    class Update<Row : Any>(
+        override val underlying: dev.typr.foundations.RowTemplate.Update<Row>
+    ) : RowTemplate<Row, Int> {
+        override fun on(input: Row): Operation<Int> = Operation.JavaWrapped(underlying.on(input))
 
         fun onMany(rows: Iterator<Row>): Operation.UpdateManyTemplate<Row> =
             Operation.UpdateManyTemplate(underlying.onMany(rows))
     }
 
-    class GeneratedKeys<Row : Any, Out>(override val underlying: dev.typr.foundations.RowTemplate.GeneratedKeys<Row, Out>)
-        : RowTemplate<Row, Out>() {
-        override fun on(row: Row): Operation.UpdateReturningGeneratedKeys<Out> =
-            Operation.UpdateReturningGeneratedKeys(underlying.on(row))
+    class GeneratedKeys<Row : Any, Out>(
+        override val underlying: dev.typr.foundations.RowTemplate.GeneratedKeys<Row, Out>
+    ) : RowTemplate<Row, Out> {
+        override fun on(input: Row): Operation<Out> = Operation.JavaWrapped(underlying.on(input))
     }
 }

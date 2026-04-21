@@ -25,7 +25,7 @@ public class StreamingReadCombine {
               all.addAll(cursors._2().toList());
               return all;
             })
-        .transact(tx);
+        .transactRead(tx);
   }
   // stop
 }

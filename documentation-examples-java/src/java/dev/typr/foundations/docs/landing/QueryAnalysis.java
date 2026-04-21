@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.landing;
 
 import dev.typr.foundations.Fragment;
-import dev.typr.foundations.Operation;
+import dev.typr.foundations.OperationRead;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.QueryAnalyzer;
 import dev.typr.foundations.RowCodec;
@@ -24,7 +24,7 @@ class QueryAnalysisExample {
 
   // start
   // Your query looks fine at compile time...
-  Operation.Query<List<User>> query =
+  OperationRead.Query<List<User>> query =
       Fragment.of(
               """
               SELECT id, name, created_at, email

@@ -1,7 +1,7 @@
 package dev.typr.foundations.connect;
 
-import dev.typr.foundations.Transactor;
-import dev.typr.foundations.Transactor.Strategy;
+import dev.typr.foundations.TransactorJdbc;
+import dev.typr.foundations.internal.TransactorJdbcImpl;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -109,30 +109,7 @@ public interface ConnectionSource extends DataSource {
     return iface.isInstance(this);
   }
 
-  /**
-   * Create a Transactor with the default strategy (manual transactions with commit on success).
-   *
-   * @return a Transactor configured for manual transaction management
-   */
-  default Transactor transactor() {
-    return transactor(Transactor.defaultStrategy());
-  }
-
-  /**
-   * Create a Transactor with a custom strategy.
-   *
-   * @param strategy the transaction management strategy
-   * @return a Transactor configured with the provided strategy
-   */
-  default Transactor transactor(Strategy strategy) {
-    return new Transactor(this::getConnectionUnchecked, strategy);
-  }
-
-  private Connection getConnectionUnchecked() {
-    try {
-      return getConnection();
-    } catch (SQLException e) {
-      throw new dev.typr.foundations.DatabaseException(e);
-    }
+  default TransactorJdbc transactor() {
+    return TransactorJdbcImpl.create(this);
   }
 }

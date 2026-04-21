@@ -1,23 +1,23 @@
 package dev.typr.foundationssc
 
 import java.sql.Connection
+import dev.typr.foundationssc.connect.*
 
 trait ConnectionSource:
   def getConnection(): Connection
-  def transactor(): Transactor = transactor(Transactor.defaultStrategy())
-  def transactor(strategy: Transactor.Strategy): Transactor
+  def transactor(): Transactor
 
 object ConnectionSource:
-  def of(config: connect.DatabaseConfig): ConnectionSource =
+  def of(config: DatabaseConfig): ConnectionSource =
     val java = dev.typr.foundations.connect.ConnectionSource.of(config)
     wrap(java)
 
-  def of(config: connect.DatabaseConfig, settings: connect.ConnectionSettings): ConnectionSource =
+  def of(config: DatabaseConfig, settings: ConnectionSettings): ConnectionSource =
     val java = dev.typr.foundations.connect.ConnectionSource.of(config, settings)
     wrap(java)
 
   private[foundationssc] def wrap(java: dev.typr.foundations.connect.ConnectionSource): ConnectionSource =
     new ConnectionSource:
       override def getConnection(): Connection = java.getConnection()
-      override def transactor(strategy: Transactor.Strategy): Transactor =
-        Transactor(java.transactor(strategy))
+      override def transactor(): Transactor =
+        Transactor(java.transactor())

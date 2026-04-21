@@ -44,7 +44,7 @@ Add a new query anywhere in the package, and it's automatically included in the 
 
 ## What the Scanner Discovers
 
-The scanner finds everything that returns an `Analyzable` type — this includes `Operation`, `Template`, and `RowTemplate`. It discovers both **fields** and **methods**:
+The scanner finds everything that returns an `Analyzable` type — this includes `OperationRead`, `Template`, and `RowTemplate`. It discovers both **fields** and **methods**:
 
 <Snippet file="analysis/ScannerMethods" />
 
@@ -55,7 +55,7 @@ The scanner finds everything that returns an `Analyzable` type — this includes
 | **Instance fields** | Any field whose type implements `Analyzable` |
 | **Instance methods** (no args) | Called directly, return value collected |
 | **Instance methods with parameters** | Dummy arguments constructed automatically, method invoked |
-| **Static fields** | Discovered — useful for Kotlin top-level `val`, Java `static final Operation`, and static helper bags |
+| **Static fields** | Discovered — useful for Kotlin top-level `val`, Java `static final OperationRead`, and static helper bags |
 | **Static methods** (no args, with args) | Discovered — same dummy-argument construction as instance methods |
 | **Templates** | Discovered like any other `Analyzable` field or method return |
 | **Private / protected / package-private members** | Discovered — the scanner uses `setAccessible(true)` since it's a test-scope tool |
@@ -86,7 +86,7 @@ The scanner will try constructors that accept a `Transactor` parameter.
 
 ### How dummy arguments work
 
-When the scanner encounters a method with parameters, it constructs dummy values to invoke the method. The actual argument values typically don't matter — the scanner only needs the method's return value (an `Operation` or `Template`) to extract its SQL and type information. If a method branches on its arguments and returns structurally different operations, use `manual()` directives to provide meaningful values.
+When the scanner encounters a method with parameters, it constructs dummy values to invoke the method. The actual argument values typically don't matter — the scanner only needs the method's return value (an `OperationRead` or `Template`) to extract its SQL and type information. If a method branches on its arguments and returns structurally different operations, use `manual()` directives to provide meaningful values.
 
 The scanner can construct dummies for:
 
@@ -284,7 +284,7 @@ Routine analysis checks:
 
 ## Analyzing Composed Operations
 
-When you compose operations with `.combine()`/`.combineWith()`, `.then()`, or `Operation.ifEmpty()`, the checker walks the entire operation tree and verifies every SQL statement:
+When you compose operations with `.combine()`/`.combineWith()`, `.then()`, or `OperationRead.ifEmpty()`, the checker walks the entire operation tree and verifies every SQL statement:
 
 <Snippet file="analysis/QueryAnalysisAll" />
 

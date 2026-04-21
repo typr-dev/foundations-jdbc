@@ -27,7 +27,7 @@ class VenueRepo {
   static final RowTemplate.Query<Venue, PersistedVenue> insert =
       Fragment.insertIntoReturning("venue", venueCodec, persistedVenueCodec);
 
-  static final Operation<List<PersistedVenue>> selectAll =
+  static final OperationRead<List<PersistedVenue>> selectAll =
       Fragment.of("SELECT ")
           .append(persistedVenueCodec.columnList())
           .append(" FROM venue")

@@ -1,5 +1,6 @@
-package dev.typr.foundations;
+package dev.typr.foundations.internal;
 
+import dev.typr.foundations.Either;
 import dev.typr.foundations.data.Arr;
 import java.util.ArrayList;
 import java.util.function.Function;

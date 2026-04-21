@@ -17,7 +17,7 @@ public class TodoRepository {
           .field("done", DuckDbTypes.boolean_, Todo::done)
           .build(Todo::new);
 
-  static final Operation<List<Todo>> selectAll =
+  static final OperationRead<List<Todo>> selectAll =
       Fragment.of("SELECT ")
           .append(todoCodec.columnList())
           .append(" FROM todo ORDER BY id")
@@ -32,14 +32,14 @@ public class TodoRepository {
   static final Template<Integer, Integer> setDoneById =
       Fragment.of("UPDATE todo SET done = true WHERE id = ").param(DuckDbTypes.integer).update();
 
-  private final Transactor tx;
+  private final TransactorJdbc tx;
 
-  public TodoRepository(Transactor tx) {
+  public TodoRepository(TransactorJdbc tx) {
     this.tx = tx;
   }
 
   public void createSchema() {
-    tx.executeVoid(
+    tx.transact(
         conn -> {
           Fragment.of("CREATE SEQUENCE IF NOT EXISTS todo_id_seq START 1").execute().run(conn);
           Fragment.of(
@@ -52,6 +52,7 @@ public class TodoRepository {
                   """)
               .execute()
               .run(conn);
+          return null;
         });
   }
 

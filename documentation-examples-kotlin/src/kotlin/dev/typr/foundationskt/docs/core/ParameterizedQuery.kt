@@ -14,7 +14,7 @@ object ParameterizedQuery {
             .build(::City)
 
     //start
-    fun findCityByName(name: String): Operation<City?> =
+    fun findCityByName(name: String): OperationRead<City?> =
         sql { "SELECT ${cityCodec.columnList} FROM city WHERE name = ${DuckDbTypes.varchar(name)}" }
             .query(cityCodec.maxOne())
     //stop

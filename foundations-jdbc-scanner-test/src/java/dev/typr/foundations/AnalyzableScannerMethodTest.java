@@ -75,10 +75,11 @@ class AnalyzableScannerMethodTest {
     var names = fieldNames(results);
     assertTrue(
         names.contains("staticMethod"),
-        "should discover no-arg static Operation methods on Java classes with a no-arg ctor");
+        "should discover no-arg static OperationRead methods on Java classes with a no-arg ctor");
     assertTrue(
         names.contains("staticMethodWithArgs"),
-        "should discover parameterized static Operation methods (scanner dummy-constructs args)");
+        "should discover parameterized static OperationRead methods (scanner dummy-constructs"
+            + " args)");
   }
 
   // --- Dummy arg construction (unit tests) ---
@@ -366,12 +367,23 @@ class AnalyzableScannerMethodTest {
 
   @Test
   void queryCheckerCreate() {
-    var t =
-        new Transactor(
-            () -> {
-              throw new UnsupportedOperationException();
-            },
-            Transactor.defaultStrategy());
+    Transactor t =
+        new Transactor() {
+          @Override
+          public <T> T execute(Operation<T> op) {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public <T> T transact(SqlFunction<Connection, T> fn) {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public <T> T transactRead(SqlFunction<ConnectionRead, T> fn) {
+            throw new UnsupportedOperationException();
+          }
+        };
     var checker = QueryChecker.create(t);
     assertNotNull(checker);
     assertEquals(t, checker.transactor());

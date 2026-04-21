@@ -2,7 +2,6 @@ package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.*;
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.time.Instant;
 
 @SuppressWarnings("unused")

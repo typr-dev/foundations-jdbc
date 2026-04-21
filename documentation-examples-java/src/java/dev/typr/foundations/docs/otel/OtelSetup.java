@@ -16,7 +16,6 @@ public class OtelSetup {
 
   QueryListener otelListener = OtelQueryListener.create(GlobalOpenTelemetry.get(), telemetryConfig);
 
-  Transactor tx =
-      Transactor.create(config, Transactor.defaultStrategy().mergeListener(otelListener));
+  Transactor tx = Transactor.create(config).withListener(otelListener);
   // stop
 }

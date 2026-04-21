@@ -6,22 +6,16 @@ import Snippet from '@site/src/components/Snippet';
 
 # Testing
 
-foundations-jdbc is designed to be tested against a real database. Use `testStrategy()` for data isolation, `QueryChecker` for type verification, and `AnalyzableScanner` for automatic query discovery. Together, they give you a test suite that catches SQL bugs before production.
+foundations-jdbc is designed to be tested against a real database. Use `.rollbackOnly()` for data isolation, `QueryChecker` for type verification, and `AnalyzableScanner` for automatic query discovery. Together, they give you a test suite that catches SQL bugs before production.
 
-## Test Strategy (Rollback Isolation)
+## Rollback Isolation
 
-`Transactor.testStrategy()` wraps each call in a transaction and **rolls back** instead of committing. Your tests run against real SQL without leaving data behind:
+`.rollbackOnly()` wraps each call in a transaction and **rolls back** instead of committing. Your tests run against real SQL without leaving data behind:
 
 ```kotlin
-val tx = ConnectionSource.of(DuckDbConfig.inMemory().build())
-    .transactor(Transactor.testStrategy())
+val tx = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build())
+    .transactor().rollbackOnly()
 ```
-
-| Hook | Behavior |
-|------|----------|
-| `onBegin` | `setAutoCommit(false)` |
-| `onSuccess` | **rollback** (not commit) |
-| `onComplete` | close connection |
 
 Each test gets a clean slate. No teardown scripts, no truncation, no data leaking between tests.
 
@@ -34,16 +28,14 @@ DuckDB runs in-memory with zero setup — ideal for fast unit tests:
 ```kotlin
 class MyRepoTest {
     companion object {
-        private val tx = ConnectionSource.of(
+        private val tx = SingleConnectionDataSource.create(
             DuckDbConfig.inMemory().build()
-        ).transactor(Transactor.testStrategy())
+        ).transactor().rollbackOnly()
 
         @BeforeAll @JvmStatic
         fun setup() {
             // Apply schema once — rollback strategy doesn't affect DDL in DuckDB
-            tx.transact { conn ->
-                Fragment.of("CREATE TABLE users (id INTEGER, name VARCHAR NOT NULL)").execute().run(conn)
-            }
+            tx.execute(Fragment.of("CREATE TABLE users (id INTEGER, name VARCHAR NOT NULL)").execute())
         }
     }
 
@@ -53,7 +45,7 @@ class MyRepoTest {
             .execute()
             .productL(UserRepo.findById.on(1))
 
-        val user = insertAndFind.transact(tx)
+        val user = tx.execute(insertAndFind)
         assertEquals("Alice", user?.name)
         // Rolled back — next test starts clean
     }
@@ -66,9 +58,9 @@ For databases that need a server, use [Testcontainers](https://testcontainers.co
 
 ```kotlin
 companion object {
-    private val tx = ConnectionSource.of(
+    private val tx = SimpleDataSource.create(
         PgConfig.builder("localhost", 5432, "testdb", "test", "test").build()
-    ).transactor(Transactor.testStrategy())
+    ).transactor().rollbackOnly()
 }
 ```
 
@@ -78,7 +70,7 @@ companion object {
 
 ### One Test for All Queries
 
-`AnalyzableScanner` discovers every `Operation` and `Template` in a package. `QueryChecker` verifies them all:
+`AnalyzableScanner` discovers every `OperationRead` and `Template` in a package. `QueryChecker` verifies them all:
 
 ```kotlin
 @Test
@@ -121,9 +113,9 @@ Test repository operations against a real database with rollback isolation:
 ```kotlin
 @Test
 fun `insert and retrieve`() {
-    tx.transact { conn ->
-        val created = UserRepo.create.on(User(0, "Bob")).run(conn)
-        val found = UserRepo.findById.on(created.id).run(conn)
+    tx.transact { mc ->
+        val created = mc.execute(UserRepo.create.on(User(0, "Bob")))
+        val found = mc.execute(UserRepo.findById.on(created.id))
         assertEquals("Bob", found?.name)
     }
     // Transaction rolled back — no cleanup needed
@@ -137,12 +129,12 @@ Test multi-step operations that run in a single transaction:
 ```kotlin
 @Test
 fun `transfer between accounts`() {
-    val result = tx.transact { conn ->
+    tx.transact { mc ->
         // Setup
-        sql { "INSERT INTO account VALUES (1, 100.00), (2, 50.00)" }.execute().run(conn)
+        mc.execute(sql { "INSERT INTO account VALUES (1, 100.00), (2, 50.00)" }.execute())
 
         // Operation under test
-        AccountRepo.transfer(fromId = 1, toId = 2, amount = 25.00).run(conn)
+        mc.execute(AccountRepo.transfer(fromId = 1, toId = 2, amount = 25.00))
     }
     // Both inserts and the transfer are rolled back
 }

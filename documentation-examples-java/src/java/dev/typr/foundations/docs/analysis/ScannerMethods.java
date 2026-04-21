@@ -16,16 +16,16 @@ public class ScannerMethods {
 
   // start
   // Fields — discovered automatically
-  final Operation<List<City>> allCities =
+  final OperationRead<List<City>> allCities =
       Fragment.of("SELECT id, name FROM cities").query(cityCodec.all());
 
   // No-arg methods — discovered automatically
-  Operation<List<City>> activeCities() {
+  OperationRead<List<City>> activeCities() {
     return Fragment.of("SELECT id, name FROM cities WHERE active").query(cityCodec.all());
   }
 
   // Methods with parameters — dummy arguments constructed automatically
-  Operation<Optional<City>> findByName(String name) {
+  OperationRead<Optional<City>> findByName(String name) {
     return Fragment.of("SELECT id, name FROM cities WHERE name = ")
         .value(PgTypes.text, name)
         .query(cityCodec.maxOne());

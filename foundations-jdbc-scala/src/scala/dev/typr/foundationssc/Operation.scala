@@ -1,15 +1,16 @@
 package dev.typr.foundationssc
 
-import java.sql.Connection
 import java.time.Duration
-import _root_.scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
 
-sealed trait Operation[Out] extends Analyzable {
-  def underlying: dev.typr.foundations.Operation[?]
+trait Operation[Out] extends Analyzable:
+  def underlying: dev.typr.foundations.Operation[Out]
 
   override def analyzable: dev.typr.foundations.Analyzable = underlying
 
-  def run(conn: Connection): Out
+  def run(conn: dev.typr.foundations.Connection): Out =
+    conn.execute(underlying)
 
   def transact(transactor: Transactor): Out =
     transactor.execute(this)
@@ -17,260 +18,106 @@ sealed trait Operation[Out] extends Analyzable {
   def map[B](f: Out => B): Operation[B] =
     Operation.Mapped(this, f)
 
+  def voided(): Operation[Unit] = map(_ => ())
+
   def combine[B](other: Operation[B]): Operation[(Out, B)] =
-    Operation.Combine(this, other)
+    Operation.CombinePair(underlying.combine(other.underlying))
 
-  def combineWith[B, R](other: Operation[B])(combine: (Out, B) => R): Operation[R] =
-    this.combine(other).map(t => combine(t._1, t._2))
+  def combineWith[B, R](other: Operation[B])(f: (Out, B) => R): Operation[R] =
+    combine(other).map { case (a, b) => f(a, b) }
 
-  def combineWith[B, C, R](b: Operation[B], c: Operation[C])(combine: (Out, B, C) => R): Operation[R] =
-    this.combine(b).combine(c).map(t => combine(t._1._1, t._1._2, t._2))
+  def combineWith[B, C, R](b: Operation[B], c: Operation[C])(f: (Out, B, C) => R): Operation[R] =
+    combine(b).combine(c).map { case ((a, b), c) => f(a, b, c) }
 
-  def combineWith[B, C, D, R](b: Operation[B], c: Operation[C], d: Operation[D])(combine: (Out, B, C, D) => R): Operation[R] =
-    this.combine(b).combine(c).combine(d).map(t => combine(t._1._1._1, t._1._1._2, t._1._2, t._2))
+  def combineWith[B, C, D, R](b: Operation[B], c: Operation[C], d: Operation[D])(f: (Out, B, C, D) => R): Operation[R] =
+    combine(b).combine(c).combine(d).map { case (((a, b), c), d) => f(a, b, c, d) }
 
-  def combineWith[B, C, D, E, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E])(combine: (Out, B, C, D, E) => R): Operation[R] =
-    this.combine(b).combine(c).combine(d).combine(e).map(t => combine(t._1._1._1._1, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
+  def combineWith[B, C, D, E, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E])(f: (Out, B, C, D, E) => R): Operation[R] =
+    combine(b).combine(c).combine(d).combine(e).map { case ((((a, b), c), d), e) => f(a, b, c, d, e) }
 
   def combineWith[B, C, D, E, F, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E], f: Operation[F])(
-      combine: (Out, B, C, D, E, F) => R
+      fn: (Out, B, C, D, E, F) => R
   ): Operation[R] =
-    this.combine(b).combine(c).combine(d).combine(e).combine(f).map(t => combine(t._1._1._1._1._1, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
-
-  def combineWith[B, C, D, E, F, G, R](b: Operation[B], c: Operation[C], d: Operation[D], e: Operation[E], f: Operation[F], g: Operation[G])(
-      combine: (Out, B, C, D, E, F, G) => R
-  ): Operation[R] =
-    this
-      .combine(b)
-      .combine(c)
-      .combine(d)
-      .combine(e)
-      .combine(f)
-      .combine(g)
-      .map(t => combine(t._1._1._1._1._1._1, t._1._1._1._1._1._2, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
-
-  def combineWith[B, C, D, E, F, G, H, R](
-      b: Operation[B],
-      c: Operation[C],
-      d: Operation[D],
-      e: Operation[E],
-      f: Operation[F],
-      g: Operation[G],
-      h: Operation[H]
-  )(combine: (Out, B, C, D, E, F, G, H) => R): Operation[R] =
-    this
-      .combine(b)
-      .combine(c)
-      .combine(d)
-      .combine(e)
-      .combine(f)
-      .combine(g)
-      .combine(h)
-      .map(t => combine(t._1._1._1._1._1._1._1, t._1._1._1._1._1._1._2, t._1._1._1._1._1._2, t._1._1._1._1._2, t._1._1._1._2, t._1._1._2, t._1._2, t._2))
-
-  def combineWith[B, C, D, E, F, G, H, I, R](
-      b: Operation[B],
-      c: Operation[C],
-      d: Operation[D],
-      e: Operation[E],
-      f: Operation[F],
-      g: Operation[G],
-      h: Operation[H],
-      i: Operation[I]
-  )(combine: (Out, B, C, D, E, F, G, H, I) => R): Operation[R] =
-    this
-      .combine(b)
-      .combine(c)
-      .combine(d)
-      .combine(e)
-      .combine(f)
-      .combine(g)
-      .combine(h)
-      .combine(i)
-      .map(t =>
-        combine(
-          t._1._1._1._1._1._1._1._1,
-          t._1._1._1._1._1._1._1._2,
-          t._1._1._1._1._1._1._2,
-          t._1._1._1._1._1._2,
-          t._1._1._1._1._2,
-          t._1._1._1._2,
-          t._1._1._2,
-          t._1._2,
-          t._2
-        )
-      )
+    combine(b).combine(c).combine(d).combine(e).combine(f).map { case (((((a, b), c), d), e), f) => fn(a, b, c, d, e, f) }
 
   def productL[B](other: Operation[B]): Operation[Out] =
     combine(other).map(_._1)
 
   def andThen[B](template: Template[Out, B]): Operation[B] =
-    Operation.Then(this, identity[Out], template)
-
-  def voided: Operation[Unit] =
-    map(_ => ())
+    Operation.ThenOp(this, template)
 
   def named(name: String): Operation[Out] =
-    Operation.Configured(this, name, null, null)
+    Operation.JavaWrapped(underlying.named(name))
 
   def timeout(timeout: Duration): Operation[Out] =
-    Operation.Configured(this, null, timeout, null)
+    Operation.JavaWrapped(underlying.timeout(timeout))
 
-  def withListener(listener: dev.typr.foundations.QueryListener): Operation[Out] =
-    Operation.Configured(this, null, null, listener)
-}
+  def withListener(listener: QueryListener): Operation[Out] =
+    Operation.JavaWrapped(underlying.withListener(listener))
 
-object Operation {
+object Operation:
+  class Update(private val javaOp: dev.typr.foundations.Operation.Update) extends Operation[Int]:
+    def underlying: dev.typr.foundations.Operation[Int] = javaOp.map(x => x)
 
-  def pure[T](value: T): Operation[T] = Pure(value)
+  class Execute(private val javaOp: dev.typr.foundations.Operation.Execute) extends Operation[Unit]:
+    def underlying: dev.typr.foundations.Operation[Unit] = javaOp.map(_ => ())
 
-  def sequence[T](operations: List[Operation[T]]): Operation[List[T]] = {
-    if (operations.isEmpty) return pure(Nil)
+  class UpdateReturning[Out](private val javaOp: dev.typr.foundations.Operation.UpdateReturning[Out]) extends Operation[Out]:
+    def underlying: dev.typr.foundations.Operation[Out] = javaOp
+
+  class UpdateReturningGeneratedKeys[Out](private val javaOp: dev.typr.foundations.Operation.UpdateReturningGeneratedKeys[Out]) extends Operation[Out]:
+    def underlying: dev.typr.foundations.Operation[Out] = javaOp
+
+  class UpdateMany[Row](private val javaOp: dev.typr.foundations.Operation.UpdateMany[Row]) extends Operation[Option[Array[Int]]]:
+    def underlying: dev.typr.foundations.Operation[Option[Array[Int]]] = javaOp.map(x => x.map(a => a).toScala)
+
+  class UpdateManyReturning[Row](private val javaOp: dev.typr.foundations.Operation.UpdateManyReturning[Row]) extends Operation[List[Row]]:
+    def underlying: dev.typr.foundations.Operation[List[Row]] = javaOp.map(jl => jl.asScala.toList)
+
+  class UpdateReturningEach[Row](private val javaOp: dev.typr.foundations.Operation.UpdateReturningEach[Row]) extends Operation[List[Row]]:
+    def underlying: dev.typr.foundations.Operation[List[Row]] = javaOp.map(jl => jl.asScala.toList)
+
+  class UpdateManyTemplate[Row](private val javaOp: dev.typr.foundations.Operation.UpdateManyTemplate[Row]) extends Operation[Option[Array[Int]]]:
+    def underlying: dev.typr.foundations.Operation[Option[Array[Int]]] = javaOp.map(x => x.map(a => a).toScala)
+
+  class StreamingCopy[Row](private val javaOp: dev.typr.foundations.Operation.StreamingCopy[Row]) extends Operation[Long]:
+    def underlying: dev.typr.foundations.Operation[Long] = javaOp.map(x => x)
+
+  private[foundationssc] class Mapped[A, Out](source: Operation[A], f: A => Out) extends Operation[Out]:
+    def underlying: dev.typr.foundations.Operation[Out] =
+      source.underlying.map(a => f(a))
+
+  private[foundationssc] class CombinePair[A, B](
+      javaOp: dev.typr.foundations.Operation[dev.typr.foundations.Tuple.Tuple2[A, B]]
+  ) extends Operation[(A, B)]:
+    def underlying: dev.typr.foundations.Operation[(A, B)] =
+      javaOp.map(t => (t._1(), t._2()))
+
+  private[foundationssc] class ThenOp[A, B](
+      source: Operation[A],
+      continuation: Template[A, B]
+  ) extends Operation[B]:
+    def underlying: dev.typr.foundations.Operation[B] =
+      new dev.typr.foundations.Operation.Then(source.underlying, continuation.underlying)
+
+  private[foundationssc] class JavaWrapped[Out](val underlying: dev.typr.foundations.Operation[Out]) extends Operation[Out]
+
+  def sequence[T](operations: List[Operation[T]]): Operation[List[T]] =
+    if operations.isEmpty then return OperationRead.pure(Nil)
     var result: Operation[List[T]] = operations.head.map(t => List(t))
-    for (op <- operations.tail) {
-      result = result.combine(op).map(t => t._1 :+ t._2)
-    }
+    for op <- operations.tail do result = result.combine(op).map(t => t._1 :+ t._2)
     result
-  }
 
-  def allOf(operations: Operation[?]*): Operation[Unit] = {
-    if (operations.isEmpty) return pure(())
-    var result: Operation[Unit] = operations.head.voided
-    for (op <- operations.tail) {
-      result = result.productL(op)
-    }
+  def allOf(operations: Operation[?]*): Operation[Unit] =
+    if operations.isEmpty then return OperationRead.pure(())
+    var result: Operation[Unit] = operations.head.voided()
+    for op <- operations.tail do result = result.productL(op)
     result
-  }
 
   def ifEmpty[T](check: Operation[Option[T]], fallback: Operation[T]): Operation[T] =
-    IfEmpty(check, fallback)
-
-  class Query[Out](val underlying: dev.typr.foundations.Operation.Query[Out]) extends Operation[Out] {
-    override def run(conn: Connection): Out = underlying.run(conn)
-  }
-
-  object Query {
-    def apply[Out](query: Fragment, parser: ResultSetParser[Out]): Query[Out] =
-      new Query(new dev.typr.foundations.Operation.Query(query.underlying, parser.underlying))
-  }
-
-  class Update(val underlying: dev.typr.foundations.Operation.Update) extends Operation[Int] {
-    override def run(conn: Connection): Int = underlying.run(conn)
-  }
-
-  class Execute(val underlying: dev.typr.foundations.Operation.Execute) extends Operation[Unit] {
-    override def run(conn: Connection): Unit = { underlying.run(conn); () }
-  }
-
-  object Update {
-    def apply(query: Fragment): Update =
-      new Update(new dev.typr.foundations.Operation.Update(query.underlying))
-  }
-
-  class UpdateReturning[Out](val underlying: dev.typr.foundations.Operation.UpdateReturning[Out]) extends Operation[Out] {
-    override def run(conn: Connection): Out = underlying.run(conn)
-  }
-
-  object UpdateReturning {
-    def apply[Out](query: Fragment, parser: ResultSetParser[Out]): UpdateReturning[Out] =
-      new UpdateReturning(new dev.typr.foundations.Operation.UpdateReturning(query.underlying, parser.underlying))
-  }
-
-  class UpdateReturningGeneratedKeys[Out](val underlying: dev.typr.foundations.Operation.UpdateReturningGeneratedKeys[Out]) extends Operation[Out] {
-    override def run(conn: Connection): Out = underlying.run(conn)
-  }
-
-  class UpdateMany[Row](val underlying: dev.typr.foundations.Operation.UpdateMany[Row]) extends Operation[List[Int]] {
-    import _root_.scala.jdk.CollectionConverters.*
-    override def run(conn: Connection): List[Int] =
-      underlying.run(conn).asScala.iterator.map(_.intValue).toList
-  }
-
-  class UpdateManyReturning[Row](val underlying: dev.typr.foundations.Operation.UpdateManyReturning[Row]) extends Operation[List[Row]] {
-    import _root_.scala.jdk.CollectionConverters.*
-    override def run(conn: Connection): List[Row] = underlying.run(conn).asScala.toList
-  }
-
-  class UpdateReturningEach[Row](val underlying: dev.typr.foundations.Operation.UpdateReturningEach[Row]) extends Operation[List[Row]] {
-    import _root_.scala.jdk.CollectionConverters.*
-    override def run(conn: Connection): List[Row] = underlying.run(conn).asScala.toList
-  }
-
-  class UpdateManyTemplate[Row](val underlying: dev.typr.foundations.Operation.UpdateManyTemplate[Row]) extends Operation[List[Int]] {
-    import _root_.scala.jdk.CollectionConverters.*
-    override def run(conn: Connection): List[Int] =
-      underlying.run(conn).asScala.iterator.map(_.intValue).toList
-  }
-
-  class StreamingCopy(val underlying: dev.typr.foundations.Operation[java.lang.Long]) extends Operation[Long] {
-    override def run(conn: Connection): Long = underlying.run(conn)
-  }
-
-  class Streaming[Row](val underlying: dev.typr.foundations.Operation.Streaming[Row]) extends Operation[Cursor[Row]] {
-    override def run(conn: Connection): Cursor[Row] = new Cursor(underlying.run(conn))
-  }
-
-  object Streaming {
-    def apply[Row](query: Fragment, codec: RowCodec[Row], fetchSize: Int): Streaming[Row] =
-      new Streaming(new dev.typr.foundations.Operation.Streaming(query.underlying, codec.underlying, fetchSize))
-  }
-
-  class Mapped[A, B](val source: Operation[A], val f: A => B) extends Operation[B] {
-    val underlying: dev.typr.foundations.Operation[?] = source.underlying
-    override def run(conn: Connection): B = f(source.run(conn))
-  }
-
-  class Pure[T](val value: T) extends Operation[T] {
-    val underlying: dev.typr.foundations.Operation[T] = new dev.typr.foundations.Operation.Pure(value)
-    override def run(conn: Connection): T = value
-  }
-
-  class Combine[A, B](val first: Operation[A], val second: Operation[B]) extends Operation[(A, B)] {
-    @SuppressWarnings(Array("unchecked"))
-    val underlying: dev.typr.foundations.Operation[?] =
-      new dev.typr.foundations.Operation.Combine(
-        first.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]],
-        second.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]]
+    JavaWrapped(
+      dev.typr.foundations.Operation.ifEmpty(
+        check.underlying.map(opt => if opt.isDefined then java.util.Optional.of(opt.get) else java.util.Optional.empty[T]()),
+        fallback.underlying
       )
-    override def run(conn: Connection): (A, B) = (first.run(conn), second.run(conn))
-  }
-
-  class IfEmpty[T](val check: Operation[Option[T]], val fallback: Operation[T]) extends Operation[T] {
-    @SuppressWarnings(Array("unchecked"))
-    val underlying: dev.typr.foundations.Operation[?] =
-      new dev.typr.foundations.Operation.IfEmpty[Object](
-        check.underlying.asInstanceOf[dev.typr.foundations.Operation[java.util.Optional[Object]]],
-        fallback.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]]
-      )
-    override def run(conn: Connection): T = check.run(conn).getOrElse(fallback.run(conn))
-  }
-
-  class Configured[Out](val inner: Operation[Out], val name: String, val timeout: Duration, val listener: dev.typr.foundations.QueryListener)
-      extends Operation[Out] {
-    @SuppressWarnings(Array("unchecked"))
-    val underlying: dev.typr.foundations.Operation[?] =
-      new dev.typr.foundations.Operation.Configured(
-        inner.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]],
-        name,
-        timeout,
-        listener
-      )
-    override def run(conn: Connection): Out =
-      underlying.run(conn).asInstanceOf[Out]
-  }
-
-  class Then[A, In, B](val source: Operation[A], val extract: A => In, val continuation: Template[In, B]) extends Operation[B] {
-    @SuppressWarnings(Array("unchecked"))
-    val underlying: dev.typr.foundations.Operation[?] =
-      new dev.typr.foundations.Operation.Then(
-        source.underlying.asInstanceOf[dev.typr.foundations.Operation[Object]],
-        java.util.function.Function.identity[Object](),
-        continuation.underlying.asInstanceOf[dev.typr.foundations.Template[Object, Object]]
-      )
-    override def run(conn: Connection): B = {
-      val a = source.run(conn)
-      val in_ = extract(a)
-      continuation.on(in_).run(conn)
-    }
-  }
-}
+    )

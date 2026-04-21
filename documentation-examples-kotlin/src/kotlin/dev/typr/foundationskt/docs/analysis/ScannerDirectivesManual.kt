@@ -9,11 +9,11 @@ class ScannerDirectivesManual {
     class ReportRepo {
         data class ReportFilter(val category: String, val limit: Int)
 
-        fun filteredReport(filter: ReportFilter): Operation<List<String>> =
+        fun filteredReport(filter: ReportFilter): OperationRead<List<String>> =
             sql { "SELECT name FROM reports WHERE category = ${PgTypes.text(filter.category)}" }
                 .queryAll(PgTypes.text)
 
-        fun allReports(): Operation<List<String>> =
+        fun allReports(): OperationRead<List<String>> =
             sql { "SELECT name FROM reports" }.queryAll(PgTypes.text)
     }
 

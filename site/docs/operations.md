@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Operations
 
-Call `.query()` or `.update()` on a Fragment to get an `Operation<T>` — a database action that produces a value of type `T`. It doesn't run until you call `.transact(tx)` or `.run(conn)`.
+Call `.query()` or `.update()` on a Fragment to get an `OperationRead<T>` or `Operation<T>` — a database action that produces a value of type `T`. It doesn't run until you call `.transactRead(tx)` / `.transact(tx)` or `tx.execute(op)`.
 
 ## Queries
 
@@ -28,7 +28,7 @@ Write to the database — INSERT, UPDATE, DELETE, or DDL:
 
 ## Execute (No Result)
 
-When you don't need the row count — DDL statements, fire-and-forget DML — use `.execute()` instead of `.update()`. It returns `Operation<Void>` (Java) / `Operation<Unit>` (Kotlin/Scala):
+When you don't need the row count — DDL statements, fire-and-forget DML — use `.execute()` instead of `.update()`. It returns `Operation<Void>` (Java) / `Operation<Unit>` (Kotlin) / `Operation[Unit]` (Scala):
 
 ```java
 Fragment.of("CREATE TABLE users (id INT, name VARCHAR)").execute()
@@ -38,17 +38,15 @@ This is equivalent to `.update().voided()`.
 
 ## Running Operations
 
-Use a [Transactor](./transactors) to obtain a connection, run the operation, and handle commit/rollback automatically.
-
-For a **single operation**, call `.transact(tx)` on it directly — the Transactor borrows a connection, runs the operation, commits on success, rolls back on failure, and closes the connection.
-
-For **multiple operations in one transaction**, call `.run(conn)` on each inside a `tx.execute(conn -> …)` (Java) / `tx.transact { conn -> … }` (Kotlin/Scala) block — all `.run` calls share the same connection and therefore the same transaction:
+Use a [Transactor](./transactors) to obtain a connection, run the operation, and handle commit/rollback automatically:
 
 <Snippet file="core/ExecuteTransact" />
 
-If you need even finer control — running a composed operation tree inside a broader block — see [Composing Operations](./composing-operations).
+For multiple operations in a single transaction, execute each one inside a `transact` block:
 
-For void operations — DDL, schema setup, or any connection-consuming function that doesn't return a value — use `executeVoid`:
+<Snippet file="core/ManualTransaction" />
+
+For void operations — DDL, schema setup — use `mc.update()` inside a `transact` block:
 
 <Snippet file="core/ExecuteVoid" />
 
@@ -62,11 +60,11 @@ Every operation supports these modifiers before execution:
 | `.timeout(Duration.ofSeconds(5))` | Sets a query timeout via `Statement.setQueryTimeout()` |
 | `.withListener(listener)` | Attaches a [QueryListener](./observability) to this specific operation |
 | `.map(row -> transform(row))` | Transforms the result after execution |
-| `.voided()` | Discards the result, returning `Operation<Void>` |
+| `.voided()` | Discards the result |
 
 ## Composing Operations
 
-Operations can be composed as values — combined, sequenced, and chained — so that multiple database actions run in a single transaction without manual connection handling. For the full set of combinators (`.combineWith()`, `.then()`, `Operation.sequence()`, `Operation.ifEmpty()`, and more), see [Composing Operations](./composing-operations).
+Operations can be composed as values — combined, sequenced, and chained — so that multiple database actions run in a single transaction without manual connection handling. For the full set of combinators (`.combineWith()`, `.then()`, `OperationRead.sequence()`, `OperationRead.ifEmpty()`, and more), see [Composing Operations](./composing-operations).
 
 Here's a quick taste — `.combineWith()` combines two independent operations:
 

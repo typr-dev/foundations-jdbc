@@ -2,7 +2,7 @@ package dev.typr.foundations;
 
 import static org.junit.Assert.*;
 
-import java.sql.Connection;
+import dev.typr.foundations.internal.ConnectionJdbc;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,23 +21,24 @@ public class StreamingQueryTest {
           .build(Item::new);
 
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    try (var conn = DriverManager.getConnection("jdbc:duckdb:")) {
-      conn.setAutoCommit(false);
+    try (var jdbcConn = DriverManager.getConnection("jdbc:duckdb:")) {
+      jdbcConn.setAutoCommit(false);
       try {
-        return f.apply(conn);
+        return f.apply(new ConnectionJdbc(jdbcConn));
       } finally {
-        conn.rollback();
+        jdbcConn.rollback();
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
 
-  private void createAndPopulate(Connection conn, String table, int count) throws SQLException {
-    conn.createStatement().execute("CREATE TABLE " + table + " (id INTEGER, name VARCHAR)");
+  private void createAndPopulate(Connection conn, String table, int count) {
+    Fragment.of("CREATE TABLE " + table + " (id INTEGER, name VARCHAR)").execute().run(conn);
     for (int i = 1; i <= count; i++) {
-      conn.createStatement()
-          .execute("INSERT INTO " + table + " VALUES (" + i + ", 'item" + i + "')");
+      Fragment.of("INSERT INTO " + table + " VALUES (" + i + ", 'item" + i + "')")
+          .execute()
+          .run(conn);
     }
   }
 
@@ -180,8 +181,8 @@ public class StreamingQueryTest {
     withConnection(
         conn -> {
           createAndPopulate(conn, "t9a", 2);
-          conn.createStatement().execute("CREATE TABLE t9b (id INTEGER, name VARCHAR)");
-          conn.createStatement().execute("INSERT INTO t9b VALUES (10, 'other1')");
+          Fragment.of("CREATE TABLE t9b (id INTEGER, name VARCHAR)").execute().run(conn);
+          Fragment.of("INSERT INTO t9b VALUES (10, 'other1')").execute().run(conn);
 
           var s1 =
               Fragment.of("SELECT id, name FROM t9a ORDER BY id").streamingQuery(itemCodec, 100);

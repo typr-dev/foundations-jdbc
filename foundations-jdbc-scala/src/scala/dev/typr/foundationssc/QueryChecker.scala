@@ -13,10 +13,8 @@ class QueryChecker(val underlying: dev.typr.foundations.QueryChecker):
     underlying.checkAll(analyzables.map(_.analyzable).asJava)
   def checkAll(analyzables: Analyzable*): CheckReport =
     checkAll(analyzables.toList)
-  def checkRoutine(definition: dev.typr.foundations.RoutineDef): Unit =
+  def checkRoutine(definition: RoutineDef): Unit =
     underlying.checkRoutine(definition)
-  def checkRoutine(procedure: dev.typr.foundations.Procedure[?]): Unit =
-    underlying.checkRoutine(procedure)
 
 object QueryChecker:
   def create(tx: Transactor): QueryChecker =

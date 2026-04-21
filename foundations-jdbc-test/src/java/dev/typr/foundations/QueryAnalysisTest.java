@@ -8,7 +8,6 @@ import dev.typr.foundations.data.Uint4;
 import dev.typr.foundations.data.Uint8;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ParameterMetaData;
 import java.sql.ResultSetMetaData;
@@ -58,7 +57,7 @@ public class QueryAnalysisTest {
   // Test helpers
   // ─────────────────────────────────────────────────────────────────────────────
 
-  private static <T> T withConnection(SqlFunction<Connection, T> f) {
+  private static <T> T withConnection(SqlFunction<java.sql.Connection, T> f) {
     try (var conn = DriverManager.getConnection("jdbc:duckdb:")) {
       conn.setAutoCommit(false);
       try {
@@ -67,7 +66,7 @@ public class QueryAnalysisTest {
         conn.rollback();
       }
     } catch (SQLException e) {
-      throw new DatabaseException(e);
+      throw new DatabaseException.Jdbc(e);
     }
   }
 
@@ -84,7 +83,7 @@ public class QueryAnalysisTest {
           RowCodec<Integer> parser = RowCodec.of(DuckDbTypes.integer);
 
           Fragment fragment = Fragment.of("SELECT id FROM users");
-          Operation.Query<List<Integer>> query = fragment.query(parser.all());
+          OperationRead.Query<List<Integer>> query = fragment.query(parser.all());
 
           QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
@@ -110,7 +109,7 @@ public class QueryAnalysisTest {
           Fragment fragment =
               Fragment.of("SELECT name FROM products WHERE id = ").value(DuckDbTypes.integer, 42);
 
-          Operation.Query<List<String>> query = fragment.query(parser.all());
+          OperationRead.Query<List<String>> query = fragment.query(parser.all());
 
           QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
@@ -133,7 +132,7 @@ public class QueryAnalysisTest {
                   .build(IntStr::new);
 
           Fragment fragment = Fragment.of("SELECT id FROM simple");
-          Operation.Query<List<IntStr>> query = fragment.query(parser.all());
+          OperationRead.Query<List<IntStr>> query = fragment.query(parser.all());
 
           QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
@@ -166,7 +165,7 @@ public class QueryAnalysisTest {
                   .build(IntStr::new);
 
           Fragment fragment = Fragment.of("SELECT id, name, active FROM multi");
-          Operation.Query<List<IntStr>> query = fragment.query(parser.all());
+          OperationRead.Query<List<IntStr>> query = fragment.query(parser.all());
 
           QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
@@ -198,7 +197,7 @@ public class QueryAnalysisTest {
                   .build(IntStr::new);
 
           Fragment fragment = Fragment.of("SELECT id, name FROM nullable_test");
-          Operation.Query<List<IntStr>> query = fragment.query(parser.all());
+          OperationRead.Query<List<IntStr>> query = fragment.query(parser.all());
 
           QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
@@ -225,7 +224,7 @@ public class QueryAnalysisTest {
                   .build(IntOptStr::new);
 
           Fragment fragment = Fragment.of("SELECT id, name FROM nullable_correct");
-          Operation.Query<List<IntOptStr>> query = fragment.query(parser.all());
+          OperationRead.Query<List<IntOptStr>> query = fragment.query(parser.all());
 
           QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
@@ -256,7 +255,7 @@ public class QueryAnalysisTest {
                   .build(IntInt::new);
 
           Fragment fragment = Fragment.of("SELECT id, ts FROM typed");
-          Operation.Query<List<IntInt>> query = fragment.query(parser.all());
+          OperationRead.Query<List<IntInt>> query = fragment.query(parser.all());
 
           QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 
@@ -292,7 +291,7 @@ public class QueryAnalysisTest {
                   .build(IntIntDouble::new);
 
           Fragment fragment = Fragment.of("SELECT a, b, c, d FROM report_test");
-          Operation.Query<List<IntIntDouble>> query = fragment.query(parser.all());
+          OperationRead.Query<List<IntIntDouble>> query = fragment.query(parser.all());
 
           QueryAnalysis analysis = QueryAnalyzer.analyze(query, conn).getFirst();
 

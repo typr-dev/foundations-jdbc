@@ -52,12 +52,12 @@ class RowCodec[Row](val underlying: dev.typr.foundations.RowCodec[Row]) {
 
   /** Create a DbJson codec that encodes rows as JSON arrays.
     */
-  def jsonArray(): dev.typr.foundations.DbJson[Row] =
+  def jsonArray(): DbJson[Row] =
     dev.typr.foundations.DbJsonRow.jsonArray(underlying)
 
   /** Create a DbJson codec that encodes rows as JSON objects with named fields.
     */
-  def jsonObject(columnNames: List[String]): dev.typr.foundations.DbJson[Row] =
+  def jsonObject(columnNames: List[String]): DbJson[Row] =
     import _root_.scala.jdk.CollectionConverters.*
     dev.typr.foundations.DbJsonRow.jsonObject(underlying, columnNames.asJava)
 }
@@ -100,7 +100,7 @@ class RowCodecNamed[Row](override val underlying: dev.typr.foundations.RowCodecN
   def to[Row2](forward: Row => Row2, backward: Row2 => Row): RowCodecNamed[Row2] =
     new RowCodecNamed(underlying.to(dev.typr.foundations.Bijection.of[Row, Row2](r => forward(r), r2 => backward(r2))))
 
-  def jsonObject(): dev.typr.foundations.DbJson[Row] =
+  def jsonObject(): DbJson[Row] =
     dev.typr.foundations.DbJsonRow.jsonObject(underlying)
 }
 

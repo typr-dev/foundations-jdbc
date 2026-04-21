@@ -2,6 +2,12 @@ package dev.typr.foundationskt
 
 import dev.typr.foundations.SqlFunction
 import dev.typr.foundations.DuckDbTypes as JavaDuckDbTypes
+import dev.typr.foundationskt.data.Json
+import dev.typr.foundationskt.data.Uint1
+import dev.typr.foundationskt.data.Uint2
+import dev.typr.foundationskt.data.Uint4
+import dev.typr.foundationskt.data.Uint8
+import dev.typr.foundationskt.data.Unknown
 
 /**
  * Kotlin-friendly DuckDbType instances that use Kotlin types instead of Java boxed types.
@@ -27,10 +33,10 @@ open class DuckDbTypes {
     open val decimal: DuckDbType<java.math.BigDecimal> = DuckDbType(JavaDuckDbTypes.decimal)
     open val numeric: DuckDbType<java.math.BigDecimal> = DuckDbType(JavaDuckDbTypes.numeric)
     open val hugeint: DuckDbType<java.math.BigInteger> = DuckDbType(JavaDuckDbTypes.hugeint)
-    open val utinyint: DuckDbType<dev.typr.foundations.data.Uint1> = DuckDbType(JavaDuckDbTypes.utinyint)
-    open val usmallint: DuckDbType<dev.typr.foundations.data.Uint2> = DuckDbType(JavaDuckDbTypes.usmallint)
-    open val uinteger: DuckDbType<dev.typr.foundations.data.Uint4> = DuckDbType(JavaDuckDbTypes.uinteger)
-    open val ubigint: DuckDbType<dev.typr.foundations.data.Uint8> = DuckDbType(JavaDuckDbTypes.ubigint)
+    open val utinyint: DuckDbType<Uint1> = DuckDbType(JavaDuckDbTypes.utinyint)
+    open val usmallint: DuckDbType<Uint2> = DuckDbType(JavaDuckDbTypes.usmallint)
+    open val uinteger: DuckDbType<Uint4> = DuckDbType(JavaDuckDbTypes.uinteger)
+    open val ubigint: DuckDbType<Uint8> = DuckDbType(JavaDuckDbTypes.ubigint)
     open val uhugeint: DuckDbType<java.math.BigInteger> = DuckDbType(JavaDuckDbTypes.uhugeint)
     open val real: DuckDbType<Float> = DuckDbType(JavaDuckDbTypes.real)
     open val float4: DuckDbType<Float> = DuckDbType(JavaDuckDbTypes.float4)
@@ -60,9 +66,9 @@ open class DuckDbTypes {
     open val timestamp_ns: DuckDbType<java.time.LocalDateTime> = DuckDbType(JavaDuckDbTypes.timestamp_ns)
     open val interval: DuckDbType<java.time.Duration> = DuckDbType(JavaDuckDbTypes.interval)
     open val uuid: DuckDbType<java.util.UUID> = DuckDbType(JavaDuckDbTypes.uuid)
-    open val json: DuckDbType<dev.typr.foundations.data.Json> = DuckDbType(JavaDuckDbTypes.json)
+    open val json: DuckDbType<Json> = DuckDbType(JavaDuckDbTypes.json)
     // Pre-defined array-of-T values removed; users call `.list()` or `.array(size)` on the scalar.
-    open val unknown: DuckDbType<dev.typr.foundations.data.Unknown> = DuckDbType(JavaDuckDbTypes.unknown)
+    open val unknown: DuckDbType<Unknown> = DuckDbType(JavaDuckDbTypes.unknown)
 
     // Parameterized methods
     open fun decimalOf(precision: Int, scale: Int): DuckDbType<java.math.BigDecimal> = DuckDbType(JavaDuckDbTypes.decimalOf(precision, scale))
@@ -107,9 +113,9 @@ open class DuckDbTypes {
 
     /** JSON codec for Map<K, V> that serializes as a JSON object. */
     open fun <K, V> mapJson(
-        keyJson: dev.typr.foundations.DuckDbJson<K>,
-        valueJson: dev.typr.foundations.DuckDbJson<V>
-    ): dev.typr.foundations.DuckDbJson<Map<K, V>> =
+        keyJson: DuckDbJson<K>,
+        valueJson: DuckDbJson<V>
+    ): DuckDbJson<Map<K, V>> =
         JavaDuckDbTypes.mapJson(keyJson, valueJson).transform(
             { jmap -> jmap.toMap() },
             { kmap -> kmap.toMap(java.util.HashMap()) }

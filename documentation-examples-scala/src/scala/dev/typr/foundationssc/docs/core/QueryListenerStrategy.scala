@@ -1,15 +1,12 @@
 package dev.typr.foundationssc.docs.core
 import dev.typr.foundationssc.*
-import dev.typr.foundationssc.data.*
 
-import dev.typr.foundations.{QueryListener, QueryEvent}
+import dev.typr.foundations.QueryListener
 
 @SuppressWarnings(Array("unused"))
 object QueryListenerStrategy:
+  val tx: Transactor = null // placeholder
   val logger: QueryListener = QueryListener.NOOP
   // start
-  val strategy: Transactor.Strategy =
-    Transactor
-      .defaultStrategy()
-      .replaceListener(logger)
+  val txWithListener: Transactor = tx.withListener(logger)
   // stop

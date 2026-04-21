@@ -7,13 +7,13 @@ object ScannerInstance:
   private val transactor: Transactor = null // placeholder
 
   class ExternalRepo:
-    val allItems: Operation[List[String]] =
+    val allItems: OperationRead[List[String]] =
       Fragment.of("SELECT name FROM items").queryAll(PgTypes.text)
 
-    def activeItems(): Operation[List[String]] =
+    def activeItems(): OperationRead[List[String]] =
       Fragment.of("SELECT name FROM items WHERE active").queryAll(PgTypes.text)
 
-    def generateReport(callback: Runnable): Operation[List[String]] =
+    def generateReport(callback: Runnable): OperationRead[List[String]] =
       Fragment.of("SELECT name FROM items").queryAll(PgTypes.text)
 
   // start

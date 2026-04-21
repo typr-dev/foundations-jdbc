@@ -144,6 +144,12 @@ package object data:
   type Xid = dev.typr.foundations.data.Xid
   object Xid:
     def apply(value: String): Xid = new dev.typr.foundations.data.Xid(value)
+  type Bit = dev.typr.foundations.data.Bit
+  object Bit:
+    def apply(value: String): Bit = new dev.typr.foundations.data.Bit(value)
+  type Varbit = dev.typr.foundations.data.Varbit
+  object Varbit:
+    def apply(value: String): Varbit = new dev.typr.foundations.data.Varbit(value)
   type Xml = dev.typr.foundations.data.Xml
   object Xml:
     def apply(value: String): Xml = new dev.typr.foundations.data.Xml(value)

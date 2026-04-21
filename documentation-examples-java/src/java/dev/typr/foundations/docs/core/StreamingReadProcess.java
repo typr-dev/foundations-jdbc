@@ -9,7 +9,7 @@ public class StreamingReadProcess {
   // start
   // Process rows lazily without loading all into memory
   long countExpensiveProducts() {
-    Operation<Cursor<Integer>> streaming =
+    OperationRead<Cursor<Integer>> streaming =
         Fragment.of("SELECT price FROM products").streamingQuery(PgTypes.int4, 512);
 
     return streaming
@@ -21,7 +21,7 @@ public class StreamingReadProcess {
               }
               return count;
             })
-        .transact(tx);
+        .transactRead(tx);
   }
   // stop
 }

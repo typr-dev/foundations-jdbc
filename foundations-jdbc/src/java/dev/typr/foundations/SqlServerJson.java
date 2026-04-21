@@ -34,7 +34,7 @@ public abstract class SqlServerJson<A> implements DbJson<A> {
         try {
           return f.apply(self.fromJson(jsonValue));
         } catch (java.sql.SQLException e) {
-          throw new DatabaseException(e);
+          throw new DatabaseException.Jdbc(e);
         }
       }
     };
@@ -75,7 +75,7 @@ public abstract class SqlServerJson<A> implements DbJson<A> {
         try {
           return fromJson.apply(jsonValue);
         } catch (java.sql.SQLException e) {
-          throw new DatabaseException(e);
+          throw new DatabaseException.Jdbc(e);
         }
       }
     };

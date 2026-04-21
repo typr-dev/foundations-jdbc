@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.Fragment;
-import dev.typr.foundations.Operation;
+import dev.typr.foundations.OperationRead;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
@@ -28,9 +28,9 @@ public class ComposingWith {
   Transactor tx = null; // placeholder
 
   // Combine two independent queries — both run in one transaction
-  Operation<Long> countUsers =
+  OperationRead<Long> countUsers =
       Fragment.of("SELECT count(*) FROM users").query(RowCodec.of(PgTypes.int8).exactlyOne());
-  Operation<List<Order>> recentOrders =
+  OperationRead<List<Order>> recentOrders =
       Fragment.of(
               """
               SELECT * FROM orders
@@ -39,13 +39,13 @@ public class ComposingWith {
           .query(orderCodec.all());
 
   Dashboard dashboard() {
-    return countUsers.combineWith(recentOrders, Dashboard::new).transact(tx);
+    return countUsers.combineWith(recentOrders, Dashboard::new).transactRead(tx);
   }
 
   // Three-way: all run in one transaction, results combined
-  Operation<Long> countOrders =
+  OperationRead<Long> countOrders =
       Fragment.of("SELECT count(*) FROM orders").query(RowCodec.of(PgTypes.int8).exactlyOne());
-  Operation<Long> totalRevenue =
+  OperationRead<Long> totalRevenue =
       Fragment.of(
               """
               SELECT coalesce(sum(amount), 0)
@@ -54,7 +54,7 @@ public class ComposingWith {
           .query(RowCodec.of(PgTypes.int8).exactlyOne());
 
   Stats stats() {
-    return countUsers.combineWith(countOrders, totalRevenue, Stats::new).transact(tx);
+    return countUsers.combineWith(countOrders, totalRevenue, Stats::new).transactRead(tx);
   }
   // stop
 }

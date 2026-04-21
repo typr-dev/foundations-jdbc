@@ -1,8 +1,8 @@
 package dev.typr.foundations.docs.core;
 
+import dev.typr.foundations.Connection;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 

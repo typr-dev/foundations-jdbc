@@ -8,7 +8,7 @@ import java.time.Duration
 @SuppressWarnings(Array("unused"))
 object OperationNamed:
   // start
-  val users: Operation[List[String]] =
+  val users: OperationRead[List[String]] =
     sql"SELECT name FROM users"
       .queryAll(PgTypes.text)
       .named("load-users")

@@ -14,7 +14,7 @@ object UserRepo {
             .field("name", PgTypes.text, User::name)
             .build(::User)
 
-    val selectAll: Operation<List<User>> =
+    val selectAll: OperationRead<List<User>> =
         sql { "SELECT ${userCodec.columnList} FROM users ORDER BY name" }
             .query(userCodec.all())
             .named("UserRepo.selectAll")

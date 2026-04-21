@@ -15,19 +15,19 @@ object ScannerMethods:
 
   // start
   // Fields — discovered automatically
-  val allCities: Operation[List[City]] =
+  val allCities: OperationRead[List[City]] =
     Fragment
       .of("SELECT id, name FROM cities")
       .query(cityCodec.all())
 
   // No-arg methods — discovered automatically
-  def activeCities(): Operation[List[City]] =
+  def activeCities(): OperationRead[List[City]] =
     Fragment
       .of("SELECT id, name FROM cities WHERE active")
       .query(cityCodec.all())
 
   // Methods with parameters — dummy arguments constructed automatically
-  def findByName(name: String): Operation[Option[City]] =
+  def findByName(name: String): OperationRead[Option[City]] =
     Fragment
       .of("SELECT id, name FROM cities WHERE name = ")
       .value(PgTypes.text, name)

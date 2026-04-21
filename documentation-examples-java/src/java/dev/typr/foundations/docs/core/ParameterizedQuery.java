@@ -14,7 +14,7 @@ public class ParameterizedQuery {
           .build(City::new);
 
   // start
-  static Operation<Optional<City>> findCityByName(String name) {
+  static OperationRead<Optional<City>> findCityByName(String name) {
     return Fragment.of("SELECT ")
         .append(cityCodec.columnList())
         .append(" FROM city WHERE name = ")

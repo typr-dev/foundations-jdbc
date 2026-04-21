@@ -1,5 +1,7 @@
 package dev.typr.foundations.connect;
 
+import dev.typr.foundations.TransactorJdbc;
+import dev.typr.foundations.internal.TransactorJdbcImpl;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
@@ -80,6 +82,11 @@ final class SimpleDataSource implements ConnectionSource {
     return settings;
   }
 
+  @Override
+  public TransactorJdbc transactor() {
+    return TransactorJdbcImpl.create(this, config::mapException);
+  }
+
   /**
    * A connection source that lazily creates a single connection and reuses it for all callers. Each
    * call to {@link #getConnection()} returns a non-closing proxy around the same underlying
@@ -106,6 +113,11 @@ final class SimpleDataSource implements ConnectionSource {
       } finally {
         lock.unlock();
       }
+    }
+
+    @Override
+    public TransactorJdbc transactor() {
+      return underlying.transactor();
     }
 
     private static Connection nonClosingProxy(Connection real) {

@@ -9,13 +9,13 @@ object ScannerDirectivesManual:
   case class ReportFilter(category: String, limit: Int)
 
   class ReportRepo:
-    def filteredReport(filter: ReportFilter): Operation[List[String]] =
+    def filteredReport(filter: ReportFilter): OperationRead[List[String]] =
       Fragment
         .of("SELECT name FROM reports WHERE category = ")
         .value(PgTypes.text, filter.category)
         .queryAll(PgTypes.text)
 
-    def allReports(): Operation[List[String]] =
+    def allReports(): OperationRead[List[String]] =
       Fragment.of("SELECT name FROM reports").queryAll(PgTypes.text)
 
   // start
