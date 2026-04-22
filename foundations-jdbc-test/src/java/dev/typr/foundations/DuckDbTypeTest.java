@@ -678,14 +678,14 @@ public class DuckDbTypeTest {
 
   // Connection helper for DuckDB - uses in-memory database
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    try (var conn = java.sql.DriverManager.getConnection("jdbc:duckdb:")) {
-      conn.setAutoCommit(false);
+    try (var jdbcConn = java.sql.DriverManager.getConnection("jdbc:duckdb:")) {
+      jdbcConn.setAutoCommit(false);
       // Create the enum type for testing
-      conn.createStatement().execute("CREATE TYPE color_enum AS ENUM ('RED', 'GREEN', 'BLUE')");
+      jdbcConn.createStatement().execute("CREATE TYPE color_enum AS ENUM ('RED', 'GREEN', 'BLUE')");
       try {
-        return f.apply(conn);
+        return f.apply(new dev.typr.foundations.internal.ConnectionJdbc(jdbcConn));
       } finally {
-        conn.rollback();
+        jdbcConn.rollback();
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -926,7 +926,7 @@ public class DuckDbTypeTest {
     // Test ARRAY size validation - DuckDB should reject wrong-sized arrays
     // Expected error: "Conversion Error: Cannot cast array of size 4 to array of size 5"
     System.out.println("ARRAY[5] with 4 values (expected: size mismatch error)");
-    try (Connection negConn = java.sql.DriverManager.getConnection("jdbc:duckdb:");
+    try (java.sql.Connection negConn = java.sql.DriverManager.getConnection("jdbc:duckdb:");
         Statement stmt = negConn.createStatement()) {
       stmt.execute("CREATE TABLE array_size_test (vec INTEGER[5])");
       stmt.execute("INSERT INTO array_size_test VALUES (array_value(1, 2, 3, 4)::INTEGER[5])");
@@ -991,11 +991,10 @@ public class DuckDbTypeTest {
     }
   }
 
-  static <A> void testQueryAnalysis(Connection conn, DuckDbTypeAndExample<A> t)
-      throws SQLException {
+  static <A> void testQueryAnalysis(Connection conn, DuckDbTypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("qa");
-    conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
+    Fragment.of("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")").execute().run(conn);
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
@@ -1005,16 +1004,16 @@ public class DuckDbTypeTest {
             "Query analysis failed for " + sqlType + ":\n" + analysis.report());
       }
     } finally {
-      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+      Fragment.of("DROP TABLE IF EXISTS " + tableName).execute().run(conn);
     }
   }
 
-  static <A> void testQueryAnalysisWithParam(Connection conn, DuckDbTypeAndExample<A> t)
-      throws SQLException {
+  static <A> void testQueryAnalysisWithParam(Connection conn, DuckDbTypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("qap");
-    conn.createStatement()
-        .execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
+    Fragment.of("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)")
+        .execute()
+        .run(conn);
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment =
@@ -1025,7 +1024,7 @@ public class DuckDbTypeTest {
             "Param analysis failed for " + sqlType + ":\n" + analysis.report());
       }
     } finally {
-      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+      Fragment.of("DROP TABLE IF EXISTS " + tableName).execute().run(conn);
     }
   }
 
@@ -1052,11 +1051,12 @@ public class DuckDbTypeTest {
   }
 
   static <A> void testCase(Connection conn, DuckDbTypeAndExample<A> t) throws SQLException {
+    var jdbc = conn.unwrap();
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("test_table");
 
     // Create temp table
-    conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
+    jdbc.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
 
     try {
       A expected = t.example;
@@ -1065,10 +1065,10 @@ public class DuckDbTypeTest {
       // Select and verify
       final PreparedStatement select;
       if (t.hasIdentity) {
-        select = conn.prepareStatement("SELECT v, NULL FROM " + tableName + " WHERE v = ?");
+        select = jdbc.prepareStatement("SELECT v, NULL FROM " + tableName + " WHERE v = ?");
         t.type.write().set(select, 1, expected);
       } else {
-        select = conn.prepareStatement("SELECT v, NULL FROM " + tableName);
+        select = jdbc.prepareStatement("SELECT v, NULL FROM " + tableName);
       }
 
       select.execute();
@@ -1090,7 +1090,7 @@ public class DuckDbTypeTest {
 
     } finally {
       // Drop temp table
-      conn.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
+      jdbc.createStatement().execute("DROP TABLE IF EXISTS " + tableName);
     }
   }
 
@@ -1172,7 +1172,8 @@ public class DuckDbTypeTest {
 
     withConnection(
         conn -> {
-          var stmt = conn.createStatement();
+          var jdbc = conn.unwrap();
+          var stmt = jdbc.createStatement();
           String tableName = uniqueTableName("union_list_test");
           stmt.execute(
               "CREATE TEMPORARY TABLE " + tableName + " (v UNION(num INTEGER, str VARCHAR)[])");

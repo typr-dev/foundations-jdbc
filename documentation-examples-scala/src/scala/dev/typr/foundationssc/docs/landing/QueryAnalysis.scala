@@ -21,7 +21,7 @@ object QueryAnalysisExample:
 
   // start
   // Your query looks fine at compile time...
-  val query: Operation.Query[List[User]] =
+  val query: OperationRead.Query[List[User]] =
     sql"""SELECT id, name, created_at, email
           FROM users
           WHERE active = ${PgTypes.bool(true)}"""

@@ -15,7 +15,7 @@ public class DuckDbArray {
   List<List<String>> getTagSets() {
     return Fragment.of("SELECT tags FROM posts WHERE published = true")
         .query(RowCodec.of(DuckDbTypes.varchar.list()).all())
-        .transact(tx);
+        .transactRead(tx);
   }
   // stop
 }

@@ -27,9 +27,9 @@ public interface PgTypes {
           PgRead.readBigDecimal,
           PgWrite.writeBigDecimal,
           PgText.textBigDecimal,
-          PgCompositeText.numeric,
           PgJson.numeric,
           PgOutParam.readBigDecimal,
+          PgBinary.textFallback(PgText.textBigDecimal),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -39,9 +39,9 @@ public interface PgTypes {
           PgRead.readBoolean,
           PgWrite.writeBoolean,
           PgText.textBoolean,
-          PgCompositeText.bool,
           PgJson.bool,
           PgOutParam.readBoolean,
+          PgBinary.textFallback(PgText.textBoolean),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -49,28 +49,30 @@ public interface PgTypes {
   PgType<Bit> bit = bitType("bit");
 
   static PgType<Bit> bitOf(int n) {
+    PgText<Bit> pgText = PgText.textString.bimap(Bit::new, Bit::value);
     return new PgType<>(
         PgTypename.of("bit", n),
         PgRead.bitString.map(Bit::new),
         PgWrite.pgObject("bit").contramap(Bit::value),
-        PgText.textString.contramap(Bit::value),
-        PgCompositeText.text.transform(Bit::new, Bit::value),
+        pgText,
         PgJson.bit,
         PgOutParam.bitString(Bit::new),
+        PgBinary.textFallback(pgText),
         AnalysisOptions.EMPTY,
         Optional.of(PgElementCodec.textParsed()),
         ',');
   }
 
   private static PgType<Bit> bitType(String sqlType) {
+    PgText<Bit> pgText = PgText.textString.bimap(Bit::new, Bit::value);
     return new PgType<>(
         PgTypename.of(sqlType),
         PgRead.bitString.map(Bit::new),
         PgWrite.pgObject("bit").contramap(Bit::value),
-        PgText.textString.contramap(Bit::value),
-        PgCompositeText.text.transform(Bit::new, Bit::value),
+        pgText,
         PgJson.bit,
         PgOutParam.bitString(Bit::new),
+        PgBinary.textFallback(pgText),
         AnalysisOptions.EMPTY,
         Optional.of(PgElementCodec.textParsed()),
         ',');
@@ -84,9 +86,9 @@ public interface PgTypes {
           PgRead.readDouble,
           PgWrite.writeDouble,
           PgText.textDouble,
-          PgCompositeText.float8,
           PgJson.float8,
           PgOutParam.readDouble,
+          PgBinary.textFallback(PgText.textDouble),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -97,9 +99,9 @@ public interface PgTypes {
           PgRead.readFloat,
           PgWrite.writeFloat,
           PgText.textFloat,
-          PgCompositeText.float4,
           PgJson.float4,
           PgOutParam.readFloat,
+          PgBinary.textFallback(PgText.textFloat),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -114,13 +116,15 @@ public interface PgTypes {
           PgTypename.of("timestamptz"),
           PgRead.readInstant,
           PgWrite.primitive((ps, i, v) -> ps.setObject(i, v.atOffset(ZoneOffset.UTC))),
-          PgText.instance(
-              (t, sb) -> sb.append(t.atOffset(ZoneOffset.UTC).toString().replace('T', ' '))),
-          PgCompositeText.of(
-              t -> t.atOffset(ZoneOffset.UTC).toString().replace('T', ' '),
+          PgText.codec(
+              (t, sb) -> sb.append(t.atOffset(ZoneOffset.UTC).toString().replace('T', ' ')),
               text -> OffsetDateTime.parse(text.replace(' ', 'T')).toInstant()),
           PgJson.timestamptz,
           PgOutParam.readInstant,
+          PgBinary.textFallback(
+              PgText.codec(
+                  (t, sb) -> sb.append(t.atOffset(ZoneOffset.UTC).toString().replace('T', ' ')),
+                  text -> OffsetDateTime.parse(text.replace(' ', 'T')).toInstant())),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.of(obj -> ((java.sql.Timestamp) obj).toInstant())),
           ',');
@@ -132,9 +136,9 @@ public interface PgTypes {
           PgRead.readInteger,
           PgWrite.writeInteger,
           PgText.textInteger,
-          PgCompositeText.int4,
           PgJson.int4,
           PgOutParam.readInteger,
+          PgBinary.textFallback(PgText.textInteger),
           AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("serial")),
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -150,10 +154,10 @@ public interface PgTypes {
           PgTypename.of("date"),
           PgRead.readLocalDate,
           PgWrite.passObjectToJdbc(),
-          PgText.instance((d, sb) -> sb.append(d.toString())),
-          PgCompositeText.of(LocalDate::toString, LocalDate::parse),
+          PgText.codec((d, sb) -> sb.append(d.toString()), LocalDate::parse),
           PgJson.date,
           PgOutParam.readLocalDate,
+          PgBinary.textFallback(PgText.codec((d, sb) -> sb.append(d.toString()), LocalDate::parse)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.of(obj -> ((java.sql.Date) obj).toLocalDate())),
           ',');
@@ -162,12 +166,15 @@ public interface PgTypes {
           PgTypename.of("timestamp"),
           PgRead.readLocalDateTime,
           PgWrite.passObjectToJdbc(),
-          PgText.instance((t, sb) -> sb.append(t.toString().replace('T', ' '))),
-          PgCompositeText.of(
-              t -> t.toString().replace('T', ' '),
+          PgText.codec(
+              (t, sb) -> sb.append(t.toString().replace('T', ' ')),
               text -> LocalDateTime.parse(text.replace(' ', 'T'))),
           PgJson.timestamp,
           PgOutParam.readLocalDateTime,
+          PgBinary.textFallback(
+              PgText.codec(
+                  (t, sb) -> sb.append(t.toString().replace('T', ' ')),
+                  text -> LocalDateTime.parse(text.replace(' ', 'T')))),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.of(obj -> ((java.sql.Timestamp) obj).toLocalDateTime())),
           ',');
@@ -176,10 +183,10 @@ public interface PgTypes {
           PgTypename.of("time"),
           PgRead.readLocalTime,
           PgWrite.passObjectToJdbc(),
-          PgText.instance((t, sb) -> sb.append(t.toString())),
-          PgCompositeText.of(LocalTime::toString, LocalTime::parse),
+          PgText.codec((t, sb) -> sb.append(t.toString()), LocalTime::parse),
           PgJson.time,
           PgOutParam.readLocalTime,
+          PgBinary.textFallback(PgText.codec((t, sb) -> sb.append(t.toString()), LocalTime::parse)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.textParsed()),
           ',');
@@ -189,9 +196,9 @@ public interface PgTypes {
           PgRead.readLong,
           PgWrite.writeLong,
           PgText.textLong,
-          PgCompositeText.int8,
           PgJson.int8,
           PgOutParam.readLong,
+          PgBinary.textFallback(PgText.textLong),
           AnalysisOptions.EMPTY.withVendorTypeNames(PgTypename.of("bigserial")),
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -201,10 +208,10 @@ public interface PgTypes {
           PgTypename.of("oid"),
           PgRead.readLong.map(Oid::new),
           PgWrite.writeLong.contramap(Oid::value),
-          PgText.instance((o, sb) -> sb.append(o.value())),
-          PgCompositeText.int8.transform(Oid::new, Oid::value),
+          PgText.textLong.bimap(Oid::new, Oid::value),
           PgJson.text.transform(s -> new Oid(Long.parseLong(s)), o -> Long.toString(o.value())),
           PgOutParam.readLong.map(Oid::new),
+          PgBinary.textFallback(PgText.textLong.bimap(Oid::new, Oid::value)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.of(obj -> new Oid(((Number) obj).longValue()))),
           ',');
@@ -215,9 +222,9 @@ public interface PgTypes {
           PgRead.readMapStringString,
           PgWrite.passObjectToJdbc(),
           PgText.textMapStringString,
-          PgCompositeText.hstore,
           PgJson.hstore,
           PgOutParam.readMapStringString,
+          PgBinary.textFallback(PgText.textMapStringString),
           AnalysisOptions.EMPTY,
           Optional.empty(),
           ',');
@@ -226,10 +233,10 @@ public interface PgTypes {
           PgTypename.of("money"),
           PgRead.readDouble.map(Money::new),
           PgWrite.pgObject("money").contramap(m -> String.valueOf(m.value())),
-          PgText.textDouble.contramap(Money::value),
-          PgCompositeText.money,
+          PgText.codec((m, sb) -> sb.append(m.value()), Money::new),
           PgJson.money,
           PgOutParam.readDouble.map(Money::new),
+          PgBinary.textFallback(PgText.codec((m, sb) -> sb.append(m.value()), Money::new)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.textParsed()),
           ',');
@@ -239,9 +246,9 @@ public interface PgTypes {
           PgRead.readString,
           PgWrite.writeString,
           PgText.textString,
-          PgCompositeText.text,
           PgJson.text,
           PgOutParam.readString,
+          PgBinary.textFallback(PgText.textString),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -250,10 +257,11 @@ public interface PgTypes {
           PgTypename.of("timetz"),
           PgRead.readOffsetTime,
           PgWrite.passObjectToJdbc(),
-          PgText.instance((t, sb) -> sb.append(t.toString())),
-          PgCompositeText.timetz,
+          PgText.codec((t, sb) -> sb.append(t.toString()), PgTypes::parseTimetz),
           PgJson.timetz,
           PgOutParam.readOffsetTime,
+          PgBinary.textFallback(
+              PgText.codec((t, sb) -> sb.append(t.toString()), PgTypes::parseTimetz)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.textParsed()),
           ',');
@@ -264,10 +272,10 @@ public interface PgTypes {
           PgTypename.of("interval"),
           PgRead.castJdbcObjectTo(PGInterval.class),
           PgWrite.passObjectToJdbc(),
-          PgText.textPGobject(),
-          PgCompositeText.interval,
+          PgText.textPGobject(PGInterval::new),
           PgJson.interval,
           PgOutParam.castTo(PGInterval.class),
+          PgBinary.textFallback(PgText.textPGobject(PGInterval::new)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -276,10 +284,10 @@ public interface PgTypes {
           PgTypename.of("box"),
           PgRead.castJdbcObjectTo(PGbox.class),
           PgWrite.passObjectToJdbc(),
-          PgText.textPGobject(),
-          PgCompositeText.box,
+          PgText.textPGobject(PGbox::new),
           PgJson.box,
           PgOutParam.castTo(PGbox.class),
+          PgBinary.textFallback(PgText.textPGobject(PGbox::new)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ';');
@@ -288,10 +296,10 @@ public interface PgTypes {
           PgTypename.of("circle"),
           PgRead.castJdbcObjectTo(PGcircle.class),
           PgWrite.passObjectToJdbc(),
-          PgText.textPGobject(),
-          PgCompositeText.circle,
+          PgText.textPGobject(PGcircle::new),
           PgJson.circle,
           PgOutParam.castTo(PGcircle.class),
+          PgBinary.textFallback(PgText.textPGobject(PGcircle::new)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ';');
@@ -300,10 +308,10 @@ public interface PgTypes {
           PgTypename.of("line"),
           PgRead.castJdbcObjectTo(PGline.class),
           PgWrite.passObjectToJdbc(),
-          PgText.textPGobject(),
-          PgCompositeText.line,
+          PgText.textPGobject(PGline::new),
           PgJson.line,
           PgOutParam.castTo(PGline.class),
+          PgBinary.textFallback(PgText.textPGobject(PGline::new)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ';');
@@ -312,10 +320,10 @@ public interface PgTypes {
           PgTypename.of("lseg"),
           PgRead.castJdbcObjectTo(PGlseg.class),
           PgWrite.passObjectToJdbc(),
-          PgText.textPGobject(),
-          PgCompositeText.lseg,
+          PgText.textPGobject(PGlseg::new),
           PgJson.lseg,
           PgOutParam.castTo(PGlseg.class),
+          PgBinary.textFallback(PgText.textPGobject(PGlseg::new)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ';');
@@ -324,10 +332,10 @@ public interface PgTypes {
           PgTypename.of("path"),
           PgRead.castJdbcObjectTo(PGpath.class),
           PgWrite.passObjectToJdbc(),
-          PgText.textPGobject(),
-          PgCompositeText.path,
+          PgText.textPGobject(PGpath::new),
           PgJson.path,
           PgOutParam.castTo(PGpath.class),
+          PgBinary.textFallback(PgText.textPGobject(PGpath::new)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ';');
@@ -336,10 +344,10 @@ public interface PgTypes {
           PgTypename.of("point"),
           PgRead.castJdbcObjectTo(PGpoint.class),
           PgWrite.passObjectToJdbc(),
-          PgText.textPGobject(),
-          PgCompositeText.point,
+          PgText.textPGobject(PGpoint::new),
           PgJson.point,
           PgOutParam.castTo(PGpoint.class),
+          PgBinary.textFallback(PgText.textPGobject(PGpoint::new)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ';');
@@ -348,10 +356,10 @@ public interface PgTypes {
           PgTypename.of("polygon"),
           PgRead.castJdbcObjectTo(PGpolygon.class),
           PgWrite.passObjectToJdbc(),
-          PgText.textPGobject(),
-          PgCompositeText.polygon,
+          PgText.textPGobject(PGpolygon::new),
           PgJson.polygon,
           PgOutParam.castTo(PGpolygon.class),
+          PgBinary.textFallback(PgText.textPGobject(PGpolygon::new)),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ';');
@@ -383,9 +391,9 @@ public interface PgTypes {
           PgRead.readShort,
           PgWrite.writeShort,
           PgText.textShort,
-          PgCompositeText.int2,
           PgJson.int2,
           PgOutParam.readShort,
+          PgBinary.textFallback(PgText.textShort),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -402,9 +410,9 @@ public interface PgTypes {
           PgRead.readString,
           PgWrite.writeString,
           PgText.textString,
-          PgCompositeText.text,
           PgJson.text,
           PgOutParam.readString,
+          PgBinary.textFallback(PgText.textString),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -414,9 +422,9 @@ public interface PgTypes {
           PgRead.readString,
           PgWrite.writeString,
           PgText.textString,
-          PgCompositeText.text,
           PgJson.text,
           PgOutParam.readString,
+          PgBinary.textFallback(PgText.textString),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -426,9 +434,9 @@ public interface PgTypes {
           PgRead.readUUID,
           PgWrite.writeUUID,
           PgText.textUuid,
-          PgCompositeText.uuid,
           PgJson.uuid,
           PgOutParam.readUUID,
+          PgBinary.textFallback(PgText.textUuid),
           AnalysisOptions.EMPTY,
           Optional.of(PgElementCodec.cast()),
           ',');
@@ -439,9 +447,9 @@ public interface PgTypes {
               PgRead.readString,
               PgWrite.pgObject("xml"),
               PgText.textString,
-              PgCompositeText.text,
               PgJson.text,
               PgOutParam.readString,
+              PgBinary.textFallback(PgText.textString),
               AnalysisOptions.EMPTY,
               Optional.of(PgElementCodec.of(obj -> ((PGobject) obj).getValue())),
               ',')
@@ -452,9 +460,9 @@ public interface PgTypes {
               PgRead.readString,
               PgWrite.pgObject("vector"),
               PgText.textString,
-              PgCompositeText.text,
               PgJson.text,
               PgOutParam.readString,
+              PgBinary.textFallback(PgText.textString),
               AnalysisOptions.EMPTY,
               Optional.of(PgElementCodec.of(obj -> ((PGobject) obj).getValue())),
               ',')
@@ -465,9 +473,9 @@ public interface PgTypes {
               PgRead.readString,
               PgWrite.pgObject("unknown"),
               PgText.textString,
-              PgCompositeText.text,
               PgJson.text,
               PgOutParam.readString,
+              PgBinary.textFallback(PgText.textString),
               AnalysisOptions.EMPTY,
               Optional.<PgElementCodec<String>>empty(),
               ',')
@@ -478,9 +486,9 @@ public interface PgTypes {
           PgRead.readByteArray,
           PgWrite.writeByteArray,
           PgText.textByteArray,
-          PgCompositeText.bytea,
           PgJson.bytea,
           PgOutParam.readByteArray,
+          PgBinary.textFallback(PgText.textByteArray),
           AnalysisOptions.EMPTY,
           Optional.empty(),
           ',');
@@ -523,17 +531,33 @@ public interface PgTypes {
 
   private static <E> PgType<E> ofEnumImpl(
       String sqlType, Function<String, E> fromString, Function<E, String> name) {
+    PgText<E> pgText = PgText.textString.bimap(fromString::apply, name::apply);
     return new PgType<>(
         PgTypename.of(sqlType),
         PgRead.readString.map(fromString::apply),
         PgWrite.writeString.contramap(name::apply),
-        PgText.textString.contramap(name::apply),
-        PgCompositeText.text.transform(fromString::apply, name::apply),
+        pgText,
         PgJson.text.transform(fromString::apply, name::apply),
         PgOutParam.readString.map(fromString::apply),
+        PgBinary.textFallback(pgText),
         AnalysisOptions.EMPTY,
         Optional.of(PgElementCodec.fromString(fromString::apply)),
         ',');
+  }
+
+  private static OffsetTime parseTimetz(String text) {
+    // PG sends timetz as e.g. "10:30:45.123456+00" — Java's OffsetTime.parse requires
+    // full offset format "+00:00". Normalize PG's short offset format.
+    int plusIdx = text.lastIndexOf('+');
+    int minusIdx = text.lastIndexOf('-');
+    int offsetStart = Math.max(plusIdx, minusIdx);
+    if (offsetStart > 0) {
+      String offset = text.substring(offsetStart);
+      if (!offset.contains(":")) {
+        text = text.substring(0, offsetStart) + offset + ":00";
+      }
+    }
+    return OffsetTime.parse(text);
   }
 
   private static <E> Function<String, E> enumFromString(E[] values, Function<E, String> name) {
@@ -551,22 +575,23 @@ public interface PgTypes {
       SqlFunction<String, T> constructor,
       Function<T, String> extractor,
       PgJson<T> json) {
+    Function<String, T> uncheckedConstructor =
+        s -> {
+          try {
+            return constructor.apply(s);
+          } catch (java.sql.SQLException e) {
+            throw new DatabaseException.Jdbc(e);
+          }
+        };
+    PgText<T> pgText = PgText.textString.bimap(uncheckedConstructor, extractor);
     return new PgType<>(
         PgTypename.of(sqlType),
         PgRead.pgObject(sqlType).map(constructor),
         PgWrite.pgObject(sqlType).contramap(extractor),
-        PgText.textString.contramap(extractor),
-        PgCompositeText.text.transform(
-            s -> {
-              try {
-                return constructor.apply(s);
-              } catch (java.sql.SQLException e) {
-                throw new DatabaseException(e);
-              }
-            },
-            extractor),
+        pgText,
         json,
         PgOutParam.pgObject(constructor),
+        PgBinary.textFallback(pgText),
         AnalysisOptions.EMPTY,
         Optional.of(PgElementCodec.pgObject(constructor)),
         ',');
@@ -580,14 +605,24 @@ public interface PgTypes {
   }
 
   static <T extends PGobject> PgType<T> pgObject(String sqlType, Class<T> clazz, PgJson<T> json) {
+    SqlFunction<String, T> constructor =
+        value -> {
+          try {
+            T obj = clazz.getDeclaredConstructor(String.class).newInstance(value);
+            return obj;
+          } catch (ReflectiveOperationException e) {
+            throw new java.sql.SQLException("Failed to construct " + clazz.getSimpleName(), e);
+          }
+        };
+    PgText<T> pgText = PgText.textPGobject(constructor);
     return new PgType<>(
         PgTypename.of(sqlType),
         PgRead.castJdbcObjectTo(clazz),
         PgWrite.passObjectToJdbc(),
-        PgText.textPGobject(),
-        PgCompositeText.notSupported(),
+        pgText,
         json,
         PgOutParam.castTo(clazz),
+        PgBinary.textFallback(pgText),
         AnalysisOptions.EMPTY,
         Optional.of(PgElementCodec.cast()),
         ',');
@@ -599,9 +634,9 @@ public interface PgTypes {
         PgRead.readString,
         PgWrite.writeString,
         PgText.textString,
-        PgCompositeText.text,
         PgJson.text,
         PgOutParam.readString,
+        PgBinary.textFallback(PgText.textString),
         AnalysisOptions.EMPTY,
         Optional.of(PgElementCodec.cast()),
         ',');
@@ -612,22 +647,23 @@ public interface PgTypes {
       SqlFunction<String, T> valueParser,
       java.util.function.BiFunction<RangeBound<T>, RangeBound<T>, Range<T>> rangeFactory,
       PgJson<Range<T>> json) {
+    Function<String, Range<T>> parseRange =
+        str -> {
+          try {
+            return RangeParser.parse(str, valueParser, rangeFactory);
+          } catch (java.sql.SQLException e) {
+            throw new DatabaseException.Jdbc(e);
+          }
+        };
+    PgText<Range<T>> pgText = PgText.textString.bimap(parseRange, RangeParser::format);
     return new PgType<>(
         PgTypename.of(sqlType),
         PgRead.pgObject(sqlType).map(str -> RangeParser.parse(str, valueParser, rangeFactory)),
         PgWrite.pgObject(sqlType).contramap(RangeParser::format),
-        PgText.textString.contramap(RangeParser::format),
-        PgCompositeText.of(
-            RangeParser::format,
-            str -> {
-              try {
-                return RangeParser.parse(str, valueParser, rangeFactory);
-              } catch (java.sql.SQLException e) {
-                throw new DatabaseException(e);
-              }
-            }),
+        pgText,
         json,
         PgOutParam.pgObject(str -> RangeParser.parse(str, valueParser, rangeFactory)),
+        PgBinary.textFallback(pgText),
         AnalysisOptions.EMPTY,
         Optional.of(
             PgElementCodec.of(
@@ -636,7 +672,7 @@ public interface PgTypes {
                     return RangeParser.parse(
                         ((PGobject) obj).getValue(), valueParser, rangeFactory);
                   } catch (java.sql.SQLException e) {
-                    throw new DatabaseException(e);
+                    throw new DatabaseException.Jdbc(e);
                   }
                 })),
         ',');
@@ -691,7 +727,7 @@ public interface PgTypes {
         text -> {
           List<String> parsedFields = PgRecordParser.parse(text);
           if (parsedFields.size() != pgColumns.size()) {
-            throw new DatabaseException(
+            throw new DatabaseException.Jdbc(
                 new java.sql.SQLException(
                     "Field count mismatch: expected "
                         + pgColumns.size()
@@ -747,7 +783,7 @@ public interface PgTypes {
               try {
                 pgObj.setValue(encodeToText.apply(value));
               } catch (java.sql.SQLException e) {
-                throw new DatabaseException("Failed to encode composite type", e);
+                throw new DatabaseException.Jdbc("Failed to encode composite type", e);
               }
               return pgObj;
             });
@@ -763,17 +799,14 @@ public interface PgTypes {
           public void unsafeArrayEncode(Row value, StringBuilder sb) {
             unsafeEncode(value, sb);
           }
-        };
 
-    PgCompositeText<Row> pgCompositeText =
-        new PgCompositeText<>() {
           @Override
-          public Optional<String> encode(Row value) {
-            return Optional.of(encodeToText.apply(value));
+          public void wireEncode(Row value, StringBuilder sb) {
+            sb.append(encodeToText.apply(value));
           }
 
           @Override
-          public Row decode(String text) {
+          public Row wireDecode(String text) {
             return parseFromText.apply(text);
           }
         };
@@ -816,9 +849,9 @@ public interface PgTypes {
         pgRead,
         pgWrite,
         pgText,
-        pgCompositeText,
         pgJson,
         pgOutParam,
+        PgBinary.textFallback(pgText),
         AnalysisOptions.EMPTY,
         Optional.of(PgElementCodec.of(obj -> parseFromText.apply(obj.toString()))),
         ',');

@@ -2,8 +2,8 @@ package dev.typr.foundations;
 
 import static org.junit.Assert.*;
 
+import dev.typr.foundations.internal.ConnectionJdbc;
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
@@ -30,15 +30,18 @@ public class OptionallyTest {
 
   @Test
   public void testBooleanOptionally() throws SQLException {
-    try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
+    try (java.sql.Connection jdbcConn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement()
+      jdbcConn
+          .createStatement()
           .execute(
               "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
-      conn.createStatement()
+      jdbcConn
+          .createStatement()
           .execute(
               "INSERT INTO " + table + " VALUES ('Widget', 9.99, true), ('Gadget', 19.99, false)");
 
+      var conn = new ConnectionJdbc(jdbcConn);
       var template =
           Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
               .optionally(Fragment.of(" AND active = true"))
@@ -56,18 +59,21 @@ public class OptionallyTest {
 
   @Test
   public void testSingleParamOptionally() throws SQLException {
-    try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
+    try (java.sql.Connection jdbcConn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement()
+      jdbcConn
+          .createStatement()
           .execute(
               "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
-      conn.createStatement()
+      jdbcConn
+          .createStatement()
           .execute(
               "INSERT INTO "
                   + table
                   + " VALUES ('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00,"
                   + " true)");
 
+      var conn = new ConnectionJdbc(jdbcConn);
       var template =
           Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
               .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
@@ -85,18 +91,21 @@ public class OptionallyTest {
 
   @Test
   public void testMultipleOptionally() throws SQLException {
-    try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
+    try (java.sql.Connection jdbcConn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement()
+      jdbcConn
+          .createStatement()
           .execute(
               "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
-      conn.createStatement()
+      jdbcConn
+          .createStatement()
           .execute(
               "INSERT INTO "
                   + table
                   + " VALUES "
                   + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
 
+      var conn = new ConnectionJdbc(jdbcConn);
       var template =
           Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
               .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
@@ -121,18 +130,21 @@ public class OptionallyTest {
 
   @Test
   public void testMixedParamAndOptionally() throws SQLException {
-    try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
+    try (java.sql.Connection jdbcConn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement()
+      jdbcConn
+          .createStatement()
           .execute(
               "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
-      conn.createStatement()
+      jdbcConn
+          .createStatement()
           .execute(
               "INSERT INTO "
                   + table
                   + " VALUES "
                   + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
 
+      var conn = new ConnectionJdbc(jdbcConn);
       var template =
           Fragment.of("SELECT name, price, active FROM " + table + " WHERE active = ")
               .param(DuckDbTypes.boolean_)
@@ -151,18 +163,21 @@ public class OptionallyTest {
 
   @Test
   public void testTwoParamOptionally() throws SQLException {
-    try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
+    try (java.sql.Connection jdbcConn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
-      conn.createStatement()
+      jdbcConn
+          .createStatement()
           .execute(
               "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
-      conn.createStatement()
+      jdbcConn
+          .createStatement()
           .execute(
               "INSERT INTO "
                   + table
                   + " VALUES "
                   + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
 
+      var conn = new ConnectionJdbc(jdbcConn);
       var decType = DuckDbTypes.decimalOf(10, 2);
       var template =
           Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
@@ -186,7 +201,7 @@ public class OptionallyTest {
 
   @Test
   public void testAnalysisVariants() throws SQLException {
-    try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
+    try (java.sql.Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
       conn.createStatement()
           .execute(
@@ -213,7 +228,7 @@ public class OptionallyTest {
 
   @Test
   public void testAnalysisWithOptionallyProducesCorrectVariantCount() throws SQLException {
-    try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
+    try (java.sql.Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
       conn.createStatement()
           .execute(

@@ -20,11 +20,9 @@ object ComposingAllOf:
       .update()
 
   def createUserWithAudit(): Unit =
-    Operation
-      .allOf(
-        insertUser,
-        insertAudit,
-        updateStats
-      )
+    insertUser
+      .combine(insertAudit)
+      .combine(updateStats)
+      .voided()
       .transact(tx)
   // stop

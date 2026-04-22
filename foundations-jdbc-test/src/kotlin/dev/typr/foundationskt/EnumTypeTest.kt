@@ -13,17 +13,17 @@ class EnumTypeTest {
         val statusType = DuckDbTypes.ofEnum<Status>("status")
         val tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor()
 
-        tx.transact { conn ->
-            Fragment.of("CREATE TYPE status AS ENUM('PENDING', 'ACTIVE', 'COMPLETED')").execute().run(conn)
-            Fragment.of("CREATE TABLE eval_enum_test (id INTEGER, status status)").execute().run(conn)
+        tx.transact { mc ->
+            Fragment.of("CREATE TYPE status AS ENUM('PENDING', 'ACTIVE', 'COMPLETED')").execute().run(mc)
+            Fragment.of("CREATE TABLE eval_enum_test (id INTEGER, status status)").execute().run(mc)
             Fragment.of("INSERT INTO eval_enum_test VALUES (1, ")
                 .value(statusType, Status.ACTIVE)
                 .append(")")
-                .execute().run(conn)
+                .execute().run(mc)
 
             val result = Fragment.of("SELECT status FROM eval_enum_test WHERE id = 1")
                 .queryExactlyOne(statusType)
-                .run(conn)
+                .run(mc)
 
             assertEquals(Status.ACTIVE, result)
         }
@@ -55,17 +55,17 @@ class EnumTypeTest {
         val statusType = DuckDbTypes.ofEnum("status", Status.values())
         val tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor()
 
-        tx.transact { conn ->
-            Fragment.of("CREATE TYPE status AS ENUM('PENDING', 'ACTIVE', 'COMPLETED')").execute().run(conn)
-            Fragment.of("CREATE TABLE eval_enum_test2 (id INTEGER, status status)").execute().run(conn)
+        tx.transact { mc ->
+            Fragment.of("CREATE TYPE status AS ENUM('PENDING', 'ACTIVE', 'COMPLETED')").execute().run(mc)
+            Fragment.of("CREATE TABLE eval_enum_test2 (id INTEGER, status status)").execute().run(mc)
             Fragment.of("INSERT INTO eval_enum_test2 VALUES (1, ")
                 .value(statusType, Status.COMPLETED)
                 .append(")")
-                .execute().run(conn)
+                .execute().run(mc)
 
             val result = Fragment.of("SELECT status FROM eval_enum_test2 WHERE id = 1")
                 .queryExactlyOne(statusType)
-                .run(conn)
+                .run(mc)
 
             assertEquals(Status.COMPLETED, result)
         }

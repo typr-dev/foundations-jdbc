@@ -18,19 +18,18 @@ class ManualTransaction {
     lateinit var tx: Transactor
 
     //start
-    val countUsers: Operation<Long> =
+    val countUsers: OperationRead<Long> =
         sql { "SELECT count(*) FROM users" }
             .query(RowCodec.of(PgTypes.int8).exactlyOne())
-    val recentOrders: Operation<List<Order>> =
+    val recentOrders: OperationRead<List<Order>> =
         sql { "SELECT * FROM orders ORDER BY id DESC LIMIT 10" }
             .query(orderCodec.all())
 
-    // Run both in one transaction using the connection directly
-    fun dashboard(): Dashboard =
-        tx.transact { conn ->
-            val count = countUsers.run(conn)
-            val orders = recentOrders.run(conn)
-            Dashboard(count, orders)
-        }
+    // Run both in one transaction using a transact block
+    fun dashboard(): Dashboard = tx.transact { mc ->
+        val count = countUsers.run(mc)
+        val orders = recentOrders.run(mc)
+        Dashboard(count, orders)
+    }
     //stop
 }

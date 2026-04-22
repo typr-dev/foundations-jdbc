@@ -19,5 +19,5 @@ object OtelSetup:
   val otelListener: QueryListener =
     OtelQueryListener.create(GlobalOpenTelemetry.get(), telemetryConfig)
 
-  val tx = Transactor.create(config, Transactor.defaultStrategy().mergeListener(otelListener))
+  val tx = Transactor.create(config).withListener(otelListener)
   // stop

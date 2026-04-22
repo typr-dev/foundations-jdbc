@@ -189,19 +189,19 @@ open class RowCodec<Row : Any>(open val underlying: dev.typr.foundations.RowCode
     /**
      * Create a PgText encoder for streaming COPY operations.
      */
-    fun pgText(): dev.typr.foundations.PgText<Row> =
+    fun pgText(): PgText<Row> =
         dev.typr.foundations.PgText.from(underlying)
 
     /**
      * Create a DbJson codec that encodes rows as JSON arrays.
      */
-    fun jsonArray(): dev.typr.foundations.DbJson<Row> =
+    fun jsonArray(): DbJson<Row> =
         dev.typr.foundations.DbJsonRow.jsonArray(underlying)
 
     /**
      * Create a DbJson codec that encodes rows as JSON objects with named fields.
      */
-    fun jsonObject(columnNames: List<String>): dev.typr.foundations.DbJson<Row> =
+    fun jsonObject(columnNames: List<String>): DbJson<Row> =
         dev.typr.foundations.DbJsonRow.jsonObject(underlying, columnNames)
 }
 
@@ -268,6 +268,6 @@ class RowCodecNamed<Row : Any>(
         RowCodecNamed(underlying.to(dev.typr.foundations.Bijection.of(
             { forward(it) }, { backward(it) })))
 
-    fun jsonObject(): dev.typr.foundations.DbJson<Row> =
+    fun jsonObject(): DbJson<Row> =
         dev.typr.foundations.DbJsonRow.jsonObject(underlying)
 }

@@ -14,18 +14,18 @@ A `QueryListener` receives callbacks before and after every query. Implement the
 
 <Snippet file="core/QueryListenerBasic" />
 
-### Attaching to a Strategy
+### Attaching to a Transactor
 
-Attach a listener to a `Strategy` so all operations through that transactor are observed:
+Attach a listener to a `Transactor` so all operations are observed:
 
-<Snippet file="core/QueryListenerStrategy" />
+<Snippet file="core/TransactorListener" />
 
 ### Per-Operation Listeners
 
 You can also attach a listener to a specific operation:
 
 ```java
-operation.withListener(myListener).transact(tx);
+operation.withListener(myListener).transactRead(tx);
 ```
 
 ## Named Operations
@@ -44,7 +44,7 @@ For composite operations (e.g. `a.combine(b).named("dashboard")`), each leaf que
 Fragment.of("SELECT * FROM large_table")
     .query(codec.all())
     .timeout(Duration.ofSeconds(10))
-    .transact(tx);
+    .transactRead(tx);
 ```
 
 ## Interpolated SQL
@@ -53,7 +53,7 @@ Fragment.of("SELECT * FROM large_table")
 
 <Snippet file="core/InterpolatedSql" />
 
-For strategy merging and per-transaction overrides, see [Transactors — Strategies](./transactors#strategies).
+For listener configuration, see [Listener & Test Mode](./strategies).
 
 ## Patterns
 

@@ -2,6 +2,7 @@ package dev.typr.foundations.docs.analysis;
 
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.Operation;
+import dev.typr.foundations.OperationRead;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
@@ -28,11 +29,11 @@ public class QueryAnalysisAll {
           .append(") RETURNING id")
           .query(RowCodec.of(PgTypes.int4).exactlyOne());
 
-  Operation<List<User>> allUsers = Fragment.of("SELECT id, name FROM users").query(userCodec.all());
+  OperationRead<List<User>> allUsers =
+      Fragment.of("SELECT id, name FROM users").query(userCodec.all());
 
   // start
   void analyzeComposedOperation() {
-    // Build a composed operation
     Operation<?> transaction = insertUser.on("Alice").productL(allUsers);
 
     // Analyze every SQL statement in the tree

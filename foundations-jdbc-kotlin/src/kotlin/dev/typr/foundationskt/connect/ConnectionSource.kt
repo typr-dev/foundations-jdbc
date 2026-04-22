@@ -5,8 +5,7 @@ import java.sql.Connection
 
 interface ConnectionSource {
     fun getConnection(): Connection
-    fun transactor(): Transactor = transactor(Transactor.defaultStrategy())
-    fun transactor(strategy: dev.typr.foundations.Transactor.Strategy): Transactor
+    fun transactor(): Transactor
 
     companion object {
         @JvmStatic
@@ -24,8 +23,8 @@ interface ConnectionSource {
         internal fun wrap(java: dev.typr.foundations.connect.ConnectionSource): ConnectionSource =
             object : ConnectionSource {
                 override fun getConnection(): Connection = java.getConnection()
-                override fun transactor(strategy: dev.typr.foundations.Transactor.Strategy): Transactor =
-                    Transactor(java.transactor(strategy))
+                override fun transactor(): Transactor =
+                    Transactor(java.transactor())
             }
     }
 }

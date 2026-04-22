@@ -1,8 +1,10 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.internal.Str;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -13,38 +15,50 @@ import java.util.Set;
  */
 public record QueryAnalysis(
     String sql,
-    String queryName,
+    Optional<String> queryName,
     List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
     List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
     boolean parameterMetadataAvailable,
-    AlignmentError.PrepareFailure prepareFailure) {
+    Optional<AlignmentError.PrepareFailure> prepareFailure) {
 
   public QueryAnalysis(
       String sql,
       List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
       List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
       boolean parameterMetadataAvailable) {
-    this(sql, null, parameterAlignment, columnAlignment, parameterMetadataAvailable, null);
+    this(
+        sql,
+        Optional.empty(),
+        parameterAlignment,
+        columnAlignment,
+        parameterMetadataAvailable,
+        Optional.empty());
   }
 
   public QueryAnalysis(
       String sql,
-      String queryName,
+      Optional<String> queryName,
       List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
       List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
       boolean parameterMetadataAvailable) {
-    this(sql, queryName, parameterAlignment, columnAlignment, parameterMetadataAvailable, null);
+    this(
+        sql,
+        queryName,
+        parameterAlignment,
+        columnAlignment,
+        parameterMetadataAvailable,
+        Optional.empty());
   }
 
   /** Construct a prepare-failure analysis (metadata couldn't be read — driver rejected the SQL). */
   public static QueryAnalysis prepareFailed(
       String sql,
-      String queryName,
+      Optional<String> queryName,
       List<DbType<?>> paramTypes,
       AlignmentError.PrepareFailure failure) {
     List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> declared = new ArrayList<>();
     for (DbType<?> t : paramTypes) declared.add(new Alignment.LeftOnly<>(t));
-    return new QueryAnalysis(sql, queryName, declared, List.of(), false, failure);
+    return new QueryAnalysis(sql, queryName, declared, List.of(), false, Optional.of(failure));
   }
 
   public List<AlignmentError> parameterErrors() {
@@ -116,7 +130,7 @@ public record QueryAnalysis(
 
   public List<AlignmentError> allErrors() {
     List<AlignmentError> all = new ArrayList<>();
-    if (prepareFailure != null) all.add(prepareFailure);
+    prepareFailure.ifPresent(all::add);
     all.addAll(parameterErrors());
     all.addAll(columnErrors());
     return all;
@@ -142,8 +156,8 @@ public record QueryAnalysis(
     b.newline();
 
     // SQL
-    if (queryName != null) {
-      b.bold("SQL (").cyan(queryName).bold("):").newline();
+    if (queryName.isPresent()) {
+      b.bold("SQL (").cyan(queryName.get()).bold("):").newline();
     } else {
       b.bold("SQL:").newline();
     }
@@ -428,7 +442,7 @@ public record QueryAnalysis(
     return Set.copyOf(normalized);
   }
 
-  static String normalizeVendorTypeName(String name) {
+  public static String normalizeVendorTypeName(String name) {
     if (name == null || name.isEmpty()) return "";
     String lower = name.toLowerCase().trim();
 
@@ -470,7 +484,7 @@ public record QueryAnalysis(
     }
 
     // Handle PG array prefix: "_int4" -> "int4[]"
-    if (suffix.length() == 0 && lower.startsWith("_") && !lower.contains(" ")) {
+    if (suffix.isEmpty() && lower.startsWith("_") && !lower.contains(" ")) {
       lower = lower.substring(1);
       suffix.append("[]");
     }

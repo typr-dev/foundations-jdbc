@@ -1,6 +1,8 @@
 package dev.typr.foundationssc
 
 import dev.typr.foundations.{SqlServerTypes => JavaSqlServerTypes}
+import dev.typr.foundations.data.{Json, Uint1, Unknown, Xml}
+import dev.typr.foundationssc.data.*
 
 /** Scala-friendly SqlServerType instances that use Scala types instead of Java boxed types. All types from dev.typr.foundations.SqlServerTypes are available
   * here, with primitives and BigDecimal converted to Scala types.
@@ -34,7 +36,7 @@ class SqlServerTypes {
   val smallmoney: SqlServerType[BigDecimal] = SqlServerType(JavaSqlServerTypes.smallmoney.transform(jbd => BigDecimal(jbd), sbd => sbd.bigDecimal))
 
   // Forward all other types directly from Java
-  val tinyint: SqlServerType[dev.typr.foundations.data.Uint1] = SqlServerType(JavaSqlServerTypes.tinyint)
+  val tinyint: SqlServerType[Uint1] = SqlServerType(JavaSqlServerTypes.tinyint)
   val char_ : SqlServerType[String] = SqlServerType(JavaSqlServerTypes.char_)
 
   /** Alias for [[char_]] — aesthetic, avoids the Java-keyword `_` suffix. */
@@ -57,16 +59,16 @@ class SqlServerTypes {
   val datetime2: SqlServerType[java.time.LocalDateTime] = SqlServerType(JavaSqlServerTypes.datetime2)
   val datetimeoffset: SqlServerType[java.time.OffsetDateTime] = SqlServerType(JavaSqlServerTypes.datetimeoffset)
   val uniqueidentifier: SqlServerType[java.util.UUID] = SqlServerType(JavaSqlServerTypes.uniqueidentifier)
-  val xml: SqlServerType[dev.typr.foundations.data.Xml] = SqlServerType(JavaSqlServerTypes.xml)
-  val json: SqlServerType[dev.typr.foundations.data.Json] = SqlServerType(JavaSqlServerTypes.json)
+  val xml: SqlServerType[Xml] = SqlServerType(JavaSqlServerTypes.xml)
+  val json: SqlServerType[Json] = SqlServerType(JavaSqlServerTypes.json)
   val vector: SqlServerType[Array[Byte]] = SqlServerType(JavaSqlServerTypes.vector)
   val rowversion: SqlServerType[Array[Byte]] = SqlServerType(JavaSqlServerTypes.rowversion)
   val timestamp: SqlServerType[Array[Byte]] = SqlServerType(JavaSqlServerTypes.timestamp)
-  val hierarchyid: SqlServerType[dev.typr.foundations.data.HierarchyId] = SqlServerType(JavaSqlServerTypes.hierarchyid)
+  val hierarchyid: SqlServerType[HierarchyId] = SqlServerType(JavaSqlServerTypes.hierarchyid)
   val sqlVariant: SqlServerType[AnyRef] = SqlServerType(JavaSqlServerTypes.sqlVariant)
   val geography: SqlServerType[com.microsoft.sqlserver.jdbc.Geography] = SqlServerType(JavaSqlServerTypes.geography)
   val geometry: SqlServerType[com.microsoft.sqlserver.jdbc.Geometry] = SqlServerType(JavaSqlServerTypes.geometry)
-  val unknown: SqlServerType[dev.typr.foundations.data.Unknown] = SqlServerType(JavaSqlServerTypes.unknown)
+  val unknown: SqlServerType[Unknown] = SqlServerType(JavaSqlServerTypes.unknown)
 
   // Forward static methods with Scala type conversion
   def decimalOf(precision: Int, scale: Int): SqlServerType[BigDecimal] =

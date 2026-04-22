@@ -1,6 +1,5 @@
 package dev.typr.foundations;
 
-import java.sql.Connection;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 
@@ -26,7 +25,7 @@ public interface Inserter<U, R> {
    * @param c The database connection
    * @return The inserted row or its ID
    */
-  R insert(Connection c);
+  R insert(java.sql.Connection c);
 
   /**
    * Transform the unsaved row before insertion using withers.
@@ -43,14 +42,15 @@ public interface Inserter<U, R> {
    * @param insertFn Function that inserts the row and returns the result
    * @return An Inserter for the row
    */
-  static <U, R> Inserter<U, R> of(U row, BiFunction<U, Connection, R> insertFn) {
+  static <U, R> Inserter<U, R> of(U row, BiFunction<U, java.sql.Connection, R> insertFn) {
     return new Impl<>(row, insertFn);
   }
 
   /** Implementation that holds the row and insert function. */
-  record Impl<U, R>(U row, BiFunction<U, Connection, R> insertFn) implements Inserter<U, R> {
+  record Impl<U, R>(U row, BiFunction<U, java.sql.Connection, R> insertFn)
+      implements Inserter<U, R> {
     @Override
-    public R insert(Connection c) {
+    public R insert(java.sql.Connection c) {
       return insertFn.apply(row, c);
     }
 

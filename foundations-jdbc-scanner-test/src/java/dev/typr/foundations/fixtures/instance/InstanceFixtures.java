@@ -6,13 +6,14 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class InstanceFixtures {
 
-  public final Operation<List<Integer>> fieldOp = Fragment.of("SELECT 1").queryAll(PgTypes.int4);
+  public final OperationRead<List<Integer>> fieldOp =
+      Fragment.of("SELECT 1").queryAll(PgTypes.int4);
 
-  public Operation<List<Integer>> instanceMethod() {
+  public OperationRead<List<Integer>> instanceMethod() {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }
 
-  public Operation<List<Integer>> uninvokableMethod(Runnable r) {
+  public OperationRead<List<Integer>> uninvokableMethod(Runnable r) {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }
 }

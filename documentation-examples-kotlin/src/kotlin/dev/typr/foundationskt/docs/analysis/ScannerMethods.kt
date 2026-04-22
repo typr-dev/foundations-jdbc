@@ -14,17 +14,17 @@ class ScannerMethods {
 
     //start
     // Properties — discovered automatically
-    val allCities: Operation<List<City>> =
+    val allCities: OperationRead<List<City>> =
         sql { "SELECT id, name FROM cities" }
             .query(cityCodec.all())
 
     // No-arg methods — discovered automatically
-    fun activeCities(): Operation<List<City>> =
+    fun activeCities(): OperationRead<List<City>> =
         sql { "SELECT id, name FROM cities WHERE active" }
             .query(cityCodec.all())
 
     // Methods with parameters — dummy arguments constructed automatically
-    fun findByName(name: String): Operation<City?> =
+    fun findByName(name: String): OperationRead<City?> =
         sql { "SELECT id, name FROM cities WHERE name = ${PgTypes.text(name)}" }
             .query(cityCodec.maxOne())
 

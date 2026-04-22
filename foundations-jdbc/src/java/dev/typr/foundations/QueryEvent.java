@@ -1,14 +1,14 @@
 package dev.typr.foundations;
 
 import java.time.Duration;
-import org.jetbrains.annotations.Nullable;
+import java.util.Optional;
 
 public record QueryEvent(
-    @Nullable String name,
+    Optional<String> name,
     String sql,
     Fragment fragment,
     Duration elapsed,
-    @Nullable Throwable error) {
+    Optional<Throwable> error) {
 
   public String interpolatedSql() {
     return fragment.renderInterpolated();

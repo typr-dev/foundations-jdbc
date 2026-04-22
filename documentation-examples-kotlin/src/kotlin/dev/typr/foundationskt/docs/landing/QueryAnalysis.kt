@@ -18,7 +18,7 @@ class QueryAnalysisExample {
             .build(::User)
 
     //start
-    val query: Operation.Query<List<User>> =
+    val query: OperationRead.Query<List<User>> =
         sql { """
             SELECT id, name, created_at, email
             FROM users

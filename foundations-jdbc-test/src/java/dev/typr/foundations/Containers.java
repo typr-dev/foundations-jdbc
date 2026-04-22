@@ -27,8 +27,12 @@ import org.testcontainers.utility.DockerImageName;
  *
  * <pre>{@code
  * var tx = Containers.postgresTransactor();
- * tx.execute(conn -> {
- *     // run tests
+ * // Use tx.execute() for single operations:
+ * tx.execute(Fragment.of("SELECT 1").query(PgTypes.int4.all()));
+ * // Use tx.transact() for multi-step transactions:
+ * tx.transact(mc -> {
+ *     mc.execute(Fragment.of("INSERT INTO ...").execute());
+ *     return mc.execute(Fragment.of("SELECT ...").query(codec.all()));
  * });
  * }</pre>
  */
@@ -55,14 +59,14 @@ public final class Containers {
 
       TRANSACTOR =
           Transactor.create(
-              PgConfig.builder(
-                      INSTANCE.getHost(),
-                      INSTANCE.getMappedPort(5432),
-                      INSTANCE.getDatabaseName(),
-                      INSTANCE.getUsername(),
-                      INSTANCE.getPassword())
-                  .build(),
-              Transactor.testStrategy());
+                  PgConfig.builder(
+                          INSTANCE.getHost(),
+                          INSTANCE.getMappedPort(5432),
+                          INSTANCE.getDatabaseName(),
+                          INSTANCE.getUsername(),
+                          INSTANCE.getPassword())
+                      .build())
+              .rollbackOnly();
     }
   }
 
@@ -81,14 +85,14 @@ public final class Containers {
 
       TRANSACTOR =
           Transactor.create(
-              MariaConfig.builder(
-                      INSTANCE.getHost(),
-                      INSTANCE.getMappedPort(3306),
-                      INSTANCE.getDatabaseName(),
-                      INSTANCE.getUsername(),
-                      INSTANCE.getPassword())
-                  .build(),
-              Transactor.testStrategy());
+                  MariaConfig.builder(
+                          INSTANCE.getHost(),
+                          INSTANCE.getMappedPort(3306),
+                          INSTANCE.getDatabaseName(),
+                          INSTANCE.getUsername(),
+                          INSTANCE.getPassword())
+                      .build())
+              .rollbackOnly();
     }
   }
 
@@ -107,16 +111,16 @@ public final class Containers {
 
       TRANSACTOR =
           Transactor.create(
-              SqlServerConfig.builder(
-                      INSTANCE.getHost(),
-                      INSTANCE.getMappedPort(1433),
-                      "master",
-                      INSTANCE.getUsername(),
-                      INSTANCE.getPassword())
-                  .encrypt(SqlServerEncrypt.FALSE)
-                  .trustServerCertificate(true)
-                  .build(),
-              Transactor.testStrategy());
+                  SqlServerConfig.builder(
+                          INSTANCE.getHost(),
+                          INSTANCE.getMappedPort(1433),
+                          "master",
+                          INSTANCE.getUsername(),
+                          INSTANCE.getPassword())
+                      .encrypt(SqlServerEncrypt.FALSE)
+                      .trustServerCertificate(true)
+                      .build())
+              .rollbackOnly();
     }
   }
 
@@ -154,7 +158,7 @@ public final class Containers {
       var poolConfig =
           PoolConfig.builder().maximumPoolSize(5).connectionTimeout(Duration.ofMinutes(2)).build();
       POOL = HikariDataSourceFactory.create(CONFIG, poolConfig);
-      TRANSACTOR = POOL.transactor(Transactor.testStrategy());
+      TRANSACTOR = POOL.transactor().rollbackOnly();
     }
   }
 
@@ -175,14 +179,14 @@ public final class Containers {
 
       TRANSACTOR =
           Transactor.create(
-              Db2Config.builder(
-                      INSTANCE.getHost(),
-                      INSTANCE.getMappedPort(50000),
-                      INSTANCE.getDatabaseName(),
-                      INSTANCE.getUsername(),
-                      INSTANCE.getPassword())
-                  .build(),
-              Transactor.testStrategy());
+                  Db2Config.builder(
+                          INSTANCE.getHost(),
+                          INSTANCE.getMappedPort(50000),
+                          INSTANCE.getDatabaseName(),
+                          INSTANCE.getUsername(),
+                          INSTANCE.getPassword())
+                      .build())
+              .rollbackOnly();
     }
   }
 

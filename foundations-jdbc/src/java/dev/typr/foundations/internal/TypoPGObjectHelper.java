@@ -25,7 +25,7 @@ public final class TypoPGObjectHelper {
       obj.setValue(value);
       return obj;
     } catch (SQLException e) {
-      throw new DatabaseException("Failed to create PGobject for type: " + type, e);
+      throw new DatabaseException.Jdbc("Failed to create PGobject for type: " + type, e);
     }
   }
 }

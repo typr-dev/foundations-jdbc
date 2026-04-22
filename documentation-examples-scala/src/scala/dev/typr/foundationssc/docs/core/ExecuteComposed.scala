@@ -17,17 +17,16 @@ object ExecuteComposed:
 
   var tx: Transactor = null // placeholder
 
-  val countUsers: Operation[Long] =
+  val countUsers: OperationRead[Long] =
     sql"SELECT count(*) FROM users"
       .query(RowCodec.of(PgTypes.int8).exactlyOne())
-  val recentOrders: Operation[List[Order]] =
+  val recentOrders: OperationRead[List[Order]] =
     sql"SELECT * FROM orders ORDER BY id DESC LIMIT 10"
       .query(orderCodec.all())
 
   // start
-  def dashboard(): Dashboard = tx.transact { conn =>
+  def dashboard(): Dashboard =
     countUsers
       .combineWith(recentOrders)(Dashboard.apply)
-      .run(conn)
-  }
+      .transact(tx)
   // stop

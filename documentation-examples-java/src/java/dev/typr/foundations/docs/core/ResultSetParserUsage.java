@@ -35,7 +35,7 @@ public class ResultSetParserUsage {
     try {
       return singleParser.apply(resultSet);
     } catch (SQLException e) {
-      throw new DatabaseException(e);
+      throw new DatabaseException.Jdbc(e);
     }
   }
   // stop

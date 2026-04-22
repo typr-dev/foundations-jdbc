@@ -7,16 +7,17 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public class MethodFixtures {
 
-  public final Operation<List<Integer>> fieldQuery = Fragment.of("SELECT 1").queryAll(PgTypes.int4);
+  public final OperationRead<List<Integer>> fieldQuery =
+      Fragment.of("SELECT 1").queryAll(PgTypes.int4);
 
-  public static final Operation<List<Integer>> staticField =
+  public static final OperationRead<List<Integer>> staticField =
       Fragment.of("SELECT 2").queryAll(PgTypes.int4);
 
-  public Operation<List<Integer>> noArgMethod() {
+  public OperationRead<List<Integer>> noArgMethod() {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }
 
-  public Operation<List<Integer>> withArgs(int limit, String name) {
+  public OperationRead<List<Integer>> withArgs(int limit, String name) {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }
 
@@ -26,15 +27,15 @@ public class MethodFixtures {
         .query(RowCodec.of(PgTypes.text).maxOne());
   }
 
-  private Operation<List<Integer>> privateMethod() {
+  private OperationRead<List<Integer>> privateMethod() {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }
 
-  public static Operation<List<Integer>> staticMethod() {
+  public static OperationRead<List<Integer>> staticMethod() {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }
 
-  public static Operation<List<Integer>> staticMethodWithArgs(int limit, String name) {
+  public static OperationRead<List<Integer>> staticMethodWithArgs(int limit, String name) {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }
 

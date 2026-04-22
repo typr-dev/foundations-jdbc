@@ -4,7 +4,7 @@ class SqlServerType[T](override val underlying: dev.typr.foundations.SqlServerTy
   override def opt: SqlServerType[Option[T]] =
     SqlServerType(underlying.opt().to(Bijections.optionalToOption))
 
-  override def to[B](bijection: dev.typr.foundations.Bijection[T, B]): SqlServerType[B] =
+  override def to[B](bijection: Bijection[T, B]): SqlServerType[B] =
     SqlServerType(underlying.to(bijection))
 
   def transform[B](f: T => B, g: B => T): SqlServerType[B] =

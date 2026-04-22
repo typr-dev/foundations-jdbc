@@ -14,7 +14,7 @@ object UserRepo:
     .field("name", PgTypes.text)(_.name)
     .build(User.apply)
 
-  val selectAll: Operation[List[User]] =
+  val selectAll: OperationRead[List[User]] =
     sql"SELECT ${userCodec.columnList} FROM users ORDER BY name"
       .query(userCodec.all())
       .named("UserRepo.selectAll")

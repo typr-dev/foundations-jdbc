@@ -21,10 +21,10 @@ object ComposingWith:
   var tx: Transactor = null // placeholder
 
   // Combine two independent queries in one transaction
-  val countUsers: Operation[Long] =
+  val countUsers: OperationRead[Long] =
     sql"SELECT count(*) FROM users"
       .query(RowCodec.of(PgTypes.int8).exactlyOne())
-  val recentOrders: Operation[List[Order]] =
+  val recentOrders: OperationRead[List[Order]] =
     sql"SELECT * FROM orders ORDER BY id DESC LIMIT 10"
       .query(orderCodec.all())
 
@@ -34,10 +34,10 @@ object ComposingWith:
       .transact(tx)
 
   // Three-way: all run in one transaction
-  val countOrders: Operation[Long] =
+  val countOrders: OperationRead[Long] =
     sql"SELECT count(*) FROM orders"
       .query(RowCodec.of(PgTypes.int8).exactlyOne())
-  val totalRevenue: Operation[Long] =
+  val totalRevenue: OperationRead[Long] =
     sql"SELECT coalesce(sum(amount), 0) FROM orders"
       .query(RowCodec.of(PgTypes.int8).exactlyOne())
 

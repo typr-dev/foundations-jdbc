@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.Fragment;
-import dev.typr.foundations.Operation;
+import dev.typr.foundations.OperationRead;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
@@ -16,9 +16,9 @@ public class ComposingSequence {
   List<String> names = List.of("Alice", "Bob", "Charlie");
 
   List<Integer> insertAll() {
-    List<Operation<Integer>> inserts =
+    List<OperationRead<Integer>> inserts =
         names.stream()
-            .<Operation<Integer>>map(
+            .<OperationRead<Integer>>map(
                 name ->
                     Fragment.of(
                             """
@@ -30,7 +30,7 @@ public class ComposingSequence {
                         .query(RowCodec.of(PgTypes.int4).exactlyOne()))
             .toList();
 
-    return Operation.sequence(inserts).transact(tx);
+    return OperationRead.sequence(inserts).transactRead(tx);
   }
   // stop
 }

@@ -8,6 +8,6 @@ public class GettingStarted {
   // start
   Transactor tx = ConnectionSource.of(DuckDbConfig.inMemory().build()).transactor();
 
-  int result = Fragment.of("SELECT 42").queryExactlyOne(DuckDbTypes.integer).transact(tx);
+  int result = Fragment.of("SELECT 42").queryExactlyOne(DuckDbTypes.integer).transactRead(tx);
   // stop
 }

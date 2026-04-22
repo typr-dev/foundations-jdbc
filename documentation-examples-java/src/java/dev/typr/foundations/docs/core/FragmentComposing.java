@@ -41,11 +41,9 @@ public class FragmentComposing {
             .toList();
 
     return tx.execute(
-        conn ->
-            Fragment.of("SELECT * FROM product ")
-                .append(Fragment.whereAnd(filters))
-                .query(rowCodec.all())
-                .run(conn));
+        Fragment.of("SELECT * FROM product ")
+            .append(Fragment.whereAnd(filters))
+            .query(rowCodec.all()));
   }
   // stop
 }

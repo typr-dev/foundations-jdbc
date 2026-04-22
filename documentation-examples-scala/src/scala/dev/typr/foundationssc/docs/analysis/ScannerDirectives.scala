@@ -7,10 +7,10 @@ object ScannerDirectives:
   private val transactor: Transactor = null // placeholder
 
   class ReportRepo:
-    def generateReport(onProgress: Runnable): Operation[List[String]] =
+    def generateReport(onProgress: Runnable): OperationRead[List[String]] =
       Fragment.of("SELECT name FROM reports").queryAll(PgTypes.text)
 
-    def allReports(): Operation[List[String]] =
+    def allReports(): OperationRead[List[String]] =
       Fragment.of("SELECT name FROM reports").queryAll(PgTypes.text)
 
   // start

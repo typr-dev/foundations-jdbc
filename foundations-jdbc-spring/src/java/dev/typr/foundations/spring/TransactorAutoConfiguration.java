@@ -1,6 +1,7 @@
 package dev.typr.foundations.spring;
 
 import dev.typr.foundations.Transactor;
+import dev.typr.foundations.TransactorJdbc;
 import javax.sql.DataSource;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -33,7 +34,7 @@ import org.springframework.context.annotation.Bean;
  *     public List<Product> findAll() throws SQLException {
  *         return Fragment.of("SELECT * FROM product")
  *             .query(Product.rowCodec.all())
- *             .transact(tx);
+ *             .transactRead(tx);
  *     }
  * }
  * }</pre>
@@ -45,7 +46,7 @@ public class TransactorAutoConfiguration {
   @Bean
   @ConditionalOnBean(DataSource.class)
   @ConditionalOnMissingBean(Transactor.class)
-  public Transactor transactor(DataSource dataSource) {
+  public TransactorJdbc transactor(DataSource dataSource) {
     return SpringTransactor.create(dataSource);
   }
 }

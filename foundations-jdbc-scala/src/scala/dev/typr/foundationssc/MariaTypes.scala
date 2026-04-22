@@ -1,6 +1,8 @@
 package dev.typr.foundationssc
 
 import dev.typr.foundations.{MariaTypes => JavaMariaTypes}
+import dev.typr.foundations.data.{Json, Uint1, Uint2, Uint4, Uint8, Unknown}
+import dev.typr.foundationssc.data.*
 
 /** Scala-friendly MariaType instances that use Scala types instead of Java boxed types. All types from dev.typr.foundations.MariaTypes are available here, with
   * primitives and BigDecimal converted to Scala types.
@@ -39,11 +41,11 @@ class MariaTypes {
   val bit1: MariaType[Boolean] = MariaType(JavaMariaTypes.bit1.transform(b => b, b => b))
 
   // Forward all other types directly from Java
-  val tinyintUnsigned: MariaType[dev.typr.foundations.data.Uint1] = MariaType(JavaMariaTypes.tinyintUnsigned)
-  val smallintUnsigned: MariaType[dev.typr.foundations.data.Uint2] = MariaType(JavaMariaTypes.smallintUnsigned)
-  val mediumintUnsigned: MariaType[dev.typr.foundations.data.Uint4] = MariaType(JavaMariaTypes.mediumintUnsigned)
-  val intUnsigned: MariaType[dev.typr.foundations.data.Uint4] = MariaType(JavaMariaTypes.intUnsigned)
-  val bigintUnsigned: MariaType[dev.typr.foundations.data.Uint8] = MariaType(JavaMariaTypes.bigintUnsigned)
+  val tinyintUnsigned: MariaType[Uint1] = MariaType(JavaMariaTypes.tinyintUnsigned)
+  val smallintUnsigned: MariaType[Uint2] = MariaType(JavaMariaTypes.smallintUnsigned)
+  val mediumintUnsigned: MariaType[Uint4] = MariaType(JavaMariaTypes.mediumintUnsigned)
+  val intUnsigned: MariaType[Uint4] = MariaType(JavaMariaTypes.intUnsigned)
+  val bigintUnsigned: MariaType[Uint8] = MariaType(JavaMariaTypes.bigintUnsigned)
   val bit: MariaType[Array[Byte]] = MariaType(JavaMariaTypes.bit)
   val char_ : MariaType[String] = MariaType(JavaMariaTypes.char_)
 
@@ -65,10 +67,10 @@ class MariaTypes {
   val datetime: MariaType[java.time.LocalDateTime] = MariaType(JavaMariaTypes.datetime)
   val timestamp: MariaType[java.time.LocalDateTime] = MariaType(JavaMariaTypes.timestamp)
   val year: MariaType[java.time.Year] = MariaType(JavaMariaTypes.year)
-  val set: MariaType[dev.typr.foundations.data.maria.MariaSet] = MariaType(JavaMariaTypes.set)
-  val json: MariaType[dev.typr.foundations.data.Json] = MariaType(JavaMariaTypes.json)
-  val inet4: MariaType[dev.typr.foundations.data.maria.Inet4] = MariaType(JavaMariaTypes.inet4)
-  val inet6: MariaType[dev.typr.foundations.data.maria.Inet6] = MariaType(JavaMariaTypes.inet6)
+  val set: MariaType[MariaSet] = MariaType(JavaMariaTypes.set)
+  val json: MariaType[Json] = MariaType(JavaMariaTypes.json)
+  val inet4: MariaType[Inet4] = MariaType(JavaMariaTypes.inet4)
+  val inet6: MariaType[Inet6] = MariaType(JavaMariaTypes.inet6)
   val uuid: MariaType[java.util.UUID] = MariaType(JavaMariaTypes.uuid)
   val geometry: MariaType[org.mariadb.jdbc.`type`.Geometry] = MariaType(JavaMariaTypes.geometry)
   val point: MariaType[org.mariadb.jdbc.`type`.Point] = MariaType(JavaMariaTypes.point)
@@ -78,7 +80,7 @@ class MariaTypes {
   val multilinestring: MariaType[org.mariadb.jdbc.`type`.MultiLineString] = MariaType(JavaMariaTypes.multilinestring)
   val multipolygon: MariaType[org.mariadb.jdbc.`type`.MultiPolygon] = MariaType(JavaMariaTypes.multipolygon)
   val geometrycollection: MariaType[org.mariadb.jdbc.`type`.GeometryCollection] = MariaType(JavaMariaTypes.geometrycollection)
-  val unknown: MariaType[dev.typr.foundations.data.Unknown] = MariaType(JavaMariaTypes.unknown)
+  val unknown: MariaType[Unknown] = MariaType(JavaMariaTypes.unknown)
 
   // Forward static methods with Scala type conversion
   def decimalOf(precision: Int, scale: Int): MariaType[BigDecimal] =
@@ -105,7 +107,7 @@ class MariaTypes {
   def timestampOf(fsp: Int): MariaType[java.time.LocalDateTime] =
     MariaType(JavaMariaTypes.timestampOf(fsp))
 
-  def vector(dimension: Int): MariaType[dev.typr.foundations.data.Vector] =
+  def vector(dimension: Int): MariaType[dev.typr.foundationssc.data.Vector] =
     MariaType(JavaMariaTypes.vector(dimension))
 
   def ofEnum[E <: AnyRef](values: Array[E]): MariaType[E] =

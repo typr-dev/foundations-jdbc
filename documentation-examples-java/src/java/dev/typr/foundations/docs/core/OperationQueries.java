@@ -18,15 +18,15 @@ public class OperationQueries {
 
   // start
   // Multi-column: pass a RowCodec with a result mode
-  Operation<List<User>> allUsers = fragment.query(userCodec.all());
-  Operation<Optional<User>> maybeUser = fragment.query(userCodec.maxOne());
-  Operation<User> oneUser = fragment.query(userCodec.exactlyOne());
+  OperationRead<List<User>> allUsers = fragment.query(userCodec.all());
+  OperationRead<Optional<User>> maybeUser = fragment.query(userCodec.maxOne());
+  OperationRead<User> oneUser = fragment.query(userCodec.exactlyOne());
 
   // Single-column: shorthand methods skip the codec
-  Operation<List<Integer>> allIds = Fragment.of("SELECT id FROM users").queryAll(PgTypes.int4);
-  Operation<Optional<String>> maybeName =
+  OperationRead<List<Integer>> allIds = Fragment.of("SELECT id FROM users").queryAll(PgTypes.int4);
+  OperationRead<Optional<String>> maybeName =
       Fragment.of("SELECT name FROM users LIMIT 1").queryMaxOne(PgTypes.text);
-  Operation<Integer> count =
+  OperationRead<Integer> count =
       Fragment.of("SELECT count(*) FROM users").queryExactlyOne(PgTypes.int4);
   // stop
 }

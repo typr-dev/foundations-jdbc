@@ -552,7 +552,7 @@ public interface DuckDbTypes {
               }
               return decode.apply(decodedAttrs);
             } catch (java.sql.SQLException e) {
-              throw new DatabaseException(e);
+              throw new DatabaseException.Jdbc(e);
             }
           }
           throw new IllegalArgumentException("Expected STRUCT, got: " + obj.getClass());

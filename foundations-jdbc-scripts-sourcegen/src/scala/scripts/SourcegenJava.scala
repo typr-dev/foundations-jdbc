@@ -23,7 +23,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("DbFunction.java"), generateDbFunction())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("ParamBuilders.java"), generateParamBuilders())
       FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("Template.java"), generateTemplate())
-      FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("InstrumentedConnection.java"), generateInstrumentedConnection())
+      FileUtils.writeString(started.logger, Some("SourcegenJava"), outputDir.resolve("TemplateRead.java"), generateTemplateRead())
     }
   }
 
@@ -338,6 +338,448 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
         |""".stripMargin
   }
 
+  def generateDuckDbStructBuilders(): String = {
+    val maxArity = STRUCT_N - 1
+
+    val builder0 = s"""|    public static final class Builder0<A> {
+                       |        private final String structName;
+                       |        private final java.util.List<DuckDbStruct.Field<A, ?>> fields = new java.util.ArrayList<>();
+                       |
+                       |        Builder0(String structName) {
+                       |            this.structName = structName;
+                       |        }
+                       |
+                       |        public <F> Builder1<A, F> field(String name, DuckDbType<F> type, java.util.function.Function<A, F> getter) {
+                       |            fields.add(new DuckDbStruct.Field<>(name, type, getter));
+                       |            return new Builder1<>(structName, fields);
+                       |        }
+                       |    }""".stripMargin
+
+    val builders = 1.to(maxArity).map { n =>
+      val range = 0.until(n)
+      val tparams = range.map(i => s"T$i").mkString(", ")
+      val functionType = if (n == 1) s"java.util.function.Function<T0, A>" else s"Functions.Function$n<$tparams, A>"
+      val decodeArgs = range.map(i => s"(T$i) arr[$i]").mkString(", ")
+
+      val nextBuilder = if (n < maxArity) {
+        val nextTparams = (0 until n).map(i => s"T$i").mkString(", ")
+        s"""|
+            |        public <F> Builder${n + 1}<A, $nextTparams, F> field(String name, DuckDbType<F> type, java.util.function.Function<A, F> getter) {
+            |            fields.add(new DuckDbStruct.Field<>(name, type, getter));
+            |            return new Builder${n + 1}<>(structName, fields);
+            |        }""".stripMargin
+      } else ""
+
+      s"""|    public static final class Builder$n<A, $tparams> {
+          |        private final String structName;
+          |        private final java.util.List<DuckDbStruct.Field<A, ?>> fields;
+          |
+          |        Builder$n(String structName, java.util.List<DuckDbStruct.Field<A, ?>> fields) {
+          |            this.structName = structName;
+          |            this.fields = fields;
+          |        }
+          |
+          |        @SuppressWarnings("unchecked")
+          |        public DuckDbStruct<A> build($functionType decode) {
+          |            return DuckDbStructBuilders.buildStruct(structName, fields, arr -> {
+          |                try {
+          |                    return decode.apply($decodeArgs);
+          |                } catch (ClassCastException e) {
+          |                    throw new java.sql.SQLException("Type mismatch reading STRUCT field", e);
+          |                }
+          |            });
+          |        }$nextBuilder
+          |    }""".stripMargin
+    }
+
+    s"""|package dev.typr.foundations;
+        |
+        |import dev.typr.foundations.data.JsonValue;
+        |import java.util.LinkedHashMap;
+        |import java.util.List;
+        |
+        |/**
+        | * Type-safe builders for DuckDB STRUCT types.
+        | * <p>
+        | * Usage:
+        | * <pre>{@code
+        | * DuckDbStruct<Point> struct = DuckDbStructBuilders.<Point>builder("point")
+        | *     .field("x", DuckDbTypes.double_, Point::x)
+        | *     .field("y", DuckDbTypes.double_, Point::y)
+        | *     .build(Point::new);  // No casts needed!
+        | * }</pre>
+        | */
+        |public final class DuckDbStructBuilders {
+        |    private DuckDbStructBuilders() {}
+        |
+        |    public static <A> Builder0<A> builder(String structName) {
+        |        return new Builder0<>(structName);
+        |    }
+        |
+        |$builder0
+        |
+        |${builders.mkString("\n\n")}
+        |
+        |    @SuppressWarnings("unchecked")
+        |    static <A> DuckDbStruct<A> buildStruct(String structName, java.util.List<DuckDbStruct.Field<A, ?>> fields, DuckDbStruct.StructReader<A> reader) {
+        |        List<DuckDbTypename.StructOf.StructField> typenameFields =
+        |            fields.stream()
+        |                .map(f -> new DuckDbTypename.StructOf.StructField(f.name(), f.type().typename()))
+        |                .toList();
+        |
+        |        DuckDbTypename.StructOf<A> typename = new DuckDbTypename.StructOf<>(structName, typenameFields);
+        |
+        |        DuckDbStruct.StructWriter<A> writer = structValue -> {
+        |            Object[] values = new Object[fields.size()];
+        |            for (int i = 0; i < fields.size(); i++) {
+        |                values[i] = ((DuckDbStruct.Field<A, Object>) fields.get(i)).getter().apply(structValue);
+        |            }
+        |            return values;
+        |        };
+        |
+        |        DuckDbJson<A> json = new DuckDbJson<>() {
+        |            @Override
+        |            public JsonValue toJson(A value) {
+        |                LinkedHashMap<String, JsonValue> jsonFields = new LinkedHashMap<>();
+        |                for (DuckDbStruct.Field<A, ?> field : fields) {
+        |                    jsonFields.put(field.name(), fieldToJson(field, value));
+        |                }
+        |                return new JsonValue.JObject(jsonFields);
+        |            }
+        |
+        |            @Override
+        |            public A fromJson(JsonValue jsonValue) {
+        |                if (jsonValue instanceof JsonValue.JObject obj) {
+        |                    Object[] values = new Object[fields.size()];
+        |                    for (int i = 0; i < fields.size(); i++) {
+        |                        DuckDbStruct.Field<A, ?> field = fields.get(i);
+        |                        JsonValue fieldJson = obj.fields().get(field.name());
+        |                        values[i] = fieldFromJson(field, fieldJson);
+        |                    }
+        |                    try {
+        |                        return reader.read(values);
+        |                    } catch (java.sql.SQLException e) {
+        |                        throw new RuntimeException("Failed to construct struct from JSON", e);
+        |                    }
+        |                }
+        |                throw new IllegalArgumentException("Expected JSON object");
+        |            }
+        |
+        |            @SuppressWarnings("unchecked")
+        |            private <F> JsonValue fieldToJson(DuckDbStruct.Field<A, F> field, A structValue) {
+        |                F value = field.getter().apply(structValue);
+        |                if (value == null) return JsonValue.JNull.INSTANCE;
+        |                return field.type().duckDbJson().toJson(value);
+        |            }
+        |
+        |            @SuppressWarnings("unchecked")
+        |            private <F> Object fieldFromJson(DuckDbStruct.Field<A, F> field, JsonValue jsonValue) {
+        |                if (jsonValue == null || jsonValue instanceof JsonValue.JNull) return null;
+        |                return field.type().duckDbJson().fromJson(jsonValue);
+        |            }
+        |        };
+        |
+        |        return new DuckDbStruct<>(typename, List.copyOf(fields), reader, writer, json);
+        |    }
+        |}
+        |""".stripMargin
+  }
+
+  def generateOracleObjectBuilders(): String = {
+    val maxArity = STRUCT_N - 1
+
+    val builder0 = s"""|    public static final class Builder0<A> {
+                       |        private final String objectTypeName;
+                       |        private final java.util.List<OracleObject.Attribute<A, ?>> attributes = new java.util.ArrayList<>();
+                       |
+                       |        Builder0(String objectTypeName) {
+                       |            this.objectTypeName = objectTypeName;
+                       |        }
+                       |
+                       |        public <F> Builder1<A, F> field(String name, OracleType<F> type, java.util.function.Function<A, F> getter) {
+                       |            attributes.add(new OracleObject.Attribute<>(name, type, getter));
+                       |            return new Builder1<>(objectTypeName, attributes);
+                       |        }
+                       |    }""".stripMargin
+
+    val builders = 1.to(maxArity).map { n =>
+      val range = 0.until(n)
+      val tparams = range.map(i => s"T$i").mkString(", ")
+      val functionType = if (n == 1) s"java.util.function.Function<T0, A>" else s"Functions.Function$n<$tparams, A>"
+      val decodeArgs = range.map(i => s"(T$i) arr[$i]").mkString(", ")
+
+      val nextBuilder = if (n < maxArity) {
+        val nextTparams = (0 until n).map(i => s"T$i").mkString(", ")
+        s"""|
+            |        public <F> Builder${n + 1}<A, $nextTparams, F> field(String name, OracleType<F> type, java.util.function.Function<A, F> getter) {
+            |            attributes.add(new OracleObject.Attribute<>(name, type, getter));
+            |            return new Builder${n + 1}<>(objectTypeName, attributes);
+            |        }""".stripMargin
+      } else ""
+
+      s"""|    public static final class Builder$n<A, $tparams> {
+          |        private final String objectTypeName;
+          |        private final java.util.List<OracleObject.Attribute<A, ?>> attributes;
+          |
+          |        Builder$n(String objectTypeName, java.util.List<OracleObject.Attribute<A, ?>> attributes) {
+          |            this.objectTypeName = objectTypeName;
+          |            this.attributes = attributes;
+          |        }
+          |
+          |        @SuppressWarnings("unchecked")
+          |        public OracleObject<A> build($functionType decode) {
+          |            return OracleObjectBuilders.buildObject(objectTypeName, attributes, arr -> {
+          |                try {
+          |                    return decode.apply($decodeArgs);
+          |                } catch (ClassCastException e) {
+          |                    throw new java.sql.SQLException("Type mismatch reading OBJECT attribute", e);
+          |                }
+          |            });
+          |        }$nextBuilder
+          |    }""".stripMargin
+    }
+
+    s"""|package dev.typr.foundations;
+        |
+        |import java.util.List;
+        |
+        |/**
+        | * Type-safe builders for Oracle OBJECT types.
+        | * <p>
+        | * Usage:
+        | * <pre>{@code
+        | * OracleObject<Address> obj = OracleObjectBuilders.<Address>builder("ADDRESS_T")
+        | *     .field("STREET", OracleTypes.varchar2, Address::street)
+        | *     .field("CITY", OracleTypes.varchar2, Address::city)
+        | *     .build(Address::new);  // No casts needed!
+        | * }</pre>
+        | */
+        |public final class OracleObjectBuilders {
+        |    private OracleObjectBuilders() {}
+        |
+        |    public static <A> Builder0<A> builder(String objectTypeName) {
+        |        return new Builder0<>(objectTypeName);
+        |    }
+        |
+        |$builder0
+        |
+        |${builders.mkString("\n\n")}
+        |
+        |    @SuppressWarnings("unchecked")
+        |    static <A> OracleObject<A> buildObject(String objectTypeName, java.util.List<OracleObject.Attribute<A, ?>> attributes, OracleObject.ObjectReader<A> reader) {
+        |        OracleObject.ObjectWriter<A> writer = value -> {
+        |            Object[] result = new Object[attributes.size()];
+        |            for (int i = 0; i < attributes.size(); i++) {
+        |                OracleObject.Attribute<A, Object> attr = (OracleObject.Attribute<A, Object>) attributes.get(i);
+        |                result[i] = attr.getter().apply(value);
+        |            }
+        |            return result;
+        |        };
+        |
+        |        OracleTypename.ObjectOf<A> typename = OracleTypename.objectOf(objectTypeName);
+        |        return new OracleObject<>(typename, List.copyOf(attributes), reader, writer);
+        |    }
+        |}
+        |""".stripMargin
+  }
+
+  def generatePgStructBuilders(): String = {
+    val maxArity = STRUCT_N - 1
+
+    val builder0 = s"""|    public static final class Builder0<A> {
+                       |        private final String typeName;
+                       |        private final java.util.List<PgStruct.Field<A, ?>> fields = new java.util.ArrayList<>();
+                       |
+                       |        Builder0(String typeName) {
+                       |            this.typeName = typeName;
+                       |        }
+                       |
+                       |        public <F> Builder1<A, F> field(String name, PgType<F> type, java.util.function.Function<A, F> getter) {
+                       |            fields.add(new PgStruct.Field<>(name, type, getter));
+                       |            return new Builder1<>(typeName, fields);
+                       |        }
+                       |
+                       |        public <F> Builder1<A, F> nestedField(String name, PgStruct<F> nestedStruct, java.util.function.Function<A, F> getter) {
+                       |            return field(name, nestedStruct.asType(), getter);
+                       |        }
+                       |
+                       |        public <F> Builder1<A, F[]> nestedArrayField(String name, PgStruct<F> nestedStruct, java.util.function.Function<A, F[]> getter, java.util.function.IntFunction<F[]> arrayFactory) {
+                       |            PgType<F> elementType = nestedStruct.asType();
+                       |            PgType<F[]> arrayType = new PgType<>(
+                       |                elementType.typename().array(),
+                       |                PgRead.of((rs, idx) -> { throw new UnsupportedOperationException("Direct JDBC read not supported for nested arrays"); }),
+                       |                elementType.write().array(elementType.typename()),
+                       |                elementType.pgText().array(arrayFactory),
+                       |                elementType.pgJson().array(arrayFactory),
+                       |                PgOutParam.parsedArray(arrayFactory, elementType.pgText()::compositeDecode),
+                       |                elementType.pgBinary().prefersBinaryFormat() ? elementType.pgBinary().array(arrayFactory) : PgBinary.textFallback(elementType.pgText().array(arrayFactory)),
+                       |                AnalysisOptions.EMPTY,
+                       |                java.util.Optional.empty(),
+                       |                ',');
+                       |            return field(name, arrayType, getter);
+                       |        }
+                       |
+                       |        public <F> Builder1<A, java.util.Optional<F>> optField(String name, PgType<F> type, java.util.function.Function<A, java.util.Optional<F>> getter) {
+                       |            java.util.function.Function<A, F> unwrappingGetter = a -> getter.apply(a).orElse(null);
+                       |            fields.add(new PgStruct.Field<>(name, type, unwrappingGetter));
+                       |            @SuppressWarnings("unchecked")
+                       |            Builder1<A, java.util.Optional<F>> result = (Builder1<A, java.util.Optional<F>>) (Object) new Builder1<>(typeName, fields);
+                       |            return result;
+                       |        }
+                       |    }""".stripMargin
+
+    val builders = 1.to(maxArity).map { n =>
+      val range = 0.until(n)
+      val tparams = range.map(i => s"T$i").mkString(", ")
+      val functionType = if (n == 1) s"java.util.function.Function<T0, A>" else s"Functions.Function$n<$tparams, A>"
+      val decodeArgs = range.map(i => s"(T$i) arr[$i]").mkString(", ")
+
+      val nextBuilder = if (n < maxArity) {
+        val nextTparams = (0 until n).map(i => s"T$i").mkString(", ")
+        s"""|
+            |        public <F> Builder${n + 1}<A, $nextTparams, F> field(String name, PgType<F> type, java.util.function.Function<A, F> getter) {
+            |            fields.add(new PgStruct.Field<>(name, type, getter));
+            |            return new Builder${n + 1}<>(typeName, fields);
+            |        }
+            |
+            |        public <F> Builder${n + 1}<A, $nextTparams, F> nestedField(String name, PgStruct<F> nestedStruct, java.util.function.Function<A, F> getter) {
+            |            return field(name, nestedStruct.asType(), getter);
+            |        }
+            |
+            |        public <F> Builder${n + 1}<A, $nextTparams, F[]> nestedArrayField(String name, PgStruct<F> nestedStruct, java.util.function.Function<A, F[]> getter, java.util.function.IntFunction<F[]> arrayFactory) {
+            |            PgType<F> elementType = nestedStruct.asType();
+            |            PgType<F[]> arrayType = new PgType<>(
+            |                elementType.typename().array(),
+            |                PgRead.of((rs, idx) -> { throw new UnsupportedOperationException("Direct JDBC read not supported for nested arrays"); }),
+            |                elementType.write().array(elementType.typename()),
+            |                elementType.pgText().array(arrayFactory),
+            |                elementType.pgJson().array(arrayFactory),
+            |                PgOutParam.parsedArray(arrayFactory, elementType.pgText()::compositeDecode),
+            |                elementType.pgBinary().prefersBinaryFormat() ? elementType.pgBinary().array(arrayFactory) : PgBinary.textFallback(elementType.pgText().array(arrayFactory)),
+            |                AnalysisOptions.EMPTY);
+            |            return field(name, arrayType, getter);
+            |        }
+            |
+            |        public <F> Builder${n + 1}<A, $nextTparams, java.util.Optional<F>> optField(String name, PgType<F> type, java.util.function.Function<A, java.util.Optional<F>> getter) {
+            |            java.util.function.Function<A, F> unwrappingGetter = a -> getter.apply(a).orElse(null);
+            |            fields.add(new PgStruct.Field<>(name, type, unwrappingGetter));
+            |            @SuppressWarnings("unchecked")
+            |            Builder${n + 1}<A, $nextTparams, java.util.Optional<F>> result = (Builder${n + 1}<A, $nextTparams, java.util.Optional<F>>) (Object) new Builder${n + 1}<>(typeName, fields);
+            |            return result;
+            |        }""".stripMargin
+      } else ""
+
+      s"""|    public static final class Builder$n<A, $tparams> {
+          |        private final String typeName;
+          |        private final java.util.List<PgStruct.Field<A, ?>> fields;
+          |
+          |        Builder$n(String typeName, java.util.List<PgStruct.Field<A, ?>> fields) {
+          |            this.typeName = typeName;
+          |            this.fields = fields;
+          |        }
+          |
+          |        @SuppressWarnings("unchecked")
+          |        public PgStruct<A> build($functionType decode) {
+          |            return PgStructBuilders.buildStruct(typeName, fields, arr -> decode.apply($decodeArgs));
+          |        }$nextBuilder
+          |    }""".stripMargin
+    }
+
+    s"""|package dev.typr.foundations;
+        |
+        |import dev.typr.foundations.data.JsonValue;
+        |import java.util.LinkedHashMap;
+        |import java.util.List;
+        |
+        |/**
+        | * Type-safe builders for PostgreSQL composite types.
+        | * <p>
+        | * Usage:
+        | * <pre>{@code
+        | * PgStruct<Dimensions> pgStruct = PgStructBuilders.<Dimensions>builder("dimensions")
+        | *     .field("width", PgTypes.float8, Dimensions::width)
+        | *     .field("height", PgTypes.float8, Dimensions::height)
+        | *     .field("depth", PgTypes.float8, Dimensions::depth)
+        | *     .field("unit", PgTypes.varchar, Dimensions::unit)
+        | *     .build(Dimensions::new);  // No casts needed!
+        | * }</pre>
+        | */
+        |public final class PgStructBuilders {
+        |    private PgStructBuilders() {}
+        |
+        |    public static <A> Builder0<A> builder(String typeName) {
+        |        return new Builder0<>(typeName);
+        |    }
+        |
+        |$builder0
+        |
+        |${builders.mkString("\n\n")}
+        |
+        |    @SuppressWarnings("unchecked")
+        |    private static <A> PgStruct<A> buildStruct(String typeName, java.util.List<PgStruct.Field<A, ?>> fields, PgStruct.StructReader<A> reader) {
+        |        java.util.List<PgTypename.CompositeOf.CompositeField> typenameFields =
+        |            fields.stream()
+        |                .map(f -> new PgTypename.CompositeOf.CompositeField(f.name(), f.type().typename()))
+        |                .toList();
+        |
+        |        PgTypename.CompositeOf<A> typename = new PgTypename.CompositeOf<>(typeName, typenameFields);
+        |
+        |        PgStruct.StructWriter<A> writer = structValue -> {
+        |            Object[] values = new Object[fields.size()];
+        |            for (int i = 0; i < fields.size(); i++) {
+        |                values[i] = ((PgStruct.Field<A, Object>) fields.get(i)).getter().apply(structValue);
+        |            }
+        |            return values;
+        |        };
+        |
+        |        PgJson<A> json = new PgJson<>() {
+        |            @Override
+        |            public JsonValue toJson(A value) {
+        |                LinkedHashMap<String, JsonValue> jsonFields = new LinkedHashMap<>();
+        |                for (PgStruct.Field<A, ?> field : fields) {
+        |                    jsonFields.put(field.name(), fieldToJson(field, value));
+        |                }
+        |                return new JsonValue.JObject(jsonFields);
+        |            }
+        |
+        |            @Override
+        |            public A fromJson(JsonValue jsonValue) {
+        |                if (jsonValue instanceof JsonValue.JObject obj) {
+        |                    Object[] values = new Object[fields.size()];
+        |                    for (int i = 0; i < fields.size(); i++) {
+        |                        PgStruct.Field<A, ?> field = fields.get(i);
+        |                        JsonValue fieldJson = obj.fields().get(field.name());
+        |                        values[i] = fieldFromJson(field, fieldJson);
+        |                    }
+        |                    try {
+        |                        return reader.read(values);
+        |                    } catch (java.sql.SQLException e) {
+        |                        throw new RuntimeException("Failed to construct struct from JSON", e);
+        |                    }
+        |                }
+        |                throw new IllegalArgumentException("Expected JSON object");
+        |            }
+        |
+        |            @SuppressWarnings("unchecked")
+        |            private <F> JsonValue fieldToJson(PgStruct.Field<A, F> field, A structValue) {
+        |                F value = field.getter().apply(structValue);
+        |                if (value == null) return JsonValue.JNull.INSTANCE;
+        |                return field.type().pgJson().toJson(value);
+        |            }
+        |
+        |            @SuppressWarnings("unchecked")
+        |            private <F> Object fieldFromJson(PgStruct.Field<A, F> field, JsonValue jsonValue) {
+        |                if (jsonValue == null || jsonValue instanceof JsonValue.JNull) return null;
+        |                return field.type().pgJson().fromJson(jsonValue);
+        |            }
+        |        };
+        |
+        |        return new PgStruct<>(typename, List.copyOf(fields), reader, writer, json);
+        |    }
+        |}
+        |""".stripMargin
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // DbProcedure / DbFunction generators (max 10 inputs, max 10 outputs)
   // ─────────────────────────────────────────────────────────────────────────────
@@ -630,6 +1072,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       val ctorParams = range.map(i => s"DbType<P$i> p${i}Type").mkString(",\n        ")
       val ctorAssignments = range.map(i => s"      this.p${i}Type = p${i}Type;").mkString("\n")
       val typeFieldArgs = range.map(i => s"p${i}Type").mkString(", ")
+      val typeAccessors = range.map(i => s"      public DbType<P$i> p${i}Type() { return p${i}Type; }").mkString("\n")
 
       val paramTypeMethod = if (n < maxArity) {
         s"""
@@ -653,7 +1096,6 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
 
         // 1-param optionally
         val opt1 = s"""
-      @SuppressWarnings("unchecked")
       public <A> ParamBuilder$nextN<$tparams, java.util.Optional<A>> optionally(ParamBuilder1<A> builder) {
         Fragment inner = builder.done();
         return new ParamBuilder$nextN<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), $typeFieldArgs, null);
@@ -661,7 +1103,6 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
 
         // 2-param optionally
         val opt2 = s"""
-      @SuppressWarnings("unchecked")
       public <A, B> ParamBuilder$nextN<$tparams, java.util.Optional<Tuple.Tuple2<A, B>>> optionally(ParamBuilder2<A, B> builder) {
         Fragment inner = builder.done();
         return new ParamBuilder$nextN<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), $typeFieldArgs, null);
@@ -669,7 +1110,6 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
 
         // 3-param optionally
         val opt3 = s"""
-      @SuppressWarnings("unchecked")
       public <A, B, C> ParamBuilder$nextN<$tparams, java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(ParamBuilder3<A, B, C> builder) {
         Fragment inner = builder.done();
         return new ParamBuilder$nextN<>(fragment.append(new Fragment.Optionally(inner, Fragment.countParams(inner))), $typeFieldArgs, null);
@@ -685,12 +1125,18 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       private final Fragment fragment;
   $fields
 
-      ParamBuilder$n(
+      public ParamBuilder$n(
           Fragment fragment,
           $ctorParams) {
         this.fragment = fragment;
   $ctorAssignments
       }
+
+      public Fragment fragment() {
+        return fragment;
+      }
+
+  $typeAccessors
 
       public ParamBuilder$n<$tparams> append(String s) {
         return new ParamBuilder$n<>(fragment.append(Fragment.of(s)), $typeFieldArgs);
@@ -705,8 +1151,8 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       }
   $paramTypeMethod$optionallyMethods
 
-      public <Out> Template.Query$n<$tparams, Out> query(ResultSetParser<Out> parser) {
-        return new Template.Query$n<>(
+      public <Out> TemplateRead.Query$n<$tparams, Out> query(ResultSetParser<Out> parser) {
+        return new TemplateRead.Query$n<>(
             fragment, $queryTypeFields, parser);
       }
 
@@ -741,81 +1187,9 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
       }
     }
 
-    val permits = {
-      val queryPermits = 1.to(maxArity).map(n => s"Template.Query$n")
+    val permitsReadWrite = {
       val updatePermits = 1.to(maxArity).map(n => s"Template.Update$n")
-      (queryPermits ++ updatePermits :+ "Template.From" :+ "RowTemplate").mkString(",\n        ")
-    }
-
-    val queryRecords = 1.to(maxArity).map { n =>
-      val range = 0.until(n)
-      val tparams = range.map(i => s"P$i").mkString(", ")
-      val allTparams = s"$tparams, Out"
-      val fillArgs = range.map(i => s"(Object) p$i").mkString(", ")
-      val onParams = range.map(i => s"P$i p$i").mkString(", ")
-
-      val fromFnParams = range.map(i => s"java.util.function.Function<T, P$i> f$i").mkString(", ")
-      val fromApplyArgs = range.map(i => s"f$i.apply(t)").mkString(", ")
-
-      if (n == 1) {
-        s"""  record Query1<P0, Out>(Fragment fragment, DbType<P0> p0Type, ResultSetParser<Out> parser)
-        implements Template<P0, Out> {
-      @Override
-      public Operation.Query<Out> on(P0 p0) {
-        return new Operation.Query<>(
-            OptionallyResolver.resolve(fragment, java.util.List.of((Object) p0).iterator()), parser);
-      }
-
-      public <T> From<T, Out> from($fromFnParams) {
-        return new From<>(this, t -> on($fromApplyArgs));
-      }
-
-      @Override
-      public String description(boolean verbose) {
-        return "Query1: " + fragment.renderInterpolated();
-      }
-
-      @Override
-      public String toString() {
-        return description(false);
-      }
-    }"""
-      } else {
-        val inType = inputType(n)
-        val extractArgs = range.map(i => s"in._${i + 1}()").mkString(",\n          ")
-
-        s"""  record Query$n<$allTparams>(
-        Fragment fragment,
-  ${range.map(i => s"      DbType<P$i> p${i}Type,").mkString("\n")}
-        ResultSetParser<Out> parser)
-        implements Template<$inType, Out> {
-      @Override
-      public Operation.Query<Out> on($inType in) {
-        return on($extractArgs);
-      }
-
-      public Operation.Query<Out> on($onParams) {
-        return new Operation.Query<>(
-            OptionallyResolver.resolve(fragment,
-                java.util.List.of($fillArgs).iterator()),
-            parser);
-      }
-
-      public <T> From<T, Out> from($fromFnParams) {
-        return new From<>(this, t -> on($fromApplyArgs));
-      }
-
-      @Override
-      public String description(boolean verbose) {
-        return "Query$n: " + fragment.renderInterpolated();
-      }
-
-      @Override
-      public String toString() {
-        return description(false);
-      }
-    }"""
-      }
+      (Seq("TemplateRead") ++ updatePermits :+ "Template.From" :+ "Template.Contramapped" :+ "RowTemplate").mkString(",\n        ")
     }
 
     val updateRecords = 1.to(maxArity).map { n =>
@@ -888,16 +1262,25 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
 
     s"""|package dev.typr.foundations;
         |
+        |/**
+        | * A parameterized operation factory. The base type for templates that may produce read-write
+        | * operations. Use {@link TemplateRead} when the template is known to produce read-only operations.
+        | *
+        | * <p>{@code TemplateRead <: Template} — a read template can be used wherever a
+        | * general template is expected, mirroring {@code OperationRead <: Operation}.
+        | */
         |public sealed interface Template<In, Out> extends Analyzable
-        |    permits $permits {
+        |    permits $permitsReadWrite {
         |
         |  Operation<Out> on(In in);
         |
         |  Fragment fragment();
         |
-        |${queryRecords.mkString("\n\n")}
-        |
         |${updateRecords.mkString("\n\n")}
+        |
+        |  default <In2> Template<In2, Out> contramapInput(java.util.function.Function<In2, In> f) {
+        |    return new Contramapped<>(this, f);
+        |  }
         |
         |  record From<T, Out>(
         |      Template<?, Out> inner,
@@ -921,6 +1304,166 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
         |    @Override
         |    public String toString() {
         |      return description(false);
+        |    }
+        |  }
+        |
+        |  record Contramapped<In2, In, Out>(
+        |      Template<In, Out> inner,
+        |      java.util.function.Function<In2, In> f)
+        |      implements Template<In2, Out> {
+        |    @Override
+        |    public Operation<Out> on(In2 in2) {
+        |      return inner.on(f.apply(in2));
+        |    }
+        |
+        |    @Override
+        |    public Fragment fragment() {
+        |      return inner.fragment();
+        |    }
+        |  }
+        |}
+        |""".stripMargin
+  }
+
+  def generateTemplateRead(): String = {
+    val maxArity = 10
+
+    val permitsRead = {
+      val queryPermits = 1.to(maxArity).map(n => s"TemplateRead.Query$n")
+      (queryPermits :+ "TemplateRead.FromRead" :+ "TemplateRead.ContramappedRead" :+ "RowTemplate.Query").mkString(",\n        ")
+    }
+
+    val queryRecords = 1.to(maxArity).map { n =>
+      val range = 0.until(n)
+      val tparams = range.map(i => s"P$i").mkString(", ")
+      val allTparams = s"$tparams, Out"
+      val fillArgs = range.map(i => s"(Object) p$i").mkString(", ")
+      val onParams = range.map(i => s"P$i p$i").mkString(", ")
+      val fromFnParams = range.map(i => s"java.util.function.Function<T, P$i> f$i").mkString(", ")
+      val fromApplyArgs = range.map(i => s"f$i.apply(t)").mkString(", ")
+
+      if (n == 1) {
+        s"""  record Query1<P0, Out>(Fragment fragment, DbType<P0> p0Type, ResultSetParser<Out> parser)
+        implements TemplateRead<P0, Out> {
+      @Override
+      public OperationRead.Query<Out> on(P0 p0) {
+        return new OperationRead.Query<>(
+            OptionallyResolver.resolve(fragment, java.util.List.of((Object) p0).iterator()), parser);
+      }
+
+      public <T> FromRead<T, Out> from($fromFnParams) {
+        return new FromRead<>(this, t -> on($fromApplyArgs));
+      }
+
+      @Override
+      public String description(boolean verbose) {
+        return "Query1: " + fragment.renderInterpolated();
+      }
+
+      @Override
+      public String toString() {
+        return description(false);
+      }
+    }"""
+      } else {
+        def inputType(n: Int): String = {
+          if (n == 1) "P0"
+          else {
+            val tparams = 0.until(n).map(i => s"P$i").mkString(", ")
+            s"Tuple.Tuple$n<$tparams>"
+          }
+        }
+        val inType = inputType(n)
+        val extractArgs = range.map(i => s"in._${i + 1}()").mkString(",\n          ")
+
+        s"""  record Query$n<$allTparams>(
+        Fragment fragment,
+  ${range.map(i => s"      DbType<P$i> p${i}Type,").mkString("\n")}
+        ResultSetParser<Out> parser)
+        implements TemplateRead<$inType, Out> {
+      @Override
+      public OperationRead.Query<Out> on($inType in) {
+        return on($extractArgs);
+      }
+
+      public OperationRead.Query<Out> on($onParams) {
+        return new OperationRead.Query<>(
+            OptionallyResolver.resolve(fragment,
+                java.util.List.of($fillArgs).iterator()),
+            parser);
+      }
+
+      public <T> FromRead<T, Out> from($fromFnParams) {
+        return new FromRead<>(this, t -> on($fromApplyArgs));
+      }
+
+      @Override
+      public String description(boolean verbose) {
+        return "Query$n: " + fragment.renderInterpolated();
+      }
+
+      @Override
+      public String toString() {
+        return description(false);
+      }
+    }"""
+      }
+    }
+
+    s"""|package dev.typr.foundations;
+        |
+        |/**
+        | * A template that produces read-only operations. {@code TemplateRead <: Template}.
+        | */
+        |public sealed interface TemplateRead<In, Out> extends Template<In, Out>
+        |    permits $permitsRead {
+        |
+        |  @Override
+        |  OperationRead<Out> on(In in);
+        |
+        |  default <In2> TemplateRead<In2, Out> contramapInput(java.util.function.Function<In2, In> f) {
+        |    return new ContramappedRead<>(this, f);
+        |  }
+        |
+        |${queryRecords.mkString("\n\n")}
+        |
+        |  record FromRead<T, Out>(
+        |      TemplateRead<?, Out> inner,
+        |      java.util.function.Function<T, ? extends OperationRead<Out>> resolver)
+        |      implements TemplateRead<T, Out> {
+        |    @Override
+        |    public OperationRead<Out> on(T t) {
+        |      return resolver.apply(t);
+        |    }
+        |
+        |    @Override
+        |    public Fragment fragment() {
+        |      return inner.fragment();
+        |    }
+        |
+        |    @Override
+        |    public String description(boolean verbose) {
+        |      return "FromRead: " + fragment().renderInterpolated();
+        |    }
+        |
+        |    @Override
+        |    public String toString() {
+        |      return description(false);
+        |    }
+        |  }
+        |
+        |  record ContramappedRead<In2, In, Out>(
+        |      TemplateRead<In, Out> inner,
+        |      java.util.function.Function<In2, In> f)
+        |      implements TemplateRead<In2, Out> {
+        |    @Override
+        |    public OperationRead<Out> on(In2 in2) {
+        |      return inner.on(f.apply(in2));
+        |    }
+        |
+        |    @Override
+        |    public Fragment fragment() {
+        |      return inner.fragment();
         |    }
         |  }
         |}
@@ -1045,21 +1588,21 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
         |import org.jetbrains.annotations.Nullable;
         |
         |/**
-        | * A Connection wrapper that carries query listener, name, and timeout metadata.
+        | * A java.sql.Connection wrapper that carries query listener, name, and timeout metadata.
         | * Used internally by the Transactor when a QueryListener is configured.
         | * <p>
         | * All Connection methods delegate to the underlying connection. The wrapper
         | * adds no overhead beyond the extra field storage.
         | */
-        |final class InstrumentedConnection implements Connection {
-        |    private final Connection delegate;
+        |final class InstrumentedConnection implements java.sql.Connection {
+        |    private final java.sql.Connection delegate;
         |    private final QueryListener listener;
         |    private @Nullable String queryName;
         |    private @Nullable Duration queryTimeout;
         |    private final AtomicInteger queryCounter = new AtomicInteger(0);
         |
         |    InstrumentedConnection(
-        |            Connection delegate,
+        |            java.sql.Connection delegate,
         |            QueryListener listener,
         |            @Nullable String queryName,
         |            @Nullable Duration queryTimeout) {
@@ -1069,7 +1612,7 @@ object SourcegenJava extends BleepCodegenScript("SourcegenJava") {
         |        this.queryTimeout = queryTimeout;
         |    }
         |
-        |    Connection delegate() {
+        |    java.sql.Connection delegate() {
         |        return delegate;
         |    }
         |

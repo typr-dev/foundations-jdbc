@@ -1,9 +1,9 @@
 package dev.typr.foundations.docs.core;
 
+import dev.typr.foundations.Connection;
 import dev.typr.foundations.Fragment;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
-import java.sql.Connection;
 import java.time.Instant;
 import java.util.List;
 

@@ -10,13 +10,13 @@ public class ScannerDirectivesManual {
   static class ReportRepo {
     record ReportFilter(String category, int limit) {}
 
-    public Operation<List<String>> filteredReport(ReportFilter filter) {
+    public OperationRead<List<String>> filteredReport(ReportFilter filter) {
       return Fragment.of("SELECT name FROM reports WHERE category = ")
           .value(PgTypes.text, filter.category())
           .queryAll(PgTypes.text);
     }
 
-    public Operation<List<String>> allReports() {
+    public OperationRead<List<String>> allReports() {
       return Fragment.of("SELECT name FROM reports").queryAll(PgTypes.text);
     }
   }

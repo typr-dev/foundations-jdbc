@@ -34,7 +34,13 @@ public class ComposingAllOf {
           .update();
 
   void createUserWithAudit() {
-    Operation.allOf(insertUser, insertAudit, updateStats).transact(tx);
+    tx.transact(
+        conn -> {
+          conn.execute(insertUser);
+          conn.execute(insertAudit);
+          conn.execute(updateStats);
+          return null;
+        });
   }
   // stop
 }

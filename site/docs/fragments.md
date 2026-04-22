@@ -30,7 +30,7 @@ The builder pattern works in all languages and is useful for constructing fragme
 :::note `.value()` binds, `.param()` creates a hole
 The vocabulary matters because both occupy the same SQL `?` position:
 
-- `.value(type, x)` — **bound value**, immediately captured into the Fragment. Produces a ready-to-execute `Operation`.
+- `.value(type, x)` — **bound value**, immediately captured into the Fragment. Produces a ready-to-execute `OperationRead` or `Operation`.
 - `.param(type)` — **parameter hole**, filled later. Produces a `Template` — see [Templates](./templates).
 
 `.param(type, value)` does not exist — if you know the value, use `.value(type, value)`.

@@ -3,7 +3,6 @@ package dev.typr.foundationskt
 
 import dev.typr.foundations.AnalysisOptions
 import dev.typr.foundations.PgElementCodec
-import dev.typr.foundations.PgCompositeText
 import dev.typr.foundations.PgJson
 import dev.typr.foundations.PgOutParam
 import dev.typr.foundations.PgRead
@@ -15,8 +14,8 @@ class PgType<T>(override val underlying: dev.typr.foundations.PgType<T>) : DbTyp
     override fun opt(): PgType<T?> =
         PgType(underlying.opt().to(Bijection.optionalToNullable()))
 
-    override fun <B> to(bijection: dev.typr.foundations.Bijection<T, B>): PgType<B> =
-        PgType(underlying.to(bijection))
+    override fun <B> to(bijection: Bijection<T, B>): PgType<B> =
+        PgType(underlying.to(bijection.underlying))
 
     fun <B> transform(f: (T) -> B, g: (B) -> T): PgType<B> =
         PgType(underlying.transform(dev.typr.foundations.SqlFunction { f(it) }, g))
@@ -24,7 +23,7 @@ class PgType<T>(override val underlying: dev.typr.foundations.PgType<T>) : DbTyp
     /** Variable-length PG array of this type — Kotlin-side as {@code List<T>}. */
     fun array(): PgType<List<T>> = PgType(underlying.array())
 
-    fun encode(value: T): dev.typr.foundations.Fragment.Value<T> = underlying.encode(value)
+    fun encode(value: T): Fragment = Fragment(underlying.encode(value))
 
     fun pgText(): PgText<T> = underlying.pgText()
 
@@ -36,7 +35,6 @@ class PgType<T>(override val underlying: dev.typr.foundations.PgType<T>) : DbTyp
     fun withRead(read: PgRead<T>): PgType<T> = PgType(underlying.withRead(read))
     fun withWrite(write: PgWrite<T>): PgType<T> = PgType(underlying.withWrite(write))
     fun withText(text: PgText<T>): PgType<T> = PgType(underlying.withText(text))
-    fun withCompositeText(compositeText: PgCompositeText<T>): PgType<T> = PgType(underlying.withCompositeText(compositeText))
     fun withJson(json: PgJson<T>): PgType<T> = PgType(underlying.withJson(json))
     fun withOutParam(outParam: PgOutParam<T>): PgType<T> = PgType(underlying.withOutParam(outParam))
     fun withArrayCodec(codec: PgElementCodec<T>): PgType<T> = PgType(underlying.withArrayCodec(codec))

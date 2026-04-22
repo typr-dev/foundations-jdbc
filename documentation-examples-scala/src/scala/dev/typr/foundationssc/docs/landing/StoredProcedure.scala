@@ -15,7 +15,7 @@ object StoredProcedure:
       .out(PgTypes.text)
       .build()
 
-  // call() returns a ProcedureOp — use it like any other operation
+  // call() returns an Operation — use it like any other operation
   def findUser(userId: Int): (String, String) =
     getUser.call(userId).transact(tx)
   // stop

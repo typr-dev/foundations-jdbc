@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public final class Cursor<Row> implements Iterator<Row>, Iterable<Row>, AutoCloseable {
@@ -17,18 +18,43 @@ public final class Cursor<Row> implements Iterator<Row>, Iterable<Row>, AutoClos
   private Boolean hasNextCached;
   private boolean closed;
 
-  Cursor(PreparedStatement stmt, ResultSet rs, RowCodec<Row> codec) {
+  private final Optional<Iterator<Row>> backing;
+  private final Optional<Runnable> closeAction;
+
+  public Cursor(PreparedStatement stmt, ResultSet rs, RowCodec<Row> codec) {
     this.stmt = stmt;
     this.rs = rs;
     this.codec = codec;
     this.rowNum = 0;
     this.hasNextCached = null;
     this.closed = false;
+    this.backing = Optional.empty();
+    this.closeAction = Optional.empty();
+  }
+
+  private Cursor(Iterator<Row> backing, Runnable closeAction) {
+    this.stmt = null;
+    this.rs = null;
+    this.codec = null;
+    this.rowNum = 0;
+    this.hasNextCached = null;
+    this.closed = false;
+    this.backing = Optional.of(backing);
+    this.closeAction = Optional.of(closeAction);
+  }
+
+  public static <Row> Cursor<Row> fromIterator(Iterator<Row> rows, Runnable onClose) {
+    return new Cursor<>(rows, onClose);
   }
 
   @Override
   public boolean hasNext() {
     if (closed) return false;
+    if (backing.isPresent()) {
+      boolean has = backing.get().hasNext();
+      if (!has) close();
+      return has;
+    }
     if (hasNextCached != null) return hasNextCached;
     try {
       hasNextCached = rs.next();
@@ -37,19 +63,20 @@ public final class Cursor<Row> implements Iterator<Row>, Iterable<Row>, AutoClos
       }
       return hasNextCached;
     } catch (SQLException e) {
-      throw new DatabaseException(e);
+      throw new DatabaseException.Jdbc(e);
     }
   }
 
   @Override
   public Row next() {
     if (!hasNext()) throw new NoSuchElementException();
+    if (backing.isPresent()) return backing.get().next();
     hasNextCached = null;
     rowNum++;
     try {
       return codec.readRow(rs, rowNum);
-    } catch (RowCodec.SqlResultParseException e) {
-      throw new DatabaseException(e);
+    } catch (SqlResultParseException e) {
+      throw new DatabaseException.Jdbc(e);
     }
   }
 
@@ -75,6 +102,10 @@ public final class Cursor<Row> implements Iterator<Row>, Iterable<Row>, AutoClos
   public void close() {
     if (closed) return;
     closed = true;
+    if (closeAction.isPresent()) {
+      closeAction.get().run();
+      return;
+    }
     try {
       rs.close();
     } catch (SQLException ignored) {

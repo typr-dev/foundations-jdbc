@@ -1,7 +1,7 @@
 package dev.typr.foundations.docs.core;
 
 import dev.typr.foundations.Fragment;
-import dev.typr.foundations.Operation;
+import dev.typr.foundations.OperationRead;
 import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.RowCodec;
 import dev.typr.foundations.Transactor;
@@ -23,9 +23,9 @@ public class ManualTransaction {
   Transactor tx = null; // placeholder
 
   // start
-  Operation<Long> countUsers =
+  OperationRead<Long> countUsers =
       Fragment.of("SELECT count(*) FROM users").query(RowCodec.of(PgTypes.int8).exactlyOne());
-  Operation<List<Order>> recentOrders =
+  OperationRead<List<Order>> recentOrders =
       Fragment.of(
               """
               SELECT * FROM orders
@@ -33,12 +33,12 @@ public class ManualTransaction {
               """)
           .query(orderCodec.all());
 
-  // Run both in one transaction using the connection directly
+  // Run both in one transaction using a transact block
   Dashboard dashboard() {
-    return tx.execute(
-        conn -> {
-          long count = countUsers.run(conn);
-          List<Order> orders = recentOrders.run(conn);
+    return tx.transact(
+        mc -> {
+          long count = mc.execute(countUsers);
+          List<Order> orders = mc.execute(recentOrders);
           return new Dashboard(count, orders);
         });
   }

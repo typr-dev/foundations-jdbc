@@ -9,10 +9,10 @@ import java.sql.Connection
 object QueryListenerBasic:
   // start
   object logger extends QueryListener:
-    override def beforeQuery(sql: String, name: String): Unit =
+    override def beforeQuery(sql: String, name: java.util.Optional[String]): Unit =
       println(s"Executing: $sql")
     override def afterQuery(event: QueryEvent): Unit =
-      println(s"${event.name()} completed in ${event.elapsed().toMillis}ms")
+      println(s"${event.name().orElse("unnamed")} completed in ${event.elapsed().toMillis}ms")
     override def failedQuery(event: QueryEvent): Unit =
-      System.err.println(s"${event.name()} failed after ${event.elapsed().toMillis}ms: ${event.error().getMessage}")
+      System.err.println(s"${event.name().orElse("unnamed")} failed after ${event.elapsed().toMillis}ms: ${event.error().map(_.getMessage).orElse("unknown")}")
   // stop

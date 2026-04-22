@@ -1,12 +1,10 @@
 package dev.typr.foundationssc
 
-import dev.typr.foundations.{AnalysisOptions, PgElementCodec, PgCompositeText, PgJson, PgOutParam, PgRead, PgText, PgTypename, PgWrite}
-
 class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends DbType[T](underlying):
   override def opt: PgType[Option[T]] =
     PgType(underlying.opt().to(Bijections.optionalToOption))
 
-  override def to[B](bijection: dev.typr.foundations.Bijection[T, B]): PgType[B] =
+  override def to[B](bijection: Bijection[T, B]): PgType[B] =
     PgType(underlying.to(bijection))
 
   def transform[B](f: T => B, g: B => T): PgType[B] =
@@ -26,7 +24,7 @@ class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends
       )
   )
 
-  def encode(value: T): dev.typr.foundations.Fragment.Value[T] = underlying.encode(value)
+  def encode(value: T): Fragment = new Fragment(underlying.encode(value))
 
   def pgText(): PgText[T] = underlying.pgText()
 
@@ -38,7 +36,6 @@ class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends
   def withRead(read: PgRead[T]): PgType[T] = PgType(underlying.withRead(read))
   def withWrite(write: PgWrite[T]): PgType[T] = PgType(underlying.withWrite(write))
   def withText(text: PgText[T]): PgType[T] = PgType(underlying.withText(text))
-  def withCompositeText(compositeText: PgCompositeText[T]): PgType[T] = PgType(underlying.withCompositeText(compositeText))
   def withJson(json: PgJson[T]): PgType[T] = PgType(underlying.withJson(json))
   def withOutParam(outParam: PgOutParam[T]): PgType[T] = PgType(underlying.withOutParam(outParam))
   def withArrayCodec(codec: PgElementCodec[T]): PgType[T] = PgType(underlying.withArrayCodec(codec))

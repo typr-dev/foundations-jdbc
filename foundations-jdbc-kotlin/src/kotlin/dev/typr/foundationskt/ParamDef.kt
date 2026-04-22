@@ -1,12 +1,14 @@
 @file:Suppress("unused")
 package dev.typr.foundationskt
 
+import dev.typr.foundations.ParamDef as JavaParamDef
+
 object ParamDef {
     @JvmStatic
-    fun input(type: DbType<*>): dev.typr.foundations.ParamDef =
-        dev.typr.foundations.ParamDef.input(type.underlying)
+    fun input(type: DbType<*>): JavaParamDef =
+        JavaParamDef.input(type.underlying)
 
     @JvmStatic
-    fun of(type: DbType<*>, mode: dev.typr.foundations.ParamDef.Mode): dev.typr.foundations.ParamDef =
-        dev.typr.foundations.ParamDef.of(type.underlying, mode)
+    fun of(type: DbType<*>, mode: ParamDefMode): JavaParamDef =
+        JavaParamDef.of(type.underlying, mode)
 }

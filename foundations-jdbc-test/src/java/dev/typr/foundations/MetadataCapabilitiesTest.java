@@ -2,7 +2,6 @@ package dev.typr.foundations;
 
 import static org.junit.Assert.*;
 
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
@@ -96,7 +95,7 @@ public class MetadataCapabilitiesTest {
 
   record ColInfo(int position, String name, String typeName, int jdbcType, int nullable) {}
 
-  private static MetaReport probe(String database, Connection conn) throws SQLException {
+  private static MetaReport probe(String database, java.sql.Connection conn) throws SQLException {
     String createTable;
     if (database.equals("SQL Server")) {
       createTable =
@@ -239,8 +238,9 @@ public class MetadataCapabilitiesTest {
   @Test
   public void postgresMetadata() throws SQLException {
     Containers.postgresTransactor()
-        .executeVoid(
-            conn -> {
+        .transact(
+            mc -> {
+              var conn = mc.unwrap();
               MetaReport report = probe("PostgreSQL", conn);
 
               // PostgreSQL parameter metadata: type names available, nullability unknown
@@ -256,6 +256,7 @@ public class MetadataCapabilitiesTest {
 
               // PostgreSQL column metadata: types and nullability are reliable
               assertColumnNullabilityReliable(report);
+              return null;
             });
   }
 
@@ -266,8 +267,9 @@ public class MetadataCapabilitiesTest {
   @Test
   public void mariadbMetadata() throws SQLException {
     Containers.mariadbTransactor()
-        .executeVoid(
-            conn -> {
+        .transact(
+            mc -> {
+              var conn = mc.unwrap();
               MetaReport report = probe("MariaDB", conn);
 
               // MariaDB parameter metadata: throws exception (not supported)
@@ -275,6 +277,7 @@ public class MetadataCapabilitiesTest {
 
               // MariaDB column metadata: types and nullability are reliable
               assertColumnNullabilityReliable(report);
+              return null;
             });
   }
 
@@ -285,8 +288,9 @@ public class MetadataCapabilitiesTest {
   @Test
   public void sqlserverMetadata() throws SQLException {
     Containers.sqlserverTransactor()
-        .executeVoid(
-            conn -> {
+        .transact(
+            mc -> {
+              var conn = mc.unwrap();
               MetaReport report = probe("SQL Server", conn);
 
               // SQL Server parameter metadata: type names available, nullability unknown
@@ -302,6 +306,7 @@ public class MetadataCapabilitiesTest {
 
               // SQL Server column metadata: types and nullability are reliable
               assertColumnNullabilityReliable(report);
+              return null;
             });
   }
 
@@ -312,8 +317,9 @@ public class MetadataCapabilitiesTest {
   @Test
   public void oracleMetadata() throws SQLException {
     Containers.oracleTransactor()
-        .executeVoid(
-            conn -> {
+        .transact(
+            mc -> {
+              var conn = mc.unwrap();
               MetaReport report = probe("Oracle", conn);
 
               // Oracle parameter metadata: type names AND nullability available
@@ -330,6 +336,7 @@ public class MetadataCapabilitiesTest {
 
               // Oracle column metadata: types and nullability are reliable
               assertColumnNullabilityReliable(report);
+              return null;
             });
   }
 
@@ -340,8 +347,9 @@ public class MetadataCapabilitiesTest {
   @Test
   public void db2Metadata() throws SQLException {
     Containers.db2Transactor()
-        .executeVoid(
-            conn -> {
+        .transact(
+            mc -> {
+              var conn = mc.unwrap();
               MetaReport report = probe("DB2", conn);
 
               // DB2 parameter metadata: type names available, but nullability unreliable
@@ -358,6 +366,7 @@ public class MetadataCapabilitiesTest {
 
               // DB2 column metadata: types and nullability are reliable
               assertColumnNullabilityReliable(report);
+              return null;
             });
   }
 }

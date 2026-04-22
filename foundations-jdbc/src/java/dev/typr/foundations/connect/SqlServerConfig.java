@@ -1,5 +1,6 @@
 package dev.typr.foundations.connect;
 
+import dev.typr.foundations.internal.SqlServerErrorExtractor;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -241,6 +242,11 @@ public final class SqlServerConfig implements DatabaseConfig {
   @Override
   public DatabaseKind kind() {
     return DatabaseKind.SQLSERVER;
+  }
+
+  @Override
+  public dev.typr.foundations.DatabaseException mapException(java.sql.SQLException e) {
+    return SqlServerErrorExtractor.mapException(e);
   }
 
   @Override

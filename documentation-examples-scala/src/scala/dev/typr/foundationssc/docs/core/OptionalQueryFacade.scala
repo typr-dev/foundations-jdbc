@@ -25,14 +25,14 @@ object OptionalQueryFacade:
   )
 
   // .from() maps getters to template params
-  private val searchTemplate: Template.From[UserSearch, List[User]] =
+  private val searchTemplate: TemplateRead.FromRead[UserSearch, List[User]] =
     sql"SELECT id, name, email FROM users WHERE 1=1"
       .optionally(sql" AND name ILIKE ".param(PgTypes.text))
       .optionally(sql" AND email ILIKE ".param(PgTypes.text))
       .optionally(sql" AND active = TRUE")
       .append(" ORDER BY name")
       .query(userCodec.all())
-      .from(_.name, _.email, _.activeOnly)
+      .from[UserSearch](_.name, _.email, _.activeOnly)
 
   // Callers just pass the case class
   def searchUsers(search: UserSearch): List[User] =

@@ -10,13 +10,17 @@ public record PgType<A>(
     PgRead<A> read,
     PgWrite<A> write,
     PgText<A> pgText,
-    PgCompositeText<A> pgCompositeText,
     PgJson<A> pgJson,
     PgOutParam<A> pgOutParam,
+    PgBinary<A> pgBinary,
     AnalysisOptions analysisOptions,
     Optional<PgElementCodec<A>> pgArrayCodec,
     char arrayDelimiter)
     implements DbType<A> {
+
+  public PgCompositeText<A> pgCompositeText() {
+    return pgText.asCompositeText();
+  }
 
   @Override
   public Optional<DbOutParam<A>> outParam() {
@@ -66,9 +70,9 @@ public record PgType<A>(
         read,
         write,
         pgText,
-        pgCompositeText,
         pgJson,
         pgOutParam,
+        pgBinary,
         opts,
         pgArrayCodec,
         arrayDelimiter);
@@ -84,9 +88,9 @@ public record PgType<A>(
         read,
         write,
         pgText,
-        pgCompositeText,
         pgJson,
         pgOutParam,
+        pgBinary,
         analysisOptions,
         pgArrayCodec,
         arrayDelimiter);
@@ -110,9 +114,9 @@ public record PgType<A>(
         read,
         write,
         pgText,
-        pgCompositeText,
         pgJson,
         pgOutParam,
+        pgBinary,
         analysisOptions,
         pgArrayCodec,
         arrayDelimiter);
@@ -124,9 +128,9 @@ public record PgType<A>(
         read,
         write,
         pgText,
-        pgCompositeText,
         pgJson,
         pgOutParam,
+        pgBinary,
         analysisOptions,
         pgArrayCodec,
         arrayDelimiter);
@@ -138,23 +142,9 @@ public record PgType<A>(
         read,
         write,
         text,
-        pgCompositeText,
         pgJson,
         pgOutParam,
-        analysisOptions,
-        pgArrayCodec,
-        arrayDelimiter);
-  }
-
-  public PgType<A> withCompositeText(PgCompositeText<A> compositeText) {
-    return new PgType<>(
-        typename,
-        read,
-        write,
-        pgText,
-        compositeText,
-        pgJson,
-        pgOutParam,
+        pgBinary,
         analysisOptions,
         pgArrayCodec,
         arrayDelimiter);
@@ -166,9 +156,9 @@ public record PgType<A>(
         read,
         write,
         pgText,
-        pgCompositeText,
         json,
         pgOutParam,
+        pgBinary,
         analysisOptions,
         pgArrayCodec,
         arrayDelimiter);
@@ -180,9 +170,9 @@ public record PgType<A>(
         read,
         write,
         pgText,
-        pgCompositeText,
         pgJson,
         outParam,
+        pgBinary,
         analysisOptions,
         pgArrayCodec,
         arrayDelimiter);
@@ -194,9 +184,9 @@ public record PgType<A>(
         read,
         write,
         pgText,
-        pgCompositeText,
         pgJson,
         pgOutParam,
+        pgBinary,
         analysisOptions,
         Optional.of(codec),
         arrayDelimiter);
@@ -212,9 +202,9 @@ public record PgType<A>(
         read,
         write,
         pgText,
-        pgCompositeText,
         pgJson,
         pgOutParam,
+        pgBinary,
         analysisOptions,
         pgArrayCodec,
         delimiter);
@@ -227,9 +217,9 @@ public record PgType<A>(
         read.opt(),
         write.opt(typename),
         pgText.opt(),
-        pgCompositeText.opt(),
         pgJson.opt(),
         pgOutParam.opt(),
+        pgBinary.opt(),
         analysisOptions,
         Optional.empty(),
         arrayDelimiter);
@@ -258,7 +248,7 @@ public record PgType<A>(
         };
     PgRead<List<A>> listRead =
         (codec instanceof PgElementCodec.OfText)
-            ? PgRead.readCompositeList(pgCompositeText)
+            ? PgRead.readCompositeList(pgCompositeText())
             : PgRead.readElementList(elementConverter);
     // Nested-array support: the resulting PgType<List<A>> needs its own pgArrayCodec so a
     // further .array() call (producing PgType<List<List<A>>>) can decode sub-arrays. If the
@@ -279,7 +269,7 @@ public record PgType<A>(
                   try {
                     subElements = (Object[]) subArr.getArray();
                   } catch (java.sql.SQLException ex) {
-                    throw new DatabaseException(ex);
+                    throw new DatabaseException.Jdbc(ex);
                   }
                 } else if (obj instanceof Object[] arr) {
                   subElements = arr;
@@ -334,47 +324,39 @@ public record PgType<A>(
     } else {
       listWrite = write.list(typename);
     }
+    PgText<List<A>> listText = pgText.list(arrayDelimiter);
     return new PgType<>(
         typename.array(),
         listRead,
         listWrite,
-        pgText.list(arrayDelimiter),
-        pgCompositeText.list(arrayDelimiter),
+        listText,
         pgJson.list(),
-        PgOutParam.parsedList(pgCompositeText::decode),
+        PgOutParam.parsedList(pgText::compositeDecode),
+        PgBinary.textFallback(listText),
         analysisOptions.listForms(),
         Optional.of(nestedCodec),
         ',');
   }
 
   public <B> PgType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {
+    Function<A, B> uncheckedF =
+        a -> {
+          try {
+            return f.apply(a);
+          } catch (java.sql.SQLException e) {
+            throw new DatabaseException.Jdbc(e);
+          }
+        };
     return new PgType<>(
         typename.as(),
         read.map(f),
         write.contramap(g),
-        pgText.contramap(g),
-        pgCompositeText.transform(
-            a -> {
-              try {
-                return f.apply(a);
-              } catch (java.sql.SQLException e) {
-                throw new DatabaseException(e);
-              }
-            },
-            g),
+        pgText.bimap(uncheckedF, g),
         pgJson.transform(f, g),
         pgOutParam.map(f),
+        pgBinary.bimap(uncheckedF, g),
         analysisOptions,
-        pgArrayCodec.map(
-            codec ->
-                codec.map(
-                    a -> {
-                      try {
-                        return f.apply(a);
-                      } catch (java.sql.SQLException e) {
-                        throw new DatabaseException(e);
-                      }
-                    })),
+        pgArrayCodec.map(codec -> codec.map(uncheckedF)),
         arrayDelimiter);
   }
 
@@ -383,12 +365,26 @@ public record PgType<A>(
         typename.as(),
         read.map(bijection::underlying),
         write.contramap(bijection::from),
-        pgText.contramap(bijection::from),
-        pgCompositeText.transform(bijection::underlying, bijection::from),
+        pgText.bimap(bijection::underlying, bijection::from),
         pgJson.transform(bijection::underlying, bijection::from),
         pgOutParam.map(bijection::underlying),
+        pgBinary.bimap(bijection::underlying, bijection::from),
         analysisOptions,
         pgArrayCodec.map(codec -> codec.map(bijection::underlying)),
+        arrayDelimiter);
+  }
+
+  public PgType<A> withBinary(PgBinary<A> binary) {
+    return new PgType<>(
+        typename,
+        read,
+        write,
+        pgText,
+        pgJson,
+        pgOutParam,
+        binary,
+        analysisOptions,
+        pgArrayCodec,
         arrayDelimiter);
   }
 }

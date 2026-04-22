@@ -8,7 +8,7 @@ import Snippet from '@site/src/components/Snippet';
 
 For large result sets, materializing all rows into a `List` can cause out-of-memory errors. Streaming reads return a `Cursor` — a lazy iterator that fetches rows from the database in batches while the connection stays open.
 
-`streamingQuery` returns an `Operation<Cursor<Row>>`. The cursor is live during the `map` callback, where you process rows incrementally. All the usual combinators (`map`, `combine`, `transact`) work as expected.
+`streamingQuery` returns an `OperationRead<Cursor<Row>>`. The cursor is live during the `map` callback, where you process rows incrementally. All the usual combinators (`map`, `combine`, `transactRead`) work as expected.
 
 ## Basic Usage
 
@@ -36,13 +36,13 @@ Multiple streaming operations compose with `combine`. Both cursors are open simu
 You can also combine streaming operations with regular (non-streaming) operations — just `map` the cursor first:
 
 ```java
-streaming.map(Cursor::toList).combine(countOp).transact(tx);
+streaming.map(Cursor::toList).combine(countOp).transactRead(tx);
 ```
 
 ## Cursor Lifecycle
 
-:::danger Don't return a Cursor from transact
-The cursor borrows the connection. When `transact` returns, the connection is closed and the cursor becomes unusable. Always process the cursor inside `map`:
+:::danger Don't return a Cursor from transactRead
+The cursor borrows the connection. When `transactRead` returns, the connection is closed and the cursor becomes unusable. Always process the cursor inside `map`:
 :::
 
 <Snippet file="core/StreamingReadFootgun" />

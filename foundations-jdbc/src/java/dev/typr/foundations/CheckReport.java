@@ -1,5 +1,6 @@
 package dev.typr.foundations;
 
+import dev.typr.foundations.internal.Str;
 import java.util.List;
 
 public record CheckReport(List<QueryAnalysis> analyses) {
@@ -24,7 +25,7 @@ public record CheckReport(List<QueryAnalysis> analyses) {
       }
     }
     if (!failed.isEmpty()) {
-      throw new QueryCheckFailedException(
+      throw new QueryChecker.QueryCheckFailedException(
           failed, failed.size() + " queries failed type checking:" + errors);
     }
   }
@@ -85,7 +86,7 @@ public record CheckReport(List<QueryAnalysis> analyses) {
   }
 
   private static String displayName(QueryAnalysis a) {
-    if (a.queryName() != null) return a.queryName();
+    if (a.queryName().isPresent()) return a.queryName().get();
     String sql = a.sql().replace('\n', ' ').replaceAll("\\s+", " ").trim();
     return sql.length() <= 60 ? sql : sql.substring(0, 57) + "...";
   }

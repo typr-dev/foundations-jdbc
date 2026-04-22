@@ -7,7 +7,6 @@ import dev.typr.foundations.data.maria.Inet6;
 import dev.typr.foundations.data.maria.MariaSet;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -362,7 +361,7 @@ public class MariaTypeTest {
           );
 
   static <T> T withConnection(SqlFunction<Connection, T> f) {
-    return Containers.mariadbTransactor().execute(f);
+    return Containers.mariadbTransactor().transact(f);
   }
 
   @Test
@@ -501,10 +500,10 @@ public class MariaTypeTest {
     }
   }
 
-  static <A> void testQueryAnalysis(Connection conn, MariaTypeAndExample<A> t) throws SQLException {
+  static <A> void testQueryAnalysis(Connection conn, MariaTypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("qa");
-    conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
+    Fragment.of("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")").execute().run(conn);
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
@@ -514,16 +513,16 @@ public class MariaTypeTest {
             "Query analysis failed for " + sqlType + ":\n" + analysis.report());
       }
     } finally {
-      conn.createStatement().execute("DROP TEMPORARY TABLE IF EXISTS " + tableName);
+      Fragment.of("DROP TEMPORARY TABLE IF EXISTS " + tableName).execute().run(conn);
     }
   }
 
-  static <A> void testQueryAnalysisWithParam(Connection conn, MariaTypeAndExample<A> t)
-      throws SQLException {
+  static <A> void testQueryAnalysisWithParam(Connection conn, MariaTypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("qap");
-    conn.createStatement()
-        .execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)");
+    Fragment.of("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + " NOT NULL)")
+        .execute()
+        .run(conn);
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment =
@@ -534,7 +533,7 @@ public class MariaTypeTest {
             "Param analysis failed for " + sqlType + ":\n" + analysis.report());
       }
     } finally {
-      conn.createStatement().execute("DROP TEMPORARY TABLE IF EXISTS " + tableName);
+      Fragment.of("DROP TEMPORARY TABLE IF EXISTS " + tableName).execute().run(conn);
     }
   }
 
@@ -569,23 +568,24 @@ public class MariaTypeTest {
   // Insert value into native column, read back as JSON, parse back to value
   static <A> void testJsonDbRoundtrip(Connection conn, MariaTypeAndExample<A> t)
       throws SQLException {
+    var jdbc = conn.unwrap();
     MariaJson<A> jsonCodec = t.type.mariaJson();
     A original = t.example;
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("test_json_rt");
 
     // Create temp table with the native type column
-    conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
+    jdbc.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
 
     try {
       // Insert value using native type
-      var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
+      var insert = jdbc.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
       t.type.write().set(insert, 1, original);
       insert.execute();
       insert.close();
 
       // Select back as JSON using JSON_OBJECT - this is what MULTISET does
-      var select = conn.prepareStatement("SELECT JSON_OBJECT('v', v) FROM " + tableName);
+      var select = jdbc.prepareStatement("SELECT JSON_OBJECT('v', v) FROM " + tableName);
       select.execute();
       var rs = select.getResultSet();
 
@@ -613,7 +613,7 @@ public class MariaTypeTest {
                 + "'");
       }
     } finally {
-      conn.createStatement().execute("DROP TEMPORARY TABLE IF EXISTS " + tableName);
+      jdbc.createStatement().execute("DROP TEMPORARY TABLE IF EXISTS " + tableName);
     }
   }
 
@@ -632,11 +632,12 @@ public class MariaTypeTest {
   }
 
   static <A> void testCase(Connection conn, MariaTypeAndExample<A> t) throws SQLException {
+    var jdbc = conn.unwrap();
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("test_table");
 
     // Create temp table
-    conn.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
+    jdbc.createStatement().execute("CREATE TEMPORARY TABLE " + tableName + " (v " + sqlType + ")");
 
     try {
       A expected = t.example;
@@ -645,10 +646,10 @@ public class MariaTypeTest {
       // Select and verify
       final PreparedStatement select;
       if (t.hasIdentity) {
-        select = conn.prepareStatement("SELECT v, NULL FROM " + tableName + " WHERE v = ?");
+        select = jdbc.prepareStatement("SELECT v, NULL FROM " + tableName + " WHERE v = ?");
         t.type.write().set(select, 1, expected);
       } else {
-        select = conn.prepareStatement("SELECT v, NULL FROM " + tableName);
+        select = jdbc.prepareStatement("SELECT v, NULL FROM " + tableName);
       }
 
       select.execute();
@@ -670,18 +671,19 @@ public class MariaTypeTest {
 
     } finally {
       // Drop temp table
-      conn.createStatement().execute("DROP TEMPORARY TABLE IF EXISTS " + tableName);
+      jdbc.createStatement().execute("DROP TEMPORARY TABLE IF EXISTS " + tableName);
     }
   }
 
   static <A> void testCallableRoundtrip(Connection conn, MariaTypeAndExample<A> t)
       throws SQLException {
+    var jdbc = conn.unwrap();
     String sqlType = t.type.typename().sqlType();
     String procName = uniqueTableName("test_proc");
 
     var proc = DbProcedure.define(procName).input(t.type).out(t.type).build();
 
-    conn.createStatement()
+    jdbc.createStatement()
         .execute(
             "CREATE PROCEDURE "
                 + procName
@@ -705,7 +707,7 @@ public class MariaTypeTest {
                 + "'");
       }
     } finally {
-      conn.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName);
+      jdbc.createStatement().execute("DROP PROCEDURE IF EXISTS " + procName);
     }
   }
 

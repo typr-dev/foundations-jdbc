@@ -81,6 +81,44 @@ public interface DbType<A> {
   }
 
   /**
+   * Whether this type's values are redacted in logs, traces, and interpolated SQL. Redacted types
+   * show {@code <redacted>} instead of the actual value in {@link Fragment#renderInterpolated()}.
+   * Encode and decode behavior is unchanged.
+   *
+   * @return true if this type is redacted
+   */
+  default boolean isRedacted() {
+    return false;
+  }
+
+  /**
+   * Return a redacted version of this type. Values are hidden in logs, traces, and {@link
+   * Fragment#renderInterpolated()} — they show as {@code <redacted>} instead of the actual value.
+   * Encoding, decoding, and type identity are unchanged.
+   *
+   * <p>Use this for sensitive values (passwords, tokens, SSNs) that should never appear in
+   * observability output:
+   *
+   * <pre>{@code
+   * var password = PgTypes.text.redacted();
+   * var frag = Fragment.of("INSERT INTO users (name, pass) VALUES (")
+   *     .value(PgTypes.text, "alice")
+   *     .append(", ")
+   *     .value(password, "s3cret")
+   *     .append(")");
+   * frag.renderInterpolated();
+   * // → INSERT INTO users (name, pass) VALUES ('alice', <redacted>)
+   * }</pre>
+   *
+   * <p><b>Note:</b> The returned type is {@code DbType<A>}, not the original dialect-specific
+   * subtype. Dialect-specific methods (e.g. {@code PgType.array()}) are not available through the
+   * redacted wrapper. Call those methods before {@code .redacted()} if needed.
+   */
+  default DbType<A> redacted() {
+    return new RedactedDbType<>(this);
+  }
+
+  /**
    * Encode a value into a SQL fragment using this type. Shorthand for {@code Fragment.encode(this,
    * value)}.
    */

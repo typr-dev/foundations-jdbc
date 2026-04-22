@@ -1,12 +1,14 @@
 package dev.typr.foundations.hikari;
 
 import com.zaxxer.hikari.HikariDataSource;
-import dev.typr.foundations.Transactor;
-import dev.typr.foundations.Transactor.Strategy;
+import dev.typr.foundations.DatabaseException;
+import dev.typr.foundations.TransactorJdbc;
 import dev.typr.foundations.connect.ConnectionSource;
+import dev.typr.foundations.internal.TransactorJdbcImpl;
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.function.Function;
 import javax.sql.DataSource;
 
 /**
@@ -35,9 +37,12 @@ import javax.sql.DataSource;
 public final class PooledDataSource implements ConnectionSource, Closeable {
 
   private final HikariDataSource dataSource;
+  private final Function<SQLException, DatabaseException> exceptionMapper;
 
-  PooledDataSource(HikariDataSource dataSource) {
+  PooledDataSource(
+      HikariDataSource dataSource, Function<SQLException, DatabaseException> exceptionMapper) {
     this.dataSource = dataSource;
+    this.exceptionMapper = exceptionMapper;
   }
 
   /**
@@ -64,13 +69,8 @@ public final class PooledDataSource implements ConnectionSource, Closeable {
   }
 
   @Override
-  public Transactor transactor() {
-    return ConnectionSource.super.transactor();
-  }
-
-  @Override
-  public Transactor transactor(Strategy strategy) {
-    return ConnectionSource.super.transactor(strategy);
+  public TransactorJdbc transactor() {
+    return TransactorJdbcImpl.create(this, exceptionMapper);
   }
 
   /**

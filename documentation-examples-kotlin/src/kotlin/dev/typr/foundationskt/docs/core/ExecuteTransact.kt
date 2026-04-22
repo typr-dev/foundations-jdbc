@@ -15,24 +15,12 @@ class ExecuteTransact {
 
     lateinit var tx: Transactor
 
-    val findCities: Operation<List<City>> =
+    val findCities: OperationRead<List<City>> =
         sql { "SELECT name, population FROM city ORDER BY population DESC" }
             .query(cityCodec.all())
-
-    val countCities: Operation<Long> =
-        sql { "SELECT count(*) FROM city" }.queryExactlyOne(PgTypes.int8)
 
     //start
     // Single-operation form: .transact(tx) handles commit/rollback/close.
     fun cities(): List<City> = findCities.transact(tx)
-
-    // Multiple operations in one transaction: pass a block that takes a Connection.
-    // Each .run(conn) inside shares the same Connection and therefore the same transaction.
-    fun citiesWithCount(): List<City> = tx.transact { conn ->
-        val list = findCities.run(conn)
-        val count = countCities.run(conn)
-        println("rows: $count")
-        list
-    }
     //stop
 }

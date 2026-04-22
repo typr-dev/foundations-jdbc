@@ -52,4 +52,15 @@ public interface DatabaseConfig {
   default boolean singleConnectionMode() {
     return false;
   }
+
+  /**
+   * Map a {@link java.sql.SQLException} to a {@link dev.typr.foundations.DatabaseException}.
+   * Database-specific configs override this to extract structured error information.
+   *
+   * <p>For example, {@code PgConfig} returns {@link
+   * dev.typr.foundations.DatabaseException.Postgres} with all PostgreSQL ErrorResponse fields.
+   */
+  default dev.typr.foundations.DatabaseException mapException(java.sql.SQLException e) {
+    return new dev.typr.foundations.DatabaseException.Jdbc(e);
+  }
 }

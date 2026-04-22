@@ -15,7 +15,7 @@ public final class UserRepo {
           .field("name", PgTypes.text, User::name)
           .build(User::new);
 
-  static final Operation<List<User>> selectAll =
+  static final OperationRead<List<User>> selectAll =
       Fragment.of("SELECT ")
           .append(userCodec.columnList())
           .append(" FROM users ORDER BY name")

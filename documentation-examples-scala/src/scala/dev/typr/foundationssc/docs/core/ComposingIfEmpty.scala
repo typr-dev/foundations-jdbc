@@ -20,12 +20,12 @@ object ComposingIfEmpty:
 
   // start
   // Find-or-create pattern
-  val findUser: Template[String, Option[User]] =
+  val findUser: TemplateRead[String, Option[User]] =
     sql"SELECT id, name, email FROM users WHERE email = "
       .param(PgTypes.text)
       .query(userCodec.maxOne())
 
-  val createUser: Template.Query2[String, String, User] =
+  val createUser: TemplateRead.Query2[String, String, User] =
     sql"INSERT INTO users(name, email) VALUES("
       .param(PgTypes.text)
       .append(", ")
@@ -34,7 +34,7 @@ object ComposingIfEmpty:
       .query(userCodec.exactlyOne())
 
   def findOrCreate(): User =
-    Operation
+    OperationRead
       .ifEmpty(
         findUser.on(email),
         createUser.on(name, email)

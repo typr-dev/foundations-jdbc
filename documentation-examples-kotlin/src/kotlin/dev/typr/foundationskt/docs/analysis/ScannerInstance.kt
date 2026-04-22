@@ -7,13 +7,13 @@ class ScannerInstance {
     private lateinit var transactor: Transactor
 
     class ExternalRepo {
-        val allItems: Operation<List<String>> =
+        val allItems: OperationRead<List<String>> =
             sql { "SELECT name FROM items" }.queryAll(PgTypes.text)
 
-        fun activeItems(): Operation<List<String>> =
+        fun activeItems(): OperationRead<List<String>> =
             sql { "SELECT name FROM items WHERE active" }.queryAll(PgTypes.text)
 
-        fun generateReport(callback: Runnable): Operation<List<String>> =
+        fun generateReport(callback: Runnable): OperationRead<List<String>> =
             sql { "SELECT name FROM items" }.queryAll(PgTypes.text)
     }
 

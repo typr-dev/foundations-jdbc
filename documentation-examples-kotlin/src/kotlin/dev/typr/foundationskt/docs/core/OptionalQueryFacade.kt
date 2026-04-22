@@ -25,7 +25,7 @@ class OptionalQueryFacade {
     )
 
     // .from() maps getters to template params
-    private val searchTemplate: Template.From<UserSearch, List<User>> =
+    private val searchTemplate: TemplateRead.FromRead<UserSearch, List<User>> =
         sql { "SELECT id, name, email FROM users WHERE 1=1" }
             .optionally(
                 sql { " AND name ILIKE " }.param(PgTypes.text))

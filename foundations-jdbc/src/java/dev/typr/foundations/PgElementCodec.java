@@ -46,7 +46,7 @@ public sealed interface PgElementCodec<A> {
           try {
             return constructor.apply(((org.postgresql.util.PGobject) obj).getValue());
           } catch (java.sql.SQLException e) {
-            throw new DatabaseException(e);
+            throw new DatabaseException.Jdbc(e);
           }
         });
   }

@@ -120,7 +120,7 @@ class SpringTransactorTest {
     String name =
         Fragment.of("SELECT name FROM spring_test WHERE id = 1")
             .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
-            .transact(tx);
+            .transactRead(tx);
 
     assertEquals("standalone", name);
   }
@@ -137,7 +137,7 @@ class SpringTransactorTest {
     List<String> names =
         Fragment.of("SELECT name FROM spring_test ORDER BY id")
             .query(RowCodec.of(DuckDbTypes.varchar).all())
-            .transact(tx);
+            .transactRead(tx);
 
     assertEquals(List.of("first", "second"), names);
   }
@@ -149,21 +149,23 @@ class SpringTransactorTest {
 
     // Try a transaction that will fail
     try {
-      tx.execute(
-          conn -> {
-            Fragment.of("INSERT INTO spring_test VALUES (2, 'will rollback')").update().run(conn);
+      tx.transact(
+          mc -> {
+            mc.execute(Fragment.of("INSERT INTO spring_test VALUES (2, 'will rollback')").update());
             throw new SQLException("Simulated failure");
           });
       fail("Should have thrown DatabaseException");
     } catch (DatabaseException e) {
-      assertEquals("Simulated failure", e.getMessage());
+      assertTrue(
+          e.getMessage().contains("Simulated failure"),
+          "Expected simulated failure, got: " + e.getMessage());
     }
 
     // Verify only the first insert is present
     Integer count =
         Fragment.of("SELECT COUNT(*) FROM spring_test")
             .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
-            .transact(tx);
+            .transactRead(tx);
 
     assertEquals(1, count, "Failed transaction should have rolled back");
   }
@@ -177,7 +179,7 @@ class SpringTransactorTest {
     String name =
         Fragment.of("SELECT name FROM spring_test WHERE id = 99")
             .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
-            .transact(manualTx);
+            .transactRead(manualTx);
 
     assertEquals("manual", name);
   }
@@ -190,7 +192,7 @@ class SpringTransactorTest {
     String name =
         Fragment.of("SELECT name FROM spring_test WHERE id = 1")
             .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
-            .transact(tx);
+            .transactRead(tx);
 
     assertEquals("required", name);
   }
@@ -205,7 +207,7 @@ class SpringTransactorTest {
     List<String> names =
         Fragment.of("SELECT name FROM spring_test ORDER BY id")
             .query(RowCodec.of(DuckDbTypes.varchar).all())
-            .transact(tx);
+            .transactRead(tx);
 
     assertEquals(List.of("first", "second"), names);
   }
@@ -218,7 +220,7 @@ class SpringTransactorTest {
     String name =
         Fragment.of("SELECT name FROM spring_test WHERE id = 1")
             .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
-            .transact(tx);
+            .transactRead(tx);
 
     assertEquals("new-tx", name);
   }
@@ -238,7 +240,7 @@ class SpringTransactorTest {
     String name =
         Fragment.of("SELECT name FROM spring_test WHERE id = 1")
             .query(RowCodec.of(DuckDbTypes.varchar).exactlyOne())
-            .transact(tx);
+            .transactRead(tx);
 
     assertEquals("mandatory", name);
   }
@@ -256,7 +258,7 @@ class SpringTransactorTest {
     Integer count =
         Fragment.of("SELECT COUNT(*) FROM spring_test")
             .query(RowCodec.of(DuckDbTypes.integer).exactlyOne())
-            .transact(tx);
+            .transactRead(tx);
 
     assertEquals(0, count, "Transaction should have rolled back");
   }

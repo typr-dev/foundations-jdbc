@@ -57,6 +57,23 @@ public sealed interface Fragment {
    */
   void collectParameterTypes(List<DbType<?>> types);
 
+  /**
+   * Visitor for collecting typed parameter values from a fragment tree. Used by pipelining
+   * implementations to serialize parameters without going through PreparedStatement.
+   */
+  @FunctionalInterface
+  interface ParamCollector {
+    <A> void accept(A value, DbType<A> type);
+  }
+
+  /**
+   * Traverse the fragment tree and call the collector for each bound parameter value. This provides
+   * typed access to parameter values and their DbType, enabling direct serialization (e.g., to PG
+   * wire protocol text format via PgText.wireEncode) without going through the untyped
+   * PreparedStatement interface.
+   */
+  void collectParams(ParamCollector collector);
+
   @SuppressWarnings("unchecked")
   default Fragment fill(Iterator<Object> values) {
     return switch (this) {
@@ -113,31 +130,31 @@ public sealed interface Fragment {
     return new Append(this, other);
   }
 
-  default <T> Operation.Query<T> query(ResultSetParser<T> parser) {
-    return new Operation.Query<>(this, parser);
+  default <T> OperationRead.Query<T> query(ResultSetParser<T> parser) {
+    return new OperationRead.Query<>(this, parser);
   }
 
-  default <T> Operation.Query<T> queryExactlyOne(DbType<T> type) {
+  default <T> OperationRead.Query<T> queryExactlyOne(DbType<T> type) {
     return query(RowCodec.of(type).exactlyOne());
   }
 
-  default <T> Operation.Query<T> queryExactlyOne(RowCodec<T> codec) {
+  default <T> OperationRead.Query<T> queryExactlyOne(RowCodec<T> codec) {
     return query(codec.exactlyOne());
   }
 
-  default <T> Operation.Query<List<T>> queryAll(DbType<T> type) {
+  default <T> OperationRead.Query<List<T>> queryAll(DbType<T> type) {
     return query(RowCodec.of(type).all());
   }
 
-  default <T> Operation.Query<List<T>> queryAll(RowCodec<T> codec) {
+  default <T> OperationRead.Query<List<T>> queryAll(RowCodec<T> codec) {
     return query(codec.all());
   }
 
-  default <T> Operation.Query<java.util.Optional<T>> queryMaxOne(DbType<T> type) {
+  default <T> OperationRead.Query<java.util.Optional<T>> queryMaxOne(DbType<T> type) {
     return query(RowCodec.of(type).maxOne());
   }
 
-  default <T> Operation.Query<java.util.Optional<T>> queryMaxOne(RowCodec<T> codec) {
+  default <T> OperationRead.Query<java.util.Optional<T>> queryMaxOne(RowCodec<T> codec) {
     return query(codec.maxOne());
   }
 
@@ -162,7 +179,7 @@ public sealed interface Fragment {
   }
 
   default <Row> Operation.UpdateMany<Row> updateMany(RowCodec<Row> codec, Iterator<Row> rows) {
-    return new Operation.UpdateMany<>(this, codec, rows);
+    return new Operation.UpdateMany<Row>(this, codec, rows);
   }
 
   default <Row> Operation.UpdateManyReturning<Row> updateManyReturning(
@@ -175,12 +192,12 @@ public sealed interface Fragment {
     return new Operation.UpdateReturningEach<>(this, codec, rows);
   }
 
-  default <T> Operation.Streaming<T> streamingQuery(RowCodec<T> codec, int fetchSize) {
-    return new Operation.Streaming<>(this, codec, fetchSize);
+  default <T> OperationRead.Streaming<T> streamingQuery(RowCodec<T> codec, int fetchSize) {
+    return new OperationRead.Streaming<>(this, codec, fetchSize);
   }
 
-  default <T> Operation.Streaming<T> streamingQuery(DbType<T> type, int fetchSize) {
-    return new Operation.Streaming<>(this, RowCodec.of(type), fetchSize);
+  default <T> OperationRead.Streaming<T> streamingQuery(DbType<T> type, int fetchSize) {
+    return new OperationRead.Streaming<>(this, RowCodec.of(type), fetchSize);
   }
 
   record Literal(String value) implements Fragment {
@@ -193,9 +210,10 @@ public sealed interface Fragment {
     public void set(PreparedStatement stmt, AtomicInteger idx) throws SQLException {}
 
     @Override
-    public void collectParameterTypes(List<DbType<?>> types) {
-      // Literals have no parameters
-    }
+    public void collectParameterTypes(List<DbType<?>> types) {}
+
+    @Override
+    public void collectParams(ParamCollector collector) {}
   }
 
   static Literal of(String value) {
@@ -266,6 +284,77 @@ public sealed interface Fragment {
     return rpb.generatedKeys(generatedColumns, parser);
   }
 
+  /**
+   * PostgreSQL: INSERT ... ON CONFLICT (conflictColumns) DO UPDATE SET ... Returns an update
+   * template that performs an upsert. All columns except the conflict columns are included in the
+   * SET clause.
+   *
+   * <pre>{@code
+   * var upsert = Fragment.upsert("users", userCodec, "email");
+   * executor.execute(upsert.on(new User("alice", "alice@example.com", 30)));
+   * }</pre>
+   */
+  static <Row> RowTemplate.Update<Row> upsert(
+      String table, RowCodecNamed<Row> codec, String... conflictColumns) {
+    if (conflictColumns.length == 0)
+      throw new IllegalArgumentException("At least one conflict column required");
+    String cols = String.join(", ", codec.columnNames());
+    String conflict = String.join(", ", conflictColumns);
+    Set<String> conflictSet = Set.of(conflictColumns);
+    List<String> updateCols = new ArrayList<>();
+    for (String name : codec.columnNames()) {
+      if (!conflictSet.contains(name)) {
+        updateCols.add(name + " = EXCLUDED." + name);
+      }
+    }
+    String setClauses = String.join(", ", updateCols);
+    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
+        .paramRow(codec)
+        .append(") ON CONFLICT (" + conflict + ") DO UPDATE SET " + setClauses)
+        .update();
+  }
+
+  /**
+   * PostgreSQL: INSERT ... ON CONFLICT (conflictColumns) DO NOTHING. Inserts the row only if no
+   * conflict exists. Returns the number of affected rows (0 or 1).
+   */
+  static <Row> RowTemplate.Update<Row> insertIgnore(
+      String table, RowCodecNamed<Row> codec, String... conflictColumns) {
+    if (conflictColumns.length == 0)
+      throw new IllegalArgumentException("At least one conflict column required");
+    String cols = String.join(", ", codec.columnNames());
+    String conflict = String.join(", ", conflictColumns);
+    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
+        .paramRow(codec)
+        .append(") ON CONFLICT (" + conflict + ") DO NOTHING")
+        .update();
+  }
+
+  /**
+   * PostgreSQL: INSERT ... ON CONFLICT ... DO UPDATE SET ... RETURNING. Combines upsert with
+   * returning the resulting row.
+   */
+  static <Row> RowTemplate.Query<Row, Row> upsertReturning(
+      String table, RowCodecNamed<Row> codec, String... conflictColumns) {
+    if (conflictColumns.length == 0)
+      throw new IllegalArgumentException("At least one conflict column required");
+    String cols = String.join(", ", codec.columnNames());
+    String conflict = String.join(", ", conflictColumns);
+    Set<String> conflictSet = Set.of(conflictColumns);
+    List<String> updateCols = new ArrayList<>();
+    for (String name : codec.columnNames()) {
+      if (!conflictSet.contains(name)) {
+        updateCols.add(name + " = EXCLUDED." + name);
+      }
+    }
+    String setClauses = String.join(", ", updateCols);
+    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
+        .paramRow(codec)
+        .append(
+            ") ON CONFLICT (" + conflict + ") DO UPDATE SET " + setClauses + " RETURNING " + cols)
+        .query(codec.exactlyOne());
+  }
+
   private static String columnList(RowCodecNamed<?> codec, String... except) {
     Set<String> excludeSet = except.length > 0 ? Set.of(except) : Set.of();
     List<String> names = codec.columnNames();
@@ -325,6 +414,12 @@ public sealed interface Fragment {
       a.collectParameterTypes(types);
       b.collectParameterTypes(types);
     }
+
+    @Override
+    public void collectParams(ParamCollector collector) {
+      a.collectParams(collector);
+      b.collectParams(collector);
+    }
   }
 
   record Value<A>(A value, DbType<A> type) implements Fragment {
@@ -340,6 +435,10 @@ public sealed interface Fragment {
 
     @Override
     public void renderInterpolated(StringBuilder sb) {
+      if (type.isRedacted()) {
+        sb.append("<redacted>");
+        return;
+      }
       var inline = type.write().inlineSql(value);
       if (inline.isPresent()) {
         sb.append(inline.get());
@@ -400,6 +499,13 @@ public sealed interface Fragment {
         types.add(type);
       }
     }
+
+    @Override
+    public void collectParams(ParamCollector collector) {
+      if (type.write().inlineSql(value).isEmpty()) {
+        collector.accept(value, type);
+      }
+    }
   }
 
   static <A> Value<A> value(A value, DbType<A> type) {
@@ -425,6 +531,11 @@ public sealed interface Fragment {
     @Override
     public void collectParameterTypes(List<DbType<?>> types) {
       types.add(type);
+    }
+
+    @Override
+    public void collectParams(ParamCollector collector) {
+      // Param is an unbound parameter hole — no value to collect
     }
   }
 
@@ -452,6 +563,12 @@ public sealed interface Fragment {
 
     @Override
     public void collectParamPositions(AtomicInteger idx, List<Integer> positions) {
+      throw new UnsupportedOperationException(
+          "Optionally nodes must be resolved via OptionallyResolver before execution");
+    }
+
+    @Override
+    public void collectParams(ParamCollector collector) {
       throw new UnsupportedOperationException(
           "Optionally nodes must be resolved via OptionallyResolver before execution");
     }
@@ -483,6 +600,13 @@ public sealed interface Fragment {
     public void collectParameterTypes(List<DbType<?>> types) {
       for (Fragment frag : frags) {
         frag.collectParameterTypes(types);
+      }
+    }
+
+    @Override
+    public void collectParams(ParamCollector collector) {
+      for (Fragment frag : frags) {
+        frag.collectParams(collector);
       }
     }
   }

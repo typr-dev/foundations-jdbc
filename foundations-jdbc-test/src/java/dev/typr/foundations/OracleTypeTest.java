@@ -8,7 +8,6 @@ import dev.typr.foundations.data.OracleIntervalYM;
 import dev.typr.foundations.data.PaddedString;
 import dev.typr.foundations.hikari.PooledDataSource;
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -1349,12 +1348,12 @@ public class OracleTypeTest {
   static <T> T withConnection(SqlFunction<Connection, T> f) {
     try (var pooledConn = pool().unwrap().getConnection()) {
       // Unwrap to get the underlying OracleConnection for STRUCT/ARRAY creation
-      var conn = pooledConn.unwrap(oracle.jdbc.OracleConnection.class);
-      conn.setAutoCommit(false);
+      var oracleConn = pooledConn.unwrap(oracle.jdbc.OracleConnection.class);
+      oracleConn.setAutoCommit(false);
       try {
-        return f.apply(conn);
+        return f.apply(new dev.typr.foundations.internal.ConnectionJdbc(oracleConn));
       } finally {
-        conn.rollback();
+        oracleConn.rollback();
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -1375,11 +1374,12 @@ public class OracleTypeTest {
     // Create all user-defined types upfront (must be sequential to avoid conflicts)
     withConnection(
         conn -> {
+          var jdbc = conn.unwrap();
           System.out.println("=== Creating user-defined types ===");
           var executedSql = new HashSet<String>();
           for (OracleTypeAndExample<?> t : All) {
             if (!t.setupSql.isEmpty()) {
-              try (var stmt = conn.createStatement()) {
+              try (var stmt = jdbc.createStatement()) {
                 for (String sql : t.setupSql) {
                   if (executedSql.add(sql)) {
                     try {
@@ -1395,7 +1395,7 @@ public class OracleTypeTest {
               }
             }
           }
-          conn.commit();
+          jdbc.commit();
           return null;
         });
 
@@ -1535,30 +1535,30 @@ public class OracleTypeTest {
    */
   static <A> void testGeneratedKeysRoundtrip(Connection conn, OracleTypeAndExample<A> t)
       throws SQLException {
+    var jdbc = conn.unwrap();
     String sqlType = t.type.typename().sqlType();
     A original = t.example;
     A expected = t.expected(); // May differ from original due to Oracle quirks
 
     // Create table with auto-generated ID + test column
     String tableName = uniqueTableName("TEST_GENKEYS");
-    try (var stmt = conn.createStatement()) {
-      // Drop if exists from previous failed run
-      try {
-        stmt.execute("DROP TABLE " + tableName + " PURGE");
-      } catch (SQLException ignored) {
-      }
-      stmt.execute(
-          "CREATE TABLE "
-              + tableName
-              + " (id NUMBER GENERATED ALWAYS AS IDENTITY, v "
-              + sqlType
-              + ")");
+    try {
+      Fragment.of("DROP TABLE " + tableName + " PURGE").execute().run(conn);
+    } catch (DatabaseException ignored) {
     }
+    Fragment.of(
+            "CREATE TABLE "
+                + tableName
+                + " (id NUMBER GENERATED ALWAYS AS IDENTITY, v "
+                + sqlType
+                + ")")
+        .execute()
+        .run(conn);
 
     try {
       // Insert using PreparedStatement with column names to get back via getGeneratedKeys
       String insertSql = "INSERT INTO " + tableName + " (v) VALUES (?)";
-      var insert = conn.prepareStatement(insertSql, new String[] {"ID", "V"});
+      var insert = jdbc.prepareStatement(insertSql, new String[] {"ID", "V"});
       t.type.write().set(insert, 1, original);
       insert.executeUpdate();
 
@@ -1598,22 +1598,18 @@ public class OracleTypeTest {
       System.out.println("  PASSED\n");
 
     } finally {
-      // Drop table
-      try (var stmt = conn.createStatement()) {
-        stmt.execute("DROP TABLE " + tableName);
-      }
+      Fragment.of("DROP TABLE " + tableName).execute().run(conn);
     }
   }
 
-  static <A> void testQueryAnalysis(Connection conn, OracleTypeAndExample<A> t)
-      throws SQLException {
+  static <A> void testQueryAnalysis(Connection conn, OracleTypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("QA");
     String createTableDDL = "CREATE TABLE " + tableName + " (v " + sqlType + ")";
     if (sqlType.contains("ORDER_ITEMS_T") || sqlType.contains("_NESTED_TABLE")) {
       createTableDDL += " NESTED TABLE v STORE AS " + tableName + "_STORAGE";
     }
-    conn.createStatement().execute(createTableDDL);
+    Fragment.of(createTableDDL).execute().run(conn);
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
       Fragment fragment = Fragment.of("SELECT v FROM " + tableName);
@@ -1623,7 +1619,7 @@ public class OracleTypeTest {
             "Query analysis failed for " + sqlType + ":\n" + analysis.report());
       }
     } finally {
-      conn.createStatement().execute("DROP TABLE " + tableName);
+      Fragment.of("DROP TABLE " + tableName).execute().run(conn);
     }
   }
 
@@ -1669,6 +1665,7 @@ public class OracleTypeTest {
   // Insert value into native column, read back as JSON, parse back to value
   static <A> void testJsonDbRoundtrip(Connection conn, OracleTypeAndExample<A> t)
       throws SQLException {
+    var jdbc = conn.unwrap();
     OracleJson<A> jsonCodec = t.type.oracleJson();
     A original = t.example;
     A expected = t.expected(); // May differ from original due to Oracle quirks
@@ -1677,24 +1674,22 @@ public class OracleTypeTest {
     // Create temp table (Oracle uses Global Temporary Tables differently, using regular table +
     // cleanup)
     String tableName = uniqueTableName("TEST_JSON_RT");
-    try (var stmt = conn.createStatement()) {
-      // NESTED TABLE columns require STORE AS clause
-      String createTableDDL = "CREATE TABLE " + tableName + " (v " + sqlType + ")";
-      if (sqlType.contains("ORDER_ITEMS_T")) { // Nested table type
-        createTableDDL += " NESTED TABLE v STORE AS " + tableName + "_STORAGE";
-      }
-      stmt.execute(createTableDDL);
+    // NESTED TABLE columns require STORE AS clause
+    String createTableDDL = "CREATE TABLE " + tableName + " (v " + sqlType + ")";
+    if (sqlType.contains("ORDER_ITEMS_T")) { // Nested table type
+      createTableDDL += " NESTED TABLE v STORE AS " + tableName + "_STORAGE";
     }
+    Fragment.of(createTableDDL).execute().run(conn);
 
     try {
       // Insert value using native type
-      var insert = conn.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
+      var insert = jdbc.prepareStatement("INSERT INTO " + tableName + " (v) VALUES (?)");
       t.type.write().set(insert, 1, original);
       insert.execute();
       insert.close();
 
       // Select back as JSON using JSON_OBJECT - this is what MULTISET does
-      var select = conn.prepareStatement("SELECT JSON_OBJECT('v' VALUE v) FROM " + tableName);
+      var select = jdbc.prepareStatement("SELECT JSON_OBJECT('v' VALUE v) FROM " + tableName);
       select.execute();
       var rs = select.getResultSet();
 
@@ -1733,9 +1728,7 @@ public class OracleTypeTest {
                 + "'");
       }
     } finally {
-      try (var stmt = conn.createStatement()) {
-        stmt.execute("DROP TABLE " + tableName);
-      }
+      Fragment.of("DROP TABLE " + tableName).execute().run(conn);
     }
   }
 
@@ -1754,11 +1747,12 @@ public class OracleTypeTest {
   }
 
   static <A> void testCase(Connection conn, OracleTypeAndExample<A> t) throws SQLException {
+    var jdbc = conn.unwrap();
     String sqlType = t.type.typename().sqlType();
 
     // Execute setup SQL (for type definitions, etc.)
     if (!t.setupSql.isEmpty()) {
-      try (var stmt = conn.createStatement()) {
+      try (var stmt = jdbc.createStatement()) {
         for (String sql : t.setupSql) {
           try {
             stmt.execute(sql);
@@ -1778,16 +1772,14 @@ public class OracleTypeTest {
 
     // Create table (Oracle doesn't have CREATE TEMPORARY TABLE syntax in standard form)
     String tableName = uniqueTableName("TEST_TABLE");
-    try (var stmt = conn.createStatement()) {
-      // NESTED TABLE columns require STORE AS clause
-      String createTableDDL = "CREATE TABLE " + tableName + " (v " + sqlType + ")";
-      if (sqlType.contains("ORDER_ITEMS_T")
-          || sqlType.contains("_NESTED_TABLE")
-          || sqlType.endsWith("_NT")) { // Nested table type
-        createTableDDL += " NESTED TABLE v STORE AS " + tableName + "_STORAGE";
-      }
-      stmt.execute(createTableDDL);
+    // NESTED TABLE columns require STORE AS clause
+    String createTableDDL = "CREATE TABLE " + tableName + " (v " + sqlType + ")";
+    if (sqlType.contains("ORDER_ITEMS_T")
+        || sqlType.contains("_NESTED_TABLE")
+        || sqlType.endsWith("_NT")) { // Nested table type
+      createTableDDL += " NESTED TABLE v STORE AS " + tableName + "_STORAGE";
     }
+    Fragment.of(createTableDDL).execute().run(conn);
 
     try {
       A original = t.example;
@@ -1799,13 +1791,13 @@ public class OracleTypeTest {
       if (t.hasIdentity) {
         // For NULL values, use IS NULL since WHERE v = NULL doesn't match (NULL = NULL is UNKNOWN)
         if (expected == null) {
-          select = conn.prepareStatement("SELECT v, NULL FROM " + tableName + " WHERE v IS NULL");
+          select = jdbc.prepareStatement("SELECT v, NULL FROM " + tableName + " WHERE v IS NULL");
         } else {
-          select = conn.prepareStatement("SELECT v, NULL FROM " + tableName + " WHERE v = ?");
+          select = jdbc.prepareStatement("SELECT v, NULL FROM " + tableName + " WHERE v = ?");
           t.type.write().set(select, 1, original);
         }
       } else {
-        select = conn.prepareStatement("SELECT v, NULL FROM " + tableName);
+        select = jdbc.prepareStatement("SELECT v, NULL FROM " + tableName);
       }
 
       select.execute();
@@ -1834,10 +1826,7 @@ public class OracleTypeTest {
       assertEquals(actualNull, Optional.empty(), "null value mismatch");
 
     } finally {
-      // Drop table
-      try (var stmt = conn.createStatement()) {
-        stmt.execute("DROP TABLE " + tableName);
-      }
+      Fragment.of("DROP TABLE " + tableName).execute().run(conn);
     }
   }
 
@@ -1847,6 +1836,7 @@ public class OracleTypeTest {
 
   static <A> void testCallableRoundtrip(Connection conn, OracleTypeAndExample<A> t)
       throws SQLException {
+    var jdbc = conn.unwrap();
     String sqlType = t.type.typename().sqlType();
 
     // Skip types that cannot be used as procedure parameters in Oracle
@@ -1868,16 +1858,17 @@ public class OracleTypeTest {
 
     // Oracle PL/SQL doesn't allow size/precision constraints on procedure parameters
     String paramType = t.type.typename().sqlTypeNoPrecision();
-    conn.createStatement()
-        .execute(
+    Fragment.of(
             "CREATE OR REPLACE PROCEDURE "
                 + procName
                 + "(p_in IN "
                 + paramType
                 + ", p_out OUT "
                 + paramType
-                + ") IS BEGIN p_out := p_in; END;");
-    conn.commit();
+                + ") IS BEGIN p_out := p_in; END;")
+        .execute()
+        .run(conn);
+    jdbc.commit();
 
     try {
       A input = t.example;
@@ -1918,19 +1909,17 @@ public class OracleTypeTest {
       }
       System.out.println("Callable roundtrip " + sqlType + ": PASSED");
     } catch (DatabaseException e) {
-      if (e.sqlException().getMessage() != null
-          && e.sqlException()
-              .getMessage()
-              .contains("does not support stored procedure OUT parameters")) {
+      if (e.getMessage() != null
+          && e.getMessage().contains("does not support stored procedure OUT parameters")) {
         System.out.println("Callable roundtrip SKIPPED " + sqlType + " (not supported)");
         return;
       }
       throw e;
     } finally {
       try {
-        conn.createStatement().execute("DROP PROCEDURE " + procName);
-        conn.commit();
-      } catch (SQLException ignored) {
+        Fragment.of("DROP PROCEDURE " + procName).execute().run(conn);
+        jdbc.commit();
+      } catch (Exception ignored) {
       }
     }
   }
@@ -1970,20 +1959,25 @@ public class OracleTypeTest {
     OracleType<List<Item>> itemNestedTable = OracleNestedTable.of("GAP_ITEM_NT", itemType);
 
     var pool = Containers.oraclePool();
-    pool.transactor(Transactor.testStrategy())
-        .execute(
-            conn -> {
-              var stmt = conn.createStatement();
-              tryExec(stmt, "DROP TABLE gap_null_collection_t CASCADE CONSTRAINTS");
-              tryExec(stmt, "DROP TYPE GAP_ITEM_VA FORCE");
-              tryExec(stmt, "DROP TYPE GAP_ITEM_NT FORCE");
-              tryExec(stmt, "DROP TYPE GAP_ITEM_T FORCE");
-              stmt.execute("CREATE TYPE GAP_ITEM_T AS OBJECT (NAME VARCHAR2(50), QTY NUMBER)");
-              stmt.execute("CREATE TYPE GAP_ITEM_VA AS VARRAY(10) OF GAP_ITEM_T");
-              stmt.execute("CREATE TYPE GAP_ITEM_NT AS TABLE OF GAP_ITEM_T");
-              stmt.execute(
-                  "CREATE TABLE gap_null_collection_t (id NUMBER, va GAP_ITEM_VA, nt GAP_ITEM_NT)"
-                      + " NESTED TABLE nt STORE AS gap_null_nt_store");
+    pool.transactor()
+        .rollbackOnly()
+        .transact(
+            mc -> {
+              var conn = mc.unwrap();
+              tryRun(mc, Fragment.of("DROP TABLE gap_null_collection_t CASCADE CONSTRAINTS"));
+              tryRun(mc, Fragment.of("DROP TYPE GAP_ITEM_VA FORCE"));
+              tryRun(mc, Fragment.of("DROP TYPE GAP_ITEM_NT FORCE"));
+              tryRun(mc, Fragment.of("DROP TYPE GAP_ITEM_T FORCE"));
+              Fragment.of("CREATE TYPE GAP_ITEM_T AS OBJECT (NAME VARCHAR2(50), QTY NUMBER)")
+                  .execute()
+                  .run(mc);
+              Fragment.of("CREATE TYPE GAP_ITEM_VA AS VARRAY(10) OF GAP_ITEM_T").execute().run(mc);
+              Fragment.of("CREATE TYPE GAP_ITEM_NT AS TABLE OF GAP_ITEM_T").execute().run(mc);
+              Fragment.of(
+                      "CREATE TABLE gap_null_collection_t (id NUMBER, va GAP_ITEM_VA, nt"
+                          + " GAP_ITEM_NT) NESTED TABLE nt STORE AS gap_null_nt_store")
+                  .execute()
+                  .run(mc);
 
               var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
 
@@ -2082,29 +2076,40 @@ public class OracleTypeTest {
     OracleType<List<Country>> countriesType = OracleNestedTable.of("GAP_COUNTRY_NT", countryType);
 
     var pool = Containers.oraclePool();
-    pool.transactor(Transactor.testStrategy())
-        .execute(
-            conn -> {
-              var stmt = conn.createStatement();
-              tryExec(stmt, "DROP TABLE gap_four_level_t CASCADE CONSTRAINTS");
-              tryExec(stmt, "DROP TYPE GAP_COUNTRY_NT FORCE");
-              tryExec(stmt, "DROP TYPE GAP_COUNTRY_T FORCE");
-              tryExec(stmt, "DROP TYPE GAP_REGION_VA FORCE");
-              tryExec(stmt, "DROP TYPE GAP_REGION_T FORCE");
-              tryExec(stmt, "DROP TYPE GAP_CITY_NT FORCE");
-              tryExec(stmt, "DROP TYPE GAP_CITY_T FORCE");
-              stmt.execute(
-                  "CREATE TYPE GAP_CITY_T AS OBJECT (NAME VARCHAR2(50), POPULATION NUMBER)");
-              stmt.execute("CREATE TYPE GAP_CITY_NT AS TABLE OF GAP_CITY_T");
-              stmt.execute(
-                  "CREATE TYPE GAP_REGION_T AS OBJECT (NAME VARCHAR2(50), CITIES GAP_CITY_NT)");
-              stmt.execute("CREATE TYPE GAP_REGION_VA AS VARRAY(10) OF GAP_REGION_T");
-              stmt.execute(
-                  "CREATE TYPE GAP_COUNTRY_T AS OBJECT (NAME VARCHAR2(50), REGIONS GAP_REGION_VA)");
-              stmt.execute("CREATE TYPE GAP_COUNTRY_NT AS TABLE OF GAP_COUNTRY_T");
-              stmt.execute(
-                  "CREATE TABLE gap_four_level_t (cs GAP_COUNTRY_NT)"
-                      + " NESTED TABLE cs STORE AS gap_four_cs_store");
+    pool.transactor()
+        .rollbackOnly()
+        .transact(
+            mc -> {
+              var conn = mc.unwrap();
+              tryRun(mc, Fragment.of("DROP TABLE gap_four_level_t CASCADE CONSTRAINTS"));
+              tryRun(mc, Fragment.of("DROP TYPE GAP_COUNTRY_NT FORCE"));
+              tryRun(mc, Fragment.of("DROP TYPE GAP_COUNTRY_T FORCE"));
+              tryRun(mc, Fragment.of("DROP TYPE GAP_REGION_VA FORCE"));
+              tryRun(mc, Fragment.of("DROP TYPE GAP_REGION_T FORCE"));
+              tryRun(mc, Fragment.of("DROP TYPE GAP_CITY_NT FORCE"));
+              tryRun(mc, Fragment.of("DROP TYPE GAP_CITY_T FORCE"));
+              Fragment.of("CREATE TYPE GAP_CITY_T AS OBJECT (NAME VARCHAR2(50), POPULATION NUMBER)")
+                  .execute()
+                  .run(mc);
+              Fragment.of("CREATE TYPE GAP_CITY_NT AS TABLE OF GAP_CITY_T").execute().run(mc);
+              Fragment.of(
+                      "CREATE TYPE GAP_REGION_T AS OBJECT (NAME VARCHAR2(50), CITIES GAP_CITY_NT)")
+                  .execute()
+                  .run(mc);
+              Fragment.of("CREATE TYPE GAP_REGION_VA AS VARRAY(10) OF GAP_REGION_T")
+                  .execute()
+                  .run(mc);
+              Fragment.of(
+                      "CREATE TYPE GAP_COUNTRY_T AS OBJECT (NAME VARCHAR2(50), REGIONS"
+                          + " GAP_REGION_VA)")
+                  .execute()
+                  .run(mc);
+              Fragment.of("CREATE TYPE GAP_COUNTRY_NT AS TABLE OF GAP_COUNTRY_T").execute().run(mc);
+              Fragment.of(
+                      "CREATE TABLE gap_four_level_t (cs GAP_COUNTRY_NT)"
+                          + " NESTED TABLE cs STORE AS gap_four_cs_store")
+                  .execute()
+                  .run(mc);
 
               var raw = conn.unwrap(oracle.jdbc.OracleConnection.class);
               List<Country> countries =
@@ -2250,9 +2255,10 @@ public class OracleTypeTest {
     // Phase 1: create every needed OBJECT/VARRAY/NT type upfront (sequential to avoid races).
     withConnection(
         conn -> {
+          var jdbc = conn.unwrap();
           var executed = new HashSet<String>();
           for (OracleTypeAndExample<?> t : derived) {
-            try (var stmt = conn.createStatement()) {
+            try (var stmt = jdbc.createStatement()) {
               for (String sql : t.setupSql) {
                 if (!executed.add(sql)) continue;
                 try {
@@ -2270,7 +2276,7 @@ public class OracleTypeTest {
               }
             }
           }
-          conn.commit();
+          jdbc.commit();
           return null;
         });
 
@@ -2322,26 +2328,26 @@ public class OracleTypeTest {
 
     // Write via Oracle's STRUCT constructor SQL (no PreparedStatement binding so we don't need
     // the Hikari pool's OracleConnection unwrap dance). The fix under test is on the READ path.
-    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    var tx = Containers.oraclePool().transactor().rollbackOnly();
     Score expected = new Score("alice", 42, 12_345_678_901L);
     Score decoded =
-        tx.execute(
-            conn -> {
-              tryRun(conn, Fragment.of("DROP TABLE gap_score_holder CASCADE CONSTRAINTS"));
-              tryRun(conn, Fragment.of("DROP TYPE GAP_SCORE_T FORCE"));
-              Fragment.of(
-                      "CREATE TYPE GAP_SCORE_T AS OBJECT ("
-                          + "NAME VARCHAR2(50), POINTS NUMBER(5), TOTAL NUMBER(15))")
-                  .execute()
-                  .run(conn);
-              Fragment.of("CREATE TABLE gap_score_holder (s GAP_SCORE_T)").execute().run(conn);
-              Fragment.of(
-                      "INSERT INTO gap_score_holder VALUES (GAP_SCORE_T('alice', 42, 12345678901))")
-                  .execute()
-                  .run(conn);
-              return Fragment.of("SELECT s FROM gap_score_holder")
-                  .queryExactlyOne(scoreType)
-                  .run(conn);
+        tx.transact(
+            mc -> {
+              tryRun(mc, Fragment.of("DROP TABLE gap_score_holder CASCADE CONSTRAINTS"));
+              tryRun(mc, Fragment.of("DROP TYPE GAP_SCORE_T FORCE"));
+              mc.execute(
+                  Fragment.of(
+                          "CREATE TYPE GAP_SCORE_T AS OBJECT ("
+                              + "NAME VARCHAR2(50), POINTS NUMBER(5), TOTAL NUMBER(15))")
+                      .execute());
+              mc.execute(Fragment.of("CREATE TABLE gap_score_holder (s GAP_SCORE_T)").execute());
+              mc.execute(
+                  Fragment.of(
+                          "INSERT INTO gap_score_holder VALUES (GAP_SCORE_T('alice', 42,"
+                              + " 12345678901))")
+                      .execute());
+              return mc.execute(
+                  Fragment.of("SELECT s FROM gap_score_holder").queryExactlyOne(scoreType));
             });
     if (!expected.equals(decoded)) {
       throw new AssertionError("mismatch: " + decoded + " vs " + expected);
@@ -2369,7 +2375,7 @@ public class OracleTypeTest {
    */
   @Test
   public void testTimestampWithTimeZonePreservesZoneRegion() {
-    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    var tx = Containers.oraclePool().transactor().rollbackOnly();
     String table = uniqueTableName("zdt_region");
 
     var winterLA =
@@ -2382,30 +2388,30 @@ public class OracleTypeTest {
 
     List<ZonedDateTime> samples = List.of(winterLA, summerLA, berlin, tokyo, fixedOffset);
 
-    // CREATE + INSERT + SELECT all in one tx — testStrategy rolls back on exit, so multi-tx
+    // CREATE + INSERT + SELECT all in one tx — rollbackOnly rolls back on exit, so multi-tx
     // splits would lose the inserts before the read.
     List<ZonedDateTime> roundTripped =
-        tx.execute(
-            conn -> {
-              Fragment.of(
-                      "CREATE TABLE "
-                          + table
-                          + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
-                  .execute()
-                  .run(conn);
+        tx.transact(
+            mc -> {
+              mc.execute(
+                  Fragment.of(
+                          "CREATE TABLE "
+                              + table
+                              + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
+                      .execute());
               for (int i = 0; i < samples.size(); i++) {
-                Fragment.builder()
-                    .append("INSERT INTO " + table + " (id, ts) VALUES (")
-                    .value(OracleTypes.numberAsInt(5), i)
-                    .append(", ")
-                    .value(OracleTypes.timestampWithTimeZone, samples.get(i))
-                    .append(")")
-                    .execute()
-                    .run(conn);
+                mc.execute(
+                    Fragment.builder()
+                        .append("INSERT INTO " + table + " (id, ts) VALUES (")
+                        .value(OracleTypes.numberAsInt(5), i)
+                        .append(", ")
+                        .value(OracleTypes.timestampWithTimeZone, samples.get(i))
+                        .append(")")
+                        .execute());
               }
-              return Fragment.of("SELECT ts FROM " + table + " ORDER BY id")
-                  .queryAll(OracleTypes.timestampWithTimeZone)
-                  .run(conn);
+              return mc.execute(
+                  Fragment.of("SELECT ts FROM " + table + " ORDER BY id")
+                      .queryAll(OracleTypes.timestampWithTimeZone));
             });
 
     for (int i = 0; i < samples.size(); i++) {
@@ -2465,32 +2471,31 @@ public class OracleTypeTest {
    */
   @Test
   public void testTimestampWithTimeZoneIsSessionTzIndependent() {
-    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    var tx = Containers.oraclePool().transactor().rollbackOnly();
     String table = uniqueTableName("zdt_session");
 
     var value =
         ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
 
-    // Setup + all session-TZ reads in one tx block — testStrategy rolls back on exit so the
+    // Setup + all session-TZ reads in one tx block — rollbackOnly rolls back on exit so the
     // table doesn't outlive the test.
-    tx.execute(
-        conn -> {
-          Fragment.of("CREATE TABLE " + table + " (ts TIMESTAMP WITH TIME ZONE)")
-              .execute()
-              .run(conn);
-          Fragment.builder()
-              .append("INSERT INTO " + table + " (ts) VALUES (")
-              .value(OracleTypes.timestampWithTimeZone, value)
-              .append(")")
-              .execute()
-              .run(conn);
+    tx.transact(
+        mc -> {
+          mc.execute(
+              Fragment.of("CREATE TABLE " + table + " (ts TIMESTAMP WITH TIME ZONE)").execute());
+          mc.execute(
+              Fragment.builder()
+                  .append("INSERT INTO " + table + " (ts) VALUES (")
+                  .value(OracleTypes.timestampWithTimeZone, value)
+                  .append(")")
+                  .execute());
           for (String sessionTz :
               List.of("UTC", "America/New_York", "Asia/Tokyo", "Europe/Berlin")) {
-            Fragment.of("ALTER SESSION SET TIME_ZONE = '" + sessionTz + "'").execute().run(conn);
+            mc.execute(Fragment.of("ALTER SESSION SET TIME_ZONE = '" + sessionTz + "'").execute());
             ZonedDateTime decoded =
-                Fragment.of("SELECT ts FROM " + table)
-                    .queryExactlyOne(OracleTypes.timestampWithTimeZone)
-                    .run(conn);
+                mc.execute(
+                    Fragment.of("SELECT ts FROM " + table)
+                        .queryExactlyOne(OracleTypes.timestampWithTimeZone));
             if (!decoded.toInstant().equals(value.toInstant())) {
               throw new AssertionError(
                   "Session TZ "
@@ -2517,33 +2522,32 @@ public class OracleTypeTest {
   /** Nullable column and null round-trip for TIMESTAMP WITH TIME ZONE → Optional<ZonedDateTime>. */
   @Test
   public void testTimestampWithTimeZoneNullable() {
-    var tx = Containers.oraclePool().transactor(Transactor.testStrategy());
+    var tx = Containers.oraclePool().transactor().rollbackOnly();
     String table = uniqueTableName("zdt_null");
 
     var value =
         ZonedDateTime.of(2024, 7, 15, 10, 30, 0, 0, java.time.ZoneId.of("America/Los_Angeles"));
 
     List<Optional<ZonedDateTime>> decoded =
-        tx.execute(
-            conn -> {
-              Fragment.of(
-                      "CREATE TABLE "
-                          + table
-                          + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
-                  .execute()
-                  .run(conn);
-              Fragment.builder()
-                  .append("INSERT INTO " + table + " (id, ts) VALUES (1, ")
-                  .value(OracleTypes.timestampWithTimeZone, value)
-                  .append(")")
-                  .execute()
-                  .run(conn);
-              Fragment.of("INSERT INTO " + table + " (id, ts) VALUES (2, NULL)")
-                  .execute()
-                  .run(conn);
-              return Fragment.of("SELECT ts FROM " + table + " ORDER BY id")
-                  .queryAll(OracleTypes.timestampWithTimeZone.opt())
-                  .run(conn);
+        tx.transact(
+            mc -> {
+              mc.execute(
+                  Fragment.of(
+                          "CREATE TABLE "
+                              + table
+                              + " (id NUMBER(5) PRIMARY KEY, ts TIMESTAMP WITH TIME ZONE)")
+                      .execute());
+              mc.execute(
+                  Fragment.builder()
+                      .append("INSERT INTO " + table + " (id, ts) VALUES (1, ")
+                      .value(OracleTypes.timestampWithTimeZone, value)
+                      .append(")")
+                      .execute());
+              mc.execute(
+                  Fragment.of("INSERT INTO " + table + " (id, ts) VALUES (2, NULL)").execute());
+              return mc.execute(
+                  Fragment.of("SELECT ts FROM " + table + " ORDER BY id")
+                      .queryAll(OracleTypes.timestampWithTimeZone.opt()));
             });
 
     if (decoded.size() != 2) {
@@ -2561,18 +2565,11 @@ public class OracleTypeTest {
     }
   }
 
-  private static void tryRun(java.sql.Connection conn, Fragment fragment) {
+  private static void tryRun(Connection mc, Fragment fragment) {
     try {
-      fragment.execute().run(conn);
+      mc.execute(fragment.execute());
     } catch (Exception ignored) {
       // best-effort cleanup
-    }
-  }
-
-  private static void tryExec(java.sql.Statement stmt, String sql) {
-    try {
-      stmt.execute(sql);
-    } catch (SQLException ignored) {
     }
   }
 

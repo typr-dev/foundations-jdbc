@@ -2,6 +2,9 @@ package dev.typr.foundationskt
 
 import dev.typr.foundations.SqlFunction
 import dev.typr.foundations.Db2Types as JavaDb2Types
+import dev.typr.foundationskt.data.Json
+import dev.typr.foundationskt.data.Unknown
+import dev.typr.foundationskt.data.Xml
 
 /**
  * Kotlin-friendly Db2Type instances that use Kotlin types instead of Java boxed types.
@@ -49,10 +52,10 @@ open class Db2Types {
     open val date: Db2Type<java.time.LocalDate> = Db2Type(JavaDb2Types.date)
     open val time: Db2Type<java.time.LocalTime> = Db2Type(JavaDb2Types.time)
     open val timestamp: Db2Type<java.time.LocalDateTime> = Db2Type(JavaDb2Types.timestamp)
-    open val xml: Db2Type<dev.typr.foundations.data.Xml> = Db2Type(JavaDb2Types.xml)
+    open val xml: Db2Type<Xml> = Db2Type(JavaDb2Types.xml)
     open val rowid: Db2Type<ByteArray> = Db2Type(JavaDb2Types.rowid)
     open val `object`: Db2Type<Any> = Db2Type(JavaDb2Types.`object`)
-    open val unknown: Db2Type<dev.typr.foundations.data.Unknown> = Db2Type(JavaDb2Types.unknown)
+    open val unknown: Db2Type<Unknown> = Db2Type(JavaDb2Types.unknown)
 
     // Parameterized methods
     open fun decimalOf(precision: Int, scale: Int): Db2Type<java.math.BigDecimal> = Db2Type(JavaDb2Types.decimalOf(precision, scale))
@@ -81,7 +84,7 @@ open class Db2Types {
 
     open fun timestampOf(scale: Int): Db2Type<java.time.LocalDateTime> = Db2Type(JavaDb2Types.timestampOf(scale))
 
-    open val json: Db2Type<dev.typr.foundations.data.Json> = Db2Type(JavaDb2Types.json)
+    open val json: Db2Type<Json> = Db2Type(JavaDb2Types.json)
 
     // JSON-encoded row types
 

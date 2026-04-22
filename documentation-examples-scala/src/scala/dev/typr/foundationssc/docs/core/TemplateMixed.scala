@@ -19,7 +19,7 @@ object TemplateMixed:
   // start
   // Mix bound and unbound parameters in the same template.
   // Status is fixed at "active"; name filter and limit vary per call.
-  val activeUsersByName: Template.Query2[String, Int, List[User]] =
+  val activeUsersByName: TemplateRead.Query2[String, Int, List[User]] =
     sql"SELECT id, name, status FROM users WHERE status = "
       .value(PgTypes.text, "active")
       .append(" AND name ILIKE ")

@@ -25,7 +25,7 @@ object TicketRepo {
             .param(eventIdType)
             .query(RowCodec.of(moneyType).exactlyOne())
 
-    val eventSummaries: Operation<List<EventSummary>> =
+    val eventSummaries: OperationRead<List<EventSummary>> =
         sql {
             """SELECT e.id, e.title, v.name, count(t.id), coalesce(sum(t.price), 0)
                FROM event e
@@ -42,7 +42,7 @@ object TicketRepo {
     fun purchaseTicket(
         eventId: EventId, tier: TicketTier, holderName: String, holderEmail: String?,
         price: Money, seatNumbers: List<Int>
-    ): Operation.Query<Ticket> = insertTicket.on(
+    ): OperationRead.Query<Ticket> = insertTicket.on(
         Ticket(
                 id = TicketId(UUID.randomUUID()),
                 eventId = eventId,

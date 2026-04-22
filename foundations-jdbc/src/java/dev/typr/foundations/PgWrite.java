@@ -85,7 +85,7 @@ public sealed interface PgWrite<A> extends DbWrite<A> permits PgWrite.Instance {
               try {
                 obj.setValue(str);
               } catch (SQLException e) {
-                throw new DatabaseException(e);
+                throw new DatabaseException.Jdbc(e);
               }
               return obj;
             });

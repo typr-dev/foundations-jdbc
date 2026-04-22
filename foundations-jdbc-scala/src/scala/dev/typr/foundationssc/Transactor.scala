@@ -1,46 +1,45 @@
 package dev.typr.foundationssc
 
-import java.sql.Connection
+import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
 
-class Transactor(val underlying: dev.typr.foundations.Transactor):
+class Transactor(val underlying: dev.typr.foundations.Transactor) extends AutoCloseable:
+  def execute[T](operation: OperationRead[T]): T =
+    underlying.execute(operation.underlying)
+
   def execute[T](operation: Operation[T]): T =
-    val f: dev.typr.foundations.SqlFunction[Connection, T] = (conn: Connection) => operation.run(conn)
-    underlying.execute(f)
+    underlying.execute(operation.underlying)
 
   def transact[T](f: Connection => T): T =
-    val sf: dev.typr.foundations.SqlFunction[Connection, T] = (conn: Connection) => f(conn)
-    underlying.execute(sf)
+    underlying.transact(mc => f(mc))
 
-  def executeVoid(f: Connection => Unit): Unit =
-    underlying.executeVoid((conn: Connection) => f(conn))
+  def transactRead[T](f: ConnectionRead => T): T =
+    underlying.transactRead(rc => f(rc))
 
-  def withStrategy(override_ : Transactor.Strategy): Transactor =
-    new Transactor(underlying.withStrategy(override_))
+  def query[T](sql: Fragment, codec: RowCodec[T]): List[T] =
+    underlying.query(sql.underlying, codec.underlying).asScala.toList
 
-  def mergeListener(listener: dev.typr.foundations.QueryListener): Transactor =
+  def queryFirst[T](sql: Fragment, codec: RowCodec[T]): Option[T] =
+    underlying.queryFirst(sql.underlying, codec.underlying).toScala
+
+  def update(sql: Fragment): Int =
+    underlying.update(sql.underlying)
+
+  def rollbackOnly(): Transactor =
+    new Transactor(underlying.rollbackOnly())
+
+  def withListener(listener: QueryListener): Transactor =
+    new Transactor(underlying.withListener(listener))
+
+  def mergeListener(listener: QueryListener): Transactor =
     new Transactor(underlying.mergeListener(listener))
 
-  def transact[T](override_ : Transactor.Strategy)(f: Connection => T): T =
-    withStrategy(override_).transact(f)
+  override def close(): Unit = underlying.close()
 
 object Transactor:
   def apply(underlying: dev.typr.foundations.Transactor): Transactor = new Transactor(underlying)
-  type Strategy = dev.typr.foundations.Transactor.Strategy
 
   def create(config: connect.DatabaseConfig): Transactor =
     new Transactor(dev.typr.foundations.Transactor.create(config))
-  def create(config: connect.DatabaseConfig, strategy: Strategy): Transactor =
-    new Transactor(dev.typr.foundations.Transactor.create(config, strategy))
   def create(config: connect.DatabaseConfig, settings: connect.ConnectionSettings): Transactor =
     new Transactor(dev.typr.foundations.Transactor.create(config, settings))
-  def create(config: connect.DatabaseConfig, settings: connect.ConnectionSettings, strategy: Strategy): Transactor =
-    new Transactor(dev.typr.foundations.Transactor.create(config, settings, strategy))
-
-  /** Create a Transactor from an existing [[ConnectionSource]] (e.g. from [[ConnectionSource.of]] or a custom pool).
-    */
-  def create(source: ConnectionSource): Transactor = source.transactor()
-  def create(source: ConnectionSource, strategy: Strategy): Transactor = source.transactor(strategy)
-
-  def defaultStrategy(): Strategy = dev.typr.foundations.Transactor.defaultStrategy()
-  def autoCommitStrategy(): Strategy = dev.typr.foundations.Transactor.autoCommitStrategy()
-  def testStrategy(): Strategy = dev.typr.foundations.Transactor.testStrategy()

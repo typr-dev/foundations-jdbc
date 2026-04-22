@@ -1,7 +1,6 @@
 package dev.typr.foundations;
 
 import dev.typr.foundations.connect.DatabaseKind;
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,7 +14,7 @@ public final class RoutineAnalyzer {
   private RoutineAnalyzer() {}
 
   public static RoutineAnalysis analyzeFunction(
-      Procedure.FunctionProcedure<?> func, Connection conn) throws SQLException {
+      Procedure.FunctionProcedure<?> func, java.sql.Connection conn) throws SQLException {
     String name = func.name();
     List<ParamDef> inParams = func.inParams();
     DbType<?> returnType = func.returnType();
@@ -88,7 +87,7 @@ public final class RoutineAnalyzer {
     }
   }
 
-  public static RoutineAnalysis analyzeProcedure(Procedure<?> proc, Connection conn)
+  public static RoutineAnalysis analyzeProcedure(Procedure<?> proc, java.sql.Connection conn)
       throws SQLException {
     String name;
     List<ParamDef> params;

@@ -10,11 +10,11 @@ public class ScannerDirectives {
   // A repo with methods the scanner can't auto-invoke
   static class ReportRepo {
     // Runnable can't be constructed — scanner will skip or fail
-    public Operation<List<String>> generateReport(Runnable onProgress) {
+    public OperationRead<List<String>> generateReport(Runnable onProgress) {
       return Fragment.of("SELECT name FROM reports").queryAll(PgTypes.text);
     }
 
-    public Operation<List<String>> allReports() {
+    public OperationRead<List<String>> allReports() {
       return Fragment.of("SELECT name FROM reports").queryAll(PgTypes.text);
     }
   }

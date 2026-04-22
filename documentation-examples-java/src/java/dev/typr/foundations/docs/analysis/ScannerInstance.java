@@ -9,14 +9,14 @@ public class ScannerInstance {
 
   // This class lives outside the scanned package
   static class ExternalRepo {
-    public final Operation<List<String>> allItems =
+    public final OperationRead<List<String>> allItems =
         Fragment.of("SELECT name FROM items").queryAll(PgTypes.text);
 
-    public Operation<List<String>> activeItems() {
+    public OperationRead<List<String>> activeItems() {
       return Fragment.of("SELECT name FROM items WHERE active").queryAll(PgTypes.text);
     }
 
-    public Operation<List<String>> generateReport(Runnable callback) {
+    public OperationRead<List<String>> generateReport(Runnable callback) {
       return Fragment.of("SELECT name FROM items").queryAll(PgTypes.text);
     }
   }

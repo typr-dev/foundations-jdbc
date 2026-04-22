@@ -9,15 +9,10 @@ class QueryAnalysisRoutine {
     //start
     // Verify a stored function matches the database definition
     fun checkStoredFunction() {
-        val addUser =
-            Procedure.buildFunction(
-                "add_user",
-                listOf(
-                    ParamDef.input(PgTypes.text),
-                    ParamDef.input(PgTypes.text)
-                ),
-                PgTypes.int4
-            )
+        val addUser = DbFunction.define("add_user", PgTypes.int4)
+            .input(PgTypes.text)
+            .input(PgTypes.text)
+            .build()
 
         val checker = QueryChecker.create(transactor)
         checker.checkRoutine(addUser)

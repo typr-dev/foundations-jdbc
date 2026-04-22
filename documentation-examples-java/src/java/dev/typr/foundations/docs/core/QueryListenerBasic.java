@@ -9,7 +9,7 @@ public class QueryListenerBasic {
   QueryListener logger =
       new QueryListener() {
         @Override
-        public void beforeQuery(String sql, String name) {
+        public void beforeQuery(String sql, java.util.Optional<String> name) {
           System.out.println("Executing: " + sql);
         }
 
@@ -21,11 +21,11 @@ public class QueryListenerBasic {
         @Override
         public void failedQuery(QueryEvent event) {
           System.err.println(
-              event.name()
+              event.name().orElse("unnamed")
                   + " failed after "
                   + event.elapsed().toMillis()
                   + "ms: "
-                  + event.error().getMessage());
+                  + event.error().map(Throwable::getMessage).orElse("unknown"));
         }
       };
   // stop

@@ -17,16 +17,15 @@ class ExecuteComposed {
 
     lateinit var tx: Transactor
 
-    val countUsers: Operation<Long> =
+    val countUsers: OperationRead<Long> =
         sql { "SELECT count(*) FROM users" }
             .query(RowCodec.of(PgTypes.int8).exactlyOne())
-    val recentOrders: Operation<List<Order>> =
+    val recentOrders: OperationRead<List<Order>> =
         sql { "SELECT * FROM orders ORDER BY id DESC LIMIT 10" }
             .query(orderCodec.all())
 
     //start
-    fun dashboard(): Dashboard = tx.transact { conn ->
-        countUsers.combineWith(recentOrders, ::Dashboard).run(conn)
-    }
+    fun dashboard(): Dashboard =
+        tx.execute(countUsers.combineWith(recentOrders, ::Dashboard))
     //stop
 }

@@ -15,7 +15,7 @@ class StoredProcedure {
             .out(PgTypes.text)
             .build()
 
-    // call() returns a ProcedureOp — use it like any other operation
+    // call() returns an Operation — use it like any other operation
     fun findUser(userId: Int): Pair<String, String> =
         getUser.call(userId).transact(tx)
     //stop

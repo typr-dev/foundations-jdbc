@@ -8,7 +8,7 @@ import dev.typr.foundations.{QueryListener, QueryEvent}
 object InterpolatedSql:
   // start
   object debugListener extends QueryListener:
-    override def beforeQuery(sql: String, name: String): Unit = ()
+    override def beforeQuery(sql: String, name: java.util.Optional[String]): Unit = ()
     override def afterQuery(event: QueryEvent): Unit =
       println(event.interpolatedSql())
     override def failedQuery(event: QueryEvent): Unit =
