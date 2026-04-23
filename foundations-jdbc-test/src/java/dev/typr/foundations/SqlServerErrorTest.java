@@ -3,6 +3,7 @@ package dev.typr.foundations;
 import static org.junit.Assert.*;
 
 import java.sql.SQLException;
+import java.util.Optional;
 import org.junit.Test;
 
 public class SqlServerErrorTest {
@@ -10,7 +11,7 @@ public class SqlServerErrorTest {
   @Test
   public void formattedIncludesAllFields() {
     var err =
-        new SqlServerError("Invalid column name 'foo'", 207, 16, 1, "MY_SERVER", "my_proc", 5);
+        new SqlServerError(Optional.of("Invalid column name 'foo'"), 207, 16, 1, Optional.of("MY_SERVER"), Optional.of("my_proc"), 5);
 
     String formatted = err.formatted();
     assertTrue(formatted.contains("ERROR (severity 16)"));
@@ -22,7 +23,7 @@ public class SqlServerErrorTest {
 
   @Test
   public void formattedOmitsNullFields() {
-    var err = new SqlServerError("Login failed", 18456, 14, 1, null, null, 0);
+    var err = new SqlServerError(Optional.of("Login failed"), 18456, 14, 1, Optional.empty(), Optional.empty(), 0);
 
     String formatted = err.formatted();
     assertTrue(formatted.contains("ERROR (severity 14): Login failed [18456]"));
@@ -32,7 +33,7 @@ public class SqlServerErrorTest {
 
   @Test
   public void formattedWithProcedure() {
-    var err = new SqlServerError("Divide by zero", 8134, 16, 1, null, "usp_calculate", 12);
+    var err = new SqlServerError(Optional.of("Divide by zero"), 8134, 16, 1, Optional.empty(), Optional.of("usp_calculate"), 12);
 
     String formatted = err.formatted();
     assertTrue(formatted.contains("Procedure: usp_calculate, line 12"));
@@ -40,7 +41,7 @@ public class SqlServerErrorTest {
 
   @Test
   public void formattedWithoutProcedure() {
-    var err = new SqlServerError("Syntax error", 102, 15, 1, "SRV01", null, 3);
+    var err = new SqlServerError(Optional.of("Syntax error"), 102, 15, 1, Optional.of("SRV01"), Optional.empty(), 3);
 
     String formatted = err.formatted();
     assertFalse(formatted.contains("Procedure:"));
@@ -49,7 +50,7 @@ public class SqlServerErrorTest {
 
   @Test
   public void zeroLineNumber() {
-    var err = new SqlServerError("Some error", 50000, 16, 1, null, "my_proc", 0);
+    var err = new SqlServerError(Optional.of("Some error"), 50000, 16, 1, Optional.empty(), Optional.of("my_proc"), 0);
 
     String formatted = err.formatted();
     assertTrue(formatted.contains("Procedure: my_proc"));
@@ -58,7 +59,7 @@ public class SqlServerErrorTest {
 
   @Test
   public void severityInOutput() {
-    var err = new SqlServerError("Warning", 100, 10, 0, null, null, 0);
+    var err = new SqlServerError(Optional.of("Warning"), 100, 10, 0, Optional.empty(), Optional.empty(), 0);
 
     String formatted = err.formatted();
     assertTrue(formatted.contains("severity 10"));
@@ -67,24 +68,24 @@ public class SqlServerErrorTest {
   @Test
   public void sqlStateFromError() {
     var cause = new SQLException("test", "S0001", 207);
-    var err = new SqlServerError("Invalid column", 207, 16, 1, null, null, 0);
-    var ex = new DatabaseException.SqlServer(err, null, cause);
+    var err = new SqlServerError(Optional.of("Invalid column"), 207, 16, 1, Optional.empty(), Optional.empty(), 0);
+    var ex = new DatabaseException.SqlServer(err, Optional.empty(), Optional.of(cause));
 
     assertEquals("S0001", ex.sqlState());
   }
 
   @Test
   public void sqlStateWithoutCause() {
-    var err = new SqlServerError("Invalid column", 207, 16, 1, null, null, 0);
-    var ex = new DatabaseException.SqlServer(err, null);
+    var err = new SqlServerError(Optional.of("Invalid column"), 207, 16, 1, Optional.empty(), Optional.empty(), 0);
+    var ex = new DatabaseException.SqlServer(err, Optional.empty());
 
-    assertNull(ex.sqlState());
+    assertEquals("", ex.sqlState());
   }
 
   @Test
   public void sqlAccessorPresent() {
-    var err = new SqlServerError("Error", 207, 16, 1, null, null, 0);
-    var ex = new DatabaseException.SqlServer(err, "SELECT foo FROM bar");
+    var err = new SqlServerError(Optional.of("Error"), 207, 16, 1, Optional.empty(), Optional.empty(), 0);
+    var ex = new DatabaseException.SqlServer(err, Optional.of("SELECT foo FROM bar"));
 
     assertTrue(ex.sql().isPresent());
     assertEquals("SELECT foo FROM bar", ex.sql().get());
@@ -92,8 +93,8 @@ public class SqlServerErrorTest {
 
   @Test
   public void sqlAccessorEmpty() {
-    var err = new SqlServerError("Error", 207, 16, 1, null, null, 0);
-    var ex = new DatabaseException.SqlServer(err, null);
+    var err = new SqlServerError(Optional.of("Error"), 207, 16, 1, Optional.empty(), Optional.empty(), 0);
+    var ex = new DatabaseException.SqlServer(err, Optional.empty());
 
     assertTrue(ex.sql().isEmpty());
   }
@@ -102,12 +103,14 @@ public class SqlServerErrorTest {
   public void databaseExceptionSealedHierarchy() {
     var pgError =
         new PgError(
-            "ERROR", "msg", "23505", null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null);
-    DatabaseException pg = new DatabaseException.Postgres(pgError, null);
+            "ERROR", "msg", "23505", Optional.empty(), Optional.empty(), Optional.empty(),
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+            Optional.empty());
+    DatabaseException pg = new DatabaseException.Postgres(pgError, Optional.empty());
 
-    var ssError = new SqlServerError("msg", 207, 16, 1, null, null, 0);
-    DatabaseException ss = new DatabaseException.SqlServer(ssError, null);
+    var ssError = new SqlServerError(Optional.of("msg"), 207, 16, 1, Optional.empty(), Optional.empty(), 0);
+    DatabaseException ss = new DatabaseException.SqlServer(ssError, Optional.empty());
 
     DatabaseException jdbc = new DatabaseException.Jdbc(new SQLException("test"));
 
@@ -138,8 +141,8 @@ public class SqlServerErrorTest {
   @Test
   public void exceptionMessageContainsFormattedError() {
     var err =
-        new SqlServerError("Invalid column name 'foo'", 207, 16, 1, "MY_SERVER", "my_proc", 5);
-    var ex = new DatabaseException.SqlServer(err, "SELECT foo FROM bar");
+        new SqlServerError(Optional.of("Invalid column name 'foo'"), 207, 16, 1, Optional.of("MY_SERVER"), Optional.of("my_proc"), 5);
+    var ex = new DatabaseException.SqlServer(err, Optional.of("SELECT foo FROM bar"));
 
     assertTrue(ex.getMessage().contains("ERROR (severity 16)"));
     assertTrue(ex.getMessage().contains("Invalid column name 'foo'"));

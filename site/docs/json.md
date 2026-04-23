@@ -14,18 +14,16 @@ Pass a `RowCodec` to your database's `jsonArrayEncoded` or `jsonObjectEncoded` m
 
 <Snippet file="core/NamedJsonObject" />
 
-Every database has these methods:
+Every database type palette has four methods:
 
-| Database | Methods |
-|----------|---------|
-| PostgreSQL | `PgTypes.jsonArrayEncoded` / `jsonbArrayEncoded` + object variants |
-| MariaDB/MySQL | `MariaTypes.jsonArrayEncoded` + object variants |
-| DuckDB | `DuckDbTypes.jsonArrayEncoded` + object variants |
-| SQL Server | `SqlServerTypes.jsonArrayEncoded` + object variants |
-| Oracle | `OracleTypes.jsonArrayEncoded` + object variants |
-| DB2 | `Db2Types.jsonArrayEncoded` + object variants |
+| Method | Codec | JSON shape | Use case |
+|--------|-------|-----------|----------|
+| `jsonObjectEncoded(namedCodec)` | `DbType<Row>` | `{"col": val, ...}` | Single row as keyed object |
+| `jsonArrayEncoded(codec)` | `DbType<Row>` | `[val, val, ...]` | Single row as positional array |
+| `jsonObjectEncodedList(namedCodec)` | `DbType<List<Row>>` | `[{"col": val}, ...]` | List of rows as object array |
+| `jsonArrayEncodedList(codec)` | `DbType<List<Row>>` | `[[val, val], ...]` | List of rows as nested arrays |
 
-Each method also has a `List` variant (e.g. `jsonArrayEncodedList`) for columns that hold a JSON array of rows.
+Available on `PgTypes`, `MariaTypes`, `DuckDbTypes`, `SqlServerTypes`, `OracleTypes`, and `Db2Types`. PostgreSQL also has `jsonb` variants (`jsonbObjectEncoded`, etc.).
 
 ## Aggregating Child Rows as JSON
 

@@ -7,7 +7,7 @@ object OutProcedure:
 
   // start
   // OUT parameters — the builder tracks output types statically
-  val getUser =
+  val getUser: DbProcedure.Def1_2[Int, String, String] =
     DbProcedure
       .define("get_user_by_id")
       .input(PgTypes.int4) // user_id IN

@@ -65,7 +65,7 @@ Attach a `QueryListener` to observe all queries and transactions:
 var tx = Transactor.create(config).withListener(myListener);
 ```
 
-See [Listener & Test Mode](./strategies) and [Observability](./observability) for details.
+See [Observability](./observability) for details.
 
 ## Raw JDBC Access
 

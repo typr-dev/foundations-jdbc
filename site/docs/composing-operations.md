@@ -42,6 +42,14 @@ When the first operation returns a record and the template uses `.from()`, use `
 
 <Snippet file="core/ComposingIfEmpty" />
 
+## Read-Only Composition
+
+When you compose `OperationRead` values, the result is always `OperationRead`. Mix in a single write `Operation`, and the result becomes `Operation`. The type system tracks this automatically:
+
+<Snippet file="core/ReadonlyComposition" />
+
+This means `transactRead` works for any tree of pure reads — the compiler enforces it. See [Read-Only Transactions](./readonly-transactions) for more.
+
 ## Performance: Why Composition Matters
 
 Operation composition isn't just an API convenience — it's a **performance primitive**. The way you compose operations determines whether the execution engine can optimize them.

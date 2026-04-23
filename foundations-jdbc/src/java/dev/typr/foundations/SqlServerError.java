@@ -1,6 +1,7 @@
 package dev.typr.foundations;
 
-import org.jetbrains.annotations.Nullable;
+import dev.typr.foundations.internal.Str;
+import java.util.Optional;
 
 /**
  * Structured SQL Server error with fields from the {@code SQLServerError} driver class.
@@ -11,48 +12,51 @@ import org.jetbrains.annotations.Nullable;
  * com.microsoft.sqlserver.jdbc.SQLServerError}.
  */
 public record SqlServerError(
-    @Nullable String message,
+    Optional<String> message,
     int errorNumber,
     int errorSeverity,
     int errorState,
-    @Nullable String serverName,
-    @Nullable String procedureName,
+    Optional<String> serverName,
+    Optional<String> procedureName,
     long lineNumber) {
 
-  /**
-   * Format this error for display.
-   *
-   * <p>Output format:
-   *
-   * <pre>
-   * ERROR (severity 16): Invalid column name 'foo' [207]
-   *   Procedure: my_proc, line 5
-   *   Server: MY_SERVER
-   * </pre>
-   *
-   * @param sql the SQL that caused the error (reserved for future caret rendering)
-   * @return formatted multi-line error string
-   */
-  public String formatted(@Nullable String sql) {
-    var sb = new StringBuilder();
-    sb.append("ERROR (severity ").append(errorSeverity).append("): ");
-    if (message != null) sb.append(message);
-    sb.append(" [").append(errorNumber).append("]");
-
-    if (procedureName != null) {
-      sb.append("\n  Procedure: ").append(procedureName);
-      if (lineNumber != 0) {
-        sb.append(", line ").append(lineNumber);
-      }
-    }
-
-    if (serverName != null) sb.append("\n  Server: ").append(serverName);
-
-    return sb.toString();
+  /** Format this error for display (plain text). */
+  public String formatted(Optional<String> sql) {
+    return styledFormatted(sql).plainText();
   }
 
   /** Format without SQL context. */
   public String formatted() {
-    return formatted(null);
+    return formatted(Optional.empty());
+  }
+
+  /** Format with ANSI colors. */
+  public String formattedColored(Optional<String> sql) {
+    return styledFormatted(sql).render();
+  }
+
+  /** Format with ANSI colors, no SQL context. */
+  public String formattedColored() {
+    return formattedColored(Optional.empty());
+  }
+
+  /** Styled format with rich terminal rendering. */
+  public Str styledFormatted(Optional<String> sql) {
+    var b = Str.builder();
+
+    b.boldRed("ERROR").gray(" (severity " + errorSeverity + "): ");
+    message.ifPresent(b::plain);
+    b.gray(" [" + errorNumber + "]");
+
+    procedureName.ifPresent(p -> {
+      b.newline().gray("  Procedure: ").plain(p);
+      if (lineNumber != 0) {
+        b.gray(", line ").plain(String.valueOf(lineNumber));
+      }
+    });
+
+    serverName.ifPresent(s -> b.newline().gray("  Server: ").plain(s));
+
+    return b.build();
   }
 }

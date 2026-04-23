@@ -66,7 +66,11 @@ Named codecs also have `.join()` and `.leftJoin()` methods that preserve column 
 
 The same `Tuple` types appear whenever the library needs to return multiple values without a dedicated record type — `RowCodec.of(type1, type2, ...)` for multi-column ad-hoc queries, `.combine()` for composed operations, and `.join()` for joins all return `TupleN`. Accessors are 1-based: `._1()`, `._2()`, `._3()`, etc.
 
-This is why row codecs use index-based reading rather than column names. When you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
+:::important Column names are NOT used for reading
+Row codecs **always read by column index**, never by column name. The column names in a named codec exist for **SQL generation** (INSERT statements, column lists), **JSON encoding** (object keys), and **composite types** (field names) — they are never passed to `ResultSet.getString("name")`. When the codec reads a row, it calls `rs.getXxx(1)`, `rs.getXxx(2)`, etc. in declaration order.
+
+This is a deliberate design choice that will not change. Index-based reading is the only option because it composes safely: when you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
+:::
 
 ### Disambiguating duplicate column names with `.aliased()`
 

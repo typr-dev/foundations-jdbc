@@ -32,7 +32,10 @@ Query Analysis uses JDBC metadata to verify your queries against the actual data
 3. **Nullability is wrong** — The column is nullable but your type isn't Optional
 4. **Counts are off** — Your RowCodec expects 5 columns but the query returns 4
 
-
+<div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', margin: '1.5rem 0'}}>
+<img src="/img/query-analysis-success.png" alt="Query analysis: all types match" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '48%'}} />
+<img src="/img/query-analysis-nullability.png" alt="Query analysis: nullability mismatch detected" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '48%'}} />
+</div>
 
 ## Basic Usage
 
@@ -311,5 +314,4 @@ If any variant has a type error, the analysis report tells you exactly which com
 
 ## Further Reading
 
-- [Query Analysis Reference](./query-analysis-reference) — internals, API reference, and database support matrix
 - [Query Analysis: Database Behavior](./query-analysis-database-behavior) — detailed breakdown of what each database's JDBC driver reports and how it affects analysis

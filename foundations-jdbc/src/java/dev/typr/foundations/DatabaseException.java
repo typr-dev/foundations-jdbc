@@ -53,21 +53,29 @@ public abstract sealed class DatabaseException extends RuntimeException
    *
    * <p>Standard SQL state classes: "23" = integrity constraint violation, "42" = syntax error, etc.
    */
-  public abstract @Nullable String sqlState();
+  public abstract String sqlState();
+
+  /**
+   * The error message with ANSI color codes for terminal display.
+   * Defaults to the plain message; Postgres and SqlServer subtypes render rich colored output.
+   */
+  public String messageColored() {
+    return getMessage();
+  }
 
   /** PostgreSQL error with all structured ErrorResponse fields. */
   public static final class Postgres extends DatabaseException {
     private final PgError pgError;
-    private final @Nullable String sql;
+    private final Optional<String> sql;
 
-    public Postgres(PgError pgError, @Nullable String sql, @Nullable Throwable cause) {
-      super(pgError.formatted(sql), cause);
+    public Postgres(PgError pgError, Optional<String> sql, Optional<Throwable> cause) {
+      super(pgError.formatted(sql), cause.orElse(null));
       this.pgError = pgError;
       this.sql = sql;
     }
 
-    public Postgres(PgError pgError, @Nullable String sql) {
-      this(pgError, sql, null);
+    public Postgres(PgError pgError, Optional<String> sql) {
+      this(pgError, sql, Optional.empty());
     }
 
     /** All structured error fields from the PostgreSQL ErrorResponse. */
@@ -77,29 +85,34 @@ public abstract sealed class DatabaseException extends RuntimeException
 
     /** The SQL that caused the error, if available. */
     public Optional<String> sql() {
-      return Optional.ofNullable(sql);
+      return sql;
     }
 
     @Override
-    public @Nullable String sqlState() {
+    public String sqlState() {
       return pgError.sqlState();
+    }
+
+    @Override
+    public String messageColored() {
+      return pgError.formattedColored(sql);
     }
   }
 
   /** SQL Server error with structured fields from the TDS ERROR token. */
   public static final class SqlServer extends DatabaseException {
     private final SqlServerError sqlServerError;
-    private final @Nullable String sql;
+    private final Optional<String> sql;
 
     public SqlServer(
-        SqlServerError sqlServerError, @Nullable String sql, @Nullable Throwable cause) {
-      super(sqlServerError.formatted(sql), cause);
+        SqlServerError sqlServerError, Optional<String> sql, Optional<Throwable> cause) {
+      super(sqlServerError.formatted(sql), cause.orElse(null));
       this.sqlServerError = sqlServerError;
       this.sql = sql;
     }
 
-    public SqlServer(SqlServerError sqlServerError, @Nullable String sql) {
-      this(sqlServerError, sql, null);
+    public SqlServer(SqlServerError sqlServerError, Optional<String> sql) {
+      this(sqlServerError, sql, Optional.empty());
     }
 
     /** All structured error fields from the SQL Server error. */
@@ -109,16 +122,21 @@ public abstract sealed class DatabaseException extends RuntimeException
 
     /** The SQL that caused the error, if available. */
     public Optional<String> sql() {
-      return Optional.ofNullable(sql);
+      return sql;
     }
 
     @Override
-    public @Nullable String sqlState() {
+    public String sqlState() {
       Throwable cause = getCause();
       if (cause instanceof java.sql.SQLException sqle) {
         return sqle.getSQLState();
       }
-      return null;
+      return "";
+    }
+
+    @Override
+    public String messageColored() {
+      return sqlServerError.formattedColored(sql);
     }
   }
 
@@ -138,7 +156,7 @@ public abstract sealed class DatabaseException extends RuntimeException
     }
 
     @Override
-    public @Nullable String sqlState() {
+    public String sqlState() {
       return sqlException().getSQLState();
     }
 

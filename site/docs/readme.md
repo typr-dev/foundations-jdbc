@@ -76,6 +76,12 @@ Use your types and codecs in a plain function to build parameterized queries:
 
 Values are always bound as JDBC parameters — never concatenated into SQL strings.
 
+## Query Analysis
+
+Run your queries against the database at test time — [Query Analysis](./query-analysis) catches type mismatches, nullability errors, and missing columns before they reach production:
+
+<img src="/img/query-analysis-type-mismatch.png" alt="Query analysis catches type mismatches at test time" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '600px'}} />
+
 ## What's Next
 
 ![Concepts Flow](/img/concepts-flow.svg)
