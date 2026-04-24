@@ -6,10 +6,7 @@ sealed trait OperationRead[Out] extends Operation[Out]:
 
   override def underlying: dev.typr.foundations.OperationRead[Out]
 
-  override def run(conn: dev.typr.foundations.Connection): Out =
-    (conn: dev.typr.foundations.ConnectionRead).execute(underlying)
-
-  def run(conn: dev.typr.foundations.ConnectionRead): Out =
+  def run(using conn: dev.typr.foundations.ConnectionRead): Out =
     conn.execute(underlying)
 
   def transactRead(transactor: Transactor): Out =

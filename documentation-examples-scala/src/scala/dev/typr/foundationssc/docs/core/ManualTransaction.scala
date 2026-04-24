@@ -26,9 +26,10 @@ object ManualTransaction:
       .query(orderCodec.all())
 
   // Run both in one transaction using a transact block
-  def dashboard(): Dashboard = tx.transact { mc =>
-    val count = countUsers.run(mc)
-    val orders = recentOrders.run(mc)
+  // Connection is available implicitly inside transact { }
+  def dashboard(): Dashboard = tx.transact {
+    val count = countUsers.run
+    val orders = recentOrders.run
     Dashboard(count, orders)
   }
   // stop

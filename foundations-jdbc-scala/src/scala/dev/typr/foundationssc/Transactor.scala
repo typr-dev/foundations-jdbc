@@ -10,11 +10,11 @@ class Transactor(val underlying: dev.typr.foundations.Transactor) extends AutoCl
   def execute[T](operation: Operation[T]): T =
     underlying.execute(operation.underlying)
 
-  def transact[T](f: Connection => T): T =
-    underlying.transact(mc => f(mc))
+  def transact[T](f: Connection ?=> T): T =
+    underlying.transact(mc => f(using mc))
 
-  def transactRead[T](f: ConnectionRead => T): T =
-    underlying.transactRead(rc => f(rc))
+  def transactRead[T](f: ConnectionRead ?=> T): T =
+    underlying.transactRead(rc => f(using rc))
 
   def query[T](sql: Fragment, codec: RowCodec[T]): List[T] =
     underlying.query(sql.underlying, codec.underlying).asScala.toList

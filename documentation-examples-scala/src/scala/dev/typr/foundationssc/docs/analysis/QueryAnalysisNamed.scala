@@ -3,13 +3,10 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.*
 import dev.typr.foundationssc.data.*
 
-import java.sql.Connection
-
 @SuppressWarnings(Array("unused"))
 object QueryAnalysisNamed:
   case class User(id: Int, name: String, email: String)
 
-  private val connection: Connection = null // placeholder
   private val userId = 1
 
   private val userRowCodec: RowCodec[User] = RowCodec
@@ -20,7 +17,7 @@ object QueryAnalysisNamed:
     .build(User.apply)
 
   // start
-  def analyzeNamedQuery(): Unit =
+  def analyzeNamedQuery(connection: Connection): Unit =
     val query =
       sql"""SELECT id, name, email
             FROM users

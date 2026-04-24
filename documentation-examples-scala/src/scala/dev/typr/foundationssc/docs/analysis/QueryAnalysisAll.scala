@@ -3,8 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-import java.sql.Connection
-
 @SuppressWarnings(Array("unused"))
 object QueryAnalysisAll:
   case class User(id: Int, name: String)
@@ -14,8 +12,6 @@ object QueryAnalysisAll:
     .field(PgTypes.int4)(_.id)
     .field(PgTypes.text)(_.name)
     .build(User.apply)
-
-  var conn: Connection = null // placeholder
 
   val insertUser: Template[String, Int] =
     sql"INSERT INTO users(name) VALUES("
@@ -28,7 +24,7 @@ object QueryAnalysisAll:
       .query(userCodec.all())
 
   // start
-  def analyzeComposedOperation(): Unit =
+  def analyzeComposedOperation(conn: Connection): Unit =
     // Build a composed operation
     val transaction: Operation[?] =
       insertUser.on("Alice").productL(allUsers)

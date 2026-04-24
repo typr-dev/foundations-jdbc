@@ -8,8 +8,6 @@ object SqlServerQuery:
   case class OrderRow(id: Int, name: String, price: BigDecimal)
   val orderRowCodec: RowCodec[OrderRow] = null // placeholder
   val maxPrice: Option[BigDecimal] = None
-  val conn: Connection = null // placeholder
-
   // start
   // Build small reusable filters - SQL Server example
   val nvarchar = SqlServerTypes.nvarchar
@@ -28,8 +26,8 @@ object SqlServerQuery:
       maxPrice.map(cheaperThan)
     ).flatten
 
-  val orders: List[OrderRow] =
+  def orders(using Connection): List[OrderRow] =
     sql"SELECT * FROM orders ${Fragment.whereAnd(filters)}"
       .query(orderRowCodec.all())
-      .run(conn)
+      .run
   // stop

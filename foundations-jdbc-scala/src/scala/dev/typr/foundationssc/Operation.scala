@@ -9,7 +9,7 @@ trait Operation[Out] extends Analyzable:
 
   override def analyzable: dev.typr.foundations.Analyzable = underlying
 
-  def run(conn: dev.typr.foundations.Connection): Out =
+  def run(using conn: dev.typr.foundations.Connection): Out =
     conn.execute(underlying)
 
   def transact(transactor: Transactor): Out =

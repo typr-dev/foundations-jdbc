@@ -24,14 +24,15 @@ object ReadonlyTransactionMulti:
     Fragment.of("SELECT name, email FROM users ORDER BY created_at DESC LIMIT 10").query(userCodec.all())
 
   // start
-  // Multiple reads in one session — same connection, auto-commit mode
+  // Multiple reads in one session — same connection, same transaction
   case class Dashboard(users: List[User], count: Long, recent: List[User])
 
+  // ConnectionRead is available implicitly inside transactRead { }
   def dashboard(): Dashboard =
-    tx.transactRead { conn =>
-      val users = findAll.run(conn)
-      val count = countUsers.run(conn)
-      val recent = findRecent.run(conn)
+    tx.transactRead {
+      val users = findAll.run
+      val count = countUsers.run
+      val recent = findRecent.run
       Dashboard(users, count, recent)
     }
   // stop

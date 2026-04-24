@@ -3,12 +3,8 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
-import java.sql.Connection
-
 @SuppressWarnings(Array("unused"))
 object QueryAnalysisNullableOk:
-  private val connection: Connection = null // placeholder
-
   // start
   case class OrderRow(
       userId: Int,
@@ -26,7 +22,7 @@ object QueryAnalysisNullableOk:
       .field(PgTypes.numeric.nullableOk())(_.orderTotal)
       .build(OrderRow.apply)
 
-  def analyzeLeftJoin(): Unit =
+  def analyzeLeftJoin(connection: Connection): Unit =
     val query =
       sql"""SELECT u.id, u.name, o.total
             FROM users u

@@ -17,7 +17,6 @@ object FragmentBuilding:
     .field(PgTypes.timestamptz)(_.createdAt)
     .build(User.apply)
 
-  var connection: Connection = null // placeholder
   val userId: Integer = 1
   val cutoffDate: Instant = Instant.now()
 
@@ -29,6 +28,6 @@ object FragmentBuilding:
           AND created_at > ${PgTypes.timestamptz(cutoffDate)}"""
 
   // Parameters are bound, not interpolated
-  val users: List[User] =
-    query.query(userCodec.all()).run(connection)
+  def users(using Connection): List[User] =
+    query.query(userCodec.all()).run
   // stop

@@ -16,20 +16,19 @@ object BatchOperations:
     .field("created_at", PgTypes.timestamptz)(_.createdAt)
     .build(Product.apply)
 
-  val conn: Connection = null // placeholder
-
   // start
   // Batch insert — all columns as parameters
   val insertAll: RowTemplate.Update[Product] =
     Fragment.insertInto("product", productCodec)
 
-  def insertProducts(products: List[Product]): Option[Array[Int]] =
-    insertAll.onMany(products.iterator).run(conn)
+  // Connection is provided implicitly by the caller (e.g. inside transact { })
+  def insertProducts(products: List[Product])(using Connection): Option[Array[Int]] =
+    insertAll.onMany(products.iterator).run
 
   // Batch insert — skip auto-generated ID column
   val insertAutoId: RowTemplate.Update[Product] =
     Fragment.insertInto("product", productCodec, "id")
 
-  def insertProductsAutoId(products: List[Product]): Option[Array[Int]] =
-    insertAutoId.onMany(products.iterator).run(conn)
+  def insertProductsAutoId(products: List[Product])(using Connection): Option[Array[Int]] =
+    insertAutoId.onMany(products.iterator).run
   // stop
