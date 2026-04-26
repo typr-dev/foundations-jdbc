@@ -88,7 +88,7 @@ Run your queries against the database at test time — [Query Analysis](./query-
 
 **Continue reading:** [Fragments](./fragments) &rarr; [Row Codecs](./row-codecs) &rarr; [Operations](./operations) &rarr; [Transactors](./transactors) &rarr; [Query Analysis](./query-analysis)
 
-**Jump to a topic:** [Database Types](./database-types) (type catalog) &middot; [Templates](./templates) (Advanced: reusable param holes)
+**Jump to a topic:** [Database Types](./database-types) (type catalog) &middot; [Dynamic Queries](./dynamic-queries) (optional filters &amp; conditional clauses)
 
 ## Full Examples
 

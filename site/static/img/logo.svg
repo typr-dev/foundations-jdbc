@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#c2410c" aria-hidden="true">
+  <!-- "::" — PostgreSQL type cast operator. Small dots, tight pairs. -->
+  <circle cx="8.25"  cy="9.75"  r="1.5" />
+  <circle cx="8.25"  cy="14.25" r="1.5" />
+  <circle cx="15.75" cy="9.75"  r="1.5" />
+  <circle cx="15.75" cy="14.25" r="1.5" />
+</svg>

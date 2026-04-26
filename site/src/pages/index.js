@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
@@ -8,6 +8,82 @@ import TabItem from '@theme/TabItem';
 import styles from './index.module.css';
 import Snippet from '@site/src/components/Snippet';
 
+/* ------------------------------------------------------------------
+   Reveal — scroll-triggered fade + rise using IntersectionObserver
+   ------------------------------------------------------------------ */
+function Reveal({ children, delay = 0, as: Tag = 'div', className = '', ...rest }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') {
+      setVisible(true);
+      return;
+    }
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          io.unobserve(el);
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <Tag
+      ref={ref}
+      className={`${styles.reveal} ${visible ? styles.isVisible : ''} ${className}`}
+      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+      {...rest}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Tip — inline info icon with hover/focus tooltip
+   ------------------------------------------------------------------ */
+function Tip({ children }) {
+  return (
+    <span className={styles.tipWrap} tabIndex={0}>
+      <svg className={styles.tipIcon} viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.1" />
+        <circle cx="8" cy="5.1" r="0.9" fill="currentColor" />
+        <rect x="7.25" y="7" width="1.5" height="4.8" rx="0.4" fill="currentColor" />
+      </svg>
+      <span className={styles.tipText} role="tooltip">{children}</span>
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------
+   SectionHeader — title + lede (no chapter/kicker chrome)
+   ------------------------------------------------------------------ */
+function SectionHeader({ title, children }) {
+  return (
+    <header className={styles.sectionHead}>
+      <Reveal>
+        <h2 className={styles.sectionTitle}>{title}</h2>
+      </Reveal>
+      {children && (
+        <Reveal delay={80}>
+          <p className={styles.sectionLede}>{children}</p>
+        </Reveal>
+      )}
+    </header>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Data
+   ------------------------------------------------------------------ */
 const typeGrid = [
   {
     db: 'PostgreSQL',
@@ -92,13 +168,16 @@ const typeGrid = [
   },
 ];
 
-const schemaSql = `CREATE TABLE product (
-    id          serial PRIMARY KEY,
-    name        text NOT NULL,
-    price       numeric(10,2) NOT NULL,
-    created_at  timestamptz DEFAULT now()
-);`;
+const schemaSql = `CREATE TYPE plan_tier AS ENUM ('free', 'pro', 'team');
 
+CREATE TABLE subscription (
+    id            uuid PRIMARY KEY,
+    email         text NOT NULL,
+    plan          plan_tier NOT NULL,
+    active_range  tstzrange NOT NULL,
+    metadata      jsonb,
+    cancelled_at  timestamptz
+);`;
 
 const quickstartJava = `import dev.typr.foundations.*;
 import dev.typr.foundations.connect.*;
@@ -135,17 +214,55 @@ import dev.typr.foundationssc.connect.*
     .transact(tx)
   println(s"Result: $$answer")`;
 
+/* ------------------------------------------------------------------
+   Hero — cursor-tracked glow, precision grid, staggered entrance
+   ------------------------------------------------------------------ */
 function Hero() {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    const onMove = (e) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const r = el.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width) * 100;
+        const y = ((e.clientY - r.top) / r.height) * 100;
+        el.style.setProperty('--x', `${x}%`);
+        el.style.setProperty('--y', `${y}%`);
+      });
+    };
+    el.addEventListener('mousemove', onMove);
+    return () => {
+      el.removeEventListener('mousemove', onMove);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <header className={styles.hero}>
-      <div className={styles.heroInner}>
-        <p className={styles.heroLabel}>A JDBC library for the JVM</p>
+    <header ref={ref} className={styles.hero}>
+      <div className={styles.heroAurora} aria-hidden="true" />
+      <div className={styles.heroGrid} aria-hidden="true" />
+      <div className={styles.heroGlow} aria-hidden="true" />
+
+      <div className={`${styles.heroInner} ${styles.heroEnter}`}>
+        <div className={styles.heroMeta}>
+          <span>A database library for the JVM</span>
+        </div>
+
         <h1 className={styles.heroTitle}>
-          What if JDBC just worked the way you think it should?
+          Your SQL is wrong. You’ll find out in <em>tests</em> — not at 2 AM.
         </h1>
+
         <p className={styles.heroTagline}>
-          Every type your database has, as a real typed value. Queries that compose. Transactions you control. No annotations, no runtime reflection, no surprises.
+          Every type your database has, modeled exactly.
+          Every query, verified against a real schema before production.
+          Every transaction, explicit.
+          No annotations, no reflection, no pages.
         </p>
+
         <div className={styles.heroButtons}>
           <Link className={styles.btnPrimary} to="/docs/">
             Get Started
@@ -155,10 +272,35 @@ function Hero() {
           </Link>
         </div>
       </div>
+
+      <div className={styles.heroFacts}>
+        <div className={styles.heroFactsRow}>
+          <span className={styles.heroFactsLabel}>Languages</span>
+          <div className={styles.heroFactsItems}>
+            <span>Java</span>
+            <span>Kotlin</span>
+            <span>Scala</span>
+          </div>
+        </div>
+        <div className={styles.heroFactsRow}>
+          <span className={styles.heroFactsLabel}>Databases</span>
+          <div className={styles.heroFactsItems}>
+            <span>PostgreSQL</span>
+            <span>MariaDB</span>
+            <span>DuckDB</span>
+            <span>Oracle</span>
+            <span>SQL Server</span>
+            <span>DB2</span>
+          </div>
+        </div>
+      </div>
     </header>
   );
 }
 
+/* ------------------------------------------------------------------
+   Quickstart
+   ------------------------------------------------------------------ */
 function QuickstartSection() {
   const { siteConfig } = useDocusaurusContext();
   const version = siteConfig.customFields.jdbcVersion;
@@ -172,145 +314,162 @@ function QuickstartSection() {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Quick start</h2>
-        <p className={styles.sectionSubtitle}>
+        <SectionHeader title={<>From <em>zero</em> to query in under a minute</>}>
           DuckDB runs in-memory — no database server needed.
           A <code>Fragment</code> is a typed SQL building block.
-        </p>
-        <Tabs groupId="language">
-          {Object.entries(langConfigs).map(([key, cfg]) => (
-            <TabItem key={key} value={key} label={key.charAt(0).toUpperCase() + key.slice(1)}>
-              <div className={styles.quickstartGrid}>
-                <div className={styles.quickstartCode}>
-                  <CodeBlock language={cfg.lang} title={cfg.title}>
-                    {cfg.code}
-                  </CodeBlock>
-                </div>
-                <div className={styles.quickstartSide}>
-                  <Tabs>
-                    <TabItem value="gradle" label="Gradle">
-                      <CodeBlock language="kotlin" title="build.gradle.kts">
-                        {`dependencies {\n    implementation("dev.typr.foundations:${cfg.artifact}:${version}")\n    // Add your driver\n    runtimeOnly("org.duckdb:duckdb_jdbc:1.1.3")\n}`}
+        </SectionHeader>
+
+        <Reveal>
+          <div className={styles.quickstartFrame}>
+            <Tabs groupId="language">
+              {Object.entries(langConfigs).map(([key, cfg]) => (
+                <TabItem key={key} value={key} label={key.charAt(0).toUpperCase() + key.slice(1)}>
+                  <div className={styles.quickstartGrid}>
+                    <div>
+                      <CodeBlock language={cfg.lang} title={cfg.title}>
+                        {cfg.code}
                       </CodeBlock>
-                    </TabItem>
-                    <TabItem value="maven" label="Maven">
-                      <CodeBlock language="xml" title="pom.xml">
-                        {`<dependency>\n  <groupId>dev.typr.foundations</groupId>\n  <artifactId>${cfg.artifact}</artifactId>\n  <version>${version}</version>\n</dependency>\n<dependency>\n  <groupId>org.duckdb</groupId>\n  <artifactId>duckdb_jdbc</artifactId>\n  <version>1.1.3</version>\n</dependency>`}
-                      </CodeBlock>
-                    </TabItem>
-                    {key === 'scala' && (
-                      <TabItem value="sbt" label="sbt">
-                        <CodeBlock language="scala" title="build.sbt">
-                          {`libraryDependencies ++= Seq(\n  "dev.typr.foundations" % "${cfg.artifact}" % "${version}",\n  "org.duckdb" % "duckdb_jdbc" % "1.1.3" % Runtime\n)`}
-                        </CodeBlock>
-                      </TabItem>
-                    )}
-                  </Tabs>
-                </div>
-              </div>
-            </TabItem>
-          ))}
-        </Tabs>
+                    </div>
+                    <div className={styles.quickstartSide}>
+                      <Tabs>
+                        <TabItem value="gradle" label="Gradle">
+                          <CodeBlock language="kotlin" title="build.gradle.kts">
+                            {`dependencies {\n    implementation("dev.typr.foundations:${cfg.artifact}:${version}")\n    // Add your driver\n    runtimeOnly("org.duckdb:duckdb_jdbc:1.1.3")\n}`}
+                          </CodeBlock>
+                        </TabItem>
+                        <TabItem value="maven" label="Maven">
+                          <CodeBlock language="xml" title="pom.xml">
+                            {`<dependency>\n  <groupId>dev.typr.foundations</groupId>\n  <artifactId>${cfg.artifact}</artifactId>\n  <version>${version}</version>\n</dependency>\n<dependency>\n  <groupId>org.duckdb</groupId>\n  <artifactId>duckdb_jdbc</artifactId>\n  <version>1.1.3</version>\n</dependency>`}
+                          </CodeBlock>
+                        </TabItem>
+                        {key === 'scala' && (
+                          <TabItem value="sbt" label="sbt">
+                            <CodeBlock language="scala" title="build.sbt">
+                              {`libraryDependencies ++= Seq(\n  "dev.typr.foundations" % "${cfg.artifact}" % "${version}",\n  "org.duckdb" % "duckdb_jdbc" % "1.1.3" % Runtime\n)`}
+                            </CodeBlock>
+                          </TabItem>
+                        )}
+                      </Tabs>
+                    </div>
+                  </div>
+                </TabItem>
+              ))}
+            </Tabs>
+          </div>
+        </Reveal>
+
+        <Reveal delay={120}>
+          <p className={styles.readMoreCenter}>
+            Prefer a working app?{' '}
+            <Link to="https://github.com/typr-dev/foundations-jdbc/tree/main/example-kotlin" className={styles.readMore}>
+              example-kotlin
+            </Link>
+            {' · '}
+            <Link to="https://github.com/typr-dev/foundations-jdbc/tree/main/example-spring-boot" className={styles.readMore}>
+              example-spring-boot
+            </Link>
+          </p>
+        </Reveal>
       </div>
     </section>
   );
 }
 
+/* ------------------------------------------------------------------
+   Problem / Solution
+   ------------------------------------------------------------------ */
 function ProblemSection() {
-  return (
-    <section className={styles.sectionDark}>
-      <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>What existing libraries still get wrong</h2>
-        <p className={styles.sectionSubtitle}>
-          ORMs and query builders solve the verbosity of raw JDBC. But fundamental problems remain —
-          problems that surface in production as silent data corruption, runtime exceptions, and database lock-in.
-        </p>
-        <div className={styles.twoCol}>
-          <div>
-            <h3 style={{color: '#ef4444', fontSize: '1.2rem', marginBottom: '1rem'}}>What goes wrong</h3>
-            <ul style={{listStyle: 'none', padding: 0, margin: 0}}>
-              <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.08)', borderLeft: '3px solid #ef4444'}}>
-                <strong>Queries are unchecked strings</strong> — Rename a column in the schema and nothing fails until production. No library catches this at test time.
-              </li>
-              <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.08)', borderLeft: '3px solid #ef4444'}}>
-                <strong>Nullability is invisible</strong> — A nullable column and a non-nullable column have the same Java type. Nothing in the API tells you which columns can be null.
-              </li>
-              <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.08)', borderLeft: '3px solid #ef4444'}}>
-                <strong>Type fidelity is lost</strong> — Your DuckDB <code>STRUCT</code> becomes a shapeless <code>Object</code>. Your PostgreSQL <code>int4range</code> becomes a string you have to parse yourself. The database has real types — your library just ignores them.
-              </li>
-              <li style={{padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.08)', borderLeft: '3px solid #ef4444'}}>
-                <strong>DB-specific features are second-class</strong> — Libraries target the lowest common denominator. PostgreSQL arrays, Oracle <code>MULTISET</code>, MariaDB unsigned types — all require escape hatches.
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 style={{color: '#22c55e', fontSize: '1.2rem', marginBottom: '1rem'}}>What we built</h3>
-            <ul style={{listStyle: 'none', padding: 0, margin: 0}}>
-              <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.08)', borderLeft: '3px solid #22c55e'}}>
-                <strong>Query Analysis catches bugs in tests</strong> — Validate every query against a real database in your test suite. Schema changes break tests, not production.
-              </li>
-              <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.08)', borderLeft: '3px solid #22c55e'}}>
-                <strong>Nullable means Optional</strong> — <code>.opt()</code> changes the return type to <code>Optional</code> / <code>T?</code> / <code>Option[T]</code>. If the type isn't optional, the column is guaranteed non-null.
-              </li>
-              <li style={{marginBottom: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.08)', borderLeft: '3px solid #22c55e'}}>
-                <strong>Every database type, modeled exactly</strong> — Not just primitives. Composite types, domains, enums, arrays, intervals — all first-class, with full roundtrip fidelity.
-              </li>
-              <li style={{padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.08)', borderLeft: '3px solid #22c55e'}}>
-                <strong>Database-specific by design</strong> — Dedicated type classes for each database. <code>PgTypes</code>, <code>OracleTypes</code>, <code>MariaDbTypes</code> — use your database's full feature set.
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+  const bad = [
+    {
+      title: 'Queries are unchecked strings',
+      body: 'Rename a column in the schema and nothing fails until production. No library catches this at test time.',
+    },
+    {
+      title: 'Nullability is invisible',
+      body: 'A nullable column and a non-nullable column have the same Java type. Nothing in the API tells you which columns can be null.',
+    },
+    {
+      title: 'Type fidelity is lost',
+      body: (<>Your DuckDB <code>STRUCT</code> becomes a shapeless <code>Object</code>. Your PostgreSQL <code>int4range</code> becomes a string you have to parse yourself. The database has real types — your library just ignores them.</>),
+    },
+    {
+      title: 'DB-specific features are second-class',
+      body: (<>Libraries target the lowest common denominator. PostgreSQL arrays, Oracle <code>MULTISET</code>, MariaDB unsigned types — all require escape hatches.</>),
+    },
+  ];
 
-function Features() {
-  const features = [
+  const good = [
     {
-      title: 'Full roundtrip fidelity',
-      description: 'Read a value from the database and write it back without loss or corruption. Every type is modeled exactly as the database defines it.',
+      title: 'Query Analysis catches bugs in tests',
+      body: 'Validate every query against a real database in your test suite. Schema changes break tests, not production.',
     },
     {
-      title: 'Queries are values',
-      description: 'Fragments and row codecs are immutable values you compose, pass around, and run when you\'re ready. Just functions and values.',
+      title: 'Nullable means Optional',
+      body: (<><code>.opt()</code> changes the return type to <code>Optional</code> / <code>T?</code> / <code>Option[T]</code>. If the type isn\'t optional, the column is guaranteed non-null.</>),
     },
     {
-      title: 'Composable',
-      description: 'Row codecs compose. Join two codecs for a joined query. Left join gives you Optional on the right side. Fragments compose with and(), or(), whereAnd(). It\'s just functions.',
+      title: 'Every database type, modeled exactly',
+      body: 'Not just primitives. Composite types, domains, enums, arrays, intervals — all first-class, with full roundtrip fidelity.',
     },
     {
-      title: 'No reflection, no magic',
-      description: 'Zero runtime reflection, zero bytecode generation, zero annotation processing. Works with GraalVM native-image out of the box. You can read every line of what runs.',
-    },
-    {
-      title: 'Not an ORM',
-      description: 'No entity manager, no session, no lazy loading, no surprises. You write SQL, you get typed results. That\'s it.',
-    },
-    {
-      title: 'Java, Kotlin, Scala',
-      description: 'Core library in Java. Kotlin gets nullable types natively. Scala gets Option types and string interpolation. Same concepts, idiomatic in each language.',
-    },
-    {
-      title: 'Query Analysis',
-      description: 'Verify your SQL at test time. Parameter types, column types, nullability — all checked against the real database schema. Catch bugs before production.',
+      title: 'Database-specific by design',
+      body: (<>Dedicated type classes for each database. <code>PgTypes</code>, <code>OracleTypes</code>, <code>MariaDbTypes</code> — use your database's full feature set.</>),
     },
   ];
 
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Design Philosophy</h2>
-        <p className={styles.sectionSubtitle}>
-          A complete database library built on functional principles. Not the lowest common denominator — the full power of your database, with the safety and composability of functional programming.
-        </p>
-        <div className={styles.featureGrid}>
-          {features.map(({ title, description }) => (
-            <div key={title} className={styles.featureCard}>
-              <h3>{title}</h3>
-              <p>{description}</p>
+        <SectionHeader title={<>What existing libraries <em>still</em> get wrong</>}>
+          ORMs and query builders solve the verbosity of raw JDBC. But fundamental problems remain —
+          problems that surface in production as silent data corruption, runtime exceptions, and database lock-in.
+        </SectionHeader>
+
+        <div className={styles.diagnosisGrid}>
+          <Reveal className={styles.diagnosisHead}>
+            <div className={`${styles.colHead} ${styles.colHeadRed}`}>
+              <span className={styles.colHeadDot} />
+              <span>What goes wrong</span>
             </div>
+          </Reveal>
+          <Reveal delay={120} className={styles.diagnosisHead}>
+            <div className={`${styles.colHead} ${styles.colHeadGreen}`}>
+              <span className={styles.colHeadDot} />
+              <span>foundations</span>
+            </div>
+          </Reveal>
+
+          {bad.map((p, i) => (
+            <React.Fragment key={i}>
+              <Reveal>
+                <div className={`${styles.dossierCard} ${styles.dossierBad}`}>
+                  <div className={styles.dossierHead}>
+                    <span className={styles.dossierKicker}>
+                      <span className={styles.dossierDot} />
+                      <span>Symptom</span>
+                    </span>
+                    <span className={styles.dossierNum}>{String(i + 1).padStart(2, '0')}</span>
+                  </div>
+                  <h4 className={styles.dossierTitle}>{p.title}</h4>
+                  <p className={styles.dossierBody}>{p.body}</p>
+                  <div className={styles.dossierAccent} aria-hidden="true" />
+                </div>
+              </Reveal>
+              <Reveal delay={120}>
+                <div className={`${styles.dossierCard} ${styles.dossierGood}`}>
+                  <div className={styles.dossierHead}>
+                    <span className={styles.dossierKicker}>
+                      <span className={styles.dossierDot} />
+                      <span>Remedy</span>
+                    </span>
+                    <span className={styles.dossierNum}>{String(i + 1).padStart(2, '0')}</span>
+                  </div>
+                  <h4 className={styles.dossierTitle}>{good[i].title}</h4>
+                  <p className={styles.dossierBody}>{good[i].body}</p>
+                  <div className={styles.dossierAccent} aria-hidden="true" />
+                </div>
+              </Reveal>
+            </React.Fragment>
           ))}
         </div>
       </div>
@@ -318,197 +477,18 @@ function Features() {
   );
 }
 
-function ErrorMessagesSection() {
-  return (
-    <section className={styles.sectionDark}>
-      <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Clear Error Messages</h2>
-        <p className={styles.sectionSubtitle}>
-          When things go wrong, you get helpful messages that tell you exactly what happened — not a cryptic stack trace.
-        </p>
-        <div style={{maxWidth: '700px', margin: '0 auto', fontFamily: 'var(--ifm-font-family-monospace)', fontSize: '0.85rem', lineHeight: '1.7', whiteSpace: 'pre', background: '#1e293b', borderRadius: '12px', padding: '1.5rem', border: '1px solid #334155', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)'}}>
-          <span style={{color: '#f87171', fontWeight: 600}}>Failed to read column </span><span style={{color: '#fbbf24'}}>3</span><span style={{color: '#f87171', fontWeight: 600}}> '</span><span style={{color: '#60a5fa'}}>created_at</span><span style={{color: '#f87171', fontWeight: 600}}>'</span>{"\n"}
-          <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Expected: </span><span style={{color: '#4ade80'}}>timestamptz</span>{"\n"}
-          <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Actual:   </span><span style={{color: '#f87171'}}>timestamp</span><span style={{color: '#64748b'}}> (nullable)</span>{"\n"}
-          <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Value:    </span><span style={{color: '#fbbf24'}}>"2024-01-15 10:30:00"</span>{"\n"}
-          <span style={{color: '#64748b'}}>{"   │ "}</span><span style={{color: '#e2e8f0'}}>Row: </span><span style={{color: '#fbbf24'}}>0</span>{"\n"}
-          <span style={{color: '#64748b'}}>{"   └ "}</span><span style={{color: '#f87171'}}>SQLException</span><span style={{color: '#94a3b8'}}>: Cannot convert LocalDateTime to OffsetDateTime</span>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function SchemaAndCodecs() {
-  return (
-    <section className={styles.section}>
-      <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Start with your schema</h2>
-        <p className={styles.sectionSubtitle}>
-          Take a PostgreSQL table.
-          The <code>RowCodec</code> maps each column to a <code>DbType</code> that knows exactly how to read and write its value.
-          No <code>getObject()</code> guessing, no <code>wasNull()</code> checking.
-        </p>
-        <div className={styles.twoCol}>
-          <div className={styles.twoColLeft}>
-            <CodeBlock language="sql" title="Your database schema">{schemaSql}</CodeBlock>
-          </div>
-          <div className={styles.twoColRight}>
-            <Snippet file="landing/ProductRow" />
-          </div>
-        </div>
-        <div style={{marginTop: '2rem'}}>
-          <Snippet file="landing/ProductRowCodec" />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TypeBuildingBlocks() {
-  return (
-    <section className={styles.sectionDark}>
-      <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Type building blocks</h2>
-        <p className={styles.sectionSubtitle}>
-          Composite types, wrapper types, and arrays — each database has its own type system,
-          and each one is modeled faithfully.
-        </p>
-        <Tabs groupId="type-blocks" className={styles.centeredTabs}>
-          <TabItem value="composite" label="Composite Types" default>
-            <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
-              The <code>dimensions</code> composite type becomes a record with typed fields. <code>PgStruct</code> handles the wire format.
-            </p>
-            <CodeBlock language="sql" title="PostgreSQL DDL">
-              {`CREATE TYPE dimensions AS (\n    width   double precision,\n    height  double precision,\n    depth   double precision,\n    unit    varchar(10)\n);`}
-            </CodeBlock>
-            <Snippet file="landing/Dimensions" />
-          </TabItem>
-          <TabItem value="wrapper" label="Wrapper Types">
-            <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
-              Call <code>transform</code> (two-way mapping) on a base type — you get a full codec that works in row codecs, arrays, and JSON.
-            </p>
-            <CodeBlock language="sql" title="MariaDB DDL">
-              {`CREATE TABLE products (\n    id   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\n    name VARCHAR(255) NOT NULL\n);`}
-            </CodeBlock>
-            <Snippet file="landing/WrapperType" />
-          </TabItem>
-          <TabItem value="arrays" label="Arrays">
-            <p style={{color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1rem'}}>
-              Pass arrays directly — no <code>createArrayOf</code>, no type name strings, no connection reference.
-            </p>
-            <CodeBlock language="sql" title="DuckDB DDL">
-              {`CREATE TABLE posts (\n    id        INTEGER,\n    tags      VARCHAR[],\n    published BOOLEAN\n);`}
-            </CodeBlock>
-            <Snippet file="landing/DuckDbArray" />
-          </TabItem>
-        </Tabs>
-      </div>
-    </section>
-  );
-}
-
-function QueryShowcase() {
-  return (
-    <section className={styles.section}>
-      <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Queries are values you compose</h2>
-        <p className={styles.sectionSubtitle}>
-          Build fragments, combine them, pass them to functions, return them from functions.
-          Parameters are always bound and typed. Works across databases — here with SQL Server.
-        </p>
-        <div className={styles.centeredCode}>
-          <Snippet file="landing/SqlServerQuery" />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TransactorShowcase() {
-  return (
-    <section className={styles.sectionDark}>
-      <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Transactions you can see</h2>
-        <p className={styles.sectionSubtitle}>
-          Use Spring's <code>@Transactional</code> if that's your style, or manage transactions explicitly with <code>Transactor</code>.
-          Either way, you get typed builders for every database and full control over the lifecycle — here with Oracle.
-        </p>
-        <Tabs groupId="transactor-style" className={styles.centeredTabs}>
-          <TabItem value="explicit" label="Explicit" default>
-            <div className={styles.centeredCode}>
-              <Snippet file="landing/OracleTransactor" />
-            </div>
-          </TabItem>
-          <TabItem value="spring" label="Spring Integration">
-            <div className={styles.centeredCode}>
-              <Snippet file="landing/SpringTransactorExample" />
-            </div>
-          </TabItem>
-        </Tabs>
-        <p style={{textAlign: 'center', marginTop: '1.5rem'}}>
-          <Link to="/docs/transactors" style={{color: '#60a5fa', fontSize: '0.95rem'}}>
-            Read the full documentation &rarr;
-          </Link>
-        </p>
-      </div>
-    </section>
-  );
-}
-
-
-function JsonSection() {
-  return (
-    <section className={styles.section}>
-      <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Built-in JSON codecs</h2>
-        <p className={styles.sectionSubtitle}>
-          All databases can transfer data as JSON — and now you can use it uniformly.
-          Your <code>RowCodec</code> doubles as a JSON codec with zero extra code.
-          Aggregate child rows with <code>json_agg()</code>, <code>JSON_ARRAYAGG</code>,
-          or <code>FOR JSON</code> and parse them with the same types. <a href="/foundations-jdbc/json">Learn more →</a>
-        </p>
-        <div className={styles.centeredCode}>
-          <Snippet file="landing/JsonCodecs" />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function StoredProcedureSection() {
-  return (
-    <section className={styles.sectionDark}>
-      <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Type-safe stored procedures</h2>
-        <p className={styles.sectionSubtitle}>
-          Define a procedure or function once — the builder tracks IN and OUT types statically.
-          Functions use <code>SELECT</code> so every <code>DbType</code> reads correctly through the normal codec path.
-          OUT params use a <code>CallableStatement</code> adapter that reuses the same <code>DbRead</code> logic.
-        </p>
-        <div className={styles.centeredCode}>
-          <Snippet file="landing/StoredProcedure" />
-        </div>
-        <p style={{textAlign: 'center', marginTop: '1.5rem'}}>
-          <Link to="/docs/stored-procedures" style={{color: '#60a5fa', fontSize: '0.95rem'}}>
-            Read the full documentation &rarr;
-          </Link>
-        </p>
-      </div>
-    </section>
-  );
-}
-
+/* ------------------------------------------------------------------
+   Query Analysis
+   ------------------------------------------------------------------ */
 function QueryAnalysisReport() {
-  const gray = {color: '#64748b'};
-  const cyan = {color: '#22d3ee'};
-  const green = {color: '#4ade80'};
-  const red = {color: '#f87171'};
-  const yellow = {color: '#fbbf24'};
-  const bold = {fontWeight: 600};
-  const white = {color: '#f8fafc'};
-  const boldRed = {color: '#f87171', fontWeight: 600};
-  const boldGreen = {color: '#4ade80', fontWeight: 600};
+  const gray = { color: '#64748b' };
+  const cyan = { color: '#22d3ee' };
+  const green = { color: '#4ade80' };
+  const red = { color: '#f87171' };
+  const yellow = { color: '#fbbf24' };
+  const bold = { fontWeight: 600 };
+  const white = { color: '#f8fafc' };
+  const boldRed = { color: '#f87171', fontWeight: 600 };
 
   return (
     <>
@@ -549,93 +529,412 @@ function QueryAnalysisSection() {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        <div style={{textAlign: 'center', marginBottom: '1rem'}}>
-          <span style={{
-            background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-            color: 'white',
-            padding: '0.35rem 1rem',
-            borderRadius: '9999px',
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            letterSpacing: '0.02em'
-          }}>NEW</span>
-        </div>
-        <h2 className={styles.sectionTitle}>Find SQL bugs at test time, not 2 AM</h2>
-        <p className={styles.sectionSubtitle}>
+        <SectionHeader title={<>Find SQL bugs at <em>test time</em>, not 2 AM</>}>
           <strong>Query Analysis</strong> verifies your SQL against the actual database schema.
           Wrong column type? Missing <code>.opt()</code> on a nullable column? Parameter count mismatch?
           <strong> Catch it in tests, not in production.</strong>
-        </p>
-        <div style={{marginBottom: '2rem'}}>
-          <Snippet file="landing/QueryAnalysis" />
+        </SectionHeader>
+
+        <div className={styles.qaSplit}>
+          <Reveal className={styles.qaSplitItem}>
+            <Snippet file="landing/QueryAnalysis" />
+          </Reveal>
+          <Reveal delay={80} className={styles.qaSplitItem}>
+            <div className={styles.analysisFrame}>
+              <QueryAnalysisReport />
+            </div>
+          </Reveal>
         </div>
-        <div style={{
-          maxWidth: '850px',
-          margin: '0 auto',
-          fontFamily: 'var(--ifm-font-family-monospace)',
-          fontSize: '0.75rem',
-          lineHeight: '1.5',
-          whiteSpace: 'pre',
-          background: '#1e293b',
-          borderRadius: '12px',
-          padding: '1.5rem',
-          overflow: 'auto',
-          border: '1px solid #475569',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          color: '#f8fafc'
-        }}>
-          <QueryAnalysisReport />
-        </div>
-        <div style={{marginTop: '2.5rem', textAlign: 'center'}}>
-          <div style={{
-            display: 'inline-block',
-            background: '#0f172a',
-            border: '1px solid #22c55e',
-            borderRadius: '12px',
-            padding: '1.25rem 2rem',
-            maxWidth: '700px'
-          }}>
-            <p style={{color: '#f8fafc', fontSize: '1rem', margin: 0, lineHeight: 1.6}}>
-              <strong style={{color: '#4ade80'}}>No other Java SQL library does this.</strong>{' '}
-              jOOQ validates DSL at compile time but can't check hand-written SQL.
-              Hibernate validates annotations at startup but not query correctness.
-              <strong style={{color: '#4ade80'}}> foundations-jdbc validates your actual queries against your actual database.</strong>
-            </p>
+
+        <Reveal delay={160}>
+          <div className={styles.pullQuote}>
+            <strong>No other Java SQL library does this.</strong>{' '}
+            jOOQ validates DSL at compile time but can't check hand-written SQL.
+            Hibernate validates annotations at startup but not query correctness.{' '}
+            <strong>foundations-jdbc validates your actual queries against your actual database.</strong>
           </div>
-        </div>
-        <p style={{textAlign: 'center', marginTop: '1.5rem', color: 'var(--ifm-color-emphasis-600)', fontSize: '0.9rem'}}>
-          The depth of analysis depends on what each database's JDBC driver reports.{' '}
-          <Link to="/docs/query-analysis-database-behavior">See database-specific behavior</Link>.
-        </p>
-        <div style={{textAlign: 'center', marginTop: '0.75rem'}}>
-          <Link className={styles.btnSecondary} to="/docs/query-analysis">
-            Learn more about Query Analysis →
-          </Link>
-        </div>
+        </Reveal>
+
+        <Reveal delay={200}>
+          <p style={{ textAlign: 'center', marginTop: '2rem', color: 'var(--ink-400)', fontSize: '0.9rem' }}>
+            The depth of analysis depends on what each database's JDBC driver reports.{' '}
+            <Link to="/docs/query-analysis-database-behavior" className={styles.linkPrimary}>See database-specific behavior</Link>.
+          </p>
+          <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
+            <Link className={styles.btnSecondary} to="/docs/query-analysis">
+              Learn more about Query Analysis →
+            </Link>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
 }
 
+/* ------------------------------------------------------------------
+   Error messages
+   ------------------------------------------------------------------ */
+function ErrorMessagesSection() {
+  return (
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <SectionHeader title={<>Messages that <em>actually</em> help</>}>
+          When things go wrong, you get helpful messages that tell you exactly what happened —
+          not a cryptic stack trace.
+        </SectionHeader>
+
+        <Reveal>
+          <div className={styles.terminalFrame}>
+            <div className={styles.terminalHead}>
+              <span className={styles.terminalDot}></span>
+              <span className={styles.terminalDot}></span>
+              <span className={styles.terminalDot}></span>
+              <span className={styles.terminalTitle}>runtime error · DatabaseException</span>
+            </div>
+            <div className={styles.terminalBody}>
+              <span style={{ color: '#f87171', fontWeight: 600 }}>Failed to read column </span>
+              <span style={{ color: '#fbbf24' }}>3</span>
+              <span style={{ color: '#f87171', fontWeight: 600 }}> '</span>
+              <span style={{ color: '#60a5fa' }}>created_at</span>
+              <span style={{ color: '#f87171', fontWeight: 600 }}>'</span>{"\n"}
+              <span style={{ color: '#64748b' }}>{"   │ "}</span>
+              <span style={{ color: '#e2e8f0' }}>Expected: </span>
+              <span style={{ color: '#4ade80' }}>timestamptz</span>{"\n"}
+              <span style={{ color: '#64748b' }}>{"   │ "}</span>
+              <span style={{ color: '#e2e8f0' }}>Actual:   </span>
+              <span style={{ color: '#f87171' }}>timestamp</span>
+              <span style={{ color: '#64748b' }}> (nullable)</span>{"\n"}
+              <span style={{ color: '#64748b' }}>{"   │ "}</span>
+              <span style={{ color: '#e2e8f0' }}>Value:    </span>
+              <span style={{ color: '#fbbf24' }}>"2024-01-15 10:30:00"</span>{"\n"}
+              <span style={{ color: '#64748b' }}>{"   │ "}</span>
+              <span style={{ color: '#e2e8f0' }}>Row: </span>
+              <span style={{ color: '#fbbf24' }}>0</span>{"\n"}
+              <span style={{ color: '#64748b' }}>{"   └ "}</span>
+              <span style={{ color: '#f87171' }}>SQLException</span>
+              <span style={{ color: '#94a3b8' }}>: Cannot convert LocalDateTime to OffsetDateTime</span>
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <p className={styles.readMoreCenter}>
+            <Link to="/docs/error-handling" className={styles.readMore}>
+              Read the full documentation
+            </Link>
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Features
+   ------------------------------------------------------------------ */
+function Features() {
+  const features = [
+    {
+      title: 'Composable, top to bottom',
+      description: (
+        <>
+          <code>DbType</code>, <code>Fragment</code>, <code>RowCodec</code>, <code>Operation</code> — every layer composes.
+          Codecs join for tuples; left joins wrap the right side in <code>Optional</code>.
+          Combine independent operations with <code>combine</code>, chain dependent ones with <code>then</code>.
+          The library can tell the difference — and the optimizer will too.
+        </>
+      ),
+    },
+    {
+      title: 'Full roundtrip fidelity',
+      description: 'Read a value from the database, write it back unchanged. Every type modeled exactly as the database defines it — composites, ranges, arrays, enums, domains.',
+    },
+    {
+      title: 'Read or write, in the type',
+      description: (
+        <>
+          Readonly transactions are first-class. <code>transactRead</code> hands you a <code>ConnectionRead</code>; <code>transact</code> hands you a <code>Connection</code>.
+          Operations declare what they need. The type system tells the library — and the next reviewer — what's allowed.
+        </>
+      ),
+    },
+    {
+      title: 'No reflection, no magic',
+      description: 'Zero runtime reflection, zero bytecode generation, zero annotation processing. GraalVM native-image works out of the box. You can read every line of what runs.',
+    },
+    {
+      title: 'Not an ORM',
+      description: "No entity manager, no session, no lazy loading, no dirty checking, no surprises. You write SQL, you get typed results. That's it.",
+    },
+    {
+      title: 'Query Analysis',
+      description: 'Verify SQL at test time. Parameter types, column types, nullability — all checked against the real database schema. Catch bugs before production.',
+    },
+  ];
+
+  return (
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <SectionHeader title={<>Functional to the <em>foundations</em></>}>
+          A database library built on functional principles.
+          Fragments, codecs, types, operations — each one is a value you compose.
+          Same primitives top to bottom.
+        </SectionHeader>
+
+        <Reveal>
+          <div className={styles.featureGrid}>
+            {features.map(({ title, description }) => (
+              <div key={title} className={styles.featureCard}>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Schema + codecs
+   ------------------------------------------------------------------ */
+function SchemaAndCodecs() {
+  return (
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <SectionHeader title={<>Start with your <em>schema</em></>}>
+          A real PostgreSQL table — a <code>uuid</code>, an enum, a <code>tstzrange</code>, a <code>jsonb</code>, two nullable columns.
+          The <code>RowCodec</code> maps each to a <code>DbType</code> that knows exactly how to read and write its value.
+          No <code>getObject()</code> guessing, no <code>wasNull()</code> checks.
+        </SectionHeader>
+
+        <div className={styles.twoCol}>
+          <Reveal>
+            <CodeBlock language="sql" title="Your database schema">{schemaSql}</CodeBlock>
+          </Reveal>
+          <Reveal delay={120}>
+            <Snippet file="landing/SubscriptionRow" />
+          </Reveal>
+        </div>
+        <Reveal delay={200}>
+          <div className={styles.schemaStack}>
+            <Snippet file="landing/SubscriptionRowCodec" />
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Type building blocks
+   ------------------------------------------------------------------ */
+function TypeBuildingBlocks() {
+  return (
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <SectionHeader title={<>Building blocks, <em>faithfully modeled</em></>}>
+          Composite types, wrapper types, and arrays — each database has its own type system,
+          and each one is modeled faithfully.
+        </SectionHeader>
+
+        <Reveal>
+          <Tabs groupId="type-blocks" className={styles.centeredTabs}>
+            <TabItem value="composite" label="Composite Types" default>
+              <p style={{ color: 'var(--ink-300)', fontSize: '0.95rem', margin: '1rem 0 1.25rem' }}>
+                The <code>dimensions</code> composite type becomes a record with typed fields. <code>PgStruct</code> handles the wire format.
+              </p>
+              <CodeBlock language="sql" title="PostgreSQL DDL">
+                {`CREATE TYPE dimensions AS (\n    width   double precision,\n    height  double precision,\n    depth   double precision,\n    unit    varchar(10)\n);`}
+              </CodeBlock>
+              <Snippet file="landing/Dimensions" />
+            </TabItem>
+            <TabItem value="wrapper" label="Wrapper Types">
+              <p style={{ color: 'var(--ink-300)', fontSize: '0.95rem', margin: '1rem 0 1.25rem' }}>
+                Call <code>transform</code> (two-way mapping) on a base type — you get a full codec that works in row codecs, arrays, and JSON.
+              </p>
+              <CodeBlock language="sql" title="MariaDB DDL">
+                {`CREATE TABLE products (\n    id   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\n    name VARCHAR(255) NOT NULL\n);`}
+              </CodeBlock>
+              <Snippet file="landing/WrapperType" />
+            </TabItem>
+            <TabItem value="arrays" label="Arrays">
+              <p style={{ color: 'var(--ink-300)', fontSize: '0.95rem', margin: '1rem 0 1.25rem' }}>
+                Pass arrays directly — no <code>createArrayOf</code>, no type name strings, no connection reference.
+              </p>
+              <CodeBlock language="sql" title="DuckDB DDL">
+                {`CREATE TABLE posts (\n    id        INTEGER,\n    tags      VARCHAR[],\n    published BOOLEAN\n);`}
+              </CodeBlock>
+              <Snippet file="landing/DuckDbArray" />
+            </TabItem>
+          </Tabs>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Query showcase
+   ------------------------------------------------------------------ */
+function QueryShowcase() {
+  return (
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <SectionHeader title={<>Queries are <em>values</em> you compose</>}>
+          Build fragments, combine them, pass them to functions, return them from functions.
+          The <code>optionally</code> DSL gives you optional filters as branch points — and Query Analysis
+          verifies <em>every</em> resulting SQL shape, not just the one your test happens to take.
+        </SectionHeader>
+
+        <Reveal>
+          <div className={styles.centeredCode}>
+            <Snippet file="landing/SqlServerQuery" />
+          </div>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <p className={styles.readMoreCenter}>
+            <Link to="/docs/dynamic-queries" className={styles.readMore}>
+              Read the full documentation
+            </Link>
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Transactor showcase
+   ------------------------------------------------------------------ */
+function TransactorShowcase() {
+  return (
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <SectionHeader title={<>Transactions you can <em>see</em></>}>
+          Use Spring's <code>@Transactional</code> if that's your style, or manage transactions explicitly with <code>Transactor</code>.
+          Either way, you get typed builders for every database and full control over the lifecycle — here with Oracle.
+        </SectionHeader>
+
+        <Reveal>
+          <Tabs groupId="transactor-style" className={styles.centeredTabs}>
+            <TabItem value="explicit" label="Explicit" default>
+              <div className={styles.centeredCode}>
+                <Snippet file="landing/OracleTransactor" />
+              </div>
+            </TabItem>
+            <TabItem value="spring" label="Spring Integration">
+              <div className={styles.centeredCode}>
+                <Snippet file="landing/SpringTransactorExample" />
+              </div>
+            </TabItem>
+          </Tabs>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <p className={styles.readMoreCenter}>
+            <Link to="/docs/transactors" className={styles.readMore}>
+              Read the full documentation
+            </Link>
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   JSON
+   ------------------------------------------------------------------ */
+function JsonSection() {
+  return (
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <SectionHeader title={<>Built-in <em>JSON</em> codecs</>}>
+          All databases can transfer data as JSON — and now you can use it uniformly.
+          Your <code>RowCodec</code> doubles as a JSON codec with zero extra code.
+          Aggregate child rows with <code>json_agg()</code>, <code>JSON_ARRAYAGG</code>,
+          or <code>FOR JSON</code> and parse them with the same types.
+        </SectionHeader>
+
+        <Reveal>
+          <div className={styles.centeredCode}>
+            <Snippet file="landing/JsonCodecs" />
+          </div>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <p className={styles.readMoreCenter}>
+            <Link to="/docs/json" className={styles.readMore}>
+              Learn more
+            </Link>
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Stored procedures
+   ------------------------------------------------------------------ */
+function StoredProcedureSection() {
+  return (
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <SectionHeader title={<>Call any <em>routine</em> like a typed function</>}>
+          Define a procedure or function once — the builder tracks IN and OUT types statically.
+          Functions use <code>SELECT</code> so every <code>DbType</code> reads correctly through the normal codec path.
+          OUT params use a <code>CallableStatement</code> adapter that reuses the same <code>DbRead</code> logic.
+        </SectionHeader>
+
+        <Reveal>
+          <div className={styles.centeredCode}>
+            <Snippet file="landing/StoredProcedure" />
+          </div>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <p className={styles.readMoreCenter}>
+            <Link to="/docs/stored-procedures" className={styles.readMore}>
+              Read the full documentation
+            </Link>
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Type showcase — six databases
+   ------------------------------------------------------------------ */
 function TypeShowcase() {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Six databases, full type fidelity</h2>
-        <p className={styles.sectionSubtitle}>
+        <SectionHeader title={<>Six databases, <em>full type fidelity</em></>}>
           The same approach works across all supported databases.
           Full roundtrip fidelity for every type each one supports. More databases coming soon.
-        </p>
+        </SectionHeader>
+
         <div className={styles.typeGrid}>
-          {typeGrid.map(({ db, link, types }) => (
-            <Link to={link} key={db} className={styles.typeCard}>
-              <h3 className={styles.typeCardTitle}>{db}</h3>
-              <div className={styles.typeTags}>
-                {types.map((t) => (
-                  <span key={t} className={styles.typeTag}>{t}</span>
-                ))}
-              </div>
-            </Link>
+          {typeGrid.map(({ db, link, types }, i) => (
+            <Reveal key={db} delay={(i % 3) * 80}>
+              <Link to={link} className={styles.typeCard}>
+                <div className={styles.typeCardHead}>
+                  <h3 className={styles.typeCardTitle}>{db}</h3>
+                  <span className={styles.typeCardArrow}>VIEW →</span>
+                </div>
+                <div className={styles.typeTags}>
+                  {types.map((t) => (
+                    <span key={t} className={styles.typeTag}>{t}</span>
+                  ))}
+                </div>
+              </Link>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -643,178 +942,243 @@ function TypeShowcase() {
   );
 }
 
+/* ------------------------------------------------------------------
+   Comparison
+   ------------------------------------------------------------------ */
 function ComparisonSection() {
-  const cellStyle = (color) => {
-    if (color === 'green') return {background: 'rgba(34, 197, 94, 0.25)'};
-    if (color === 'yellow') return {background: 'rgba(234, 179, 8, 0.25)'};
-    if (color === 'red') return {background: 'rgba(239, 68, 68, 0.25)'};
-    return {};
+  const cellClass = (color) => {
+    if (color === 'green') return styles.cellGreen;
+    if (color === 'yellow') return styles.cellYellow;
+    if (color === 'red') return styles.cellRed;
+    return '';
+  };
+
+  const FN = {
+    langs: (
+      <>jOOQ ships a <code>KotlinGenerator</code> (data classes) and <code>ScalaGenerator</code> / <code>Scala3Generator</code> (case classes) — so Kotlin and Scala callers get generated code in their own language. Caveats: arrays still surface as Java arrays / <code>List</code>, Scala nullable columns are not mapped to <code>Option[T]</code>, and Kotlin non-null types for NOT NULL columns require opt-in flags (<code>kotlinNotNullRecordAttributes</code> et al.) that don't apply to derived columns. Foundations ships dedicated Kotlin and Scala wrappers — native collections, <code>T?</code> in Kotlin, and <code>Option[T]</code> in Scala — idiomatic by default, no flags required.</>
+    ),
+    portability: (
+      <>Type references are explicit and searchable — find all <code>PgTypes.</code> and replace with <code>MariaTypes.</code> — then run Query Analysis to verify every query against the new database at test time. More manual than hoping an abstraction holds, but nothing slips through unchecked.</>
+    ),
+    compJooq: (
+      <>jOOQ has first-class PostgreSQL array support. PostgreSQL and Oracle composite UDTs are generated by codegen. PostgreSQL ranges are available via the <code>jooq-postgres-extensions</code> module (not the core DSL). Other vendor-specific types (hstore, geometric) typically require custom bindings.</>
+    ),
+    compHib: (
+      <>Hibernate 6.2+ has <code>@Struct</code> for composites and built-in basic array mapping. Ranges still need third-party libraries (Hypersistence Utils).</>
+    ),
+    compExp: (
+      <>Exposed has built-in array support. Ranges and composite types require custom <code>ColumnType</code> implementations.</>
+    ),
+    reflection: (
+      <>Reflection affects GraalVM native-image compatibility, startup time, and debuggability. Libraries using runtime proxies or bytecode generation require additional configuration for native compilation.</>
+    ),
+    reflJooq: (
+      <>jOOQ's DSL runs without reflection, but the default record-to-POJO mapper (<code>DefaultRecordMapper</code>) uses reflection for constructor and setter lookup, and GraalVM native-image requires reflection configuration for jOOQ internals and generated classes.</>
+    ),
+    checkJooq: (
+      <>jOOQ's compile-time checking applies to its DSL. Queries written as plain SQL strings (<code>DSL.sql(...)</code>, <code>.fetch(String)</code>, or <code>resultQuery</code>) are not type-checked. jOOQ's SQL parser can parse and transform SQL strings but does not validate them against the schema. Foundations validates hand-written SQL against the real database schema at test time.</>
+    ),
+    checkHib: (
+      <><code>@CheckHQL</code> (6.3+) validates HQL at compile time against the entity metamodel, not the database schema. Not enabled by default.</>
+    ),
+    nullJooq: (
+      <>jOOQ's <code>Field&lt;T&gt;</code> is not null-aware: nullable and non-null columns share the same type. <code>record.getValue(field)</code> returns plain <code>T</code>, possibly <code>null</code> at runtime regardless of the schema. Java has no <code>Optional&lt;T&gt;</code> codegen; JSR-305 <code>@Nullable</code> annotations can be emitted as an opt-in. The Kotlin generator can emit non-null Kotlin types for NOT NULL columns via <code>kotlinNotNullRecordAttributes</code> / <code>kotlinNotNullPojoAttributes</code>, but these are off by default and don't help with derived columns (LEFT JOIN, UNION, DEFAULT, IDENTITY). Scala generators do not map nullable columns to <code>Option[T]</code>.</>
+    ),
+    cgJooq: (
+      <>jOOQ Open Source Edition (Apache-2.0) supports PostgreSQL, MySQL/MariaDB, SQLite, H2, Derby, HSQLDB, Firebird, DuckDB, YugabyteDB, Trino, and ClickHouse. Commercial licenses (Express / Professional / Enterprise, per-developer) are required for Oracle, SQL Server, and CockroachDB (Express+); Redshift (Professional+); and DB2, Sybase, Snowflake, Teradata, Vertica, HANA, Exasol, BigQuery, and Databricks (Enterprise only).</>
+    ),
+    cgHib: <>Hibernate Tools generates entity classes from database schemas.</>,
+    cgExp: <>Official JetBrains plugin generates Exposed table definitions from database schemas.</>,
   };
 
   return (
-    <section className={styles.sectionDark}>
+    <section className={`${styles.section} ${styles.sectionPaper}`}>
       <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>How it compares</h2>
-        <div style={{maxWidth: '900px', margin: '0 auto', overflowX: 'auto'}}>
-          <table className={styles.comparisonTable}>
-            <thead>
-              <tr>
-                <th></th>
-                <th>Foundations</th>
-                <th>Hibernate</th>
-                <th>JDBI</th>
-                <th>JdbcTemplate</th>
-                <th>Exposed</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Approach</td>
-                <td>SQL + typed codecs</td>
-                <td>ORM with entity mapping</td>
-                <td>SQL + annotations</td>
-                <td>SQL + RowMapper</td>
-                <td>Kotlin DSL</td>
-              </tr>
-              <tr>
-                <td>Languages</td>
-                <td>Java, Kotlin, Scala</td>
-                <td>Java, Kotlin</td>
-                <td>Java, Kotlin</td>
-                <td>Java, Kotlin</td>
-                <td>Kotlin only</td>
-              </tr>
-              <tr>
-                <td>Database portability</td>
-                <td style={cellStyle('yellow')}>Database-specific*</td>
-                <td style={cellStyle('green')}>HQL abstracts over DBs</td>
-                <td style={cellStyle('green')}>Raw SQL (portable enough)</td>
-                <td style={cellStyle('green')}>Raw SQL (portable enough)</td>
-                <td style={cellStyle('green')}>DSL is mostly portable</td>
-              </tr>
-              <tr>
-                <td>Type model</td>
-                <td style={cellStyle('green')}>Every database type</td>
-                <td style={cellStyle('yellow')}>Java types only</td>
-                <td style={cellStyle('yellow')}>Basic + custom</td>
-                <td style={cellStyle('red')}>Basic Java types</td>
-                <td style={cellStyle('yellow')}>Kotlin types + custom</td>
-              </tr>
-              <tr>
-                <td>Composites, arrays, ranges</td>
-                <td style={cellStyle('green')}>First-class</td>
-                <td style={cellStyle('yellow')}>Partial<sup>1</sup></td>
-                <td style={cellStyle('yellow')}>Manual mapping</td>
-                <td style={cellStyle('red')}>Raw JDBC only</td>
-                <td style={cellStyle('yellow')}>Partial<sup>2</sup></td>
-              </tr>
-              <tr>
-                <td>Reflection<sup>6</sup></td>
-                <td style={cellStyle('green')}>None</td>
-                <td style={cellStyle('red')}>Heavy</td>
-                <td style={cellStyle('yellow')}>Moderate</td>
-                <td style={cellStyle('green')}>None (manual mapper)</td>
-                <td style={cellStyle('yellow')}>DAO layer</td>
-              </tr>
-              <tr>
-                <td>Query type checking</td>
-                <td style={cellStyle('green')}>At test time</td>
-                <td style={cellStyle('yellow')}>Opt-in<sup>3</sup></td>
-                <td style={cellStyle('red')}>No</td>
-                <td style={cellStyle('red')}>No</td>
-                <td style={cellStyle('yellow')}>DSL only (compile)</td>
-              </tr>
-              <tr>
-                <td>Type-safe nullable columns</td>
-                <td style={cellStyle('green')}>Optional&lt;T&gt; / T? / Option[T]</td>
-                <td style={cellStyle('yellow')}>@Column(nullable)</td>
-                <td style={cellStyle('red')}>Manual null checks</td>
-                <td style={cellStyle('red')}>Manual null checks</td>
-                <td style={cellStyle('green')}>T? in Kotlin</td>
-              </tr>
-              <tr>
-                <td>Code generation</td>
-                <td style={cellStyle('yellow')}>Coming soon</td>
-                <td>Reverse engineering<sup>4</sup></td>
-                <td style={cellStyle('red')}>Not supported</td>
-                <td style={cellStyle('red')}>Not supported</td>
-                <td>Gradle plugin<sup>5</sup></td>
-              </tr>
-            </tbody>
-          </table>
-          <div style={{fontSize: '0.8rem', color: '#94a3b8', marginTop: '1rem', maxWidth: '800px', margin: '1rem auto 0', lineHeight: '1.6'}}>
-            <p style={{margin: '0.25rem 0'}}>* Type references are explicit and searchable — find all <code>PgTypes.</code> and replace with <code>MariaTypes.</code> — then run Query Analysis to verify every query against the new database at test time. More manual than hoping an abstraction holds, but nothing slips through unchecked.</p>
-            <p style={{margin: '0.25rem 0'}}><sup>1</sup> Hibernate 6.2+ has <code>@Struct</code> for composites and built-in basic array mapping. Ranges still need third-party libraries (Hypersistence Utils).</p>
-            <p style={{margin: '0.25rem 0'}}><sup>2</sup> Exposed has built-in array support. Ranges and composite types require custom <code>ColumnType</code> implementations.</p>
-            <p style={{margin: '0.25rem 0'}}><sup>3</sup> <code>@CheckHQL</code> (6.3+) validates HQL at compile time against the entity metamodel, not the database schema. Not enabled by default.</p>
-            <p style={{margin: '0.25rem 0'}}><sup>4</sup> Hibernate Tools generates entity classes from database schemas.</p>
-            <p style={{margin: '0.25rem 0'}}><sup>5</sup> Official JetBrains plugin generates Exposed table definitions from database schemas.</p>
-            <p style={{margin: '0.25rem 0'}}><sup>6</sup> Reflection affects GraalVM native-image compatibility, startup time, and debuggability. Libraries using runtime proxies or bytecode generation require additional configuration for native compilation.</p>
+        <SectionHeader title={<>How it <em>compares</em></>} />
+
+        <Reveal>
+          <div className={styles.comparisonWrap}>
+            <table className={styles.comparisonTable}>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Foundations</th>
+                  <th>jOOQ</th>
+                  <th>Hibernate</th>
+                  <th>JDBI</th>
+                  <th>JdbcTemplate</th>
+                  <th>Exposed</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Approach</td>
+                  <td>SQL + typed codecs</td>
+                  <td>Type-safe DSL + codegen</td>
+                  <td>ORM with entity mapping</td>
+                  <td>SQL + annotations</td>
+                  <td>SQL + RowMapper</td>
+                  <td>Kotlin DSL</td>
+                </tr>
+                <tr>
+                  <td>Languages</td>
+                  <td className={cellClass('green')}>Java, Kotlin, Scala</td>
+                  <td className={cellClass('yellow')}>Java, Kotlin, Scala<Tip>{FN.langs}</Tip></td>
+                  <td>Java, Kotlin</td>
+                  <td>Java, Kotlin</td>
+                  <td>Java, Kotlin</td>
+                  <td>Kotlin only</td>
+                </tr>
+                <tr>
+                  <td>Database portability</td>
+                  <td className={cellClass('yellow')}>Database-specific<Tip>{FN.portability}</Tip></td>
+                  <td className={cellClass('green')}>Multi-dialect DSL</td>
+                  <td className={cellClass('yellow')}>HQL — dialect leaks at runtime</td>
+                  <td className={cellClass('yellow')}>Raw SQL — portable until it isn't</td>
+                  <td className={cellClass('yellow')}>Raw SQL — portable until it isn't</td>
+                  <td className={cellClass('yellow')}>DSL — dialect-specific extensions</td>
+                </tr>
+                <tr>
+                  <td>Type model</td>
+                  <td className={cellClass('green')}>Every database type</td>
+                  <td className={cellClass('green')}>Every database type</td>
+                  <td className={cellClass('yellow')}>Java types only</td>
+                  <td className={cellClass('yellow')}>Basic + custom</td>
+                  <td className={cellClass('red')}>Basic Java types</td>
+                  <td className={cellClass('yellow')}>Kotlin types + custom</td>
+                </tr>
+                <tr>
+                  <td>Composites, arrays, ranges</td>
+                  <td className={cellClass('green')}>First-class</td>
+                  <td className={cellClass('yellow')}>Partial<Tip>{FN.compJooq}</Tip></td>
+                  <td className={cellClass('yellow')}>Partial<Tip>{FN.compHib}</Tip></td>
+                  <td className={cellClass('yellow')}>Manual mapping</td>
+                  <td className={cellClass('red')}>Raw JDBC only</td>
+                  <td className={cellClass('yellow')}>Partial<Tip>{FN.compExp}</Tip></td>
+                </tr>
+                <tr>
+                  <td>Reflection<Tip>{FN.reflection}</Tip></td>
+                  <td className={cellClass('green')}>None</td>
+                  <td className={cellClass('yellow')}>DSL-only<Tip>{FN.reflJooq}</Tip></td>
+                  <td className={cellClass('red')}>Heavy</td>
+                  <td className={cellClass('yellow')}>Moderate</td>
+                  <td className={cellClass('green')}>None (manual mapper)</td>
+                  <td className={cellClass('yellow')}>DAO layer</td>
+                </tr>
+                <tr>
+                  <td>Query type checking</td>
+                  <td className={cellClass('green')}>At test time (hand-written SQL)</td>
+                  <td className={cellClass('yellow')}>DSL only (compile)<Tip>{FN.checkJooq}</Tip></td>
+                  <td className={cellClass('yellow')}>Opt-in<Tip>{FN.checkHib}</Tip></td>
+                  <td className={cellClass('red')}>No</td>
+                  <td className={cellClass('red')}>No</td>
+                  <td className={cellClass('yellow')}>DSL only (compile)</td>
+                </tr>
+                <tr>
+                  <td>Type-safe nullable columns</td>
+                  <td className={cellClass('green')}>Optional&lt;T&gt; / T? / Option[T]</td>
+                  <td className={cellClass('red')}>Not type-safe<Tip>{FN.nullJooq}</Tip></td>
+                  <td className={cellClass('yellow')}>@Column(nullable)</td>
+                  <td className={cellClass('red')}>Manual null checks</td>
+                  <td className={cellClass('red')}>Manual null checks</td>
+                  <td className={cellClass('green')}>T? in Kotlin</td>
+                </tr>
+                <tr>
+                  <td>Code generation</td>
+                  <td className={cellClass('yellow')}>Coming soon</td>
+                  <td className={cellClass('green')}>Mature, schema-driven<Tip>{FN.cgJooq}</Tip></td>
+                  <td>Reverse engineering<Tip>{FN.cgHib}</Tip></td>
+                  <td className={cellClass('red')}>Not supported</td>
+                  <td className={cellClass('red')}>Not supported</td>
+                  <td>Gradle plugin<Tip>{FN.cgExp}</Tip></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
 }
 
+/* ------------------------------------------------------------------
+   CTA
+   ------------------------------------------------------------------ */
 function CTA() {
   return (
     <section className={styles.cta}>
       <div className={styles.container}>
-        <h2 className={styles.sectionTitle}>Ready to try it?</h2>
-        <p className={styles.sectionSubtitle}>
+        <SectionHeader
+          number="14"
+          kicker="Coda"
+          title={<>Ready to <em>try it?</em></>}
+        >
           Foundations JDBC is open source, MIT-licensed, and ready to use today.
-        </p>
-        <div className={styles.heroButtons}>
-          <Link className={styles.btnPrimary} to="/docs/">
-            Get Started
-          </Link>
-          <Link className={styles.btnSecondary} to="https://github.com/typr-dev/foundations-jdbc">
-            GitHub
-          </Link>
-        </div>
-        <div style={{marginTop: '3rem', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto'}}>
-          <h3 style={{color: '#f8fafc', fontSize: '1.3rem', marginBottom: '1.5rem', textAlign: 'center'}}>Coming soon</h3>
-          <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-            <div style={{background: 'rgba(96, 165, 250, 0.08)', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '12px', padding: '1.25rem 1.5rem'}}>
-              <strong style={{color: '#60a5fa', fontSize: '1rem'}}>World-class codegen with a SQL DSL</strong>
-              <p style={{color: '#94a3b8', margin: '0.5rem 0 0', fontSize: '0.95rem', lineHeight: 1.6}}>
-                Generate all the RowCodecs, type definitions, and repository scaffolding you see above — directly from your database schema. Write queries in a type-safe SQL DSL that composes like the language it's embedded in.
-              </p>
-            </div>
-            <div style={{background: 'rgba(96, 165, 250, 0.08)', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '12px', padding: '1.25rem 1.5rem'}}>
-              <strong style={{color: '#60a5fa', fontSize: '1rem'}}>A native PostgreSQL driver for the JVM</strong>
-              <p style={{color: '#94a3b8', margin: '0.5rem 0 0', fontSize: '0.95rem', lineHeight: 1.6}}>
-                We've been working on something that fundamentally changes what's possible with PostgreSQL on the JVM. It bypasses JDBC entirely, speaks the PostgreSQL wire protocol directly, and unlocks a class of optimizations that no connection pool or driver can offer today. The same Fragments, RowCodecs, and Operations you write today will run on it without changing a line of code.
-              </p>
+        </SectionHeader>
+
+        <Reveal>
+          <div className={styles.ctaButtons}>
+            <Link className={styles.btnPrimary} to="/docs/">
+              Get Started
+            </Link>
+            <Link className={styles.btnSecondary} to="https://github.com/typr-dev/foundations-jdbc">
+              GitHub
+            </Link>
+          </div>
+        </Reveal>
+
+        <Reveal delay={120}>
+          <div className={styles.comingSoon}>
+            <h2 className={styles.comingSoonLabel}>Coming <em>soon</em></h2>
+            <div className={styles.comingSoonGrid}>
+              <div className={styles.comingSoonCard}>
+                <strong>World-class codegen with a SQL DSL</strong>
+                <p>
+                  Generate all the RowCodecs, type definitions, and repository scaffolding you see above — directly from your database schema. Write queries in a type-safe SQL DSL that composes like the language it's embedded in.
+                </p>
+              </div>
+              <div className={styles.comingSoonCard}>
+                <strong>A native PostgreSQL driver for the JVM</strong>
+                <p>
+                  We've been working on something that fundamentally changes what's possible with PostgreSQL on the JVM. It bypasses JDBC entirely, speaks the PostgreSQL wire protocol directly, and unlocks a class of optimizations that no connection pool or driver can offer today. The same Fragments, RowCodecs, and Operations you write today will run on it without changing a line of code.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
 }
 
+/* ------------------------------------------------------------------
+   Page
+   ------------------------------------------------------------------ */
 export default function Home() {
   return (
-    <Layout title="A JDBC library for the JVM" description="Composable queries, full type safety, and every data structure your database actually has — for Java, Kotlin, and Scala.">
-      <Hero />
-      <main>
-        <QuickstartSection />
-        <ProblemSection />
-        <QueryAnalysisSection />
-        <ErrorMessagesSection />
-        <Features />
-        <SchemaAndCodecs />
-        <TypeBuildingBlocks />
-        <QueryShowcase />
-        <TransactorShowcase />
-        <JsonSection />
-        <StoredProcedureSection />
-        <TypeShowcase />
-        <ComparisonSection />
-        <CTA />
-      </main>
+    <Layout
+      title="A database library for the JVM"
+      description="Composable queries, full type safety, and every data structure your database actually has — for Java, Kotlin, and Scala."
+    >
+      <div className={styles.page}>
+        <Hero />
+        <main>
+          <QueryAnalysisSection />
+          <ProblemSection />
+          <QuickstartSection />
+          <ErrorMessagesSection />
+          <Features />
+          <SchemaAndCodecs />
+          <TypeBuildingBlocks />
+          <QueryShowcase />
+          <TransactorShowcase />
+          <JsonSection />
+          <StoredProcedureSection />
+          <TypeShowcase />
+          <ComparisonSection />
+          <CTA />
+        </main>
+      </div>
     </Layout>
   );
 }

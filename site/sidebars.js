@@ -23,7 +23,7 @@ const sidebars = {
       label: "Patterns & Techniques",
       collapsed: false,
       items: [
-        {type: "doc", id: "templates", label: "Templates"},
+        {type: "doc", id: "dynamic-queries", label: "Dynamic Queries"},
         {type: "doc", id: "composing-operations", label: "Composing Operations"},
         {type: "doc", id: "structuring-repositories", label: "Structuring Repositories"},
         {type: "doc", id: "persisted-unpersisted", label: "Persisted vs Unpersisted Types"},

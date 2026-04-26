@@ -32,6 +32,10 @@ Query Analysis uses JDBC metadata to verify your queries against the actual data
 3. **Nullability is wrong** — The column is nullable but your type isn't Optional
 4. **Counts are off** — Your RowCodec expects 5 columns but the query returns 4
 
+:::tip Dynamic queries are first-class
+Queries built with the [`optionally` DSL](./dynamic-queries) are expanded into all 2<sup>N</sup> branch variants and verified individually — every possible runtime SQL shape is checked, not just the one your test happened to construct. See [Dynamic Queries](./dynamic-queries) for the trade-offs against list-based composition.
+:::
+
 <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', margin: '1.5rem 0'}}>
 <img src="/img/query-analysis-success.png" alt="Query analysis: all types match" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '48%'}} />
 <img src="/img/query-analysis-nullability.png" alt="Query analysis: nullability mismatch detected" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '48%'}} />
@@ -39,7 +43,7 @@ Query Analysis uses JDBC metadata to verify your queries against the actual data
 
 ## Basic Usage
 
-`AnalyzableScanner` scans a package and discovers every query, template, and operation. `QueryChecker` verifies them all against the database. Together, they give you a single test that covers your entire data layer:
+`AnalyzableScanner` scans a package and discovers every query and operation. `QueryChecker` verifies them all against the database. Together, they give you a single test that covers your entire data layer:
 
 <Snippet file="analysis/QueryAnalysisTestSuite" />
 
@@ -47,7 +51,7 @@ Add a new query anywhere in the package, and it's automatically included in the 
 
 ## What the Scanner Discovers
 
-The scanner finds everything that returns an `Analyzable` type — this includes `OperationRead`, `Template`, and `RowTemplate`. It discovers both **fields** and **methods**:
+The scanner finds everything that returns an `Analyzable` type — this includes `OperationRead` and `Operation`. It discovers both **fields** and **methods**:
 
 <Snippet file="analysis/ScannerMethods" />
 
@@ -60,7 +64,6 @@ The scanner finds everything that returns an `Analyzable` type — this includes
 | **Instance methods with parameters** | Dummy arguments constructed automatically, method invoked |
 | **Static fields** | Discovered — useful for Kotlin top-level `val`, Java `static final OperationRead`, and static helper bags |
 | **Static methods** (no args, with args) | Discovered — same dummy-argument construction as instance methods |
-| **Templates** | Discovered like any other `Analyzable` field or method return |
 | **Private / protected / package-private members** | Discovered — the scanner uses `setAccessible(true)` since it's a test-scope tool |
 
 ### How classes are instantiated
@@ -89,7 +92,7 @@ The scanner will try constructors that accept a `Transactor` parameter.
 
 ### How dummy arguments work
 
-When the scanner encounters a method with parameters, it constructs dummy values to invoke the method. The actual argument values typically don't matter — the scanner only needs the method's return value (an `OperationRead` or `Template`) to extract its SQL and type information. If a method branches on its arguments and returns structurally different operations, use `manual()` directives to provide meaningful values.
+When the scanner encounters a method with parameters, it constructs dummy values to invoke the method. The actual argument values typically don't matter — the scanner only needs the method's return value (an `OperationRead` or `Operation`) to extract its SQL and type information. If a method branches on its arguments and returns structurally different operations, use `manual()` directives to provide meaningful values.
 
 The scanner can construct dummies for:
 
@@ -295,9 +298,9 @@ This walks the entire operation tree and returns one `QueryAnalysis` per SQL sta
 
 ## Dynamic SQL Analysis
 
-When a template uses [`.optionally()`](./templates#dynamic-templates), analysis automatically expands all 2^N structural variants. Each variant is prepared against the database and verified independently.
+When a fragment uses [`.optionally()`](./dynamic-queries), analysis automatically expands all 2^N structural variants. Each variant is prepared against the database and verified independently.
 
-For example, a template with 3 optional predicates produces 8 combinations — all checked with a single `checker.check()` call:
+For example, an operation with 3 optional predicates produces 8 combinations — all checked with a single `checker.check()` call:
 
 | name filter | email filter | active flag | SQL WHERE clause |
 |:-----------:|:------------:|:-----------:|:-----------------|

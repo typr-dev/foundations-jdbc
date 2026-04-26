@@ -4,7 +4,7 @@
 const config = {
   title: 'Foundations JDBC',
   tagline: 'Every type. Every database. Finally.',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/logo.svg',
 
   url: 'https://foundations.typr.dev',
   baseUrl: '/',
@@ -50,6 +50,13 @@ const config = {
     ({
       navbar: {
         title: 'Foundations JDBC',
+        logo: {
+          alt: 'Foundations JDBC',
+          src: 'img/logo.svg',
+          srcDark: 'img/logo-dark.svg',
+          width: 26,
+          height: 26,
+        },
         items: [
           {
             type: 'docSidebar',
@@ -79,7 +86,7 @@ const config = {
               { label: 'Transactors', to: '/docs/transactors' },
               { label: 'Fragments', to: '/docs/fragments' },
               { label: 'Row Codecs', to: '/docs/row-codecs' },
-              { label: 'Templates', to: '/docs/templates' },
+              { label: 'Dynamic Queries', to: '/docs/dynamic-queries' },
             ],
           },
           {
