@@ -33,10 +33,11 @@ class AnalyzableScannerMethodTest {
   }
 
   @Test
-  void findsTemplateMethods() {
+  void findsMethodsWithStringArgs() {
     var results = AnalyzableScanner.scanDetailed("dev.typr.foundations.fixtures.methods");
     assertTrue(
-        fieldNames(results).contains("templateMethod"), "should find Template-returning method");
+        fieldNames(results).contains("withStringArg"),
+        "should find OperationRead-returning method with String arg");
   }
 
   @Test

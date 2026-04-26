@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Shared analysis tree-walker. Walks an {@link Analyzable} (operation or template), extracting SQL
- * + type information at each leaf, and delegates actual statement analysis to a {@link
- * StatementAnalyzer}.
+ * Shared analysis tree-walker. Walks an {@link Analyzable}, extracting SQL + type information at
+ * each leaf, and delegates actual statement analysis to a {@link StatementAnalyzer}.
  *
  * <p>This is the analysis counterpart of {@link OperationRunner}: it eliminates duplicate
  * tree-walking between JDBC-based and PgPipe-based query checkers.
@@ -21,26 +20,7 @@ public final class AnalysisRunner {
       case Analyzable.Named(var defaultName, var inner) ->
           applyDefaultName(defaultName, analyze(inner, analyzer));
       case Operation<?> op -> analyzeOperation(Optional.empty(), op, analyzer);
-      case Template<?, ?> t -> analyzeTemplate(t, analyzer);
     };
-  }
-
-  // ========== Template analysis ==========
-
-  private static List<QueryAnalysis> analyzeTemplate(
-      Template<?, ?> template, StatementAnalyzer analyzer) {
-    Fragment fragment = template.fragment();
-    List<Fragment> variants = OptionallyResolver.analysisVariants(fragment);
-    ResultSetParser<?> parser = QueryAnalyzer.extractResultSetParser(template);
-    List<QueryAnalysis> results = new ArrayList<>();
-    for (Fragment variant : variants) {
-      if (parser != null) {
-        results.add(analyzeFragmentAndParser(Optional.empty(), variant, parser, analyzer));
-      } else {
-        results.add(analyzeUpdate(Optional.empty(), variant, analyzer));
-      }
-    }
-    return results;
   }
 
   // ========== Operation analysis ==========
@@ -49,8 +29,14 @@ public final class AnalysisRunner {
       Optional<String> name, Operation<?> op, StatementAnalyzer analyzer) {
     return switch (op) {
       // Read leaves
-      case OperationRead.Query<?> q ->
-          List.of(analyzeFragmentAndParser(name, q.query(), q.parser(), analyzer));
+      case OperationRead.Query<?> q -> {
+        List<Fragment> variants = OptionallyResolver.analysisVariants(q.query());
+        List<QueryAnalysis> results = new ArrayList<>();
+        for (Fragment variant : variants) {
+          results.add(analyzeFragmentAndParser(name, variant, q.parser(), analyzer));
+        }
+        yield results;
+      }
       case OperationRead.Streaming<?> s ->
           List.of(analyzeFragmentAndParser(name, s.query(), s.codec().all(), analyzer));
       case OperationRead.Pure<?> ignored -> List.of();
@@ -72,10 +58,16 @@ public final class AnalysisRunner {
       case OperationRead.Then<?, ?> t -> analyzeThen(t, analyzer);
 
       // Write leaves
-      case Operation.UpdateReturning<?> ur ->
-          List.of(analyzeFragmentAndParser(name, ur.query(), ur.parser(), analyzer));
-      case Operation.Update u -> List.of(analyzeUpdate(name, u.query(), analyzer));
-      case Operation.Execute e -> List.of(analyzeUpdate(name, e.query(), analyzer));
+      case Operation.UpdateReturning<?> ur -> {
+        List<Fragment> variants = OptionallyResolver.analysisVariants(ur.query());
+        List<QueryAnalysis> results = new ArrayList<>();
+        for (Fragment variant : variants) {
+          results.add(analyzeFragmentAndParser(name, variant, ur.parser(), analyzer));
+        }
+        yield results;
+      }
+      case Operation.Update u -> analyzeUpdateVariants(name, u.query(), analyzer);
+      case Operation.Execute e -> analyzeUpdateVariants(name, e.query(), analyzer);
 
       // Write structural
       case Operation.Configured<?> c ->
@@ -102,25 +94,15 @@ public final class AnalysisRunner {
 
   private static <A, B> List<QueryAnalysis> analyzeThen(
       OperationRead.Then<A, B> then, StatementAnalyzer analyzer) {
-    return doAnalyzeThen(then.source(), then.continuation(), analyzer);
+    // The continuation is a Function<A, OperationRead<B>> — opaque without a value
+    // of A to invoke it with. Analyze the source; users should verify the
+    // continuation by exposing it as its own method that the scanner discovers.
+    return analyzeOperation(Optional.empty(), then.source(), analyzer);
   }
 
   private static <A, B> List<QueryAnalysis> analyzeThen(
       Operation.Then<A, B> then, StatementAnalyzer analyzer) {
-    return doAnalyzeThen(then.source(), then.continuation(), analyzer);
-  }
-
-  private static <A> List<QueryAnalysis> doAnalyzeThen(
-      Operation<A> source, Template<A, ?> continuation, StatementAnalyzer analyzer) {
-    var r = new ArrayList<>(analyzeOperation(Optional.empty(), source, analyzer));
-    Fragment templateFragment = continuation.fragment();
-    ResultSetParser<?> templateParser = QueryAnalyzer.extractResultSetParser(continuation);
-    if (templateParser != null) {
-      r.add(analyzeFragmentAndParser(Optional.empty(), templateFragment, templateParser, analyzer));
-    } else {
-      r.add(analyzeUpdate(Optional.empty(), templateFragment, analyzer));
-    }
-    return r;
+    return analyzeOperation(Optional.empty(), then.source(), analyzer);
   }
 
   // ========== Leaf analysis ==========
@@ -164,6 +146,16 @@ public final class AnalysisRunner {
     var paramAlignment = Alignment.align(paramTypes, meta.parameters());
 
     return new QueryAnalysis(sql, name, paramAlignment, List.of(), paramMetaAvailable);
+  }
+
+  private static List<QueryAnalysis> analyzeUpdateVariants(
+      Optional<String> name, Fragment fragment, StatementAnalyzer analyzer) {
+    List<Fragment> variants = OptionallyResolver.analysisVariants(fragment);
+    List<QueryAnalysis> results = new ArrayList<>();
+    for (Fragment variant : variants) {
+      results.add(analyzeUpdate(name, variant, analyzer));
+    }
+    return results;
   }
 
   // ========== Helpers ==========

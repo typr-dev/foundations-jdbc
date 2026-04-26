@@ -21,14 +21,10 @@ class FragmentRow {
 
     //start
     fun insert(product: Product): Product =
-        Fragment.insertIntoReturning("product", productCodec)
-            .on(product)
-            .run(conn)
+        Fragment.insertOneReturning("product", productCodec, product).run(conn)
 
     // Skip columns with database defaults — pass column names to except
     fun insertWithDefault(product: Product): Product =
-        Fragment.insertIntoReturning("product", productCodec, "id")
-            .on(product)
-            .run(conn)
+        Fragment.insertOneReturning("product", productCodec, product, "id").run(conn)
     //stop
 }

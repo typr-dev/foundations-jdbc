@@ -392,15 +392,7 @@ public class BatchOperationTest {
   static void assertOnMany(
       Connection conn, RowCodecNamed<IdItem> parser, String table, int expectedCount)
       throws SQLException {
-    RowTemplate.Update<IdItem> template =
-        Fragment.of("INSERT INTO " + table + " (")
-            .append(parser.columnList())
-            .append(") VALUES (")
-            .paramRow(parser)
-            .append(")")
-            .update();
-
-    var onManyResult = template.onMany(ID_ITEMS.iterator()).run(conn);
+    var onManyResult = Fragment.insertMany(table, parser, ID_ITEMS.iterator()).run(conn);
     assertTrue(onManyResult.isPresent());
     int[] counts = onManyResult.get();
     assertEquals(expectedCount, counts.length);
@@ -421,18 +413,12 @@ public class BatchOperationTest {
 
   static void assertOnManySkipId(Connection conn, RowCodecNamed<IdItem> parser, String table)
       throws SQLException {
-    RowTemplate.Update<IdItem> template =
-        Fragment.of("INSERT INTO " + table + " (name, quantity) VALUES (")
-            .paramRow(parser, "id")
-            .append(")")
-            .update();
-
     var items =
         List.of(
             new IdItem(0, "widget", 100),
             new IdItem(0, "gadget", 200),
             new IdItem(0, "doohickey", 300));
-    var skipResult = template.onMany(items.iterator()).run(conn);
+    var skipResult = Fragment.insertMany(table, parser, items.iterator(), "id").run(conn);
     assertTrue(skipResult.isPresent());
     int[] counts = skipResult.get();
     assertEquals(3, counts.length);
@@ -467,18 +453,10 @@ public class BatchOperationTest {
 
   static void assertSingleThenBatch(Connection conn, RowCodecNamed<IdItem> parser, String table)
       throws SQLException {
-    RowTemplate.Update<IdItem> template =
-        Fragment.of("INSERT INTO " + table + " (")
-            .append(parser.columnList())
-            .append(") VALUES (")
-            .paramRow(parser)
-            .append(")")
-            .update();
-
-    template.on(new IdItem(1, "first", 10)).run(conn);
+    Fragment.insertOne(table, parser, new IdItem(1, "first", 10)).run(conn);
 
     var batch = List.of(new IdItem(2, "second", 20), new IdItem(3, "third", 30));
-    template.onMany(batch.iterator()).run(conn);
+    Fragment.insertMany(table, parser, batch.iterator()).run(conn);
 
     List<IdItem> result =
         Fragment.of("SELECT id, name, quantity FROM " + table + " ORDER BY id")

@@ -9,10 +9,6 @@ object QueryAnalyzer:
     import scala.jdk.CollectionConverters.*
     dev.typr.foundations.QueryAnalyzer.analyze(op.underlying, conn).asScala.toList
 
-  def analyze(template: Template[?, ?], conn: Connection): List[QueryAnalysis] =
-    import scala.jdk.CollectionConverters.*
-    dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn).asScala.toList
-
   @deprecated("Use the overload that takes Connection instead")
   def analyze(analyzable: Analyzable, conn: java.sql.Connection): List[QueryAnalysis] =
     import scala.jdk.CollectionConverters.*
@@ -22,8 +18,3 @@ object QueryAnalyzer:
   def analyze(op: OperationRead[?], conn: java.sql.Connection): List[QueryAnalysis] =
     import scala.jdk.CollectionConverters.*
     dev.typr.foundations.QueryAnalyzer.analyze(op.underlying, conn).asScala.toList
-
-  @deprecated("Use the overload that takes Connection instead")
-  def analyze(template: Template[?, ?], conn: java.sql.Connection): List[QueryAnalysis] =
-    import scala.jdk.CollectionConverters.*
-    dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn).asScala.toList

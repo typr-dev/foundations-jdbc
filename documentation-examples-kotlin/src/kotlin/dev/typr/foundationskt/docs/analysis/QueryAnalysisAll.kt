@@ -16,22 +16,20 @@ class QueryAnalysisAll {
 
     lateinit var conn: Connection
 
-    val insertUser: Template<String, Int> =
-        sql { "INSERT INTO users(name) VALUES(" }
-            .param(PgTypes.text)
+    fun insertUser(name: String): OperationRead<Int> =
+        Fragment.of("INSERT INTO users(name) VALUES(")
+            .value(PgTypes.text, name)
             .append(") RETURNING id")
             .query(RowCodec.of(PgTypes.int4).exactlyOne())
 
     val allUsers: OperationRead<List<User>> =
-        sql { "SELECT id, name FROM users" }
+        Fragment.of("SELECT id, name FROM users")
             .query(userCodec.all())
 
     //start
     fun analyzeComposedOperation() {
-        // Build a composed operation
         val transaction: Operation<*> =
-            insertUser.on("Alice")
-                .productL(allUsers)
+            insertUser("Alice").productL(allUsers)
 
         // Analyze every SQL statement in the tree — one call
         val results: List<QueryAnalysis> =

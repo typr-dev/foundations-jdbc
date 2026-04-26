@@ -17,7 +17,8 @@ public final class PgErrorExtractor {
   public static DatabaseException mapException(SQLException e) {
     Optional<PgError> pgError = extract(e);
     return pgError
-        .<DatabaseException>map(pg -> new DatabaseException.Postgres(pg, null, e))
+        .<DatabaseException>map(
+            pg -> new DatabaseException.Postgres(pg, Optional.empty(), Optional.of(e)))
         .orElseGet(() -> new DatabaseException.Jdbc(e));
   }
 
@@ -33,19 +34,19 @@ public final class PgErrorExtractor {
             sem.getSeverity(),
             sem.getMessage(),
             sem.getSQLState(),
-            sem.getDetail(),
-            sem.getHint(),
-            position == 0 ? null : position,
-            sem.getWhere(),
-            internalPosition == 0 ? null : internalPosition,
-            sem.getInternalQuery(),
-            sem.getSchema(),
-            sem.getTable(),
-            sem.getColumn(),
-            sem.getDatatype(),
-            sem.getConstraint(),
-            sem.getFile(),
-            line == 0 ? null : line,
-            sem.getRoutine()));
+            Optional.ofNullable(sem.getDetail()),
+            Optional.ofNullable(sem.getHint()),
+            position == 0 ? Optional.empty() : Optional.of(position),
+            Optional.ofNullable(sem.getWhere()),
+            internalPosition == 0 ? Optional.empty() : Optional.of(internalPosition),
+            Optional.ofNullable(sem.getInternalQuery()),
+            Optional.ofNullable(sem.getSchema()),
+            Optional.ofNullable(sem.getTable()),
+            Optional.ofNullable(sem.getColumn()),
+            Optional.ofNullable(sem.getDatatype()),
+            Optional.ofNullable(sem.getConstraint()),
+            Optional.ofNullable(sem.getFile()),
+            line == 0 ? Optional.empty() : Optional.of(line),
+            Optional.ofNullable(sem.getRoutine())));
   }
 }

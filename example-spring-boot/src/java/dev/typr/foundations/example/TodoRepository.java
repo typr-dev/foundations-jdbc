@@ -23,14 +23,18 @@ public class TodoRepository {
           .append(" FROM todo ORDER BY id")
           .query(todoCodec.all());
 
-  static final Template<String, Todo> insertByTitle =
-      Fragment.of("INSERT INTO todo (title) VALUES (")
-          .param(DuckDbTypes.varchar)
-          .append(Fragment.of(") RETURNING ").append(todoCodec.columnList()))
-          .query(todoCodec.exactlyOne());
+  static OperationRead<Todo> insertByTitle(String title) {
+    return Fragment.of("INSERT INTO todo (title) VALUES (")
+        .value(DuckDbTypes.varchar, title)
+        .append(Fragment.of(") RETURNING ").append(todoCodec.columnList()))
+        .query(todoCodec.exactlyOne());
+  }
 
-  static final Template<Integer, Integer> setDoneById =
-      Fragment.of("UPDATE todo SET done = true WHERE id = ").param(DuckDbTypes.integer).update();
+  static Operation<Integer> setDoneById(int id) {
+    return Fragment.of("UPDATE todo SET done = true WHERE id = ")
+        .value(DuckDbTypes.integer, id)
+        .update();
+  }
 
   private final TransactorJdbc tx;
 
@@ -61,17 +65,17 @@ public class TodoRepository {
   }
 
   public Todo create(String title) {
-    return insertByTitle.on(title).transact(tx);
+    return insertByTitle(title).transact(tx);
   }
 
   public void setDone(int id) {
-    setDoneById.on(id).transact(tx);
+    setDoneById(id).transact(tx);
   }
 
   @Transactional
   public Todo createAndComplete(String title) {
-    var todo = insertByTitle.on(title).transact(tx);
-    setDoneById.on(todo.id()).transact(tx);
+    var todo = insertByTitle(title).transact(tx);
+    setDoneById(todo.id()).transact(tx);
     return todo;
   }
 }

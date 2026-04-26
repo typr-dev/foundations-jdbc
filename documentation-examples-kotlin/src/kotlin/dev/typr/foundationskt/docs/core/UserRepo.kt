@@ -19,10 +19,9 @@ object UserRepo {
             .query(userCodec.all())
             .named("UserRepo.selectAll")
 
-    val selectById: Template<Int, User?> =
+    fun selectById(id: Int): OperationRead<User?> =
         sql { "SELECT ${userCodec.columnList} FROM users WHERE id = " }
-            .param(PgTypes.int4)
+            .value(PgTypes.int4, id)
             .query(userCodec.maxOne())
-
 }
 //stop

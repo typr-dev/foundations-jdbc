@@ -1,12 +1,10 @@
 package dev.typr.foundations;
 
-import org.jetbrains.annotations.Nullable;
+import dev.typr.foundations.internal.Str;
+import java.util.Optional;
 
 /**
  * Structured PostgreSQL error with all fields from the ErrorResponse wire protocol message.
- *
- * <p>Available on both PgPipe ({@link dev.typr.foundations.pg.PgPipelineException#pgError()}) and
- * JDBC ({@link DatabaseException#pgError()}) paths.
  *
  * <p>Fields follow the <a
  * href="https://www.postgresql.org/docs/current/protocol-error-fields.html">PostgreSQL protocol
@@ -16,71 +14,73 @@ public record PgError(
     String severity,
     String message,
     String sqlState,
-    @Nullable String detail,
-    @Nullable String hint,
-    @Nullable Integer position,
-    @Nullable String where,
-    @Nullable Integer internalPosition,
-    @Nullable String internalQuery,
-    @Nullable String schemaName,
-    @Nullable String tableName,
-    @Nullable String columnName,
-    @Nullable String dataTypeName,
-    @Nullable String constraintName,
-    @Nullable String file,
-    @Nullable Integer line,
-    @Nullable String routine) {
+    Optional<String> detail,
+    Optional<String> hint,
+    Optional<Integer> position,
+    Optional<String> where,
+    Optional<Integer> internalPosition,
+    Optional<String> internalQuery,
+    Optional<String> schemaName,
+    Optional<String> tableName,
+    Optional<String> columnName,
+    Optional<String> dataTypeName,
+    Optional<String> constraintName,
+    Optional<String> file,
+    Optional<Integer> line,
+    Optional<String> routine) {
 
-  /**
-   * Format this error for display, including a source-position caret when the position field is
-   * present.
-   *
-   * @param sql the SQL that caused the error (used for caret rendering)
-   * @return formatted multi-line error string
-   */
-  public String formatted(@Nullable String sql) {
-    var sb = new StringBuilder();
-    sb.append(severity).append(": ").append(message);
-    if (sqlState != null) sb.append(" [").append(sqlState).append("]");
-
-    if (sql != null && !sql.isEmpty() && position != null && position > 0) {
-      sb.append('\n');
-      appendCaret(sb, sql, position);
-    }
-
-    if (detail != null) sb.append("\n  Detail: ").append(detail);
-    if (hint != null) sb.append("\n  Hint: ").append(hint);
-    if (where != null) sb.append("\n  Where: ").append(where);
-
-    if (internalQuery != null && internalPosition != null && internalPosition > 0) {
-      sb.append("\n  Internal query:");
-      sb.append('\n');
-      appendCaret(sb, internalQuery, internalPosition);
-    }
-
-    if (schemaName != null) sb.append("\n  Schema: ").append(schemaName);
-    if (tableName != null) sb.append("\n  Table: ").append(tableName);
-    if (columnName != null) sb.append("\n  Column: ").append(columnName);
-    if (dataTypeName != null) sb.append("\n  Type: ").append(dataTypeName);
-    if (constraintName != null) sb.append("\n  Constraint: ").append(constraintName);
-
-    return sb.toString();
+  /** Format this error for display (plain text). */
+  public String formatted(Optional<String> sql) {
+    return styledFormatted(sql).plainText();
   }
 
   /** Format without SQL context (no caret). */
   public String formatted() {
-    return formatted(null);
+    return formatted(Optional.empty());
   }
 
-  /**
-   * Append the SQL with a caret (└──) pointing at the given 1-based character position.
-   *
-   * <pre>
-   * SELEC id FROM users WHERE age > 30
-   * └───
-   * </pre>
-   */
-  static void appendCaret(StringBuilder sb, String sql, int position1Based) {
+  /** Format with ANSI colors. */
+  public String formattedColored(Optional<String> sql) {
+    return styledFormatted(sql).render();
+  }
+
+  /** Format with ANSI colors, no SQL context. */
+  public String formattedColored() {
+    return formattedColored(Optional.empty());
+  }
+
+  /** Styled format with rich terminal rendering. */
+  public Str styledFormatted(Optional<String> sql) {
+    var b = Str.builder();
+
+    b.boldRed(severity + ": ").plain(message);
+    b.gray(" [" + sqlState + "]");
+
+    if (sql.isPresent() && !sql.get().isEmpty() && position.isPresent() && position.get() > 0) {
+      b.newline();
+      appendStyledCaret(b, sql.get(), position.get());
+    }
+
+    detail.ifPresent(d -> b.newline().gray("  Detail: ").plain(d));
+    hint.ifPresent(h -> b.newline().gray("  Hint: ").cyan(h));
+    where.ifPresent(w -> b.newline().gray("  Where: ").plain(w));
+
+    if (internalQuery.isPresent() && internalPosition.isPresent() && internalPosition.get() > 0) {
+      b.newline().gray("  Internal query:");
+      b.newline();
+      appendStyledCaret(b, internalQuery.get(), internalPosition.get());
+    }
+
+    schemaName.ifPresent(s -> b.newline().gray("  Schema: ").plain(s));
+    tableName.ifPresent(t -> b.newline().gray("  Table: ").plain(t));
+    columnName.ifPresent(c -> b.newline().gray("  Column: ").plain(c));
+    dataTypeName.ifPresent(d -> b.newline().gray("  Type: ").plain(d));
+    constraintName.ifPresent(c -> b.newline().gray("  Constraint: ").yellow(c));
+
+    return b.build();
+  }
+
+  private static void appendStyledCaret(Str.Builder b, String sql, int position1Based) {
     String trimmed = sql.stripLeading();
     int leadingStripped = sql.length() - trimmed.length();
     int adjustedPos = position1Based - 1 - leadingStripped;
@@ -97,13 +97,12 @@ public record PgError(
       lineOffset += l.length() + 1;
     }
 
-    sb.append("  ").append(line).append('\n');
+    b.plain("  ").gray(line).newline();
 
-    if (adjustedPos < 0 || adjustedPos > line.length()) {
-      return;
+    if (adjustedPos >= 0 && adjustedPos <= line.length()) {
+      b.plain("  ");
+      for (int i = 0; i < adjustedPos; i++) b.plain(" ");
+      b.red("└──");
     }
-    sb.append("  ");
-    for (int i = 0; i < adjustedPos; i++) sb.append(' ');
-    sb.append("└──");
   }
 }

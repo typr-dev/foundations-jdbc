@@ -17,7 +17,8 @@ public final class SqlServerErrorExtractor {
   public static DatabaseException mapException(SQLException e) {
     Optional<SqlServerError> error = extract(e);
     return error
-        .<DatabaseException>map(err -> new DatabaseException.SqlServer(err, null, e))
+        .<DatabaseException>map(
+            err -> new DatabaseException.SqlServer(err, Optional.empty(), Optional.of(e)))
         .orElseGet(() -> new DatabaseException.Jdbc(e));
   }
 
@@ -29,12 +30,12 @@ public final class SqlServerErrorExtractor {
     String procedureName = serverError.getProcedureName();
     return Optional.of(
         new SqlServerError(
-            serverError.getErrorMessage(),
+            Optional.ofNullable(serverError.getErrorMessage()),
             serverError.getErrorNumber(),
             serverError.getErrorSeverity(),
             serverError.getErrorState(),
-            serverName == null || serverName.isEmpty() ? null : serverName,
-            procedureName == null || procedureName.isEmpty() ? null : procedureName,
+            Optional.ofNullable(serverName).filter(s -> !s.isEmpty()),
+            Optional.ofNullable(procedureName).filter(s -> !s.isEmpty()),
             serverError.getLineNumber()));
   }
 }

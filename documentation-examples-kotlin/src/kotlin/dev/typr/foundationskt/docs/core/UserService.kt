@@ -10,6 +10,6 @@ class UserService(private val tx: Transactor) {
         UserRepo.selectAll.transact(tx)
 
     fun findUser(id: Int): User? =
-        UserRepo.selectById.on(id).transact(tx)
+        UserRepo.selectById(id).transact(tx)
 }
 //stop

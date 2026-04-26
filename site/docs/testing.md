@@ -70,7 +70,7 @@ companion object {
 
 ### One Test for All Queries
 
-`AnalyzableScanner` discovers every `OperationRead` and `Template` in a package. `QueryChecker` verifies them all:
+`AnalyzableScanner` discovers every `OperationRead` and `Operation` in a package. `QueryChecker` verifies them all:
 
 ```kotlin
 @Test

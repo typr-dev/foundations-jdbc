@@ -21,15 +21,14 @@ object VenueRepo:
       .join(venueCodec)
       .to(PersistedVenue.apply, pv => (pv.id, pv.venue))
 
-  val insert: RowTemplate.Query[Venue, PersistedVenue] =
-    Fragment.insertIntoReturning("venue", venueCodec, persistedVenueCodec)
+  def insert(venue: Venue): OperationRead.Query[PersistedVenue] =
+    Fragment.insertOneReturning("venue", venueCodec, venue, persistedVenueCodec)
 
   val selectAll: OperationRead[List[PersistedVenue]] =
     sql"SELECT ${persistedVenueCodec.columnList} FROM venue"
       .query(persistedVenueCodec.all())
 
-  val selectById: Template[VenueId, Option[PersistedVenue]] =
-    sql"SELECT ${persistedVenueCodec.columnList} FROM venue WHERE id = "
-      .param(venueIdType)
+  def selectById(id: VenueId): OperationRead.Query[Option[PersistedVenue]] =
+    sql"SELECT ${persistedVenueCodec.columnList} FROM venue WHERE id = ${venueIdType(id)}"
       .query(persistedVenueCodec.maxOne())
 //stop

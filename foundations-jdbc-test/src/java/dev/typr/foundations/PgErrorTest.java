@@ -2,6 +2,7 @@ package dev.typr.foundations;
 
 import static org.junit.Assert.*;
 
+import java.util.Optional;
 import org.junit.Test;
 
 public class PgErrorTest {
@@ -13,20 +14,20 @@ public class PgErrorTest {
             "ERROR",
             "duplicate key value violates unique constraint \"users_pkey\"",
             "23505",
-            "Key (id)=(1) already exists.",
-            "Consider using ON CONFLICT.",
-            null,
-            null,
-            null,
-            null,
-            "public",
-            "users",
-            "id",
-            "integer",
-            "users_pkey",
-            "nbtinsert.c",
-            570,
-            "_bt_check_unique");
+            Optional.of("Key (id)=(1) already exists."),
+            Optional.of("Consider using ON CONFLICT."),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of("public"),
+            Optional.of("users"),
+            Optional.of("id"),
+            Optional.of("integer"),
+            Optional.of("users_pkey"),
+            Optional.of("nbtinsert.c"),
+            Optional.of(570),
+            Optional.of("_bt_check_unique"));
 
     String formatted = err.formatted();
     assertTrue(formatted.contains("ERROR: duplicate key value violates unique constraint"));
@@ -47,20 +48,20 @@ public class PgErrorTest {
             "ERROR",
             "syntax error at or near \"SELEC\"",
             "42601",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
 
     String formatted = err.formatted();
     assertTrue(formatted.contains("ERROR: syntax error"));
@@ -77,22 +78,22 @@ public class PgErrorTest {
             "ERROR",
             "syntax error at or near \"SELEC\"",
             "42601",
-            null,
-            null,
-            1,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of(1),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
 
-    String formatted = err.formatted("SELEC id FROM users WHERE age > 30");
+    String formatted = err.formatted(Optional.of("SELEC id FROM users WHERE age > 30"));
     assertTrue(formatted.contains("SELEC id FROM users WHERE age > 30"));
     assertTrue(formatted.contains("└──"));
 
@@ -120,23 +121,23 @@ public class PgErrorTest {
             "ERROR",
             "column \"agee\" does not exist",
             "42703",
-            null,
-            "Perhaps you meant to reference the column \"age\".",
-            32,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            Optional.empty(),
+            Optional.of("Perhaps you meant to reference the column \"age\"."),
+            Optional.of(32),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
 
     String sql = "SELECT id FROM users WHERE agee > 30";
-    String formatted = err.formatted(sql);
+    String formatted = err.formatted(Optional.of(sql));
 
     assertTrue(formatted.contains("└──"));
     assertTrue(formatted.contains("Hint: Perhaps you meant"));
@@ -159,23 +160,23 @@ public class PgErrorTest {
             "ERROR",
             "syntax error",
             "42601",
-            null,
-            null,
-            5,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of(5),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
 
     String sql = "    SELEC id FROM users";
-    String formatted = err.formatted(sql);
+    String formatted = err.formatted(Optional.of(sql));
     assertTrue(formatted.contains("SELEC id FROM users"));
     assertTrue(formatted.contains("└──"));
   }
@@ -187,20 +188,20 @@ public class PgErrorTest {
             "ERROR",
             "division by zero",
             "22012",
-            null,
-            null,
-            null,
-            "PL/pgSQL function my_func() line 3 at assignment",
-            5,
-            "SELECT 1/0",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of("PL/pgSQL function my_func() line 3 at assignment"),
+            Optional.of(5),
+            Optional.of("SELECT 1/0"),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
 
     String formatted = err.formatted();
     assertTrue(formatted.contains("Where: PL/pgSQL function"));
@@ -215,22 +216,22 @@ public class PgErrorTest {
             "ERROR",
             "syntax error at end of input",
             "42601",
-            null,
-            null,
-            1,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of(1),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
 
-    String formatted = err.formatted("");
+    String formatted = err.formatted(Optional.of(""));
     assertTrue(formatted.contains("ERROR: syntax error at end of input"));
     assertFalse(formatted.contains("└──"));
   }
@@ -242,22 +243,22 @@ public class PgErrorTest {
             "ERROR",
             "syntax error",
             "42601",
-            null,
-            null,
-            1,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of(1),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
 
-    String formatted = err.formatted("X");
+    String formatted = err.formatted(Optional.of("X"));
     assertTrue(formatted.contains("X"));
     assertTrue(formatted.contains("└──"));
 
@@ -280,22 +281,22 @@ public class PgErrorTest {
             "ERROR",
             "syntax error",
             "42601",
-            null,
-            null,
-            100,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of(100),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
 
-    String formatted = err.formatted("SELECT 1+2");
+    String formatted = err.formatted(Optional.of("SELECT 1+2"));
     assertTrue(formatted.contains("SELECT 1+2"));
     assertFalse(formatted.contains("└──"));
   }
@@ -307,23 +308,23 @@ public class PgErrorTest {
             "ERROR",
             "column \"baz\" does not exist",
             "42703",
-            null,
-            null,
-            25,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of(25),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
 
     String sql = "SELECT foo, bar,\n        baz FROM t";
-    String formatted = err.formatted(sql);
+    String formatted = err.formatted(Optional.of(sql));
     assertTrue(formatted.contains("└──"));
     assertTrue(formatted.contains("baz FROM t"));
   }
@@ -335,20 +336,20 @@ public class PgErrorTest {
             "",
             "some message",
             "42601",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
 
     String formatted = err.formatted();
     assertTrue(formatted.contains("some message"));
@@ -359,8 +360,10 @@ public class PgErrorTest {
   public void testEmptyMessage() {
     var err =
         new PgError(
-            "ERROR", "", "42601", null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null);
+            "ERROR", "", "42601", Optional.empty(), Optional.empty(), Optional.empty(),
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+            Optional.empty());
 
     String formatted = err.formatted();
     assertTrue(formatted.contains("ERROR"));

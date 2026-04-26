@@ -39,8 +39,8 @@ public interface OperationExecutor {
   <Row> java.util.List<Row> executeUpdateReturningEach(
       Operation.UpdateReturningEach<Row> op, InstrumentationContext ctx);
 
-  <Row> java.util.Optional<int[]> executeUpdateManyTemplate(
-      Operation.UpdateManyTemplate<Row> op, InstrumentationContext ctx);
+  <Row> java.util.Optional<int[]> executeBatchUpdate(
+      Operation.BatchUpdate<Row> op, InstrumentationContext ctx);
 
   <Row> long executeStreamingCopy(Operation.StreamingCopy<Row> op, InstrumentationContext ctx);
 

@@ -122,7 +122,7 @@ public sealed interface OperationRead<Out> extends Operation<Out>
     return combine(other).map(t -> t._1());
   }
 
-  default <B> OperationRead<B> then(TemplateRead<Out, B> next) {
+  default <B> OperationRead<B> thenRead(java.util.function.Function<Out, OperationRead<B>> next) {
     return new Then<>(this, next);
   }
 
@@ -264,15 +264,12 @@ public sealed interface OperationRead<Out> extends Operation<Out>
     }
   }
 
-  record Then<A, B>(OperationRead<A> source, TemplateRead<A, B> continuation)
+  record Then<A, B>(
+      OperationRead<A> source, java.util.function.Function<A, OperationRead<B>> continuation)
       implements OperationRead<B> {
     @Override
     public String description(boolean verbose) {
-      return "Then("
-          + source.description(verbose)
-          + " -> "
-          + continuation.description(verbose)
-          + ")";
+      return "Then(" + source.description(verbose) + " -> ?)";
     }
 
     @Override

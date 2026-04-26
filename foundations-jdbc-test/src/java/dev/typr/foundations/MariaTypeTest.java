@@ -623,12 +623,7 @@ public class MariaTypeTest {
         RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
-    Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
-        .paramRow(parser)
-        .append(")")
-        .update()
-        .onMany(List.of(value).iterator())
-        .run(conn);
+    Fragment.insertMany(tableName, parser, List.of(value).iterator()).run(conn);
   }
 
   static <A> void testCase(Connection conn, MariaTypeAndExample<A> t) throws SQLException {

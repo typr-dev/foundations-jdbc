@@ -5,24 +5,24 @@ import java.time.Instant
 import java.util.*
 
 object TicketRepo {
-    val ticketsByEvent: Template<EventId, List<Ticket>> =
+    fun ticketsByEvent(eventId: EventId): OperationRead<List<Ticket>> =
         sql { "SELECT ${ticketCodec.columnList} FROM ticket WHERE event_id = " }
-            .param(eventIdType)
+            .value(eventIdType, eventId)
             .query(ticketCodec.all())
 
-    val ticketById: Template<TicketId, Ticket?> =
+    fun ticketById(id: TicketId): OperationRead<Ticket?> =
         sql { "SELECT ${ticketCodec.columnList} FROM ticket WHERE id = " }
-            .param(ticketIdType)
+            .value(ticketIdType, id)
             .query(ticketCodec.maxOne())
 
-    val countTicketsByEvent: Template<EventId, Long> =
+    fun countTicketsByEvent(eventId: EventId): OperationRead<Long> =
         sql { "SELECT count(*) FROM ticket WHERE event_id = " }
-            .param(eventIdType)
+            .value(eventIdType, eventId)
             .query(RowCodec.of(DuckDbTypes.bigint).exactlyOne())
 
-    val revenueByEvent: Template<EventId, Money> =
+    fun revenueByEvent(eventId: EventId): OperationRead<Money> =
         sql { "SELECT coalesce(sum(price), 0) FROM ticket WHERE event_id = " }
-            .param(eventIdType)
+            .value(eventIdType, eventId)
             .query(RowCodec.of(moneyType).exactlyOne())
 
     val eventSummaries: OperationRead<List<EventSummary>> =
@@ -36,23 +36,21 @@ object TicketRepo {
         }
             .query(eventSummaryCodec.all())
 
-    val insertTicket: RowTemplate.Query<Ticket, Ticket> =
-        Fragment.insertIntoReturning("ticket", ticketCodec)
-
     fun purchaseTicket(
         eventId: EventId, tier: TicketTier, holderName: String, holderEmail: String?,
         price: Money, seatNumbers: List<Int>
-    ): OperationRead.Query<Ticket> = insertTicket.on(
+    ): OperationRead.Query<Ticket> = Fragment.insertOneReturning(
+        "ticket", ticketCodec,
         Ticket(
-                id = TicketId(UUID.randomUUID()),
-                eventId = eventId,
-                tier = tier,
-                holderName = holderName,
-                holderEmail = holderEmail,
-                price = price,
-                purchased = Instant.now(),
-                seatNumbers = seatNumbers
-            )
+            id = TicketId(UUID.randomUUID()),
+            eventId = eventId,
+            tier = tier,
+            holderName = holderName,
+            holderEmail = holderEmail,
+            price = price,
+            purchased = Instant.now(),
+            seatNumbers = seatNumbers
         )
+    )
 
 }

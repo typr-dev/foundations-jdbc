@@ -8,7 +8,7 @@ class VoidProcedure {
 
     //start
     // A void procedure — no OUT parameters, just side effects
-    val auditLog =
+    val auditLog: DbProcedure.Def2_0<String, String> =
         DbProcedure.define("audit_log")
             .input(PgTypes.text)       // action
             .input(PgTypes.text)       // details

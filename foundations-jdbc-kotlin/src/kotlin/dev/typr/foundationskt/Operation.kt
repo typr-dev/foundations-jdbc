@@ -60,8 +60,8 @@ sealed class Operation<Out> : Analyzable {
     fun <B> productL(other: Operation<B>): Operation<Out> =
         combine(other).map { (a, _) -> a }
 
-    open fun <B> then(template: Template<Out, B>): Operation<B> =
-        JavaWrapped(underlying.then(template.underlying))
+    open fun <B> then(next: (Out) -> Operation<B>): Operation<B> =
+        ThenOp(this, next)
 
     open fun named(name: String): Operation<Out> =
         JavaWrapped(underlying.named(name))
@@ -106,7 +106,7 @@ sealed class Operation<Out> : Analyzable {
             get() = java.map { it.toList() }
     }
 
-    class UpdateManyTemplate<Row>(private val java: dev.typr.foundations.Operation.UpdateManyTemplate<Row>) : Operation<IntArray?>() {
+    class BatchUpdate<Row>(private val java: dev.typr.foundations.Operation.BatchUpdate<Row>) : Operation<IntArray?>() {
         override val underlying: dev.typr.foundations.Operation<IntArray?>
             get() = java.map { it.orElse(null) }
     }
@@ -135,10 +135,13 @@ sealed class Operation<Out> : Analyzable {
 
     internal class ThenOp<A, Out>(
         private val source: Operation<A>,
-        private val continuation: Template<A, Out>
+        private val continuation: (A) -> Operation<Out>
     ) : Operation<Out>() {
         override val underlying: dev.typr.foundations.Operation<Out>
-            get() = dev.typr.foundations.Operation.createThen(source.underlying, continuation.underlying)
+            get() = dev.typr.foundations.Operation.createThen(
+                source.underlying,
+                java.util.function.Function { a: A -> continuation(a).underlying }
+            )
     }
 
     internal class JavaWrapped<Out>(

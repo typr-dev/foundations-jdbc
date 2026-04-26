@@ -49,6 +49,22 @@ public interface Transactor extends AutoCloseable {
    */
   <T> T transactRead(SqlFunction<ConnectionRead, T> fn);
 
+  /** Like {@link #transact}, but for side-effecting blocks that don't return a value. */
+  default void transactVoid(SqlConsumer<Connection> fn) {
+    transact(conn -> {
+      fn.apply(conn);
+      return null;
+    });
+  }
+
+  /** Like {@link #transactRead}, but for side-effecting blocks that don't return a value. */
+  default void transactReadVoid(SqlConsumer<ConnectionRead> fn) {
+    transactRead(conn -> {
+      fn.apply(conn);
+      return null;
+    });
+  }
+
   // ========== Convenience ==========
 
   /** Execute a query and return all rows. */

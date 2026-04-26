@@ -15,13 +15,13 @@ object FragmentRowGeneratedKeys:
     .field("created_at", PgTypes.timestamptz)(_.createdAt)
     .build(Product.apply)
 
-  val conn: Connection = null // placeholder
-
   // start
   // For databases without RETURNING (DB2, Oracle, SQL Server, MariaDB):
-  def insertGeneratedKey(product: Product): Int =
+  def insertGeneratedKey(product: Product)(using Connection): Int =
     Fragment
-      .insertIntoGeneratedKeys("product", productCodec, Array("id"), RowCodec.of(PgTypes.int4).exactlyOne(), "id")
-      .on(product)
-      .run(conn)
+      .insertOneGenerated(
+        "product", productCodec, product,
+        Array("id"), RowCodec.of(PgTypes.int4).exactlyOne(), "id"
+      )
+      .run
   // stop

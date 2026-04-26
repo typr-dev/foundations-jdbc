@@ -80,6 +80,7 @@ public sealed interface Fragment {
       case Param<?> p -> new Value<>(values.next(), (DbType<Object>) p.type());
       case Append a -> new Append(a.a().fill(values), a.b().fill(values));
       case Concat c -> new Concat(c.frags().stream().map(f -> f.fill(values)).toList());
+      case Branch b -> new Branch(b.variants(), b.execution().fill(values));
       case Optionally ignored ->
           throw new UnsupportedOperationException(
               "Optionally nodes must be resolved via OptionallyResolver.resolve(), not fill()");
@@ -92,6 +93,7 @@ public sealed interface Fragment {
       case Param<?> p -> 1;
       case Append a -> countParams(a.a()) + countParams(a.b());
       case Concat c -> c.frags().stream().mapToInt(Fragment::countParams).sum();
+      case Branch b -> countParams(b.execution());
       case Optionally o ->
           throw new IllegalArgumentException("Cannot count params of nested Optionally");
       default -> 0;
@@ -122,12 +124,108 @@ public sealed interface Fragment {
       case Concat c -> {
         for (Fragment f : c.frags()) f.collectParamPositions(idx, positions);
       }
+      case Branch b -> b.execution().collectParamPositions(idx, positions);
       default -> {}
     }
   }
 
   default Fragment append(Fragment other) {
     return new Append(this, other);
+  }
+
+  // ========== Conditional append DSL ==========
+
+  /**
+   * Begin a conditional append driven by an {@link java.util.Optional} value.
+   *
+   * <pre>{@code
+   * Fragment.of("SELECT * FROM orders WHERE 1=1")
+   *     .optionally(optName).append(" AND name LIKE ", PgTypes.text)
+   *     .optionally(optPrice).append(" AND price < ", PgTypes.decimal)
+   *     .optionally(onlyActive).append(" AND active = TRUE")
+   *     .optionally(ascending).append(" ORDER BY id ASC", " ORDER BY id DESC")
+   *     .query(codec.all());
+   * }</pre>
+   *
+   * <p>Each {@code .optionally().append()} creates a branch point that Query Analysis expands —
+   * all possible SQL shapes are checked against the database, not just the one that happens
+   * to execute at runtime.
+   */
+  default <T> OptionallyValue<T> optionally(java.util.Optional<T> value) {
+    return new OptionallyValue<>(this, value);
+  }
+
+  /**
+   * Begin a conditional append driven by a boolean flag.
+   * The returned {@link OptionallyFlag} lets you include/skip SQL or choose between two alternatives.
+   */
+  default OptionallyFlag optionally(boolean condition) {
+    return new OptionallyFlag(this, condition);
+  }
+
+  /**
+   * Conditional append with a value to bind. Returned by
+   * {@link Fragment#optionally(java.util.Optional)}.
+   * The value MUST be rendered into the SQL via {@link #append(String, DbType)}.
+   */
+  record OptionallyValue<T>(Fragment base, java.util.Optional<T> value) {
+
+    /** Append SQL with the bound value when present, or nothing when absent. */
+    public Fragment append(String sql, DbType<T> type) {
+      Fragment paramFragment = Fragment.of(sql).param(type).done();
+      Fragment execution = value
+          .<Fragment>map(v -> Fragment.of(sql).value(type, v))
+          .orElse(EMPTY);
+      return base.append(new Branch(List.of(paramFragment, EMPTY), execution));
+    }
+
+    /** Append SQL with the bound value when present, or the alternative SQL when absent. */
+    public Fragment append(String sql, DbType<T> type, String whenAbsent) {
+      Fragment paramFragment = Fragment.of(sql).param(type).done();
+      Fragment alt = Fragment.of(whenAbsent);
+      Fragment execution = value
+          .<Fragment>map(v -> Fragment.of(sql).value(type, v))
+          .orElse(alt);
+      return base.append(new Branch(List.of(paramFragment, alt), execution));
+    }
+  }
+
+  /**
+   * Conditional append driven by a boolean flag. Returned by {@link Fragment#optionally(boolean)}.
+   * Include or skip SQL, or choose between two alternatives.
+   */
+  record OptionallyFlag(Fragment base, boolean condition) {
+
+    /** Append SQL when true, or nothing when false. */
+    public Fragment append(String sql) {
+      Fragment inner = Fragment.of(sql);
+      return base.append(new Branch(
+          List.of(inner, EMPTY),
+          condition ? inner : EMPTY));
+    }
+
+    /** Append fragment when true, or nothing when false. */
+    public Fragment append(Fragment fragment) {
+      return base.append(new Branch(
+          List.of(fragment, EMPTY),
+          condition ? fragment : EMPTY));
+    }
+
+    /** Choose between two SQL strings. */
+    public Fragment append(String whenTrue, String whenFalse) {
+      Fragment a = Fragment.of(whenTrue);
+      Fragment b = Fragment.of(whenFalse);
+      return base.append(new Branch(
+          List.of(a, b),
+          condition ? a : b));
+    }
+
+    /** Choose between two fragments. */
+    public Fragment append(Fragment whenTrue, Fragment whenFalse) {
+      return base.append(new Branch(
+          List.of(whenTrue, whenFalse),
+          condition ? whenTrue : whenFalse));
+    }
   }
 
   default <T> OperationRead.Query<T> query(ResultSetParser<T> parser) {
@@ -229,72 +327,107 @@ public sealed interface Fragment {
     return new Literal("");
   }
 
-  static <Row> RowTemplate.Update<Row> insertInto(
-      String table, RowCodecNamed<Row> codec, String... except) {
-    return of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
-        .paramRow(codec, except)
-        .append(")")
-        .update();
+  // ─────────────────────────────────────────────────────────────────────
+  // Plain INSERT
+  // ─────────────────────────────────────────────────────────────────────
+
+  /** INSERT one row. {@code except} skips columns with database defaults (auto-increment, etc.). */
+  static <Row> Operation.Update insertOne(
+      String table, RowCodecNamed<Row> codec, Row row, String... except) {
+    return insertSkeleton(table, codec, except).updateOne(row);
   }
 
-  /** PostgreSQL/DuckDB: INSERT ... RETURNING all columns. */
-  static <Row> RowTemplate.Query<Row, Row> insertIntoReturning(
-      String table, RowCodecNamed<Row> codec, String... except) {
+  /** Batch-execute INSERT for an iterator of rows. {@code except} skips DB-defaulted columns. */
+  static <Row> Operation.BatchUpdate<Row> insertMany(
+      String table, RowCodecNamed<Row> codec, Iterator<Row> rows, String... except) {
+    return insertSkeleton(table, codec, except).updateMany(rows);
+  }
+
+  /** PostgreSQL/DuckDB: INSERT ... RETURNING all of {@code codec}'s columns. */
+  static <Row> OperationRead.Query<Row> insertOneReturning(
+      String table, RowCodecNamed<Row> codec, Row row, String... except) {
     String allCols = String.join(", ", codec.columnNames());
-    return of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
-        .paramRow(codec, except)
-        .append(") RETURNING " + allCols)
-        .query(codec.exactlyOne());
+    return insertSkeleton(table, codec, except)
+        .append(" RETURNING " + allCols)
+        .updateReturning(row);
   }
 
-  static <In, Out> RowTemplate.Query<In, Out> insertIntoReturning(
-      String table, RowCodecNamed<In> writeCodec, RowCodecNamed<Out> readCodec) {
-    String cols = String.join(", ", writeCodec.columnNames());
+  /** PostgreSQL/DuckDB: INSERT ... RETURNING using {@code readCodec}'s columns and codec. */
+  static <In, Out> OperationRead.Query<Out> insertOneReturning(
+      String table, RowCodecNamed<In> writeCodec, In row, RowCodecNamed<Out> readCodec) {
     String returnCols = String.join(", ", readCodec.columnNames());
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
-        .paramRow(writeCodec)
-        .append(") RETURNING " + returnCols)
-        .query(readCodec.exactlyOne());
+    return insertSkeleton(table, writeCodec)
+        .append(" RETURNING " + returnCols)
+        .updateReturning(row, readCodec.exactlyOne());
   }
 
   /**
-   * Insert a row and retrieve generated keys via JDBC's {@code getGeneratedKeys()}. Works on
-   * databases that don't support RETURNING clause (Oracle, SQL Server, MariaDB, DB2). Also works on
-   * PostgreSQL and DuckDB, but {@link #insertIntoReturning} is more idiomatic there.
-   *
-   * <p>The {@code generatedColumns} array specifies which columns to retrieve. Behavior varies by
-   * database:
-   *
-   * <ul>
-   *   <li><b>Oracle</b>: ROWID is returned by default; specify column names for actual values
-   *   <li><b>SQL Server</b>: supports any columns, returns via OUTPUT INSERTED
-   *   <li><b>MariaDB</b>: only auto-increment columns are returned
-   *   <li><b>PostgreSQL/DuckDB</b>: works but prefer {@link #insertIntoReturning}
-   * </ul>
+   * INSERT with JDBC's {@code getGeneratedKeys()}. Use on dialects without {@code RETURNING}
+   * (DB2, Oracle, SQL Server, MariaDB).
    */
-  static <Row, Out> RowTemplate.GeneratedKeys<Row, Out> insertIntoGeneratedKeys(
+  static <Row, Out> Operation.UpdateReturningGeneratedKeys<Out> insertOneGenerated(
       String table,
       RowCodecNamed<Row> codec,
+      Row row,
       String[] generatedColumns,
       ResultSetParser<Out> parser,
       String... except) {
-    RowParamBuilder<Row> rpb =
-        of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
-            .paramRow(codec, except);
-    return rpb.generatedKeys(generatedColumns, parser);
+    return insertSkeleton(table, codec, except).updateOneGenerated(row, generatedColumns, parser);
   }
 
-  /**
-   * PostgreSQL: INSERT ... ON CONFLICT (conflictColumns) DO UPDATE SET ... Returns an update
-   * template that performs an upsert. All columns except the conflict columns are included in the
-   * SET clause.
-   *
-   * <pre>{@code
-   * var upsert = Fragment.upsert("users", userCodec, "email");
-   * executor.execute(upsert.on(new User("alice", "alice@example.com", 30)));
-   * }</pre>
-   */
-  static <Row> RowTemplate.Update<Row> upsert(
+  // ─────────────────────────────────────────────────────────────────────
+  // PostgreSQL UPSERT (ON CONFLICT DO UPDATE SET ...)
+  // ─────────────────────────────────────────────────────────────────────
+
+  /** PG: INSERT ... ON CONFLICT (conflictColumns) DO UPDATE SET ... applied to one row. */
+  static <Row> Operation.Update upsertOne(
+      String table, RowCodecNamed<Row> codec, Row row, String... conflictColumns) {
+    return upsertSkeleton(table, codec, conflictColumns).updateOne(row);
+  }
+
+  /** PG: batch UPSERT across an iterator of rows. */
+  static <Row> Operation.BatchUpdate<Row> upsertMany(
+      String table, RowCodecNamed<Row> codec, Iterator<Row> rows, String... conflictColumns) {
+    return upsertSkeleton(table, codec, conflictColumns).updateMany(rows);
+  }
+
+  /** PG: UPSERT ... RETURNING the resulting row. */
+  static <Row> OperationRead.Query<Row> upsertOneReturning(
+      String table, RowCodecNamed<Row> codec, Row row, String... conflictColumns) {
+    String cols = String.join(", ", codec.columnNames());
+    return upsertSkeleton(table, codec, conflictColumns)
+        .append(" RETURNING " + cols)
+        .updateReturning(row);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // PostgreSQL INSERT IGNORE (ON CONFLICT DO NOTHING)
+  // ─────────────────────────────────────────────────────────────────────
+
+  /** PG: INSERT ... ON CONFLICT (conflictColumns) DO NOTHING for one row. */
+  static <Row> Operation.Update insertIgnoreOne(
+      String table, RowCodecNamed<Row> codec, Row row, String... conflictColumns) {
+    return insertIgnoreSkeleton(table, codec, conflictColumns).updateOne(row);
+  }
+
+  /** PG: batch INSERT ... ON CONFLICT DO NOTHING across an iterator of rows. */
+  static <Row> Operation.BatchUpdate<Row> insertIgnoreMany(
+      String table, RowCodecNamed<Row> codec, Iterator<Row> rows, String... conflictColumns) {
+    return insertIgnoreSkeleton(table, codec, conflictColumns).updateMany(rows);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Internal skeleton builders — package-private so the row-driven entry
+  // points above can share the SQL-shape construction logic.
+  // ─────────────────────────────────────────────────────────────────────
+
+  private static <Row> RowParamBuilder<Row> insertSkeleton(
+      String table, RowCodecNamed<Row> codec, String... except) {
+    Fragment base = of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (");
+    return RowParamBuilder.from(base, codec, except).append(")");
+  }
+
+  private static <Row> RowParamBuilder<Row> upsertSkeleton(
       String table, RowCodecNamed<Row> codec, String... conflictColumns) {
     if (conflictColumns.length == 0)
       throw new IllegalArgumentException("At least one conflict column required");
@@ -308,51 +441,20 @@ public sealed interface Fragment {
       }
     }
     String setClauses = String.join(", ", updateCols);
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
-        .paramRow(codec)
-        .append(") ON CONFLICT (" + conflict + ") DO UPDATE SET " + setClauses)
-        .update();
+    Fragment base = of("INSERT INTO " + table + " (" + cols + ") VALUES (");
+    return RowParamBuilder.from(base, codec)
+        .append(") ON CONFLICT (" + conflict + ") DO UPDATE SET " + setClauses);
   }
 
-  /**
-   * PostgreSQL: INSERT ... ON CONFLICT (conflictColumns) DO NOTHING. Inserts the row only if no
-   * conflict exists. Returns the number of affected rows (0 or 1).
-   */
-  static <Row> RowTemplate.Update<Row> insertIgnore(
+  private static <Row> RowParamBuilder<Row> insertIgnoreSkeleton(
       String table, RowCodecNamed<Row> codec, String... conflictColumns) {
     if (conflictColumns.length == 0)
       throw new IllegalArgumentException("At least one conflict column required");
     String cols = String.join(", ", codec.columnNames());
     String conflict = String.join(", ", conflictColumns);
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
-        .paramRow(codec)
-        .append(") ON CONFLICT (" + conflict + ") DO NOTHING")
-        .update();
-  }
-
-  /**
-   * PostgreSQL: INSERT ... ON CONFLICT ... DO UPDATE SET ... RETURNING. Combines upsert with
-   * returning the resulting row.
-   */
-  static <Row> RowTemplate.Query<Row, Row> upsertReturning(
-      String table, RowCodecNamed<Row> codec, String... conflictColumns) {
-    if (conflictColumns.length == 0)
-      throw new IllegalArgumentException("At least one conflict column required");
-    String cols = String.join(", ", codec.columnNames());
-    String conflict = String.join(", ", conflictColumns);
-    Set<String> conflictSet = Set.of(conflictColumns);
-    List<String> updateCols = new ArrayList<>();
-    for (String name : codec.columnNames()) {
-      if (!conflictSet.contains(name)) {
-        updateCols.add(name + " = EXCLUDED." + name);
-      }
-    }
-    String setClauses = String.join(", ", updateCols);
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
-        .paramRow(codec)
-        .append(
-            ") ON CONFLICT (" + conflict + ") DO UPDATE SET " + setClauses + " RETURNING " + cols)
-        .query(codec.exactlyOne());
+    Fragment base = of("INSERT INTO " + table + " (" + cols + ") VALUES (");
+    return RowParamBuilder.from(base, codec)
+        .append(") ON CONFLICT (" + conflict + ") DO NOTHING");
   }
 
   private static String columnList(RowCodecNamed<?> codec, String... except) {
@@ -558,7 +660,7 @@ public sealed interface Fragment {
 
     @Override
     public void collectParameterTypes(List<DbType<?>> types) {
-      // Optionally nodes do not collect inner params — managed by Template layer
+      // Optionally nodes do not collect inner params — managed by OptionallyResolver
     }
 
     @Override
@@ -608,6 +710,43 @@ public sealed interface Fragment {
       for (Fragment frag : frags) {
         frag.collectParams(collector);
       }
+    }
+  }
+
+  /**
+   * A conditional branch point in the fragment tree. At execution time, only the {@code execution}
+   * fragment is rendered and bound. At analysis time, {@link OptionallyResolver#analysisVariants}
+   * expands all {@code variants} to check every possible SQL shape.
+   *
+   * <p>Created via the {@link #when} DSL. Users don't construct this directly.
+   *
+   * @param variants  all possible SQL shapes (for QA to check)
+   * @param execution the concrete fragment to use at runtime
+   */
+  record Branch(List<Fragment> variants, Fragment execution) implements Fragment {
+    @Override
+    public void render(StringBuilder sb) {
+      execution.render(sb);
+    }
+
+    @Override
+    public void renderInterpolated(StringBuilder sb) {
+      execution.renderInterpolated(sb);
+    }
+
+    @Override
+    public void set(PreparedStatement stmt, AtomicInteger idx) throws SQLException {
+      execution.set(stmt, idx);
+    }
+
+    @Override
+    public void collectParameterTypes(List<DbType<?>> types) {
+      execution.collectParameterTypes(types);
+    }
+
+    @Override
+    public void collectParams(ParamCollector collector) {
+      execution.collectParams(collector);
     }
   }
 
@@ -759,55 +898,6 @@ public sealed interface Fragment {
     return new ParamBuilders.ParamBuilder1<>(append(new Param<>(type)), type);
   }
 
-  default ParamBuilders.ParamBuilder1<Boolean> optionally(Fragment inner) {
-    int n = countParams(inner);
-    if (n != 0)
-      throw new IllegalArgumentException(
-          "optionally(Fragment) requires 0 inner params, got "
-              + n
-              + ". Use optionally(ParamBuilder) for parameterized fragments.");
-    return new ParamBuilders.ParamBuilder1<>(append(new Optionally(inner, 0)), null);
-  }
-
-  @SuppressWarnings("unchecked")
-  default <A> ParamBuilders.ParamBuilder1<java.util.Optional<A>> optionally(
-      ParamBuilders.ParamBuilder1<A> builder) {
-    Fragment inner = builder.done();
-    return new ParamBuilders.ParamBuilder1<>(
-        append(new Optionally(inner, countParams(inner))), null);
-  }
-
-  @SuppressWarnings("unchecked")
-  default <A, B> ParamBuilders.ParamBuilder1<java.util.Optional<Tuple.Tuple2<A, B>>> optionally(
-      ParamBuilders.ParamBuilder2<A, B> builder) {
-    Fragment inner = builder.done();
-    return new ParamBuilders.ParamBuilder1<>(
-        append(new Optionally(inner, countParams(inner))), null);
-  }
-
-  @SuppressWarnings("unchecked")
-  default <A, B, C>
-      ParamBuilders.ParamBuilder1<java.util.Optional<Tuple.Tuple3<A, B, C>>> optionally(
-          ParamBuilders.ParamBuilder3<A, B, C> builder) {
-    Fragment inner = builder.done();
-    return new ParamBuilders.ParamBuilder1<>(
-        append(new Optionally(inner, countParams(inner))), null);
-  }
-
-  default <Row> RowParamBuilder<Row> paramRow(RowCodecNamed<Row> codec, String... except) {
-    List<DbType<?>> types = codec.columns();
-    List<String> names = codec.columnNames();
-    Set<String> exceptSet = except.length > 0 ? Set.of(except) : Set.of();
-    List<Fragment> fragments = new ArrayList<>();
-    List<Integer> indices = new ArrayList<>();
-    for (int i = 0; i < types.size(); i++) {
-      if (exceptSet.contains(names.get(i))) continue;
-      fragments.add(new Param<>(types.get(i)));
-      indices.add(i);
-    }
-    int[] includedIndices = indices.stream().mapToInt(Integer::intValue).toArray();
-    return new RowParamBuilder<>(append(Fragment.comma(fragments)), codec, includedIndices);
-  }
 
   @SuppressWarnings("unchecked")
   default <Row> Fragment row(RowCodecNamed<Row> codec, Row row, String... except) {

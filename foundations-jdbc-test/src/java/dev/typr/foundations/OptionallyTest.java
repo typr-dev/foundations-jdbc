@@ -28,6 +28,52 @@ public class OptionallyTest {
           .field("active", DuckDbTypes.boolean_, Product::active)
           .build(Product::new);
 
+  static OperationRead<List<Product>> findProductsByActiveFlag(String table, boolean activeOnly) {
+    return Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
+        .optionally(activeOnly).append(" AND active = true")
+        .append(" ORDER BY name")
+        .query(productCodec.all());
+  }
+
+  static OperationRead<List<Product>> findProductsByName(String table, Optional<String> name) {
+    return Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
+        .optionally(name).append(" AND name = ", DuckDbTypes.varchar)
+        .append(" ORDER BY name")
+        .query(productCodec.all());
+  }
+
+  static OperationRead<List<Product>> findProductsMulti(
+      String table,
+      Optional<String> name,
+      Optional<BigDecimal> minPrice,
+      boolean activeOnly) {
+    return Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
+        .optionally(name).append(" AND name = ", DuckDbTypes.varchar)
+        .optionally(minPrice).append(" AND price >= ", DuckDbTypes.decimalOf(10, 2))
+        .optionally(activeOnly).append(" AND active = true")
+        .append(" ORDER BY name")
+        .query(productCodec.all());
+  }
+
+  static OperationRead<List<Product>> findProductsByActiveAndName(
+      String table, boolean active, Optional<String> name) {
+    return Fragment.of("SELECT name, price, active FROM " + table + " WHERE active = ")
+        .value(DuckDbTypes.boolean_, active)
+        .optionally(name).append(" AND name = ", DuckDbTypes.varchar)
+        .append(" ORDER BY name")
+        .query(productCodec.all());
+  }
+
+  static OperationRead<List<Product>> findProductsByPriceRange(
+      String table, Optional<BigDecimal> minPrice, Optional<BigDecimal> maxPrice) {
+    var decType = DuckDbTypes.decimalOf(10, 2);
+    return Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
+        .optionally(minPrice).append(" AND price >= ", decType)
+        .optionally(maxPrice).append(" AND price <= ", decType)
+        .append(" ORDER BY name")
+        .query(productCodec.all());
+  }
+
   @Test
   public void testBooleanOptionally() throws SQLException {
     try (java.sql.Connection jdbcConn = DriverManager.getConnection("jdbc:duckdb:")) {
@@ -42,17 +88,12 @@ public class OptionallyTest {
               "INSERT INTO " + table + " VALUES ('Widget', 9.99, true), ('Gadget', 19.99, false)");
 
       var conn = new ConnectionJdbc(jdbcConn);
-      var template =
-          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-              .optionally(Fragment.of(" AND active = true"))
-              .append(" ORDER BY name")
-              .query(productCodec.all());
 
-      List<Product> result1 = template.on(true).run(conn);
+      List<Product> result1 = findProductsByActiveFlag(table, true).run(conn);
       assertEquals(1, result1.size());
       assertEquals("Widget", result1.getFirst().name());
 
-      List<Product> result2 = template.on(false).run(conn);
+      List<Product> result2 = findProductsByActiveFlag(table, false).run(conn);
       assertEquals(2, result2.size());
     }
   }
@@ -74,17 +115,12 @@ public class OptionallyTest {
                   + " true)");
 
       var conn = new ConnectionJdbc(jdbcConn);
-      var template =
-          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-              .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-              .append(" ORDER BY name")
-              .query(productCodec.all());
 
-      List<Product> result1 = template.on(Optional.of("Widget")).run(conn);
+      List<Product> result1 = findProductsByName(table, Optional.of("Widget")).run(conn);
       assertEquals(1, result1.size());
       assertEquals("Widget", result1.getFirst().name());
 
-      List<Product> result2 = template.on(Optional.empty()).run(conn);
+      List<Product> result2 = findProductsByName(table, Optional.empty()).run(conn);
       assertEquals(3, result2.size());
     }
   }
@@ -106,24 +142,20 @@ public class OptionallyTest {
                   + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
 
       var conn = new ConnectionJdbc(jdbcConn);
-      var template =
-          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-              .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-              .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimalOf(10, 2)))
-              .optionally(Fragment.of(" AND active = true"))
-              .append(" ORDER BY name")
-              .query(productCodec.all());
 
-      List<Product> result1 = template.on(Optional.of("Widget"), Optional.empty(), false).run(conn);
+      List<Product> result1 =
+          findProductsMulti(table, Optional.of("Widget"), Optional.empty(), false).run(conn);
       assertEquals(1, result1.size());
       assertEquals("Widget", result1.getFirst().name());
 
       List<Product> result2 =
-          template.on(Optional.empty(), Optional.of(new BigDecimal("6.00")), true).run(conn);
+          findProductsMulti(table, Optional.empty(), Optional.of(new BigDecimal("6.00")), true)
+              .run(conn);
       assertEquals(1, result2.size());
       assertEquals("Widget", result2.getFirst().name());
 
-      List<Product> result3 = template.on(Optional.empty(), Optional.empty(), false).run(conn);
+      List<Product> result3 =
+          findProductsMulti(table, Optional.empty(), Optional.empty(), false).run(conn);
       assertEquals(3, result3.size());
     }
   }
@@ -145,24 +177,20 @@ public class OptionallyTest {
                   + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
 
       var conn = new ConnectionJdbc(jdbcConn);
-      var template =
-          Fragment.of("SELECT name, price, active FROM " + table + " WHERE active = ")
-              .param(DuckDbTypes.boolean_)
-              .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-              .append(" ORDER BY name")
-              .query(productCodec.all());
 
-      List<Product> result1 = template.on(true, Optional.empty()).run(conn);
+      List<Product> result1 =
+          findProductsByActiveAndName(table, true, Optional.empty()).run(conn);
       assertEquals(2, result1.size());
 
-      List<Product> result2 = template.on(true, Optional.of("Widget")).run(conn);
+      List<Product> result2 =
+          findProductsByActiveAndName(table, true, Optional.of("Widget")).run(conn);
       assertEquals(1, result2.size());
       assertEquals("Widget", result2.getFirst().name());
     }
   }
 
   @Test
-  public void testTwoParamOptionally() throws SQLException {
+  public void testTwoOptionalsForRange() throws SQLException {
     try (java.sql.Connection jdbcConn = DriverManager.getConnection("jdbc:duckdb:")) {
       String table = uniqueTableName();
       jdbcConn
@@ -178,23 +206,19 @@ public class OptionallyTest {
                   + "('Widget', 9.99, true), ('Gadget', 19.99, false), ('Wand', 5.00, true)");
 
       var conn = new ConnectionJdbc(jdbcConn);
-      var decType = DuckDbTypes.decimalOf(10, 2);
-      var template =
-          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-              .optionally(
-                  Fragment.of(" AND price BETWEEN ").param(decType).append(" AND ").param(decType))
-              .append(" ORDER BY name")
-              .query(productCodec.all());
 
       List<Product> result1 =
-          template
-              .on(Optional.of(Tuple.of(new BigDecimal("5.00"), new BigDecimal("10.00"))))
+          findProductsByPriceRange(
+                  table,
+                  Optional.of(new BigDecimal("5.00")),
+                  Optional.of(new BigDecimal("10.00")))
               .run(conn);
       assertEquals(2, result1.size());
       assertEquals("Wand", result1.get(0).name());
       assertEquals("Widget", result1.get(1).name());
 
-      List<Product> result2 = template.on(Optional.empty()).run(conn);
+      List<Product> result2 =
+          findProductsByPriceRange(table, Optional.empty(), Optional.empty()).run(conn);
       assertEquals(3, result2.size());
     }
   }
@@ -207,18 +231,9 @@ public class OptionallyTest {
           .execute(
               "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
 
-      var template =
-          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-              .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-              .optionally(Fragment.of(" AND price >= ").param(DuckDbTypes.decimalOf(10, 2)))
-              .optionally(Fragment.of(" AND active = true"))
-              .append(" ORDER BY name")
-              .query(productCodec.all());
+      var op = findProductsMulti(table, Optional.empty(), Optional.empty(), false);
 
-      List<Fragment> variants = OptionallyResolver.analysisVariants(template.fragment());
-      assertEquals(8, variants.size());
-
-      List<QueryAnalysis> analyses = QueryAnalyzer.analyze(template, conn);
+      List<QueryAnalysis> analyses = QueryAnalyzer.analyze(op, conn);
       assertEquals(8, analyses.size());
       for (QueryAnalysis analysis : analyses) {
         assertTrue("Analysis should succeed: " + analysis.report(), analysis.succeeded());
@@ -234,13 +249,9 @@ public class OptionallyTest {
           .execute(
               "CREATE TABLE " + table + " (name VARCHAR, price DECIMAL(10,2), active BOOLEAN)");
 
-      var template =
-          Fragment.of("SELECT name, price, active FROM " + table + " WHERE 1=1")
-              .optionally(Fragment.of(" AND name = ").param(DuckDbTypes.varchar))
-              .append(" ORDER BY name")
-              .query(productCodec.all());
+      var op = findProductsByName(table, Optional.empty());
 
-      List<QueryAnalysis> analyses = QueryAnalyzer.analyze(template, conn);
+      List<QueryAnalysis> analyses = QueryAnalyzer.analyze(op, conn);
       assertEquals(2, analyses.size());
       assertTrue(analyses.get(0).succeeded());
       assertTrue(analyses.get(1).succeeded());
@@ -251,8 +262,8 @@ public class OptionallyTest {
   public void testOptionallyRendering() {
     var fragment =
         Fragment.of("SELECT * FROM t WHERE 1=1")
-            .optionally(Fragment.of(" AND active = true"))
-            .done();
+            .optionally(true).append(" AND active = true")
+            .append(" ORDER BY name");
 
     String rendered = fragment.render();
     assertTrue(rendered.contains("AND active = true"));

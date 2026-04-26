@@ -31,10 +31,12 @@ public class ScannerMethods {
         .query(cityCodec.maxOne());
   }
 
-  // Templates — also discovered
-  Template<Integer, Optional<City>> findById =
-      Fragment.of("SELECT id, name FROM cities WHERE id = ")
-          .param(PgTypes.int4)
-          .query(cityCodec.maxOne());
+  // Methods with primitive arguments are also handled — the scanner picks 0,
+  // false, "", etc. for the dummy invocation.
+  OperationRead<Optional<City>> findById(int id) {
+    return Fragment.of("SELECT id, name FROM cities WHERE id = ")
+        .value(PgTypes.int4, id)
+        .query(cityCodec.maxOne());
+  }
   // stop
 }

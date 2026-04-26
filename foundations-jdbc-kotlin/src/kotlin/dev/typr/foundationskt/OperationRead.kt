@@ -59,8 +59,8 @@ sealed class OperationRead<Out> : Operation<Out>() {
     fun <B> productL(other: OperationRead<B>): OperationRead<Out> =
         combine(other).map { (a, _) -> a }
 
-    fun <B> then(template: TemplateRead<Out, B>): OperationRead<B> =
-        ThenRead(this, template)
+    fun <B> thenRead(next: (Out) -> OperationRead<B>): OperationRead<B> =
+        ThenRead(this, next)
 
     override fun named(name: String): OperationRead<Out> =
         JavaWrapped(underlying.named(name))
@@ -102,10 +102,10 @@ sealed class OperationRead<Out> : Operation<Out>() {
 
     internal class ThenRead<A, Out>(
         private val source: OperationRead<A>,
-        private val continuation: TemplateRead<A, Out>
+        private val continuation: (A) -> OperationRead<Out>
     ) : OperationRead<Out>() {
         override val underlying: dev.typr.foundations.OperationRead<Out>
-            get() = source.underlying.then(continuation.underlying)
+            get() = source.underlying.thenRead(java.util.function.Function { a: A -> continuation(a).underlying })
     }
 
     internal class IfEmptyRead<T : Any>(

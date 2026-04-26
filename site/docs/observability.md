@@ -53,7 +53,7 @@ Fragment.of("SELECT * FROM large_table")
 
 <Snippet file="core/InterpolatedSql" />
 
-For listener configuration, see [Listener & Test Mode](./strategies).
+For listener configuration, see [Transactors](./transactors#observability).
 
 ## Patterns
 

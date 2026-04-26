@@ -16,19 +16,11 @@ object FragmentRow:
     .field("created_at", PgTypes.timestamptz)(_.createdAt)
     .build(Product.apply)
 
-  val conn: Connection = null // placeholder
-
   // start
-  def insert(product: Product): Product =
-    Fragment
-      .insertIntoReturning("product", productCodec)
-      .on(product)
-      .run(conn)
+  def insert(product: Product)(using Connection): Product =
+    Fragment.insertOneReturning("product", productCodec, product).run
 
   // Skip columns with database defaults — pass column names to except
-  def insertWithDefault(product: Product): Product =
-    Fragment
-      .insertIntoReturning("product", productCodec, "id")
-      .on(product)
-      .run(conn)
+  def insertWithDefault(product: Product)(using Connection): Product =
+    Fragment.insertOneReturning("product", productCodec, product, "id").run
   // stop

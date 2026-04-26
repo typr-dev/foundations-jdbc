@@ -7,7 +7,7 @@ object FunctionExample:
 
   // start
   // Functions use SELECT instead of CALL — every DbType reads correctly
-  val calcTax =
+  val calcTax: DbFunction.Def2[BigDecimal, String, BigDecimal] =
     DbFunction
       .define("calculate_tax", PgTypes.numeric)
       .input(PgTypes.numeric) // amount
@@ -15,7 +15,7 @@ object FunctionExample:
       .build()
 
   // Zero-argument function
-  val nextId =
+  val nextId: DbFunction.Def0[Int] =
     DbFunction
       .define("next_id", PgTypes.int4)
       .build()

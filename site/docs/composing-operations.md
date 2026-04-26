@@ -28,13 +28,13 @@ When you have a dynamic list of operations, `OperationRead.sequence()` runs them
 
 ## Data Flow Between Operations
 
-Use `.then()` to feed one operation's result into the next operation's [template](./templates). The first operation runs, and its result becomes the input to the template:
+Use `.then()` to feed one operation's result into a continuation function that returns the next operation. The first operation runs, and its result becomes the input to the function:
 
-<Snippet file="core/TemplateThen" />
+<Snippet file="core/OperationThen" />
 
-When the first operation returns a record and the template uses `.from()`, use `.then()` with the `Template.From` directly:
+When the first operation returns a record, you can destructure inside the continuation:
 
-<Snippet file="core/TemplateThenFrom" />
+<Snippet file="core/OperationThenRecord" />
 
 ## Conditional Execution
 
@@ -42,13 +42,21 @@ When the first operation returns a record and the template uses `.from()`, use `
 
 <Snippet file="core/ComposingIfEmpty" />
 
+## Read-Only Composition
+
+When you compose `OperationRead` values, the result is always `OperationRead`. Mix in a single write `Operation`, and the result becomes `Operation`. The type system tracks this automatically:
+
+<Snippet file="core/ReadonlyComposition" />
+
+This means `transactRead` works for any tree of pure reads — the compiler enforces it. See [Read-Only Transactions](./readonly-transactions) for more.
+
 ## Performance: Why Composition Matters
 
 Operation composition isn't just an API convenience — it's a **performance primitive**. The way you compose operations determines whether the execution engine can optimize them.
 
 ### The key insight: `combine()` is parallel, `then()` is sequential
 
-When you write `a.combine(b)`, you're telling the execution engine that `a` and `b` are **independent** — neither needs the other's result. When you write `a.then(template)`, you're saying the continuation **depends** on `a`'s result.
+When you write `a.combine(b)`, you're telling the execution engine that `a` and `b` are **independent** — neither needs the other's result. When you write `a.then(continuation)`, you're saying the continuation **depends** on `a`'s result.
 
 This distinction matters for execution:
 

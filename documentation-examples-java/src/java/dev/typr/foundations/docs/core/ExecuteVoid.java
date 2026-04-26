@@ -9,11 +9,10 @@ public class ExecuteVoid {
 
   // start
   void applySchema() {
-    tx.transact(
+    tx.transactVoid(
         mc -> {
           mc.update(Fragment.of("CREATE TABLE users (id INT, name VARCHAR(100))"));
           mc.update(Fragment.of("CREATE INDEX idx_users_name ON users (name)"));
-          return null;
         });
   }
   // stop

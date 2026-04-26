@@ -35,8 +35,8 @@ Having names lets you:
 
 - **`columnList()`** — emit column names as a `Fragment` for SELECT clauses, so queries stay in sync with the codec
 - **`columnNames()`** — get column names as a list
-- **`Fragment.insertInto(table, codec)`** — generate a complete INSERT template from the codec's column metadata
-- **`Fragment.insertIntoReturning(table, codec)`** — same, with a `RETURNING` clause that parses the inserted row back
+- **`Fragment.insertOne(table, codec, row)` / `insertMany(table, codec, rows)`** — execute INSERT directly from the codec's column metadata
+- **`Fragment.insertOneReturning(table, codec, row)`** — same, with a `RETURNING` clause that parses the inserted row back
 - **`fragment.row(codec, value)`** — emit an object's fields as comma-separated parameters for custom INSERT patterns
 - **`DbJsonRow.jsonObject(codec)`** — build a [JSON object codec](./json) with column names as keys
 
@@ -62,11 +62,15 @@ Row codecs compose for joins. Given a `productCodec` and a `categoryCodec`, comb
 
 The result type is `Tuple2<A, B>` in Java (with `._1()` and `._2()` accessors), `Pair<A, B>` in Kotlin, and a tuple `(A, B)` in Scala. Left join wraps the right side in `Optional` (or nullable in Kotlin, `Option` in Scala).
 
-Named codecs also have `.join()` and `.leftJoin()` methods that preserve column names through the composition, so the combined codec can still be used with `columnList()`, `Fragment.insertInto()`, and JSON encoding.
+Named codecs also have `.join()` and `.leftJoin()` methods that preserve column names through the composition, so the combined codec can still be used with `columnList()`, `Fragment.insertOne()`, and JSON encoding.
 
 The same `Tuple` types appear whenever the library needs to return multiple values without a dedicated record type — `RowCodec.of(type1, type2, ...)` for multi-column ad-hoc queries, `.combine()` for composed operations, and `.join()` for joins all return `TupleN`. Accessors are 1-based: `._1()`, `._2()`, `._3()`, etc.
 
-This is why row codecs use index-based reading rather than column names. When you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
+:::important Column names are NOT used for reading
+Row codecs **always read by column index**, never by column name. The column names in a named codec exist for **SQL generation** (INSERT statements, column lists), **JSON encoding** (object keys), and **composite types** (field names) — they are never passed to `ResultSet.getString("name")`. When the codec reads a row, it calls `rs.getXxx(1)`, `rs.getXxx(2)`, etc. in declaration order.
+
+This is a deliberate design choice that will not change. Index-based reading is the only option because it composes safely: when you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
+:::
 
 ### Disambiguating duplicate column names with `.aliased()`
 
@@ -93,7 +97,7 @@ sql { "SELECT ${joined.columnList} FROM emp e LEFT JOIN dept d ON e.department =
     .query(joined.all())
 ```
 
-An aliased codec is SELECT-friendly but not INSERT-friendly — use the unaliased codec for `Fragment.insertInto(table, codec)`.
+An aliased codec is SELECT-friendly but not INSERT-friendly — use the unaliased codec for `Fragment.insertOne(table, codec, row)`.
 
 ## Result Modes
 
@@ -107,13 +111,13 @@ A codec defines the shape of a row. Result modes define how many rows the query 
 
 ## Data-Driven Inserts
 
-`Fragment.insertIntoReturning()` generates a complete INSERT statement from a named codec — column list, parameter placeholders, and RETURNING clause. Pass column names to `except` to skip columns with database defaults:
+`Fragment.insertOneReturning()` executes a complete INSERT directly from a named codec — column list, bound values, and RETURNING clause are all driven by the codec. Pass column names to `except` to skip columns with database defaults. Use `insertMany` for batch inserts.
 
 <Snippet file="core/FragmentRow" />
 
 ## Generated Keys Inserts
 
-For databases that don't support `RETURNING` (DB2, Oracle, SQL Server, MariaDB), use `Fragment.insertIntoGeneratedKeys()`. It works like `insertIntoReturning` but uses JDBC's `getGeneratedKeys()` API to read back the generated columns:
+For databases that don't support `RETURNING` (DB2, Oracle, SQL Server, MariaDB), use `Fragment.insertOneGenerated()`. It works like `insertOneReturning` but uses JDBC's `getGeneratedKeys()` API to read back the generated columns:
 
 <Snippet file="core/FragmentRowGeneratedKeys" />
 

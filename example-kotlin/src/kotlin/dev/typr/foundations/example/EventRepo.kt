@@ -7,36 +7,35 @@ object EventRepo {
         sql { "SELECT ${eventCodec.columnList} FROM event ORDER BY date" }
             .query(eventCodec.all())
 
-    val eventById: Template<EventId, Event?> =
+    fun eventById(id: EventId): OperationRead<Event?> =
         sql { "SELECT ${eventCodec.columnList} FROM event WHERE id = " }
-            .param(eventIdType)
+            .value(eventIdType, id)
             .query(eventCodec.maxOne())
 
-    val eventsByStatus: Template<EventStatus, List<Event>> =
+    fun eventsByStatus(status: EventStatus): OperationRead<List<Event>> =
         sql { "SELECT ${eventCodec.columnList} FROM event WHERE status = " }
-            .param(eventStatusType)
+            .value(eventStatusType, status)
             .query(eventCodec.all())
 
-    val eventsByVenue: Template<VenueId, List<Event>> =
+    fun eventsByVenue(venueId: VenueId): OperationRead<List<Event>> =
         sql { "SELECT ${eventCodec.columnList} FROM event WHERE venue_id = " }
-            .param(venueIdType)
+            .value(venueIdType, venueId)
             .query(eventCodec.all())
 
-    val createEvent =
-        Fragment.insertIntoReturning("event", eventCodec, "id")
+    fun createEvent(event: Event): OperationRead.Query<Event> =
+        Fragment.insertOneReturning("event", eventCodec, event, "id")
 
-    val updateEventStatus =
+    fun updateEventStatus(status: EventStatus, id: EventId): Operation.Update =
         Fragment.of("UPDATE event SET status = ")
-            .param(eventStatusType)
-            .append(Fragment.of(" WHERE id = "))
-            .param(eventIdType)
+            .value(eventStatusType, status)
+            .append(" WHERE id = ")
+            .value(eventIdType, id)
             .update()
 
-    val addEventRating =
+    fun addEventRating(rating: Double, id: EventId): Operation.Update =
         Fragment.of("UPDATE event SET ratings = list_append(ratings, ")
-            .param(DuckDbTypes.double_)
-            .append(Fragment.of(") WHERE id = "))
-            .param(eventIdType)
+            .value(DuckDbTypes.double_, rating)
+            .append(") WHERE id = ")
+            .value(eventIdType, id)
             .update()
-
 }

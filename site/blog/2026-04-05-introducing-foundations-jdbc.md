@@ -45,7 +45,7 @@ void verifyAllQueries() {
 }
 ```
 
-`AnalyzableScanner` discovers every [`Operation`](/docs/operations), [`Template`](/docs/templates), and `RowTemplate` in the given package. Add a new query anywhere — it's automatically included next test run. No manual list maintenance.
+`AnalyzableScanner` discovers every [`Operation`](/docs/operations) and `OperationRead` in the given package. Add a new query anywhere — it's automatically included next test run. No manual list maintenance.
 
 When something fails, the report tells you exactly what went wrong:
 
@@ -65,7 +65,7 @@ When something fails, the report tells you exactly what went wrong:
 
 jOOQ validates its DSL at compile time but can't check hand-written SQL. Hibernate validates annotations at startup but not query correctness. Foundations JDBC validates your actual queries against your actual database.
 
-[Templates](/docs/templates) with `.optionally()` produce 2^N possible query shapes from N optional predicates — Query Analysis verifies every combination automatically. [Composed operations](/docs/composing-operations) are walked recursively, verifying every SQL statement in the tree. [Stored procedures](/docs/stored-procedures) are checked too — parameter counts, types, and modes all verified against the database catalog.
+[Dynamic queries](/docs/dynamic-queries) with `.optionally()` produce 2^N possible query shapes from N optional predicates — Query Analysis verifies every combination automatically. [Composed operations](/docs/composing-operations) are walked recursively, verifying every SQL statement in the tree. [Stored procedures](/docs/stored-procedures) are checked too — parameter counts, types, and modes all verified against the database catalog.
 
 This is what makes the rest of the library worth building. Every feature below feeds into Query Analysis.
 
@@ -165,7 +165,7 @@ Parameters are always bound — never concatenated. The `${}` syntax creates pre
 
 Java and Scala get the same composability through the builder API and Scala's `sql""` interpolator.
 
-## Operations and Templates
+## Operations
 
 Calling `.query()` or `.update()` on a fragment gives you an [`Operation<T>`](/docs/operations) — a database action that produces a typed result. Nothing runs until you say so:
 
@@ -181,18 +181,19 @@ List<Product> products = findAll.transact(tx);
 
 [Operations compose](/docs/composing-operations). Combine independent queries with `.combineWith()`. Chain dependent operations with `.then()`. Find-or-create with `Operation.ifEmpty()`. Every combinator produces a new `Operation` — still just a value, still composable, still analyzable.
 
-[Templates](/docs/templates) separate SQL structure from parameter values — define the shape once, fill it many times:
+Parameterized queries become methods that take their parameters and return `Operation` — define the shape once, call many times:
 
 ```java
-static final Template<String, Optional<User>> findByEmail =
-    Fragment.of("SELECT id, name, email FROM users WHERE email = ")
-        .param(PgTypes.text)
-        .query(userCodec.maxOne());
+static OperationRead<Optional<User>> findByEmail(String email) {
+  return Fragment.of("SELECT id, name, email FROM users WHERE email = ")
+      .value(PgTypes.text, email)
+      .query(userCodec.maxOne());
+}
 
-Optional<User> alice = findByEmail.on("alice@example.com").transact(tx);
+Optional<User> alice = findByEmail("alice@example.com").transact(tx);
 ```
 
-Templates support dynamic SQL through `.optionally()` and batch execution via `.onMany()`.
+Dynamic SQL is expressed with `.optionally()` on a fragment, and batch execution with `Fragment.insertInto(...).updateMany(rows)`.
 
 ## Built-in JSON Codecs
 

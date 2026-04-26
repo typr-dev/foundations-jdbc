@@ -20,7 +20,6 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("DbFunction.scala"), generateScalaDbFunction())
 
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("Tuple.scala"), generateScalaTuple())
-      FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("Template.scala"), generateScalaTemplate())
       FileUtils.writeString(started.logger, Some("SourcegenScala"), outputDir.resolve("ParamBuilders.scala"), generateScalaParamBuilders())
     }
   }
@@ -413,140 +412,6 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
         |""".stripMargin
   }
 
-  def generateScalaTemplate(): String = {
-    val maxArity = PROC_N - 1 // 10
-
-    def inputType(n: Int): String =
-      if (n == 1) "P0"
-      else s"(${0.until(n).map(i => s"P$i").mkString(", ")})"
-
-    def javaInputType(n: Int): String =
-      if (n == 1) "P0"
-      else {
-        val tparams = 0.until(n).map(i => s"P$i").mkString(", ")
-        s"dev.typr.foundations.Tuple.Tuple$n[$tparams]"
-      }
-
-    val queryClasses = 1.to(maxArity).map { n =>
-      val range = 0.until(n)
-      val tparams = range.map(i => s"P$i").mkString(", ")
-      val allTparams = s"$tparams, Out"
-      val inType = inputType(n)
-      val jInType = javaInputType(n)
-      val fromFnParams = range.map(i => s"f$i: T => P$i").mkString(", ")
-      val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
-
-      val onMultiArg =
-        if (n == 1) ""
-        else {
-          val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-          val scalaTuple = s"(${range.map(i => s"p$i").mkString(", ")})"
-          s"""
-            |    def on($onParams): OperationRead[Out] =
-            |      on($scalaTuple)"""
-        }
-
-      s"""|  class Query$n[$allTparams](
-          |    override val underlying: dev.typr.foundations.TemplateRead[$inType, Out]
-          |  ) extends TemplateRead[$inType, Out]:
-          |    override def on(input: $inType): OperationRead[Out] =
-          |      new OperationRead.JavaWrapped(underlying.on(input))$onMultiArg
-          |    def from[T]($fromFnParams): TemplateRead.FromRead[T, Out] =
-          |      new TemplateRead.FromRead(new dev.typr.foundations.TemplateRead.FromRead(underlying, (t: T) => underlying.on(${
-           if (n == 1) fromApplyArgs else s"(${fromApplyArgs})"
-         })))""".stripMargin
-    }
-
-    val updateClasses = 1.to(maxArity).map { n =>
-      val range = 0.until(n)
-      val tparams = range.map(i => s"P$i").mkString(", ")
-      val inType = inputType(n)
-      val jInType = javaInputType(n)
-      val fromFnParams = range.map(i => s"f$i: T => P$i").mkString(", ")
-      val fromApplyArgs = range.map(i => s"f$i(t)").mkString(", ")
-
-      val onMultiArg =
-        if (n == 1) ""
-        else {
-          val onParams = range.map(i => s"p$i: P$i").mkString(", ")
-          val scalaTuple = s"(${range.map(i => s"p$i").mkString(", ")})"
-          s"""
-            |    def on($onParams): Operation[Integer] =
-            |      on($scalaTuple)"""
-        }
-
-      s"""|  class Update$n[$tparams](
-          |    override val underlying: dev.typr.foundations.Template[$inType, Integer]
-          |  ) extends Template[$inType, Integer]:
-          |    override def on(input: $inType): Operation[Integer] =
-          |      new Operation.JavaWrapped(underlying.on(input))$onMultiArg
-          |    def from[T]($fromFnParams): Template.From[T, Integer] =
-          |      new Template.From(new dev.typr.foundations.Template.From(underlying, (t: T) => underlying.on(${
-           if (n == 1) fromApplyArgs else s"(${fromApplyArgs})"
-         })))""".stripMargin
-    }
-
-    s"""|package dev.typr.foundationssc
-        |
-        |trait Template[In, Out] extends Analyzable:
-        |  def underlying: dev.typr.foundations.Template[In, Out]
-        |
-        |  override def analyzable: dev.typr.foundations.Analyzable = underlying
-        |
-        |  def on(input: In): Operation[Out] = new Operation.JavaWrapped(underlying.on(input))
-        |
-        |  def fragment: Fragment = new Fragment(underlying.fragment())
-        |
-        |object Template:
-        |
-        |${updateClasses.mkString("\n\n")}
-        |
-        |  class From[T, Out](override val underlying: dev.typr.foundations.Template.From[T, Out])
-        |      extends Template[T, Out]:
-        |    override def on(input: T): Operation[Out] = new Operation.JavaWrapped(underlying.on(input))
-        |
-        |  class Contramapped[In2, In, Out](override val underlying: dev.typr.foundations.Template.Contramapped[In2, In, Out])
-        |      extends Template[In2, Out]:
-        |    override def on(input: In2): Operation[Out] = new Operation.JavaWrapped(underlying.on(input))
-        |
-        |trait TemplateRead[In, Out] extends Template[In, Out]:
-        |  override def underlying: dev.typr.foundations.TemplateRead[In, Out]
-        |
-        |  override def on(input: In): OperationRead[Out] = new OperationRead.JavaWrapped(underlying.on(input))
-        |
-        |object TemplateRead:
-        |
-        |${queryClasses.mkString("\n\n")}
-        |
-        |  class FromRead[T, Out](override val underlying: dev.typr.foundations.TemplateRead.FromRead[T, Out])
-        |      extends TemplateRead[T, Out]:
-        |    override def on(input: T): OperationRead[Out] = new OperationRead.JavaWrapped(underlying.on(input))
-        |
-        |  class ContramappedRead[In2, In, Out](override val underlying: dev.typr.foundations.TemplateRead.ContramappedRead[In2, In, Out])
-        |      extends TemplateRead[In2, Out]:
-        |    override def on(input: In2): OperationRead[Out] = new OperationRead.JavaWrapped(underlying.on(input))
-        |
-        |sealed trait RowTemplate[Row, Out] extends Template[Row, Out]
-        |
-        |object RowTemplate:
-        |  class Query[Row, Out](override val underlying: dev.typr.foundations.RowTemplate.Query[Row, Out])
-        |      extends RowTemplate[Row, Out] with TemplateRead[Row, Out]:
-        |    override def on(input: Row): OperationRead.Query[Out] = new OperationRead.Query(underlying.on(input))
-        |
-        |  class Update[Row](override val underlying: dev.typr.foundations.RowTemplate.Update[Row])
-        |      extends RowTemplate[Row, Integer]:
-        |    override def on(input: Row): Operation[Integer] =
-        |      new Operation.JavaWrapped(underlying.on(input))
-        |    def onMany(rows: Iterator[Row]): Operation.UpdateManyTemplate[Row] =
-        |      import _root_.scala.jdk.CollectionConverters.*
-        |      new Operation.UpdateManyTemplate(underlying.onMany(rows.asJava))
-        |
-        |  class GeneratedKeys[Row, Out](override val underlying: dev.typr.foundations.RowTemplate.GeneratedKeys[Row, Out])
-        |      extends RowTemplate[Row, Out]:
-        |    override def on(input: Row): Operation[Out] =
-        |      new Operation.JavaWrapped(underlying.on(input))
-        |""".stripMargin
-  }
 
   def generateScalaParamBuilders(): String = {
     val maxArity = PROC_N - 1 // 10
@@ -576,46 +441,12 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
       val opsNextParam = if (n < maxArity) {
         s"""
           |    def param[P$n](tpe: dev.typr.foundations.DbType[P$n]): ParamBuilder${n + 1}[$tparams, P$n] =
-          |      new ParamBuilder${n + 1}(createOps${n + 1}(underlying.param(tpe), $bijections, dev.typr.foundations.Bijection.identity()))
-          |    def optionallyFragment(inner: dev.typr.foundations.Fragment): ParamBuilder${n + 1}[$tparams, Boolean] =
-          |      new ParamBuilder${n + 1}(createOps${n + 1}(underlying.optionally(inner), $bijections,
-          |        dev.typr.foundations.Bijection.of[java.lang.Boolean, Boolean]((jb: java.lang.Boolean) => jb: Boolean, (sb: Boolean) => sb: java.lang.Boolean)))
-          |    def optionally1[A](inner: ParamBuilder1Ops[A]): ParamBuilder${n + 1}[$tparams, Option[A]] =
-          |      val innerFrag = inner.buildDone()
-          |      val newFrag = underlying.fragment().append(dev.typr.foundations.Fragment.Optionally(innerFrag, dev.typr.foundations.Fragment.countParams(innerFrag)))
-          |      val newJava = new dev.typr.foundations.ParamBuilders.ParamBuilder${n + 1}[$jtparams, java.util.Optional[A]](newFrag, ${range
-            .map(i => s"underlying.p${i}Type()")
-            .mkString(", ")}, null)
-          |      new ParamBuilder${n + 1}(createOps${n + 1}(newJava, $bijections, Bijections.optionalToOption[A]))
-          |    def optionally2[A, B](inner: ParamBuilder2Ops[A, B]): ParamBuilder${n + 1}[$tparams, Option[(A, B)]] =
-          |      val innerFrag = inner.buildDone()
-          |      val newFrag = underlying.fragment().append(dev.typr.foundations.Fragment.Optionally(innerFrag, dev.typr.foundations.Fragment.countParams(innerFrag)))
-          |      val newJava = new dev.typr.foundations.ParamBuilders.ParamBuilder${n + 1}[$jtparams, java.util.Optional[dev.typr.foundations.Tuple.Tuple2[A, B]]](newFrag, ${range
-            .map(i => s"underlying.p${i}Type()")
-            .mkString(", ")}, null)
-          |      val bij = dev.typr.foundations.Bijection.of[java.util.Optional[dev.typr.foundations.Tuple.Tuple2[A, B]], Option[(A, B)]](
-          |        (opt: java.util.Optional[dev.typr.foundations.Tuple.Tuple2[A, B]]) => if opt.isPresent then Some((opt.get._1(), opt.get._2())) else None,
-          |        (v: Option[(A, B)]) => { import _root_.scala.jdk.OptionConverters.*; v.map(t => dev.typr.foundations.Tuple.of(t._1, t._2)).toJava })
-          |      new ParamBuilder${n + 1}(createOps${n + 1}(newJava, $bijections, bij))
-          |    def optionally3[A, B, C](inner: ParamBuilder3Ops[A, B, C]): ParamBuilder${n + 1}[$tparams, Option[(A, B, C)]] =
-          |      val innerFrag = inner.buildDone()
-          |      val newFrag = underlying.fragment().append(dev.typr.foundations.Fragment.Optionally(innerFrag, dev.typr.foundations.Fragment.countParams(innerFrag)))
-          |      val newJava = new dev.typr.foundations.ParamBuilders.ParamBuilder${n + 1}[$jtparams, java.util.Optional[dev.typr.foundations.Tuple.Tuple3[A, B, C]]](newFrag, ${range
-            .map(i => s"underlying.p${i}Type()")
-            .mkString(", ")}, null)
-          |      val bij = dev.typr.foundations.Bijection.of[java.util.Optional[dev.typr.foundations.Tuple.Tuple3[A, B, C]], Option[(A, B, C)]](
-          |        (opt: java.util.Optional[dev.typr.foundations.Tuple.Tuple3[A, B, C]]) => if opt.isPresent then Some((opt.get._1(), opt.get._2(), opt.get._3())) else None,
-          |        (v: Option[(A, B, C)]) => { import _root_.scala.jdk.OptionConverters.*; v.map(t => dev.typr.foundations.Tuple.of(t._1, t._2, t._3)).toJava })
-          |      new ParamBuilder${n + 1}(createOps${n + 1}(newJava, $bijections, bij))"""
+          |      new ParamBuilder${n + 1}(createOps${n + 1}(underlying.param(tpe), $bijections, dev.typr.foundations.Bijection.identity()))"""
       } else ""
 
       val userNextParam = if (n < maxArity) {
         s"""
-          |    def param[P$n](tpe: DbType[P$n]): ParamBuilder${n + 1}[$tparams, P$n] = ops.param(tpe.underlying)
-          |    def optionally(inner: Fragment): ParamBuilder${n + 1}[$tparams, Boolean] = ops.optionallyFragment(inner.underlying)
-          |    def optionally[A](builder: ParamBuilder1[A]): ParamBuilder${n + 1}[$tparams, Option[A]] = ops.optionally1(builder.ops)
-          |    def optionally[A, B](builder: ParamBuilder2[A, B]): ParamBuilder${n + 1}[$tparams, Option[(A, B)]] = ops.optionally2(builder.ops)
-          |    def optionally[A, B, C](builder: ParamBuilder3[A, B, C]): ParamBuilder${n + 1}[$tparams, Option[(A, B, C)]] = ops.optionally3(builder.ops)"""
+          |    def param[P$n](tpe: DbType[P$n]): ParamBuilder${n + 1}[$tparams, P$n] = ops.param(tpe.underlying)"""
       } else ""
 
       s"""|  trait ParamBuilder${n}Ops[$tparams]:
@@ -623,15 +454,9 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
           |    def addValue[T](tpe: dev.typr.foundations.DbType[T], value: T): ParamBuilder$n[$tparams]
           |    def appendFrag(other: dev.typr.foundations.Fragment): ParamBuilder$n[$tparams]
           |${
-           if (n < maxArity) s"""    def param[P$n](tpe: dev.typr.foundations.DbType[P$n]): ParamBuilder${n + 1}[$tparams, P$n]
-          |    def optionallyFragment(inner: dev.typr.foundations.Fragment): ParamBuilder${n + 1}[$tparams, Boolean]
-          |    def optionally1[A](inner: ParamBuilder1Ops[A]): ParamBuilder${n + 1}[$tparams, Option[A]]
-          |    def optionally2[A, B](inner: ParamBuilder2Ops[A, B]): ParamBuilder${n + 1}[$tparams, Option[(A, B)]]
-          |    def optionally3[A, B, C](inner: ParamBuilder3Ops[A, B, C]): ParamBuilder${n + 1}[$tparams, Option[(A, B, C)]]"""
+           if (n < maxArity) s"""    def param[P$n](tpe: dev.typr.foundations.DbType[P$n]): ParamBuilder${n + 1}[$tparams, P$n]"""
            else ""
          }
-          |    def buildQuery[Out](parser: dev.typr.foundations.ResultSetParser[Out]): TemplateRead.Query$n[$tparams, Out]
-          |    def buildUpdate(): Template.Update$n[$tparams]
           |    def buildDone(): dev.typr.foundations.Fragment
           |
           |  private[foundationssc] def createOps$n[$allImplTparams](
@@ -641,10 +466,6 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
           |    def appendStr(s: String) = new ParamBuilder$n(createOps$n(underlying.append(s), $bijections))
           |    def addValue[T](tpe: dev.typr.foundations.DbType[T], value: T) = new ParamBuilder$n(createOps$n(underlying.value(tpe, value), $bijections))
           |    def appendFrag(other: dev.typr.foundations.Fragment) = new ParamBuilder$n(createOps$n(underlying.append(other), $bijections))$opsNextParam
-          |    def buildQuery[Out](parser: dev.typr.foundations.ResultSetParser[Out]): TemplateRead.Query$n[$tparams, Out] =
-          |      new TemplateRead.Query$n(underlying.query(parser).contramapInput[$inType](input => $contramapBody))
-          |    def buildUpdate(): Template.Update$n[$tparams] =
-          |      new Template.Update$n(underlying.update().contramapInput[$inType](input => $contramapBody))
           |    def buildDone() = underlying.done()
           |
           |  class ParamBuilder$n[$tparams] private[foundationssc] (
@@ -655,8 +476,6 @@ object SourcegenScala extends BleepCodegenScript("SourcegenScala") {
           |    def append(s: String): ParamBuilder$n[$tparams] = ops.appendStr(s)
           |    def value[T](tpe: DbType[T], value: T): ParamBuilder$n[$tparams] = ops.addValue(tpe.underlying, value)
           |    def append(fragment: Fragment): ParamBuilder$n[$tparams] = ops.appendFrag(fragment.underlying)$userNextParam
-          |    def query[Out](parser: ResultSetParser[Out]): TemplateRead.Query$n[$tparams, Out] = ops.buildQuery(parser.underlying)
-          |    def update(): Template.Update$n[$tparams] = ops.buildUpdate()
           |    def done(): Fragment = new Fragment(ops.buildDone())""".stripMargin
     }
 

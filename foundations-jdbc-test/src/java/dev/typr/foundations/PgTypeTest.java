@@ -1005,13 +1005,13 @@ public class PgTypeTest {
                     + " AS $$ BEGIN RETURN p; END; $$ LANGUAGE plpgsql")
             .execute());
     try {
-      var template =
+      var op =
           Fragment.of("SELECT " + funcName + "(")
-              .param(t.type)
-              .append(Fragment.of(")"))
+              .value(t.type, t.example)
+              .append(")")
               .query(RowCodec.of(t.type).all());
 
-      List<A> results = exec.execute(template.on(t.example));
+      List<A> results = exec.execute(op);
 
       if (results.isEmpty()) throw new RuntimeException("No rows returned");
       if (!areEqual(results.getFirst(), t.example)) {
@@ -1036,12 +1036,7 @@ public class PgTypeTest {
         RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
-    exec.execute(
-        Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
-            .paramRow(codec)
-            .append(")")
-            .update()
-            .onMany(List.of(value).iterator()));
+    exec.execute(Fragment.insertMany(tableName, codec, List.of(value).iterator()));
   }
 
   // ==================== JDBC-Only Test Methods ====================

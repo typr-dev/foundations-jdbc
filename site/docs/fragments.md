@@ -31,28 +31,30 @@ The builder pattern works in all languages and is useful for constructing fragme
 The vocabulary matters because both occupy the same SQL `?` position:
 
 - `.value(type, x)` — **bound value**, immediately captured into the Fragment. Produces a ready-to-execute `OperationRead` or `Operation`.
-- `.param(type)` — **parameter hole**, filled later. Produces a `Template` — see [Templates](./templates).
+- `.param(type)` — **parameter hole**, used internally by `Fragment.insertMany(...)` and friends for row-parameterized batch inserts.
 
 `.param(type, value)` does not exist — if you know the value, use `.value(type, value)`.
 :::
 
 :::tip Which style should I use?
-- **Kotlin** — Use `sql { }` for queries where all values are known. Use the builder pattern when you need parameter holes for [Templates](./templates) (Advanced).
+- **Kotlin** — Use `sql { }` for queries where all values are known. Use the builder pattern when you need to compose fragments programmatically.
 - **Scala** — Same guidance, using `sql""` instead of `sql { }`.
 - **Java** — Use the builder pattern for everything (no string interpolation available).
 :::
 
 ## Composing Fragments
 
-Build small reusable fragments, then combine them into full queries. Static factories like `Fragment.whereAnd()`, `Fragment.set()`, and `Fragment.comma()` handle SQL syntax — commas, AND/OR separators, SET clauses — so you don't have to:
+For dynamic queries — searches with optional filters, conditional clauses — chain `.optionally(value).append(sql, type)` onto a base fragment. Each `optionally` is a branch point [Query Analysis](./query-analysis) expands into all 2<sup>N</sup> possible SQL shapes, so every code path is verified against the schema:
 
 <Snippet file="core/FragmentComposing" />
 
-The same approach works for UPDATE statements — build a list of assignments and let `Fragment.set()` join them:
+For genuinely list-shaped composition — joining a `List<Fragment>` from arbitrary sources — static factories like `Fragment.whereAnd()`, `Fragment.set()`, and `Fragment.comma()` handle SQL syntax (commas, AND/OR separators, SET clauses) so you don't have to:
 
 <Snippet file="core/FragmentCombinators" />
 
 Other useful combinators: `Fragment.and()`, `Fragment.or()`, `Fragment.whereOr()`, `Fragment.orderBy()`, `Fragment.comma()`, `Fragment.parentheses()`.
+
+> See [Dynamic Queries](./dynamic-queries) for a deeper comparison of the two styles and when to reach for each — including the trade-offs around Query Analysis coverage.
 
 ## IN-clause helper
 

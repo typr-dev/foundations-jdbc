@@ -215,7 +215,7 @@ public final class AnalyzableScanner {
               + "\n"
               + indent
               + "  -> "
-              + describeTemplate(t.continuation());
+              + "<continuation function>";
       case OperationRead.Configured<?> c ->
           indent
               + "Configured"
@@ -234,8 +234,8 @@ public final class AnalyzableScanner {
           indent + "UpdateManyReturning: " + truncate(u.query().render());
       case Operation.UpdateReturningEach<?> u ->
           indent + "UpdateReturningEach: " + truncate(u.query().render());
-      case Operation.UpdateManyTemplate<?> u ->
-          indent + "UpdateManyTemplate: " + truncate(u.fragment().render());
+      case Operation.BatchUpdate<?> u ->
+          indent + "BatchUpdate: " + truncate(u.fragment().render());
       case Operation.StreamingCopy<?> s -> indent + "StreamingCopy: " + truncate(s.copyCommand());
       case Operation.Mapped<?, ?> m -> indent + "Mapped:\n" + describeOp(m.source(), depth + 1);
       case Operation.Then<?, ?> t ->
@@ -245,7 +245,7 @@ public final class AnalyzableScanner {
               + "\n"
               + indent
               + "  -> "
-              + describeTemplate(t.continuation());
+              + "<continuation function>";
       case Operation.Combine<?, ?> w ->
           indent
               + "Combine:\n"
@@ -266,19 +266,10 @@ public final class AnalyzableScanner {
               + describeOp(c.inner(), depth + 1);
       case Procedure.ProcedureCall<?> p -> indent + "ProcedureCall: " + p.name();
       case Procedure.FunctionCall<?> f -> indent + "FunctionCall: " + f.name();
-      case RowTemplate<?, ?> rt -> indent + "RowTemplate: " + truncate(rt.fragment().render());
-      case Template<?, ?> t -> indent + describeTemplate(t);
       case Analyzable.Named(var name, var inner) ->
           indent + "Named[" + name + "]:\n" + describeOp(inner, depth + 1);
       default -> indent + obj.getClass().getSimpleName();
     };
-  }
-
-  private static String describeTemplate(Object template) {
-    if (template instanceof Template<?, ?> t) {
-      return "Template: " + truncate(t.fragment().render());
-    }
-    return "Template(" + template.getClass().getSimpleName() + ")";
   }
 
   private static String truncate(String sql) {

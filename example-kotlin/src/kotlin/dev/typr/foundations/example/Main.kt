@@ -73,7 +73,7 @@ fun main() {
     service.rateEvent(event.id, 4.5)
     service.rateEvent(event.id, 5.0)
     service.rateEvent(event.id, 3.5)
-    val rated = EventRepo.eventById.on(event.id).transact(tx)!!
+    val rated = EventRepo.eventById(event.id).transact(tx)!!
     println("Ratings: ${rated.ratings}\n")
 
     // ── Purchase remaining to trigger SOLD_OUT ──────────────────────
@@ -83,7 +83,7 @@ fun main() {
         TicketPurchaseRequest(TicketTier.GENERAL, "Eve Adams", "eve@example.com", emptyList()),
     ))
     println("  ${remaining.size} more tickets purchased")
-    val soldOut = EventRepo.eventById.on(event.id).transact(tx)!!
+    val soldOut = EventRepo.eventById(event.id).transact(tx)!!
     println("  Event status now: ${soldOut.status}\n")
 
     // ── Try to buy when sold out ────────────────────────────────────
@@ -112,7 +112,7 @@ fun main() {
     }
 
     println("\n=== All tickets for event ===")
-    TicketRepo.ticketsByEvent.on(event.id).transact(tx).forEach { t ->
+    TicketRepo.ticketsByEvent(event.id).transact(tx).forEach { t ->
         println("  ${t.holderName} [${t.tier}] \$${t.price.amount}")
     }
 

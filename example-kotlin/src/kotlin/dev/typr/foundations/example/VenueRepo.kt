@@ -7,12 +7,11 @@ object VenueRepo {
         sql { "SELECT ${venueCodec.columnList} FROM venue ORDER BY name" }
             .query(venueCodec.all())
 
-    val venueById: Template<VenueId, Venue?> =
+    fun venueById(id: VenueId): OperationRead<Venue?> =
         sql { "SELECT ${venueCodec.columnList} FROM venue WHERE id = " }
-            .param(venueIdType)
+            .value(venueIdType, id)
             .query(venueCodec.maxOne())
 
-    val createVenue: RowTemplate<Venue, Venue> =
-        Fragment.insertIntoReturning("venue", venueCodec, "id")
-
+    fun createVenue(venue: Venue): OperationRead.Query<Venue> =
+        Fragment.insertOneReturning("venue", venueCodec, venue, "id")
 }

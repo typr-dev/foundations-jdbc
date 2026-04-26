@@ -7,7 +7,7 @@ object InoutProcedure:
 
   // start
   // INOUT — the value goes in and comes back modified
-  val applyDiscount =
+  val applyDiscount: DbProcedure.Def2_1[String, BigDecimal, BigDecimal] =
     DbProcedure
       .define("apply_discount")
       .input(PgTypes.text) // discount_code IN

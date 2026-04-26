@@ -22,11 +22,12 @@ public final class UserRepo {
           .query(userCodec.all())
           .named("UserRepo.selectAll");
 
-  static final Template<Integer, Optional<User>> selectById =
-      Fragment.of("SELECT ")
-          .append(userCodec.columnList())
-          .append(" FROM users WHERE id = ")
-          .param(PgTypes.int4)
-          .query(userCodec.maxOne());
+  static OperationRead<Optional<User>> selectById(int id) {
+    return Fragment.of("SELECT ")
+        .append(userCodec.columnList())
+        .append(" FROM users WHERE id = ")
+        .value(PgTypes.int4, id)
+        .query(userCodec.maxOne());
+  }
 }
 // stop

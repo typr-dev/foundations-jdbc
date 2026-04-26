@@ -3,7 +3,6 @@ import dev.typr.foundationssc.*
 import dev.typr.foundationssc.data.*
 
 import dev.typr.foundations.{QueryListener, QueryEvent}
-import java.sql.Connection
 
 @SuppressWarnings(Array("unused"))
 object QueryListenerBasic:

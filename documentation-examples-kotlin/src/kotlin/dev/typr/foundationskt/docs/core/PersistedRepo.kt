@@ -19,16 +19,15 @@ object VenueRepo {
             .join(venueCodec)
             .to({ (id, venue) -> PersistedVenue(id, venue) }, { Pair(it.id, it.venue) })
 
-    val insert: RowTemplate.Query<Venue, PersistedVenue> =
-        Fragment.insertIntoReturning("venue", venueCodec, persistedVenueCodec)
+    fun insert(venue: Venue): OperationRead.Query<PersistedVenue> =
+        Fragment.insertOneReturning("venue", venueCodec, venue, persistedVenueCodec)
 
     val selectAll: OperationRead<List<PersistedVenue>> =
         sql { "SELECT ${persistedVenueCodec.columnList} FROM venue" }
             .query(persistedVenueCodec.all())
 
-    val selectById: Template<VenueId, PersistedVenue?> =
-        sql { "SELECT ${persistedVenueCodec.columnList} FROM venue WHERE id = " }
-            .param(venueIdType)
+    fun selectById(id: VenueId): OperationRead.Query<PersistedVenue?> =
+        sql { "SELECT ${persistedVenueCodec.columnList} FROM venue WHERE id = ${venueIdType(id)}" }
             .query(persistedVenueCodec.maxOne())
 }
 //stop

@@ -156,17 +156,17 @@ package object data:
   type NonEmptyBlob = dev.typr.foundations.data.NonEmptyBlob
   object NonEmptyBlob:
     def apply(value: Array[Byte]): Option[NonEmptyBlob] =
-      Option(dev.typr.foundations.data.NonEmptyBlob.apply(value).orElse(null))
+      { import _root_.scala.jdk.OptionConverters.*; dev.typr.foundations.data.NonEmptyBlob.apply(value).toScala }
     def force(value: Array[Byte]): NonEmptyBlob = dev.typr.foundations.data.NonEmptyBlob.force(value)
   type NonEmptyString = dev.typr.foundations.data.NonEmptyString
   object NonEmptyString:
     def apply(value: String): Option[NonEmptyString] =
-      Option(dev.typr.foundations.data.NonEmptyString.apply(value).orElse(null))
+      { import _root_.scala.jdk.OptionConverters.*; dev.typr.foundations.data.NonEmptyString.apply(value).toScala }
     def force(value: String): NonEmptyString = dev.typr.foundations.data.NonEmptyString.force(value)
   type PaddedString = dev.typr.foundations.data.PaddedString
   object PaddedString:
     def apply(value: String, length: Int): Option[PaddedString] =
-      Option(dev.typr.foundations.data.PaddedString.apply(value, length).orElse(null))
+      { import _root_.scala.jdk.OptionConverters.*; dev.typr.foundations.data.PaddedString.apply(value, length).toScala }
     def force(value: String, length: Int): PaddedString = dev.typr.foundations.data.PaddedString.force(value, length)
 
   // MariaDB data types

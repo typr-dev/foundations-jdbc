@@ -15,23 +15,24 @@ class ScannerMethods {
     //start
     // Properties — discovered automatically
     val allCities: OperationRead<List<City>> =
-        sql { "SELECT id, name FROM cities" }
+        Fragment.of("SELECT id, name FROM cities")
             .query(cityCodec.all())
 
     // No-arg methods — discovered automatically
     fun activeCities(): OperationRead<List<City>> =
-        sql { "SELECT id, name FROM cities WHERE active" }
+        Fragment.of("SELECT id, name FROM cities WHERE active")
             .query(cityCodec.all())
 
     // Methods with parameters — dummy arguments constructed automatically
     fun findByName(name: String): OperationRead<City?> =
-        sql { "SELECT id, name FROM cities WHERE name = ${PgTypes.text(name)}" }
+        Fragment.of("SELECT id, name FROM cities WHERE name = ")
+            .value(PgTypes.text, name)
             .query(cityCodec.maxOne())
 
-    // Templates — also discovered
-    val findById: Template<Int, City?> =
+    // Methods with primitive arguments are also handled
+    fun findById(id: Int): OperationRead<City?> =
         Fragment.of("SELECT id, name FROM cities WHERE id = ")
-            .param(PgTypes.int4)
+            .value(PgTypes.int4, id)
             .query(cityCodec.maxOne())
     //stop
 }

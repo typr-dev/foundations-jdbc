@@ -3,9 +3,9 @@ package dev.typr.foundations;
 /**
  * Marker interface for types that can be analyzed by {@link QueryAnalyzer}.
  *
- * <p>Implemented by {@link Operation}, {@link Template}, and {@link Analyzable.Named}.
+ * <p>Implemented by {@link Operation} and {@link Analyzable.Named}.
  */
-public sealed interface Analyzable permits Operation, Template, Analyzable.Named {
+public sealed interface Analyzable permits Operation, Analyzable.Named {
 
   /**
    * Human-readable description of this analyzable. When the analyzable has a name (via {@link

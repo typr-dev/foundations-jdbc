@@ -7,7 +7,6 @@ import dev.typr.foundations.Transactor;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class FragmentComposing {
@@ -21,28 +20,18 @@ public class FragmentComposing {
           .build(ProductRow::new);
 
   Transactor tx = null; // placeholder
+  Optional<String> namePattern = Optional.of("%widget%");
   Optional<BigDecimal> maxPrice = Optional.of(new BigDecimal("100"));
 
   // start
-  // Build small reusable filters
-  Fragment byName(String name) {
-    return Fragment.of("name ILIKE ").value(PgTypes.text, name);
-  }
-
-  Fragment cheaperThan(BigDecimal max) {
-    return Fragment.of("price < ").value(PgTypes.numeric, max);
-  }
-
-  // Compose dynamically — only include the filters that are present
+  // Compose dynamic filters with the `optionally` DSL — each `.optionally().append(...)`
+  // is a branch point Query Analysis verifies against the schema, even when
+  // the runtime never takes that branch at this call site.
   List<ProductRow> query() {
-    List<Fragment> filters =
-        Stream.of(Optional.of(byName("%widget%")), maxPrice.map(this::cheaperThan))
-            .flatMap(Optional::stream)
-            .toList();
-
     return tx.execute(
-        Fragment.of("SELECT * FROM product ")
-            .append(Fragment.whereAnd(filters))
+        Fragment.of("SELECT id, name, price FROM product WHERE 1 = 1")
+            .optionally(namePattern).append(" AND name ILIKE ", PgTypes.text)
+            .optionally(maxPrice)  .append(" AND price < ",   PgTypes.numeric)
             .query(rowCodec.all()));
   }
   // stop

@@ -21,9 +21,9 @@ public class MethodFixtures {
     return Fragment.of("SELECT 1").queryAll(PgTypes.int4);
   }
 
-  public Template<String, Optional<String>> templateMethod() {
+  public OperationRead<Optional<String>> withStringArg(String email) {
     return Fragment.of("SELECT name FROM users WHERE email = ")
-        .param(PgTypes.text)
+        .value(PgTypes.text, email)
         .query(RowCodec.of(PgTypes.text).maxOne());
   }
 
