@@ -77,9 +77,6 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
     fun <T : Any> valueNullable(dbType: DbType<T>, value: T?): Fragment =
         Fragment(underlying.value(dbType.underlying.opt(), Optional.ofNullable(value)))
 
-    fun <Row : Any> paramRow(parser: RowCodecNamed<Row>, vararg except: String): RowParamBuilder<Row> =
-        RowParamBuilder(underlying.paramRow(parser.underlying, *except))
-
     fun <Row : Any> row(parser: RowCodecNamed<Row>, row: Row, vararg except: String): Fragment =
         Fragment(underlying.row(parser.underlying, row, *except))
 
@@ -223,31 +220,67 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
             Operation.Execute(dev.typr.foundations.Fragment.dropTableIfExists(table))
 
         @JvmStatic
-        fun <Row : Any> insertInto(table: String, codec: RowCodecNamed<Row>, vararg except: String): RowParamBuilder<Row> =
-            RowParamBuilder(dev.typr.foundations.Fragment.insertInto(table, codec.underlying, *except))
+        fun <Row : Any> insertOne(
+            table: String, codec: RowCodecNamed<Row>, row: Row, vararg except: String
+        ): Operation.Update =
+            Operation.Update(dev.typr.foundations.Fragment.insertOne(table, codec.underlying, row, *except))
 
         @JvmStatic
-        fun <Row : Any> insertIntoReturning(table: String, codec: RowCodecNamed<Row>, vararg except: String): RowParamBuilder<Row> =
-            RowParamBuilder(dev.typr.foundations.Fragment.insertIntoReturning(table, codec.underlying, *except))
+        fun <Row : Any> insertMany(
+            table: String, codec: RowCodecNamed<Row>, rows: Iterator<Row>, vararg except: String
+        ): Operation.BatchUpdate<Row> =
+            Operation.BatchUpdate(dev.typr.foundations.Fragment.insertMany(table, codec.underlying, rows, *except))
 
         @JvmStatic
-        fun <In : Any> insertIntoReturning(
-            table: String, writeCodec: RowCodecNamed<In>, readCodec: RowCodecNamed<*>
-        ): RowParamBuilder<In> =
-            RowParamBuilder(dev.typr.foundations.Fragment.insertIntoReturning(
-                table, writeCodec.underlying, readCodec.underlying))
+        fun <Row : Any> insertOneReturning(
+            table: String, codec: RowCodecNamed<Row>, row: Row, vararg except: String
+        ): OperationRead.Query<Row> =
+            OperationRead.Query(dev.typr.foundations.Fragment.insertOneReturning(table, codec.underlying, row, *except))
 
         @JvmStatic
-        fun <Row : Any> upsert(table: String, codec: RowCodecNamed<Row>, vararg conflictColumns: String): RowParamBuilder<Row> =
-            RowParamBuilder(dev.typr.foundations.Fragment.upsert(table, codec.underlying, *conflictColumns))
+        fun <In : Any, Out : Any> insertOneReturning(
+            table: String, writeCodec: RowCodecNamed<In>, row: In, readCodec: RowCodecNamed<Out>
+        ): OperationRead.Query<Out> =
+            OperationRead.Query(dev.typr.foundations.Fragment.insertOneReturning(
+                table, writeCodec.underlying, row, readCodec.underlying))
 
         @JvmStatic
-        fun <Row : Any> upsertReturning(table: String, codec: RowCodecNamed<Row>, vararg conflictColumns: String): RowParamBuilder<Row> =
-            RowParamBuilder(dev.typr.foundations.Fragment.upsertReturning(table, codec.underlying, *conflictColumns))
+        fun <Row : Any, Out> insertOneGenerated(
+            table: String, codec: RowCodecNamed<Row>, row: Row,
+            generatedColumns: Array<String>, parser: ResultSetParser<Out>, vararg except: String
+        ): Operation.UpdateReturningGeneratedKeys<Out> =
+            Operation.UpdateReturningGeneratedKeys(dev.typr.foundations.Fragment.insertOneGenerated(
+                table, codec.underlying, row, generatedColumns, parser.underlying, *except))
 
         @JvmStatic
-        fun <Row : Any> insertIgnore(table: String, codec: RowCodecNamed<Row>, vararg conflictColumns: String): RowParamBuilder<Row> =
-            RowParamBuilder(dev.typr.foundations.Fragment.insertIgnore(table, codec.underlying, *conflictColumns))
+        fun <Row : Any> upsertOne(
+            table: String, codec: RowCodecNamed<Row>, row: Row, vararg conflictColumns: String
+        ): Operation.Update =
+            Operation.Update(dev.typr.foundations.Fragment.upsertOne(table, codec.underlying, row, *conflictColumns))
+
+        @JvmStatic
+        fun <Row : Any> upsertMany(
+            table: String, codec: RowCodecNamed<Row>, rows: Iterator<Row>, vararg conflictColumns: String
+        ): Operation.BatchUpdate<Row> =
+            Operation.BatchUpdate(dev.typr.foundations.Fragment.upsertMany(table, codec.underlying, rows, *conflictColumns))
+
+        @JvmStatic
+        fun <Row : Any> upsertOneReturning(
+            table: String, codec: RowCodecNamed<Row>, row: Row, vararg conflictColumns: String
+        ): OperationRead.Query<Row> =
+            OperationRead.Query(dev.typr.foundations.Fragment.upsertOneReturning(table, codec.underlying, row, *conflictColumns))
+
+        @JvmStatic
+        fun <Row : Any> insertIgnoreOne(
+            table: String, codec: RowCodecNamed<Row>, row: Row, vararg conflictColumns: String
+        ): Operation.Update =
+            Operation.Update(dev.typr.foundations.Fragment.insertIgnoreOne(table, codec.underlying, row, *conflictColumns))
+
+        @JvmStatic
+        fun <Row : Any> insertIgnoreMany(
+            table: String, codec: RowCodecNamed<Row>, rows: Iterator<Row>, vararg conflictColumns: String
+        ): Operation.BatchUpdate<Row> =
+            Operation.BatchUpdate(dev.typr.foundations.Fragment.insertIgnoreMany(table, codec.underlying, rows, *conflictColumns))
 
         @JvmStatic
         @JvmName("rowStatic")

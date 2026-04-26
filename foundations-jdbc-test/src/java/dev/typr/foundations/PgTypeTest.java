@@ -1036,11 +1036,7 @@ public class PgTypeTest {
         RowCodec.<A>namedBuilder()
             .field("v", type, java.util.function.Function.identity())
             .build(java.util.function.Function.identity());
-    exec.execute(
-        Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
-            .paramRow(codec)
-            .append(")")
-            .updateMany(List.of(value).iterator()));
+    exec.execute(Fragment.insertMany(tableName, codec, List.of(value).iterator()));
   }
 
   // ==================== JDBC-Only Test Methods ====================

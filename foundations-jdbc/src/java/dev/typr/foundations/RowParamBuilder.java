@@ -1,10 +1,13 @@
 package dev.typr.foundations;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-public final class RowParamBuilder<Row> {
+final class RowParamBuilder<Row> {
   private final Fragment fragment;
   private final RowCodecNamed<Row> codec;
   private final int[] includedIndices;
@@ -13,6 +16,27 @@ public final class RowParamBuilder<Row> {
     this.fragment = fragment;
     this.codec = codec;
     this.includedIndices = includedIndices;
+  }
+
+  /**
+   * Build a {@code RowParamBuilder} that appends a comma-separated list of typed {@code Param}
+   * holes for each codec column not in {@code except}, tracking the codec indices for later
+   * row-driven binding.
+   */
+  static <Row> RowParamBuilder<Row> from(
+      Fragment base, RowCodecNamed<Row> codec, String... except) {
+    List<DbType<?>> types = codec.columns();
+    List<String> names = codec.columnNames();
+    Set<String> exceptSet = except.length > 0 ? Set.of(except) : Set.of();
+    List<Fragment> fragments = new ArrayList<>();
+    List<Integer> indices = new ArrayList<>();
+    for (int i = 0; i < types.size(); i++) {
+      if (exceptSet.contains(names.get(i))) continue;
+      fragments.add(new Fragment.Param<>(types.get(i)));
+      indices.add(i);
+    }
+    int[] includedIndices = indices.stream().mapToInt(Integer::intValue).toArray();
+    return new RowParamBuilder<>(base.append(Fragment.comma(fragments)), codec, includedIndices);
   }
 
   public RowParamBuilder<Row> append(String s) {

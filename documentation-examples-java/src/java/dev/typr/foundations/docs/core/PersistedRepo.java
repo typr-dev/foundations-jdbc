@@ -24,11 +24,8 @@ class VenueRepo {
               Bijection.of(
                   t -> new PersistedVenue(t._1(), t._2()), pv -> Tuple.of(pv.id(), pv.venue())));
 
-  static final RowParamBuilder<Venue> insert =
-      Fragment.insertIntoReturning("venue", venueCodec, persistedVenueCodec);
-
   static OperationRead.Query<PersistedVenue> insert(Venue venue) {
-    return insert.updateReturning(venue, persistedVenueCodec.exactlyOne());
+    return Fragment.insertOneReturning("venue", venueCodec, venue, persistedVenueCodec);
   }
 
   static final OperationRead<List<PersistedVenue>> selectAll =

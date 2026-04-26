@@ -31,7 +31,7 @@ The builder pattern works in all languages and is useful for constructing fragme
 The vocabulary matters because both occupy the same SQL `?` position:
 
 - `.value(type, x)` — **bound value**, immediately captured into the Fragment. Produces a ready-to-execute `OperationRead` or `Operation`.
-- `.param(type)` — **parameter hole**, used inside `Fragment.paramRow(...)` for row-parameterized batch inserts.
+- `.param(type)` — **parameter hole**, used internally by `Fragment.insertMany(...)` and friends for row-parameterized batch inserts.
 
 `.param(type, value)` does not exist — if you know the value, use `.value(type, value)`.
 :::

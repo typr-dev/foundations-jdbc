@@ -327,47 +327,107 @@ public sealed interface Fragment {
     return new Literal("");
   }
 
-  static <Row> RowParamBuilder<Row> insertInto(
-      String table, RowCodecNamed<Row> codec, String... except) {
-    return of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
-        .paramRow(codec, except)
-        .append(")");
+  // ─────────────────────────────────────────────────────────────────────
+  // Plain INSERT
+  // ─────────────────────────────────────────────────────────────────────
+
+  /** INSERT one row. {@code except} skips columns with database defaults (auto-increment, etc.). */
+  static <Row> Operation.Update insertOne(
+      String table, RowCodecNamed<Row> codec, Row row, String... except) {
+    return insertSkeleton(table, codec, except).updateOne(row);
   }
 
-  /** PostgreSQL/DuckDB: INSERT ... RETURNING all columns. */
-  static <Row> RowParamBuilder<Row> insertIntoReturning(
-      String table, RowCodecNamed<Row> codec, String... except) {
+  /** Batch-execute INSERT for an iterator of rows. {@code except} skips DB-defaulted columns. */
+  static <Row> Operation.BatchUpdate<Row> insertMany(
+      String table, RowCodecNamed<Row> codec, Iterator<Row> rows, String... except) {
+    return insertSkeleton(table, codec, except).updateMany(rows);
+  }
+
+  /** PostgreSQL/DuckDB: INSERT ... RETURNING all of {@code codec}'s columns. */
+  static <Row> OperationRead.Query<Row> insertOneReturning(
+      String table, RowCodecNamed<Row> codec, Row row, String... except) {
     String allCols = String.join(", ", codec.columnNames());
-    return of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (")
-        .paramRow(codec, except)
-        .append(") RETURNING " + allCols);
+    return insertSkeleton(table, codec, except)
+        .append(" RETURNING " + allCols)
+        .updateReturning(row);
   }
 
-  /**
-   * INSERT ... RETURNING with a separate read codec. Use {@code .updateReturning(row,
-   * readCodec.exactlyOne())} at the call site — the read codec's columns are baked into the
-   * RETURNING clause here.
-   */
-  static <In> RowParamBuilder<In> insertIntoReturning(
-      String table, RowCodecNamed<In> writeCodec, RowCodecNamed<?> readCodec) {
-    String cols = String.join(", ", writeCodec.columnNames());
+  /** PostgreSQL/DuckDB: INSERT ... RETURNING using {@code readCodec}'s columns and codec. */
+  static <In, Out> OperationRead.Query<Out> insertOneReturning(
+      String table, RowCodecNamed<In> writeCodec, In row, RowCodecNamed<Out> readCodec) {
     String returnCols = String.join(", ", readCodec.columnNames());
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
-        .paramRow(writeCodec)
-        .append(") RETURNING " + returnCols);
+    return insertSkeleton(table, writeCodec)
+        .append(" RETURNING " + returnCols)
+        .updateReturning(row, readCodec.exactlyOne());
   }
 
   /**
-   * PostgreSQL: INSERT ... ON CONFLICT (conflictColumns) DO UPDATE SET ... Returns an update
-   * template that performs an upsert. All columns except the conflict columns are included in the
-   * SET clause.
-   *
-   * <pre>{@code
-   * var upsert = Fragment.upsert("users", userCodec, "email");
-   * executor.execute(upsert.on(new User("alice", "alice@example.com", 30)));
-   * }</pre>
+   * INSERT with JDBC's {@code getGeneratedKeys()}. Use on dialects without {@code RETURNING}
+   * (DB2, Oracle, SQL Server, MariaDB).
    */
-  static <Row> RowParamBuilder<Row> upsert(
+  static <Row, Out> Operation.UpdateReturningGeneratedKeys<Out> insertOneGenerated(
+      String table,
+      RowCodecNamed<Row> codec,
+      Row row,
+      String[] generatedColumns,
+      ResultSetParser<Out> parser,
+      String... except) {
+    return insertSkeleton(table, codec, except).updateOneGenerated(row, generatedColumns, parser);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // PostgreSQL UPSERT (ON CONFLICT DO UPDATE SET ...)
+  // ─────────────────────────────────────────────────────────────────────
+
+  /** PG: INSERT ... ON CONFLICT (conflictColumns) DO UPDATE SET ... applied to one row. */
+  static <Row> Operation.Update upsertOne(
+      String table, RowCodecNamed<Row> codec, Row row, String... conflictColumns) {
+    return upsertSkeleton(table, codec, conflictColumns).updateOne(row);
+  }
+
+  /** PG: batch UPSERT across an iterator of rows. */
+  static <Row> Operation.BatchUpdate<Row> upsertMany(
+      String table, RowCodecNamed<Row> codec, Iterator<Row> rows, String... conflictColumns) {
+    return upsertSkeleton(table, codec, conflictColumns).updateMany(rows);
+  }
+
+  /** PG: UPSERT ... RETURNING the resulting row. */
+  static <Row> OperationRead.Query<Row> upsertOneReturning(
+      String table, RowCodecNamed<Row> codec, Row row, String... conflictColumns) {
+    String cols = String.join(", ", codec.columnNames());
+    return upsertSkeleton(table, codec, conflictColumns)
+        .append(" RETURNING " + cols)
+        .updateReturning(row);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // PostgreSQL INSERT IGNORE (ON CONFLICT DO NOTHING)
+  // ─────────────────────────────────────────────────────────────────────
+
+  /** PG: INSERT ... ON CONFLICT (conflictColumns) DO NOTHING for one row. */
+  static <Row> Operation.Update insertIgnoreOne(
+      String table, RowCodecNamed<Row> codec, Row row, String... conflictColumns) {
+    return insertIgnoreSkeleton(table, codec, conflictColumns).updateOne(row);
+  }
+
+  /** PG: batch INSERT ... ON CONFLICT DO NOTHING across an iterator of rows. */
+  static <Row> Operation.BatchUpdate<Row> insertIgnoreMany(
+      String table, RowCodecNamed<Row> codec, Iterator<Row> rows, String... conflictColumns) {
+    return insertIgnoreSkeleton(table, codec, conflictColumns).updateMany(rows);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Internal skeleton builders — package-private so the row-driven entry
+  // points above can share the SQL-shape construction logic.
+  // ─────────────────────────────────────────────────────────────────────
+
+  private static <Row> RowParamBuilder<Row> insertSkeleton(
+      String table, RowCodecNamed<Row> codec, String... except) {
+    Fragment base = of("INSERT INTO " + table + " (" + columnList(codec, except) + ") VALUES (");
+    return RowParamBuilder.from(base, codec, except).append(")");
+  }
+
+  private static <Row> RowParamBuilder<Row> upsertSkeleton(
       String table, RowCodecNamed<Row> codec, String... conflictColumns) {
     if (conflictColumns.length == 0)
       throw new IllegalArgumentException("At least one conflict column required");
@@ -381,48 +441,20 @@ public sealed interface Fragment {
       }
     }
     String setClauses = String.join(", ", updateCols);
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
-        .paramRow(codec)
+    Fragment base = of("INSERT INTO " + table + " (" + cols + ") VALUES (");
+    return RowParamBuilder.from(base, codec)
         .append(") ON CONFLICT (" + conflict + ") DO UPDATE SET " + setClauses);
   }
 
-  /**
-   * PostgreSQL: INSERT ... ON CONFLICT (conflictColumns) DO NOTHING. Inserts the row only if no
-   * conflict exists. Returns the number of affected rows (0 or 1).
-   */
-  static <Row> RowParamBuilder<Row> insertIgnore(
+  private static <Row> RowParamBuilder<Row> insertIgnoreSkeleton(
       String table, RowCodecNamed<Row> codec, String... conflictColumns) {
     if (conflictColumns.length == 0)
       throw new IllegalArgumentException("At least one conflict column required");
     String cols = String.join(", ", codec.columnNames());
     String conflict = String.join(", ", conflictColumns);
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
-        .paramRow(codec)
+    Fragment base = of("INSERT INTO " + table + " (" + cols + ") VALUES (");
+    return RowParamBuilder.from(base, codec)
         .append(") ON CONFLICT (" + conflict + ") DO NOTHING");
-  }
-
-  /**
-   * PostgreSQL: INSERT ... ON CONFLICT ... DO UPDATE SET ... RETURNING. Combines upsert with
-   * returning the resulting row.
-   */
-  static <Row> RowParamBuilder<Row> upsertReturning(
-      String table, RowCodecNamed<Row> codec, String... conflictColumns) {
-    if (conflictColumns.length == 0)
-      throw new IllegalArgumentException("At least one conflict column required");
-    String cols = String.join(", ", codec.columnNames());
-    String conflict = String.join(", ", conflictColumns);
-    Set<String> conflictSet = Set.of(conflictColumns);
-    List<String> updateCols = new ArrayList<>();
-    for (String name : codec.columnNames()) {
-      if (!conflictSet.contains(name)) {
-        updateCols.add(name + " = EXCLUDED." + name);
-      }
-    }
-    String setClauses = String.join(", ", updateCols);
-    return of("INSERT INTO " + table + " (" + cols + ") VALUES (")
-        .paramRow(codec)
-        .append(
-            ") ON CONFLICT (" + conflict + ") DO UPDATE SET " + setClauses + " RETURNING " + cols);
   }
 
   private static String columnList(RowCodecNamed<?> codec, String... except) {
@@ -866,20 +898,6 @@ public sealed interface Fragment {
     return new ParamBuilders.ParamBuilder1<>(append(new Param<>(type)), type);
   }
 
-  default <Row> RowParamBuilder<Row> paramRow(RowCodecNamed<Row> codec, String... except) {
-    List<DbType<?>> types = codec.columns();
-    List<String> names = codec.columnNames();
-    Set<String> exceptSet = except.length > 0 ? Set.of(except) : Set.of();
-    List<Fragment> fragments = new ArrayList<>();
-    List<Integer> indices = new ArrayList<>();
-    for (int i = 0; i < types.size(); i++) {
-      if (exceptSet.contains(names.get(i))) continue;
-      fragments.add(new Param<>(types.get(i)));
-      indices.add(i);
-    }
-    int[] includedIndices = indices.stream().mapToInt(Integer::intValue).toArray();
-    return new RowParamBuilder<>(append(Fragment.comma(fragments)), codec, includedIndices);
-  }
 
   @SuppressWarnings("unchecked")
   default <Row> Fragment row(RowCodecNamed<Row> codec, Row row, String... except) {

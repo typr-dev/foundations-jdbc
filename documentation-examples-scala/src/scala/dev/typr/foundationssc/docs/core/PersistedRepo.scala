@@ -21,11 +21,8 @@ object VenueRepo:
       .join(venueCodec)
       .to(PersistedVenue.apply, pv => (pv.id, pv.venue))
 
-  val insert: RowParamBuilder[Venue] =
-    Fragment.insertIntoReturning("venue", venueCodec, persistedVenueCodec)
-
   def insert(venue: Venue): OperationRead.Query[PersistedVenue] =
-    insert.updateReturning(venue, persistedVenueCodec.exactlyOne())
+    Fragment.insertOneReturning("venue", venueCodec, venue, persistedVenueCodec)
 
   val selectAll: OperationRead[List[PersistedVenue]] =
     sql"SELECT ${persistedVenueCodec.columnList} FROM venue"

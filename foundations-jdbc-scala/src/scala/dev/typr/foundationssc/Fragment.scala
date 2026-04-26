@@ -88,9 +88,6 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
     new Fragment(underlying.value(dbType.underlying.opt(), value.toJava))
   }
 
-  def paramRow[Row](parser: RowCodecNamed[Row], except: String*): RowParamBuilder[Row] =
-    new RowParamBuilder(underlying.paramRow(parser.underlying, except*))
-
   def row[Row](parser: RowCodecNamed[Row], row: Row, except: String*): Fragment =
     new Fragment(underlying.row(parser.underlying, row, except*))
 
@@ -242,29 +239,46 @@ object Fragment {
   def of(fragments: Fragment*): Fragment =
     new Fragment(dev.typr.foundations.Fragment.of(fragments.map(_.underlying)*))
 
-  def insertInto[Row](table: String, codec: RowCodecNamed[Row], except: String*): RowParamBuilder[Row] =
-    new RowParamBuilder(dev.typr.foundations.Fragment.insertInto(table, codec.underlying, except*))
-
   /** Emit `DROP TABLE IF EXISTS <table>`. Works on PostgreSQL, DuckDB, MariaDB, MySQL, SQL Server (2016+) and Oracle (23c+). DB2 does not support the
     * `IF EXISTS` clause — wrap the plain `DROP TABLE <table>` in a try/catch for SQLSTATE 42704.
     */
   def dropTableIfExists(table: String): Operation.Execute =
     new Operation.Execute(dev.typr.foundations.Fragment.dropTableIfExists(table))
 
-  def insertIntoReturning[Row](table: String, codec: RowCodecNamed[Row], except: String*): RowParamBuilder[Row] =
-    new RowParamBuilder(dev.typr.foundations.Fragment.insertIntoReturning(table, codec.underlying, except*))
+  def insertOne[Row](table: String, codec: RowCodecNamed[Row], row: Row, except: String*): Operation.Update =
+    new Operation.Update(dev.typr.foundations.Fragment.insertOne(table, codec.underlying, row, except*))
 
-  def insertIntoReturning[In](table: String, writeCodec: RowCodecNamed[In], readCodec: RowCodecNamed[?]): RowParamBuilder[In] =
-    new RowParamBuilder(dev.typr.foundations.Fragment.insertIntoReturning(table, writeCodec.underlying, readCodec.underlying))
+  def insertMany[Row](table: String, codec: RowCodecNamed[Row], rows: Iterator[Row], except: String*): Operation.BatchUpdate[Row] =
+    new Operation.BatchUpdate(dev.typr.foundations.Fragment.insertMany(table, codec.underlying, rows.asJava, except*))
 
-  def upsert[Row](table: String, codec: RowCodecNamed[Row], conflictColumns: String*): RowParamBuilder[Row] =
-    new RowParamBuilder(dev.typr.foundations.Fragment.upsert(table, codec.underlying, conflictColumns*))
+  def insertOneReturning[Row](table: String, codec: RowCodecNamed[Row], row: Row, except: String*): OperationRead.Query[Row] =
+    new OperationRead.Query(dev.typr.foundations.Fragment.insertOneReturning(table, codec.underlying, row, except*))
 
-  def upsertReturning[Row](table: String, codec: RowCodecNamed[Row], conflictColumns: String*): RowParamBuilder[Row] =
-    new RowParamBuilder(dev.typr.foundations.Fragment.upsertReturning(table, codec.underlying, conflictColumns*))
+  def insertOneReturning[In, Out](table: String, writeCodec: RowCodecNamed[In], row: In, readCodec: RowCodecNamed[Out]): OperationRead.Query[Out] =
+    new OperationRead.Query(dev.typr.foundations.Fragment.insertOneReturning(
+      table, writeCodec.underlying, row, readCodec.underlying))
 
-  def insertIgnore[Row](table: String, codec: RowCodecNamed[Row], conflictColumns: String*): RowParamBuilder[Row] =
-    new RowParamBuilder(dev.typr.foundations.Fragment.insertIgnore(table, codec.underlying, conflictColumns*))
+  def insertOneGenerated[Row, Out](
+      table: String, codec: RowCodecNamed[Row], row: Row,
+      generatedColumns: Array[String], parser: ResultSetParser[Out], except: String*
+  ): Operation.UpdateReturningGeneratedKeys[Out] =
+    new Operation.UpdateReturningGeneratedKeys(dev.typr.foundations.Fragment.insertOneGenerated(
+      table, codec.underlying, row, generatedColumns, parser.underlying, except*))
+
+  def upsertOne[Row](table: String, codec: RowCodecNamed[Row], row: Row, conflictColumns: String*): Operation.Update =
+    new Operation.Update(dev.typr.foundations.Fragment.upsertOne(table, codec.underlying, row, conflictColumns*))
+
+  def upsertMany[Row](table: String, codec: RowCodecNamed[Row], rows: Iterator[Row], conflictColumns: String*): Operation.BatchUpdate[Row] =
+    new Operation.BatchUpdate(dev.typr.foundations.Fragment.upsertMany(table, codec.underlying, rows.asJava, conflictColumns*))
+
+  def upsertOneReturning[Row](table: String, codec: RowCodecNamed[Row], row: Row, conflictColumns: String*): OperationRead.Query[Row] =
+    new OperationRead.Query(dev.typr.foundations.Fragment.upsertOneReturning(table, codec.underlying, row, conflictColumns*))
+
+  def insertIgnoreOne[Row](table: String, codec: RowCodecNamed[Row], row: Row, conflictColumns: String*): Operation.Update =
+    new Operation.Update(dev.typr.foundations.Fragment.insertIgnoreOne(table, codec.underlying, row, conflictColumns*))
+
+  def insertIgnoreMany[Row](table: String, codec: RowCodecNamed[Row], rows: Iterator[Row], conflictColumns: String*): Operation.BatchUpdate[Row] =
+    new Operation.BatchUpdate(dev.typr.foundations.Fragment.insertIgnoreMany(table, codec.underlying, rows.asJava, conflictColumns*))
 
   def row[Row](codec: RowCodecNamed[Row], row: Row, except: String*): Fragment =
     new Fragment(dev.typr.foundations.Fragment.EMPTY.row(codec.underlying, row, except*))

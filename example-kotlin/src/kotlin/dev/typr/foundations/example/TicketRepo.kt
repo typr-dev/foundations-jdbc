@@ -36,23 +36,21 @@ object TicketRepo {
         }
             .query(eventSummaryCodec.all())
 
-    val insertTicket: RowParamBuilder<Ticket> =
-        Fragment.insertIntoReturning("ticket", ticketCodec)
-
     fun purchaseTicket(
         eventId: EventId, tier: TicketTier, holderName: String, holderEmail: String?,
         price: Money, seatNumbers: List<Int>
-    ): OperationRead.Query<Ticket> = insertTicket.updateReturning(
+    ): OperationRead.Query<Ticket> = Fragment.insertOneReturning(
+        "ticket", ticketCodec,
         Ticket(
-                id = TicketId(UUID.randomUUID()),
-                eventId = eventId,
-                tier = tier,
-                holderName = holderName,
-                holderEmail = holderEmail,
-                price = price,
-                purchased = Instant.now(),
-                seatNumbers = seatNumbers
-            )
+            id = TicketId(UUID.randomUUID()),
+            eventId = eventId,
+            tier = tier,
+            holderName = holderName,
+            holderEmail = holderEmail,
+            price = price,
+            purchased = Instant.now(),
+            seatNumbers = seatNumbers
         )
+    )
 
 }

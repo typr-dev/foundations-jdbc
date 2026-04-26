@@ -22,11 +22,8 @@ object EventRepo {
             .value(venueIdType, venueId)
             .query(eventCodec.all())
 
-    val createEvent: RowParamBuilder<Event> =
-        Fragment.insertIntoReturning("event", eventCodec, "id")
-
     fun createEvent(event: Event): OperationRead.Query<Event> =
-        createEvent.updateReturning(event)
+        Fragment.insertOneReturning("event", eventCodec, event, "id")
 
     fun updateEventStatus(status: EventStatus, id: EventId): Operation.Update =
         Fragment.of("UPDATE event SET status = ")

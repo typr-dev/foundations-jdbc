@@ -12,9 +12,6 @@ object VenueRepo {
             .value(venueIdType, id)
             .query(venueCodec.maxOne())
 
-    val createVenue: RowParamBuilder<Venue> =
-        Fragment.insertIntoReturning("venue", venueCodec, "id")
-
     fun createVenue(venue: Venue): OperationRead.Query<Venue> =
-        createVenue.updateReturning(venue)
+        Fragment.insertOneReturning("venue", venueCodec, venue, "id")
 }

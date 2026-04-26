@@ -19,7 +19,9 @@ object FragmentRowGeneratedKeys:
   // For databases without RETURNING (DB2, Oracle, SQL Server, MariaDB):
   def insertGeneratedKey(product: Product)(using Connection): Int =
     Fragment
-      .insertInto("product", productCodec, "id")
-      .updateOneGenerated(product, Array("id"), RowCodec.of(PgTypes.int4).exactlyOne())
+      .insertOneGenerated(
+        "product", productCodec, product,
+        Array("id"), RowCodec.of(PgTypes.int4).exactlyOne(), "id"
+      )
       .run
   // stop

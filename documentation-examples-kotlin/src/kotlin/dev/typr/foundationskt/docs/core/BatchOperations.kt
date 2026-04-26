@@ -20,17 +20,11 @@ class BatchOperations {
 
     //start
     // Batch insert — all columns as parameters
-    val insertAll: RowParamBuilder<Product> =
-        Fragment.insertInto("product", productCodec)
-
     fun insertProducts(products: List<Product>): IntArray? =
-        insertAll.updateMany(products.iterator()).run(conn)
+        Fragment.insertMany("product", productCodec, products.iterator()).run(conn)
 
     // Batch insert — skip auto-generated ID column
-    val insertAutoId: RowParamBuilder<Product> =
-        Fragment.insertInto("product", productCodec, "id")
-
     fun insertProductsAutoId(products: List<Product>): IntArray? =
-        insertAutoId.updateMany(products.iterator()).run(conn)
+        Fragment.insertMany("product", productCodec, products.iterator(), "id").run(conn)
     //stop
 }

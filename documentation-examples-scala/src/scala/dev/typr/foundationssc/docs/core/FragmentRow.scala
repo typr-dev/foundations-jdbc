@@ -18,15 +18,9 @@ object FragmentRow:
 
   // start
   def insert(product: Product)(using Connection): Product =
-    Fragment
-      .insertIntoReturning("product", productCodec)
-      .updateReturning(product)
-      .run
+    Fragment.insertOneReturning("product", productCodec, product).run
 
   // Skip columns with database defaults — pass column names to except
   def insertWithDefault(product: Product)(using Connection): Product =
-    Fragment
-      .insertIntoReturning("product", productCodec, "id")
-      .updateReturning(product)
-      .run
+    Fragment.insertOneReturning("product", productCodec, product, "id").run
   // stop
