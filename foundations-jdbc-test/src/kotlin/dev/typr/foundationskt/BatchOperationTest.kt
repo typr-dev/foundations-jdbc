@@ -78,11 +78,10 @@ class BatchOperationTest {
         withDuckDb { conn, jdbcConn ->
             jdbcConn.createStatement().execute("CREATE TABLE products (id INTEGER, name VARCHAR, quantity INTEGER)")
 
-            val insertTemplate = Fragment.of("INSERT INTO products (")
+            val insertBuilder = Fragment.of("INSERT INTO products (")
                 .append(productCodec.columnList).append(") VALUES (")
                 .paramRow(productCodec)
                 .append(")")
-                .update()
 
             val products = listOf(
                 Product(1, "widget", 100),
@@ -90,7 +89,7 @@ class BatchOperationTest {
                 Product(3, "doohickey", 300)
             )
 
-            val counts = insertTemplate.onMany(products.iterator()).run(conn)
+            val counts = insertBuilder.updateMany(products.iterator()).run(conn)
             assertNotNull(counts)
             assertEquals(3, counts!!.size)
 
@@ -116,10 +115,9 @@ class BatchOperationTest {
                 "CREATE TABLE products2 (id INTEGER DEFAULT nextval('product_seq'), name VARCHAR, quantity INTEGER)"
             )
 
-            val insertTemplate = Fragment.of("INSERT INTO products2 (name, quantity) VALUES (")
+            val insertBuilder = Fragment.of("INSERT INTO products2 (name, quantity) VALUES (")
                 .paramRow(productCodec, "id")
                 .append(")")
-                .update()
 
             val products = listOf(
                 Product(0, "widget", 100),
@@ -127,7 +125,7 @@ class BatchOperationTest {
                 Product(0, "doohickey", 300)
             )
 
-            val counts = insertTemplate.onMany(products.iterator()).run(conn)
+            val counts = insertBuilder.updateMany(products.iterator()).run(conn)
             assertNotNull(counts)
             assertEquals(3, counts!!.size)
 
@@ -161,18 +159,15 @@ class BatchOperationTest {
         withDuckDb { conn, jdbcConn ->
             jdbcConn.createStatement().execute("CREATE TABLE products (id INTEGER, name VARCHAR, quantity INTEGER)")
 
-            val insertTemplate = Fragment.of("INSERT INTO products (")
+            val insertBuilder = Fragment.of("INSERT INTO products (")
                 .append(productCodec.columnList).append(") VALUES (")
                 .paramRow(productCodec)
                 .append(")")
-                .update()
 
-            // Single insert via .on()
-            insertTemplate.on(Product(1, "first", 10)).run(conn)
+            insertBuilder.updateOne(Product(1, "first", 10)).run(conn)
 
-            // Batch insert via .onMany()
             val batch = listOf(Product(2, "second", 20), Product(3, "third", 30))
-            insertTemplate.onMany(batch.iterator()).run(conn)
+            insertBuilder.updateMany(batch.iterator()).run(conn)
 
             val result = Fragment.of("SELECT id, name, quantity FROM products ORDER BY id")
                 .query(productCodec.all())

@@ -64,8 +64,8 @@ public final class OperationRunner {
               instrumented(ctx, umr.query(), () -> executor.executeUpdateManyReturning(umr, ctx));
           case Operation.UpdateReturningEach<?> ure ->
               instrumented(ctx, ure.query(), () -> executor.executeUpdateReturningEach(ure, ctx));
-          case Operation.UpdateManyTemplate<?> umt ->
-              instrumented(ctx, umt.fragment(), () -> executor.executeUpdateManyTemplate(umt, ctx));
+          case Operation.BatchUpdate<?> bu ->
+              instrumented(ctx, bu.fragment(), () -> executor.executeBatchUpdate(bu, ctx));
           case Operation.StreamingCopy<?> sc ->
               instrumented(
                   ctx, Fragment.of(sc.copyCommand()), () -> executor.executeStreamingCopy(sc, ctx));
@@ -114,12 +114,12 @@ public final class OperationRunner {
 
   private <A, B> B runThen(OperationRead.Then<A, B> t, InstrumentationContext ctx) {
     A a = run(t.source(), ctx);
-    return run(t.continuation().on(a), ctx);
+    return run(t.continuation().apply(a), ctx);
   }
 
   private <A, B> B runThen(Operation.Then<A, B> t, InstrumentationContext ctx) {
     A a = run(t.source(), ctx);
-    return run(t.continuation().on(a), ctx);
+    return run(t.continuation().apply(a), ctx);
   }
 
   @SuppressWarnings("unchecked")

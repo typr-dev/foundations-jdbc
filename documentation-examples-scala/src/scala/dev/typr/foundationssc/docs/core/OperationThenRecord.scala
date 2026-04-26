@@ -4,7 +4,7 @@ import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
-object TemplateThenFrom:
+object OperationThenRecord:
   case class NewUser(id: Int, name: String)
 
   val newUserCodec: RowCodec[NewUser] = RowCodec
@@ -16,26 +16,25 @@ object TemplateThenFrom:
   var tx: Transactor = null // placeholder
 
   // start
-  // 1-param template: insert user, return id and name
-  val insertUser: Template[String, NewUser] =
-    sql"INSERT INTO users(name) VALUES("
-      .param(PgTypes.text)
+  // Insert and return the new user (id + name).
+  def insertUser(name: String): OperationRead[NewUser] =
+    Fragment
+      .of("INSERT INTO users(name) VALUES(")
+      .value(PgTypes.text, name)
       .append(") RETURNING id, name")
       .query(newUserCodec.exactlyOne())
 
-  // 2-param template: log the creation with both fields
-  val logCreation: Template.Update2[Int, String] =
-    sql"INSERT INTO audit_log(user_id, username) VALUES("
-      .param(PgTypes.int4)
+  // Log the creation, taking the new user as input.
+  def logCreation(user: NewUser): Operation[Int] =
+    Fragment
+      .of("INSERT INTO audit_log(user_id, username) VALUES(")
+      .value(PgTypes.int4, user.id)
       .append(", ")
-      .param(PgTypes.text)
+      .value(PgTypes.text, user.name)
       .append(")")
       .update()
 
-  // Chain: .from() adapts the 2-param template to accept NewUser
+  // Chain: insertUser → returned NewUser → logCreation.
   def insertAndLog(): Int =
-    insertUser
-      .on("Alice")
-      .andThen(logCreation.from(_.id, _.name))
-      .transact(tx)
+    insertUser("Alice").andThen(user => logCreation(user)).transact(tx)
   // stop

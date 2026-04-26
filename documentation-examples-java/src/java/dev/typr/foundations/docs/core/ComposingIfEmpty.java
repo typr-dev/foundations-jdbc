@@ -20,29 +20,31 @@ public class ComposingIfEmpty {
 
   // start
   // Find-or-create pattern
-  TemplateRead.Query1<String, Optional<User>> findUser =
-      Fragment.of(
-              """
-              SELECT id, name, email
-              FROM users WHERE email =
-              """)
-          .param(PgTypes.text)
-          .query(userCodec.maxOne());
+  OperationRead<Optional<User>> findUser(String email) {
+    return Fragment.of(
+            """
+            SELECT id, name, email
+            FROM users WHERE email =
+            """)
+        .value(PgTypes.text, email)
+        .query(userCodec.maxOne());
+  }
 
-  TemplateRead.Query2<String, String, User> createUser =
-      Fragment.of(
-              """
-              INSERT INTO users(name, email)
-              VALUES(\
-              """)
-          .param(PgTypes.text)
-          .append(", ")
-          .param(PgTypes.text)
-          .append(") RETURNING *")
-          .query(userCodec.exactlyOne());
+  OperationRead<User> createUser(String name, String email) {
+    return Fragment.of(
+            """
+            INSERT INTO users(name, email)
+            VALUES(\
+            """)
+        .value(PgTypes.text, name)
+        .append(", ")
+        .value(PgTypes.text, email)
+        .append(") RETURNING *")
+        .query(userCodec.exactlyOne());
+  }
 
   User findOrCreate() {
-    return OperationRead.ifEmpty(findUser.on(email), createUser.on(name, email)).transact(tx);
+    return OperationRead.ifEmpty(findUser(email), createUser(name, email)).transact(tx);
   }
   // stop
 }

@@ -14,10 +14,6 @@ public final class QueryAnalyzer {
     return AnalysisRunner.analyze(analyzable, new JdbcStatementAnalyzer(conn.unwrap()));
   }
 
-  public static List<QueryAnalysis> analyze(Template<?, ?> template, Connection conn) {
-    return AnalysisRunner.analyze(template, new JdbcStatementAnalyzer(conn.unwrap()));
-  }
-
   public static List<QueryAnalysis> analyze(Operation<?> op, Connection conn) {
     return AnalysisRunner.analyze(op, new JdbcStatementAnalyzer(conn.unwrap()));
   }
@@ -34,14 +30,6 @@ public final class QueryAnalyzer {
   @Deprecated
   public static List<QueryAnalysis> analyze(Analyzable analyzable, java.sql.Connection conn) {
     return AnalysisRunner.analyze(analyzable, new JdbcStatementAnalyzer(conn));
-  }
-
-  /**
-   * @deprecated Use the overload that takes {@link Connection} instead.
-   */
-  @Deprecated
-  public static List<QueryAnalysis> analyze(Template<?, ?> template, java.sql.Connection conn) {
-    return AnalysisRunner.analyze(template, new JdbcStatementAnalyzer(conn));
   }
 
   /**
@@ -84,25 +72,6 @@ public final class QueryAnalyzer {
           + "'. Change the parameter type to match the column.";
     }
     return null;
-  }
-
-  @SuppressWarnings("rawtypes")
-  public static ResultSetParser<?> extractResultSetParser(Template<?, ?> template) {
-    return switch (template) {
-      case TemplateRead.Query1 q -> q.parser();
-      case TemplateRead.Query2 q -> q.parser();
-      case TemplateRead.Query3 q -> q.parser();
-      case TemplateRead.Query4 q -> q.parser();
-      case TemplateRead.Query5 q -> q.parser();
-      case TemplateRead.Query6 q -> q.parser();
-      case TemplateRead.Query7 q -> q.parser();
-      case TemplateRead.Query8 q -> q.parser();
-      case TemplateRead.Query9 q -> q.parser();
-      case TemplateRead.Query10 q -> q.parser();
-      case Template.From f -> extractResultSetParser(f.inner());
-      case RowTemplate.Query<?, ?> q -> q.resultParser();
-      default -> null;
-    };
   }
 
   public static List<DbType<?>> extractColumnTypes(ResultSetParser<?> parser) {

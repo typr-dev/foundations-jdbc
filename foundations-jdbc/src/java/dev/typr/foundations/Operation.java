@@ -14,7 +14,7 @@ public sealed interface Operation<Out> extends Analyzable
         Operation.UpdateMany,
         Operation.UpdateManyReturning,
         Operation.UpdateReturningEach,
-        Operation.UpdateManyTemplate,
+        Operation.BatchUpdate,
         Operation.StreamingCopy,
         Operation.Mapped,
         Operation.Then,
@@ -121,7 +121,7 @@ public sealed interface Operation<Out> extends Analyzable
     return combine(other).map(t -> t._1());
   }
 
-  default <B> Operation<B> then(Template<Out, B> next) {
+  default <B> Operation<B> then(java.util.function.Function<Out, Operation<B>> next) {
     return new Then<>(this, next);
   }
 
@@ -182,7 +182,8 @@ public sealed interface Operation<Out> extends Analyzable
     return new IfEmpty<>(check, fallback);
   }
 
-  static <A, B> Operation<B> createThen(Operation<A> source, Template<A, B> continuation) {
+  static <A, B> Operation<B> createThen(
+      Operation<A> source, java.util.function.Function<A, Operation<B>> continuation) {
     return new Then<>(source, continuation);
   }
 
@@ -286,19 +287,19 @@ public sealed interface Operation<Out> extends Analyzable
   }
 
   /**
-   * Batch executes a row-parameterized template. Unlike UpdateMany (which writes all codec fields),
+   * Batch-executes a row-parameterized fragment. Unlike UpdateMany (which writes all codec fields),
    * this only writes the fields specified by includedIndices, matching the Param holes in the
-   * fragment. Created by RowTemplate.Update.onMany().
+   * fragment. Created by {@link RowParamBuilder#updateMany}.
    *
    * <p>Parameter positions and types are computed once from the fragment tree before the loop. Each
    * row is then written directly to the PreparedStatement without rebuilding the fragment.
    */
-  record UpdateManyTemplate<Row>(
+  record BatchUpdate<Row>(
       Fragment fragment, RowCodecNamed<Row> codec, int[] includedIndices, Iterator<Row> rows)
       implements Operation<Optional<int[]>> {
     @Override
     public String description(boolean verbose) {
-      return "UpdateManyTemplate: " + fragment.renderInterpolated();
+      return "BatchUpdate: " + fragment.renderInterpolated();
     }
 
     @Override
@@ -332,14 +333,12 @@ public sealed interface Operation<Out> extends Analyzable
     }
   }
 
-  record Then<A, B>(Operation<A> source, Template<A, B> continuation) implements Operation<B> {
+  record Then<A, B>(
+      Operation<A> source, java.util.function.Function<A, Operation<B>> continuation)
+      implements Operation<B> {
     @Override
     public String description(boolean verbose) {
-      return "Then("
-          + source.description(verbose)
-          + " -> "
-          + continuation.description(verbose)
-          + ")";
+      return "Then(" + source.description(verbose) + " -> ?)";
     }
 
     @Override

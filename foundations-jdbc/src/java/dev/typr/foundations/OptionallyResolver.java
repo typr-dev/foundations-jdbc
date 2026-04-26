@@ -35,6 +35,7 @@ public final class OptionallyResolver {
           }
         }
       }
+      case Fragment.Branch b -> b; // already resolved at construction time
       case Fragment.Append a -> new Fragment.Append(resolve(a.a(), values), resolve(a.b(), values));
       case Fragment.Concat c ->
           new Fragment.Concat(c.frags().stream().map(f -> resolve(f, values)).toList());
@@ -42,56 +43,100 @@ public final class OptionallyResolver {
     };
   }
 
+  /**
+   * Expand all branch points ({@link Fragment.Optionally} and {@link Fragment.Branch}) into
+   * concrete variants for query analysis. Each branch point with N alternatives multiplies
+   * the variant count by N.
+   */
   public static List<Fragment> analysisVariants(Fragment fragment) {
-    List<Fragment.Optionally> optionals = new ArrayList<>();
-    collectOptionally(fragment, optionals);
+    List<BranchPoint> points = new ArrayList<>();
+    collectBranchPoints(fragment, points);
 
-    if (optionals.isEmpty()) {
+    if (points.isEmpty()) {
       return List.of(fragment);
     }
 
-    int n = optionals.size();
-    int combinations = 1 << n;
-    List<Fragment> variants = new ArrayList<>(combinations);
+    // Calculate total combinations: product of all alternative counts
+    int combinations = 1;
+    for (BranchPoint bp : points) {
+      combinations *= bp.alternativeCount();
+    }
 
-    for (int mask = 0; mask < combinations; mask++) {
+    List<Fragment> variants = new ArrayList<>(combinations);
+    for (int combo = 0; combo < combinations; combo++) {
       int[] idx = {0};
-      variants.add(replaceOptionally(fragment, optionals, mask, idx));
+      variants.add(expandVariant(fragment, points, combo, idx));
     }
 
     return variants;
   }
 
-  private static void collectOptionally(Fragment fragment, List<Fragment.Optionally> list) {
+  /** A branch point in the fragment tree — either Optionally (2 variants) or Branch (N variants). */
+  private sealed interface BranchPoint {
+    int alternativeCount();
+    Fragment alternative(int index);
+  }
+
+  private record OptionallyPoint(Fragment.Optionally node) implements BranchPoint {
+    @Override public int alternativeCount() { return 2; }
+    @Override public Fragment alternative(int index) {
+      return index == 0 ? node.inner() : Fragment.EMPTY;
+    }
+  }
+
+  private record BranchPointNode(Fragment.Branch node) implements BranchPoint {
+    @Override public int alternativeCount() { return node.variants().size(); }
+    @Override public Fragment alternative(int index) { return node.variants().get(index); }
+  }
+
+  private static void collectBranchPoints(Fragment fragment, List<BranchPoint> points) {
     switch (fragment) {
-      case Fragment.Optionally o -> list.add(o);
+      case Fragment.Optionally o -> points.add(new OptionallyPoint(o));
+      case Fragment.Branch b -> points.add(new BranchPointNode(b));
       case Fragment.Append a -> {
-        collectOptionally(a.a(), list);
-        collectOptionally(a.b(), list);
+        collectBranchPoints(a.a(), points);
+        collectBranchPoints(a.b(), points);
       }
       case Fragment.Concat c -> {
-        for (Fragment f : c.frags()) collectOptionally(f, list);
+        for (Fragment f : c.frags()) collectBranchPoints(f, points);
       }
       default -> {}
     }
   }
 
-  private static Fragment replaceOptionally(
-      Fragment fragment, List<Fragment.Optionally> optionals, int mask, int[] idx) {
+  private static Fragment expandVariant(
+      Fragment fragment, List<BranchPoint> points, int combo, int[] idx) {
     return switch (fragment) {
       case Fragment.Optionally o -> {
-        int i = idx[0]++;
-        boolean include = (mask & (1 << i)) != 0;
-        yield include ? o.inner() : Fragment.EMPTY;
+        BranchPoint bp = points.get(idx[0]++);
+        int choice = choiceForPoint(combo, idx[0] - 1, points);
+        yield bp.alternative(choice);
+      }
+      case Fragment.Branch b -> {
+        BranchPoint bp = points.get(idx[0]++);
+        int choice = choiceForPoint(combo, idx[0] - 1, points);
+        yield bp.alternative(choice);
       }
       case Fragment.Append a ->
           new Fragment.Append(
-              replaceOptionally(a.a(), optionals, mask, idx),
-              replaceOptionally(a.b(), optionals, mask, idx));
+              expandVariant(a.a(), points, combo, idx),
+              expandVariant(a.b(), points, combo, idx));
       case Fragment.Concat c ->
           new Fragment.Concat(
-              c.frags().stream().map(f -> replaceOptionally(f, optionals, mask, idx)).toList());
+              c.frags().stream().map(f -> expandVariant(f, points, combo, idx)).toList());
       default -> fragment;
     };
+  }
+
+  /**
+   * Given a combination index and a point index, compute which alternative to use.
+   * Uses mixed-radix decomposition: each point can have a different number of alternatives.
+   */
+  private static int choiceForPoint(int combo, int pointIndex, List<BranchPoint> points) {
+    int divisor = 1;
+    for (int i = pointIndex + 1; i < points.size(); i++) {
+      divisor *= points.get(i).alternativeCount();
+    }
+    return (combo / divisor) % points.get(pointIndex).alternativeCount();
   }
 }

@@ -9,5 +9,5 @@ class UserService(tx: Transactor):
     UserRepo.selectAll.transact(tx)
 
   def findUser(id: Int): Option[User] =
-    UserRepo.selectById.on(id).transact(tx)
+    UserRepo.selectById(id).transact(tx)
 //stop

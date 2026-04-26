@@ -18,17 +18,17 @@ object BatchOperations:
 
   // start
   // Batch insert — all columns as parameters
-  val insertAll: RowTemplate.Update[Product] =
+  val insertAll: RowParamBuilder[Product] =
     Fragment.insertInto("product", productCodec)
 
   // Connection is provided implicitly by the caller (e.g. inside transact { })
   def insertProducts(products: List[Product])(using Connection): Option[Array[Int]] =
-    insertAll.onMany(products.iterator).run
+    insertAll.updateMany(products.iterator).run
 
   // Batch insert — skip auto-generated ID column
-  val insertAutoId: RowTemplate.Update[Product] =
+  val insertAutoId: RowParamBuilder[Product] =
     Fragment.insertInto("product", productCodec, "id")
 
   def insertProductsAutoId(products: List[Product])(using Connection): Option[Array[Int]] =
-    insertAutoId.onMany(products.iterator).run
+    insertAutoId.updateMany(products.iterator).run
   // stop

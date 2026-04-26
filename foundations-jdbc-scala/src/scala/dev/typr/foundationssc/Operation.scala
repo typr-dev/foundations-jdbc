@@ -43,8 +43,8 @@ trait Operation[Out] extends Analyzable:
   def productL[B](other: Operation[B]): Operation[Out] =
     combine(other).map(_._1)
 
-  def andThen[B](template: Template[Out, B]): Operation[B] =
-    Operation.ThenOp(this, template)
+  def andThen[B](next: Out => Operation[B]): Operation[B] =
+    Operation.ThenOp(this, next)
 
   def named(name: String): Operation[Out] =
     Operation.JavaWrapped(underlying.named(name))
@@ -77,7 +77,7 @@ object Operation:
   class UpdateReturningEach[Row](private val javaOp: dev.typr.foundations.Operation.UpdateReturningEach[Row]) extends Operation[List[Row]]:
     def underlying: dev.typr.foundations.Operation[List[Row]] = javaOp.map(jl => jl.asScala.toList)
 
-  class UpdateManyTemplate[Row](private val javaOp: dev.typr.foundations.Operation.UpdateManyTemplate[Row]) extends Operation[Option[Array[Int]]]:
+  class BatchUpdate[Row](private val javaOp: dev.typr.foundations.Operation.BatchUpdate[Row]) extends Operation[Option[Array[Int]]]:
     def underlying: dev.typr.foundations.Operation[Option[Array[Int]]] = javaOp.map(x => x.map(a => a).toScala)
 
   class StreamingCopy[Row](private val javaOp: dev.typr.foundations.Operation.StreamingCopy[Row]) extends Operation[Long]:
@@ -95,10 +95,13 @@ object Operation:
 
   private[foundationssc] class ThenOp[A, B](
       source: Operation[A],
-      continuation: Template[A, B]
+      continuation: A => Operation[B]
   ) extends Operation[B]:
     def underlying: dev.typr.foundations.Operation[B] =
-      new dev.typr.foundations.Operation.Then(source.underlying, continuation.underlying)
+      new dev.typr.foundations.Operation.Then(
+        source.underlying,
+        (a: A) => continuation(a).underlying
+      )
 
   private[foundationssc] class JavaWrapped[Out](val underlying: dev.typr.foundations.Operation[Out]) extends Operation[Out]
 

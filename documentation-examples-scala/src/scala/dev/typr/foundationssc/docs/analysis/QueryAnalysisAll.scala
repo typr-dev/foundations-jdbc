@@ -13,9 +13,10 @@ object QueryAnalysisAll:
     .field(PgTypes.text)(_.name)
     .build(User.apply)
 
-  val insertUser: Template[String, Int] =
-    sql"INSERT INTO users(name) VALUES("
-      .param(PgTypes.text)
+  def insertUser(name: String): OperationRead[Int] =
+    Fragment
+      .of("INSERT INTO users(name) VALUES(")
+      .value(PgTypes.text, name)
       .append(") RETURNING id")
       .query(RowCodec.of(PgTypes.int4).exactlyOne())
 
@@ -25,9 +26,8 @@ object QueryAnalysisAll:
 
   // start
   def analyzeComposedOperation(conn: Connection): Unit =
-    // Build a composed operation
     val transaction: Operation[?] =
-      insertUser.on("Alice").productL(allUsers)
+      insertUser("Alice").productL(allUsers)
 
     // Analyze every statement in the tree
     val results: List[QueryAnalysis] =

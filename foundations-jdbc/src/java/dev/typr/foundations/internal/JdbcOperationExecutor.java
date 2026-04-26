@@ -215,8 +215,8 @@ public final class JdbcOperationExecutor implements OperationExecutor {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <Row> Optional<int[]> executeUpdateManyTemplate(
-      Operation.UpdateManyTemplate<Row> op, InstrumentationContext ctx) {
+  public <Row> Optional<int[]> executeBatchUpdate(
+      Operation.BatchUpdate<Row> op, InstrumentationContext ctx) {
     try {
       String sql = applySql(op.fragment().render(), ctx);
       int[] paramPositions = op.fragment().paramPositions();

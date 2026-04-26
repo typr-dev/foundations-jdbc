@@ -15,25 +15,17 @@ object FragmentComposing:
     .build(ProductRow.apply)
 
   var tx: Transactor = null // placeholder
+  val namePattern: Option[String] = Some("%widget%")
   val maxPrice: Option[BigDecimal] = Some(BigDecimal("100"))
 
   // start
-  // Build small reusable filters
-  def byName(name: String): Fragment =
-    sql"name ILIKE ${PgTypes.text(name)}"
-
-  def cheaperThan(max: BigDecimal): Fragment =
-    sql"price < ${PgTypes.numeric(max)}"
-
-  // Compose dynamically — only include the filters that are present
+  // Compose dynamic filters with the `optionally` DSL. Each `.optionally().append(...)`
+  // is a branch point Query Analysis verifies against the schema, even when
+  // the runtime never takes that branch at this call site.
   def query(): List[ProductRow] =
-    val filters: List[Fragment] =
-      List(
-        Some(byName("%widget%")),
-        maxPrice.map(cheaperThan)
-      ).flatten
-
-    sql"SELECT * FROM product ${Fragment.whereAnd(filters)}"
+    sql"SELECT id, name, price FROM product WHERE 1 = 1"
+      .optionally(namePattern).append(" AND name ILIKE ", PgTypes.text)
+      .optionally(maxPrice).append(" AND price < ", PgTypes.numeric)
       .query(rowCodec.all())
       .transact(tx)
   // stop

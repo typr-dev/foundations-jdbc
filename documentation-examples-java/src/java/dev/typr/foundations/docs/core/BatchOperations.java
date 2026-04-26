@@ -22,17 +22,17 @@ public class BatchOperations {
 
   // start
   // Batch insert — all columns as parameters
-  RowTemplate.Update<Product> insertAll = Fragment.insertInto("product", productCodec);
+  RowParamBuilder<Product> insertAll = Fragment.insertInto("product", productCodec);
 
   Optional<int[]> insertProducts(List<Product> products) {
-    return insertAll.onMany(products.iterator()).run(conn);
+    return insertAll.updateMany(products.iterator()).run(conn);
   }
 
   // Batch insert — skip auto-generated ID column
-  RowTemplate.Update<Product> insertAutoId = Fragment.insertInto("product", productCodec, "id");
+  RowParamBuilder<Product> insertAutoId = Fragment.insertInto("product", productCodec, "id");
 
   Optional<int[]> insertProductsAutoId(List<Product> products) {
-    return insertAutoId.onMany(products.iterator()).run(conn);
+    return insertAutoId.updateMany(products.iterator()).run(conn);
   }
   // stop
 }

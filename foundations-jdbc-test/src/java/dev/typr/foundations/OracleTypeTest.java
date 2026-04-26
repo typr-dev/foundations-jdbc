@@ -1741,8 +1741,7 @@ public class OracleTypeTest {
     Fragment.of("INSERT INTO " + tableName + " (v) VALUES (")
         .paramRow(parser)
         .append(")")
-        .update()
-        .onMany(List.of(value).iterator())
+        .updateMany(List.of(value).iterator())
         .run(conn);
   }
 

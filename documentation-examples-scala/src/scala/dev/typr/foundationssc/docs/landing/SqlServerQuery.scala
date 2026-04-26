@@ -7,27 +7,27 @@ import dev.typr.foundationssc.data.*
 object SqlServerQuery:
   case class OrderRow(id: Int, name: String, price: BigDecimal)
   val orderRowCodec: RowCodec[OrderRow] = null // placeholder
+  val name: Option[String] = None
   val maxPrice: Option[BigDecimal] = None
+  val onlyActive: Boolean = false
+
   // start
-  // Build small reusable filters - SQL Server example
-  val nvarchar = SqlServerTypes.nvarchar
-  val decimal = SqlServerTypes.decimal
-
-  def byName(name: String): Fragment =
-    sql"name LIKE ${nvarchar(name)}"
-
-  def cheaperThan(max: BigDecimal): Fragment =
-    sql"price < ${decimal(max)}"
-
-  // Compose dynamically
-  val filters: List[Fragment] =
-    List(
-      Some(byName("%widget%")),
-      maxPrice.map(cheaperThan)
-    ).flatten
+  // Reusable conditional filters as Fragment extensions —
+  // each wraps `.optionally().append(...)` so calls read like domain verbs.
+  // Query Analysis still expands every branch at test time.
+  extension (f: Fragment)
+    def matchingName(n: Option[String]): Fragment =
+      f.optionally(n).append(" AND name LIKE ", SqlServerTypes.nvarchar)
+    def cheaperThan(max: Option[BigDecimal]): Fragment =
+      f.optionally(max).append(" AND price < ", SqlServerTypes.decimal)
+    def activeOnly(active: Boolean): Fragment =
+      f.optionally(active).append(" AND active = 1")
 
   def orders(using Connection): List[OrderRow] =
-    sql"SELECT * FROM orders ${Fragment.whereAnd(filters)}"
+    Fragment.of("SELECT id, name, price FROM orders WHERE 1 = 1")
+      .matchingName(name)
+      .cheaperThan(maxPrice)
+      .activeOnly(onlyActive)
       .query(orderRowCodec.all())
       .run
   // stop

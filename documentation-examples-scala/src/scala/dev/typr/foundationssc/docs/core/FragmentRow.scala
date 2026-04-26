@@ -20,13 +20,13 @@ object FragmentRow:
   def insert(product: Product)(using Connection): Product =
     Fragment
       .insertIntoReturning("product", productCodec)
-      .on(product)
+      .updateReturning(product)
       .run
 
   // Skip columns with database defaults — pass column names to except
   def insertWithDefault(product: Product)(using Connection): Product =
     Fragment
       .insertIntoReturning("product", productCodec, "id")
-      .on(product)
+      .updateReturning(product)
       .run
   // stop

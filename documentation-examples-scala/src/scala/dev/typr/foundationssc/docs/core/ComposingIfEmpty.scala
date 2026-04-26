@@ -20,24 +20,23 @@ object ComposingIfEmpty:
 
   // start
   // Find-or-create pattern
-  val findUser: TemplateRead[String, Option[User]] =
-    sql"SELECT id, name, email FROM users WHERE email = "
-      .param(PgTypes.text)
+  def findUser(email: String): OperationRead[Option[User]] =
+    Fragment
+      .of("SELECT id, name, email FROM users WHERE email = ")
+      .value(PgTypes.text, email)
       .query(userCodec.maxOne())
 
-  val createUser: TemplateRead.Query2[String, String, User] =
-    sql"INSERT INTO users(name, email) VALUES("
-      .param(PgTypes.text)
+  def createUser(name: String, email: String): OperationRead[User] =
+    Fragment
+      .of("INSERT INTO users(name, email) VALUES(")
+      .value(PgTypes.text, name)
       .append(", ")
-      .param(PgTypes.text)
+      .value(PgTypes.text, email)
       .append(") RETURNING *")
       .query(userCodec.exactlyOne())
 
   def findOrCreate(): User =
     OperationRead
-      .ifEmpty(
-        findUser.on(email),
-        createUser.on(name, email)
-      )
+      .ifEmpty(findUser(email), createUser(name, email))
       .transact(tx)
   // stop

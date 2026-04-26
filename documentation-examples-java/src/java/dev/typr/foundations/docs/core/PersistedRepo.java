@@ -24,8 +24,12 @@ class VenueRepo {
               Bijection.of(
                   t -> new PersistedVenue(t._1(), t._2()), pv -> Tuple.of(pv.id(), pv.venue())));
 
-  static final RowTemplate.Query<Venue, PersistedVenue> insert =
+  static final RowParamBuilder<Venue> insert =
       Fragment.insertIntoReturning("venue", venueCodec, persistedVenueCodec);
+
+  static OperationRead.Query<PersistedVenue> insert(Venue venue) {
+    return insert.updateReturning(venue, persistedVenueCodec.exactlyOne());
+  }
 
   static final OperationRead<List<PersistedVenue>> selectAll =
       Fragment.of("SELECT ")
@@ -33,11 +37,12 @@ class VenueRepo {
           .append(" FROM venue")
           .query(persistedVenueCodec.all());
 
-  static final Template<VenueId, Optional<PersistedVenue>> selectById =
-      Fragment.of("SELECT ")
-          .append(persistedVenueCodec.columnList())
-          .append(" FROM venue WHERE id = ")
-          .param(venueIdType)
-          .query(persistedVenueCodec.maxOne());
+  static OperationRead.Query<Optional<PersistedVenue>> selectById(VenueId id) {
+    return Fragment.of("SELECT ")
+        .append(persistedVenueCodec.columnList())
+        .append(" FROM venue WHERE id = ")
+        .value(venueIdType, id)
+        .query(persistedVenueCodec.maxOne());
+  }
 }
 // stop

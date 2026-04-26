@@ -4,7 +4,7 @@ import dev.typr.foundationssc.Fragment.sql
 import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
-object TemplateThen:
+object OperationThen:
   case class Order(id: Int, userId: Int, product: String)
 
   val orderCodec: RowCodec[Order] = RowCodec
@@ -17,22 +17,21 @@ object TemplateThen:
   var tx: Transactor = null // placeholder
 
   // start
-  // Define templates
-  val insertUser: Template[String, Int] =
-    sql"INSERT INTO users(name) VALUES("
-      .param(PgTypes.text)
+  // Reusable queries as methods
+  def insertUser(name: String): OperationRead[Int] =
+    Fragment
+      .of("INSERT INTO users(name) VALUES(")
+      .value(PgTypes.text, name)
       .append(") RETURNING id")
       .query(RowCodec.of(PgTypes.int4).exactlyOne())
 
-  val ordersByUser: Template[Int, List[Order]] =
-    sql"SELECT id, user_id, product FROM orders WHERE user_id = "
-      .param(PgTypes.int4)
+  def ordersByUser(userId: Int): OperationRead[List[Order]] =
+    Fragment
+      .of("SELECT id, user_id, product FROM orders WHERE user_id = ")
+      .value(PgTypes.int4, userId)
       .query(orderCodec.all())
 
-  // Chain: insert user, then fetch their orders
+  // Chain: insert user, then use returned id to fetch their orders.
   def insertAndFetchOrders(): List[Order] =
-    insertUser
-      .on("Alice")
-      .andThen(ordersByUser)
-      .transact(tx)
+    insertUser("Alice").andThen(id => ordersByUser(id)).transact(tx)
   // stop

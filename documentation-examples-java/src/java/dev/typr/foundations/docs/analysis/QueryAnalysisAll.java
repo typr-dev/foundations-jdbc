@@ -7,7 +7,6 @@ import dev.typr.foundations.PgTypes;
 import dev.typr.foundations.QueryAnalysis;
 import dev.typr.foundations.QueryAnalyzer;
 import dev.typr.foundations.RowCodec;
-import dev.typr.foundations.Template;
 import java.sql.Connection;
 import java.util.List;
 
@@ -23,18 +22,19 @@ public class QueryAnalysisAll {
 
   Connection conn = null; // placeholder
 
-  Template<String, Integer> insertUser =
-      Fragment.of("INSERT INTO users(name) VALUES(")
-          .param(PgTypes.text)
-          .append(") RETURNING id")
-          .query(RowCodec.of(PgTypes.int4).exactlyOne());
+  OperationRead<Integer> insertUser(String name) {
+    return Fragment.of("INSERT INTO users(name) VALUES(")
+        .value(PgTypes.text, name)
+        .append(") RETURNING id")
+        .query(RowCodec.of(PgTypes.int4).exactlyOne());
+  }
 
   OperationRead<List<User>> allUsers =
       Fragment.of("SELECT id, name FROM users").query(userCodec.all());
 
   // start
   void analyzeComposedOperation() {
-    Operation<?> transaction = insertUser.on("Alice").productL(allUsers);
+    Operation<?> transaction = insertUser("Alice").productL(allUsers);
 
     // Analyze every SQL statement in the tree
     List<QueryAnalysis> results = QueryAnalyzer.analyze(transaction, conn);

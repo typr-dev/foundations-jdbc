@@ -19,7 +19,7 @@ public final class UserService {
   }
 
   public Optional<User> findUser(int id) {
-    return UserRepo.selectById.on(id).transact(tx);
+    return UserRepo.selectById(id).transact(tx);
   }
 }
 // stop

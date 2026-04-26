@@ -10,10 +10,6 @@ object QueryAnalyzer {
     fun analyze(op: OperationRead<*>, conn: Connection): List<QueryAnalysis> =
         dev.typr.foundations.QueryAnalyzer.analyze(op.underlying, conn.javaConnection)
 
-    @JvmStatic
-    fun analyze(template: Template<*, *>, conn: Connection): List<QueryAnalysis> =
-        dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn.javaConnection)
-
     @Deprecated("Use the overload that takes Connection instead", ReplaceWith("analyze(analyzable, conn)"))
     @JvmStatic
     fun analyze(analyzable: Analyzable, conn: java.sql.Connection): List<QueryAnalysis> =
@@ -25,10 +21,4 @@ object QueryAnalyzer {
     fun analyze(op: OperationRead<*>, conn: java.sql.Connection): List<QueryAnalysis> =
         @Suppress("DEPRECATION")
         dev.typr.foundations.QueryAnalyzer.analyze(op.underlying, conn)
-
-    @Deprecated("Use the overload that takes Connection instead", ReplaceWith("analyze(template, conn)"))
-    @JvmStatic
-    fun analyze(template: Template<*, *>, conn: java.sql.Connection): List<QueryAnalysis> =
-        @Suppress("DEPRECATION")
-        dev.typr.foundations.QueryAnalyzer.analyze(template.underlying, conn)
 }

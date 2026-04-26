@@ -33,10 +33,10 @@ object ScannerMethods:
       .value(PgTypes.text, name)
       .query(cityCodec.maxOne())
 
-  // Templates — also discovered
-  val findById: Template[Int, Option[City]] =
+  // Methods with primitive arguments are also handled
+  def findById(id: Int): OperationRead[Option[City]] =
     Fragment
       .of("SELECT id, name FROM cities WHERE id = ")
-      .param(PgTypes.int4)
+      .value(PgTypes.int4, id)
       .query(cityCodec.maxOne())
   // stop

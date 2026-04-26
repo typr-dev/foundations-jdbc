@@ -20,12 +20,12 @@ public class FragmentRow {
 
   // start
   Product insert(Product product) {
-    return Fragment.insertIntoReturning("product", productCodec).on(product).run(conn);
+    return Fragment.insertIntoReturning("product", productCodec).updateReturning(product).run(conn);
   }
 
   // Skip columns with database defaults — pass column names to except
   Product insertWithDefault(Product product) {
-    return Fragment.insertIntoReturning("product", productCodec, "id").on(product).run(conn);
+    return Fragment.insertIntoReturning("product", productCodec, "id").updateReturning(product).run(conn);
   }
   // stop
 }

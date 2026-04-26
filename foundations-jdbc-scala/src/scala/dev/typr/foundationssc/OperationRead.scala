@@ -42,8 +42,8 @@ sealed trait OperationRead[Out] extends Operation[Out]:
   def productL[B](other: OperationRead[B]): OperationRead[Out] =
     combine(other).map(_._1)
 
-  def andThen[B](template: TemplateRead[Out, B]): OperationRead[B] =
-    OperationRead.ThenRead(this, template)
+  def andThen[B](next: Out => OperationRead[B]): OperationRead[B] =
+    OperationRead.ThenRead(this, next)
 
   override def named(name: String): OperationRead[Out] =
     OperationRead.JavaWrapped(underlying.named(name))
@@ -82,9 +82,9 @@ object OperationRead:
         .combine(second.underlying)
         .map[(A, B)]((t: dev.typr.foundations.Tuple.Tuple2[A, B]) => (t._1(), t._2()))
 
-  private[foundationssc] class ThenRead[A, B](source: OperationRead[A], continuation: TemplateRead[A, B]) extends OperationRead[B]:
+  private[foundationssc] class ThenRead[A, B](source: OperationRead[A], continuation: A => OperationRead[B]) extends OperationRead[B]:
     override val underlying: dev.typr.foundations.OperationRead[B] =
-      source.underlying.`then`(continuation.underlying)
+      source.underlying.thenRead((a: A) => continuation(a).underlying)
 
   private[foundationssc] class IfEmptyRead[T](check: OperationRead[Option[T]], fallback: OperationRead[T]) extends OperationRead[T]:
     override val underlying: dev.typr.foundations.OperationRead[T] =

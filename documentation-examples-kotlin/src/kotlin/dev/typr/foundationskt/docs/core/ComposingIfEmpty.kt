@@ -20,23 +20,20 @@ class ComposingIfEmpty {
 
     //start
     // Find-or-create pattern
-    val findUser: Template<String, User?> =
-        sql { "SELECT id, name, email FROM users WHERE email = " }
-            .param(PgTypes.text)
+    fun findUser(email: String): OperationRead<User?> =
+        Fragment.of("SELECT id, name, email FROM users WHERE email = ")
+            .value(PgTypes.text, email)
             .query(userCodec.maxOne())
 
-    val createUser: TemplateRead.Query2<String, String, User> =
-        sql { "INSERT INTO users(name, email) VALUES(" }
-            .param(PgTypes.text)
+    fun createUser(name: String, email: String): OperationRead<User> =
+        Fragment.of("INSERT INTO users(name, email) VALUES(")
+            .value(PgTypes.text, name)
             .append(", ")
-            .param(PgTypes.text)
+            .value(PgTypes.text, email)
             .append(") RETURNING *")
             .query(userCodec.exactlyOne())
 
     fun findOrCreate(): User =
-        Operation.ifEmpty(
-            findUser.on(email),
-            createUser.on(name, email)
-        ).transact(tx)
+        Operation.ifEmpty(findUser(email), createUser(name, email)).transact(tx)
     //stop
 }

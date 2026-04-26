@@ -21,13 +21,11 @@ public class FragmentRowGeneratedKeys {
   // start
   // For databases without RETURNING (DB2, Oracle, SQL Server, MariaDB):
   int insertGeneratedKey(Product product) {
-    return Fragment.insertIntoGeneratedKeys(
-            "product",
-            productCodec,
+    return Fragment.insertInto("product", productCodec, "id")
+        .updateOneGenerated(
+            product,
             new String[] {"id"},
-            RowCodec.of(PgTypes.int4).exactlyOne(),
-            "id")
-        .on(product)
+            RowCodec.of(PgTypes.int4).exactlyOne())
         .run(conn);
   }
   // stop
