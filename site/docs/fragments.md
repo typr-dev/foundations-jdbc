@@ -27,15 +27,6 @@ The builder pattern works in all languages and is useful for constructing fragme
 
 <Snippet file="core/FragmentBuilderBasic" />
 
-:::note `.value()` binds, `.param()` creates a hole
-The vocabulary matters because both occupy the same SQL `?` position:
-
-- `.value(type, x)` — **bound value**, immediately captured into the Fragment. Produces a ready-to-execute `OperationRead` or `Operation`.
-- `.param(type)` — **parameter hole**, used internally by `Fragment.insertMany(...)` and friends for row-parameterized batch inserts.
-
-`.param(type, value)` does not exist — if you know the value, use `.value(type, value)`.
-:::
-
 :::tip Which style should I use?
 - **Kotlin** — Use `sql { }` for queries where all values are known. Use the builder pattern when you need to compose fragments programmatically.
 - **Scala** — Same guidance, using `sql""` instead of `sql { }`.

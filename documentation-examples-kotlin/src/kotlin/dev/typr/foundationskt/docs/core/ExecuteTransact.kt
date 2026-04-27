@@ -22,5 +22,17 @@ class ExecuteTransact {
     //start
     // Single-operation form: .transact(tx) handles commit/rollback/close.
     fun cities(): List<City> = findCities.transact(tx)
+
+    // Multiple operations in one transaction: pass a block to tx.transact { … }.
+    // Each .run(mc) inside the block shares the same transaction.
+    fun citiesWithCount(): List<City> = tx.transact { mc ->
+        val list = findCities.run(mc)
+        val count = countCities.run(mc)
+        println("rows: $count")
+        list
+    }
     //stop
+
+    val countCities: OperationRead<Long> =
+        sql { "SELECT count(*) FROM city" }.queryExactlyOne(PgTypes.int8)
 }

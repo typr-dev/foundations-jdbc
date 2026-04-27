@@ -14,7 +14,7 @@ A `RowCodec<T>` replaces all of that with a single declaration: you list the dat
 - **Writing** — encodes values into a `PreparedStatement` for inserts, updates, and batch operations
 - **Streaming** — feeds rows into the PostgreSQL COPY protocol for [high-throughput inserts](./streaming-inserts)
 - **JSON** — round-trips your type to and from [JSON objects](./json) using column names as keys
-- **Analysis** — [Query Analysis](./query-analysis) inspects the codec's types to verify them against the database schema
+- **Analysis** — [Query Analysis](./query-analysis) inspects the codec's types to verify them against the database schema, including IN/OUT parameters of stored procedures and functions
 
 You define the mapping once, and it propagates everywhere.
 
@@ -30,6 +30,12 @@ The same codec drives reads, writes, JSON encoding, composite types, and query a
 A *named* row codec tracks both types and column names. This is the recommended default — the small overhead of naming fields pays for itself quickly:
 
 <Snippet file="core/NamedRowCodec" />
+
+:::important Column names are NOT used for reading
+Row codecs **always read by column index**, never by column name. The column names in a named codec exist for **SQL generation** (INSERT statements, column lists), **JSON encoding** (object keys), and **composite types** (field names) — they are never passed to `ResultSet.getString("name")`. When the codec reads a row, it calls `rs.getXxx(1)`, `rs.getXxx(2)`, etc. in declaration order.
+
+This is a deliberate design choice that will not change. Index-based reading is the only option because it composes safely: when you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
+:::
 
 Having names lets you:
 
@@ -65,12 +71,6 @@ The result type is `Tuple2<A, B>` in Java (with `._1()` and `._2()` accessors), 
 Named codecs also have `.join()` and `.leftJoin()` methods that preserve column names through the composition, so the combined codec can still be used with `columnList()`, `Fragment.insertOne()`, and JSON encoding.
 
 The same `Tuple` types appear whenever the library needs to return multiple values without a dedicated record type — `RowCodec.of(type1, type2, ...)` for multi-column ad-hoc queries, `.combine()` for composed operations, and `.join()` for joins all return `TupleN`. Accessors are 1-based: `._1()`, `._2()`, `._3()`, etc.
-
-:::important Column names are NOT used for reading
-Row codecs **always read by column index**, never by column name. The column names in a named codec exist for **SQL generation** (INSERT statements, column lists), **JSON encoding** (object keys), and **composite types** (field names) — they are never passed to `ResultSet.getString("name")`. When the codec reads a row, it calls `rs.getXxx(1)`, `rs.getXxx(2)`, etc. in declaration order.
-
-This is a deliberate design choice that will not change. Index-based reading is the only option because it composes safely: when you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe — each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
-:::
 
 ### Disambiguating duplicate column names with `.aliased()`
 
