@@ -19,7 +19,8 @@ public record QueryAnalysis(
     List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
     List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
     boolean parameterMetadataAvailable,
-    Optional<AlignmentError.PrepareFailure> prepareFailure) {
+    Optional<AlignmentError.PrepareFailure> prepareFailure,
+    int variantCount) {
 
   public QueryAnalysis(
       String sql,
@@ -32,7 +33,8 @@ public record QueryAnalysis(
         parameterAlignment,
         columnAlignment,
         parameterMetadataAvailable,
-        Optional.empty());
+        Optional.empty(),
+        1);
   }
 
   public QueryAnalysis(
@@ -47,7 +49,36 @@ public record QueryAnalysis(
         parameterAlignment,
         columnAlignment,
         parameterMetadataAvailable,
-        Optional.empty());
+        Optional.empty(),
+        1);
+  }
+
+  public QueryAnalysis(
+      String sql,
+      Optional<String> queryName,
+      List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
+      List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
+      boolean parameterMetadataAvailable,
+      Optional<AlignmentError.PrepareFailure> prepareFailure) {
+    this(
+        sql,
+        queryName,
+        parameterAlignment,
+        columnAlignment,
+        parameterMetadataAvailable,
+        prepareFailure,
+        1);
+  }
+
+  public QueryAnalysis withVariantCount(int variantCount) {
+    return new QueryAnalysis(
+        sql,
+        queryName,
+        parameterAlignment,
+        columnAlignment,
+        parameterMetadataAvailable,
+        prepareFailure,
+        variantCount);
   }
 
   /** Construct a prepare-failure analysis (metadata couldn't be read — driver rejected the SQL). */
@@ -58,7 +89,7 @@ public record QueryAnalysis(
       AlignmentError.PrepareFailure failure) {
     List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> declared = new ArrayList<>();
     for (DbType<?> t : paramTypes) declared.add(new Alignment.LeftOnly<>(t));
-    return new QueryAnalysis(sql, queryName, declared, List.of(), false, Optional.of(failure));
+    return new QueryAnalysis(sql, queryName, declared, List.of(), false, Optional.of(failure), 1);
   }
 
   public List<AlignmentError> parameterErrors() {
@@ -140,7 +171,23 @@ public record QueryAnalysis(
     return allErrors().isEmpty();
   }
 
+  public String displayName() {
+    if (queryName.isPresent()) return queryName.get();
+    String oneLine = sql.replace('\n', ' ').replaceAll("\\s+", " ").trim();
+    return oneLine.length() <= 60 ? oneLine : oneLine.substring(0, 57) + "...";
+  }
+
   public Str styledReport() {
+    if (succeeded()) {
+      var ok = Str.builder();
+      ok.boldGreen("✓ ").plain(displayName());
+      if (variantCount > 1) {
+        ok.gray(" (" + variantCount + " variants checked)");
+      }
+      ok.newline();
+      return ok.build();
+    }
+
     var b = Str.builder();
 
     // Header

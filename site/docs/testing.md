@@ -85,7 +85,7 @@ For detailed output showing each query, use `analyzeAll`:
 
 ```kotlin
 val report = checker.analyzeAll(analyzables)
-println(report.summaryColored())   // prints each query with ✓/✗
+println(report.summary(colored = true))   // prints each query with ✓/✗ (verbose box for failures)
 report.assertAllSucceeded()        // throws if any failed
 ```
 

@@ -30,37 +30,59 @@ public record CheckReport(List<QueryAnalysis> analyses) {
     }
   }
 
-  public Str styledSummary() {
+  public String summary(boolean colored) {
     var b = Str.builder();
-    long ddlCount = 0;
-    for (var a : analyses) {
-      boolean isDdl = isDdl(a);
+
+    for (QueryAnalysis a : analyses) {
       if (!a.succeeded()) {
-        b.red("  ✗ ").plain(displayName(a));
-      } else if (isDdl) {
-        ddlCount++;
-        b.gray("  · ").gray(displayName(a)).gray(" (DDL)");
+        b.add(a.styledReport());
+      }
+    }
+
+    long ddlGroups = 0;
+    long failedGroups = 0;
+    long totalGroups = 0;
+    int i = 0;
+    while (i < analyses.size()) {
+      QueryAnalysis head = analyses.get(i);
+      int groupSize = Math.max(1, head.variantCount());
+      int end = Math.min(analyses.size(), i + groupSize);
+      List<QueryAnalysis> group = analyses.subList(i, end);
+      boolean groupSucceeded = group.stream().allMatch(QueryAnalysis::succeeded);
+      boolean groupIsDdl = group.stream().allMatch(CheckReport::isDdl);
+      totalGroups++;
+      if (!groupSucceeded) {
+        failedGroups++;
+        b.red("  ✗ ").plain(head.displayName());
+      } else if (groupIsDdl) {
+        ddlGroups++;
+        b.gray("  · ").gray(head.displayName()).gray(" (DDL)");
       } else {
-        b.green("  ✓ ").plain(displayName(a));
+        b.green("  ✓ ").plain(head.displayName());
+      }
+      if (group.size() > 1) {
+        b.gray(" (" + group.size() + " variants)");
       }
       b.newline();
+      i = end;
     }
-    long failed = analyses.stream().filter(a -> !a.succeeded()).count();
-    long checked = analyses.size() - ddlCount;
+    long checked = totalGroups - ddlGroups;
     b.newline();
-    if (failed == 0) {
-      if (ddlCount == 0) {
-        b.boldGreen("All " + analyses.size() + " queries passed.");
+    if (failedGroups == 0) {
+      if (ddlGroups == 0) {
+        b.boldGreen("All " + totalGroups + " queries passed.");
       } else {
         b.boldGreen("All " + checked + " queries passed")
-            .gray(" (" + ddlCount + " DDL skipped)")
+            .gray(" (" + ddlGroups + " DDL skipped)")
             .boldGreen(".");
       }
     } else {
-      b.boldRed(failed + " of " + checked + " queries failed.");
+      b.boldRed(failedGroups + " of " + checked + " queries failed.");
     }
     b.newline();
-    return b.build();
+
+    Str str = b.build();
+    return colored ? str.render() : str.plainText();
   }
 
   /**
@@ -72,22 +94,8 @@ public record CheckReport(List<QueryAnalysis> analyses) {
     return a.parameterAlignment().isEmpty() && a.columnAlignment().isEmpty();
   }
 
-  public String summary() {
-    return styledSummary().plainText();
-  }
-
-  public String summaryColored() {
-    return styledSummary().render();
-  }
-
   @Override
   public String toString() {
-    return summary();
-  }
-
-  private static String displayName(QueryAnalysis a) {
-    if (a.queryName().isPresent()) return a.queryName().get();
-    String sql = a.sql().replace('\n', ' ').replaceAll("\\s+", " ").trim();
-    return sql.length() <= 60 ? sql : sql.substring(0, 57) + "...";
+    return summary(false);
   }
 }

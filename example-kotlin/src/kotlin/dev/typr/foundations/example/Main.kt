@@ -20,7 +20,7 @@ fun main() {
     val analyzables = AnalyzableScanner.scan("dev.typr.foundations.example")
     val checker = QueryChecker.create(tx)
     val report = checker.analyzeAll(analyzables)
-    print(report.summaryColored())
+    print(report.summary(true))
     report.assertAllSucceeded()
 
     val service = EventService(tx)
