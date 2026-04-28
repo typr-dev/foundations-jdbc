@@ -2,11 +2,23 @@ package dev.typr.foundations;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public interface QueryChecker {
 
   /** The transactor used for query checking. */
   Transactor transactor();
+
+  /**
+   * Number of threads {@link #analyzeAll} uses to analyze independent analyzables in parallel.
+   * Each thread requests its own connection from {@link #transactor()}, so the underlying
+   * DataSource needs to support {@code threads} concurrent connections. Defaults to 1 (sequential).
+   */
+  default int threads() {
+    return 1;
+  }
 
   /**
    * Create a QueryChecker backed by the given transactor. The transactor must be JDBC-backed —
@@ -15,7 +27,27 @@ public interface QueryChecker {
    * JDBC-backed.
    */
   static QueryChecker create(Transactor transactor) {
-    return () -> transactor;
+    return create(transactor, 1);
+  }
+
+  /**
+   * Create a QueryChecker that runs {@link #analyzeAll} with up to {@code threads} parallel
+   * workers. Use this when checking many independent queries against a connection pool — the
+   * speedup roughly tracks the number of CPUs available, capped by the pool size.
+   */
+  static QueryChecker create(Transactor transactor, int threads) {
+    if (threads < 1) throw new IllegalArgumentException("threads must be >= 1, got " + threads);
+    return new QueryChecker() {
+      @Override
+      public Transactor transactor() {
+        return transactor;
+      }
+
+      @Override
+      public int threads() {
+        return threads;
+      }
+    };
   }
 
   /** Analyze an analyzable. Override to provide non-JDBC analysis (e.g. wire-protocol based). */
@@ -72,12 +104,35 @@ public interface QueryChecker {
   }
 
   default CheckReport analyzeAll(List<? extends Analyzable> analyzables) {
+    long start = System.nanoTime();
+    int threadCount = threads();
     List<QueryAnalysis> all = new ArrayList<>();
-    for (Analyzable a : analyzables) {
-      List<QueryAnalysis> analyses = doAnalyze(a);
-      all.addAll(analyses);
+    if (threadCount <= 1 || analyzables.size() <= 1) {
+      for (Analyzable a : analyzables) {
+        all.addAll(doAnalyze(a));
+      }
+      return new CheckReport(List.copyOf(all), (System.nanoTime() - start) / 1_000_000);
     }
-    return new CheckReport(List.copyOf(all));
+    try (var pool = Executors.newFixedThreadPool(threadCount)) {
+      List<Future<List<QueryAnalysis>>> futures = new ArrayList<>(analyzables.size());
+      for (Analyzable a : analyzables) {
+        futures.add(pool.submit(() -> doAnalyze(a)));
+      }
+      for (Future<List<QueryAnalysis>> f : futures) {
+        try {
+          all.addAll(f.get());
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          throw new RuntimeException(ie);
+        } catch (ExecutionException ee) {
+          Throwable cause = ee.getCause();
+          if (cause instanceof RuntimeException re) throw re;
+          if (cause instanceof Error err) throw err;
+          throw new RuntimeException(cause);
+        }
+      }
+    }
+    return new CheckReport(List.copyOf(all), (System.nanoTime() - start) / 1_000_000);
   }
 
   default CheckReport analyzeAll(Analyzable... analyzables) {

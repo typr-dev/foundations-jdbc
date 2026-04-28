@@ -3,7 +3,11 @@ package dev.typr.foundations;
 import dev.typr.foundations.internal.Str;
 import java.util.List;
 
-public record CheckReport(List<QueryAnalysis> analyses) {
+public record CheckReport(List<QueryAnalysis> analyses, long elapsedMs) {
+
+  public CheckReport(List<QueryAnalysis> analyses) {
+    this(analyses, 0);
+  }
 
   public boolean allSucceeded() {
     for (var a : analyses) {
@@ -13,35 +17,20 @@ public record CheckReport(List<QueryAnalysis> analyses) {
   }
 
   public void assertAllSucceeded() {
-    StringBuilder errors = new StringBuilder();
-    List<QueryAnalysis> failed = new java.util.ArrayList<>();
-    int idx = 0;
-    for (var analysis : analyses) {
-      idx++;
-      if (!analysis.succeeded()) {
-        failed.add(analysis);
-        errors.append("\n\n--- Query ").append(idx).append(" ---\n");
-        errors.append(analysis.report());
-      }
-    }
-    if (!failed.isEmpty()) {
-      throw new QueryChecker.QueryCheckFailedException(
-          failed, failed.size() + " queries failed type checking:" + errors);
-    }
+    if (allSucceeded()) return;
+    List<QueryAnalysis> failed = analyses.stream().filter(a -> !a.succeeded()).toList();
+    throw new QueryChecker.QueryCheckFailedException(failed, summary(false));
   }
 
   public String summary(boolean colored) {
     var b = Str.builder();
 
-    for (QueryAnalysis a : analyses) {
-      if (!a.succeeded()) {
-        b.add(a.styledReport());
-      }
-    }
-
+    // Group analyses by query name (variants share a name)
     long ddlGroups = 0;
     long failedGroups = 0;
     long totalGroups = 0;
+    var failedReports = Str.builder();
+    var successLines = Str.builder();
     int i = 0;
     while (i < analyses.size()) {
       QueryAnalysis head = analyses.get(i);
@@ -51,33 +40,56 @@ public record CheckReport(List<QueryAnalysis> analyses) {
       boolean groupSucceeded = group.stream().allMatch(QueryAnalysis::succeeded);
       boolean groupIsDdl = group.stream().allMatch(CheckReport::isDdl);
       totalGroups++;
+
       if (!groupSucceeded) {
         failedGroups++;
-        b.red("  ✗ ").plain(head.displayName());
+        for (QueryAnalysis a : group) {
+          if (!a.succeeded()) {
+            failedReports.add(a.styledReportBody());
+            failedReports.newline();
+          }
+        }
       } else if (groupIsDdl) {
         ddlGroups++;
-        b.gray("  · ").gray(head.displayName()).gray(" (DDL)");
       } else {
-        b.green("  ✓ ").plain(head.displayName());
+        successLines.green("  ✓ ").plain(head.displayName());
+        if (group.size() > 1) {
+          successLines.gray(" (" + group.size() + " variants)");
+        }
+        successLines.newline();
       }
-      if (group.size() > 1) {
-        b.gray(" (" + group.size() + " variants)");
-      }
-      b.newline();
       i = end;
     }
+
+    // 1. Header
+    b.newline();
+    b.cyan("╔══════════════════════════════════════════════════════════════════════════════╗").newline();
+    b.cyan("║").bold("  Query Analysis Report                                                       ").cyan("║").newline();
+    b.cyan("╚══════════════════════════════════════════════════════════════════════════════╝").newline();
+    b.newline();
+
+    // 2. Failed queries: count + full reports
+    if (failedGroups > 0) {
+      b.boldRed(failedGroups + " failed:").newline().newline();
+      b.add(failedReports.build());
+    }
+
+    // 3. Successful queries as one-liners
+    b.add(successLines.build());
+
+    // 4. Summary one-liner with timing
     long checked = totalGroups - ddlGroups;
     b.newline();
     if (failedGroups == 0) {
-      if (ddlGroups == 0) {
-        b.boldGreen("All " + totalGroups + " queries passed.");
-      } else {
-        b.boldGreen("All " + checked + " queries passed")
-            .gray(" (" + ddlGroups + " DDL skipped)")
-            .boldGreen(".");
-      }
+      b.boldGreen(checked + " queries passed");
     } else {
-      b.boldRed(failedGroups + " of " + checked + " queries failed.");
+      b.plain(failedGroups + " failed, " + (checked - failedGroups) + " passed");
+    }
+    if (ddlGroups > 0) {
+      b.gray(" (" + ddlGroups + " DDL skipped)");
+    }
+    if (elapsedMs > 0) {
+      b.gray(" (" + elapsedMs + "ms)");
     }
     b.newline();
 
