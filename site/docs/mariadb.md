@@ -4,11 +4,11 @@ title: MariaDB/MySQL Types
 
 import Snippet from '@site/src/components/Snippet';
 
-# MariaDB/MySQL Type Support
+# MariaDB/MySQL type support
 
-Foundations JDBC provides comprehensive support for MariaDB and MySQL data types, including unsigned integers, spatial types, and MySQL-specific features.
+Foundations JDBC supports MariaDB and MySQL data types, including unsigned integers, spatial types, and MySQL-specific features.
 
-## Integer Types (Signed)
+## Integer types (signed)
 
 | MariaDB Type | Java Type | Range |
 |--------------|-----------|-------|
@@ -20,7 +20,7 @@ Foundations JDBC provides comprehensive support for MariaDB and MySQL data types
 
 <Snippet file="mariadb/IntegerTypesSigned" />
 
-## Integer Types (Unsigned)
+## Integer types (unsigned)
 
 MariaDB supports unsigned integers, which are wrapped in type-safe unsigned types:
 
@@ -34,7 +34,7 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 
 <Snippet file="mariadb/IntegerTypesUnsigned" />
 
-## Fixed-Point Types
+## Fixed-point types
 
 | MariaDB Type | Java Type | Notes |
 |--------------|-----------|-------|
@@ -43,7 +43,7 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 
 <Snippet file="mariadb/FixedPointTypes" />
 
-## Floating-Point Types
+## Floating-point types
 
 | MariaDB Type | Java Type | Notes |
 |--------------|-----------|-------|
@@ -52,7 +52,7 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 
 <Snippet file="mariadb/FloatingPointTypes" />
 
-## Boolean Type
+## Boolean type
 
 | MariaDB Type | Java Type | Notes |
 |--------------|-----------|-------|
@@ -61,7 +61,7 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 
 <Snippet file="mariadb/BooleanType" />
 
-## Bit Types
+## Bit types
 
 | MariaDB Type | Java Type | Notes |
 |--------------|-----------|-------|
@@ -69,7 +69,7 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 
 <Snippet file="mariadb/BitTypes" />
 
-## String Types
+## String types
 
 | MariaDB Type | Java Type | Max Length |
 |--------------|-----------|------------|
@@ -82,7 +82,7 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 
 <Snippet file="mariadb/StringTypes" />
 
-## Binary Types
+## Binary types
 
 | MariaDB Type | Java Type | Max Length |
 |--------------|-----------|------------|
@@ -95,7 +95,7 @@ MariaDB supports unsigned integers, which are wrapped in type-safe unsigned type
 
 <Snippet file="mariadb/BinaryTypes" />
 
-## Date/Time Types
+## Date/time types
 
 | MariaDB Type | Java Type | Notes |
 |--------------|-----------|-------|
@@ -117,7 +117,7 @@ All four map to `LocalDateTime` (or `LocalDate`/`LocalTime`) because `LocalDateT
 For application-level "point in time" values, the idiomatic approach on MariaDB is either: (a) `DATETIME` with all writes normalized to UTC in application code, or (b) `BIGINT` epoch milliseconds. Neither matches a single built-in MariaDB type cleanly.
 :::
 
-## ENUM Type
+## ENUM type
 
 | MariaDB Type | Java Type |
 |--------------|-----------|
@@ -143,7 +143,7 @@ The column DDL must match the derived literal — `ENUM('PENDING','ACTIVE','COMP
 Fall back to the string-based overload `ofEnum("ENUM('pending',…)", s -> State.valueOf(s.toUpperCase()))` when the database labels differ from the Java enum's `name()` values (e.g. lowercase labels in the DB).
 :::
 
-## SET Type
+## SET type
 
 | MariaDB Type | Java Type |
 |--------------|-----------|
@@ -151,7 +151,7 @@ Fall back to the string-based overload `ofEnum("ENUM('pending',…)", s -> State
 
 <Snippet file="mariadb/SetType" />
 
-## JSON Type
+## JSON type
 
 | MariaDB Type | Java Type |
 |--------------|-----------|
@@ -159,7 +159,7 @@ Fall back to the string-based overload `ofEnum("ENUM('pending',…)", s -> State
 
 <Snippet file="mariadb/JsonType" />
 
-## Network Types (MariaDB 10.10+)
+## Network types (MariaDB 10.10+)
 
 | MariaDB Type | Java Type | Description |
 |--------------|-----------|-------------|
@@ -168,7 +168,7 @@ Fall back to the string-based overload `ofEnum("ENUM('pending',…)", s -> State
 
 <Snippet file="mariadb/NetworkTypes" />
 
-## UUID Type (MariaDB 10.7+)
+## UUID type (MariaDB 10.7+)
 
 | MariaDB Type | Java Type | Description |
 |--------------|-----------|-------------|
@@ -176,7 +176,7 @@ Fall back to the string-based overload `ofEnum("ENUM('pending',…)", s -> State
 
 <Snippet file="mariadb/UuidType" />
 
-## VECTOR Type (MariaDB 11.7+)
+## VECTOR type (MariaDB 11.7+)
 
 | MariaDB Type | Java Type | Description |
 |--------------|-----------|-------------|
@@ -184,7 +184,7 @@ Fall back to the string-based overload `ofEnum("ENUM('pending',…)", s -> State
 
 <Snippet file="mariadb/VectorType" />
 
-## Spatial Types
+## Spatial types
 
 MariaDB spatial types use the MariaDB Connector/J geometry classes:
 
@@ -201,13 +201,13 @@ MariaDB spatial types use the MariaDB Connector/J geometry classes:
 
 <Snippet file="mariadb/SpatialTypes" />
 
-## Nullable Types
+## Nullable types
 
 Any type can be made nullable using `.opt()`:
 
 <Snippet file="mariadb/NullableType" />
 
-## Custom Domain Types
+## Custom domain types
 
 Wrap base types with custom Java types using `transform`:
 

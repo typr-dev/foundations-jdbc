@@ -95,7 +95,7 @@ You do **not** need `foundations-jdbc-hikari`. Spring Boot's `spring-boot-starte
 - A `DataSource` bean is present (`@ConditionalOnBean(DataSource.class)`)
 - No existing `Transactor` bean is defined (`@ConditionalOnMissingBean(Transactor.class)`)
 
-Just configure your datasource in `application.properties`:
+Configure your datasource in `application.properties`:
 
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/mydb
@@ -107,7 +107,7 @@ Then inject the `Transactor` directly into your services:
 
 <Snippet file="landing/SpringTransactorExample" />
 
-## Transaction Behavior
+## Transaction behavior
 
 The `SpringTransactor` adapts its behavior based on the current Spring transaction context:
 
@@ -143,7 +143,7 @@ public class OrderService {
 
 Database errors throw `DatabaseException`, which is unchecked — so `@Transactional` rolls back automatically without any extra configuration.
 
-## Manual Configuration
+## Manual configuration
 
 If you need to customize the transactor (e.g., different datasource, adding a query listener), disable auto-configuration by defining your own `Transactor` bean:
 
@@ -159,6 +159,6 @@ public class AppConfig {
 
 Since `TransactorAutoConfiguration` uses `@ConditionalOnMissingBean`, your custom bean takes precedence.
 
-## Example Project
+## Example project
 
 See the [`example-spring-boot`](https://github.com/typr-dev/foundations-jdbc/tree/main/example-spring-boot) directory for a working Spring Boot application using DuckDB with foundations-jdbc.

@@ -8,7 +8,7 @@ import Snippet from '@site/src/components/Snippet';
 
 foundations-jdbc is designed to be tested against a real database. Use `.rollbackOnly()` for data isolation, `QueryChecker` for type verification, and `AnalyzableScanner` for automatic query discovery. Together, they give you a test suite that catches SQL bugs before production.
 
-## Rollback Isolation
+## Rollback isolation
 
 `.rollbackOnly()` wraps each call in a transaction and **rolls back** instead of committing. Your tests run against real SQL without leaving data behind:
 
@@ -19,7 +19,7 @@ val tx = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build())
 
 Each test gets a clean slate. No teardown scripts, no truncation, no data leaking between tests.
 
-## Setting Up a Test Database
+## Setting up a test database
 
 ### DuckDB (No Docker)
 
@@ -64,11 +64,11 @@ companion object {
 }
 ```
 
-## Query Analysis in Tests
+## Query analysis in tests
 
 [Query Analysis](./query-analysis) verifies that your SQL matches the database schema — parameter types, column types, nullability, and counts. Run it as a test to catch drift between your code and the database.
 
-### One Test for All Queries
+### One test for all queries
 
 `AnalyzableScanner` discovers every `OperationRead` and `Operation` in a package. `QueryChecker` verifies them all:
 
@@ -91,7 +91,7 @@ report.assertAllSucceeded()        // throws if any failed
 
 Add a new query anywhere in the package, and it's automatically included in the next test run. No manual list maintenance. See [Query Analysis](./query-analysis) for scanner configuration, directives, and the full report format.
 
-### Checking Individual Queries
+### Checking individual queries
 
 For queries that the scanner can't discover (dynamic SQL, special constructors), check them directly:
 
@@ -106,7 +106,7 @@ fun `search query type-checks`() {
 
 ## Patterns
 
-### Repository Tests
+### Repository tests
 
 Test repository operations against a real database with rollback isolation:
 
@@ -122,7 +122,7 @@ fun `insert and retrieve`() {
 }
 ```
 
-### Composed Operation Tests
+### Composed operation tests
 
 Test multi-step operations that run in a single transaction:
 
@@ -140,7 +140,7 @@ fun `transfer between accounts`() {
 }
 ```
 
-### Service Layer Tests
+### Service layer tests
 
 Pass a test transactor to your service:
 

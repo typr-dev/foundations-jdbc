@@ -6,11 +6,11 @@ import Snippet from '@site/src/components/Snippet';
 
 # Fragments
 
-A Fragment is a composable SQL building block — it holds a SQL string together with its bound parameters. There are two ways to build fragments: **string interpolation** (Kotlin and Scala) and the **builder pattern** (all languages).
+A Fragment is a SQL building block that holds a SQL string together with its bound parameters. Build fragments with **string interpolation** (Kotlin and Scala) or the **builder pattern** (all languages).
 
-## String Interpolation
+## String interpolation
 
-Kotlin uses `sql { }` and Scala uses `sql""` to build fragments from string templates. Database values are embedded as typed, bound parameters — never concatenated into the SQL string.
+Kotlin uses `sql { }` and Scala uses `sql""` to build fragments from string templates. Database values become typed, bound parameters. They are never concatenated into the SQL string.
 
 > For a thorough explanation of how `sql { }` works internally and its thread safety guarantees, see [Kotlin String Interpolation](./kotlin-interpolation).
 
@@ -21,7 +21,7 @@ Inside the interpolation block, you can embed:
 - **Bound values** — `${PgTypes.int4(userId)}` becomes a `?` parameter
 - **Other fragments** — `${codec.columnList}`, `${Fragment.whereAnd(filters)}`, or another `sql { }` / `sql""` block are spliced into the SQL
 
-## Builder Pattern
+## Builder pattern
 
 The builder pattern works in all languages and is useful for constructing fragments programmatically. Start from `Fragment.of("SELECT …")` (or `Fragment.builder()` for an empty start) and chain `.value(type, x)` / `.append(fragment)`:
 
@@ -33,19 +33,19 @@ The builder pattern works in all languages and is useful for constructing fragme
 - **Java** — Use the builder pattern for everything (no string interpolation available).
 :::
 
-## Composing Fragments
+## Composing fragments
 
 For dynamic queries — searches with optional filters, conditional clauses — chain `.optionally(value).append(sql, type)` onto a base fragment. Each `optionally` is a branch point [Query Analysis](./query-analysis) expands into all 2<sup>N</sup> possible SQL shapes, so every code path is verified against the schema:
 
 <Snippet file="core/FragmentComposing" />
 
-For genuinely list-shaped composition — joining a `List<Fragment>` from arbitrary sources — static factories like `Fragment.whereAnd()`, `Fragment.set()`, and `Fragment.comma()` handle SQL syntax (commas, AND/OR separators, SET clauses) so you don't have to:
+For list-shaped composition (joining a `List<Fragment>` from arbitrary sources), static factories like `Fragment.whereAnd()`, `Fragment.set()`, and `Fragment.comma()` handle SQL syntax (commas, AND/OR separators, SET clauses):
 
 <Snippet file="core/FragmentCombinators" />
 
 Other useful combinators: `Fragment.and()`, `Fragment.or()`, `Fragment.whereOr()`, `Fragment.orderBy()`, `Fragment.comma()`, `Fragment.parentheses()`.
 
-> See [Dynamic Queries](./dynamic-queries) for a deeper comparison of the two styles and when to reach for each — including the trade-offs around Query Analysis coverage.
+> See [Dynamic Queries](./dynamic-queries) for a comparison of the two styles, including trade-offs around Query Analysis coverage.
 
 ## IN-clause helper
 

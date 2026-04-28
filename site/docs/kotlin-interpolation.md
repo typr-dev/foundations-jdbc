@@ -4,7 +4,7 @@ title: Kotlin String Interpolation
 
 # Kotlin String Interpolation
 
-`sql { }` provides type-safe string interpolation for building SQL fragments in Kotlin. Write SQL with Kotlin's native `${}` syntax — every value becomes a prepared statement parameter, never concatenated into the SQL string. No other Kotlin database library offers this.
+`sql { }` provides type-safe string interpolation for building SQL fragments in Kotlin. Write SQL with Kotlin's native `${}` syntax; every value becomes a prepared statement parameter, never concatenated into the SQL string.
 
 ```kotlin
 val frag = sql { "SELECT * FROM users WHERE id = ${PgTypes.int4(userId)}" }
@@ -12,7 +12,7 @@ val frag = sql { "SELECT * FROM users WHERE id = ${PgTypes.int4(userId)}" }
 // With userId bound as a typed parameter
 ```
 
-## Basic Usage
+## Basic usage
 
 Bind values by calling a `DbType` as a function inside `sql { }`:
 
@@ -44,9 +44,9 @@ val frag = sql { "SELECT 1" }
 // Produces: SELECT 1 (no parameters)
 ```
 
-## Fragment Embedding
+## Fragment embedding
 
-Any `Fragment` can be embedded inside `sql { }` — its SQL is spliced directly into the result. This works because `Fragment.toString()` detects the active `SqlContext` and registers itself for splicing instead of returning rendered SQL.
+Any `Fragment` can be embedded inside `sql { }`. Its SQL is spliced directly into the result. This works because `Fragment.toString()` detects the active `SqlContext` and registers itself for splicing instead of returning rendered SQL.
 
 Embed a `columnList` from a named row codec:
 
@@ -79,7 +79,7 @@ val frag = sql { "SELECT * FROM $table WHERE id = ${PgTypes.int4(1)}" }
 // Produces: SELECT * FROM users WHERE id = ?
 ```
 
-## Composing Dynamic Queries
+## Composing dynamic queries
 
 Build filter lists conditionally and combine them:
 
@@ -112,17 +112,17 @@ if (filters.isNotEmpty()) {
 frag = sql { "$frag ORDER BY created_at DESC" }
 ```
 
-## What Not to Do
+## What not to do
 
-**Do not capture fragment references across threads within a single `sql { }` block.** The ThreadLocal context belongs to the thread executing the block. Since the block is not a suspend function, this is not something you can accidentally do — Kotlin prevents it structurally.
+**Do not capture fragment references across threads within a single `sql { }` block.** The ThreadLocal context belongs to the thread running the block. Since the block is not a suspend function, this is not something you can accidentally do; Kotlin prevents it structurally.
 
-**Do not use `sql { }` inside a suspend function where you expect suspension between `${}` expressions.** This is also impossible by design — the block parameter is `() -> String`, not `suspend () -> String`, so the compiler rejects any attempt to call suspending functions inside it.
+**Do not use `sql { }` inside a suspend function where you expect suspension between `${}` expressions.** This is also impossible by design: the block parameter is `() -> String`, not `suspend () -> String`, so the compiler rejects any attempt to call suspending functions inside it.
 
 **Do not rely on `toString()` for SQL output when a `SqlContext` is active.** Inside `sql { }`, calling `toString()` on a fragment registers it for splicing rather than returning its SQL. This is the intended behavior for embedding, but if you need the rendered SQL for logging inside a `sql { }` block, use `render()` instead.
 
-## Under the Hood
+## Under the hood
 
-### How It Works
+### How it works
 
 The `sql` function uses a `ThreadLocal<SqlContext>`. When you call `sql { block }`:
 
@@ -131,21 +131,21 @@ The `sql` function uses a `ThreadLocal<SqlContext>`. When you call `sql { block 
 3. After the block returns the interpolated string, `buildFragment()` splits it on the null-character delimiters, replacing each placeholder with its registered fragment.
 4. The ThreadLocal is restored to the previous context (or cleared if there was none) in a `finally` block.
 
-The result is a `Fragment` with proper SQL and correctly bound parameters — no string concatenation of user values ever occurs.
+The result is a `Fragment` with proper SQL and correctly bound parameters. No string concatenation of user values ever occurs.
 
-### Why It Is Safe
+### Why it is safe
 
-**Inline function** — `sql` is declared `inline`, so the block runs on the same thread with no suspension points. The ThreadLocal is set, used, and cleared within a single uninterruptible sequence.
+**Inline function.** `sql` is declared `inline`, so the block runs on the same thread with no suspension points. The ThreadLocal is set, used, and cleared within a single uninterruptible sequence.
 
-**Non-suspending block** — The block parameter is `() -> String`, not a suspend function. Kotlin's compiler prevents you from calling suspending functions inside it, which means the thread cannot change between setting and clearing the context.
+**Non-suspending block.** The block parameter is `() -> String`, not a suspend function. Kotlin's compiler prevents you from calling suspending functions inside it, which means the thread cannot change between setting and clearing the context.
 
-**ThreadLocal isolation** — Each thread gets its own `SqlContext`. Concurrent calls to `sql { }` on different threads never interfere with each other. This has been validated with 1,000 concurrent virtual threads and 1,000 concurrent coroutines, both with and without actual DuckDB query execution.
+**ThreadLocal isolation.** Each thread gets its own `SqlContext`. Concurrent calls to `sql { }` on different threads never interfere with each other. This has been validated with 1,000 concurrent virtual threads and 1,000 concurrent coroutines, both with and without actual DuckDB query execution.
 
-### Edge Cases
+### Edge cases
 
-**`Fragment.toString()` outside `sql { }`** — When there is no active `SqlContext`, `toString()` simply returns the rendered SQL string. There is no side effect and no registration occurs. This means you can safely log or inspect fragments without triggering any context-related behavior.
+**`Fragment.toString()` outside `sql { }`.**  When there is no active `SqlContext`, `toString()` returns the rendered SQL string with no side effects.
 
-**Nested `sql { }` calls** — `sql { }` blocks can be nested inline. An inner `sql { }` saves the outer context, creates its own, and restores the outer context when it completes. The inner call produces a `Fragment` whose `toString()` then registers it in the restored outer context:
+**Nested `sql { }` calls.** `sql { }` blocks can be nested inline. An inner `sql { }` saves the outer context, creates its own, and restores the outer context when it completes. The inner call produces a `Fragment` whose `toString()` then registers it in the restored outer context:
 
 ```kotlin
 val frag = sql { "SELECT * FROM t WHERE ${sql { "id = ${PgTypes.int4(1)}" }} AND name = ${PgTypes.text("test")}" }
@@ -160,7 +160,7 @@ val outer = sql { "SELECT * FROM t WHERE $inner AND name = ${PgTypes.text("test"
 // Produces: SELECT * FROM t WHERE id = ? AND name = ?
 ```
 
-**Parameters at boundaries** — Parameters at the very start or end of the SQL string, or consecutive parameters without intervening text, all work correctly:
+**Parameters at boundaries.** Parameters at the start or end of the SQL string, or consecutive parameters without intervening text, all work correctly:
 
 ```kotlin
 val start = sql { "${PgTypes.int4(1)} + 2" }          // ?::INTEGER + 2

@@ -6,17 +6,17 @@ import Snippet from '@site/src/components/Snippet';
 
 # Transactors
 
-A `Transactor` is how you run database operations. It obtains a connection, runs your code inside a transaction, and handles commit, rollback, and cleanup automatically.
+A `Transactor` runs database operations. It obtains a connection, runs your code inside a transaction, and handles commit, rollback, and cleanup.
 
 By default, each call is wrapped in a transaction: auto-commit off, commit on success, rollback on error, close always.
 
-## Setting Up
+## Setting up
 
-Each supported database has a typed config builder — your IDE will autocomplete all available options. Pass the config to `Transactor.create()`:
+Each supported database has a typed config builder. Pass the config to `Transactor.create()`:
 
 <Snippet file="core/TransactorSetup" />
 
-## Connection Settings
+## Connection settings
 
 Override connection-level defaults by passing `ConnectionSettings`:
 
@@ -31,7 +31,7 @@ Override connection-level defaults by passing `ConnectionSettings`:
 | `schema` | Set the default schema |
 | `connectionInitSql` | SQL executed once when each connection is created |
 
-## Connection Pooling
+## Connection pooling
 
 For production, use `HikariDataSourceFactory` from the `foundations-jdbc-hikari` module:
 
@@ -40,7 +40,7 @@ var pool = HikariDataSourceFactory.create(config);
 var tx = pool.transactor();
 ```
 
-## Single Connection Mode
+## Single connection mode
 
 `SingleConnectionDataSource` reuses one connection across all calls — needed for DuckDB in-memory, where each new connection creates a separate database:
 
@@ -49,7 +49,7 @@ var ds = SingleConnectionDataSource.create(config);
 var tx = ds.transactor();
 ```
 
-## Test Mode
+## Test mode
 
 Call `.rollbackOnly()` to roll back instead of committing — ideal for test isolation:
 
@@ -67,7 +67,7 @@ var tx = Transactor.create(config).withListener(myListener);
 
 See [Observability](./observability) for details.
 
-## Raw JDBC Access
+## Raw JDBC access
 
 `Transactor.create()` returns `TransactorJdbc` — a subtype of `Transactor` that exposes the underlying JDBC connection:
 
@@ -83,9 +83,7 @@ tx.executeJdbc(conn -> {
 
 This is an escape hatch for vendor-specific JDBC extensions, `DatabaseMetaData`, advisory locks, or migration tooling. `executeJdbc` is only available on `TransactorJdbc`.
 
-For normal queries and updates, use the typed `OperationRead` / `Operation` API — it works identically across all backends.
-
-## Error Handling
+## Error handling
 
 Database errors are thrown as `DatabaseException` — a sealed class with dialect-specific subtypes:
 

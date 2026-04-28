@@ -17,7 +17,7 @@ Each database has its own type hierarchy that knows exactly how to read and writ
 - **[SQL Server](./sqlserver)** — geography, geometry, hierarchyid, and Unicode types
 - **[DB2](./db2)** — standard SQL types with DB2-specific handling
 
-## Type-Safe Database Types
+## Type-safe database types
 
 Each database has its own typed hierarchy:
 

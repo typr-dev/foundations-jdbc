@@ -20,13 +20,13 @@ Write to the database — INSERT, UPDATE, DELETE, or DDL:
 
 <Snippet file="core/OperationUpdates" />
 
-## Returning Rows from Updates
+## Returning rows from updates
 
 `INSERT ... RETURNING` or `UPDATE ... RETURNING` — run a write and read back the affected rows:
 
 <Snippet file="core/OperationReturning" />
 
-## Execute (No Result)
+## Execute (no result)
 
 When you don't need the row count — DDL statements, fire-and-forget DML — use `.execute()` instead of `.update()`. It returns `Operation<Void>` (Java) / `Operation<Unit>` (Kotlin) / `Operation[Unit]` (Scala):
 
@@ -36,7 +36,7 @@ Fragment.of("CREATE TABLE users (id INT, name VARCHAR)").execute()
 
 This is equivalent to `.update().voided()`.
 
-## Running Operations
+## Running operations
 
 Use a [Transactor](./transactors) to obtain a connection, run the operation, and handle commit/rollback automatically:
 
@@ -50,7 +50,7 @@ For void operations — DDL, schema setup — use `mc.update()` inside a `transa
 
 <Snippet file="core/ExecuteVoid" />
 
-## Operation Modifiers
+## Operation modifiers
 
 Every operation supports these modifiers before execution:
 
@@ -62,11 +62,11 @@ Every operation supports these modifiers before execution:
 | `.map(row -> transform(row))` | Transforms the result after execution |
 | `.voided()` | Discards the result |
 
-## Composing Operations
+## Composing operations
 
-Operations can be composed as values — combined, sequenced, and chained — so that multiple database actions run in a single transaction without manual connection handling. For the full set of combinators (`.combineWith()`, `.then()`, `OperationRead.sequence()`, `OperationRead.ifEmpty()`, and more), see [Composing Operations](./composing-operations).
+Operations compose as values: combine, sequence, and chain them so that multiple database actions run in a single transaction without manual connection handling. For the full set of combinators (`.combineWith()`, `.then()`, `OperationRead.sequence()`, `OperationRead.ifEmpty()`, and more), see [Composing Operations](./composing-operations).
 
-Here's a quick taste — `.combineWith()` combines two independent operations:
+`.combineWith()` combines two independent operations:
 
 <Snippet file="core/ExecuteComposed" />
 

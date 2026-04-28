@@ -4,11 +4,11 @@ title: SQL Server Types
 
 import Snippet from '@site/src/components/Snippet';
 
-# SQL Server Type Support
+# SQL Server type support
 
-Foundations JDBC provides comprehensive support for SQL Server data types, including geography, geometry, hierarchyid, and Unicode types.
+Foundations JDBC supports SQL Server data types, including geography, geometry, hierarchyid, and Unicode types.
 
-## Key Differences
+## Key differences
 
 - **TINYINT is UNSIGNED** in SQL Server (0-255), unlike most other databases
 - **Separate Unicode types** (NCHAR, NVARCHAR, NTEXT) vs non-Unicode
@@ -16,7 +16,7 @@ Foundations JDBC provides comprehensive support for SQL Server data types, inclu
 - **UNIQUEIDENTIFIER** for UUIDs/GUIDs
 - **No native array support** - use table-valued parameters instead
 
-## Integer Types
+## Integer types
 
 | SQL Server Type | Java Type | Range | Notes |
 |-----------------|-----------|-------|-------|
@@ -27,7 +27,7 @@ Foundations JDBC provides comprehensive support for SQL Server data types, inclu
 
 <Snippet file="sqlserver/IntegerTypes" />
 
-## Fixed-Point Types
+## Fixed-point types
 
 | SQL Server Type | Java Type | Notes |
 |-----------------|-----------|-------|
@@ -38,7 +38,7 @@ Foundations JDBC provides comprehensive support for SQL Server data types, inclu
 
 <Snippet file="sqlserver/FixedPointTypes" />
 
-## Floating-Point Types
+## Floating-point types
 
 | SQL Server Type | Java Type | Notes |
 |-----------------|-----------|-------|
@@ -47,7 +47,7 @@ Foundations JDBC provides comprehensive support for SQL Server data types, inclu
 
 <Snippet file="sqlserver/FloatingPointTypes" />
 
-## Boolean Type
+## Boolean type
 
 | SQL Server Type | Java Type |
 |-----------------|-----------|
@@ -55,7 +55,7 @@ Foundations JDBC provides comprehensive support for SQL Server data types, inclu
 
 <Snippet file="sqlserver/BoolType" />
 
-## String Types (Non-Unicode)
+## String types (non-Unicode)
 
 | SQL Server Type | Java Type | Max Length | Notes |
 |-----------------|-----------|------------|-------|
@@ -66,7 +66,7 @@ Foundations JDBC provides comprehensive support for SQL Server data types, inclu
 
 <Snippet file="sqlserver/StringTypes" />
 
-## String Types (Unicode)
+## String types (Unicode)
 
 | SQL Server Type | Java Type | Max Length | Notes |
 |-----------------|-----------|------------|-------|
@@ -77,7 +77,7 @@ Foundations JDBC provides comprehensive support for SQL Server data types, inclu
 
 <Snippet file="sqlserver/UnicodeStringTypes" />
 
-## Binary Types
+## Binary types
 
 | SQL Server Type | Java Type | Max Length |
 |-----------------|-----------|------------|
@@ -88,7 +88,7 @@ Foundations JDBC provides comprehensive support for SQL Server data types, inclu
 
 <Snippet file="sqlserver/BinaryTypes" />
 
-## Date/Time Types
+## Date/time types
 
 | SQL Server Type | Java Type | Precision | Notes |
 |-----------------|-----------|-----------|-------|
@@ -117,7 +117,7 @@ If you need UTC-only "instant" semantics instead, use `DATETIME2` + a separate o
 
 <Snippet file="sqlserver/UuidType" />
 
-## XML Type
+## XML type
 
 | SQL Server Type | Java Type |
 |-----------------|-----------|
@@ -125,7 +125,7 @@ If you need UTC-only "instant" semantics instead, use `DATETIME2` + a separate o
 
 <Snippet file="sqlserver/XmlType" />
 
-## JSON Type
+## JSON type
 
 SQL Server 2016+ stores JSON as NVARCHAR(MAX):
 
@@ -135,7 +135,7 @@ SQL Server 2016+ stores JSON as NVARCHAR(MAX):
 
 <Snippet file="sqlserver/JsonType" />
 
-## Spatial Types
+## Spatial types
 
 SQL Server spatial types use the JDBC driver's native classes:
 
@@ -181,13 +181,13 @@ For hierarchical tree structures:
 
 <Snippet file="sqlserver/VectorType" />
 
-## Nullable Types
+## Nullable types
 
 Any type can be made nullable using `.opt()`:
 
 <Snippet file="sqlserver/NullableTypes" />
 
-## Custom Domain Types
+## Custom domain types
 
 Wrap base types with custom Java types using `transform`:
 

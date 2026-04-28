@@ -24,7 +24,7 @@ var telemetryConfig = TelemetryConfig.builder(DatabaseSystem.POSTGRESQL)
     .build();
 ```
 
-## Span Attributes
+## Span attributes
 
 Each query produces a span with attributes following [OTel Semantic Conventions v1.39.0](https://opentelemetry.io/docs/specs/semconv/database/):
 
@@ -38,7 +38,7 @@ Each query produces a span with attributes following [OTel Semantic Conventions 
 
 The span name is the operation's `.named()` value if set, otherwise `"DB query"`.
 
-## TelemetryConfig Options
+## TelemetryConfig options
 
 | Option | Default | Description |
 |--------|---------|-------------|
@@ -48,7 +48,7 @@ The span name is the operation's `.named()` value if set, otherwise `"DB query"`
 
 The listener uses **backdated spans** rather than ThreadLocal state. `beforeQuery` is a no-op. `afterQuery` and `failedQuery` each create a complete span by computing `Instant.now() - elapsed`. This is safe for virtual threads, nested queries, and composed listeners.
 
-## Pool Metrics
+## Pool metrics
 
 If you use HikariCP, register connection pool metrics:
 
@@ -62,7 +62,7 @@ Metrics follow the OTel database pool semantic conventions:
 | `db.client.connection.pending_requests` | Threads waiting for a connection |
 | `db.client.connection.max` | Maximum pool size |
 
-## Grafana Dashboard
+## Grafana dashboard
 
 A pre-built Grafana dashboard is included at `foundations-jdbc-otel/grafana/foundations-jdbc-dashboard.json`. Import it into Grafana and configure:
 

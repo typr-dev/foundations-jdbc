@@ -4,15 +4,15 @@ title: DuckDB Types
 
 import Snippet from '@site/src/components/Snippet';
 
-# DuckDB Type Support
+# DuckDB type support
 
-Foundations JDBC provides comprehensive support for DuckDB's rich type system, including nested types (LIST, STRUCT, MAP, UNION) and extended integer types.
+Foundations JDBC supports DuckDB's type system, including nested types (LIST, STRUCT, MAP, UNION) and extended integer types.
 
 :::warning Query Analysis on DuckDB is column-type-only
 DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so `QueryChecker`'s `.opt()` and wrong-parameter-type checks silently pass on DuckDB. Column type mismatches are still caught. If you test against DuckDB in-memory and deploy against PostgreSQL or another dialect, run analysis against the production dialect too — it will find issues DuckDB can't. See [Query Analysis: Database Behavior](./query-analysis-database-behavior) for the full matrix.
 :::
 
-## Integer Types (Signed)
+## Integer types (signed)
 
 | DuckDB Type | Java Type | Range |
 |-------------|-----------|-------|
@@ -24,7 +24,7 @@ DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so
 
 <Snippet file="duckdb/IntegerTypesSigned" />
 
-## Integer Types (Unsigned)
+## Integer types (unsigned)
 
 | DuckDB Type | Java Type | Range |
 |-------------|-----------|-------|
@@ -36,7 +36,7 @@ DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so
 
 <Snippet file="duckdb/IntegerTypesUnsigned" />
 
-## Floating-Point Types
+## Floating-point types
 
 | DuckDB Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -45,7 +45,7 @@ DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so
 
 <Snippet file="duckdb/FloatingPointTypes" />
 
-## Fixed-Point Types
+## Fixed-point types
 
 | DuckDB Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -54,7 +54,7 @@ DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so
 
 <Snippet file="duckdb/FixedPointTypes" />
 
-## Boolean Type
+## Boolean type
 
 | DuckDB Type | Java Type |
 |-------------|-----------|
@@ -62,7 +62,7 @@ DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so
 
 <Snippet file="duckdb/BoolType" />
 
-## String Types
+## String types
 
 | DuckDB Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -71,7 +71,7 @@ DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so
 
 <Snippet file="duckdb/StringTypes" />
 
-## Binary Types
+## Binary types
 
 | DuckDB Type | Java Type |
 |-------------|-----------|
@@ -79,7 +79,7 @@ DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so
 
 <Snippet file="duckdb/BinaryTypes" />
 
-## Bit String Type
+## Bit string type
 
 | DuckDB Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -87,7 +87,7 @@ DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so
 
 <Snippet file="duckdb/BitStringType" />
 
-## Date/Time Types
+## Date/time types
 
 | DuckDB Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -108,7 +108,7 @@ Because the storage *is* a universal instant, the library maps this column to `j
 **Note:** `TIME WITH TIME ZONE` (TIMETZ) is a distinct case: DuckDB's JDBC driver *does* preserve the original offset on round-trip (verified empirically), so that column maps to `OffsetTime`, not `Instant`. The DuckDB CLI renders TIMETZ in session-TZ which can make it look normalized, but that's display-only.
 :::
 
-### Timestamp Precision Variants
+### Timestamp precision variants
 
 | DuckDB Type | Java Type | Precision |
 |-------------|-----------|-----------|
@@ -119,7 +119,7 @@ Because the storage *is* a universal instant, the library maps this column to `j
 
 <Snippet file="duckdb/TimestampPrecision" />
 
-## UUID Type
+## UUID type
 
 | DuckDB Type | Java Type |
 |-------------|-----------|
@@ -127,7 +127,7 @@ Because the storage *is* a universal instant, the library maps this column to `j
 
 <Snippet file="duckdb/UuidType" />
 
-## JSON Type
+## JSON type
 
 | DuckDB Type | Java Type |
 |-------------|-----------|
@@ -135,7 +135,7 @@ Because the storage *is* a universal instant, the library maps this column to `j
 
 <Snippet file="duckdb/JsonType" />
 
-## Enum Type
+## Enum type
 
 <Snippet file="duckdb/EnumType" />
 
@@ -143,7 +143,7 @@ Because the storage *is* a universal instant, the library maps this column to `j
 The first argument to `ofEnum(sqlType, ...)` is used to cast bound parameters (e.g. `CAST(? AS status)`) and must match the name used in `CREATE TYPE status AS ENUM(...)` and in the column's declared type. If the column is typed `status_t` but you call `ofEnum("status", ...)`, inserts fail with `Type with name status does not exist`.
 :::
 
-## LIST Types
+## LIST types
 
 Any type can be made into a variable-length list with `.list()`. DuckDB renders as `T[]` and the Java representation is `List<T>`:
 
@@ -156,7 +156,7 @@ Any type can be made into a variable-length list with `.list()`. DuckDB renders 
 
 <Snippet file="duckdb/ListTypes" />
 
-## ARRAY Types
+## ARRAY types
 
 Fixed-size arrays use `.array(size)`. DuckDB enforces that every row has exactly `size` elements — ideal for embeddings, RGB colors, or any dense fixed-shape tensor. The Java representation is still `List<T>`:
 
@@ -167,7 +167,7 @@ Fixed-size arrays use `.array(size)`. DuckDB enforces that every row has exactly
 
 <Snippet file="duckdb/ArrayTypes" />
 
-## Nested Collections
+## Nested collections
 
 LIST and ARRAY compose freely in any combination:
 
@@ -180,7 +180,7 @@ LIST and ARRAY compose freely in any combination:
 
 <Snippet file="duckdb/NestedCollections" />
 
-## MAP Types
+## MAP types
 
 DuckDB's MAP type for key-value pairs:
 
@@ -191,7 +191,7 @@ DuckDB's MAP type for key-value pairs:
 
 <Snippet file="duckdb/MapTypes" />
 
-## Struct Types
+## Struct types
 
 DuckDB STRUCT types are built from a `RowCodecNamed` via `compositeOf`:
 
@@ -209,7 +209,7 @@ DuckDbType<List<Person>> personListType = personType.list();
 DuckDbType<List<Person>> trioType = personType.array(3);
 ```
 
-## UNION Types
+## UNION types
 
 DuckDB's UNION type for tagged unions:
 
@@ -218,13 +218,13 @@ DuckDB's UNION type for tagged unions:
 // The variants are defined by the table schema
 ```
 
-## Nullable Types
+## Nullable types
 
 Any type can be made nullable using `.opt()`:
 
 <Snippet file="duckdb/NullableTypes" />
 
-## Custom Domain Types
+## Custom domain types
 
 Wrap base types with custom Java types using `transform`:
 

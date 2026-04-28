@@ -8,19 +8,19 @@ import Snippet from '@site/src/components/Snippet';
 
 foundations-jdbc provides lightweight observability hooks: query listeners, named operations, timeouts, and interpolated SQL for debugging. Zero overhead when no listener is configured.
 
-## Query Listeners
+## Query listeners
 
 A `QueryListener` receives callbacks before and after every query. Implement the interface to add logging, metrics, or alerting:
 
 <Snippet file="core/QueryListenerBasic" />
 
-### Attaching to a Transactor
+### Attaching to a transactor
 
 Attach a listener to a `Transactor` so all operations are observed:
 
 <Snippet file="core/TransactorListener" />
 
-### Per-Operation Listeners
+### Per-operation listeners
 
 You can also attach a listener to a specific operation:
 
@@ -28,7 +28,7 @@ You can also attach a listener to a specific operation:
 operation.withListener(myListener).transactRead(tx);
 ```
 
-## Named Operations
+## Named operations
 
 Give operations a name with `.named()`. The name appears as a SQL comment prefix (`/* name */`) visible in `pg_stat_activity`, slow query logs, and listener callbacks:
 
@@ -36,9 +36,9 @@ Give operations a name with `.named()`. The name appears as a SQL comment prefix
 
 For composite operations (e.g. `a.combine(b).named("dashboard")`), each leaf query gets a unique suffix: `dashboard#1`, `dashboard#2`, etc. Single queries get no suffix.
 
-## Query Timeouts
+## Query timeouts
 
-`.timeout()` transfers a timeout to the database via `setQueryTimeout()`:
+`.timeout()` sets a query timeout on the database via `setQueryTimeout()`:
 
 ```java
 Fragment.of("SELECT * FROM large_table")
@@ -57,14 +57,14 @@ For listener configuration, see [Transactors](./transactors#observability).
 
 ## Patterns
 
-### Slow Query Detection
+### Slow query detection
 
 <Snippet file="core/QueryListenerSlowQuery" />
 
-### Micrometer Integration
+### Micrometer integration
 
 <Snippet file="core/QueryListenerMetrics" />
 
 ## OpenTelemetry
 
-For production-grade tracing and metrics, see the dedicated [OpenTelemetry](./opentelemetry) module. It provides `OtelQueryListener` (automatic span creation with semantic conventions), `PoolMetrics` (HikariCP gauges), and a Grafana dashboard template.
+For tracing and metrics, see the [OpenTelemetry](./opentelemetry) module. It provides `OtelQueryListener` (automatic span creation with semantic conventions), `PoolMetrics` (HikariCP gauges), and a Grafana dashboard template.

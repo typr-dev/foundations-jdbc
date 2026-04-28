@@ -10,7 +10,7 @@ foundations-jdbc separates read and write paths at the type level. Queries that 
 
 ## Two Transaction Modes
 
-`transact` opens a full read-write transaction (auto-commit off, explicit BEGIN/COMMIT). `transactRead` uses auto-commit mode — no BEGIN, no COMMIT, no rollback machinery.
+`transact` opens a full read-write transaction (auto-commit off, explicit BEGIN/COMMIT). `transactRead` uses auto-commit mode: no BEGIN, no COMMIT, no rollback.
 
 ## One-Liner Convenience
 
