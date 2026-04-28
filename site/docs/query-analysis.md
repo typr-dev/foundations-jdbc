@@ -3,6 +3,7 @@ title: Query Analysis
 ---
 
 import Snippet from '@site/src/components/Snippet';
+import ThemedImg from '@site/src/components/ThemedImg';
 
 # Query Analysis
 
@@ -37,8 +38,8 @@ Queries built with the [`optionally` DSL](./dynamic-queries) are expanded into a
 :::
 
 <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', margin: '1.5rem 0'}}>
-<img src="/img/query-analysis-success.png" alt="Query analysis: all types match" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '48%'}} />
-<img src="/img/query-analysis-nullability.png" alt="Query analysis: nullability mismatch detected" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '48%'}} />
+<ThemedImg light="/img/qa-type-mismatch-light.png" dark="/img/qa-type-mismatch-dark.png" alt="Query analysis: type mismatch detected" style={{maxWidth: '48%'}} />
+<ThemedImg light="/img/qa-nullability-light.png" dark="/img/qa-nullability-dark.png" alt="Query analysis: nullability mismatch detected" style={{maxWidth: '48%'}} />
 </div>
 
 ## Basic usage

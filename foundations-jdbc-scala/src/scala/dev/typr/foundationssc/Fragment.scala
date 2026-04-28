@@ -22,6 +22,8 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) extends AnyVal {
 
   def ++(other: Fragment): Fragment = append(other)
 
+  def pipe(f: Fragment => Fragment): Fragment = f(this)
+
   def query[T](parser: ResultSetParser[T]): OperationRead.Query[T] =
     OperationRead.Query(this, parser)
 

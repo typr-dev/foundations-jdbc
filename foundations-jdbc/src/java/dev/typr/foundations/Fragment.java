@@ -133,6 +133,11 @@ public sealed interface Fragment {
     return new Append(this, other);
   }
 
+  /** Apply a transformation function to this fragment. Enables chaining standalone functions. */
+  default Fragment pipe(java.util.function.Function<Fragment, Fragment> f) {
+    return f.apply(this);
+  }
+
   // ========== Conditional append DSL ==========
 
   /**

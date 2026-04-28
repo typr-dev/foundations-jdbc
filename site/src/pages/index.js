@@ -7,6 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import styles from './index.module.css';
 import Snippet from '@site/src/components/Snippet';
+import ThemedImg from '@site/src/components/ThemedImg';
 
 /* ------------------------------------------------------------------
    Reveal — scroll-triggered fade + rise using IntersectionObserver
@@ -481,48 +482,12 @@ function ProblemSection() {
    Query Analysis
    ------------------------------------------------------------------ */
 function QueryAnalysisReport() {
-  const gray = { color: '#64748b' };
-  const cyan = { color: '#22d3ee' };
-  const green = { color: '#4ade80' };
-  const red = { color: '#f87171' };
-  const yellow = { color: '#fbbf24' };
-  const bold = { fontWeight: 600 };
-  const white = { color: '#f8fafc' };
-  const boldRed = { color: '#f87171', fontWeight: 600 };
-
-  return (
-    <>
-      <span style={cyan}>╔══════════════════════════════════════════════════════════════════════════════╗</span>{"\n"}
-      <span style={cyan}>║</span><span style={bold}>  Query Analysis Report                                                       </span><span style={cyan}>║</span>{"\n"}
-      <span style={cyan}>╚══════════════════════════════════════════════════════════════════════════════╝</span>{"\n"}
-      {"\n"}
-      <span style={bold}>SQL:</span>{"\n"}
-      <span style={gray}>  SELECT id, name, created_at, email FROM users WHERE active = ?</span>{"\n"}
-      {"\n"}
-      <span style={gray}>┌─ </span><span style={bold}>Parameters </span><span style={gray}>─────────────────────────────────────────────────────────────────┐</span>{"\n"}
-      <span style={gray}>│  </span><span style={green}>✓</span><span style={white}> param[</span><span style={yellow}>1</span><span style={white}>]: </span><span style={cyan}>boolean             </span><span style={gray}> → </span><span style={white}>bool                                    </span><span style={gray}> │</span>{"\n"}
-      <span style={gray}>└──────────────────────────────────────────────────────────────────────────────┘</span>{"\n"}
-      {"\n"}
-      <span style={gray}>┌─ </span><span style={bold}>Columns </span><span style={gray}>────────────────────────────────────────────────────────────────────┐</span>{"\n"}
-      <span style={gray}>│  </span><span style={green}>✓</span><span style={white}> col[</span><span style={yellow}>1</span><span style={white}>]: </span><span style={cyan}>int4                </span><span style={gray}> → </span><span style={white}>id : int4                               </span><span style={gray}> │</span>{"\n"}
-      <span style={gray}>│  </span><span style={green}>✓</span><span style={white}> col[</span><span style={yellow}>2</span><span style={white}>]: </span><span style={cyan}>text                </span><span style={gray}> → </span><span style={white}>name : text                             </span><span style={gray}> │</span>{"\n"}
-      <span style={gray}>│  </span><span style={red}>✗</span><span style={white}> col[</span><span style={yellow}>3</span><span style={white}>]: </span><span style={cyan}>int4                </span><span style={gray}> → </span><span style={white}>created_at : timestamptz                </span><span style={gray}> │</span>{"\n"}
-      <span style={gray}>│  </span><span style={red}>✗</span><span style={white}> col[</span><span style={yellow}>4</span><span style={white}>]: </span><span style={cyan}>text                </span><span style={gray}> → </span><span style={white}>email : text (nullable)                 </span><span style={gray}> │</span>{"\n"}
-      <span style={gray}>└──────────────────────────────────────────────────────────────────────────────┘</span>{"\n"}
-      {"\n"}
-      <span style={boldRed}>✗ 2 error(s) found:</span>{"\n"}
-      {"\n"}
-      <span style={white}>  </span><span style={yellow}>1</span><span style={white}>. Column </span><span style={yellow}>3</span><span style={white}> '</span><span style={cyan}>created_at</span><span style={white}>': type mismatch</span>{"\n"}
-      <span style={gray}>     │ </span><span style={white}>Declared: </span><span style={green}>int4</span><span style={gray}> (JDBC: INTEGER)</span>{"\n"}
-      <span style={gray}>     │ </span><span style={white}>Returned: </span><span style={red}>timestamptz</span><span style={gray}> (JDBC: TIMESTAMP_WITH_TIMEZONE)</span>{"\n"}
-      <span style={gray}>     └ </span><span style={white}>The declared type cannot read from TIMESTAMP_WITH_TIMEZONE</span>{"\n"}
-      {"\n"}
-      <span style={white}>  </span><span style={yellow}>2</span><span style={white}>. Column </span><span style={yellow}>4</span><span style={white}> '</span><span style={cyan}>email</span><span style={white}>': nullability mismatch</span>{"\n"}
-      <span style={gray}>     │ </span><span style={white}>The database says this column is nullable</span>{"\n"}
-      <span style={gray}>     │ </span><span style={white}>But the type </span><span style={green}>text</span><span style={white}> is not Optional</span>{"\n"}
-      <span style={gray}>     └ </span><span style={white}>Use </span><span style={cyan}>.opt()</span><span style={white}> to make the type nullable</span>
-    </>
-  );
+  return <ThemedImg
+    light="/img/qa-check-report-light.png"
+    dark="/img/qa-check-report-dark.png"
+    alt="Query Analysis Report showing type and nullability mismatches"
+    style={{ maxWidth: '100%', borderRadius: '8px' }}
+  />;
 }
 
 function QueryAnalysisSection() {
@@ -540,9 +505,7 @@ function QueryAnalysisSection() {
             <Snippet file="landing/QueryAnalysis" />
           </Reveal>
           <Reveal delay={80} className={styles.qaSplitItem}>
-            <div className={styles.analysisFrame}>
-              <QueryAnalysisReport />
-            </div>
+            <QueryAnalysisReport />
           </Reveal>
         </div>
 
@@ -584,36 +547,9 @@ function ErrorMessagesSection() {
         </SectionHeader>
 
         <Reveal>
-          <div className={styles.terminalFrame}>
-            <div className={styles.terminalHead}>
-              <span className={styles.terminalDot}></span>
-              <span className={styles.terminalDot}></span>
-              <span className={styles.terminalDot}></span>
-              <span className={styles.terminalTitle}>runtime error · DatabaseException</span>
-            </div>
-            <div className={styles.terminalBody}>
-              <span style={{ color: '#f87171', fontWeight: 600 }}>Failed to read column </span>
-              <span style={{ color: '#fbbf24' }}>3</span>
-              <span style={{ color: '#f87171', fontWeight: 600 }}> '</span>
-              <span style={{ color: '#60a5fa' }}>created_at</span>
-              <span style={{ color: '#f87171', fontWeight: 600 }}>'</span>{"\n"}
-              <span style={{ color: '#64748b' }}>{"   │ "}</span>
-              <span style={{ color: '#e2e8f0' }}>Expected: </span>
-              <span style={{ color: '#4ade80' }}>timestamptz</span>{"\n"}
-              <span style={{ color: '#64748b' }}>{"   │ "}</span>
-              <span style={{ color: '#e2e8f0' }}>Actual:   </span>
-              <span style={{ color: '#f87171' }}>timestamp</span>
-              <span style={{ color: '#64748b' }}> (nullable)</span>{"\n"}
-              <span style={{ color: '#64748b' }}>{"   │ "}</span>
-              <span style={{ color: '#e2e8f0' }}>Value:    </span>
-              <span style={{ color: '#fbbf24' }}>"2024-01-15 10:30:00"</span>{"\n"}
-              <span style={{ color: '#64748b' }}>{"   │ "}</span>
-              <span style={{ color: '#e2e8f0' }}>Row: </span>
-              <span style={{ color: '#fbbf24' }}>0</span>{"\n"}
-              <span style={{ color: '#64748b' }}>{"   └ "}</span>
-              <span style={{ color: '#f87171' }}>SQLException</span>
-              <span style={{ color: '#94a3b8' }}>: Cannot convert LocalDateTime to OffsetDateTime</span>
-            </div>
+          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'start' }}>
+            <ThemedImg light="/img/qa-runtime-error-light.png" dark="/img/qa-runtime-error-dark.png" alt="Runtime parse error with detailed context" />
+            <ThemedImg light="/img/pg-error-hint-light.png" dark="/img/pg-error-hint-dark.png" alt="PostgreSQL error with hint" />
           </div>
         </Reveal>
 

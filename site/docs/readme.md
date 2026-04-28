@@ -7,6 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import Snippet from '@site/src/components/Snippet';
 import DependencyTabs from '@site/src/components/DependencyTabs';
+import ThemedImg from '@site/src/components/ThemedImg';
 
 # Getting Started
 
@@ -80,7 +81,7 @@ Values are always bound as JDBC parameters — never concatenated into SQL strin
 
 [Query Analysis](./query-analysis) catches type mismatches, nullability errors, and missing columns at test time:
 
-<img src="/img/query-analysis-type-mismatch.png" alt="Query analysis catches type mismatches at test time" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '600px'}} />
+<ThemedImg light="/img/qa-type-mismatch-light.png" dark="/img/qa-type-mismatch-dark.png" alt="Query analysis catches type mismatches at test time" style={{maxWidth: '600px'}} />
 
 ## What's next
 

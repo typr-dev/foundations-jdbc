@@ -2,6 +2,8 @@
 title: Error Handling
 ---
 
+import ThemedImg from '@site/src/components/ThemedImg';
+
 # Error Handling
 
 All execution-level methods (`transact()`, `transactRead()`, `execute()`, `run()`) throw `DatabaseException` -- an **unchecked** exception. You never need `throws` declarations on your method signatures.
@@ -72,19 +74,19 @@ The required fields are `severity`, `message`, and `sqlState`. Nullable fields i
 
 `getMessage()` produces multi-line formatted output. For a syntax error with a position field, the output includes a caret pointing to the error location:
 
-<img src="/img/pg-error-syntax.png" alt="PostgreSQL syntax error with caret" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '500px', margin: '0.5rem 0'}} />
+<ThemedImg light="/img/pg-error-syntax-light.png" dark="/img/pg-error-syntax-dark.png" alt="PostgreSQL syntax error with caret" style={{maxWidth: '500px', margin: '0.5rem 0'}} />
 
 For a unique constraint violation, detail and constraint fields are appended:
 
-<img src="/img/pg-error-unique-violation.png" alt="PostgreSQL unique constraint violation with structured fields" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '500px', margin: '0.5rem 0'}} />
+<ThemedImg light="/img/pg-error-unique-light.png" dark="/img/pg-error-unique-dark.png" alt="PostgreSQL unique constraint violation with structured fields" style={{maxWidth: '500px', margin: '0.5rem 0'}} />
 
 When the driver provides a hint, it's included along with the caret:
 
-<img src="/img/pg-error-column-hint.png" alt="PostgreSQL column not found with hint" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '500px', margin: '0.5rem 0'}} />
+<ThemedImg light="/img/pg-error-hint-light.png" dark="/img/pg-error-hint-dark.png" alt="PostgreSQL column not found with hint" style={{maxWidth: '500px', margin: '0.5rem 0'}} />
 
 When a `ResultSet` value doesn't match the expected type at runtime, the error includes the column position, expected and actual types, the offending value, and the root cause:
 
-<img src="/img/query-analysis-runtime-error.png" alt="Runtime parse error with detailed context" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '500px', margin: '1rem 0'}} />
+<ThemedImg light="/img/qa-runtime-error-light.png" dark="/img/qa-runtime-error-dark.png" alt="Runtime parse error with detailed context" style={{maxWidth: '500px', margin: '1rem 0'}} />
 
 ## SQL Server errors
 
