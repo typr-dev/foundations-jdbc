@@ -19,7 +19,8 @@ public record QueryAnalysis(
     List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
     List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
     boolean parameterMetadataAvailable,
-    Optional<AlignmentError.PrepareFailure> prepareFailure) {
+    Optional<AlignmentError.PrepareFailure> prepareFailure,
+    int variantCount) {
 
   public QueryAnalysis(
       String sql,
@@ -32,7 +33,8 @@ public record QueryAnalysis(
         parameterAlignment,
         columnAlignment,
         parameterMetadataAvailable,
-        Optional.empty());
+        Optional.empty(),
+        1);
   }
 
   public QueryAnalysis(
@@ -47,7 +49,36 @@ public record QueryAnalysis(
         parameterAlignment,
         columnAlignment,
         parameterMetadataAvailable,
-        Optional.empty());
+        Optional.empty(),
+        1);
+  }
+
+  public QueryAnalysis(
+      String sql,
+      Optional<String> queryName,
+      List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> parameterAlignment,
+      List<Alignment<DbType<?>, JdbcMeta.ColumnMeta>> columnAlignment,
+      boolean parameterMetadataAvailable,
+      Optional<AlignmentError.PrepareFailure> prepareFailure) {
+    this(
+        sql,
+        queryName,
+        parameterAlignment,
+        columnAlignment,
+        parameterMetadataAvailable,
+        prepareFailure,
+        1);
+  }
+
+  public QueryAnalysis withVariantCount(int variantCount) {
+    return new QueryAnalysis(
+        sql,
+        queryName,
+        parameterAlignment,
+        columnAlignment,
+        parameterMetadataAvailable,
+        prepareFailure,
+        variantCount);
   }
 
   /** Construct a prepare-failure analysis (metadata couldn't be read — driver rejected the SQL). */
@@ -58,7 +89,7 @@ public record QueryAnalysis(
       AlignmentError.PrepareFailure failure) {
     List<Alignment<DbType<?>, JdbcMeta.ParameterMeta>> declared = new ArrayList<>();
     for (DbType<?> t : paramTypes) declared.add(new Alignment.LeftOnly<>(t));
-    return new QueryAnalysis(sql, queryName, declared, List.of(), false, Optional.of(failure));
+    return new QueryAnalysis(sql, queryName, declared, List.of(), false, Optional.of(failure), 1);
   }
 
   public List<AlignmentError> parameterErrors() {
@@ -140,22 +171,58 @@ public record QueryAnalysis(
     return allErrors().isEmpty();
   }
 
+  public String displayName() {
+    if (queryName.isPresent()) return queryName.get();
+    String oneLine = sql.replace('\n', ' ').replaceAll("\\s+", " ").trim();
+    return oneLine.length() <= 60 ? oneLine : oneLine.substring(0, 57) + "...";
+  }
+
+  /**
+   * Compact error format for use inside {@link CheckReport}: query name, SQL, and errors
+   * without the header box. Returns empty for successful queries.
+   */
+  public Str styledErrors() {
+    if (succeeded()) return Str.empty();
+    var b = Str.builder();
+    b.red("  ✗ ").bold(displayName()).newline();
+    b.gray("    SQL: ").gray(truncateSql(sql, 68)).newline();
+    for (var error : allErrors()) {
+      b.plain("    ").add(error.styledMessage()).newline();
+    }
+    return b.build();
+  }
+
+  /** Full report with header box. Used for standalone single-query output. */
   public Str styledReport() {
+    if (succeeded()) {
+      var ok = Str.builder();
+      ok.boldGreen("✓ ").plain(displayName());
+      if (variantCount > 1) {
+        ok.gray(" (" + variantCount + " variants checked)");
+      }
+      ok.newline();
+      return ok.build();
+    }
+
+    var b = Str.builder();
+    b.newline();
+    b.cyan("╔══════════════════════════════════════════════════════════════════════════════╗").newline();
+    b.cyan("║").bold("  Query Analysis Report                                                       ").cyan("║").newline();
+    b.cyan("╚══════════════════════════════════════════════════════════════════════════════╝").newline();
+    b.newline();
+    b.add(styledReportBody());
+    return b.build();
+  }
+
+  /** Report body without the header box. Used by {@link CheckReport} which adds its own header. */
+  public Str styledReportBody() {
     var b = Str.builder();
 
-    // Header
-    b.newline();
-    b.cyan("╔══════════════════════════════════════════════════════════════════════════════╗")
-        .newline();
-    b.cyan("║")
-        .bold("  Query Analysis Report                                                       ")
-        .cyan("║")
-        .newline();
-    b.cyan("╚══════════════════════════════════════════════════════════════════════════════╝")
-        .newline();
-    b.newline();
-
-    // SQL
+    // SQL with failure indicator
+    List<AlignmentError> errors = allErrors();
+    if (!errors.isEmpty()) {
+      b.red("✗ ");
+    }
     if (queryName.isPresent()) {
       b.bold("SQL (").cyan(queryName.get()).bold("):").newline();
     } else {
@@ -169,48 +236,14 @@ public record QueryAnalysis(
     for (AlignmentError e : columnErrors()) columnErrorPositions.add(e.position());
 
     // Parameters section
-    b.gray("┌─ ").bold("Parameters ");
-    if (!parameterMetadataAvailable) {
-      b.yellow("(metadata not available) ");
+    if (!parameterAlignment.isEmpty() || !parameterMetadataAvailable) {
+      b.add(formatTable("Parameters", "declared (code)", "expected (database)",
+          parameterAlignment, paramErrorPositions, true, !parameterMetadataAvailable));
     }
-    b.gray("─".repeat(Math.max(1, 65 - (parameterMetadataAvailable ? 0 : 26))) + "┐").newline();
-    if (parameterAlignment.isEmpty()) {
-      b.gray("│  (none)" + " ".repeat(70) + "│").newline();
-    } else {
-      for (int i = 0; i < parameterAlignment.size(); i++) {
-        var align = parameterAlignment.get(i);
-        b.add(formatStyledAlignment(i + 1, align, true, paramErrorPositions));
-      }
-    }
-    b.gray("└" + "─".repeat(78) + "┘").newline().newline();
 
-    // Columns section
-    b.gray("┌─ ").bold("Columns ").gray("─".repeat(68) + "┐").newline();
-    if (columnAlignment.isEmpty()) {
-      b.gray("│  (none)" + " ".repeat(70) + "│").newline();
-    } else {
-      for (int i = 0; i < columnAlignment.size(); i++) {
-        var align = columnAlignment.get(i);
-        b.add(formatStyledAlignment(i + 1, align, false, columnErrorPositions));
-      }
-    }
-    b.gray("└" + "─".repeat(78) + "┘").newline().newline();
+    b.add(formatTable("Columns", "declared (code)", "returned (database)",
+        columnAlignment, columnErrorPositions, false, false));
 
-    // Errors section
-    List<AlignmentError> errors = allErrors();
-    if (errors.isEmpty()) {
-      b.boldGreen("✓ No errors found").newline();
-    } else {
-      b.boldRed("✗ " + errors.size() + " error(s) found:").newline().newline();
-      for (int i = 0; i < errors.size(); i++) {
-        b.plain("  ")
-            .yellow(String.valueOf(i + 1))
-            .plain(". ")
-            .add(errors.get(i).styledMessage())
-            .newline()
-            .newline();
-      }
-    }
 
     return b.build();
   }
@@ -511,28 +544,53 @@ public record QueryAnalysis(
     return oneLine.substring(0, maxLen - 3) + "...";
   }
 
-  private Str formatStyledAlignment(
-      int pos,
-      Alignment<DbType<?>, ?> align,
-      boolean isParameter,
+  private static final int COL_LEFT = 30;
+  private static final int COL_RIGHT = 38;
+
+  private Str formatTable(
+      String title, String leftHeader, String rightHeader,
+      List<? extends Alignment<DbType<?>, ?>> alignments,
+      java.util.Set<Integer> errorPositions,
+      boolean isParameter, boolean metadataUnavailable) {
+
+    var b = Str.builder();
+    // Top border: ┌─────...─────┬─────...─────┐ (COL_LEFT + 1 + COL_RIGHT + 1 total)
+    b.gray("┌" + "─".repeat(COL_LEFT) + "┬" + "─".repeat(COL_RIGHT) + "┐").newline();
+    // Header row
+    b.gray("│").gray(pad(" " + leftHeader, COL_LEFT)).gray("│").gray(pad(" " + rightHeader, COL_RIGHT)).gray("│").newline();
+    // Separator
+    b.gray("├" + "─".repeat(COL_LEFT) + "┼" + "─".repeat(COL_RIGHT) + "┤").newline();
+
+    if (metadataUnavailable) {
+      b.gray("│").yellow(pad(" (metadata not available)", COL_LEFT)).gray("│").gray(pad("", COL_RIGHT)).gray("│").newline();
+    } else if (alignments.isEmpty()) {
+      b.gray("│").gray(pad(" (none)", COL_LEFT)).gray("│").gray(pad("", COL_RIGHT)).gray("│").newline();
+    } else {
+      String label = isParameter ? "param" : "col";
+      for (int i = 0; i < alignments.size(); i++) {
+        b.add(formatRow(i + 1, alignments.get(i), label, errorPositions));
+      }
+    }
+
+    // Bottom border
+    b.gray("└" + "─".repeat(COL_LEFT) + "┴" + "─".repeat(COL_RIGHT) + "┘").newline().newline();
+    return b.build();
+  }
+
+  private Str formatRow(
+      int pos, Alignment<DbType<?>, ?> align, String label,
       java.util.Set<Integer> errorPositions) {
+
     boolean hasError = errorPositions.contains(pos);
-    boolean vendorMissing = false;
     String declared;
     String actual;
 
     switch (align) {
       case Alignment.Both(var d, var a) -> {
         declared = d.typename().sqlType();
-        if (isParameter) {
-          JdbcMeta.ParameterMeta pm = (JdbcMeta.ParameterMeta) a;
+        if (a instanceof JdbcMeta.ParameterMeta pm) {
           String vendor = pm.vendorTypeName();
-          if (vendor == null || vendor.isEmpty()) {
-            vendorMissing = true;
-            actual = "(driver does not report)";
-          } else {
-            actual = vendor;
-          }
+          actual = (vendor == null || vendor.isEmpty()) ? "(driver does not report)" : vendor;
         } else {
           JdbcMeta.ColumnMeta cm = (JdbcMeta.ColumnMeta) a;
           actual = cm.displayName() + " : " + cm.vendorTypeName();
@@ -544,15 +602,9 @@ public record QueryAnalysis(
       }
       case Alignment.RightOnly(var a) -> {
         declared = "(missing)";
-        if (isParameter) {
-          JdbcMeta.ParameterMeta pm = (JdbcMeta.ParameterMeta) a;
+        if (a instanceof JdbcMeta.ParameterMeta pm) {
           String vendor = pm.vendorTypeName();
-          if (vendor == null || vendor.isEmpty()) {
-            vendorMissing = true;
-            actual = "(driver does not report)";
-          } else {
-            actual = vendor;
-          }
+          actual = (vendor == null || vendor.isEmpty()) ? "(driver does not report)" : vendor;
         } else {
           JdbcMeta.ColumnMeta cm = (JdbcMeta.ColumnMeta) a;
           actual = cm.displayName() + " : " + cm.vendorTypeName();
@@ -560,43 +612,29 @@ public record QueryAnalysis(
       }
     }
 
-    boolean skipped = (isParameter && !parameterMetadataAvailable) || vendorMissing;
+    // Build left cell as Str, measure its plain length, pad with spaces
+    Str icon = hasError ? Str.red("✗") : Str.green("✓");
+    Str declStr = hasError ? Str.green(declared) : Str.cyan(declared);
+    Str leftCell = Str.plain(" ").add(icon).add(" " + label + "[" + pos + "]: ").add(declStr);
+    Str rightCell = hasError ? Str.red(" " + actual) : Str.plain(" " + actual);
 
-    String label = isParameter ? "param" : "col";
     var b = Str.builder();
-    b.gray("│  ");
-    if (skipped) {
-      b.gray("·");
-    } else if (hasError) {
-      b.red("✗");
-    } else {
-      b.green("✓");
-    }
-    b.plain(" " + label + "[").yellow(String.valueOf(pos)).plain("]: ");
-
-    String declaredPadded = String.format("%-20s", declared);
-    if (!hasError || !declared.equals("(missing)")) {
-      b.cyan(declaredPadded);
-    } else {
-      b.red(declaredPadded);
-    }
-
-    b.gray(" → ");
-
-    String actualPadded = String.format("%-30s", actual);
-    if (!hasError || !actual.equals("(missing)")) {
-      b.plain(actualPadded);
-    } else {
-      b.red(actualPadded);
-    }
-
-    String line = b.build().plainText();
-    int padding = 78 - line.length();
-    if (padding > 0) {
-      b.plain(" ".repeat(padding));
-    }
+    b.gray("│");
+    b.add(leftCell);
+    b.plain(spaces(COL_LEFT - leftCell.plainText().length()));
+    b.gray("│");
+    b.add(rightCell);
+    b.plain(spaces(COL_RIGHT - rightCell.plainText().length()));
     b.gray("│").newline();
-
     return b.build();
+  }
+
+  private static String pad(String text, int width) {
+    if (text.length() >= width) return text.substring(0, width);
+    return text + " ".repeat(width - text.length());
+  }
+
+  private static String spaces(int n) {
+    return n > 0 ? " ".repeat(n) : "";
   }
 }

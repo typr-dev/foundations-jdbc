@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Stored Procedures & Functions
 
-Define stored procedures and functions once with full type safety on both inputs and outputs. The builder tracks types statically — wrong argument types or missing parameters are compile errors, not runtime surprises.
+Define stored procedures and functions once with full type safety on inputs and outputs. The builder tracks types statically -- wrong argument types or missing parameters are compile errors.
 
 ## Procedures
 
@@ -22,7 +22,7 @@ Add `.out()` to declare output parameters. The builder tracks their types:
 
 <Snippet file="routines/OutProcedure" />
 
-The builder returns a typed definition that captures the input and output parameter types. The numbers in the type name encode the arity: `Def1_2` means 1 input and 2 outputs. For functions, `Def2` means 2 inputs (functions always have exactly one output — the return value). You never need to write these types explicitly — just use `var` (Java) or let type inference work (Kotlin/Scala).
+The builder returns a typed definition that captures the input and output parameter types. The numbers in the type name encode the arity: `Def1_2` means 1 input and 2 outputs. For functions, `Def2` means 2 inputs (functions always have exactly one output, the return value). You never need to write these types explicitly -- just use `var` (Java) or let type inference work (Kotlin/Scala).
 
 ### INOUT Parameters
 
@@ -55,7 +55,7 @@ The procedure and function builders work with any database's types. Just use the
 
 ## Verifying Against the Database
 
-Use [Query Analysis](/docs/query-analysis#routine-analysis) to verify that your procedure and function definitions match what's actually in the database — parameter count, types, modes, and return types are all checked.
+Use [Query Analysis](/docs/query-analysis#routine-analysis) to verify that your procedure and function definitions match the database -- parameter count, types, modes, and return types are all checked.
 
 ## Database Support
 

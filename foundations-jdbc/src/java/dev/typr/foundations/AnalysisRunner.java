@@ -35,7 +35,7 @@ public final class AnalysisRunner {
         for (Fragment variant : variants) {
           results.add(analyzeFragmentAndParser(name, variant, q.parser(), analyzer));
         }
-        yield results;
+        yield withVariantCount(results);
       }
       case OperationRead.Streaming<?> s ->
           List.of(analyzeFragmentAndParser(name, s.query(), s.codec().all(), analyzer));
@@ -64,7 +64,7 @@ public final class AnalysisRunner {
         for (Fragment variant : variants) {
           results.add(analyzeFragmentAndParser(name, variant, ur.parser(), analyzer));
         }
-        yield results;
+        yield withVariantCount(results);
       }
       case Operation.Update u -> analyzeUpdateVariants(name, u.query(), analyzer);
       case Operation.Execute e -> analyzeUpdateVariants(name, e.query(), analyzer);
@@ -155,7 +155,15 @@ public final class AnalysisRunner {
     for (Fragment variant : variants) {
       results.add(analyzeUpdate(name, variant, analyzer));
     }
-    return results;
+    return withVariantCount(results);
+  }
+
+  private static List<QueryAnalysis> withVariantCount(List<QueryAnalysis> results) {
+    if (results.size() <= 1) return results;
+    int n = results.size();
+    List<QueryAnalysis> tagged = new ArrayList<>(n);
+    for (QueryAnalysis r : results) tagged.add(r.withVariantCount(n));
+    return tagged;
   }
 
   // ========== Helpers ==========
@@ -180,7 +188,9 @@ public final class AnalysisRunner {
                         Optional.of(defaultName),
                         r.parameterAlignment(),
                         r.columnAlignment(),
-                        r.parameterMetadataAvailable())
+                        r.parameterMetadataAvailable(),
+                        r.prepareFailure(),
+                        r.variantCount())
                     : r)
         .toList();
   }

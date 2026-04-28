@@ -4,11 +4,11 @@ title: DB2 Types
 
 import Snippet from '@site/src/components/Snippet';
 
-# DB2 Type Support
+# DB2 type support
 
 Foundations JDBC provides support for IBM DB2's type system, including DECFLOAT, double-byte character types (GRAPHIC/VARGRAPHIC/DBCLOB), XML, and ROWID.
 
-## Integer Types
+## Integer types
 
 | DB2 Type | Java Type | Notes |
 |----------|-----------|-------|
@@ -18,7 +18,7 @@ Foundations JDBC provides support for IBM DB2's type system, including DECFLOAT,
 
 <Snippet file="db2/IntegerTypes" />
 
-## Fixed-Point Types
+## Fixed-point types
 
 | DB2 Type | Java Type | Notes |
 |----------|-----------|-------|
@@ -28,7 +28,7 @@ Foundations JDBC provides support for IBM DB2's type system, including DECFLOAT,
 
 <Snippet file="db2/FixedPointTypes" />
 
-## Floating-Point Types
+## Floating-point types
 
 | DB2 Type | Java Type | Notes |
 |----------|-----------|-------|
@@ -45,7 +45,7 @@ Foundations JDBC provides support for IBM DB2's type system, including DECFLOAT,
 
 <Snippet file="db2/BoolType" />
 
-## String Types (Single-Byte)
+## String types (single-byte)
 
 | DB2 Type | Java Type | Notes |
 |----------|-----------|-------|
@@ -57,7 +57,7 @@ Foundations JDBC provides support for IBM DB2's type system, including DECFLOAT,
 
 <Snippet file="db2/StringTypesSingleByte" />
 
-## String Types (Double-Byte)
+## String types (double-byte)
 
 DB2 has dedicated types for double-byte character set (DBCS) strings.
 
@@ -75,7 +75,7 @@ DB2 has dedicated types for double-byte character set (DBCS) strings.
 DB2's `JSON_OBJECT` does not support GRAPHIC, VARGRAPHIC, or DBCLOB types. JSON serialization is not available for these types.
 :::
 
-## Binary Types
+## Binary types
 
 | DB2 Type | Java Type | Notes |
 |----------|-----------|-------|
@@ -91,7 +91,7 @@ DB2's `JSON_OBJECT` does not support GRAPHIC, VARGRAPHIC, or DBCLOB types. JSON 
 DB2's `JSON_OBJECT` does not support BINARY, VARBINARY, or BLOB types. JSON serialization is not available for these types.
 :::
 
-## Date/Time Types
+## Date/time types
 
 | DB2 Type | Java Type | Notes |
 |----------|-----------|-------|
@@ -110,7 +110,7 @@ DB2 does have a `TIMESTAMP WITH TIME ZONE` syntax available in some environments
 Using `Instant`, `OffsetDateTime`, or `ZonedDateTime` would misrepresent the stored value — none of those Java types' semantics match a naive wall-clock.
 :::
 
-## Special Types
+## Special types
 
 | DB2 Type | Java Type | Notes |
 |----------|-----------|-------|
@@ -123,13 +123,13 @@ Using `Instant`, `OffsetDateTime`, or `ZonedDateTime` would misrepresent the sto
 DB2's `JSON_OBJECT` does not support the XML type. JSON serialization is not available for XML columns.
 :::
 
-## Nullable Types
+## Nullable types
 
 Any type can be made nullable using `.opt()`:
 
 <Snippet file="db2/NullableType" />
 
-## Custom Domain Types
+## Custom domain types
 
 Wrap base types with custom Java types using `transform`:
 

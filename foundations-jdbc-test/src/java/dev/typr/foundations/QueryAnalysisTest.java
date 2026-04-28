@@ -1608,7 +1608,10 @@ public class QueryAnalysisTest {
                 + " parameter type to match the column.");
     var analysis =
         QueryAnalysis.prepareFailed(
-            "SELECT id FROM t WHERE id = ?", null, List.of((DbType<?>) PgTypes.text), failure);
+            "SELECT id FROM t WHERE id = ?",
+            Optional.empty(),
+            List.of((DbType<?>) PgTypes.text),
+            failure);
 
     assertFalse("prepareFailed analysis should be !succeeded", analysis.succeeded());
     assertEquals(

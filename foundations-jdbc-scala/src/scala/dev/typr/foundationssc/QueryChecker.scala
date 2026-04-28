@@ -20,7 +20,9 @@ class QueryChecker(val underlying: dev.typr.foundations.QueryChecker):
 
 object QueryChecker:
   def create(tx: Transactor): QueryChecker =
+    create(tx, 1)
+
+  def create(tx: Transactor, threads: Int): QueryChecker =
     new QueryChecker(
-      new dev.typr.foundations.QueryChecker:
-        def transactor(): dev.typr.foundations.Transactor = tx.underlying
+      dev.typr.foundations.QueryChecker.create(tx.underlying, threads)
     )

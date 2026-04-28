@@ -6,9 +6,9 @@ import Snippet from '@site/src/components/Snippet';
 
 # JSON
 
-Every database supports JSON — PostgreSQL has `json`/`jsonb`, MySQL and MariaDB have `JSON`, DuckDB has `JSON`, SQL Server has `FOR JSON`, and Oracle has its own JSON type. Foundations gives you a unified way to work with JSON across all of them: your `RowCodec` doubles as a JSON codec with zero extra code.
+Every database supports JSON -- PostgreSQL has `json`/`jsonb`, MySQL and MariaDB have `JSON`, DuckDB has `JSON`, SQL Server has `FOR JSON`, and Oracle has its own JSON type. Your `RowCodec` doubles as a JSON codec with no extra code.
 
-## JSON-Encoded Column Types
+## JSON-encoded column types
 
 Pass a `RowCodec` to your database's `jsonArrayEncoded` or `jsonObjectEncoded` method to get a column type that reads and writes structured rows as JSON. An unnamed codec can produce positional JSON arrays (`[value1, value2, ...]`), while a [named codec](./row-codecs) can also produce keyed JSON objects (`{"column": value, ...}`):
 
@@ -25,9 +25,9 @@ Every database type palette has four methods:
 
 Available on `PgTypes`, `MariaTypes`, `DuckDbTypes`, `SqlServerTypes`, `OracleTypes`, and `Db2Types`. PostgreSQL also has `jsonb` variants (`jsonbObjectEncoded`, etc.).
 
-## Aggregating Child Rows as JSON
+## Aggregating child rows as JSON
 
-The real power of JSON-encoded types shows when you aggregate child rows directly in SQL. Instead of N+1 queries, use your database's JSON aggregation function and parse the result with the same type:
+JSON-encoded types are most useful when aggregating child rows in SQL. Instead of N+1 queries, use your database's JSON aggregation function and parse the result with the same type:
 
 | Database | Aggregation function |
 |----------|---------------------|
@@ -40,4 +40,4 @@ The real power of JSON-encoded types shows when you aggregate child rows directl
 
 <Snippet file="core/JsonAggregation" />
 
-The type reads the same types your `RowCodec` defines — no separate deserialization layer, no mapping code, no drift between your SQL types and your JSON types.
+The type reads the same types your `RowCodec` defines. There is no separate deserialization layer and no drift between your SQL types and your JSON types.

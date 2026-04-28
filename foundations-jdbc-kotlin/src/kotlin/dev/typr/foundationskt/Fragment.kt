@@ -19,6 +19,8 @@ class Fragment(val underlying: dev.typr.foundations.Fragment) {
 
     operator fun plus(other: Fragment): Fragment = append(other)
 
+    fun pipe(f: (Fragment) -> Fragment): Fragment = f(this)
+
     fun <T> query(parser: ResultSetParser<T>): OperationRead.Query<T> =
         OperationRead.Query(dev.typr.foundations.OperationRead.Query(underlying, parser.underlying))
 

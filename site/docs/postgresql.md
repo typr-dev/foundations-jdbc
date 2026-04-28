@@ -4,9 +4,9 @@ title: PostgreSQL Types
 
 import Snippet from '@site/src/components/Snippet';
 
-# PostgreSQL Type Support
+# PostgreSQL type support
 
-Foundations JDBC provides comprehensive support for all PostgreSQL data types, including the many exotic types that make PostgreSQL unique.
+Full support for all PostgreSQL data types, including arrays, ranges, geometric types, network types, JSON, composites, and enums.
 
 ## Setting `search_path`
 
@@ -20,7 +20,7 @@ var config = PgConfig.builder("host", 5432, "db", "user", "pw")
 
 This maps to PostgreSQL's `currentSchema` connection property. For single-schema use, [`ConnectionSettings.schema(...)`](./transactors#connection-settings) also works but only accepts one name.
 
-## Numeric Types
+## Numeric types
 
 | PostgreSQL Type | Java Type | Notes |
 |-----------------|-----------|-------|
@@ -34,7 +34,7 @@ This maps to PostgreSQL's `currentSchema` connection property. For single-schema
 
 <Snippet file="postgresql/NumericTypes" />
 
-## Boolean Type
+## Boolean type
 
 | PostgreSQL Type | Java Type |
 |-----------------|-----------|
@@ -42,7 +42,7 @@ This maps to PostgreSQL's `currentSchema` connection property. For single-schema
 
 <Snippet file="postgresql/BoolType" />
 
-## String Types
+## String types
 
 | PostgreSQL Type | Java Type | Notes |
 |-----------------|-----------|-------|
@@ -53,7 +53,7 @@ This maps to PostgreSQL's `currentSchema` connection property. For single-schema
 
 <Snippet file="postgresql/StringTypes" />
 
-## Binary Types
+## Binary types
 
 | PostgreSQL Type | Java Type | Notes |
 |-----------------|-----------|-------|
@@ -82,7 +82,7 @@ Because the column genuinely stores a universal instant — not a zoned value �
 This is the reference mapping for the whole library: DuckDB's `TIMESTAMPTZ` shares the same semantics and uses the same `Instant` mapping. SQL Server's `DATETIMEOFFSET` and Oracle's `TIMESTAMP WITH TIME ZONE` genuinely preserve offset/zone and therefore map differently — see each dialect's page for details.
 :::
 
-## UUID Type
+## UUID type
 
 | PostgreSQL Type | Java Type |
 |-----------------|-----------|
@@ -90,7 +90,7 @@ This is the reference mapping for the whole library: DuckDB's `TIMESTAMPTZ` shar
 
 <Snippet file="postgresql/UuidType" />
 
-## JSON Types
+## JSON types
 
 | PostgreSQL Type | Java Type | Notes |
 |-----------------|-----------|-------|
@@ -118,7 +118,7 @@ A common first-run surprise is declaring `val payload: String` on a Kotlin data 
 
 <Snippet file="postgresql/JsonTypes" />
 
-## Array Types
+## Array types
 
 Any PostgreSQL type can be used as an array — call `.array()` on the element type. The Java representation is always `List<T>`:
 
@@ -136,7 +136,7 @@ This works for all types — `numeric.array()`, `timestamptz.array()`, `jsonb.ar
 
 <Snippet file="postgresql/ArrayTypes" />
 
-## Composite Types
+## Composite types
 
 PostgreSQL composite types (row constructors and `CREATE TYPE` declarations) are built from a `RowCodecNamed` via `compositeOf`:
 
@@ -158,7 +158,7 @@ PgType<List<LineItem>> lineItemArrayType = lineItemType.array();
 
 The same `RowCodecNamed` codec can be reused for flat row queries, composite types, JSON-encoded columns, and query analysis.
 
-## Range Types
+## Range types
 
 PostgreSQL's range types represent intervals of values with inclusive/exclusive bounds:
 
@@ -173,9 +173,9 @@ PostgreSQL's range types represent intervals of values with inclusive/exclusive 
 
 <Snippet file="postgresql/RangeTypes" />
 
-## Geometric Types
+## Geometric types
 
-PostgreSQL's geometric types for 2D shapes:
+PostgreSQL geometric types for 2D shapes:
 
 | PostgreSQL Type | Java Type | Description |
 |-----------------|-----------|-------------|

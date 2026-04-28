@@ -7,6 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import styles from './index.module.css';
 import Snippet from '@site/src/components/Snippet';
+import ThemedImg from '@site/src/components/ThemedImg';
 
 /* ------------------------------------------------------------------
    Reveal — scroll-triggered fade + rise using IntersectionObserver
@@ -253,7 +254,7 @@ function Hero() {
         </div>
 
         <h1 className={styles.heroTitle}>
-          Your SQL is wrong. You’ll find out in <em>tests</em> — not at 2 AM.
+          Your SQL is wrong. You’ll find out in <em>tests</em>, not at 2 AM.
         </h1>
 
         <p className={styles.heroTagline}>
@@ -315,7 +316,7 @@ function QuickstartSection() {
     <section className={styles.section}>
       <div className={styles.container}>
         <SectionHeader title={<>From <em>zero</em> to query in under a minute</>}>
-          DuckDB runs in-memory — no database server needed.
+          DuckDB runs in-memory, no database server needed.
           A <code>Fragment</code> is a typed SQL building block.
         </SectionHeader>
 
@@ -390,11 +391,11 @@ function ProblemSection() {
     },
     {
       title: 'Type fidelity is lost',
-      body: (<>Your DuckDB <code>STRUCT</code> becomes a shapeless <code>Object</code>. Your PostgreSQL <code>int4range</code> becomes a string you have to parse yourself. The database has real types — your library just ignores them.</>),
+      body: (<>Your DuckDB <code>STRUCT</code> becomes a shapeless <code>Object</code>. Your PostgreSQL <code>int4range</code> becomes a string you have to parse yourself. The database has real types. Your library ignores them.</>),
     },
     {
       title: 'DB-specific features are second-class',
-      body: (<>Libraries target the lowest common denominator. PostgreSQL arrays, Oracle <code>MULTISET</code>, MariaDB unsigned types — all require escape hatches.</>),
+      body: (<>Libraries target the lowest common denominator. PostgreSQL arrays, Oracle <code>MULTISET</code>, MariaDB unsigned types. All require escape hatches.</>),
     },
   ];
 
@@ -409,11 +410,11 @@ function ProblemSection() {
     },
     {
       title: 'Every database type, modeled exactly',
-      body: 'Not just primitives. Composite types, domains, enums, arrays, intervals — all first-class, with full roundtrip fidelity.',
+      body: 'Composite types, domains, enums, arrays, intervals. All first-class, with full roundtrip fidelity.',
     },
     {
       title: 'Database-specific by design',
-      body: (<>Dedicated type classes for each database. <code>PgTypes</code>, <code>OracleTypes</code>, <code>MariaDbTypes</code> — use your database's full feature set.</>),
+      body: (<>Dedicated type classes for each database. <code>PgTypes</code>, <code>OracleTypes</code>, <code>MariaDbTypes</code>: use your database's full feature set.</>),
     },
   ];
 
@@ -421,7 +422,7 @@ function ProblemSection() {
     <section className={styles.section}>
       <div className={styles.container}>
         <SectionHeader title={<>What existing libraries <em>still</em> get wrong</>}>
-          ORMs and query builders solve the verbosity of raw JDBC. But fundamental problems remain —
+          ORMs and query builders solve the verbosity of raw JDBC. But fundamental problems remain:
           problems that surface in production as silent data corruption, runtime exceptions, and database lock-in.
         </SectionHeader>
 
@@ -481,48 +482,12 @@ function ProblemSection() {
    Query Analysis
    ------------------------------------------------------------------ */
 function QueryAnalysisReport() {
-  const gray = { color: '#64748b' };
-  const cyan = { color: '#22d3ee' };
-  const green = { color: '#4ade80' };
-  const red = { color: '#f87171' };
-  const yellow = { color: '#fbbf24' };
-  const bold = { fontWeight: 600 };
-  const white = { color: '#f8fafc' };
-  const boldRed = { color: '#f87171', fontWeight: 600 };
-
-  return (
-    <>
-      <span style={cyan}>╔══════════════════════════════════════════════════════════════════════════════╗</span>{"\n"}
-      <span style={cyan}>║</span><span style={bold}>  Query Analysis Report                                                       </span><span style={cyan}>║</span>{"\n"}
-      <span style={cyan}>╚══════════════════════════════════════════════════════════════════════════════╝</span>{"\n"}
-      {"\n"}
-      <span style={bold}>SQL:</span>{"\n"}
-      <span style={gray}>  SELECT id, name, created_at, email FROM users WHERE active = ?</span>{"\n"}
-      {"\n"}
-      <span style={gray}>┌─ </span><span style={bold}>Parameters </span><span style={gray}>─────────────────────────────────────────────────────────────────┐</span>{"\n"}
-      <span style={gray}>│  </span><span style={green}>✓</span><span style={white}> param[</span><span style={yellow}>1</span><span style={white}>]: </span><span style={cyan}>boolean             </span><span style={gray}> → </span><span style={white}>bool                                    </span><span style={gray}> │</span>{"\n"}
-      <span style={gray}>└──────────────────────────────────────────────────────────────────────────────┘</span>{"\n"}
-      {"\n"}
-      <span style={gray}>┌─ </span><span style={bold}>Columns </span><span style={gray}>────────────────────────────────────────────────────────────────────┐</span>{"\n"}
-      <span style={gray}>│  </span><span style={green}>✓</span><span style={white}> col[</span><span style={yellow}>1</span><span style={white}>]: </span><span style={cyan}>int4                </span><span style={gray}> → </span><span style={white}>id : int4                               </span><span style={gray}> │</span>{"\n"}
-      <span style={gray}>│  </span><span style={green}>✓</span><span style={white}> col[</span><span style={yellow}>2</span><span style={white}>]: </span><span style={cyan}>text                </span><span style={gray}> → </span><span style={white}>name : text                             </span><span style={gray}> │</span>{"\n"}
-      <span style={gray}>│  </span><span style={red}>✗</span><span style={white}> col[</span><span style={yellow}>3</span><span style={white}>]: </span><span style={cyan}>int4                </span><span style={gray}> → </span><span style={white}>created_at : timestamptz                </span><span style={gray}> │</span>{"\n"}
-      <span style={gray}>│  </span><span style={red}>✗</span><span style={white}> col[</span><span style={yellow}>4</span><span style={white}>]: </span><span style={cyan}>text                </span><span style={gray}> → </span><span style={white}>email : text (nullable)                 </span><span style={gray}> │</span>{"\n"}
-      <span style={gray}>└──────────────────────────────────────────────────────────────────────────────┘</span>{"\n"}
-      {"\n"}
-      <span style={boldRed}>✗ 2 error(s) found:</span>{"\n"}
-      {"\n"}
-      <span style={white}>  </span><span style={yellow}>1</span><span style={white}>. Column </span><span style={yellow}>3</span><span style={white}> '</span><span style={cyan}>created_at</span><span style={white}>': type mismatch</span>{"\n"}
-      <span style={gray}>     │ </span><span style={white}>Declared: </span><span style={green}>int4</span><span style={gray}> (JDBC: INTEGER)</span>{"\n"}
-      <span style={gray}>     │ </span><span style={white}>Returned: </span><span style={red}>timestamptz</span><span style={gray}> (JDBC: TIMESTAMP_WITH_TIMEZONE)</span>{"\n"}
-      <span style={gray}>     └ </span><span style={white}>The declared type cannot read from TIMESTAMP_WITH_TIMEZONE</span>{"\n"}
-      {"\n"}
-      <span style={white}>  </span><span style={yellow}>2</span><span style={white}>. Column </span><span style={yellow}>4</span><span style={white}> '</span><span style={cyan}>email</span><span style={white}>': nullability mismatch</span>{"\n"}
-      <span style={gray}>     │ </span><span style={white}>The database says this column is nullable</span>{"\n"}
-      <span style={gray}>     │ </span><span style={white}>But the type </span><span style={green}>text</span><span style={white}> is not Optional</span>{"\n"}
-      <span style={gray}>     └ </span><span style={white}>Use </span><span style={cyan}>.opt()</span><span style={white}> to make the type nullable</span>
-    </>
-  );
+  return <ThemedImg
+    light="/img/qa-check-report-light.png"
+    dark="/img/qa-check-report-dark.png"
+    alt="Query Analysis Report showing type and nullability mismatches"
+    style={{ maxWidth: '100%', borderRadius: '8px' }}
+  />;
 }
 
 function QueryAnalysisSection() {
@@ -540,9 +505,7 @@ function QueryAnalysisSection() {
             <Snippet file="landing/QueryAnalysis" />
           </Reveal>
           <Reveal delay={80} className={styles.qaSplitItem}>
-            <div className={styles.analysisFrame}>
-              <QueryAnalysisReport />
-            </div>
+            <QueryAnalysisReport />
           </Reveal>
         </div>
 
@@ -579,41 +542,14 @@ function ErrorMessagesSection() {
     <section className={styles.section}>
       <div className={styles.container}>
         <SectionHeader title={<>Messages that <em>actually</em> help</>}>
-          When things go wrong, you get helpful messages that tell you exactly what happened —
+          When things go wrong, you get helpful messages that tell you exactly what happened,
           not a cryptic stack trace.
         </SectionHeader>
 
         <Reveal>
-          <div className={styles.terminalFrame}>
-            <div className={styles.terminalHead}>
-              <span className={styles.terminalDot}></span>
-              <span className={styles.terminalDot}></span>
-              <span className={styles.terminalDot}></span>
-              <span className={styles.terminalTitle}>runtime error · DatabaseException</span>
-            </div>
-            <div className={styles.terminalBody}>
-              <span style={{ color: '#f87171', fontWeight: 600 }}>Failed to read column </span>
-              <span style={{ color: '#fbbf24' }}>3</span>
-              <span style={{ color: '#f87171', fontWeight: 600 }}> '</span>
-              <span style={{ color: '#60a5fa' }}>created_at</span>
-              <span style={{ color: '#f87171', fontWeight: 600 }}>'</span>{"\n"}
-              <span style={{ color: '#64748b' }}>{"   │ "}</span>
-              <span style={{ color: '#e2e8f0' }}>Expected: </span>
-              <span style={{ color: '#4ade80' }}>timestamptz</span>{"\n"}
-              <span style={{ color: '#64748b' }}>{"   │ "}</span>
-              <span style={{ color: '#e2e8f0' }}>Actual:   </span>
-              <span style={{ color: '#f87171' }}>timestamp</span>
-              <span style={{ color: '#64748b' }}> (nullable)</span>{"\n"}
-              <span style={{ color: '#64748b' }}>{"   │ "}</span>
-              <span style={{ color: '#e2e8f0' }}>Value:    </span>
-              <span style={{ color: '#fbbf24' }}>"2024-01-15 10:30:00"</span>{"\n"}
-              <span style={{ color: '#64748b' }}>{"   │ "}</span>
-              <span style={{ color: '#e2e8f0' }}>Row: </span>
-              <span style={{ color: '#fbbf24' }}>0</span>{"\n"}
-              <span style={{ color: '#64748b' }}>{"   └ "}</span>
-              <span style={{ color: '#f87171' }}>SQLException</span>
-              <span style={{ color: '#94a3b8' }}>: Cannot convert LocalDateTime to OffsetDateTime</span>
-            </div>
+          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'start' }}>
+            <ThemedImg light="/img/qa-runtime-error-light.png" dark="/img/qa-runtime-error-dark.png" alt="Runtime parse error with detailed context" />
+            <ThemedImg light="/img/pg-error-hint-light.png" dark="/img/pg-error-hint-dark.png" alt="PostgreSQL error with hint" />
           </div>
         </Reveal>
 
@@ -638,23 +574,23 @@ function Features() {
       title: 'Composable, top to bottom',
       description: (
         <>
-          <code>DbType</code>, <code>Fragment</code>, <code>RowCodec</code>, <code>Operation</code> — every layer composes.
+          <code>DbType</code>, <code>Fragment</code>, <code>RowCodec</code>, <code>Operation</code>: every layer composes.
           Codecs join for tuples; left joins wrap the right side in <code>Optional</code>.
           Combine independent operations with <code>combine</code>, chain dependent ones with <code>then</code>.
-          The library can tell the difference — and the optimizer will too.
+          The library can tell the difference, and the optimizer will too.
         </>
       ),
     },
     {
       title: 'Full roundtrip fidelity',
-      description: 'Read a value from the database, write it back unchanged. Every type modeled exactly as the database defines it — composites, ranges, arrays, enums, domains.',
+      description: 'Read a value from the database, write it back unchanged. Every type modeled exactly as the database defines it: composites, ranges, arrays, enums, domains.',
     },
     {
       title: 'Read or write, in the type',
       description: (
         <>
           Readonly transactions are first-class. <code>transactRead</code> hands you a <code>ConnectionRead</code>; <code>transact</code> hands you a <code>Connection</code>.
-          Operations declare what they need. The type system tells the library — and the next reviewer — what's allowed.
+          Operations declare what they need. The type system tells the library, and the next reviewer, what's allowed.
         </>
       ),
     },
@@ -668,7 +604,7 @@ function Features() {
     },
     {
       title: 'Query Analysis',
-      description: 'Verify SQL at test time. Parameter types, column types, nullability — all checked against the real database schema. Catch bugs before production.',
+      description: 'Verify SQL at test time. Parameter types, column types, nullability: all checked against the real database schema. Catch bugs before production.',
     },
   ];
 
@@ -677,7 +613,7 @@ function Features() {
       <div className={styles.container}>
         <SectionHeader title={<>Functional to the <em>foundations</em></>}>
           A database library built on functional principles.
-          Fragments, codecs, types, operations — each one is a value you compose.
+          Fragments, codecs, types, operations: each one is a value you compose.
           Same primitives top to bottom.
         </SectionHeader>
 
@@ -704,7 +640,7 @@ function SchemaAndCodecs() {
     <section className={styles.section}>
       <div className={styles.container}>
         <SectionHeader title={<>Start with your <em>schema</em></>}>
-          A real PostgreSQL table — a <code>uuid</code>, an enum, a <code>tstzrange</code>, a <code>jsonb</code>, two nullable columns.
+          A real PostgreSQL table: a <code>uuid</code>, an enum, a <code>tstzrange</code>, a <code>jsonb</code>, two nullable columns.
           The <code>RowCodec</code> maps each to a <code>DbType</code> that knows exactly how to read and write its value.
           No <code>getObject()</code> guessing, no <code>wasNull()</code> checks.
         </SectionHeader>
@@ -735,7 +671,7 @@ function TypeBuildingBlocks() {
     <section className={styles.section}>
       <div className={styles.container}>
         <SectionHeader title={<>Building blocks, <em>faithfully modeled</em></>}>
-          Composite types, wrapper types, and arrays — each database has its own type system,
+          Composite types, wrapper types, and arrays: each database has its own type system,
           and each one is modeled faithfully.
         </SectionHeader>
 
@@ -752,7 +688,7 @@ function TypeBuildingBlocks() {
             </TabItem>
             <TabItem value="wrapper" label="Wrapper Types">
               <p style={{ color: 'var(--ink-300)', fontSize: '0.95rem', margin: '1rem 0 1.25rem' }}>
-                Call <code>transform</code> (two-way mapping) on a base type — you get a full codec that works in row codecs, arrays, and JSON.
+                Call <code>transform</code> (two-way mapping) on a base type. You get a full codec that works in row codecs, arrays, and JSON.
               </p>
               <CodeBlock language="sql" title="MariaDB DDL">
                 {`CREATE TABLE products (\n    id   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\n    name VARCHAR(255) NOT NULL\n);`}
@@ -761,7 +697,7 @@ function TypeBuildingBlocks() {
             </TabItem>
             <TabItem value="arrays" label="Arrays">
               <p style={{ color: 'var(--ink-300)', fontSize: '0.95rem', margin: '1rem 0 1.25rem' }}>
-                Pass arrays directly — no <code>createArrayOf</code>, no type name strings, no connection reference.
+                Pass arrays directly. No <code>createArrayOf</code>, no type name strings, no connection reference.
               </p>
               <CodeBlock language="sql" title="DuckDB DDL">
                 {`CREATE TABLE posts (\n    id        INTEGER,\n    tags      VARCHAR[],\n    published BOOLEAN\n);`}
@@ -784,7 +720,7 @@ function QueryShowcase() {
       <div className={styles.container}>
         <SectionHeader title={<>Queries are <em>values</em> you compose</>}>
           Build fragments, combine them, pass them to functions, return them from functions.
-          The <code>optionally</code> DSL gives you optional filters as branch points — and Query Analysis
+          The <code>optionally</code> DSL gives you optional filters as branch points, and Query Analysis
           verifies <em>every</em> resulting SQL shape, not just the one your test happens to take.
         </SectionHeader>
 
@@ -815,7 +751,7 @@ function TransactorShowcase() {
       <div className={styles.container}>
         <SectionHeader title={<>Transactions you can <em>see</em></>}>
           Use Spring's <code>@Transactional</code> if that's your style, or manage transactions explicitly with <code>Transactor</code>.
-          Either way, you get typed builders for every database and full control over the lifecycle — here with Oracle.
+          Either way, you get typed builders for every database and full control over the lifecycle. Here with Oracle.
         </SectionHeader>
 
         <Reveal>
@@ -853,7 +789,7 @@ function JsonSection() {
     <section className={styles.section}>
       <div className={styles.container}>
         <SectionHeader title={<>Built-in <em>JSON</em> codecs</>}>
-          All databases can transfer data as JSON — and now you can use it uniformly.
+          All databases can transfer data as JSON, and now you can use it uniformly.
           Your <code>RowCodec</code> doubles as a JSON codec with zero extra code.
           Aggregate child rows with <code>json_agg()</code>, <code>JSON_ARRAYAGG</code>,
           or <code>FOR JSON</code> and parse them with the same types.
@@ -885,7 +821,7 @@ function StoredProcedureSection() {
     <section className={styles.section}>
       <div className={styles.container}>
         <SectionHeader title={<>Call any <em>routine</em> like a typed function</>}>
-          Define a procedure or function once — the builder tracks IN and OUT types statically.
+          Define a procedure or function once. The builder tracks IN and OUT types statically.
           Functions use <code>SELECT</code> so every <code>DbType</code> reads correctly through the normal codec path.
           OUT params use a <code>CallableStatement</code> adapter that reuses the same <code>DbRead</code> logic.
         </SectionHeader>
@@ -955,10 +891,10 @@ function ComparisonSection() {
 
   const FN = {
     langs: (
-      <>jOOQ ships a <code>KotlinGenerator</code> (data classes) and <code>ScalaGenerator</code> / <code>Scala3Generator</code> (case classes) — so Kotlin and Scala callers get generated code in their own language. Caveats: arrays still surface as Java arrays / <code>List</code>, Scala nullable columns are not mapped to <code>Option[T]</code>, and Kotlin non-null types for NOT NULL columns require opt-in flags (<code>kotlinNotNullRecordAttributes</code> et al.) that don't apply to derived columns. Foundations ships dedicated Kotlin and Scala wrappers — native collections, <code>T?</code> in Kotlin, and <code>Option[T]</code> in Scala — idiomatic by default, no flags required.</>
+      <>jOOQ ships a <code>KotlinGenerator</code> (data classes) and <code>ScalaGenerator</code> / <code>Scala3Generator</code> (case classes), so Kotlin and Scala callers get generated code in their own language. Caveats: arrays still surface as Java arrays / <code>List</code>, Scala nullable columns are not mapped to <code>Option[T]</code>, and Kotlin non-null types for NOT NULL columns require opt-in flags (<code>kotlinNotNullRecordAttributes</code> et al.) that don't apply to derived columns. Foundations ships dedicated Kotlin and Scala wrappers, native collections, <code>T?</code> in Kotlin, and <code>Option[T]</code> in Scala, idiomatic by default, no flags required.</>
     ),
     portability: (
-      <>Type references are explicit and searchable — find all <code>PgTypes.</code> and replace with <code>MariaTypes.</code> — then run Query Analysis to verify every query against the new database at test time. More manual than hoping an abstraction holds, but nothing slips through unchecked.</>
+      <>Type references are explicit and searchable: find all <code>PgTypes.</code> and replace with <code>MariaTypes.</code>. Then run Query Analysis to verify every query against the new database at test time. More manual than hoping an abstraction holds, but nothing slips through unchecked.</>
     ),
     compJooq: (
       <>jOOQ has first-class PostgreSQL array support. PostgreSQL and Oracle composite UDTs are generated by codegen. PostgreSQL ranges are available via the <code>jooq-postgres-extensions</code> module (not the core DSL). Other vendor-specific types (hstore, geometric) typically require custom bindings.</>
@@ -1033,10 +969,10 @@ function ComparisonSection() {
                   <td>Database portability</td>
                   <td className={cellClass('yellow')}>Database-specific<Tip>{FN.portability}</Tip></td>
                   <td className={cellClass('green')}>Multi-dialect DSL</td>
-                  <td className={cellClass('yellow')}>HQL — dialect leaks at runtime</td>
-                  <td className={cellClass('yellow')}>Raw SQL — portable until it isn't</td>
-                  <td className={cellClass('yellow')}>Raw SQL — portable until it isn't</td>
-                  <td className={cellClass('yellow')}>DSL — dialect-specific extensions</td>
+                  <td className={cellClass('yellow')}>HQL: dialect leaks at runtime</td>
+                  <td className={cellClass('yellow')}>Raw SQL: portable until it isn't</td>
+                  <td className={cellClass('yellow')}>Raw SQL: portable until it isn't</td>
+                  <td className={cellClass('yellow')}>DSL: dialect-specific extensions</td>
                 </tr>
                 <tr>
                   <td>Type model</td>
@@ -1134,7 +1070,7 @@ function CTA() {
               <div className={styles.comingSoonCard}>
                 <strong>World-class codegen with a SQL DSL</strong>
                 <p>
-                  Generate all the RowCodecs, type definitions, and repository scaffolding you see above — directly from your database schema. Write queries in a type-safe SQL DSL that composes like the language it's embedded in.
+                  Generate all the RowCodecs, type definitions, and repository scaffolding you see above, directly from your database schema. Write queries in a type-safe SQL DSL that composes like the language it's embedded in.
                 </p>
               </div>
               <div className={styles.comingSoonCard}>
@@ -1158,7 +1094,7 @@ export default function Home() {
   return (
     <Layout
       title="A database library for the JVM"
-      description="Composable queries, full type safety, and every data structure your database actually has — for Java, Kotlin, and Scala."
+      description="Composable queries, full type safety, and every data structure your database actually has. For Java, Kotlin, and Scala."
     >
       <div className={styles.page}>
         <Hero />

@@ -2,7 +2,7 @@
 title: Connection Pooling
 ---
 
-# Connection Pooling
+# Connection pooling
 
 For production use, the `foundations-jdbc-hikari` module provides HikariCP integration:
 

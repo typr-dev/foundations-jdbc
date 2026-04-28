@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Composing Operations
 
-Operations can be composed as values — combined, sequenced, and chained — so that multiple database actions run in a single transaction without manual connection handling.
+Operations can be composed as values, so that multiple database actions run in a single transaction without manual connection handling.
 
 ## Combining Independent Operations
 
@@ -52,13 +52,13 @@ This means `transactRead` works for any tree of pure reads — the compiler enfo
 
 ## Performance: Why Composition Matters
 
-Operation composition isn't just an API convenience — it's a **performance primitive**. The way you compose operations determines whether the execution engine can optimize them.
+How you compose operations determines whether the execution engine can optimize them.
 
-### The key insight: `combine()` is parallel, `then()` is sequential
+### `combine()` is parallel, `then()` is sequential
 
 When you write `a.combine(b)`, you're telling the execution engine that `a` and `b` are **independent** — neither needs the other's result. When you write `a.then(continuation)`, you're saying the continuation **depends** on `a`'s result.
 
-This distinction matters for execution:
+The distinction affects execution:
 
 | Combinator | Dependency | Execution |
 | :--- | :--- | :--- |
@@ -72,9 +72,9 @@ This distinction matters for execution:
 
 The `OperationRunner` delegates `Combine` nodes to a pluggable `CombineStrategy`. JDBC uses `SEQUENTIAL` (one query at a time on the same connection). Other backends can implement `PARALLEL` to execute both halves concurrently.
 
-Since `combine()` nests — `a.combine(b).combine(c).combine(d)` creates a tree of `Combine` nodes — the parallelization is **recursive**. All leaf operations end up submitted concurrently when the strategy supports it.
+Since `combine()` nests, `a.combine(b).combine(c).combine(d)` creates a tree of `Combine` nodes, and the parallelization is **recursive**. All leaf operations are submitted concurrently when the strategy supports it.
 
-### When to use which combinator
+### When to use which
 
 **Use `combine()` / `combineWith()` when queries are independent:**
 ```java
@@ -113,9 +113,9 @@ var user = tx.execute(
 ```
 
 :::info Applicative vs Monadic
-This design is an instance of the **applicative functor** pattern from functional programming. `combine()` is the applicative product — it declares that two computations are independent, enabling the runtime to execute them in parallel. `then()` is the monadic bind — it declares a dependency, forcing sequential execution.
+This design is an instance of the **applicative functor** pattern from functional programming. `combine()` is the applicative product -- it declares that two computations are independent, so the runtime can execute them in parallel. `then()` is the monadic bind -- it declares a dependency, forcing sequential execution.
 
-Many database libraries only offer monadic composition (each query depends on the previous connection state). By also offering applicative composition, foundations-jdbc gives the pipeline optimizer the freedom to batch independent queries into a single network round-trip. This distinction is invisible at the API level but has a **5x performance impact** under network latency.
+Many database libraries only offer monadic composition (each query depends on the previous connection state). By also offering applicative composition, foundations-jdbc lets the pipeline optimizer batch independent queries into a single network round-trip.
 :::
 
 ## Analyzing Composed Operations

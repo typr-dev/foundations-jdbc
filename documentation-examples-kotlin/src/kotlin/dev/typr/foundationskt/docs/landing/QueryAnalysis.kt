@@ -1,37 +1,29 @@
 package dev.typr.foundationskt.docs.landing
 
 import dev.typr.foundationskt.*
-import dev.typr.foundationskt.data.*
-import java.sql.Connection
 
 @Suppress("unused")
 class QueryAnalysisExample {
-    data class User(val id: Int, val name: String, val createdAt: Int, val email: String)
-    lateinit var connection: Connection
+    lateinit var transactor: Transactor
 
-    val userCodec: RowCodec<User> =
-        RowCodec.builder<User>()
-            .field(PgTypes.int4, User::id)           // id: correct
-            .field(PgTypes.text, User::name)         // name: correct
-            .field(PgTypes.int4, User::createdAt)    // created_at: WRONG! Should be timestamptz
-            .field(PgTypes.text, User::email)        // email: nullable but not Optional!
-            .build(::User)
+    val productCodec: RowCodec<Product> =
+        RowCodec.builder<Product>()
+            .field(DuckDbTypes.integer, Product::id)
+            .field(DuckDbTypes.integer, Product::name)
+            .field(DuckDbTypes.double_, Product::price)
+            .build(::Product)
 
     //start
-    val query: OperationRead.Query<List<User>> =
-        sql { """
-            SELECT id, name, created_at, email
-            FROM users
-            WHERE active = ${PgTypes.bool(true)}
-        """ }
-            .query(userCodec.all())
+    // name is VARCHAR in the database, but declared as Int here
+    data class Product(val id: Int, val name: Int, val price: Double)
+
+    val listProductsBad: OperationRead.Query<List<Product>> =
+        Fragment.of("SELECT id, name, price FROM products")
+            .query(productCodec.all())
 
     fun check() {
-        val analysis: QueryAnalysis =
-            QueryAnalyzer.analyze(query, connection).single()
-        if (!analysis.succeeded()) {
-            throw AssertionError(analysis.report())
-        }
+        val checker: QueryChecker = QueryChecker.create(transactor)
+        checker.check(listProductsBad)
     }
     //stop
 }

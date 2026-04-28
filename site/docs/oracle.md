@@ -4,13 +4,13 @@ title: Oracle Types
 
 import Snippet from '@site/src/components/Snippet';
 
-# Oracle Type Support
+# Oracle type support
 
-Foundations JDBC provides comprehensive support for Oracle data types, including OBJECT types, nested tables, intervals, and LOB types.
+Foundations JDBC supports Oracle data types, including OBJECT types, nested tables, intervals, and LOB types.
 
-## Numeric Types
+## Numeric types
 
-### Universal NUMBER Type
+### Universal NUMBER type
 
 | Oracle Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -21,7 +21,7 @@ Foundations JDBC provides comprehensive support for Oracle data types, including
 
 <Snippet file="oracle/NumericTypes" />
 
-### IEEE 754 Floating Point
+### IEEE 754 floating point
 
 | Oracle Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -31,7 +31,7 @@ Foundations JDBC provides comprehensive support for Oracle data types, including
 
 <Snippet file="oracle/FloatTypes" />
 
-## Boolean Type
+## Boolean type
 
 | Oracle Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -40,7 +40,7 @@ Foundations JDBC provides comprehensive support for Oracle data types, including
 
 <Snippet file="oracle/BoolType" />
 
-## Character Types
+## Character types
 
 | Oracle Type | Java Type | Max Length | Notes |
 |-------------|-----------|------------|-------|
@@ -52,19 +52,19 @@ Foundations JDBC provides comprehensive support for Oracle data types, including
 
 <Snippet file="oracle/StringTypes" />
 
-### Non-Empty String Variants
+### Non-empty string variants
 
 For NOT NULL columns, use `NonEmptyString` to guarantee non-empty values:
 
 <Snippet file="oracle/NonEmptyStringTypes" />
 
-### Padded String for CHAR
+### Padded string for CHAR
 
 For CHAR columns preserving padding:
 
 <Snippet file="oracle/PaddedStringTypes" />
 
-## Large Object (LOB) Types
+## Large object (LOB) types
 
 | Oracle Type | Java Type | Max Size | Notes |
 |-------------|-----------|----------|-------|
@@ -74,7 +74,7 @@ For CHAR columns preserving padding:
 
 <Snippet file="oracle/LobTypes" />
 
-## Binary Types
+## Binary types
 
 | Oracle Type | Java Type | Max Length | Notes |
 |-------------|-----------|------------|-------|
@@ -83,7 +83,7 @@ For CHAR columns preserving padding:
 
 <Snippet file="oracle/BinaryTypes" />
 
-## Date/Time Types
+## Date/time types
 
 | Oracle Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -118,7 +118,7 @@ In other words: the column stores an instant, and Oracle applies session-TZ rend
 Same mapping as PostgreSQL's `timestamptz` and DuckDB's `TIMESTAMPTZ` — all three store a universal instant and use `Instant` in Java.
 :::
 
-## Interval Types
+## Interval types
 
 | Oracle Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -127,7 +127,7 @@ Same mapping as PostgreSQL's `timestamptz` and DuckDB's `TIMESTAMPTZ` — all th
 
 <Snippet file="oracle/IntervalTypes" />
 
-## ROWID Types
+## ROWID types
 
 | Oracle Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -136,7 +136,7 @@ Same mapping as PostgreSQL's `timestamptz` and DuckDB's `TIMESTAMPTZ` — all th
 
 <Snippet file="oracle/RowIdTypes" />
 
-## XML and JSON Types
+## XML and JSON types
 
 | Oracle Type | Java Type | Notes |
 |-------------|-----------|-------|
@@ -145,7 +145,7 @@ Same mapping as PostgreSQL's `timestamptz` and DuckDB's `TIMESTAMPTZ` — all th
 
 <Snippet file="oracle/XmlJsonTypes" />
 
-## Object Types
+## Object types
 
 Oracle OBJECT types are built from a `RowCodecNamed` via `compositeOf`:
 
@@ -167,7 +167,7 @@ Mapped to `List<T>` in Java. The max size is enforced on write.
 
 <Snippet file="oracle/VArrayTypes" />
 
-## Nested Tables
+## Nested tables
 
 Nested tables are unbounded collections (`CREATE TYPE ... AS TABLE OF ...`).
 Like VARRAYs, they map to `List<T>` but have no size limit.
@@ -175,13 +175,13 @@ Nested tables can hold OBJECT types for complex hierarchical data.
 
 <Snippet file="oracle/NestedTableTypes" />
 
-## Nullable Types
+## Nullable types
 
 Any type can be made nullable using `.opt()`:
 
 <Snippet file="oracle/NullableType" />
 
-### Oracle Nullability Behavior
+### Oracle nullability behavior
 
 Oracle treats empty strings as NULL — `INSERT INTO t (col) VALUES ('')` stores NULL.
 This means `VARCHAR2` columns are effectively always nullable from Oracle's perspective,
@@ -196,7 +196,7 @@ you know are `NOT NULL` in the schema:
 OracleType<String> name = OracleTypes.varchar2Of(100).nullableOk();
 ```
 
-## Custom Domain Types
+## Custom domain types
 
 Wrap base types with custom Java types using `transform`:
 

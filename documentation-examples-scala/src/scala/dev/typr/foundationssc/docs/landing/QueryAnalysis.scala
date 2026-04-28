@@ -1,31 +1,26 @@
 package dev.typr.foundationssc.docs.landing
 import dev.typr.foundationssc.*
-import dev.typr.foundationssc.Fragment.*
-import dev.typr.foundationssc.data.*
 
 @SuppressWarnings(Array("unused"))
 object QueryAnalysisExample:
-  case class User(id: Int, name: String, createdAt: Int, email: String)
-  object User:
-    val rowCodec: RowCodec[User] = RowCodec
-      .builder[User]()
-      .field(PgTypes.int4)(_.id)
-      .field(PgTypes.text)(_.name)
-      .field(PgTypes.int4)(_.createdAt) // WRONG! Should be timestamptz
-      .field(PgTypes.text)(_.email) // nullable but not Optional!
-      .build(User.apply)
+  private val transactor: Transactor = null // placeholder
+
+  val productCodec: RowCodec[Product] = RowCodec
+    .builder[Product]()
+    .field(DuckDbTypes.integer)(_.id)
+    .field(DuckDbTypes.integer)(_.name)
+    .field(DuckDbTypes.double_)(_.price)
+    .build(Product.apply)
 
   // start
-  // Your query looks fine at compile time...
-  val query: OperationRead.Query[List[User]] =
-    sql"""SELECT id, name, created_at, email
-          FROM users
-          WHERE active = ${PgTypes.bool(true)}"""
-      .query(User.rowCodec.all())
+  // name is VARCHAR in the database, but declared as Int here
+  case class Product(id: Int, name: Int, price: Double)
 
-  // But Query Analysis catches the bugs in your tests
-  def check(connection: Connection): Unit =
-    val result: QueryAnalysis =
-      QueryAnalyzer.analyze(query, connection).head
-    if !result.succeeded() then throw new AssertionError(result.report())
+  val listProductsBad: OperationRead.Query[List[Product]] =
+    Fragment.of("SELECT id, name, price FROM products")
+      .query(productCodec.all())
+
+  def check(): Unit =
+    val checker: QueryChecker = QueryChecker.create(transactor)
+    checker.check(listProductsBad)
   // stop

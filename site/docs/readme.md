@@ -7,10 +7,11 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import Snippet from '@site/src/components/Snippet';
 import DependencyTabs from '@site/src/components/DependencyTabs';
+import ThemedImg from '@site/src/components/ThemedImg';
 
 # Getting Started
 
-A step-by-step introduction to Foundations JDBC — from setup to executing queries. Foundations JDBC is [MIT-licensed](https://github.com/typr-dev/foundations-jdbc/blob/main/LICENSE) and open source.
+A step-by-step introduction to Foundations JDBC. The library is [MIT-licensed](https://github.com/typr-dev/foundations-jdbc/blob/main/LICENSE) and open source.
 
 ## Dependencies
 
@@ -52,15 +53,15 @@ import dev.typr.foundationssc.data.*    // Data types: Json, Range, Uint4, etc.
 </TabItem>
 </Tabs>
 
-## Setting Up a Connection
+## Setting up a connection
 
-The quickest way to get started is with DuckDB in-memory. DuckDB is an embedded database that requires no Docker, no server, and no setup — just add the dependency and go:
+The quickest way to get started is with DuckDB in-memory. DuckDB is an embedded database that requires no Docker, no server, and no setup. Add the dependency and go:
 
 <Snippet file="core/GettingStarted" />
 
 For production connection setup with PostgreSQL, MariaDB, and other databases, see [Transactors](./transactors).
 
-## Your First Query
+## Your first query
 
 Define a record, a row codec that maps columns to fields, and a query that returns typed results:
 
@@ -68,7 +69,7 @@ Define a record, a row codec that maps columns to fields, and a query that retur
 
 The `RowCodecNamed` maps database columns to record fields by name. Use `.all()` to collect all rows, `.exactlyOne()` for a single result, or `.maxOne()` for an optional result. See [Row Codecs](./row-codecs) for more.
 
-## Parameterized Queries
+## Parameterized queries
 
 Use your types and codecs in a plain function to build parameterized queries:
 
@@ -76,13 +77,13 @@ Use your types and codecs in a plain function to build parameterized queries:
 
 Values are always bound as JDBC parameters — never concatenated into SQL strings.
 
-## Query Analysis
+## Query analysis
 
-Run your queries against the database at test time — [Query Analysis](./query-analysis) catches type mismatches, nullability errors, and missing columns before they reach production:
+[Query Analysis](./query-analysis) catches type mismatches, nullability errors, and missing columns at test time:
 
-<img src="/img/query-analysis-type-mismatch.png" alt="Query analysis catches type mismatches at test time" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '600px'}} />
+<ThemedImg light="/img/qa-type-mismatch-light.png" dark="/img/qa-type-mismatch-dark.png" alt="Query analysis catches type mismatches at test time" style={{maxWidth: '600px'}} />
 
-## What's Next
+## What's next
 
 ![Concepts Flow](/img/concepts-flow.svg)
 
@@ -90,7 +91,7 @@ Run your queries against the database at test time — [Query Analysis](./query-
 
 **Jump to a topic:** [Database Types](./database-types) (type catalog) &middot; [Dynamic Queries](./dynamic-queries) (optional filters &amp; conditional clauses)
 
-## Full Examples
+## Full examples
 
 - [`example-kotlin`](https://github.com/typr-dev/foundations-jdbc/tree/main/example-kotlin) — DuckDB with domain types, repositories, services, and query analysis
 - [`example-spring-boot`](https://github.com/typr-dev/foundations-jdbc/tree/main/example-spring-boot) — Java Spring Boot with HikariCP connection pooling

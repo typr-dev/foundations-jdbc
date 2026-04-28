@@ -3,29 +3,30 @@ title: Query Analysis
 ---
 
 import Snippet from '@site/src/components/Snippet';
+import ThemedImg from '@site/src/components/ThemedImg';
 
 # Query Analysis
 
 **Catch SQL type errors at test time, not runtime.**
 
-Query Analysis is foundations-jdbc's answer to the question: "How do I know my SQL queries will actually work?" Inspired by [doobie's type checking](https://tpolecat.github.io/doobie/docs/17-Typechecking.html), it verifies that your code's types match what the database expects — before your code ever runs in production.
+Query Analysis verifies that your code's types match what the database expects -- before your code runs in production. Inspired by [doobie's type checking](https://tpolecat.github.io/doobie/docs/17-Typechecking.html).
 
 :::warning Database-specific limitations
 Query Analysis relies on metadata reported by each database's JDBC driver — and not all drivers report equally well. Column type checking works everywhere, but parameter type checking and nullability checking vary. See [Database Behavior](./query-analysis-database-behavior) for the full breakdown.
 :::
 
-## The Problem
+## The problem
 
-Traditional JDBC gives you no compile-time or test-time feedback about your queries. You write SQL, you guess at types, and you pray. Errors show up as:
+JDBC gives you no compile-time or test-time feedback about your queries. Errors show up as:
 
 - `ClassCastException` in production
 - Silent data truncation
 - `NullPointerException` from nullable columns you forgot about
 - Mysterious "wrong number of parameters" errors
 
-## The Solution
+## The solution
 
-Query Analysis uses JDBC metadata to verify your queries against the actual database schema. It compares vendor type names (e.g., `int4`, `varchar`, `timestamptz`) directly — no JDBC integer code mapping needed. Run it in your test suite, and you'll know immediately when:
+Query Analysis uses JDBC metadata to verify your queries against the actual database schema. It compares vendor type names (`int4`, `varchar`, `timestamptz`) directly. Run it in your test suite to catch:
 
 1. **Parameter types don't match** — You're passing a String where the database expects an Integer
 2. **Column types don't match** — Your RowCodec expects a timestamp but the column is a date
@@ -37,21 +38,21 @@ Queries built with the [`optionally` DSL](./dynamic-queries) are expanded into a
 :::
 
 <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', margin: '1.5rem 0'}}>
-<img src="/img/query-analysis-success.png" alt="Query analysis: all types match" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '48%'}} />
-<img src="/img/query-analysis-nullability.png" alt="Query analysis: nullability mismatch detected" style={{borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxWidth: '48%'}} />
+<ThemedImg light="/img/qa-type-mismatch-light.png" dark="/img/qa-type-mismatch-dark.png" alt="Query analysis: type mismatch detected" style={{maxWidth: '48%'}} />
+<ThemedImg light="/img/qa-nullability-light.png" dark="/img/qa-nullability-dark.png" alt="Query analysis: nullability mismatch detected" style={{maxWidth: '48%'}} />
 </div>
 
-## Basic Usage
+## Basic usage
 
-`AnalyzableScanner` scans a package and discovers every query and operation. `QueryChecker` verifies them all against the database. Together, they give you a single test that covers your entire data layer:
+`AnalyzableScanner` scans a package and discovers every query and operation. `QueryChecker` verifies them all against the database. One test covers your entire data layer:
 
 <Snippet file="analysis/QueryAnalysisTestSuite" />
 
 Add a new query anywhere in the package, and it's automatically included in the next test run. No manual list maintenance.
 
-## What the Scanner Discovers
+## What the scanner discovers
 
-The scanner finds everything that returns an `Analyzable` type — this includes `OperationRead` and `Operation`. It discovers both **fields** and **methods**:
+The scanner finds everything that returns an `Analyzable` type (`OperationRead` and `Operation`). It discovers both **fields** and **methods**:
 
 <Snippet file="analysis/ScannerMethods" />
 
@@ -66,7 +67,7 @@ The scanner finds everything that returns an `Analyzable` type — this includes
 | **Static methods** (no args, with args) | Discovered — same dummy-argument construction as instance methods |
 | **Private / protected / package-private members** | Discovered — the scanner uses `setAccessible(true)` since it's a test-scope tool |
 
-### How classes are instantiated
+### Class instantiation
 
 The scanner handles all three JVM languages:
 
@@ -90,9 +91,9 @@ AnalyzableScanner.scan("com.myapp.db", transactor)
 The scanner will try constructors that accept a `Transactor` parameter.
 :::
 
-### How dummy arguments work
+### Dummy arguments
 
-When the scanner encounters a method with parameters, it constructs dummy values to invoke the method. The actual argument values typically don't matter — the scanner only needs the method's return value (an `OperationRead` or `Operation`) to extract its SQL and type information. If a method branches on its arguments and returns structurally different operations, use `manual()` directives to provide meaningful values.
+When the scanner encounters a method with parameters, it constructs dummy values to invoke the method. The actual argument values don't matter -- the scanner only needs the method's return value (an `OperationRead` or `Operation`) to extract SQL and type information. If a method branches on its arguments and returns structurally different operations, use `manual()` directives to provide meaningful values.
 
 The scanner can construct dummies for:
 
@@ -117,9 +118,9 @@ In Kotlin and Scala, properties generate both a backing field and a getter metho
 
 Methods with parameters are never treated as getters, even if they share a name with a field.
 
-## Scan Directives
+## Scan directives
 
-When the scanner encounters a method it can't auto-invoke — for example, a parameter is an interface type, or you need specific argument values — it fails with an error telling you which method and why. **Scan directives** tell the scanner how to handle these methods.
+When the scanner encounters a method it can't auto-invoke, it fails with an error telling you which method and why. **Scan directives** tell the scanner how to handle these methods.
 
 ### `skip()` — exclude a method
 
@@ -150,13 +151,13 @@ Use `instance()` to include objects that live outside the scanned package, or th
 
 The `instance()` directive also supports per-instance overrides — you can skip or provide manual entries for specific methods on that instance.
 
-## Manual Check
+## Manual check
 
-Some queries can't be discovered by the scanner — for example, queries built dynamically inside methods, or queries in classes that require constructor arguments the scanner can't provide. Use `checker.check()` to verify these individually:
+Some queries can't be discovered by the scanner -- queries built dynamically inside methods, or queries in classes that require constructor arguments the scanner can't provide. Use `checker.check()` to verify these individually:
 
 <Snippet file="analysis/QueryAnalysisBasic" />
 
-## Named Queries
+## Named queries
 
 Give your queries names for clearer error reports:
 
@@ -164,7 +165,7 @@ Give your queries names for clearer error reports:
 
 Named queries show the name in the report header, making it easy to find which query failed in a large test suite. The scanner names queries automatically (`ClassName.fieldName`), so naming is mainly useful for manual checks.
 
-## Reading the Report
+## Reading the report
 
 When analysis fails, you get a detailed report showing exactly what went wrong:
 
@@ -197,9 +198,9 @@ SQL (findUserById):
   2. Column 4 'status' is returned by query (varchar) but not declared in RowCodec
 ```
 
-## Error Types
+## Error types
 
-### Parameter Type Mismatch
+### Parameter type mismatch
 
 When you pass a parameter of the wrong type:
 
@@ -212,7 +213,7 @@ Parameter 1: type mismatch
 
 **Fix:** Change the parameter type to match what the database expects.
 
-### Column Type Mismatch
+### Column type mismatch
 
 When your RowCodec expects a different type than the database returns:
 
@@ -225,7 +226,7 @@ Column 2 'price': type mismatch
 
 **Fix:** Use the correct DbType in your RowCodec. Here, use `PgTypes.numeric` instead of `PgTypes.int4`.
 
-### Nullability Mismatch
+### Nullability mismatch
 
 When a nullable column isn't wrapped in Optional:
 
@@ -239,7 +240,7 @@ Column 3 'email': nullability mismatch
 
 **Fix:** Use `.opt()` on the type: `PgTypes.text.opt()` instead of `PgTypes.text`. Or use `.nullableOk()` if you know it's safe (see [Escape Hatches](#escape-hatches)).
 
-### Missing Column
+### Missing column
 
 When your RowCodec expects more columns than the query returns:
 
@@ -249,7 +250,7 @@ Column 5 is declared in RowCodec (boolean) but not returned by query
 
 **Fix:** Either add the missing column to your SELECT, or remove it from your RowCodec.
 
-### Extra Column
+### Extra column
 
 When the query returns more columns than your RowCodec expects:
 
@@ -259,23 +260,23 @@ Column 4 'updated_at' is returned by query (timestamptz) but not declared in Row
 
 **Fix:** Either add the column to your RowCodec, or remove it from your SELECT.
 
-## Escape Hatches
+## Escape hatches
 
-Sometimes strict type checking is too strict. Two escape hatches let you selectively relax checking:
+Two escape hatches let you selectively relax checking:
 
-### `.nullableOk()` — Suppress Nullability Warnings
+### `.nullableOk()` -- suppress nullability warnings
 
 Use when you know a column won't be null in practice, even though the database says it could be. Common with outer joins:
 
 <Snippet file="analysis/QueryAnalysisNullableOk" />
 
-### `.unchecked()` — Skip Type Checking Entirely
+### `.unchecked()` -- skip type checking entirely
 
 Use when you know the type is correct but the database metadata disagrees, or for computed columns with unpredictable types:
 
 <Snippet file="analysis/QueryAnalysisUnchecked" />
 
-## Routine Analysis
+## Routine analysis
 
 Verify stored procedures and functions against the database:
 
@@ -288,15 +289,15 @@ Routine analysis checks:
 - Parameter modes match (IN, OUT, INOUT)
 - Return type matches (for functions)
 
-## Analyzing Composed Operations
+## Analyzing composed operations
 
 When you compose operations with `.combine()`/`.combineWith()`, `.then()`, or `OperationRead.ifEmpty()`, the checker walks the entire operation tree and verifies every SQL statement:
 
 <Snippet file="analysis/QueryAnalysisAll" />
 
-This walks the entire operation tree and returns one `QueryAnalysis` per SQL statement found.
+This returns one `QueryAnalysis` per SQL statement found in the tree.
 
-## Dynamic SQL Analysis
+## Dynamic SQL analysis
 
 When a fragment uses [`.optionally()`](./dynamic-queries), analysis automatically expands all 2^N structural variants. Each variant is prepared against the database and verified independently.
 
@@ -315,6 +316,6 @@ For example, an operation with 3 optional predicates produces 8 combinations —
 
 If any variant has a type error, the analysis report tells you exactly which combination failed and why.
 
-## Further Reading
+## Further reading
 
 - [Query Analysis: Database Behavior](./query-analysis-database-behavior) — detailed breakdown of what each database's JDBC driver reports and how it affects analysis

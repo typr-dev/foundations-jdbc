@@ -122,6 +122,93 @@ public class ScreenshotApp {
           Optional.of(28), Optional.empty(), Optional.empty(), Optional.empty(),
           Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
       System.out.println(colError.formattedColored(Optional.of("SELECT id FROM users WHERE agee > 30")));
+
+      // ── Section 7: CheckReport summary (10 queries, mixed variants) ─
+      System.out.println("\n=== Section 7: CheckReport Summary (mixed pass/fail, with variants) ===\n");
+
+      var tx = Transactor.create(DuckDbConfig.builder(":memory:").build());
+      tx.transact(c -> {
+        Fragment.of("CREATE TABLE products (id INTEGER, name VARCHAR, price DOUBLE, active BOOLEAN)").update().run(c);
+        Fragment.of("CREATE TABLE orders (id INTEGER, product_id INTEGER, qty INTEGER)").update().run(c);
+        return null;
+      });
+      var checker = QueryChecker.create(tx);
+
+      var productCodec = RowCodec.<Product>namedBuilder()
+          .field("id", DuckDbTypes.integer, Product::id)
+          .field("name", DuckDbTypes.varchar, Product::name)
+          .field("price", DuckDbTypes.double_, Product::price)
+          .build(Product::new);
+
+      var orderCodec = RowCodec.<Order>namedBuilder()
+          .field("id", DuckDbTypes.integer, Order::id)
+          .field("product_id", DuckDbTypes.integer, Order::productId)
+          .field("qty", DuckDbTypes.integer, Order::qty)
+          .build(Order::new);
+
+      // Codec with a deliberate type mismatch on `name` (declared INTEGER, column is VARCHAR)
+      var brokenCodec = RowCodec.<ProductBroken>namedBuilder()
+          .field("id", DuckDbTypes.integer, ProductBroken::id)
+          .field("name", DuckDbTypes.integer, ProductBroken::name)  // wrong: name is VARCHAR
+          .field("price", DuckDbTypes.double_, ProductBroken::price)
+          .build(ProductBroken::new);
+
+      var listAllProducts = Fragment.of("SELECT id, name, price FROM products")
+          .query(productCodec.all()).named("listAllProducts");
+
+      var listActiveProducts = Fragment.of("SELECT id, name, price FROM products WHERE active = TRUE")
+          .query(productCodec.all()).named("listActiveProducts");
+
+      var searchProducts = Fragment.of("SELECT id, name, price FROM products WHERE 1=1")
+          .optionally(Optional.of("widget")).append(" AND name = ", DuckDbTypes.varchar)
+          .optionally(true).append(" AND active = TRUE")
+          .query(productCodec.all()).named("searchProducts");  // 4 variants
+
+      var countOrders = Fragment.of("SELECT count(*) FROM orders")
+          .queryExactlyOne(DuckDbTypes.bigint).named("countOrders");
+
+      var listOrders = Fragment.of("SELECT id, product_id, qty FROM orders")
+          .query(orderCodec.all()).named("listOrders");
+
+      var ordersForProduct = Fragment.of("SELECT id, product_id, qty FROM orders WHERE 1=1")
+          .optionally(Optional.of(42)).append(" AND product_id = ", DuckDbTypes.integer)
+          .query(orderCodec.all()).named("ordersForProduct");  // 2 variants
+
+      var insertProduct = Fragment.of("INSERT INTO products(id, name, price, active) VALUES (")
+          .value(DuckDbTypes.integer, 1).append(", ")
+          .value(DuckDbTypes.varchar, "widget").append(", ")
+          .value(DuckDbTypes.double_, 9.99).append(", ")
+          .value(DuckDbTypes.boolean_, true).append(")")
+          .execute().named("insertProduct");
+
+      var deleteOrder = Fragment.of("DELETE FROM orders WHERE id = ")
+          .value(DuckDbTypes.integer, 1).execute().named("deleteOrder");
+
+      // Failing query — broken codec
+      var listProductsBad = Fragment.of("SELECT id, name, price FROM products")
+          .query(brokenCodec.all()).named("listProductsBad");
+
+      var renameProductsTable = Fragment.of("ALTER TABLE products RENAME TO products_v2")
+          .execute().named("renameProductsTable");
+
+      var report = checker.analyzeAll(
+          listAllProducts,
+          listActiveProducts,
+          searchProducts,           // 4 variants
+          countOrders,
+          listOrders,
+          ordersForProduct,         // 2 variants
+          insertProduct,
+          deleteOrder,
+          listProductsBad,          // FAILS
+          renameProductsTable);     // DDL
+      System.out.println(report.summary(true));
     }
   }
+
+  record Product(Integer id, String name, Double price) {}
+
+  record ProductBroken(Integer id, Integer name, Double price) {}
+
+  record Order(Integer id, Integer productId, Integer qty) {}
 }

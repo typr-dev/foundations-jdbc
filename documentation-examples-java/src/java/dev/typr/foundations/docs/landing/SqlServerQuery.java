@@ -19,14 +19,25 @@ public class SqlServerQuery {
   Connection conn = null; // placeholder
 
   // start
-  // Build a dynamic query with the `optionally` DSL — only present filters reach the SQL.
-  // Each `.optionally().append(...)` is a branch point Query Analysis expands and verifies
-  // against the schema, so every possible 2^N shape is checked at test time.
+  // Reusable filter functions
+  static Fragment matchingName(Fragment f, Optional<String> name) {
+    return f.optionally(name).append(" AND name LIKE ", SqlServerTypes.nvarchar);
+  }
+
+  static Fragment cheaperThan(Fragment f, Optional<BigDecimal> max) {
+    return f.optionally(max).append(" AND price < ", SqlServerTypes.decimal);
+  }
+
+  static Fragment activeOnly(Fragment f, boolean active) {
+    return f.optionally(active).append(" AND active = 1");
+  }
+
+  // Compose with .pipe()
   List<OrderRow> orders =
       Fragment.of("SELECT id, name, price FROM orders WHERE 1 = 1")
-          .optionally(name)      .append(" AND name LIKE ", SqlServerTypes.nvarchar)
-          .optionally(maxPrice)  .append(" AND price < ",   SqlServerTypes.decimal)
-          .optionally(onlyActive).append(" AND active = 1")
+          .pipe(f -> matchingName(f, name))
+          .pipe(f -> cheaperThan(f, maxPrice))
+          .pipe(f -> activeOnly(f, onlyActive))
           .query(orderRowCodec.all())
           .run(conn);
   // stop
