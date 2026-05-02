@@ -94,11 +94,11 @@ final class SimpleDataSource implements ConnectionSource {
    */
   private static final class SingleConnection implements ConnectionSource {
 
-    private final ConnectionSource underlying;
+    private final SimpleDataSource underlying;
     private final ReentrantLock lock = new ReentrantLock();
     private Connection connection;
 
-    SingleConnection(ConnectionSource underlying) {
+    SingleConnection(SimpleDataSource underlying) {
       this.underlying = underlying;
     }
 
@@ -117,7 +117,12 @@ final class SimpleDataSource implements ConnectionSource {
 
     @Override
     public TransactorJdbc transactor() {
-      return underlying.transactor();
+      // Build the transactor against `this` (the SingleConnection wrapper) so every transact()
+      // resolves to the proxy of the cached connection. Delegating to underlying.transactor() — as
+      // we used to — would route every transact() through SimpleDataSource.getConnection() and
+      // open a fresh database for each call, which on SQLite/DuckDB :memory: means the table from
+      // the previous transact() is gone.
+      return TransactorJdbcImpl.create(this, underlying.config::mapException);
     }
 
     private static Connection nonClosingProxy(Connection real) {

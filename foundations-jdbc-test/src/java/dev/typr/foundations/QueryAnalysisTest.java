@@ -299,9 +299,10 @@ public class QueryAnalysisTest {
           System.out.println(report);
 
           assertTrue("Report should contain SQL section", report.contains("SQL:"));
-          assertTrue("Report should contain Parameters section", report.contains("Parameters"));
-          assertTrue("Report should contain Columns section", report.contains("Columns"));
-          assertTrue("Report should contain error indicator", report.contains("error"));
+          // Post-CheckReport refactor: parameters omitted when none, columns rendered as a table
+          // (declared/returned), and the error indicator is the ✗ glyph rather than the word "error".
+          assertTrue("Report should render the columns table", report.contains("declared"));
+          assertTrue("Report should mark mismatches with ✗", report.contains("✗"));
 
           return null;
         });
@@ -872,9 +873,9 @@ public class QueryAnalysisTest {
           assertFalse(
               "Plain report should NOT contain ANSI escape codes", plain.contains("\u001b["));
 
-          // Both should contain the same structural elements
-          assertTrue("Plain should contain error count", plain.contains("error"));
-          assertTrue("Colored should contain error count", colored.contains("error"));
+          // Both should mark errors with the ✗ glyph (the new format dropped the word "error").
+          assertTrue("Plain should contain ✗ marker", plain.contains("✗"));
+          assertTrue("Colored should contain ✗ marker", colored.contains("✗"));
 
           // Error messages should also have colored versions
           for (var error : analysis.allErrors()) {
