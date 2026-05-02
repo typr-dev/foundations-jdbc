@@ -59,26 +59,62 @@ public class PgTypeTest {
           .field("quantity", PgTypes.int4, Item::quantity)
           .build(Item::new);
 
+  /**
+   * Setup DDL the entry needs to have run (in order) inside the test transaction before the
+   * statement under test references the type. Used for both PG DOMAINs and user-defined ENUM /
+   * COMPOSITE types — entries that reference a CREATE TYPE / CREATE DOMAIN statement carry their
+   * own setup so the rollback-only transactor can issue them per-test and discard them.
+   */
   record PgTypeAndExample<A>(
       PgType<A> type,
       A example,
       boolean hasIdentity,
       boolean streamingWorks,
-      boolean compositeTextWorks) {
+      boolean compositeTextWorks,
+      boolean callableWorks,
+      List<String> setupSql) {
     public PgTypeAndExample(PgType<A> type, A example) {
-      this(type, example, true, true, true);
+      this(type, example, true, true, true, true, List.of());
     }
 
     public PgTypeAndExample<A> noStreaming() {
-      return new PgTypeAndExample<>(type, example, hasIdentity, false, compositeTextWorks);
+      return new PgTypeAndExample<>(
+          type, example, hasIdentity, false, compositeTextWorks, callableWorks, setupSql);
     }
 
     public PgTypeAndExample<A> noIdentity() {
-      return new PgTypeAndExample<>(type, example, false, streamingWorks, compositeTextWorks);
+      return new PgTypeAndExample<>(
+          type, example, false, streamingWorks, compositeTextWorks, callableWorks, setupSql);
     }
 
     public PgTypeAndExample<A> noCompositeText() {
-      return new PgTypeAndExample<>(type, example, hasIdentity, streamingWorks, false);
+      return new PgTypeAndExample<>(
+          type, example, hasIdentity, streamingWorks, false, callableWorks, setupSql);
+    }
+
+    /**
+     * Skip the function/procedure/OUT/INOUT/Proc tests for this entry. Use when the underlying
+     * type doesn't survive PG's procedure-overload resolution — most commonly user-defined
+     * ENUMs, which arrive as varchar and PG won't promote without an explicit cast.
+     */
+    public PgTypeAndExample<A> noCallable() {
+      return new PgTypeAndExample<>(
+          type, example, hasIdentity, streamingWorks, compositeTextWorks, false, setupSql);
+    }
+
+
+    /** Add one or more DDL statements to the setup, preserving order. */
+    public PgTypeAndExample<A> withSetup(String... ddl) {
+      var combined = new java.util.ArrayList<String>(setupSql);
+      for (String d : ddl) combined.add(d);
+      return new PgTypeAndExample<>(
+          type,
+          example,
+          hasIdentity,
+          streamingWorks,
+          compositeTextWorks,
+          callableWorks,
+          List.copyOf(combined));
     }
   }
 
@@ -89,7 +125,9 @@ public class PgTypeTest {
         List.of(elem.example()),
         elem.hasIdentity(),
         elem.streamingWorks(),
-        elem.compositeTextWorks());
+        elem.compositeTextWorks(),
+        elem.callableWorks(),
+        elem.setupSql());
   }
 
   /** Auto-generate an empty list test entry for a type (once per type). */
@@ -99,7 +137,9 @@ public class PgTypeTest {
         List.of(),
         elem.hasIdentity(),
         elem.streamingWorks(),
-        elem.compositeTextWorks());
+        elem.compositeTextWorks(),
+        elem.callableWorks(),
+        elem.setupSql());
   }
 
   /** Auto-generate a multi-element list test entry combining all examples for a type. */
@@ -111,7 +151,9 @@ public class PgTypeTest {
         values,
         first.hasIdentity(),
         first.streamingWorks(),
-        first.compositeTextWorks());
+        first.compositeTextWorks(),
+        first.callableWorks(),
+        first.setupSql());
   }
 
   /**
@@ -122,7 +164,26 @@ public class PgTypeTest {
    */
   static <A> PgTypeAndExample<List<List<A>>> nestedListEntry(PgTypeAndExample<A> elem) {
     return new PgTypeAndExample<>(
-        elem.type().array().array(), List.of(List.of(elem.example())), false, false, false);
+        elem.type().array().array(),
+        List.of(List.of(elem.example())),
+        false,
+        false,
+        false,
+        elem.callableWorks(),
+        elem.setupSql());
+  }
+
+  /** Run the entry's setup DDL (if any) inside the current rollback-only transaction. */
+  static void ensureDomain(Transactor exec, PgTypeAndExample<?> t) {
+    for (String ddl : t.setupSql()) {
+      exec.execute(Fragment.of(ddl).execute());
+    }
+  }
+
+  static void ensureDomain(Connection conn, PgTypeAndExample<?> t) {
+    for (String ddl : t.setupSql()) {
+      Fragment.of(ddl).execute().run(conn);
+    }
   }
 
   /** Should we auto-generate list test entries for this scalar entry? */
@@ -366,7 +427,41 @@ public class PgTypeTest {
               Range.timestamptz(
                   new RangeBound.Closed<>(Instant.parse("2024-01-01T00:00:00Z")),
                   new RangeBound.Open<>(Instant.parse("2024-12-31T23:59:59Z")))),
-          new PgTypeAndExample<>(PgTypes.tstzrange, Range.empty()));
+          new PgTypeAndExample<>(PgTypes.tstzrange, Range.empty()),
+
+          // ==================== User-defined ENUM ====================
+          // noCallable: PG can't promote varchar->enum at procedure-call overload resolution.
+          new PgTypeAndExample<>(
+                  PgTypes.ofEnum("pgtt_traffic", Traffic.values()), Traffic.amber)
+              .withSetup("CREATE TYPE pgtt_traffic AS ENUM ('red','amber','green')")
+              .noCallable(),
+          new PgTypeAndExample<>(
+                  PgTypes.ofEnum("pgtt_traffic", Traffic.values()), Traffic.red)
+              .withSetup("CREATE TYPE pgtt_traffic AS ENUM ('red','amber','green')")
+              .noCallable(),
+
+          // ==================== User-defined COMPOSITE ====================
+          // noStreaming: COPY-text encoding of composites doesn't survive PG's COPY parser when
+          //   the composite literal contains commas (PG splits at the comma inside the record).
+          new PgTypeAndExample<>(pgttSimpleAddrType, new SimpleAddr("Main St", "Springfield"))
+              .withSetup("CREATE TYPE pgtt_simple_addr AS (street text, city text)")
+              .noStreaming());
+
+  public enum Traffic {
+    red,
+    amber,
+    green
+  }
+
+  public record SimpleAddr(String street, String city) {}
+
+  static final PgType<SimpleAddr> pgttSimpleAddrType =
+      PgTypes.compositeOf(
+          "pgtt_simple_addr",
+          RowCodec.<SimpleAddr>namedBuilder()
+              .field("street", PgTypes.text, SimpleAddr::street)
+              .field("city", PgTypes.text, SimpleAddr::city)
+              .build(SimpleAddr::new));
 
   /**
    * All test entries: element types + auto-generated array entries.
@@ -379,12 +474,51 @@ public class PgTypeTest {
   @SuppressWarnings({"unchecked", "rawtypes"})
   List<PgTypeAndExample<?>> All = buildAll();
 
+  /** PG DOMAIN name for each underlying scalar SQL type used in the matrix. */
+  static final String DOMAIN_PREFIX = "pgtt_dom_";
+
+  static String domainNameFor(PgType<?> type) {
+    return DOMAIN_PREFIX
+        + type.typename().sqlType().toLowerCase().replace("(", "_").replace(")", "").replace(",", "_").replace(" ", "");
+  }
+
+  /**
+   * Build the domain variant of an entry. The CREATE DOMAIN statement is appended to the entry's
+   * existing setup DDL so that — for entries whose base type is itself user-defined (ENUM,
+   * COMPOSITE) — both the CREATE TYPE and the CREATE DOMAIN run in order before the test body.
+   *
+   * <p>Domain variants drop {@code hasIdentity} unconditionally: the base entry already proves
+   * the underlying type's {@code =} operator works, and PG does not always define {@code =} for
+   * a domain in its own right (e.g. domain-over-enum has no operator class because operators are
+   * bound to the enum's OID, not the domain's). Skipping the equality WHERE clause here keeps
+   * the matrix uniform without losing meaningful coverage.
+   */
+  @SuppressWarnings("rawtypes")
+  static <A> PgTypeAndExample<A> domainEntry(PgTypeAndExample<A> e) {
+    String baseSqlType = ((PgType<?>) e.type()).typename().sqlType();
+    String name = domainNameFor((PgType<?>) e.type());
+    return new PgTypeAndExample<>(
+            e.type().asDomain(name),
+            e.example(),
+            false, // hasIdentity — see javadoc above
+            e.streamingWorks(),
+            e.compositeTextWorks(),
+            e.callableWorks(),
+            e.setupSql())
+        .withSetup("CREATE DOMAIN " + name + " AS " + baseSqlType);
+  }
+
   @SuppressWarnings({"unchecked", "rawtypes"})
   private List<PgTypeAndExample<?>> buildAll() {
-    var out = new java.util.ArrayList<PgTypeAndExample<?>>(Elements);
+    var elementsWithDomains = new java.util.ArrayList<PgTypeAndExample<?>>(Elements);
+    for (var e : Elements) {
+      elementsWithDomains.add(domainEntry((PgTypeAndExample) e));
+    }
+
+    var out = new java.util.ArrayList<PgTypeAndExample<?>>(elementsWithDomains);
 
     // Per-entry singleton list tests (edge-case values through the element codec)
-    for (var e : Elements) {
+    for (var e : elementsWithDomains) {
       if (hasListSupport(e)) {
         out.add(singletonListEntry((PgTypeAndExample) e));
       }
@@ -394,7 +528,7 @@ public class PgTypeTest {
     // Key by (sqlType, example class) so transformed types (e.g. jsonArrayEncoded<Item>)
     // don't collide with their base type (json<Json>) even though both have sqlType="json".
     var byType = new java.util.LinkedHashMap<String, List<PgTypeAndExample<?>>>();
-    for (var e : Elements) {
+    for (var e : elementsWithDomains) {
       if (hasListSupport(e)) {
         String key = e.type().typename().sqlType() + "#" + e.example().getClass().getName();
         byType.computeIfAbsent(key, k -> new java.util.ArrayList<>()).add(e);
@@ -430,14 +564,26 @@ public class PgTypeTest {
 
     // JSON roundtrip (in-memory + DB verification)
     System.out.println("\n=== JSON Roundtrip Tests (parallel) ===");
-    All.parallelStream()
-        .forEach(
-            t ->
-                withConnection(
-                    conn -> {
-                      testJsonRoundtrip(TestTransactor.fromConnection(conn.unwrap()), t);
-                      return null;
-                    }));
+    var jsonFailures =
+        All.parallelStream()
+            .flatMap(
+                t -> {
+                  try {
+                    withConnection(
+                        conn -> {
+                          testJsonRoundtrip(TestTransactor.fromConnection(conn.unwrap()), t);
+                          return null;
+                        });
+                    return java.util.stream.Stream.<String>empty();
+                  } catch (Exception e) {
+                    return java.util.stream.Stream.of(
+                        "JSON test FAILED "
+                            + t.type.typename().sqlType()
+                            + ": "
+                            + causeChain(e));
+                  }
+                })
+            .toList();
 
     // All DB tests via shared Transactor methods
     System.out.println("\n=== DB Roundtrip Tests (parallel) ===");
@@ -461,7 +607,7 @@ public class PgTypeTest {
                         "Native test FAILED "
                             + t.type.typename().sqlType()
                             + ": "
-                            + e.getMessage());
+                            + causeChain(e));
                   }
 
                   // Streaming COPY roundtrip
@@ -478,7 +624,7 @@ public class PgTypeTest {
                           "Streaming test FAILED "
                               + t.type.typename().sqlType()
                               + ": "
-                              + e.getMessage());
+                              + causeChain(e));
                     }
                   }
 
@@ -495,7 +641,7 @@ public class PgTypeTest {
                         "JSON DB test FAILED "
                             + t.type.typename().sqlType()
                             + ": "
-                            + e.getMessage());
+                            + causeChain(e));
                   }
 
                   return errors.stream();
@@ -526,7 +672,7 @@ public class PgTypeTest {
                         "Composite test FAILED "
                             + t.type.typename().sqlType()
                             + ": "
-                            + e.getMessage());
+                            + causeChain(e));
                   }
                 })
             .toList();
@@ -553,6 +699,7 @@ public class PgTypeTest {
             .flatMap(
                 t -> {
                   var errors = new ArrayList<String>();
+                  if (!t.callableWorks) return errors.stream();
                   try {
                     withConnection(
                         conn -> {
@@ -562,7 +709,7 @@ public class PgTypeTest {
                         });
                   } catch (Exception e) {
                     errors.add(
-                        "Call test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+                        "Call test FAILED " + t.type.typename().sqlType() + ": " + causeChain(e));
                   }
                   try {
                     withConnection(
@@ -575,7 +722,7 @@ public class PgTypeTest {
                         "Call OUT test FAILED "
                             + t.type.typename().sqlType()
                             + ": "
-                            + e.getMessage());
+                            + causeChain(e));
                   }
                   try {
                     withConnection(
@@ -588,7 +735,7 @@ public class PgTypeTest {
                         "Call INOUT test FAILED "
                             + t.type.typename().sqlType()
                             + ": "
-                            + e.getMessage());
+                            + causeChain(e));
                   }
                   return errors.stream();
                 })
@@ -605,6 +752,7 @@ public class PgTypeTest {
             .parallelStream()
             .flatMap(
                 t -> {
+                  if (!t.callableWorks) return java.util.stream.Stream.<String>empty();
                   try {
                     withConnection(
                         conn -> {
@@ -615,7 +763,7 @@ public class PgTypeTest {
                     return java.util.stream.Stream.<String>empty();
                   } catch (Exception e) {
                     return java.util.stream.Stream.of(
-                        "Proc test FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+                        "Proc test FAILED " + t.type.typename().sqlType() + ": " + causeChain(e));
                   }
                 })
             .toList();
@@ -640,7 +788,7 @@ public class PgTypeTest {
                     return java.util.stream.Stream.<String>empty();
                   } catch (Exception e) {
                     return java.util.stream.Stream.of(
-                        "Analysis FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+                        "Analysis FAILED " + t.type.typename().sqlType() + ": " + causeChain(e));
                   }
                 })
             .toList();
@@ -652,6 +800,7 @@ public class PgTypeTest {
     allFailures.addAll(callFailures);
     allFailures.addAll(procFailures);
     allFailures.addAll(analysisFailures);
+    allFailures.addAll(jsonFailures);
 
     System.out.println("\n=====================================");
     if (allFailures.isEmpty()) {
@@ -672,8 +821,30 @@ public class PgTypeTest {
       return java.util.stream.Stream.empty();
     } catch (Exception e) {
       return java.util.stream.Stream.of(
-          phase + " FAILED " + t.type.typename().sqlType() + ": " + e.getMessage());
+          phase + " FAILED " + t.type.typename().sqlType() + ": " + causeChain(e));
     }
+  }
+
+  /**
+   * Render the exception's message together with its cause chain and any suppressed exceptions.
+   * Without this, an in-test {@code finally} block that itself throws (e.g. {@code DROP TABLE}
+   * after a transaction got aborted) replaces the real root cause with a useless follow-on
+   * "current transaction is aborted" message.
+   */
+  private static String causeChain(Throwable e) {
+    var sb = new StringBuilder(String.valueOf(e.getMessage()));
+    for (Throwable s : e.getSuppressed()) {
+      sb.append(" | suppressed: ").append(s.getMessage());
+    }
+    Throwable c = e.getCause();
+    while (c != null) {
+      sb.append(" | caused by ").append(c.getClass().getSimpleName()).append(": ").append(c.getMessage());
+      for (Throwable s : c.getSuppressed()) {
+        sb.append(" || suppressed: ").append(s.getMessage());
+      }
+      c = c.getCause();
+    }
+    return sb.toString();
   }
 
   // ==================== Shared Test Methods (Transactor) ====================
@@ -682,6 +853,7 @@ public class PgTypeTest {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("test");
 
+    ensureDomain(exec, t);
     exec.execute(Fragment.of("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")").execute());
     try {
       batchInsert(exec, t.type, tableName, t.example);
@@ -716,6 +888,7 @@ public class PgTypeTest {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("stream");
 
+    ensureDomain(exec, t);
     exec.execute(Fragment.of("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")").execute());
     try {
       Operation<Long> copyOp =
@@ -748,6 +921,7 @@ public class PgTypeTest {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("test_json_rt");
 
+    ensureDomain(exec, t);
     exec.execute(Fragment.of("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")").execute());
     try {
       exec.execute(
@@ -808,6 +982,7 @@ public class PgTypeTest {
                 .replace("[", "_")
                 .replace("]", "_");
 
+    ensureDomain(exec, t);
     exec.execute(Fragment.of("DROP TYPE IF EXISTS " + compositeTypeName + " CASCADE").execute());
     exec.execute(
         Fragment.of("CREATE TYPE " + compositeTypeName + " AS (wrapped_value " + sqlType + ")")
@@ -994,6 +1169,7 @@ public class PgTypeTest {
     int uniqueId = tableCounter.incrementAndGet();
     String funcName = safeName + "_" + uniqueId;
 
+    ensureDomain(exec, t);
     exec.execute(
         Fragment.of(
                 "CREATE OR REPLACE FUNCTION "
@@ -1056,6 +1232,7 @@ public class PgTypeTest {
     int uniqueId = tableCounter.incrementAndGet();
     String funcName = safeName + "_" + uniqueId;
 
+    ensureDomain(exec, t);
     exec.execute(
         Fragment.of(
                 "CREATE OR REPLACE FUNCTION "
@@ -1091,6 +1268,7 @@ public class PgTypeTest {
   static <A> void testQueryAnalysis(Connection conn, PgTypeAndExample<A> t) {
     String sqlType = t.type.typename().sqlType();
     String tableName = uniqueTableName("qa");
+    ensureDomain(conn, t);
     Fragment.of("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")").execute().run(conn);
     try {
       RowCodec<A> parser = RowCodec.of(t.type);
@@ -1132,6 +1310,7 @@ public class PgTypeTest {
       // DB verification: insert value, ask PG for to_json(), verify we can decode PG's JSON
       String sqlType = t.type.typename().sqlType();
       String tableName = uniqueTableName("test_json_mem");
+      ensureDomain(exec, t);
       exec.execute(
           Fragment.of("CREATE TEMP TABLE " + tableName + " (v " + sqlType + ")").execute());
       try {
@@ -1194,6 +1373,7 @@ public class PgTypeTest {
     int uniqueId = tableCounter.incrementAndGet();
     String procName = "out_" + safeName(sqlType) + "_" + uniqueId;
 
+    ensureDomain(conn, t);
     Fragment.of(
             "CREATE OR REPLACE PROCEDURE "
                 + procName
@@ -1240,6 +1420,7 @@ public class PgTypeTest {
     int uniqueId = tableCounter.incrementAndGet();
     String procName = "inout_" + safeName(sqlType) + "_" + uniqueId;
 
+    ensureDomain(conn, t);
     Fragment.of(
             "CREATE OR REPLACE PROCEDURE "
                 + procName
