@@ -230,6 +230,13 @@ public record QueryAnalysis(
     }
     b.plain("  ").gray(truncateSql(sql, 72)).newline().newline();
 
+    // Prepare failure: if the database rejected the statement before any metadata could be read,
+    // there are no alignments to render — surface the driver message and parsed hint directly so
+    // the user knows *why* this query failed instead of just seeing an empty report with a ✗.
+    if (prepareFailure.isPresent()) {
+      b.plain("  ").add(prepareFailure.get().styledMessage()).newline().newline();
+    }
+
     java.util.Set<Integer> paramErrorPositions = new java.util.HashSet<>();
     for (AlignmentError e : parameterErrors()) paramErrorPositions.add(e.position());
     java.util.Set<Integer> columnErrorPositions = new java.util.HashSet<>();

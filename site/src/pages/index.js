@@ -167,6 +167,19 @@ const typeGrid = [
       'TIMESTAMP(p)',
     ],
   },
+  {
+    db: 'SQLite',
+    link: '/docs/sqlite',
+    types: [
+      'INTEGER', 'REAL', 'TEXT',
+      'BLOB', 'NUMERIC',
+      'BOOLEAN', 'DECIMAL(p,s)',
+      'DATE', 'DATETIME',
+      'TIMESTAMP', 'TIME',
+      'UUID', 'JSON',
+      'STRICT tables',
+    ],
+  },
 ];
 
 const schemaSql = `CREATE TYPE plan_tier AS ENUM ('free', 'pro', 'team');
@@ -289,6 +302,7 @@ function Hero() {
             <span>PostgreSQL</span>
             <span>MariaDB</span>
             <span>DuckDB</span>
+            <span>SQLite</span>
             <span>Oracle</span>
             <span>SQL Server</span>
             <span>DB2</span>
@@ -845,13 +859,13 @@ function StoredProcedureSection() {
 }
 
 /* ------------------------------------------------------------------
-   Type showcase — six databases
+   Type showcase — seven databases
    ------------------------------------------------------------------ */
 function TypeShowcase() {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        <SectionHeader title={<>Six databases, <em>full type fidelity</em></>}>
+        <SectionHeader title={<>Seven databases, <em>full type fidelity</em></>}>
           The same approach works across all supported databases.
           Full roundtrip fidelity for every type each one supports. More databases coming soon.
         </SectionHeader>

@@ -28,6 +28,9 @@ typealias MariaSslMode = dev.typr.foundations.connect.MariaSslMode
 // DuckDB
 typealias DuckDbConfig = dev.typr.foundations.connect.DuckDbConfig
 
+// SQLite
+typealias SqliteConfig = dev.typr.foundations.connect.SqliteConfig
+
 // SQL Server
 typealias SqlServerConfig = dev.typr.foundations.connect.SqlServerConfig
 typealias SqlServerAuthentication = dev.typr.foundations.connect.SqlServerAuthentication

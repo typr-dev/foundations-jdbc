@@ -8,12 +8,12 @@ Query Analysis relies on JDBC metadata APIs (`ResultSetMetaData` and `ParameterM
 
 ## Summary
 
-| Capability | PostgreSQL | MariaDB | DuckDB | SQL Server | Oracle | DB2 |
-|---|---|---|---|---|---|---|
-| Column types | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
-| Column nullability | 🟡 Partial | ✅ Full | ❌ None | 🟡 Partial | 🟡 Partial | ✅ Full |
-| Outer join nullability | ❌ No | ✅ Full | ❌ No | ✅ Full | ✅ Full | ✅ Full |
-| Parameter types | ✅ Full | ❌ None | ❌ None | ✅ Full | ✅ Full | ✅ Full |
+| Capability | PostgreSQL | MariaDB | DuckDB | SQLite | SQL Server | Oracle | DB2 |
+|---|---|---|---|---|---|---|---|
+| Column types | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
+| Column nullability | 🟡 Partial | ✅ Full | ❌ None | 🟡 Partial | 🟡 Partial | 🟡 Partial | ✅ Full |
+| Outer join nullability | ❌ No | ✅ Full | ❌ No | ❌ No | ✅ Full | ✅ Full | ✅ Full |
+| Parameter types | ✅ Full | ❌ None | ❌ None | ❌ None | ✅ Full | ✅ Full | ✅ Full |
 
 :::info Legend
 - ✅ **Full**: the JDBC driver reports accurate information in all cases. The analyzer can catch all relevant errors.
@@ -23,9 +23,9 @@ Query Analysis relies on JDBC metadata APIs (`ResultSetMetaData` and `ParameterM
 
 ## Column type checking
 
-All six databases report column type names accurately. The analyzer can always verify that your `DbType` matches the actual column type, regardless of database.
+All seven databases report column type names accurately. The analyzer can always verify that your `DbType` matches the actual column type, regardless of database.
 
-Type names vary in case and format between databases, but the analyzer normalizes them before comparison (`VARCHAR(255)` becomes `varchar`, `DECIMAL(10,2)` becomes `decimal`).
+Type names vary in case and format between databases, but the analyzer normalizes them before comparison (`VARCHAR(255)` becomes `varchar`, `DECIMAL(10,2)` becomes `decimal`). SQLite's affinity-based type system means the analyzer compares against a set of vendor aliases per type (e.g. `BIGINT`, `INT2`, and `MEDIUMINT` all match `SqliteTypes.integer`).
 
 ## Column nullability
 
@@ -41,13 +41,13 @@ MariaDB and DB2 report accurate nullability in all contexts:
 - `CAST` expressions: correctly reported
 - Subqueries and CTEs: nullability preserved from source columns
 
-### Partial nullability: PostgreSQL, SQL Server, Oracle
+### Partial nullability: PostgreSQL, SQL Server, Oracle, SQLite
 
 These databases report accurate nullability for base table columns and subqueries, but expressions, aggregates, and computed columns are reported as nullable or unknown even when they can never be null.
 
 **PostgreSQL** reports expressions and aggregates as `columnNullableUnknown`. The analyzer treats this as "don't know" and skips the nullability check for those columns. No false positives, but no protection either.
 
-**SQL Server** and **Oracle** report expressions, aggregates, `CAST`, and `COUNT(*)` as nullable. The analyzer's `isNullabilityReliable()` heuristic detects when all columns are reported as nullable and suppresses nullability checking for the entire query to avoid false positives. This means if you SELECT only computed columns, nullability mismatches won't be caught.
+**SQL Server**, **Oracle**, and **SQLite** report expressions, aggregates, `CAST`, and `COUNT(*)` as nullable. The analyzer's `isNullabilityReliable()` heuristic detects when all columns are reported as nullable and suppresses nullability checking for the entire query to avoid false positives. This means if you SELECT only computed columns, nullability mismatches won't be caught.
 
 ### No nullability: DuckDB
 
@@ -71,19 +71,19 @@ FROM parent p LEFT JOIN child c ON p.id = c.parent_id
 
 The analyzer will correctly require `.opt()` on `c.id` even though the column is `NOT NULL` in the `child` table.
 
-### Not adjusted: PostgreSQL
+### Not adjusted: PostgreSQL, SQLite
 
-PostgreSQL does **not** adjust nullability for outer joins. A `NOT NULL` column on the outer side of a `LEFT JOIN` is still reported as `NOT NULL`:
+PostgreSQL and SQLite do **not** adjust nullability for outer joins. A `NOT NULL` column on the outer side of a `LEFT JOIN` is still reported as `NOT NULL`:
 
 ```sql
--- PostgreSQL reports c.id as NOT NULL — incorrect for LEFT JOIN
+-- Reports c.id as NOT NULL — incorrect for LEFT JOIN
 SELECT p.id, c.id
 FROM parent p LEFT JOIN child c ON p.id = c.parent_id
 ```
 
-This means the analyzer **will not catch** a missing `.opt()` on the outer side of a join in PostgreSQL. Your code will compile and pass analysis, but fail at runtime with a `NullPointerException` if the join doesn't match.
+This means the analyzer **will not catch** a missing `.opt()` on the outer side of a join. Your code will compile and pass analysis, but fail at runtime with a `NullPointerException` if the join doesn't match.
 
-**Workaround:** When using outer joins with PostgreSQL, always use the joined codec APIs (`.leftJoin()`, `.rightJoin()`, `.fullJoin()`) which produce `Optional`-wrapped types regardless of what the database reports.
+**Workaround:** When using outer joins with PostgreSQL or SQLite, always use the joined codec APIs (`.leftJoin()`, `.rightJoin()`, `.fullJoin()`) which produce `Optional`-wrapped types regardless of what the database reports.
 
 ### Irrelevant: DuckDB
 
@@ -105,16 +105,17 @@ Fragment.of("SELECT * FROM users WHERE id = ?", PgTypes.text.encode("42"))
 
 Parameter types are reported for all statement types: `SELECT`, `INSERT`, `UPDATE`, and within CTEs.
 
-### No parameter types: MariaDB, DuckDB
+### No parameter types: MariaDB, DuckDB, SQLite
 
 These databases do not provide usable parameter type metadata:
 
 - **MariaDB**: the JDBC driver does not implement `ParameterMetaData`. The analyzer shows "(metadata not available)" in reports and skips parameter type checking entirely.
 - **DuckDB**: the JDBC driver returns parameter count but reports all type names as `null` and JDBC type codes as `0`. The analyzer skips parameter type checking.
+- **SQLite**: the xerial driver throws `"No parameter has been set yet"` on `getParameterType` until every parameter is bound, and once bound, it echoes back the JDBC type of the bound value rather than the column's expected type — which makes the metadata useless for catching mismatches. The analyzer skips parameter type checking.
 
 This means a type mismatch between your parameter and the column it's compared against **will not be caught** by the analyzer on these databases. It will only fail at runtime.
 
-**Workaround:** There is no workaround; this is a JDBC driver limitation. Be careful with parameter types on MariaDB and DuckDB, and consider adding runtime tests with actual data for critical queries.
+**Workaround:** There is no workaround; this is a JDBC driver limitation. Be careful with parameter types on MariaDB, DuckDB, and SQLite, and consider adding runtime tests with actual data for critical queries.
 
 ## SQL construct support
 
@@ -149,20 +150,20 @@ All databases report correct column types for `UNION ALL` results. Nullability f
 
 ### Column nullability by context
 
-| Context | PG | MariaDB | DuckDB | MSSQL | Oracle | DB2 |
-|---|---|---|---|---|---|---|
-| NOT NULL column | ✅ not null | ✅ not null | ❌ nullable | ✅ not null | ✅ not null | ✅ not null |
-| Nullable column | ✅ nullable | ✅ nullable | ✅ nullable | ✅ nullable | ✅ nullable | ✅ nullable |
-| `id + 1` | 🟡 unknown | ✅ not null | ❌ nullable | ❌ nullable | ❌ nullable | ✅ not null |
-| `COALESCE(x, 0)` | 🟡 unknown | ✅ not null | ❌ nullable | ❌ nullable | ❌ nullable | ✅ not null |
-| `CASE WHEN ...` | 🟡 unknown | ✅ not null | ❌ nullable | ✅ not null | ❌ nullable | ✅ not null |
-| `COUNT(*)` | 🟡 unknown | ✅ not null | ❌ nullable | ❌ nullable | ❌ nullable | ✅ not null |
-| `SUM(x)` | 🟡 unknown | ✅ nullable | ❌ nullable | ✅ nullable | ❌ nullable | ✅ nullable |
-| `CAST(x AS type)` | 🟡 unknown | ❌ nullable | ❌ nullable | ❌ nullable | ❌ nullable | ✅ not null |
-| Subquery column | ✅ preserved | ✅ preserved | ❌ nullable | ✅ preserved | ✅ preserved | ✅ preserved |
-| CTE column | ✅ preserved | ✅ preserved | ❌ nullable | ✅ preserved | ✅ preserved | ✅ preserved |
-| UNION ALL | 🟡 unknown | 🟡 mixed | ❌ nullable | 🟡 mixed | ❌ nullable | 🟡 mixed |
-| LEFT JOIN outer | ❌ not null | ✅ nullable | ❌ nullable | ✅ nullable | ✅ nullable | ✅ nullable |
+| Context | PG | MariaDB | DuckDB | SQLite | MSSQL | Oracle | DB2 |
+|---|---|---|---|---|---|---|---|
+| NOT NULL column | ✅ not null | ✅ not null | ❌ nullable | ✅ not null | ✅ not null | ✅ not null | ✅ not null |
+| Nullable column | ✅ nullable | ✅ nullable | ✅ nullable | ✅ nullable | ✅ nullable | ✅ nullable | ✅ nullable |
+| `id + 1` | 🟡 unknown | ✅ not null | ❌ nullable | ❌ nullable | ❌ nullable | ❌ nullable | ✅ not null |
+| `COALESCE(x, 0)` | 🟡 unknown | ✅ not null | ❌ nullable | ❌ nullable | ❌ nullable | ❌ nullable | ✅ not null |
+| `CASE WHEN ...` | 🟡 unknown | ✅ not null | ❌ nullable | ❌ nullable | ✅ not null | ❌ nullable | ✅ not null |
+| `COUNT(*)` | 🟡 unknown | ✅ not null | ❌ nullable | ❌ nullable | ❌ nullable | ❌ nullable | ✅ not null |
+| `SUM(x)` | 🟡 unknown | ✅ nullable | ❌ nullable | ❌ nullable | ✅ nullable | ❌ nullable | ✅ nullable |
+| `CAST(x AS type)` | 🟡 unknown | ❌ nullable | ❌ nullable | ❌ nullable | ❌ nullable | ❌ nullable | ✅ not null |
+| Subquery column | ✅ preserved | ✅ preserved | ❌ nullable | ✅ preserved | ✅ preserved | ✅ preserved | ✅ preserved |
+| CTE column | ✅ preserved | ✅ preserved | ❌ nullable | ✅ preserved | ✅ preserved | ✅ preserved | ✅ preserved |
+| UNION ALL | 🟡 unknown | 🟡 mixed | ❌ nullable | ✅ preserved | 🟡 mixed | ❌ nullable | 🟡 mixed |
+| LEFT JOIN outer | ❌ not null | ✅ nullable | ❌ nullable | ❌ not null | ✅ nullable | ✅ nullable | ✅ nullable |
 
 - ✅ = correct behavior
 - 🟡 = safe but imprecise (unknown skips the check; mixed derives from sources)
@@ -170,14 +171,14 @@ All databases report correct column types for `UNION ALL` results. Nullability f
 
 ### Analyzer behavior consequences
 
-| Scenario | PG | MariaDB | DuckDB | MSSQL | Oracle | DB2 |
-|---|---|---|---|---|---|---|
-| Missing `.opt()` on nullable column | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| Missing `.opt()` on LEFT JOIN outer side | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| Wrong parameter type | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Wrong column type | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Wrong column count | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Aggregate type mismatch | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Scenario | PG | MariaDB | DuckDB | SQLite | MSSQL | Oracle | DB2 |
+|---|---|---|---|---|---|---|---|
+| Missing `.opt()` on nullable column | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Missing `.opt()` on LEFT JOIN outer side | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Wrong parameter type | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Wrong column type | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Wrong column count | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Aggregate type mismatch | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ## The `isNullabilityReliable()` heuristic
 
@@ -185,7 +186,7 @@ The analyzer uses a heuristic to detect unreliable nullability metadata: if **ev
 
 The heuristic works well for:
 - **DuckDB**: All columns NULLABLE → heuristic triggers → nullability skipped (correct)
-- **Oracle/MSSQL**: Expression-only queries report all NULLABLE → heuristic triggers → nullability skipped (correct)
+- **Oracle/MSSQL/SQLite**: Expression-only queries report all NULLABLE → heuristic triggers → nullability skipped (correct)
 - **PostgreSQL**: Expressions report UNKNOWN (not NULLABLE) → heuristic doesn't trigger → but UNKNOWN columns are individually skipped anyway (correct)
 
 The heuristic can produce a false negative in one specific case: a query that selects **only nullable columns** from a table. In this case, all columns genuinely are nullable, the heuristic triggers, and it won't catch a missing `.opt()`. This is rare in practice and harmless: you'd need `.opt()` on all of them anyway.

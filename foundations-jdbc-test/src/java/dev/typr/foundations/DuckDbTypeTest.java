@@ -1161,6 +1161,49 @@ public class DuckDbTypeTest {
     return sb.toString();
   }
 
+  /**
+   * End-to-end smoke test through the public {@code ConnectionSource → Transactor} flow against
+   * {@code DuckDbConfig.inMemory()}. {@link #test()} above pokes JDBC directly via a wrapped
+   * {@link dev.typr.foundations.internal.ConnectionJdbc} and so doesn't exercise the transactor —
+   * which is how a {@code SingleConnection.transactor()} routing bug went unnoticed before. This
+   * test forces that path: every {@code transact()} must hit the same in-memory database.
+   */
+  @Test
+  public void transactorEndToEnd() {
+    var config = dev.typr.foundations.connect.DuckDbConfig.inMemory().build();
+    var source = dev.typr.foundations.connect.ConnectionSource.of(config);
+    var tx = source.transactor();
+
+    Integer answer =
+        Fragment.of("SELECT 42").queryExactlyOne(DuckDbTypes.integer).transact(tx);
+    if (answer != 42) {
+      throw new RuntimeException("Expected 42, got " + answer);
+    }
+
+    Fragment.of("CREATE TABLE t (id INTEGER NOT NULL, name VARCHAR NOT NULL)")
+        .execute()
+        .transact(tx);
+    Fragment.of("INSERT INTO t (id, name) VALUES (")
+        .value(DuckDbTypes.integer, 1)
+        .append(", ")
+        .value(DuckDbTypes.varchar, "alice")
+        .append(")")
+        .execute()
+        .transact(tx);
+
+    record Row(Integer id, String name) {}
+    var codec =
+        RowCodec.<Row>namedBuilder()
+            .field("id", DuckDbTypes.integer, Row::id)
+            .field("name", DuckDbTypes.varchar, Row::name)
+            .build(Row::new);
+    Row row = Fragment.of("SELECT id, name FROM t").queryExactlyOne(codec).transact(tx);
+    if (row.id() != 1 || !"alice".equals(row.name())) {
+      throw new RuntimeException("Round-trip failed: " + row);
+    }
+    System.out.println("DuckDB transactor end-to-end: OK (" + row + ")");
+  }
+
   @Test
   public void testListOfUnion() {
     DuckDbType<List<IntOrString>> listOfUnionType = intOrStringType.list();
