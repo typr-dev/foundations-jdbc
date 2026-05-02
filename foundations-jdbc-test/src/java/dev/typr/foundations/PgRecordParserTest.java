@@ -323,131 +323,31 @@ public class PgRecordParserTest {
 
   // ==================== parseArray ====================
 
+  /**
+   * Pure-unit assertions over the shared {@link PgArrayParseCases} corpus. The same strings are
+   * also cross-checked against live PG by {@link PgRecordParserAgreementTest}; if either side
+   * disagrees, fix the case and both tests pick up the new expectation in lockstep.
+   */
   @Test
-  public void testParseArrayEmpty() {
-    assertParseArray("{}", List.of());
+  public void testParseArrayCorpus() {
+    for (var c : PgArrayParseCases.ONE_DIM) assertParseArrayCase(c);
+    for (var c : PgArrayParseCases.BARE_NESTED) assertParseArrayCase(c);
+    for (var c : PgArrayParseCases.SEMI_DELIM) assertParseArrayCase(c);
   }
 
-  @Test
-  public void testParseArraySimpleUnquoted() {
-    assertParseArray("{1,2,3}", List.of("1", "2", "3"));
-    assertParseArray("{a,b,c}", List.of("a", "b", "c"));
-  }
-
-  @Test
-  public void testParseArraySingleElement() {
-    assertParseArray("{42}", List.of("42"));
-    assertParseArray("{\"hello\"}", List.of("hello"));
-  }
-
-  @Test
-  public void testParseArrayNullElements() {
-    // PG arrays use the literal NULL (case-insensitive) for null elements.
-    assertParseArray("{NULL}", Arrays.asList((String) null));
-    assertParseArray("{a,NULL,c}", Arrays.asList("a", null, "c"));
-    assertParseArray("{NULL,NULL}", Arrays.asList(null, null));
-  }
-
-  @Test
-  public void testParseArrayQuotedWithCommas() {
-    assertParseArray("{\"a,b\",c}", List.of("a,b", "c"));
-    assertParseArray("{\"hello, world\",\"foo, bar\"}", List.of("hello, world", "foo, bar"));
-  }
-
-  @Test
-  public void testParseArrayQuotedWithBraces() {
-    // Quoted elements containing braces — must not affect depth tracking.
-    assertParseArray("{\"{not nested}\"}", List.of("{not nested}"));
-    assertParseArray("{\"{a,b}\",c}", List.of("{a,b}", "c"));
-  }
-
-  @Test
-  public void testParseArrayQuotedJson() {
-    // Real-world: jsonb[] arrives with each JSON value quoted and quotes inside escaped with \.
-    assertParseArray("{\"{\\\"k\\\": 1}\"}", List.of("{\"k\": 1}"));
-    assertParseArray(
-        "{\"{\\\"a\\\": 1}\",\"{\\\"b\\\": 2}\"}", List.of("{\"a\": 1}", "{\"b\": 2}"));
-  }
-
-  @Test
-  public void testParseArrayQuotedRangeLiteral() {
-    // Range types: PG quotes them inside arrays because the literal contains commas/brackets.
-    assertParseArray("{\"[1,10)\"}", List.of("[1,10)"));
-    assertParseArray("{\"[1,10)\",\"[20,30)\"}", List.of("[1,10)", "[20,30)"));
-  }
-
-  @Test
-  public void testParseArrayCustomDelimiter() {
-    // Geometric types use ';' as element delimiter. A single box: one element delimited by
-    // nothing, so the comma inside the box must not split it.
-    assertParseArrayWith("{(1,2),(3,4)}", ';', List.of("(1,2),(3,4)"));
-    // Two boxes separated by ';'.
-    assertParseArrayWith("{(1,2),(3,4);(5,6),(7,8)}", ';', List.of("(1,2),(3,4)", "(5,6),(7,8)"));
-  }
-
-  @Test
-  public void testParseArrayBareNested() {
-    // Multi-dim arrays put sub-arrays inline as raw {...} (no surrounding quotes). Internal
-    // delimiters must be ignored at the outer level.
-    assertParseArray("{{1,2},{3,4}}", List.of("{1,2}", "{3,4}"));
-    assertParseArray("{{a,b,c}}", List.of("{a,b,c}"));
-    assertParseArray("{{1}}", List.of("{1}"));
-  }
-
-  @Test
-  public void testParseArrayBareNestedMixedPosition() {
-    // Nested element appearing at start, middle, end.
-    assertParseArray("{{a,b},c,d}", List.of("{a,b}", "c", "d"));
-    assertParseArray("{a,{b,c},d}", List.of("a", "{b,c}", "d"));
-    assertParseArray("{a,b,{c,d}}", List.of("a", "b", "{c,d}"));
-  }
-
-  @Test
-  public void testParseArrayDeeplyNested() {
-    assertParseArray("{{{1,2},{3,4}},{{5,6},{7,8}}}", List.of("{{1,2},{3,4}}", "{{5,6},{7,8}}"));
-    assertParseArray("{{{a}}}", List.of("{{a}}"));
-  }
-
-  @Test
-  public void testParseArrayBareNestedWithQuotedInner() {
-    // Sub-array elements contain quoted strings with internal commas — both brace-depth and
-    // quoted-state tracking must cooperate.
-    assertParseArray("{{\"a,b\",c},{d}}", List.of("{\"a,b\",c}", "{d}"));
-    assertParseArray("{{\"{not array}\",x},{y}}", List.of("{\"{not array}\",x}", "{y}"));
-  }
-
-  @Test
-  public void testParseArrayBareNestedWithQuotedJson() {
-    // jsonb[][] real-world shape: outer is bare-nested, inner element is quoted JSON containing
-    // braces, commas, and escaped quotes.
-    assertParseArray(
-        "{{\"{\\\"k\\\": 1}\"},{\"{\\\"k\\\": 2}\"}}",
-        List.of("{\"{\\\"k\\\": 1}\"}", "{\"{\\\"k\\\": 2}\"}"));
-  }
-
-  @Test
-  public void testParseArrayBareNestedEmpty() {
-    assertParseArray("{{},{}}", List.of("{}", "{}"));
-    assertParseArray("{{},{a}}", List.of("{}", "{a}"));
-  }
-
-  @Test
-  public void testParseArrayBareNestedWithNull() {
-    // NULL appears at the outer level — NULL itself is unquoted and contains no braces, so
-    // standard handling applies.
-    assertParseArray("{{a,b},NULL,{c,d}}", Arrays.asList("{a,b}", null, "{c,d}"));
-  }
-
-  @Test
-  public void testParseArrayBackslashEscapesInsideNested() {
-    // Backslash-escaped quote inside the quoted element of a sub-array: scanner must not exit
-    // the quoted region on the escaped quote.
-    assertParseArray("{{\"a\\\"b\",c}}", List.of("{\"a\\\"b\",c}"));
-  }
-
-  @Test
-  public void testParseArrayWhitespacePadding() {
-    assertParseArray("  {1,2,3}  ", List.of("1", "2", "3"));
+  private void assertParseArrayCase(PgArrayParseCases.Case c) {
+    List<String> actual = PgRecordParser.parseArray(c.input(), c.delimiter());
+    if (!listsEqual(actual, c.expected())) {
+      throw new AssertionError(
+          "parseArray mismatch for "
+              + c.input()
+              + " (delimiter='"
+              + c.delimiter()
+              + "')\nExpected: "
+              + formatList(c.expected())
+              + "\nActual:   "
+              + formatList(actual));
+    }
   }
 
   @Test(expected = IllegalArgumentException.class)
