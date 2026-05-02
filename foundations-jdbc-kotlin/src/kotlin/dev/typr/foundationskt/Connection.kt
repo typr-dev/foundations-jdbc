@@ -15,7 +15,7 @@ open class ConnectionRead(val underlying: dev.typr.foundations.ConnectionRead) {
 
 class Connection(private val java: dev.typr.foundations.Connection) : ConnectionRead(java) {
 
-    internal val javaConnection: dev.typr.foundations.Connection get() = java
+    val javaConnection: dev.typr.foundations.Connection get() = java
 
     fun <T> execute(op: Operation<T>): T =
         java.execute(op.underlying)

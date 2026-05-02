@@ -17,8 +17,21 @@ public sealed interface OperationRead<Out> extends Operation<Out>
         OperationRead.Then,
         OperationRead.Configured {
 
-  /** Run this read operation on the given read connection. */
+  /** Run this read operation on a read-only connection. */
   default Out run(ConnectionRead conn) {
+    return conn.execute(this);
+  }
+
+  /**
+   * Re-declares the inherited {@link Operation#run(Connection)} on this trait so Scala 3's
+   * overload resolver sees both {@code run(Connection)} and {@code run(ConnectionRead)} declared
+   * at the same level — then specificity ({@code Connection <: ConnectionRead}) picks the more
+   * specific overload for {@code c: Connection} call sites without ambiguity. Java and Kotlin
+   * always picked the most-specific overload regardless; this redeclaration is purely for the
+   * Scala 3 overload resolver. Pure delegation; same body as the inherited default.
+   */
+  @Override
+  default Out run(Connection conn) {
     return conn.execute(this);
   }
 
