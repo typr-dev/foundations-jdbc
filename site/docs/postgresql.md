@@ -267,7 +267,7 @@ renames the typename for SQL rendering and configures the array codec to text-pa
 arrays of the domain decode correctly even though PG JDBC's `ResultSetMetaData` resolves
 domains to their underlying type.
 
-<Snippet file="postgresql/PgDomainType" snippet="scalar" />
+<Snippet file="postgresql/PgDomainTypeScalar" />
 
 `asDomain` also covers domain over enum, domain over composite, domain over a user-defined
 type, etc. — the underlying codec is reused; only the typename and the array decode path
@@ -277,7 +277,7 @@ Arrays of a domain compose with the rest of the type DSL — `.array()` produces
 `PgType<List<Name>>`, and you can layer a list-level `to(Bijection)` on top to map the
 container to a different wrapper type without changing the schema:
 
-<Snippet file="postgresql/PgDomainType" snippet="array" />
+<Snippet file="postgresql/PgDomainTypeArray" />
 
 :::note Equality on domain-typed columns
 PG does not always define operators on a domain in its own right (e.g. domain-over-enum has
