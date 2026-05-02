@@ -131,6 +131,19 @@ public record PgType<A>(
         : renamed.withArrayCodec(PgElementCodec.textParsed());
   }
 
+  /**
+   * Combined {@link #asDomain(String)} + {@link #transform(SqlFunction, Function)} — declares
+   * this type as a PG DOMAIN named {@code domainName} and wraps it in a typed value class in one
+   * call. Identical to {@code asDomain(domainName).transform(f, g)}.
+   *
+   * <p>Use this so the wrapping is in place at the scalar level before {@code .array()} or any
+   * other combinator runs — the array codec then carries the wrapper end-to-end and you avoid
+   * needing a list-level bijection.
+   */
+  public <B> PgType<B> asDomain(String domainName, SqlFunction<A, B> f, Function<B, A> g) {
+    return asDomain(domainName).transform(f, g);
+  }
+
   public PgType<A> renamed(String value) {
     return withTypename(typename.renamed(value));
   }

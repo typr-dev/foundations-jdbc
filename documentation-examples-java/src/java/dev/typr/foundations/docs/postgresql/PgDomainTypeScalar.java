@@ -9,7 +9,7 @@ public class PgDomainTypeScalar {
   // PG schema:  CREATE DOMAIN person_name AS varchar(100);
   public record Name(String value) {
     public static final PgType<Name> pgType =
-        PgTypes.text.transform(Name::new, Name::value).asDomain("person_name");
+        PgTypes.text.asDomain("person_name", Name::new, Name::value);
   }
   // stop
 }

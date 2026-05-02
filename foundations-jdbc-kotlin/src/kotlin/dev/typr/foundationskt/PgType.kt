@@ -35,6 +35,10 @@ class PgType<T>(override val underlying: dev.typr.foundations.PgType<T>) : DbTyp
     /** Reinterpret as the JDBC view of a PG DOMAIN — see [dev.typr.foundations.PgType.asDomain]. */
     fun asDomain(domainName: String): PgType<T> = PgType(underlying.asDomain(domainName))
 
+    /** Combined [asDomain] + [transform] — wrap the domain in a typed value class in one call. */
+    fun <B> asDomain(domainName: String, f: (T) -> B, g: (B) -> T): PgType<B> =
+        PgType(underlying.asDomain(domainName, dev.typr.foundations.SqlFunction { f(it) }, g))
+
     fun withRead(read: PgRead<T>): PgType<T> = PgType(underlying.withRead(read))
     fun withWrite(write: PgWrite<T>): PgType<T> = PgType(underlying.withWrite(write))
     fun withText(text: PgText<T>): PgType<T> = PgType(underlying.withText(text))

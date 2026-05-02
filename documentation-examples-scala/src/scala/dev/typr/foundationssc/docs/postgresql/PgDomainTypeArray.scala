@@ -4,19 +4,11 @@ import dev.typr.foundationssc.*
 @SuppressWarnings(Array("unused"))
 object PgDomainTypeArray:
   // start
-  // Arrays of domains "just work" — `.array` composes after `.asDomain(...)`. Use
-  // `.transform(...)` at the list level to map the container to a different wrapper type
-  // without changing the schema.
+  // Wrap once at the scalar level — the array codec carries the wrapper through
+  // .array, so no list-level bijection is needed.
   case class Name(value: String)
   object Name:
     val pgType: PgType[Name] =
-      PgTypes.text.transform(Name.apply, _.value).asDomain("person_name")
-
-  case class MiddleName(value: Name)
-
-  val middleNames: PgType[List[MiddleName]] =
-    Name.pgType.array.transform(
-      ns => ns.map(MiddleName.apply),
-      ms => ms.map(_.value)
-    )
+      PgTypes.text.asDomain("person_name", Name.apply, _.value)
+    val pgArrayType: PgType[List[Name]] = pgType.array
   // stop

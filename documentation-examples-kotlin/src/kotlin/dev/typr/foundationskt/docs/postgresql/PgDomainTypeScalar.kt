@@ -9,7 +9,7 @@ class PgDomainTypeScalar {
     data class Name(val value: String) {
         companion object {
             val pgType: PgType<Name> =
-                PgTypes.text.transform(::Name, Name::value).asDomain("person_name")
+                PgTypes.text.asDomain("person_name", ::Name, Name::value)
         }
     }
     //stop

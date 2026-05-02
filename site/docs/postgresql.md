@@ -262,20 +262,19 @@ wrapper on the application side without changing PG's schema:
 
 ## PostgreSQL DOMAIN types
 
-For an actual `CREATE DOMAIN dom AS underlying` schema-side type, use `asDomain(name)`. It
-renames the typename for SQL rendering and configures the array codec to text-parse, so
-arrays of the domain decode correctly even though PG JDBC's `ResultSetMetaData` resolves
-domains to their underlying type.
+For an actual `CREATE DOMAIN dom AS underlying` schema-side type, use `asDomain`. The
+two-arg form takes the domain name and a constructor / extractor for the wrapping value
+type, so the entire DOMAIN-plus-wrapper declaration is one expression:
 
 <Snippet file="postgresql/PgDomainTypeScalar" />
 
-`asDomain` also covers domain over enum, domain over composite, domain over a user-defined
-type, etc. — the underlying codec is reused; only the typename and the array decode path
-change.
+`asDomain` renames the typename for SQL rendering, registers the underlying typename as a
+query-analyzer alias (PG JDBC resolves domains to their base type in `ResultSetMetaData`),
+and configures the array codec to text-parse so domain arrays decode correctly. It also
+covers domain over enum, domain over composite, etc. — the underlying codec is reused.
 
-Arrays of a domain compose with the rest of the type DSL — `.array()` produces
-`PgType<List<Name>>`, and you can layer a list-level `to(Bijection)` on top to map the
-container to a different wrapper type without changing the schema:
+Arrays of a domain "just work" — wrap once at the scalar level and `.array()` carries the
+wrapper through. No list-level bijection is needed:
 
 <Snippet file="postgresql/PgDomainTypeArray" />
 

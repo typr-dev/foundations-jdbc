@@ -8,5 +8,5 @@ object PgDomainTypeScalar:
   case class Name(value: String)
   object Name:
     val pgType: PgType[Name] =
-      PgTypes.text.transform(Name.apply, _.value).asDomain("person_name")
+      PgTypes.text.asDomain("person_name", Name.apply, _.value)
   // stop

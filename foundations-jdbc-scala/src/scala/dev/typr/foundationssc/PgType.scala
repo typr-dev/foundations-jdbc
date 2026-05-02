@@ -36,6 +36,10 @@ class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends
   /** Reinterpret as the JDBC view of a PG DOMAIN — see `dev.typr.foundations.PgType.asDomain`. */
   def asDomain(domainName: String): PgType[T] = PgType(underlying.asDomain(domainName))
 
+  /** Combined `asDomain` + `transform` — wrap the domain in a typed value class in one call. */
+  def asDomain[B](domainName: String, f: T => B, g: B => T): PgType[B] =
+    PgType(underlying.asDomain(domainName, v => f(v), v => g(v)))
+
   def withRead(read: PgRead[T]): PgType[T] = PgType(underlying.withRead(read))
   def withWrite(write: PgWrite[T]): PgType[T] = PgType(underlying.withWrite(write))
   def withText(text: PgText[T]): PgType[T] = PgType(underlying.withText(text))
