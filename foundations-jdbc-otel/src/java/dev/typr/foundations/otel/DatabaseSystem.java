@@ -12,7 +12,8 @@ public enum DatabaseSystem {
   DUCKDB("duckdb"),
   ORACLE("oracle"),
   SQLSERVER("mssql"),
-  DB2("db2");
+  DB2("db2"),
+  SQLITE("sqlite");
 
   private final String otelName;
 
@@ -34,6 +35,7 @@ public enum DatabaseSystem {
       case ORACLE -> ORACLE;
       case SQLSERVER -> SQLSERVER;
       case DB2 -> DB2;
+      case SQLITE -> SQLITE;
     };
   }
 }

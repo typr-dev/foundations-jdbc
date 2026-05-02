@@ -19,6 +19,8 @@ projects:
       module: com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
     - configuration: provided
       module: com.ibm.db2:jcc:11.5.9.0
+    - configuration: provided
+      module: org.xerial:sqlite-jdbc:3.49.1.0
     java:
       options: --release 21 -proc:none
     platform:
@@ -77,6 +79,8 @@ projects:
       module: com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
     - configuration: provided
       module: com.ibm.db2:jcc:11.5.9.0
+    - configuration: provided
+      module: org.xerial:sqlite-jdbc:3.49.1.0
     dependsOn: foundations-jdbc
     extends:
     - template-kotlin
@@ -99,6 +103,8 @@ projects:
       module: com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
     - configuration: provided
       module: com.ibm.db2:jcc:11.5.9.0
+    - configuration: provided
+      module: org.xerial:sqlite-jdbc:3.49.1.0
     dependsOn: foundations-jdbc
     extends:
     - template-scala-3
@@ -118,6 +124,7 @@ projects:
     - com.oracle.database.jdbc:ojdbc11:23.6.0.24.10
     - com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
     - com.ibm.db2:jcc:11.5.9.0
+    - org.xerial:sqlite-jdbc:3.49.1.0
     - org.springframework.boot:spring-boot-starter-jdbc:3.4.1
     - org.springframework.boot:spring-boot-starter-test:3.4.1
     - org.testcontainers:testcontainers:2.0.4
@@ -191,6 +198,8 @@ projects:
     - configuration: provided
       module: com.ibm.db2:jcc:11.5.9.0
     - configuration: provided
+      module: org.xerial:sqlite-jdbc:3.49.1.0
+    - configuration: provided
       module: org.springframework:spring-context:6.2.2
     - configuration: provided
       module: org.springframework:spring-tx:6.2.2
@@ -218,6 +227,8 @@ projects:
     - configuration: provided
       module: com.ibm.db2:jcc:11.5.9.0
     - configuration: provided
+      module: org.xerial:sqlite-jdbc:3.49.1.0
+    - configuration: provided
       module: org.springframework:spring-context:6.2.2
     - configuration: provided
       module: org.springframework:spring-tx:6.2.2
@@ -243,6 +254,8 @@ projects:
     - configuration: provided
       module: com.ibm.db2:jcc:11.5.9.0
     - configuration: provided
+      module: org.xerial:sqlite-jdbc:3.49.1.0
+    - configuration: provided
       module: org.springframework:spring-context:6.2.2
     - configuration: provided
       module: org.springframework:spring-tx:6.2.2
@@ -263,6 +276,7 @@ projects:
     - com.oracle.database.jdbc:ojdbc11:23.6.0.24.10
     - com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11
     - com.ibm.db2:jcc:11.5.9.0
+    - org.xerial:sqlite-jdbc:3.49.1.0
     - io.opentelemetry:opentelemetry-api:1.45.0
     - org.jetbrains.kotlin:kotlin-stdlib:2.3.0
     dependsOn:

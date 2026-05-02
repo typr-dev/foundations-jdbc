@@ -13,6 +13,7 @@ package object connect:
     val ORACLE: DatabaseKind = dev.typr.foundations.connect.DatabaseKind.ORACLE
     val SQLSERVER: DatabaseKind = dev.typr.foundations.connect.DatabaseKind.SQLSERVER
     val DB2: DatabaseKind = dev.typr.foundations.connect.DatabaseKind.DB2
+    val SQLITE: DatabaseKind = dev.typr.foundations.connect.DatabaseKind.SQLITE
   type ConnectionSettings = dev.typr.foundations.connect.ConnectionSettings
   object ConnectionSettings:
     def builder(): dev.typr.foundations.connect.ConnectionSettings.Builder =
@@ -113,6 +114,25 @@ package object connect:
       dev.typr.foundations.connect.DuckDbConfig.builder(path)
     def inMemory(): dev.typr.foundations.connect.DuckDbConfig.Builder =
       dev.typr.foundations.connect.DuckDbConfig.inMemory()
+
+  // SQLite
+  type SqliteConfig = dev.typr.foundations.connect.SqliteConfig
+  object SqliteConfig:
+    def builder(path: String): dev.typr.foundations.connect.SqliteConfig.Builder =
+      dev.typr.foundations.connect.SqliteConfig.builder(path)
+    def inMemory(): dev.typr.foundations.connect.SqliteConfig.Builder =
+      dev.typr.foundations.connect.SqliteConfig.inMemory()
+    def sharedInMemory(): dev.typr.foundations.connect.SqliteConfig.Builder =
+      dev.typr.foundations.connect.SqliteConfig.sharedInMemory()
+    type DateClass = dev.typr.foundations.connect.SqliteConfig.DateClass
+    object DateClass:
+      val TEXT: DateClass = dev.typr.foundations.connect.SqliteConfig.DateClass.TEXT
+      val INTEGER: DateClass = dev.typr.foundations.connect.SqliteConfig.DateClass.INTEGER
+      val REAL: DateClass = dev.typr.foundations.connect.SqliteConfig.DateClass.REAL
+    type DatePrecision = dev.typr.foundations.connect.SqliteConfig.DatePrecision
+    object DatePrecision:
+      val SECONDS: DatePrecision = dev.typr.foundations.connect.SqliteConfig.DatePrecision.SECONDS
+      val MILLISECONDS: DatePrecision = dev.typr.foundations.connect.SqliteConfig.DatePrecision.MILLISECONDS
 
   // Oracle
   type OracleConfig = dev.typr.foundations.connect.OracleConfig

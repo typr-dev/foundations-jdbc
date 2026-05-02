@@ -13,7 +13,8 @@ public enum DatabaseKind {
   DUCKDB,
   ORACLE,
   SQLSERVER,
-  DB2;
+  DB2,
+  SQLITE;
 
   /**
    * Detect the database kind from an open connection by examining the database product name.
@@ -57,6 +58,8 @@ public enum DatabaseKind {
       return SQLSERVER;
     } else if (productName.contains("db2") || productName.contains("ibm data server")) {
       return DB2;
+    } else if (productName.contains("sqlite")) {
+      return SQLITE;
     } else {
       throw new IllegalArgumentException("Unsupported database: " + productName);
     }
@@ -77,6 +80,8 @@ public enum DatabaseKind {
       return SQLSERVER;
     } else if (driverName.contains("db2") || driverName.contains("jcc")) {
       return DB2;
+    } else if (driverName.contains("sqlite")) {
+      return SQLITE;
     } else {
       throw new IllegalArgumentException("Unsupported driver: " + driverName);
     }

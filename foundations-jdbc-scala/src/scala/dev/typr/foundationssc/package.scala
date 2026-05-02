@@ -37,6 +37,10 @@ package object foundationssc:
   type DuckDbStringifier[T] = dev.typr.foundations.DuckDbStringifier[T]
   type DuckDbTypename[T] = dev.typr.foundations.DuckDbTypename[T]
   type DuckDbListCodec[T] = dev.typr.foundations.DuckDbListCodec[T]
+  type SqliteJson[T] = dev.typr.foundations.SqliteJson[T]
+  type SqliteRead[T] = dev.typr.foundations.SqliteRead[T]
+  type SqliteWrite[T] = dev.typr.foundations.SqliteWrite[T]
+  type SqliteTypename[T] = dev.typr.foundations.SqliteTypename[T]
 
   // Exceptions
   type DatabaseException = dev.typr.foundations.DatabaseException
