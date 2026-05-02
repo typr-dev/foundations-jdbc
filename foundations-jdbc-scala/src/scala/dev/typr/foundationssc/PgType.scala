@@ -33,6 +33,9 @@ class PgType[T](override val underlying: dev.typr.foundations.PgType[T]) extends
   def renamed(value: String): PgType[T] = PgType(underlying.renamed(value))
   def renamedDropPrecision(value: String): PgType[T] = PgType(underlying.renamedDropPrecision(value))
 
+  /** Reinterpret as the JDBC view of a PG DOMAIN — see `dev.typr.foundations.PgType.asDomain`. */
+  def asDomain(domainName: String): PgType[T] = PgType(underlying.asDomain(domainName))
+
   def withRead(read: PgRead[T]): PgType[T] = PgType(underlying.withRead(read))
   def withWrite(write: PgWrite[T]): PgType[T] = PgType(underlying.withWrite(write))
   def withText(text: PgText[T]): PgType[T] = PgType(underlying.withText(text))

@@ -100,6 +100,37 @@ public record PgType<A>(
     return withTypename(PgTypename.of(sqlType));
   }
 
+  /**
+   * Reinterpret this type as the JDBC view of a PostgreSQL DOMAIN. Renames the typename to {@code
+   * domainName} and switches the array codec to text-parsing so domain arrays survive JDBC
+   * returning unknown-OID elements as {@link org.postgresql.util.PGobject}.
+   *
+   * <p>For a scalar column the underlying read/write codecs are unchanged — JDBC's column-level
+   * coercion handles {@code dom_xxx} just like the underlying type. For arrays however, JDBC has no
+   * per-element decoder for an unknown OID and falls back to {@code PGobject}; the standard {@code
+   * (String) obj} / {@code (Boolean) obj} / etc. element converters then either throw or
+   * silently return a list typed as {@code List<T>} but holding {@code PGobject} instances. By
+   * reading the whole array via {@code getString} and parsing through {@link PgCompositeText} the
+   * decode is independent of how the driver chose to package each element.
+   */
+  public PgType<A> asDomain(String domainName) {
+    // Capture the underlying typename as an analysis alias before we rename it. PG JDBC's
+    // ResultSetMetaData.getColumnTypeName resolves domains to their base type (TypeInfoCache
+    // follows typbasetype), so a column declared as `domainName` reports back as the underlying
+    // name. The query analyzer must accept either; recording the underlying as a vendor alias
+    // makes the match succeed without further user opt-in. Existing aliases on the underlying
+    // type (e.g. PgTypes.smallint already aliases int2) are preserved — PG canonicalizes some
+    // names in catalogs and we need the canonical name to match too.
+    var aliases = new java.util.HashSet<DbTypename<?>>(analysisOptions.vendorTypeNames());
+    aliases.add(typename);
+    AnalysisOptions opts =
+        analysisOptions.withVendorTypeNames(aliases.toArray(DbTypename<?>[]::new));
+    PgType<A> renamed = withTypename(domainName).withAnalysis(opts);
+    return pgArrayCodec.isEmpty()
+        ? renamed
+        : renamed.withArrayCodec(PgElementCodec.textParsed());
+  }
+
   public PgType<A> renamed(String value) {
     return withTypename(typename.renamed(value));
   }
@@ -248,7 +279,7 @@ public record PgType<A>(
         };
     PgRead<List<A>> listRead =
         (codec instanceof PgElementCodec.OfText)
-            ? PgRead.readCompositeList(pgCompositeText())
+            ? PgRead.readCompositeList(pgCompositeText(), arrayDelimiter)
             : PgRead.readElementList(elementConverter);
     // Nested-array support: the resulting PgType<List<A>> needs its own pgArrayCodec so a
     // further .array() call (producing PgType<List<List<A>>>) can decode sub-arrays. If the
@@ -335,7 +366,7 @@ public record PgType<A>(
         PgBinary.textFallback(listText),
         analysisOptions.listForms(),
         Optional.of(nestedCodec),
-        ',');
+        arrayDelimiter);
   }
 
   public <B> PgType<B> transform(SqlFunction<A, B> f, Function<B, A> g) {

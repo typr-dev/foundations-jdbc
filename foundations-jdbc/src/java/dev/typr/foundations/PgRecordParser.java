@@ -475,11 +475,38 @@ public final class PgRecordParser {
       String content, int start, char delimiter) {
     int len = content.length();
     int pos = start;
+    // Track nested-brace depth and quoted-string state so the element scanner does not split on a
+    // delimiter that is inside a sub-array ({...}) or inside a quoted string ("..."). PG's
+    // multi-dimensional array text form puts sub-arrays inline as raw {...} (no surrounding
+    // quotes), and the inner delimiters must be treated as part of the element.
+    int depth = 0;
+    boolean inQuotes = false;
 
     while (pos < len) {
       char c = content.charAt(pos);
-      if (c == delimiter) {
-        break;
+      if (inQuotes) {
+        if (c == '\\' && pos + 1 < len) {
+          // skip escaped char (typically \" or \\)
+          pos += 2;
+          continue;
+        }
+        if (c == '"') {
+          inQuotes = false;
+        }
+      } else {
+        if (c == '"') {
+          inQuotes = true;
+        } else if (c == '{') {
+          depth++;
+        } else if (c == '}') {
+          if (depth == 0) {
+            // Stray '}' at depth 0 — let the outer parser handle it.
+            break;
+          }
+          depth--;
+        } else if (c == delimiter && depth == 0) {
+          break;
+        }
       }
       pos++;
     }

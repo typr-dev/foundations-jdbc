@@ -171,10 +171,14 @@ public sealed interface PgRead<A> extends DbRead<A>
    * precision or fails (bit, time, money, composite records).
    */
   static <A> PgRead<List<A>> readCompositeList(PgCompositeText<A> decoder) {
+    return readCompositeList(decoder, ',');
+  }
+
+  static <A> PgRead<List<A>> readCompositeList(PgCompositeText<A> decoder, char delimiter) {
     return readString.map(
         arrayText -> {
           if (arrayText == null) return null;
-          List<String> elements = PgRecordParser.parseArray(arrayText);
+          List<String> elements = PgRecordParser.parseArray(arrayText, delimiter);
           List<A> result = new ArrayList<>(elements.size());
           for (String elementText : elements) {
             result.add(elementText == null ? null : decoder.decode(elementText));

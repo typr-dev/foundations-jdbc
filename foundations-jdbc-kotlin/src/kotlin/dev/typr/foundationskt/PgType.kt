@@ -32,6 +32,9 @@ class PgType<T>(override val underlying: dev.typr.foundations.PgType<T>) : DbTyp
     fun renamed(value: String): PgType<T> = PgType(underlying.renamed(value))
     fun renamedDropPrecision(value: String): PgType<T> = PgType(underlying.renamedDropPrecision(value))
 
+    /** Reinterpret as the JDBC view of a PG DOMAIN — see [dev.typr.foundations.PgType.asDomain]. */
+    fun asDomain(domainName: String): PgType<T> = PgType(underlying.asDomain(domainName))
+
     fun withRead(read: PgRead<T>): PgType<T> = PgType(underlying.withRead(read))
     fun withWrite(write: PgWrite<T>): PgType<T> = PgType(underlying.withWrite(write))
     fun withText(text: PgText<T>): PgType<T> = PgType(underlying.withText(text))

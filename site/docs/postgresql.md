@@ -255,9 +255,36 @@ The first argument to `ofEnum(sqlType, ...)` is the PostgreSQL type name used to
 
 ## Custom Domain Types
 
-Wrap base types with custom Java types using `transform`:
+Wrap base types with custom Java types using `transform`. Useful when you want a typed
+wrapper on the application side without changing PG's schema:
 
 <Snippet file="postgresql/DomainType" />
+
+## PostgreSQL DOMAIN types
+
+For an actual `CREATE DOMAIN dom AS underlying` schema-side type, use `asDomain(name)`. It
+renames the typename for SQL rendering and configures the array codec to text-parse, so
+arrays of the domain decode correctly even though PG JDBC's `ResultSetMetaData` resolves
+domains to their underlying type.
+
+<Snippet file="postgresql/PgDomainType" snippet="scalar" />
+
+`asDomain` also covers domain over enum, domain over composite, domain over a user-defined
+type, etc. — the underlying codec is reused; only the typename and the array decode path
+change.
+
+Arrays of a domain compose with the rest of the type DSL — `.array()` produces
+`PgType<List<Name>>`, and you can layer a list-level `to(Bijection)` on top to map the
+container to a different wrapper type without changing the schema:
+
+<Snippet file="postgresql/PgDomainType" snippet="array" />
+
+:::note Equality on domain-typed columns
+PG does not always define operators on a domain in its own right (e.g. domain-over-enum has
+no operator class — operators are bound to the enum's OID). For columns where you compare
+on the domain, cast to the underlying: `WHERE v::underlying = $1::underlying`. Read/write
+through the codec is unaffected.
+:::
 
 ## Nullable Types
 

@@ -321,6 +321,231 @@ public class PgRecordParserTest {
     PgRecordParser.parse("");
   }
 
+  // ==================== parseArray ====================
+
+  @Test
+  public void testParseArrayEmpty() {
+    assertParseArray("{}", List.of());
+  }
+
+  @Test
+  public void testParseArraySimpleUnquoted() {
+    assertParseArray("{1,2,3}", List.of("1", "2", "3"));
+    assertParseArray("{a,b,c}", List.of("a", "b", "c"));
+  }
+
+  @Test
+  public void testParseArraySingleElement() {
+    assertParseArray("{42}", List.of("42"));
+    assertParseArray("{\"hello\"}", List.of("hello"));
+  }
+
+  @Test
+  public void testParseArrayNullElements() {
+    // PG arrays use the literal NULL (case-insensitive) for null elements.
+    assertParseArray("{NULL}", Arrays.asList((String) null));
+    assertParseArray("{a,NULL,c}", Arrays.asList("a", null, "c"));
+    assertParseArray("{NULL,NULL}", Arrays.asList(null, null));
+  }
+
+  @Test
+  public void testParseArrayQuotedWithCommas() {
+    assertParseArray("{\"a,b\",c}", List.of("a,b", "c"));
+    assertParseArray("{\"hello, world\",\"foo, bar\"}", List.of("hello, world", "foo, bar"));
+  }
+
+  @Test
+  public void testParseArrayQuotedWithBraces() {
+    // Quoted elements containing braces — must not affect depth tracking.
+    assertParseArray("{\"{not nested}\"}", List.of("{not nested}"));
+    assertParseArray("{\"{a,b}\",c}", List.of("{a,b}", "c"));
+  }
+
+  @Test
+  public void testParseArrayQuotedJson() {
+    // Real-world: jsonb[] arrives with each JSON value quoted and quotes inside escaped with \.
+    assertParseArray("{\"{\\\"k\\\": 1}\"}", List.of("{\"k\": 1}"));
+    assertParseArray(
+        "{\"{\\\"a\\\": 1}\",\"{\\\"b\\\": 2}\"}", List.of("{\"a\": 1}", "{\"b\": 2}"));
+  }
+
+  @Test
+  public void testParseArrayQuotedRangeLiteral() {
+    // Range types: PG quotes them inside arrays because the literal contains commas/brackets.
+    assertParseArray("{\"[1,10)\"}", List.of("[1,10)"));
+    assertParseArray("{\"[1,10)\",\"[20,30)\"}", List.of("[1,10)", "[20,30)"));
+  }
+
+  @Test
+  public void testParseArrayCustomDelimiter() {
+    // Geometric types use ';' as element delimiter. A single box: one element delimited by
+    // nothing, so the comma inside the box must not split it.
+    assertParseArrayWith("{(1,2),(3,4)}", ';', List.of("(1,2),(3,4)"));
+    // Two boxes separated by ';'.
+    assertParseArrayWith("{(1,2),(3,4);(5,6),(7,8)}", ';', List.of("(1,2),(3,4)", "(5,6),(7,8)"));
+  }
+
+  @Test
+  public void testParseArrayBareNested() {
+    // Multi-dim arrays put sub-arrays inline as raw {...} (no surrounding quotes). Internal
+    // delimiters must be ignored at the outer level.
+    assertParseArray("{{1,2},{3,4}}", List.of("{1,2}", "{3,4}"));
+    assertParseArray("{{a,b,c}}", List.of("{a,b,c}"));
+    assertParseArray("{{1}}", List.of("{1}"));
+  }
+
+  @Test
+  public void testParseArrayBareNestedMixedPosition() {
+    // Nested element appearing at start, middle, end.
+    assertParseArray("{{a,b},c,d}", List.of("{a,b}", "c", "d"));
+    assertParseArray("{a,{b,c},d}", List.of("a", "{b,c}", "d"));
+    assertParseArray("{a,b,{c,d}}", List.of("a", "b", "{c,d}"));
+  }
+
+  @Test
+  public void testParseArrayDeeplyNested() {
+    assertParseArray("{{{1,2},{3,4}},{{5,6},{7,8}}}", List.of("{{1,2},{3,4}}", "{{5,6},{7,8}}"));
+    assertParseArray("{{{a}}}", List.of("{{a}}"));
+  }
+
+  @Test
+  public void testParseArrayBareNestedWithQuotedInner() {
+    // Sub-array elements contain quoted strings with internal commas — both brace-depth and
+    // quoted-state tracking must cooperate.
+    assertParseArray("{{\"a,b\",c},{d}}", List.of("{\"a,b\",c}", "{d}"));
+    assertParseArray("{{\"{not array}\",x},{y}}", List.of("{\"{not array}\",x}", "{y}"));
+  }
+
+  @Test
+  public void testParseArrayBareNestedWithQuotedJson() {
+    // jsonb[][] real-world shape: outer is bare-nested, inner element is quoted JSON containing
+    // braces, commas, and escaped quotes.
+    assertParseArray(
+        "{{\"{\\\"k\\\": 1}\"},{\"{\\\"k\\\": 2}\"}}",
+        List.of("{\"{\\\"k\\\": 1}\"}", "{\"{\\\"k\\\": 2}\"}"));
+  }
+
+  @Test
+  public void testParseArrayBareNestedEmpty() {
+    assertParseArray("{{},{}}", List.of("{}", "{}"));
+    assertParseArray("{{},{a}}", List.of("{}", "{a}"));
+  }
+
+  @Test
+  public void testParseArrayBareNestedWithNull() {
+    // NULL appears at the outer level — NULL itself is unquoted and contains no braces, so
+    // standard handling applies.
+    assertParseArray("{{a,b},NULL,{c,d}}", Arrays.asList("{a,b}", null, "{c,d}"));
+  }
+
+  @Test
+  public void testParseArrayBackslashEscapesInsideNested() {
+    // Backslash-escaped quote inside the quoted element of a sub-array: scanner must not exit
+    // the quoted region on the escaped quote.
+    assertParseArray("{{\"a\\\"b\",c}}", List.of("{\"a\\\"b\",c}"));
+  }
+
+  @Test
+  public void testParseArrayWhitespacePadding() {
+    assertParseArray("  {1,2,3}  ", List.of("1", "2", "3"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testParseArrayInvalidNoBraces() {
+    PgRecordParser.parseArray("1,2,3");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testParseArrayInvalidNullInput() {
+    PgRecordParser.parseArray(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testParseArrayInvalidEmptyInput() {
+    PgRecordParser.parseArray("");
+  }
+
+  // ==================== parseArray roundtrip ====================
+
+  /**
+   * For every input list, {@code parseArray(encodeArray(xs)) == xs}. Covers the values that
+   * encodeArray needs to quote (commas, braces, quotes, backslashes, newlines, parens,
+   * whitespace, the empty string, and NULL), so the quoted-element scanner is exercised.
+   */
+  @Test
+  public void testParseArrayRoundtripQuoting() {
+    assertParseArrayRoundtrip(List.of("a", "b", "c"));
+    assertParseArrayRoundtrip(List.of("hello, world"));
+    assertParseArrayRoundtrip(List.of("with \"quotes\"", "plain"));
+    assertParseArrayRoundtrip(List.of("contains {brace}", "and }"));
+    assertParseArrayRoundtrip(List.of("back\\slash"));
+    assertParseArrayRoundtrip(List.of("line1\nline2", "tab\tsep"));
+    assertParseArrayRoundtrip(List.of("(parens, with comma)"));
+    assertParseArrayRoundtrip(List.of("  leading and trailing  "));
+    assertParseArrayRoundtrip(List.of(""));
+    assertParseArrayRoundtrip(List.of("", "a", ""));
+    assertParseArrayRoundtrip(Arrays.asList("a", null, "c", null));
+  }
+
+  /**
+   * Roundtrip with the geometric ';' delimiter — the comma inside elements (e.g. box's
+   * {@code (x1,y1),(x2,y2)}) must not be treated as a separator, and the quoted-string scanner
+   * still handles internal escapes.
+   */
+  @Test
+  public void testParseArrayRoundtripCustomDelimiter() {
+    assertParseArrayRoundtripWith(List.of("(1,2),(3,4)", "(5,6),(7,8)"), ';');
+    assertParseArrayRoundtripWith(List.of("a", "b"), ';');
+    assertParseArrayRoundtripWith(List.of("contains ; semicolon", "plain"), ',');
+  }
+
+  /**
+   * Bare-nested arrays — these are the multi-dim form PG actually emits, where each element is a
+   * raw {@code {...}} sub-array rather than a quoted string. encodeArray always quotes, so we
+   * construct the nested form by hand and assert parseArray returns the inner sub-array text
+   * verbatim. parseArray is not recursive: it returns each top-level element exactly as the
+   * caller would re-feed it to a sub-decoder (which is precisely how PgType.array().array()
+   * decodes 2D domain arrays).
+   */
+  @Test
+  public void testParseArrayBareNestedRoundtripVsRecursive() {
+    var outer = PgRecordParser.parseArray("{{1,2,3},{4,5,6}}");
+    assertEqual(outer, List.of("{1,2,3}", "{4,5,6}"));
+    var inner0 = PgRecordParser.parseArray(outer.get(0));
+    assertEqual(inner0, List.of("1", "2", "3"));
+    var inner1 = PgRecordParser.parseArray(outer.get(1));
+    assertEqual(inner1, List.of("4", "5", "6"));
+  }
+
+  /** Three-level nesting: each strip exposes one more level. */
+  @Test
+  public void testParseArrayBareNestedThreeLevel() {
+    var l1 = PgRecordParser.parseArray("{{{a,b},{c}},{{d}}}");
+    assertEqual(l1, List.of("{{a,b},{c}}", "{{d}}"));
+    var l2a = PgRecordParser.parseArray(l1.get(0));
+    assertEqual(l2a, List.of("{a,b}", "{c}"));
+    var l2b = PgRecordParser.parseArray(l1.get(1));
+    assertEqual(l2b, List.of("{d}"));
+    var l3 = PgRecordParser.parseArray(l2a.get(0));
+    assertEqual(l3, List.of("a", "b"));
+  }
+
+  /**
+   * Multi-dim where the leaf elements are quoted JSON: outer is bare-nested, inner element is
+   * quoted with escaped quotes. After two parse hops we should arrive at the JSON text exactly
+   * as PG sent it.
+   */
+  @Test
+  public void testParseArrayBareNestedQuotedJsonLeaf() {
+    String input = "{{\"{\\\"k\\\": 1}\"},{\"{\\\"k\\\": 2}\"}}";
+    var outer = PgRecordParser.parseArray(input);
+    assertEqual(outer, List.of("{\"{\\\"k\\\": 1}\"}", "{\"{\\\"k\\\": 2}\"}"));
+    var inner0 = PgRecordParser.parseArray(outer.get(0));
+    assertEqual(inner0, List.of("{\"k\": 1}"));
+    var inner1 = PgRecordParser.parseArray(outer.get(1));
+    assertEqual(inner1, List.of("{\"k\": 2}"));
+  }
+
   // Helper methods
 
   private void assertParse(String input, List<String> expected) {
@@ -333,6 +558,46 @@ public class PgRecordParserTest {
               + formatList(expected)
               + "\nActual:   "
               + formatList(actual));
+    }
+  }
+
+  private void assertParseArray(String input, List<String> expected) {
+    assertParseArrayWith(input, ',', expected);
+  }
+
+  private void assertParseArrayWith(String input, char delimiter, List<String> expected) {
+    List<String> actual = PgRecordParser.parseArray(input, delimiter);
+    if (!listsEqual(actual, expected)) {
+      throw new AssertionError(
+          "parseArray mismatch for input: "
+              + input
+              + " (delimiter='"
+              + delimiter
+              + "')\nExpected: "
+              + formatList(expected)
+              + "\nActual:   "
+              + formatList(actual));
+    }
+  }
+
+  private void assertParseArrayRoundtrip(List<String> values) {
+    assertParseArrayRoundtripWith(values, ',');
+  }
+
+  private void assertParseArrayRoundtripWith(List<String> values, char delimiter) {
+    String encoded =
+        PgRecordParser.encodeArray(values, java.util.function.Function.identity(), delimiter);
+    List<String> decoded = PgRecordParser.parseArray(encoded, delimiter);
+    if (!listsEqual(decoded, values)) {
+      throw new AssertionError(
+          "Roundtrip mismatch (delimiter='"
+              + delimiter
+              + "'):\nInput:   "
+              + formatList(values)
+              + "\nEncoded: "
+              + encoded
+              + "\nDecoded: "
+              + formatList(decoded));
     }
   }
 
