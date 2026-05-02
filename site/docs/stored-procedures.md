@@ -59,13 +59,14 @@ Use [Query Analysis](/docs/query-analysis#routine-analysis) to verify that your 
 
 ## Database Support
 
-OUT parameter support requires a `DbOutParam` implementation for each type. All standard types are supported for all six databases:
+OUT parameter support requires a `DbOutParam` implementation for each type. All standard types are supported on every database that has procedures and functions; DuckDB and SQLite have neither and surface that fact through `DbType.outParam()` returning `Optional.empty()`:
 
 | Database | Procedures | Functions | OUT/INOUT |
 |----------|-----------|-----------|-----------|
 | PostgreSQL | Yes | Yes | Yes |
 | MariaDB/MySQL | Yes | Yes | Yes |
 | DuckDB | N/A | N/A | No (no stored procedure support) |
+| SQLite | N/A | N/A | No (no stored procedure support) |
 | Oracle | Yes | Yes | Yes |
 | SQL Server | Yes | Yes | Yes |
 | DB2 | Yes | Yes | Yes |

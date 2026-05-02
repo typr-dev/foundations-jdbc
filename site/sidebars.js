@@ -66,6 +66,7 @@ const sidebars = {
         {type: "doc", id: "postgresql", label: "PostgreSQL"},
         {type: "doc", id: "mariadb", label: "MariaDB/MySQL"},
         {type: "doc", id: "duckdb", label: "DuckDB"},
+        {type: "doc", id: "sqlite", label: "SQLite"},
         {type: "doc", id: "oracle", label: "Oracle"},
         {type: "doc", id: "sqlserver", label: "SQL Server"},
         {type: "doc", id: "db2", label: "DB2"},
