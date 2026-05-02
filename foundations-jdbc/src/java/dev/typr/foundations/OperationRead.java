@@ -17,11 +17,6 @@ public sealed interface OperationRead<Out> extends Operation<Out>
         OperationRead.Then,
         OperationRead.Configured {
 
-  /** Run this read operation on the given read connection. */
-  default Out run(ConnectionRead conn) {
-    return conn.execute(this);
-  }
-
   /**
    * Execute this operation using the given transactor.
    *

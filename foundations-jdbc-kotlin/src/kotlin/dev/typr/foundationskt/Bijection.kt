@@ -9,6 +9,9 @@ class Bijection<A, B>(val underlying: dev.typr.foundations.Bijection<A, B>) {
     fun inverse(): Bijection<B, A> = Bijection(underlying.inverse())
 
     companion object {
+        fun <A, B> of(forward: (A) -> B, backward: (B) -> A): Bijection<A, B> =
+            Bijection(dev.typr.foundations.Bijection.of(forward, backward))
+
         internal fun <T> optionalToNullable(): dev.typr.foundations.Bijection<Optional<T>, T?> =
             dev.typr.foundations.Bijection.optionalToNullable<T>()
 
