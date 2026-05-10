@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Fragments
 
-A Fragment is a SQL building block that holds a SQL string together with its bound parameters. Build fragments with **string interpolation** (Kotlin and Scala) or the **builder pattern** (all languages).
+A Fragment is a SQL string paired with its bound parameters. Build fragments with string interpolation (Kotlin and Scala) or the builder pattern (all languages).
 
 ## String interpolation
 
@@ -23,7 +23,7 @@ Inside the interpolation block, you can embed:
 
 ## Builder pattern
 
-The builder pattern works in all languages and is useful for constructing fragments programmatically. Start from `Fragment.of("SELECT …")` (or `Fragment.builder()` for an empty start) and chain `.value(type, x)` / `.append(fragment)`:
+The builder pattern works in all languages and is the way to compose fragments programmatically. Start from `Fragment.of("SELECT …")` (or `Fragment.builder()` for an empty start) and chain `.value(type, x)` / `.append(fragment)`:
 
 <Snippet file="core/FragmentBuilderBasic" />
 
@@ -35,7 +35,7 @@ The builder pattern works in all languages and is useful for constructing fragme
 
 ## Composing fragments
 
-For dynamic queries — searches with optional filters, conditional clauses — chain `.optionally(value).append(sql, type)` onto a base fragment. Each `optionally` is a branch point [Query Analysis](./query-analysis) expands into all 2<sup>N</sup> possible SQL shapes, so every code path is verified against the schema:
+For dynamic queries (searches with optional filters, conditional clauses), chain `.optionally(value).append(sql, type)` onto a base fragment. Each `optionally` is a branch point that [Query Analysis](./query-analysis) expands into all 2<sup>N</sup> possible SQL shapes, so every code path is verified against the schema:
 
 <Snippet file="core/FragmentComposing" />
 

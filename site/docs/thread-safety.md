@@ -2,7 +2,7 @@
 title: Thread Safety
 ---
 
-# Thread Safety
+# Thread safety
 
 `Transactor` is stateless and thread-safe. Share a single instance across your application.
 

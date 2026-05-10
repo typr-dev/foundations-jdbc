@@ -4,13 +4,13 @@ title: Supported Databases
 
 import Snippet from '@site/src/components/Snippet';
 
-# Supported Databases
+# Supported databases
 
-Each database has its own type hierarchy that knows exactly how to read and write values. Full roundtrip fidelity for every type — read a value from the database and write it back without loss or corruption.
+Each database has its own type hierarchy that knows how to read and write values. The aim is roundtrip fidelity: read a value, write it back, get the same bytes.
 
 ## Databases
 
-- **[PostgreSQL](./postgresql)** — arrays, ranges, geometric types, network types, JSON, text search, and all the exotic ones
+- **[PostgreSQL](./postgresql)** — arrays, ranges, geometric types, network types, JSON, text search, and the rest
 - **[MariaDB / MySQL](./mariadb)** — unsigned integers, spatial types, sets, JSON, and year types
 - **[DuckDB](./duckdb)** — lists, structs, maps, unions, enums, and 128-bit integers
 - **[SQLite](./sqlite)** — five storage classes with affinity-based aliases; embedded, no procedures, no nested types

@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # DuckDB type support
 
-Foundations JDBC supports DuckDB's type system, including nested types (LIST, STRUCT, MAP, UNION) and extended integer types.
+DuckDB's type system maps to Java types covering signed/unsigned integers up to 128 bits, fixed and floating decimal, the usual date/time variants, nested LIST/STRUCT/MAP/UNION, and JSON.
 
 :::warning Query Analysis on DuckDB is column-type-only
 DuckDB's JDBC driver doesn't report column nullability or parameter metadata, so `QueryChecker`'s `.opt()` and wrong-parameter-type checks silently pass on DuckDB. Column type mismatches are still caught. If you test against DuckDB in-memory and deploy against PostgreSQL or another dialect, run analysis against the production dialect too — it will find issues DuckDB can't. See [Query Analysis: Database Behavior](./query-analysis-database-behavior) for the full matrix.
@@ -158,7 +158,7 @@ Any type can be made into a variable-length list with `.list()`. DuckDB renders 
 
 ## ARRAY types
 
-Fixed-size arrays use `.array(size)`. DuckDB enforces that every row has exactly `size` elements — ideal for embeddings, RGB colors, or any dense fixed-shape tensor. The Java representation is still `List<T>`:
+Fixed-size arrays use `.array(size)`. DuckDB enforces that every row has exactly `size` elements, which fits embeddings, RGB colors, or any dense fixed-shape tensor. The Java representation is still `List<T>`:
 
 | DuckDB Type | Java Type | Created via |
 |-------------|-----------|-------------|

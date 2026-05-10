@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # OpenTelemetry
 
-The `foundations-jdbc-otel` module provides OpenTelemetry instrumentation for database operations. It plugs into the existing `QueryListener` mechanism to produce spans and metrics with zero overhead when no SDK is configured.
+The `foundations-jdbc-otel` module wires OpenTelemetry into the existing `QueryListener` mechanism, producing spans and metrics for every query. When no OTel SDK is configured, the listener does nothing.
 
 ## Setup
 

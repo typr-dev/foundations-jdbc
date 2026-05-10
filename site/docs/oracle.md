@@ -97,25 +97,25 @@ For CHAR columns preserving padding:
 **Note:** Oracle `DATE` includes time (unlike SQL standard), so it maps to `LocalDateTime`, not `LocalDate`.
 
 :::note `TIMESTAMP WITH TIME ZONE` → `ZonedDateTime` (not `OffsetDateTime`)
-Oracle's TSTZ column uses a 13-byte on-disk format that can hold **either a fixed offset (`-08:00`) or a named zone region (`America/Los_Angeles`)**. Region names are DST-aware — the same `America/Los_Angeles` column value renders as `-08:00` in January and `-07:00` in July.
+Oracle's TSTZ column uses a 13-byte on-disk format that can hold either a fixed offset (`-08:00`) or a named zone region (`America/Los_Angeles`). Region names are DST-aware. The same `America/Los_Angeles` column value renders as `-08:00` in January and `-07:00` in July.
 
-`OffsetDateTime` cannot represent named zones — it holds only a numeric offset. Mapping Oracle TSTZ to `OffsetDateTime` would silently collapse every region to its current offset, so a round-trip of `2024-01-15T10:00 America/Los_Angeles` would come back as `2024-01-15T10:00-08:00` with the region erased — the DST rule is lost for any future reads.
+`OffsetDateTime` cannot represent named zones; it holds only a numeric offset. Mapping Oracle TSTZ to `OffsetDateTime` would silently collapse every region to its current offset. A round-trip of `2024-01-15T10:00 America/Los_Angeles` would come back as `2024-01-15T10:00-08:00` with the region erased, and the DST rule lost for any future reads.
 
 `ZonedDateTime` covers both cases without information loss:
 - Fixed-offset input (`ZonedDateTime.of(..., ZoneOffset.UTC)`) round-trips as a `ZonedDateTime` whose zone is a `ZoneOffset`.
 - Named-region input (`ZonedDateTime.of(..., ZoneId.of("America/Los_Angeles"))`) round-trips as a `ZonedDateTime` whose zone is a `ZoneRegion`.
 
-If you don't need the region — if you're just modelling "a moment in time with whatever zone the user was in" — prefer `TIMESTAMP WITH LOCAL TIME ZONE` (see below) and get an `Instant`, which is simpler.
+If you don't need the region (you're modelling "a moment in time with whatever zone the user was in"), prefer `TIMESTAMP WITH LOCAL TIME ZONE` (see below) and get an `Instant`, which is simpler.
 :::
 
 :::note `TIMESTAMP WITH LOCAL TIME ZONE` → `Instant` (not `LocalDateTime`)
 Despite the "LOCAL TIME ZONE" name, this column stores a **universal instant**, not a naive wall-clock. Oracle's documentation: "data stored in the database is normalized to the database time zone, and the time zone offset is not stored as part of the column data. When users retrieve the data, Oracle Database returns it in the users' local session time zone."
 
-In other words: the column stores an instant, and Oracle applies session-TZ rendering at read-time as a display convenience. A value inserted from an Asia/Tokyo session reads back as the same instant from an America/Los_Angeles session, in LA's local time — instant identity is preserved.
+In other words: the column stores an instant, and Oracle applies session-TZ rendering at read-time as a display convenience. A value inserted from an Asia/Tokyo session reads back as the same instant from an America/Los_Angeles session, in LA's local time. Instant identity is preserved.
 
-`Instant` is the Java type with this exact semantic: a point in time, zone-free. `LocalDateTime` would be wrong — it claims "naive wall-clock with no zone", but the data genuinely *is* a universal moment. Using `LocalDateTime` would mean two clients with different session-TZ settings would mint different `LocalDateTime` values for the same row, destroying round-trip stability.
+`Instant` is the Java type with this exact semantic: a point in time, zone-free. `LocalDateTime` would be wrong. It claims "naive wall-clock with no zone", but the data genuinely *is* a universal moment. Using `LocalDateTime` would mean two clients with different session-TZ settings would mint different `LocalDateTime` values for the same row, destroying round-trip stability.
 
-Same mapping as PostgreSQL's `timestamptz` and DuckDB's `TIMESTAMPTZ` — all three store a universal instant and use `Instant` in Java.
+Same mapping as PostgreSQL's `timestamptz` and DuckDB's `TIMESTAMPTZ`. All three store a universal instant and use `Instant` in Java.
 :::
 
 ## Interval types
@@ -183,8 +183,8 @@ Any type can be made nullable using `.opt()`:
 
 ### Oracle nullability behavior
 
-Oracle treats empty strings as NULL — `INSERT INTO t (col) VALUES ('')` stores NULL.
-This means `VARCHAR2` columns are effectively always nullable from Oracle's perspective,
+Oracle treats empty strings as NULL: `INSERT INTO t (col) VALUES ('')` stores NULL.
+`VARCHAR2` columns are effectively always nullable from Oracle's perspective,
 even if the column has a `NOT NULL` constraint (an empty string insert will fail with a
 constraint violation, not store an empty string).
 
@@ -205,8 +205,8 @@ Wrap base types with custom Java types using `transform`:
 ## Required driver dependencies
 
 The core driver is `com.oracle.database.jdbc:ojdbc11`. A second artifact is needed
-when you bind OBJECT or VARRAY literals inline in SQL — e.g. `TABLE(?)` over a
-VARRAY parameter, or `SELECT ?::my_t FROM dual`:
+when you bind OBJECT or VARRAY literals inline in SQL (e.g. `TABLE(?)` over a
+VARRAY parameter, or `SELECT ?::my_t FROM dual`):
 
 ```
 com.oracle.database.xml:xdb:23.6.0.24.10
@@ -214,7 +214,7 @@ com.oracle.database.xml:xdb:23.6.0.24.10
 
 Without `xdb` on the runtime classpath, the first inline OBJECT/VARRAY bind fails
 with `NoClassDefFoundError: oracle/xdb/XMLType`. The driver itself compiles fine
-without it — the error only surfaces at execute time.
+without it; the error only surfaces at execute time.
 
 ## Reserved-word traps in OBJECT types
 
@@ -229,13 +229,13 @@ CREATE TYPE skill_t AS OBJECT (name VARCHAR2(100), LEVEL NUMBER(3));
 ```
 
 Rename the attribute (`LVL`, `ROW_ID`, etc.) or quote the identifier. The error
-messages don't point back to the CREATE TYPE — they show up at SELECT/INSERT time.
+messages don't point back to the CREATE TYPE; they show up at SELECT/INSERT time.
 
 ## DDL inside a transaction
 
 Oracle auto-commits DDL. Running several `CREATE TYPE` / `CREATE TABLE` statements
 inside a single `tx.transact { conn -> ... }` block can produce surprising catalog
-visibility issues — a subsequent `CREATE TABLE` referencing a freshly-declared
+visibility issues. A subsequent `CREATE TABLE` referencing a freshly-declared
 `TYPE` may fail with `ORA-00902` even though the type is valid. Split each DDL
 into its own `tx.transact { }` call to keep each statement's auto-commit boundary
 clean.
@@ -245,4 +245,4 @@ clean.
 When a connection's current schema owns the type, you can reference it bare
 (`compositeOf("SKILL_T", ...)`). Cross-schema usage generally requires the
 fully-qualified name (`compositeOf("TYPR.SKILL_T", ...)`). If in doubt, use the
-qualified form — it works from either side.
+qualified form. It works from either side.

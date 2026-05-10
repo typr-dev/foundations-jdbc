@@ -51,7 +51,7 @@ var tx = ds.transactor();
 
 ## Test mode
 
-Call `.rollbackOnly()` to roll back instead of committing — ideal for test isolation:
+Call `.rollbackOnly()` to roll back instead of committing. Useful for test isolation:
 
 ```java
 var tx = Transactor.create(config).rollbackOnly();

@@ -6,11 +6,11 @@ import Snippet from '@site/src/components/Snippet';
 
 # Testing
 
-foundations-jdbc is designed to be tested against a real database. Use `.rollbackOnly()` for data isolation, `QueryChecker` for type verification, and `AnalyzableScanner` for automatic query discovery. Together, they give you a test suite that catches SQL bugs before production.
+Test foundations-jdbc code against a real database. Use `.rollbackOnly()` for data isolation, `QueryChecker` to verify types match the schema, and `AnalyzableScanner` to discover queries automatically.
 
 ## Rollback isolation
 
-`.rollbackOnly()` wraps each call in a transaction and **rolls back** instead of committing. Your tests run against real SQL without leaving data behind:
+`.rollbackOnly()` wraps each call in a transaction and rolls back instead of committing. Tests run against real SQL without leaving data behind:
 
 ```kotlin
 val tx = SingleConnectionDataSource.create(DuckDbConfig.inMemory().build())
@@ -21,9 +21,9 @@ Each test gets a clean slate. No teardown scripts, no truncation, no data leakin
 
 ## Setting up a test database
 
-### DuckDB (No Docker)
+### DuckDB (no Docker)
 
-DuckDB runs in-memory with zero setup — ideal for fast unit tests:
+DuckDB runs in-memory with no setup, which is convenient for fast unit tests:
 
 ```kotlin
 class MyRepoTest {
@@ -52,7 +52,7 @@ class MyRepoTest {
 }
 ```
 
-### PostgreSQL / MariaDB / Others (Docker)
+### PostgreSQL / MariaDB / others (Docker)
 
 For databases that need a server, use [Testcontainers](https://testcontainers.com/) or a shared test instance:
 
@@ -89,7 +89,7 @@ println(report.summary(colored = true))   // prints each query with ✓/✗ (ver
 report.assertAllSucceeded()        // throws if any failed
 ```
 
-Add a new query anywhere in the package, and it's automatically included in the next test run. No manual list maintenance. See [Query Analysis](./query-analysis) for scanner configuration, directives, and the full report format.
+Add a new query anywhere in the package and it's picked up on the next test run. No manual list to maintain. See [Query Analysis](./query-analysis) for scanner configuration, directives, and the full report format.
 
 ### Checking individual queries
 

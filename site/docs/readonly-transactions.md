@@ -8,11 +8,11 @@ import Snippet from '@site/src/components/Snippet';
 
 foundations-jdbc separates read and write paths at the type level. Queries that only read data can use `transactRead`, which skips transaction overhead and restricts what code can do with the connection.
 
-## Two Transaction Modes
+## Two transaction modes
 
 `transact` opens a full read-write transaction (auto-commit off, explicit BEGIN/COMMIT). `transactRead` uses auto-commit mode: no BEGIN, no COMMIT, no rollback.
 
-## One-Liner Convenience
+## One-liner convenience
 
 Every `OperationRead` has a `.transactRead(tx)` method that executes the operation directly:
 
@@ -20,15 +20,15 @@ Every `OperationRead` has a `.transactRead(tx)` method that executes the operati
 
 This is equivalent to `tx.transactRead(conn -> conn.execute(findAll))`.
 
-## Multiple Reads in One Session
+## Multiple reads in one session
 
 `transactRead` reuses a single connection for the duration of the block, which avoids repeated connection acquisition:
 
 <Snippet file="core/ReadonlyTransactionMulti" />
 
-Each query runs on the same connection in auto-commit mode — no transaction coordination, but consistent connection-level settings (schema, timeout, etc.).
+Each query runs on the same connection in auto-commit mode. There is no transaction coordination, but connection-level settings (schema, timeout, etc.) stay consistent.
 
-## Type Safety
+## Type safety
 
 The two modes use different connection types. `ConnectionRead` exposes only read methods:
 
@@ -60,16 +60,16 @@ tx.transactRead(conn -> {
 });
 ```
 
-## The Variance Model
+## The variance model
 
 The type hierarchy follows a deliberate variance pattern:
 
-- **Operations**: `OperationRead <: Operation` — read-only is a subtype of general operation. A read operation can be used anywhere an operation is expected.
-- **Connections**: `Connection extends ConnectionRead` — a read-write connection can do everything a read-only connection can.
+- `OperationRead <: Operation`: read-only is a subtype of general operation. A read operation works anywhere an operation is expected.
+- `Connection extends ConnectionRead`: a read-write connection can do everything a read-only connection can.
 
-Operations require capabilities (fewer requirements = more general = subtype). Connections grant capabilities (more capabilities = more powerful = subtype). This means a `Connection` can always be passed where a `ConnectionRead` is expected, and an `OperationRead` can always be passed where an `Operation` is expected.
+Operations require capabilities (fewer requirements = more general = subtype). Connections grant capabilities (more capabilities = more powerful = subtype). So a `Connection` can always be passed where a `ConnectionRead` is expected, and an `OperationRead` can always be passed where an `Operation` is expected.
 
-## When to Use Which
+## When to use which
 
 | Mode | Use for |
 |------|---------|

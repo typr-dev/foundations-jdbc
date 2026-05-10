@@ -9,10 +9,10 @@ import ThemedImg from '@site/src/components/ThemedImg';
 
 **Catch SQL type errors at test time, not runtime.**
 
-Query Analysis verifies that your code's types match what the database expects -- before your code runs in production. Inspired by [doobie's type checking](https://tpolecat.github.io/doobie/docs/17-Typechecking.html).
+Query Analysis verifies that your code's types match what the database expects, before your code runs in production. Inspired by [doobie's type checking](https://tpolecat.github.io/doobie/docs/17-Typechecking.html).
 
 :::warning Database-specific limitations
-Query Analysis relies on metadata reported by each database's JDBC driver — and not all drivers report equally well. Column type checking works everywhere, but parameter type checking and nullability checking vary. See [Database Behavior](./query-analysis-database-behavior) for the full breakdown.
+Query Analysis relies on metadata reported by each database's JDBC driver, and not all drivers report equally well. Column type checking works everywhere, but parameter type checking and nullability checking vary. See [Database Behavior](./query-analysis-database-behavior) for the full breakdown.
 :::
 
 ## The problem
@@ -34,7 +34,7 @@ Query Analysis uses JDBC metadata to verify your queries against the actual data
 4. **Counts are off** — Your RowCodec expects 5 columns but the query returns 4
 
 :::tip Dynamic queries are first-class
-Queries built with the [`optionally` DSL](./dynamic-queries) are expanded into all 2<sup>N</sup> branch variants and verified individually — every possible runtime SQL shape is checked, not just the one your test happened to construct. See [Dynamic Queries](./dynamic-queries) for the trade-offs against list-based composition.
+Queries built with the [`optionally` DSL](./dynamic-queries) are expanded into all 2<sup>N</sup> branch variants and verified individually. Every possible runtime SQL shape is checked, including ones your test never happened to construct. See [Dynamic Queries](./dynamic-queries) for the trade-offs against list-based composition.
 :::
 
 <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', margin: '1.5rem 0'}}>
@@ -93,7 +93,7 @@ The scanner will try constructors that accept a `Transactor` parameter.
 
 ### Dummy arguments
 
-When the scanner encounters a method with parameters, it constructs dummy values to invoke the method. The actual argument values don't matter -- the scanner only needs the method's return value (an `OperationRead` or `Operation`) to extract SQL and type information. If a method branches on its arguments and returns structurally different operations, use `manual()` directives to provide meaningful values.
+When the scanner encounters a method with parameters, it constructs dummy values to invoke the method. The actual argument values don't matter; the scanner only needs the method's return value (an `OperationRead` or `Operation`) to extract SQL and type information. If a method branches on its arguments and returns structurally different operations, use `manual()` directives to provide meaningful values.
 
 The scanner can construct dummies for:
 
@@ -110,11 +110,11 @@ The scanner can construct dummies for:
 | Records | Recursive construction of components |
 | Classes with constructors | Tries shortest constructor first |
 
-If a parameter type can't be constructed (e.g., an interface like `Runnable`, or an abstract class), the scanner will **fail with an error**. You must handle these methods explicitly using [Scan Directives](#scan-directives) — either `skip()` to exclude them or `manual()` to provide the arguments yourself.
+If a parameter type can't be constructed (e.g., an interface like `Runnable`, or an abstract class), the scanner will **fail with an error**. Handle these methods explicitly using [Scan Directives](#scan-directives): either `skip()` to exclude them or `manual()` to provide the arguments yourself.
 
 ### Getter deduplication
 
-In Kotlin and Scala, properties generate both a backing field and a getter method. The scanner automatically deduplicates these — if a field named `query` exists, a no-arg method named `query()` (Scala-style) or `getQuery()` (Kotlin-style) is treated as a getter and skipped.
+In Kotlin and Scala, properties generate both a backing field and a getter method. The scanner automatically deduplicates these: if a field named `query` exists, a no-arg method named `query()` (Scala-style) or `getQuery()` (Kotlin-style) is treated as a getter and skipped.
 
 Methods with parameters are never treated as getters, even if they share a name with a field.
 
@@ -122,19 +122,19 @@ Methods with parameters are never treated as getters, even if they share a name 
 
 When the scanner encounters a method it can't auto-invoke, it fails with an error telling you which method and why. **Scan directives** tell the scanner how to handle these methods.
 
-### `skip()` — exclude a method
+### `skip()`: exclude a method
 
 Use `skip()` when a method shouldn't be type-checked at all:
 
 <Snippet file="analysis/ScannerDirectives" />
 
-### `manual()` — provide specific arguments
+### `manual()`: provide specific arguments
 
 Use `manual()` when you want a method to be type-checked but the scanner can't construct the right arguments. You provide a variant name, call the method yourself, and pass the result:
 
 <Snippet file="analysis/ScannerDirectivesManual" />
 
-You can provide multiple manual variants for the same method — each gets its own type check:
+You can provide multiple manual variants for the same method. Each gets its own type check:
 
 ```java
 ScanDirective.manual(repo::search, "by-name", new Filter("alice", 10)),
@@ -143,17 +143,17 @@ ScanDirective.manual(repo::search, "all", new Filter("", 100))
 
 Each variant appears in reports as `ClassName.methodName[variantName]`.
 
-### `instance()` — add objects from outside the scan package
+### `instance()`: add objects from outside the scan package
 
 Use `instance()` to include objects that live outside the scanned package, or that need special construction:
 
 <Snippet file="analysis/ScannerInstance" />
 
-The `instance()` directive also supports per-instance overrides — you can skip or provide manual entries for specific methods on that instance.
+The `instance()` directive also supports per-instance overrides: skip or provide manual entries for specific methods on that instance.
 
 ## Manual check
 
-Some queries can't be discovered by the scanner -- queries built dynamically inside methods, or queries in classes that require constructor arguments the scanner can't provide. Use `checker.check()` to verify these individually:
+Some queries can't be discovered by the scanner: queries built dynamically inside methods, or queries in classes that require constructor arguments the scanner can't provide. Use `checker.check()` to verify these individually:
 
 <Snippet file="analysis/QueryAnalysisBasic" />
 
@@ -264,13 +264,13 @@ Column 4 'updated_at' is returned by query (timestamptz) but not declared in Row
 
 Two escape hatches let you selectively relax checking:
 
-### `.nullableOk()` -- suppress nullability warnings
+### `.nullableOk()`: suppress nullability warnings
 
 Use when you know a column won't be null in practice, even though the database says it could be. Common with outer joins:
 
 <Snippet file="analysis/QueryAnalysisNullableOk" />
 
-### `.unchecked()` -- skip type checking entirely
+### `.unchecked()`: skip type checking entirely
 
 Use when you know the type is correct but the database metadata disagrees, or for computed columns with unpredictable types:
 

@@ -2,7 +2,7 @@
 title: "Query Analysis: Database Behavior"
 ---
 
-# Query Analysis: Database Behavior
+# Query analysis: database behavior
 
 Query Analysis relies on JDBC metadata APIs (`ResultSetMetaData` and `ParameterMetaData`) to verify your queries. These APIs are implemented differently by each database's JDBC driver, which affects what the analyzer can check. This page documents the behavior for each supported database.
 
@@ -111,7 +111,7 @@ These databases do not provide usable parameter type metadata:
 
 - **MariaDB**: the JDBC driver does not implement `ParameterMetaData`. The analyzer shows "(metadata not available)" in reports and skips parameter type checking entirely.
 - **DuckDB**: the JDBC driver returns parameter count but reports all type names as `null` and JDBC type codes as `0`. The analyzer skips parameter type checking.
-- **SQLite**: the xerial driver throws `"No parameter has been set yet"` on `getParameterType` until every parameter is bound, and once bound, it echoes back the JDBC type of the bound value rather than the column's expected type — which makes the metadata useless for catching mismatches. The analyzer skips parameter type checking.
+- **SQLite**: the xerial driver throws `"No parameter has been set yet"` on `getParameterType` until every parameter is bound, and once bound, it echoes back the JDBC type of the bound value rather than the column's expected type. That makes the metadata useless for catching mismatches. The analyzer skips parameter type checking.
 
 This means a type mismatch between your parameter and the column it's compared against **will not be caught** by the analyzer on these databases. It will only fail at runtime.
 

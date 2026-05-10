@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Observability
 
-foundations-jdbc provides lightweight observability hooks: query listeners, named operations, timeouts, and interpolated SQL for debugging. Zero overhead when no listener is configured.
+foundations-jdbc has four observability hooks: query listeners, named operations, query timeouts, and interpolated SQL for debugging. They cost nothing when no listener is configured.
 
 ## Query listeners
 

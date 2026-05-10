@@ -6,11 +6,11 @@ sidebar_position: 9
 
 ## Methodology
 
-All benchmarks run against an **in-memory DuckDB** database on a single shared connection.
-Each library runs a SELECT returning **15 columns** of mixed types (VARCHAR, INTEGER, DECIMAL, DOUBLE, BOOLEAN, TIMESTAMP, DATE) and maps every row into a Kotlin data class.
+All benchmarks run against an in-memory DuckDB database on a single shared connection.
+Each library runs a SELECT returning 15 columns of mixed types (VARCHAR, INTEGER, DECIMAL, DOUBLE, BOOLEAN, TIMESTAMP, DATE) and maps every row into a Kotlin data class.
 
-- **5** warmup runs (discarded)
-- **11** measured runs, **median** reported
+- 5 warmup runs (discarded)
+- 11 measured runs, median reported
 - Row counts verified on every run
 - All libraries share the same `javax.sql.DataSource` (single connection, no pooling overhead)
 - VARCHAR columns contain realistic-length strings (50-200 chars)
@@ -39,7 +39,7 @@ Each library runs a SELECT returning **15 columns** of mixed types (VARCHAR, INT
 
 ## Notes
 
-- This benchmark measures **mapping overhead**, not database query execution time. All libraries run the same SQL against the same in-memory DuckDB instance.
+- This benchmark measures mapping overhead, not database query execution time. All libraries run the same SQL against the same in-memory DuckDB instance.
 - **Hibernate (entity)** uses `@Entity` with full ORM machinery: bytecode-enhanced entity hydration, persistence context management, and dirty-checking state snapshots. This is how Hibernate is typically used in production.
-- **Hibernate (native)** uses `createNativeQuery` with `Object[]` tuple result and manual column mapping, the lightest-weight Hibernate usage, bypassing the entity lifecycle.
+- **Hibernate (native)** uses `createNativeQuery` with `Object[]` tuple result and manual column mapping, the lightest Hibernate usage, bypassing the entity lifecycle.
 - DuckDB is an embedded analytical database with no network latency. Differences between libraries are pure framework overhead.

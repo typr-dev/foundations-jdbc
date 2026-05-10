@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # Spring Boot
 
-The `foundations-jdbc-spring` module integrates foundations-jdbc with Spring Boot. It provides auto-configuration that creates a `Transactor` bean backed by your Spring-managed `DataSource`, and automatically participates in `@Transactional` contexts.
+The `foundations-jdbc-spring` module integrates foundations-jdbc with Spring Boot. It auto-configures a `Transactor` bean backed by your Spring-managed `DataSource` and participates in `@Transactional` contexts.
 
 ## Dependencies
 
@@ -88,7 +88,7 @@ implementation("org.springframework.boot:spring-boot-starter-jdbc")
 You do **not** need `foundations-jdbc-hikari`. Spring Boot's `spring-boot-starter-jdbc` already configures a HikariCP connection pool. The Spring transactor obtains connections through Spring's `DataSource`, which is already pooled.
 :::
 
-## Auto-Configuration
+## Auto-configuration
 
 `TransactorAutoConfiguration` creates a `Transactor` bean automatically when:
 
@@ -113,10 +113,10 @@ The `SpringTransactor` adapts its behavior based on the current Spring transacti
 
 | Context | Behavior |
 |---------|----------|
-| Inside `@Transactional` | Joins the existing Spring-managed transaction. Does not change auto-commit, commit, or rollback — Spring controls the transaction lifecycle. |
+| Inside `@Transactional` | Joins the existing Spring-managed transaction. Does not change auto-commit, commit, or rollback. Spring controls the transaction lifecycle. |
 | Outside `@Transactional` | Manages its own transaction: sets auto-commit to false, commits on success, rolls back on error, and releases the connection. |
 
-This means `@Transactional` works exactly as you'd expect. Multiple `transact()` calls inside a `@Transactional` method share the same connection and transaction:
+`@Transactional` therefore works as expected. Multiple `transact()` calls inside a `@Transactional` method share the same connection and transaction:
 
 ```java
 @Service
@@ -141,7 +141,7 @@ public class OrderService {
 }
 ```
 
-Database errors throw `DatabaseException`, which is unchecked — so `@Transactional` rolls back automatically without any extra configuration.
+Database errors throw `DatabaseException`, which is unchecked, so `@Transactional` rolls back automatically without any extra configuration.
 
 ## Manual configuration
 

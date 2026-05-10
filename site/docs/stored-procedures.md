@@ -4,27 +4,27 @@ title: Stored Procedures & Functions
 
 import Snippet from '@site/src/components/Snippet';
 
-# Stored Procedures & Functions
+# Stored procedures and functions
 
-Define stored procedures and functions once with full type safety on inputs and outputs. The builder tracks types statically -- wrong argument types or missing parameters are compile errors.
+Define stored procedures and functions once with full type safety on inputs and outputs. The builder tracks types statically, so wrong argument types or missing parameters are compile errors.
 
 ## Procedures
 
-### Void Procedures
+### Void procedures
 
 Procedures with only IN parameters return `Void` (or `Unit` in Scala/Kotlin):
 
 <Snippet file="routines/VoidProcedure" />
 
-### OUT Parameters
+### OUT parameters
 
 Add `.out()` to declare output parameters. The builder tracks their types:
 
 <Snippet file="routines/OutProcedure" />
 
-The builder returns a typed definition that captures the input and output parameter types. The numbers in the type name encode the arity: `Def1_2` means 1 input and 2 outputs. For functions, `Def2` means 2 inputs (functions always have exactly one output, the return value). You never need to write these types explicitly -- just use `var` (Java) or let type inference work (Kotlin/Scala).
+The builder returns a typed definition that captures the input and output parameter types. The numbers in the type name encode the arity: `Def1_2` means 1 input and 2 outputs. For functions, `Def2` means 2 inputs (functions always have exactly one output, the return value). You never need to write these types explicitly. Use `var` in Java, or let type inference work in Kotlin and Scala.
 
-### INOUT Parameters
+### INOUT parameters
 
 INOUT parameters count as both input and output. The value goes in and comes back modified:
 
@@ -36,13 +36,13 @@ Functions return a single value via `SELECT` instead of `CALL`:
 
 <Snippet file="routines/FunctionExample" />
 
-## Any Database
+## Any database
 
-The procedure and function builders work with any database's types. Just use the right `*Types` class:
+The procedure and function builders work with any database's types. Use the matching `*Types` class:
 
 <Snippet file="routines/OracleExample" />
 
-## How It Works
+## How it works
 
 | Feature | Procedures (`DbProcedure`) | Functions (`DbFunction`) |
 |---------|---------------------------|-------------------------|
@@ -53,11 +53,11 @@ The procedure and function builders work with any database's types. Just use the
 | Max arity | 10 inputs, 10 outputs | 10 inputs |
 | Result | `Void`, single value, or `Tuple` | Single value |
 
-## Verifying Against the Database
+## Verifying against the database
 
-Use [Query Analysis](/docs/query-analysis#routine-analysis) to verify that your procedure and function definitions match the database -- parameter count, types, modes, and return types are all checked.
+Use [Query Analysis](/docs/query-analysis#routine-analysis) to verify that your procedure and function definitions match the database. Parameter count, types, modes, and return types are all checked.
 
-## Database Support
+## Database support
 
 OUT parameter support requires a `DbOutParam` implementation for each type. All standard types are supported on every database that has procedures and functions; DuckDB and SQLite have neither and surface that fact through `DbType.outParam()` returning `Optional.empty()`:
 

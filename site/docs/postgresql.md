@@ -10,7 +10,7 @@ Full support for all PostgreSQL data types, including arrays, ranges, geometric 
 
 ## Setting `search_path`
 
-Use `PgConfig.Builder.currentSchema(...)` to set a comma-separated `search_path` at connection time — handy when your composite types, enums, or tables live in a non-`public` schema and you want to reference them unqualified in SQL:
+Use `PgConfig.Builder.currentSchema(...)` to set a comma-separated `search_path` at connection time. Useful when your composite types, enums, or tables live in a non-`public` schema and you want to reference them unqualified in SQL:
 
 ```java
 var config = PgConfig.builder("host", 5432, "db", "user", "pw")
@@ -61,7 +61,7 @@ This maps to PostgreSQL's `currentSchema` connection property. For single-schema
 
 <Snippet file="postgresql/BinaryTypes" />
 
-## Date/Time Types {#datetime-rationale}
+## Date/time types {#datetime-rationale}
 
 | PostgreSQL Type | Java Type | Notes |
 |-----------------|-----------|-------|
@@ -77,9 +77,9 @@ This maps to PostgreSQL's `currentSchema` connection property. For single-schema
 :::note `timestamptz` does not store a time zone
 PostgreSQL is explicit on this: for `timestamp with time zone`, "the value is stored internally as UTC, and the originally stated or assumed time zone is not retained" (from the [PostgreSQL docs](https://www.postgresql.org/docs/current/datatype-datetime.html)). The zone only affects how the value is rendered at read-time (always converted to the session `TimeZone` setting).
 
-Because the column genuinely stores a universal instant — not a zoned value — the library maps it to `java.time.Instant`. Any zone information must travel alongside the value in a separate column if you need it (same data-modelling approach as Jira, GitHub, and most other systems). Using `OffsetDateTime` here would suggest the stored value carries an offset, which it does not.
+Because the column genuinely stores a universal instant (not a zoned value), the library maps it to `java.time.Instant`. Any zone information must travel alongside the value in a separate column if you need it (same data-modelling approach as Jira, GitHub, and most other systems). Using `OffsetDateTime` here would suggest the stored value carries an offset, which it does not.
 
-This is the reference mapping for the whole library: DuckDB's `TIMESTAMPTZ` shares the same semantics and uses the same `Instant` mapping. SQL Server's `DATETIMEOFFSET` and Oracle's `TIMESTAMP WITH TIME ZONE` genuinely preserve offset/zone and therefore map differently — see each dialect's page for details.
+This is the reference mapping for the whole library: DuckDB's `TIMESTAMPTZ` shares the same semantics and uses the same `Instant` mapping. SQL Server's `DATETIMEOFFSET` and Oracle's `TIMESTAMP WITH TIME ZONE` genuinely preserve offset/zone and therefore map differently. See each dialect's page for details.
 :::
 
 ## UUID type
@@ -98,7 +98,7 @@ This is the reference mapping for the whole library: DuckDB's `TIMESTAMPTZ` shar
 | `jsonb` | `Jsonb` | Binary format, indexed, normalized |
 
 :::tip Not String — wrapper types
-`PgTypes.json` is `PgType<Json>` and `PgTypes.jsonb` is `PgType<Jsonb>`. These are **not** `String` — they are single-field wrapper records (`record Json(String value)`, `record Jsonb(String value)`) from `dev.typr.foundations.data`. This means your record fields must be typed `Jsonb`/`Json`, not `String`.
+`PgTypes.json` is `PgType<Json>` and `PgTypes.jsonb` is `PgType<Jsonb>`. These are **not** `String`; they are single-field wrapper records (`record Json(String value)`, `record Jsonb(String value)`) from `dev.typr.foundations.data`. Your record fields must be typed `Jsonb`/`Json`, not `String`.
 :::
 
 `Json` and `Jsonb` are distinct wrapper records around a `String` payload, so a single row with both a `json` and a `jsonb` column keeps its types straight. Wrap the raw JSON text at the edges:
@@ -114,13 +114,13 @@ import dev.typr.foundations.data.Jsonb
 Jsonb("""{"ok":true}""")        // kotlin
 ```
 
-A common first-run surprise is declaring `val payload: String` on a Kotlin data class and getting `actual type is 'String', but 'Jsonb!' was expected` — the Kotlin `!` just marks a platform type, the fix is the wrap above.
+A common first-run surprise: declaring `val payload: String` on a Kotlin data class and getting `actual type is 'String', but 'Jsonb!' was expected`. The Kotlin `!` marks a platform type; the fix is the wrap above.
 
 <Snippet file="postgresql/JsonTypes" />
 
 ## Array types
 
-Any PostgreSQL type can be used as an array — call `.array()` on the element type. The Java representation is always `List<T>`:
+Any PostgreSQL type can be used as an array. Call `.array()` on the element type. The Java representation is always `List<T>`:
 
 | PostgreSQL Type | Java Type |
 |-----------------|-----------|
@@ -132,7 +132,7 @@ Any PostgreSQL type can be used as an array — call `.array()` on the element t
 | `text[]` | `List<String>` via `text.array()` |
 | `uuid[]` | `List<UUID>` via `uuid.array()` |
 
-This works for all types — `numeric.array()`, `timestamptz.array()`, `jsonb.array()`, custom enum types, composite types, etc. Multi-dimensional arrays compose: `.array().array()` produces SQL `T[][]` with Java type `List<List<T>>`.
+This works for all types: `numeric.array()`, `timestamptz.array()`, `jsonb.array()`, custom enum types, composite types, etc. Multi-dimensional arrays compose: `.array().array()` produces SQL `T[][]` with Java type `List<List<T>>`.
 
 <Snippet file="postgresql/ArrayTypes" />
 
@@ -189,7 +189,7 @@ PostgreSQL geometric types for 2D shapes:
 
 <Snippet file="postgresql/GeometricTypes" />
 
-## Network Types
+## Network types
 
 Types for storing network addresses:
 
@@ -202,7 +202,7 @@ Types for storing network addresses:
 
 <Snippet file="postgresql/NetworkTypes" />
 
-## Text Search Types
+## Text search types
 
 Full-text search types:
 
@@ -213,7 +213,7 @@ Full-text search types:
 
 <Snippet file="postgresql/TextSearchTypes" />
 
-## XML Type
+## XML type
 
 | PostgreSQL Type | Java Type |
 |-----------------|-----------|
@@ -221,7 +221,7 @@ Full-text search types:
 
 <Snippet file="postgresql/XmlType" />
 
-## Other Special Types
+## Other special types
 
 | PostgreSQL Type | Java Type | Description |
 |-----------------|-----------|-------------|
@@ -231,7 +231,7 @@ Full-text search types:
 
 <Snippet file="postgresql/SpecialTypes" />
 
-## System Types
+## System types
 
 Types used internally by PostgreSQL:
 
@@ -243,17 +243,17 @@ Types used internally by PostgreSQL:
 | `regtype` | `Regtype` | Type name/OID |
 | `regproc` | `Regproc` | Function name/OID |
 
-## Enum Types
+## Enum types
 
 PostgreSQL enums are mapped to Java enums:
 
 <Snippet file="postgresql/EnumType" />
 
 :::note `sqlType` must match the `CREATE TYPE` name (schema-qualified if needed)
-The first argument to `ofEnum(sqlType, ...)` is the PostgreSQL type name used to cast bound parameters. Pass exactly the name that appears in `CREATE TYPE schema.color AS ENUM(...)` — including the schema prefix if the type isn't in `search_path`. A mismatch produces `type "color" does not exist` on the first insert.
+The first argument to `ofEnum(sqlType, ...)` is the PostgreSQL type name used to cast bound parameters. Pass exactly the name that appears in `CREATE TYPE schema.color AS ENUM(...)`, including the schema prefix if the type isn't in `search_path`. A mismatch produces `type "color" does not exist` on the first insert.
 :::
 
-## Custom Domain Types
+## Custom domain types
 
 Wrap base types with custom Java types using `transform`. Useful when you want a typed
 wrapper on the application side without changing PG's schema:
@@ -271,21 +271,21 @@ type, so the entire DOMAIN-plus-wrapper declaration is one expression:
 `asDomain` renames the typename for SQL rendering, registers the underlying typename as a
 query-analyzer alias (PG JDBC resolves domains to their base type in `ResultSetMetaData`),
 and configures the array codec to text-parse so domain arrays decode correctly. It also
-covers domain over enum, domain over composite, etc. — the underlying codec is reused.
+covers domain over enum, domain over composite, etc. The underlying codec is reused.
 
-Arrays of a domain "just work" — wrap once at the scalar level and `.array()` carries the
+Arrays of a domain work the same way: wrap once at the scalar level and `.array()` carries the
 wrapper through. No list-level bijection is needed:
 
 <Snippet file="postgresql/PgDomainTypeArray" />
 
 :::note Equality on domain-typed columns
 PG does not always define operators on a domain in its own right (e.g. domain-over-enum has
-no operator class — operators are bound to the enum's OID). For columns where you compare
+no operator class; operators are bound to the enum's OID). For columns where you compare
 on the domain, cast to the underlying: `WHERE v::underlying = $1::underlying`. Read/write
 through the codec is unaffected.
 :::
 
-## Nullable Types
+## Nullable types
 
 Any type can be made nullable using `.opt()`:
 

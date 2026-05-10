@@ -4,7 +4,7 @@ title: Persisted vs Unpersisted Types
 
 import Snippet from '@site/src/components/Snippet';
 
-# Persisted vs Unpersisted Types
+# Persisted vs unpersisted types
 
 Most domain entities exist in two forms: one *before* the database has seen them (no id, no generated timestamps), and one *after* (with an id assigned by the database). Using the same type for both forces you to invent placeholder values for fields that don't exist yet:
 

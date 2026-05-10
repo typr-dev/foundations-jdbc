@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # JSON
 
-Every database supports JSON -- PostgreSQL has `json`/`jsonb`, MySQL and MariaDB have `JSON`, DuckDB has `JSON`, SQL Server has `FOR JSON`, and Oracle has its own JSON type. Your `RowCodec` doubles as a JSON codec with no extra code.
+Every supported database has a JSON type: PostgreSQL `json`/`jsonb`, MySQL/MariaDB `JSON`, DuckDB `JSON`, SQL Server `FOR JSON`, Oracle's own JSON type. Your `RowCodec` doubles as a JSON codec with no extra code.
 
 ## JSON-encoded column types
 

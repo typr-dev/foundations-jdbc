@@ -6,7 +6,7 @@ import Snippet from '@site/src/components/Snippet';
 
 # MariaDB/MySQL type support
 
-Foundations JDBC supports MariaDB and MySQL data types, including unsigned integers, spatial types, and MySQL-specific features.
+Coverage includes unsigned integers, spatial types, the `SET` and `ENUM` column types, MariaDB's `INET4`/`INET6`/`UUID`/`VECTOR` types, and JSON.
 
 ## Integer types (signed)
 
@@ -22,7 +22,7 @@ Foundations JDBC supports MariaDB and MySQL data types, including unsigned integ
 
 ## Integer types (unsigned)
 
-MariaDB supports unsigned integers, which are wrapped in type-safe unsigned types:
+MariaDB unsigned integers map to dedicated `Uint1`/`Uint2`/`Uint4`/`Uint8` wrapper types:
 
 | MariaDB Type | Java Type | Range |
 |--------------|-----------|-------|

@@ -16,13 +16,13 @@ Read rows from the database. Pass a `RowCodec` with a result mode to control how
 
 ## Updates
 
-Write to the database — INSERT, UPDATE, DELETE, or DDL:
+Write to the database: INSERT, UPDATE, DELETE, or DDL.
 
 <Snippet file="core/OperationUpdates" />
 
 ## Returning rows from updates
 
-`INSERT ... RETURNING` or `UPDATE ... RETURNING` — run a write and read back the affected rows:
+Use `INSERT ... RETURNING` or `UPDATE ... RETURNING` to run a write and read back the affected rows:
 
 <Snippet file="core/OperationReturning" />
 

@@ -19,7 +19,7 @@ Pick the one dependency for your language:
 
 <DependencyTabs java="foundations-jdbc" kotlin="foundations-jdbc-kotlin" scala="foundations-jdbc-scala_3" />
 
-Each module includes everything you need — the Kotlin and Scala modules depend on the core transitively.
+The Kotlin and Scala modules depend on the core transitively, so one dependency is enough.
 
 ## Imports
 
@@ -75,7 +75,7 @@ Use your types and codecs in a plain function to build parameterized queries:
 
 <Snippet file="core/ParameterizedQuery" />
 
-Values are always bound as JDBC parameters — never concatenated into SQL strings.
+Values are always bound as JDBC parameters, never concatenated into SQL strings.
 
 ## Query analysis
 

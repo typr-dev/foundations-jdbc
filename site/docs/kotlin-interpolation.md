@@ -2,9 +2,9 @@
 title: Kotlin String Interpolation
 ---
 
-# Kotlin String Interpolation
+# Kotlin string interpolation
 
-`sql { }` provides type-safe string interpolation for building SQL fragments in Kotlin. Write SQL with Kotlin's native `${}` syntax; every value becomes a prepared statement parameter, never concatenated into the SQL string.
+`sql { }` builds SQL fragments using Kotlin's native `${}` syntax. Every value becomes a prepared statement parameter; nothing user-supplied is concatenated into the SQL string.
 
 ```kotlin
 val frag = sql { "SELECT * FROM users WHERE id = ${PgTypes.int4(userId)}" }
@@ -21,7 +21,7 @@ val userId = 42
 val frag = sql { "SELECT * FROM users WHERE id = ${PgTypes.int4(userId)}" }
 ```
 
-Multiple parameters work naturally:
+Multiple parameters work the same way:
 
 ```kotlin
 val frag = sql {
@@ -46,7 +46,7 @@ val frag = sql { "SELECT 1" }
 
 ## Fragment embedding
 
-Any `Fragment` can be embedded inside `sql { }`. Its SQL is spliced directly into the result. This works because `Fragment.toString()` detects the active `SqlContext` and registers itself for splicing instead of returning rendered SQL.
+Any `Fragment` can be embedded inside `sql { }`. Its SQL is spliced into the result. `Fragment.toString()` detects the active `SqlContext` and registers itself for splicing instead of returning rendered SQL.
 
 Embed a `columnList` from a named row codec:
 
@@ -114,11 +114,11 @@ frag = sql { "$frag ORDER BY created_at DESC" }
 
 ## What not to do
 
-**Do not capture fragment references across threads within a single `sql { }` block.** The ThreadLocal context belongs to the thread running the block. Since the block is not a suspend function, this is not something you can accidentally do; Kotlin prevents it structurally.
+Do not capture fragment references across threads within a single `sql { }` block. The ThreadLocal context belongs to the thread running the block. Since the block is not a suspend function, you cannot accidentally do this; Kotlin prevents it structurally.
 
-**Do not use `sql { }` inside a suspend function where you expect suspension between `${}` expressions.** This is also impossible by design: the block parameter is `() -> String`, not `suspend () -> String`, so the compiler rejects any attempt to call suspending functions inside it.
+Do not use `sql { }` inside a suspend function where you expect suspension between `${}` expressions. The block parameter is `() -> String`, not `suspend () -> String`, so the compiler rejects any attempt to call suspending functions inside it.
 
-**Do not rely on `toString()` for SQL output when a `SqlContext` is active.** Inside `sql { }`, calling `toString()` on a fragment registers it for splicing rather than returning its SQL. This is the intended behavior for embedding, but if you need the rendered SQL for logging inside a `sql { }` block, use `render()` instead.
+Do not rely on `toString()` for SQL output when a `SqlContext` is active. Inside `sql { }`, calling `toString()` on a fragment registers it for splicing rather than returning its SQL. That is the intended behavior for embedding. If you need the rendered SQL for logging inside a `sql { }` block, call `render()` instead.
 
 ## Under the hood
 
@@ -135,17 +135,17 @@ The result is a `Fragment` with proper SQL and correctly bound parameters. No st
 
 ### Why it is safe
 
-**Inline function.** `sql` is declared `inline`, so the block runs on the same thread with no suspension points. The ThreadLocal is set, used, and cleared within a single uninterruptible sequence.
+`sql` is declared `inline`, so the block runs on the same thread with no suspension points. The ThreadLocal is set, used, and cleared within a single uninterruptible sequence.
 
-**Non-suspending block.** The block parameter is `() -> String`, not a suspend function. Kotlin's compiler prevents you from calling suspending functions inside it, which means the thread cannot change between setting and clearing the context.
+The block parameter is `() -> String`, not a suspend function. Kotlin's compiler prevents you from calling suspending functions inside it, so the thread cannot change between setting and clearing the context.
 
-**ThreadLocal isolation.** Each thread gets its own `SqlContext`. Concurrent calls to `sql { }` on different threads never interfere with each other. This has been validated with 1,000 concurrent virtual threads and 1,000 concurrent coroutines, both with and without actual DuckDB query execution.
+Each thread gets its own `SqlContext`. Concurrent calls to `sql { }` on different threads do not interfere with each other. We test this with 1,000 concurrent virtual threads and 1,000 concurrent coroutines, both with and without actual DuckDB query execution.
 
 ### Edge cases
 
-**`Fragment.toString()` outside `sql { }`.**  When there is no active `SqlContext`, `toString()` returns the rendered SQL string with no side effects.
+`Fragment.toString()` outside `sql { }`: when there is no active `SqlContext`, `toString()` returns the rendered SQL string with no side effects.
 
-**Nested `sql { }` calls.** `sql { }` blocks can be nested inline. An inner `sql { }` saves the outer context, creates its own, and restores the outer context when it completes. The inner call produces a `Fragment` whose `toString()` then registers it in the restored outer context:
+Nested `sql { }` calls work inline. An inner `sql { }` saves the outer context, creates its own, and restores the outer when it completes. The inner call produces a `Fragment` whose `toString()` then registers it in the restored outer context:
 
 ```kotlin
 val frag = sql { "SELECT * FROM t WHERE ${sql { "id = ${PgTypes.int4(1)}" }} AND name = ${PgTypes.text("test")}" }
@@ -160,7 +160,7 @@ val outer = sql { "SELECT * FROM t WHERE $inner AND name = ${PgTypes.text("test"
 // Produces: SELECT * FROM t WHERE id = ? AND name = ?
 ```
 
-**Parameters at boundaries.** Parameters at the start or end of the SQL string, or consecutive parameters without intervening text, all work correctly:
+Parameters at the start or end of the SQL string, or consecutive parameters without intervening text, all work:
 
 ```kotlin
 val start = sql { "${PgTypes.int4(1)} + 2" }          // ?::INTEGER + 2

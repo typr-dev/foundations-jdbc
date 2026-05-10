@@ -8,41 +8,41 @@ import Snippet from '@site/src/components/Snippet';
 
 Reading rows from JDBC means calling `rs.getInt(1)`, `rs.getString(2)`, `rs.getTimestamp(3)` -- column by column, in the right order, with the right types. Get any of it wrong and you get a `ClassCastException` at runtime. Add a column to your query and you silently shift every index after it.
 
-A `RowCodec<T>` replaces all of that with a single declaration: list the database types and a constructor, and the codec does the rest. The same codec drives everything the library does with your type:
+A `RowCodec<T>` replaces all of that with a single declaration: list the database types and a constructor, and the codec does the rest. One codec drives everything the library does with your type:
 
-- **Reading** — decodes rows from a `ResultSet` (queries) or a `CallableStatement` (stored procedures)
-- **Writing** — encodes values into a `PreparedStatement` for inserts, updates, and batch operations
-- **Streaming** — feeds rows into the PostgreSQL COPY protocol for [high-throughput inserts](./streaming-inserts)
-- **JSON** — round-trips your type to and from [JSON objects](./json) using column names as keys
-- **Analysis** — [Query Analysis](./query-analysis) inspects the codec's types to verify them against the database schema, including IN/OUT parameters of stored procedures and functions
+- Reading: decodes rows from a `ResultSet` (queries) or a `CallableStatement` (stored procedures).
+- Writing: encodes values into a `PreparedStatement` for inserts, updates, and batch operations.
+- Streaming: feeds rows into the PostgreSQL COPY protocol for [high-throughput inserts](./streaming-inserts).
+- JSON: round-trips your type to and from [JSON objects](./json) using column names as keys.
+- Analysis: [Query Analysis](./query-analysis) inspects the codec's types to verify them against the database schema, including IN/OUT parameters of stored procedures and functions.
 
-You define the mapping once, and it propagates everywhere.
+Define the mapping once, use it everywhere.
 
 Foundations JDBC has two kinds of row codecs:
 
-1. **Named codecs** (`RowCodecNamed`) — track column names, recommended for most use cases. Created via `RowCodec.namedBuilder()`.
-2. **Positional codecs** (`RowCodecUnnamed`) — track only column positions, for quick single/multi-column reads. Created via `RowCodec.of(type)` or `RowCodec.builder()`.
+1. Named codecs (`RowCodecNamed`) track column names. This is the recommended default. Created via `RowCodec.namedBuilder()`.
+2. Positional codecs (`RowCodecUnnamed`) track only column positions, for quick single/multi-column reads. Created via `RowCodec.of(type)` or `RowCodec.builder()`.
 
 ## Named row codecs
 
-A *named* row codec tracks both types and column names. This is the recommended default:
+A *named* row codec tracks both types and column names:
 
 <Snippet file="core/NamedRowCodec" />
 
 :::important Column names are NOT used for reading
-Row codecs **always read by column index**, never by column name. The column names in a named codec exist for **SQL generation** (INSERT statements, column lists), **JSON encoding** (object keys), and **composite types** (field names). They are never passed to `ResultSet.getString("name")`. When the codec reads a row, it calls `rs.getXxx(1)`, `rs.getXxx(2)`, etc. in declaration order.
+Row codecs always read by column index, never by column name. The column names in a named codec exist for SQL generation (INSERT statements, column lists), JSON encoding (object keys), and composite types (field names). They are never passed to `ResultSet.getString("name")`. When the codec reads a row, it calls `rs.getXxx(1)`, `rs.getXxx(2)`, etc. in declaration order.
 
 This is a deliberate design choice that will not change. Index-based reading is the only option because it composes safely: when you join two tables, both may have columns named `id` or `name`. Column-name-based reading would silently return the wrong value. Index-based reading makes composition safe -- each codec reads its own slice of columns in sequence, and name clashes are irrelevant.
 :::
 
 Having names lets you:
 
-- **`columnList()`** — emit column names as a `Fragment` for SELECT clauses, so queries stay in sync with the codec
-- **`columnNames()`** — get column names as a list
-- **`Fragment.insertOne(table, codec, row)` / `insertMany(table, codec, rows)`** — execute INSERT directly from the codec's column metadata
-- **`Fragment.insertOneReturning(table, codec, row)`** — same, with a `RETURNING` clause that parses the inserted row back
-- **`fragment.row(codec, value)`** — emit an object's fields as comma-separated parameters for custom INSERT patterns
-- **`DbJsonRow.jsonObject(codec)`** — build a [JSON object codec](./json) with column names as keys
+- `columnList()` emits column names as a `Fragment` for SELECT clauses, so queries stay in sync with the codec.
+- `columnNames()` returns column names as a list.
+- `Fragment.insertOne(table, codec, row)` / `insertMany(table, codec, rows)` execute INSERT directly from the codec's column metadata.
+- `Fragment.insertOneReturning(table, codec, row)` does the same with a `RETURNING` clause that parses the inserted row back.
+- `fragment.row(codec, value)` emits an object's fields as comma-separated parameters for custom INSERT patterns.
+- `DbJsonRow.jsonObject(codec)` builds a [JSON object codec](./json) with column names as keys.
 
 ## Single-column codec
 
@@ -68,7 +68,7 @@ The result type is `Tuple2<A, B>` in Java (with `._1()` and `._2()` accessors), 
 
 Named codecs have `.join()` and `.leftJoin()` methods that preserve column names, so the combined codec still works with `columnList()`, `Fragment.insertOne()`, and JSON encoding.
 
-The same `Tuple` types appear whenever the library needs to return multiple values without a dedicated record type — `RowCodec.of(type1, type2, ...)` for multi-column ad-hoc queries, `.combine()` for composed operations, and `.join()` for joins all return `TupleN`. Accessors are 1-based: `._1()`, `._2()`, `._3()`, etc.
+The same `Tuple` types appear whenever the library returns multiple values without a dedicated record type. `RowCodec.of(type1, type2, ...)` for multi-column ad-hoc queries, `.combine()` for composed operations, and `.join()` for joins all return `TupleN`. Accessors are 1-based: `._1()`, `._2()`, `._3()`, etc.
 
 ### Disambiguating duplicate column names
 
@@ -95,7 +95,7 @@ sql { "SELECT ${joined.columnList} FROM emp e LEFT JOIN dept d ON e.department =
     .query(joined.all())
 ```
 
-An aliased codec is SELECT-friendly but not INSERT-friendly — use the unaliased codec for `Fragment.insertOne(table, codec, row)`.
+An aliased codec is SELECT-friendly but not INSERT-friendly. Use the unaliased codec for `Fragment.insertOne(table, codec, row)`.
 
 ## Result modes
 
@@ -129,4 +129,4 @@ Use positional codecs when column names aren't needed, such as single-use querie
 
 Each `.field()` takes a `DbType` that models the exact database column type. `DbType<A>` reads a value of type `A` from a ResultSet and writes it to a PreparedStatement. Each supported database has its own set (`PgTypes`, `DuckDbTypes`, `MariaDbTypes`, etc.) with mappings for every type. See [Database Types](./database-types) for the complete catalog.
 
-The builder is fully type-safe: the constructor receives exactly the types you declared, with no casts. Columns are read by index — the order of `.field()` calls must match the column order in your SELECT.
+The builder is type-safe: the constructor receives exactly the types you declared, with no casts. Columns are read by index, so the order of `.field()` calls must match the column order in your SELECT.

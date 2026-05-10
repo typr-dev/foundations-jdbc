@@ -6,7 +6,7 @@ import ThemedImg from '@site/src/components/ThemedImg';
 
 # Error Handling
 
-All execution-level methods (`transact()`, `transactRead()`, `execute()`, `run()`) throw `DatabaseException` -- an **unchecked** exception. You never need `throws` declarations on your method signatures.
+All execution-level methods (`transact()`, `transactRead()`, `execute()`, `run()`) throw `DatabaseException`, which is unchecked. You never need `throws` declarations on your method signatures.
 
 ## Sealed exception hierarchy
 
@@ -104,7 +104,7 @@ When a `ResultSet` value doesn't match the expected type at runtime, the error i
 
 ## Where checked exceptions remain
 
-`SQLException` is still used in **implementation interfaces** -- `SqlFunction`, `DbRead`, `DbWrite`, `ResultSetParser`. These are where your code interacts with JDBC directly. The framework catches `SQLException` at the execution boundary and wraps it in the appropriate `DatabaseException` subtype.
+`SQLException` is still used in implementation interfaces (`SqlFunction`, `DbRead`, `DbWrite`, `ResultSetParser`), where your code interacts with JDBC directly. The framework catches `SQLException` at the execution boundary and wraps it in the appropriate `DatabaseException` subtype.
 
 ## Spring integration
 

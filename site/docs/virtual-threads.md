@@ -2,13 +2,13 @@
 title: Virtual Threads
 ---
 
-# Virtual Threads
+# Virtual threads
 
-foundations-jdbc's blocking API works with virtual threads (JDK 21+) out of the box. Every blocking JDBC call automatically yields its carrier thread when run on a virtual thread. No suspend wrappers, no reactive adapters, no new dependencies.
+foundations-jdbc's blocking API works with virtual threads (JDK 21+) out of the box. Every blocking JDBC call yields its carrier thread when run on a virtual thread. No suspend wrappers, no reactive adapters, no new dependencies.
 
 ## Why virtual threads (not coroutines or reactive)
 
-JDBC is a blocking API. Every `executeQuery()` blocks the calling thread until the database responds. Historically, this meant one platform thread per concurrent database operation — expensive at scale.
+JDBC is a blocking API. Every `executeQuery()` blocks the calling thread until the database responds. Without virtual threads, that means one platform thread per concurrent database operation, which gets expensive at scale.
 
 The usual workarounds each add complexity:
 
@@ -144,7 +144,7 @@ The [HikariCP pool sizing formula](https://github.com/brettwooldridge/HikariCP/w
 
 ### JDK 25 LTS / JDK 24+ (recommended)
 
-[JEP 491](https://openjdk.org/jeps/491) eliminates virtual thread pinning caused by `synchronized` blocks. Delivered in JDK 24 and included in the **Java 25 LTS** release, this fixes pinning in JDBC drivers, connection pools, and any other library code using `synchronized`.
+[JEP 491](https://openjdk.org/jeps/491) eliminates virtual thread pinning caused by `synchronized` blocks. Delivered in JDK 24 and included in the Java 25 LTS release, this fixes pinning in JDBC drivers, connection pools, and any other library code using `synchronized`.
 
 On JDK 24+, HikariCP and all major JDBC drivers work with virtual threads without pinning issues.
 

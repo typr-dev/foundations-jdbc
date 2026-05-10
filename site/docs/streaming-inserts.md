@@ -4,19 +4,19 @@ title: Streaming Inserts
 
 import Snippet from '@site/src/components/Snippet';
 
-# Streaming Inserts
+# Streaming inserts
 
-:::info PostgreSQL Only
-Streaming inserts use PostgreSQL's `COPY FROM STDIN` protocol. This feature is not available for other databases.
+:::info PostgreSQL only
+Streaming inserts use PostgreSQL's `COPY FROM STDIN` protocol. The feature is not available on other databases.
 :::
 
-Streaming inserts use PostgreSQL's COPY protocol to load data much faster than individual INSERT statements. Data is text-encoded in batches and streamed to the server, bypassing prepared-statement overhead.
+Streaming inserts use PostgreSQL's COPY protocol to load data much faster than individual INSERT statements. Rows are text-encoded in batches and streamed to the server, bypassing prepared-statement overhead.
 
-`StreamingInsert.of()` returns an `Operation<Long>` that can be transacted like any other operation. The COPY participates in the current transaction, so it can be composed with other operations atomically.
+`StreamingInsert.of()` returns an `Operation<Long>` that can be transacted like any other operation. The COPY participates in the current transaction, so you can compose it atomically with other operations.
 
 ## Single column
 
-For simple cases, use the `PgText` encoder from the type directly:
+For one-column tables, use the `PgText` encoder from the type directly:
 
 <Snippet file="postgresql/StreamingInsertSingle" />
 
@@ -41,4 +41,4 @@ Most PostgreSQL types support text encoding for COPY. Types that don't (such as 
 
 ## Batch size
 
-The `batchSize` parameter controls how many rows are buffered in memory before flushing to PostgreSQL. A larger batch size means fewer network round-trips but more memory. A value between 1000-10000 is a reasonable starting point.
+The `batchSize` parameter controls how many rows are buffered in memory before flushing to PostgreSQL. A larger batch means fewer network round-trips but more memory. Try a value between 1000 and 10000 as a starting point.
