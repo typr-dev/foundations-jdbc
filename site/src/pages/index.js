@@ -267,7 +267,7 @@ function Hero() {
         </div>
 
         <h1 className={styles.heroTitle}>
-          Your SQL is wrong. You’ll find out in <em>tests</em>, not at 2 AM.
+          Your SQL is wrong. You'll find out in <em>tests</em>, not in production.
         </h1>
 
         <p className={styles.heroTagline}>
@@ -508,7 +508,7 @@ function QueryAnalysisSection() {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        <SectionHeader title={<>Find SQL bugs at <em>test time</em>, not 2 AM</>}>
+        <SectionHeader title={<>Find SQL bugs in <em>tests</em>, not in production</>}>
           <strong>Query Analysis</strong> verifies your SQL against the actual database schema.
           Wrong column type? Missing <code>.opt()</code> on a nullable column? Parameter count mismatch?
           <strong> Catch it in tests, not in production.</strong>
